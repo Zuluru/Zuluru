@@ -1,0 +1,72 @@
+INSTALLATION
+
+* This is a preliminary guide. More advanced examples and recipes
+will be added here later.
+
+Acquire and install the CakePHP framework from http://cakephp.org/
+Zuluru is known to work with version 1.3.6 of CakePHP. There are
+instructions for downloading and installing in various configurations
+at http://book.cakephp.org/view/909/Installation-Preparation and
+http://book.cakephp.org/view/912/Installation
+
+Acquire and install the Zuluru source code. The CakePHP installation
+instructions will assume you're putting your application (i.e. Zuluru)
+in the app folder, but that can cause problems when updating to a newer
+version of CakePHP. Instead, it is recommended that you put Zuluru in a
+folder called zuluru, next to the app folder. The remaining directions
+will assume this is where you've put it. Adjust the steps you take when
+installing CakePHP for this.
+
+If Zuluru is your primary application (e.g. you have only Zuluru and
+some HTML files), Zuluru will be at http://www.example.com/ If Zuluru
+is co-existing with some kind of content management system, a more
+common URL would be http://www.example.com/zuluru/ Whatever is right
+for your setup, we'll refer to this as <ZULURU> below.
+
+At this point, you should (hopefully) be able to point your browser at
+the Zuluru install, <ZULURU>/install. This will ask for information
+about your database, and some other information about your site. The
+database must have been created ahead of time, though it can be empty.
+
+The install process will create all of Zuluru's database tables and
+insert default starting information where required, as well as creating
+the database.php and install.php files in zuluru/config. Once this
+process is done, you shouldn't need to touch those files, but you can
+always make changes manually as required.
+
+Once installation is completed and the database has been populated, log
+in with the administrative user name and password provided, and go
+through the various pages under the Settings menu to finalize your site
+configuration.
+
+LEAGUERUNNER CONVERSION
+
+Sometime soon, the install procedure will be enhanced to detect an
+existing Leaguerunner database and attempt to convert it to the Zuluru
+format. Further details will be added here when that work is complete.
+In the meantime, you can contact admin@zuluru.org for assistance with
+a manual conversion.
+
+UPDATES
+
+When updates to Zuluru are released, there may also be changes to the
+database required. After updating the code, go to <ZULURU>/update and
+Zuluru will take care of these changes for you.
+
+DEBUGGING
+
+If you get blank pages or generic error messages, try changing the
+debug level in zuluru/config/core.php from 0 to 1 or 2. This should
+give you details on what's going wrong. Looking at your server's error
+logs may also provide some help.
+
+CUSTOMIZATION
+
+You can customize the look of any part of the system using CakePHP's
+"theming" functionality. See README.themes for more details.
+
+ADMINISTRATION
+
+For help on setting up fields, leagues, registration events, and the
+other details required for day-to-day use of the system, see the help
+in the application.

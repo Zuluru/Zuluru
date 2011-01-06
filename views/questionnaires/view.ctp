@@ -1,0 +1,59 @@
+<?php
+$this->Html->addCrumb (__('Questionnaire', true));
+$this->Html->addCrumb ($questionnaire['Questionnaire']['name']);
+$this->Html->addCrumb (__('View', true));
+?>
+
+<div class="questionnaires view">
+<h2><?php  echo __('View Questionnaire', true) . ': ' . $questionnaire['Questionnaire']['name'];?></h2>
+<?php echo $this->Form->create (false, array('url' => $this->here)); ?>
+	<fieldset><legend><?php __('Questionnaire Preview'); ?></legend>
+<?php echo $this->element('/questionnaire/input', array('questionnaire' => $questionnaire)); ?>
+	</fieldset>
+<?php echo $this->Form->end(); ?>
+</div>
+
+<div class="actions">
+	<h3><?php __('Actions'); ?></h3>
+	<ul>
+		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Questionnaire', true)), array('action' => 'edit', 'questionnaire' => $questionnaire['Questionnaire']['id'])); ?> </li>
+		<li><?php echo $this->Html->link(sprintf(__('Delete %s', true), __('Questionnaire', true)), array('action' => 'delete', 'questionnaire' => $questionnaire['Questionnaire']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $questionnaire['Questionnaire']['id'])); ?> </li>
+		<li><?php echo $this->Html->link(sprintf(__('List %s', true), __('Questionnaires', true)), array('action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(sprintf(__('New %s', true), __('Questionnaire', true)), array('action' => 'add')); ?> </li>
+	</ul>
+</div>
+<div class="related">
+	<h3><?php printf(__('Related %s', true), __('Events', true));?></h3>
+	<?php if (!empty($questionnaire['Event'])):?>
+	<table cellpadding = "0" cellspacing = "0">
+	<tr>
+		<th><?php __('Name'); ?></th>
+		<th><?php __('Open'); ?></th>
+		<th><?php __('Close'); ?></th>
+		<th><?php __('Anonymous'); ?></th>
+		<th class="actions"><?php __('Actions');?></th>
+	</tr>
+	<?php
+		$i = 0;
+		foreach ($questionnaire['Event'] as $event):
+			$class = null;
+			if ($i++ % 2 == 0) {
+				$class = ' class="altrow"';
+			}
+		?>
+		<tr<?php echo $class;?>>
+			<td><?php echo $this->Html->link ($event['name'], array('controller' => 'events', 'action' => 'view', 'event' => $event['id']));?></td>
+			<td><?php echo $this->ZuluruTime->fulldatetime ($event['open']);?></td>
+			<td><?php echo $this->ZuluruTime->fulldatetime ($event['close']);?></td>
+			<td><?php __($event['anonymous'] ? 'Yes' : 'No');?></td>
+			<td class="actions">
+				<?php echo $this->Html->link(__('View', true), array('controller' => 'events', 'action' => 'view', 'event' => $event['id'])); ?>
+				<?php echo $this->Html->link(__('Edit', true), array('controller' => 'events', 'action' => 'edit', 'event' => $event['id'])); ?>
+				<?php echo $this->Html->link(__('Delete', true), array('controller' => 'events', 'action' => 'delete', 'event' => $event['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $event['id'])); ?>
+			</td>
+		</tr>
+	<?php endforeach; ?>
+	</table>
+<?php endif; ?>
+
+</div>

@@ -1,0 +1,223 @@
+/*
+General styles for Zuluru. This file should be loaded before site-specific
+styles which may override anything from here via cascading.
+
+Almost everything here has div#zuluru on the beginning.  This is because we
+don't want styles on general elements (e.g. fieldset, td, etc.) to change the look
+of the rest of the site, just the Zuluru parts.  But because of the cascade
+rules, things with IDs are seen as being more specific than general classes.  Thus,
+even where we are really only defining a class that will be used internally (e.g.
+.error-message), we need to make it more specific by putting div#Zuluru on
+the beginning of the definition.
+*/
+
+div#zuluru
+{
+	font-size: 70%;
+}
+
+div#zuluru input, div#zuluru textarea, div#zuluru select, div#zuluru option
+{
+	font-size: 100%;
+}
+
+div#zuluru h1, div#zuluru h2, div#zuluru h3
+{
+	margin-top: 0;
+	padding-top: 0;
+	color: #336699;
+}
+
+div#zuluru fieldset
+{
+	margin-top: 0;
+}
+
+div#zuluru fieldset legend
+{
+	color: #336699;
+}
+
+div#zuluru label
+{
+	color: #336699;
+	font-size: 90%;
+}
+
+div#zuluru div.input p
+{
+	font-weight: normal;
+	margin: 0;
+	font-size: 80%;
+}
+
+div#zuluru div.input div.error-message
+{
+	font-weight: normal;
+	margin: 0;
+	padding: 0;
+}
+
+div#zuluru ol
+{
+	padding-left: 1em;
+}
+
+div#zuluru td
+{
+	border: 0;
+	text-align: left;
+}
+
+div#zuluru div.crumbs
+{
+	background-color: lightgray;
+	padding-left: 0.25em;
+}
+
+div#content, div.splash
+{
+	margin-top: 0;
+	padding: 0;
+}
+
+div#zuluru table
+{
+	border:1px solid #ccc;
+}
+
+div#zuluru table tr td
+{
+	padding: 4px;
+}
+
+div#zuluru div.splash table,
+div#zuluru div.form table,
+div#zuluru div.fields table,
+div#zuluru div.events table
+{
+	border: 0;
+	border-collapse: collapse;
+}
+
+div#zuluru div.splash th
+{
+	border-right: 0;
+	text-align: left;
+}
+
+div#zuluru th.splash_action, div#zuluru td.splash_action
+{
+	text-align: right;
+}
+
+div#zuluru div#content table div.actions
+{
+	float: right;
+	margin: 0;
+}
+
+div#zuluru div#content table div.actions li {
+	padding-top: 0;
+	padding-bottom: 0;
+	margin-bottom: 0;
+}
+
+div#zuluru div#content div.splash table li {
+	padding-top: 2px;
+	padding-bottom: 2px;
+	margin-bottom: 0;
+}
+
+div#zuluru table.container, div#zuluru table.container td
+{
+	border: 0;
+}
+
+div#zuluru div.radio
+{
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+
+div#zuluru .error-message
+{
+	color: red;
+}
+
+div.index th a, div.index th a:visited
+{
+	color: #336699;
+}
+
+div#zuluru .center
+{
+	text-align: center;
+}
+
+div#zuluru .team_highlight
+{
+	font-weight: bold;
+}
+
+div#zuluru tr.tier_highlight td
+{
+	background-color: #afffaf;
+}
+
+div#zuluru tr.tier_alt_highlight td
+{
+	background-color: #cfffcf;
+}
+
+div#zuluru tr.unpublished td
+{
+	background-color: yellow;
+}
+
+fieldset.wide_labels dd
+{
+	margin-left: 20em;
+}
+
+.winning
+{
+	background-color: #dfd !important;
+}
+
+.losing
+{
+	background-color: #fdd !important;
+}
+
+.free
+{
+	color: #00cc00;
+}
+
+.sponsor
+{
+	margin: 1em 0;
+}
+
+.content
+{
+	text-align: left;
+}
+
+.sidebar-left
+{
+	width: 10em;
+	text-align: left;
+}
+
+img.thumbnail
+{
+	margin: 0 5px;
+	border: 1px solid black;
+}
+
+div.view img.thumbnail
+{
+	float: right;
+}

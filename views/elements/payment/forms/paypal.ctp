@@ -1,0 +1,1 @@
+<p>Paypal payment form is not yet implemented.</p>

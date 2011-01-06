@@ -1,0 +1,75 @@
+<?php echo $this->Html->doctype('xhtml-trans'); ?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<?php echo $this->Html->charset(); ?>
+	<title>
+		<?php
+		$crumbs = $this->Html->getCrumbs(' &raquo; ');
+		if (!empty ($crumbs))
+			echo $crumbs . ' : ';
+		echo Configure::read('site.name') . ' : ' .
+			Configure::read('organization.name');
+		?>
+	</title>
+	<?php
+		echo $this->Html->meta('icon');
+
+		echo $this->ZuluruHtml->css(array (
+				'ui-lightness/jquery-ui-1.8.1.custom',
+				'cake.generic',
+				'zuluru',
+				'jquery.autocomplete',
+				'cssplay_flyout_ltr',
+		));
+		$css = Configure::read('additional_css');
+		if (!empty ($css)) {
+			// These files are assumed to come from the normal location, not the Zuluru location.
+			// A complete path can always be given, if required.
+			echo $this->Html->css($css);
+		}
+
+		if (isset ($this->Js)) {
+			echo $this->ZuluruHtml->script(array(
+					'jquery-1.4.2.min.js',
+					'jquery-ui-1.8.1.custom.min.js',
+					//'http://jquery-ui.googlecode.com/svn/tags/latest/external/jquery.bgiframe-2.1.1.js',
+					//'http://cdn.jquerytools.org/1.1.2/full/jquery.tools.min.js',
+			));
+		}
+		echo $scripts_for_layout;
+	?>
+</head>
+<body>
+<?php echo $this->element('layout/header'); ?>
+	<div id="zuluru">
+		<div class="crumbs">
+			<?php echo $this->Html->getCrumbs(' &raquo; '); ?>
+
+		</div>
+		<table class="container"><tr>
+		<td class="sidebar-left">
+			<?php echo $this->element("menu/$menu_element", array('menu_items' => $menu_items)); ?>
+
+		</td>
+		<td class="content">
+		<div id="content">
+			<?php
+				echo $this->Session->flash('auth');
+				echo $this->Session->flash('email');
+				echo $this->Session->flash();
+				echo $content_for_layout;
+			?>
+
+		</div>
+		</td>
+		</tr></table>
+		<hr noshade="noshade" />
+		<p><i>Powered by <a href="http://zuluru.org/">Zuluru</a>, version 1.0 | <?php
+		$body = htmlspecialchars ("I found a bug in http://{$_SERVER['HTTP_HOST']}{$this->here}");
+		echo $this->Html->link('Report a bug', "mailto:admin@zuluru.org?subject=Zuluru%20Bug&body=$body") . ' on this page.';
+		?></i></p>
+	</div>
+	<?php if (isset ($this->Js)) echo $this->Js->writeBuffer(); ?>
+	<?php echo $this->element('sql_dump'); ?>
+</body>
+</html>

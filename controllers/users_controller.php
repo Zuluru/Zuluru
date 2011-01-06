@@ -1,0 +1,230 @@
+<?php
+class UsersController extends AppController {
+
+	var $name = 'Users';
+	var $uses = array('User', 'Group');
+
+	function isAuthorized() {
+		// People can perform these operations on their own account
+		if (in_array ($this->params['action'], array(
+				'change_password',
+		)))
+		{
+			// If a player id is specified, check if it's the logged-in user
+			// If no player id is specified, it's always the logged-in user
+			$person = $this->_arg('person');
+			if (!$person || $person == $this->Auth->user('id')) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+ 
+	/**
+	 *  Code inside this function will execute only when autoRedirect was set to false
+	 * (i.e. in a beforeFilter).
+	 */
+	function login() {
+		$user = $this->Auth->user();
+		$auth =& $this->Auth->authenticate;
+		if ($user) {
+			// For third-party authentication systems, we may need to merge changes in the
+			// main record into the Zuluru data.
+			if (method_exists ($auth, 'merge_user_record')) {
+				$auth->merge_user_record($user);
+			}
+
+			if (!empty($this->data[$auth->alias]['remember_me'])) {
+				unset($this->data[$auth->alias]['remember_me']);
+				$this->Cookie->write('Auth.User', $this->data[$auth->alias], true, '+1 year');
+			}
+
+			$this->redirect($this->Auth->redirect());
+		}
+
+		$this->set('failed', !empty($this->data));
+
+		// Set some variables the login page needs to properly render the form
+		$this->set ('model', $auth->alias);
+		$this->set ('user_field', $auth->userField);
+		$this->set ('pwd_field', $auth->pwdField);
+	}
+
+	function logout() {
+		if ($this->Cookie->read('Auth.User')) {
+			$this->Cookie->delete('Auth.User');
+		}
+		$this->Session->delete('Zuluru');
+		$this->redirect($this->Auth->logout());
+	}
+
+	function create_account() {
+		if (!Configure::read('feature.manage_accounts')) {
+			$this->Session->setFlash (__('This system uses ' . Configure::read('feature.manage_name') . ' to manage user accounts. Account creation through Zuluru is disabled.', true));
+			$this->redirect('/');
+		}
+
+		if (!$this->is_admin && $this->Auth->user('id')) {
+			$this->Session->setFlash(__('You are already logged in!', true));
+			$this->redirect('/');
+		}
+
+		$this->_loadAddressOptions();
+		$this->_loadGroupOptions();
+
+		if (!empty($this->data)) {
+			$this->User->create();
+			$this->data['User']['complete'] = true;
+			$this->data['User']['group_id'] = 1;	// TODO: Assumed this is the Player group
+			if ($this->User->save($this->data)) {
+				$this->Session->setFlash(__('Your account has been saved. It must be approved by an administrator before you will have full access to the site. However, you can log in and start exploring right away.', true));
+				// TODO: Automatically log the user in
+				$this->redirect(array('action' => 'login'));
+			} else {
+				$this->Session->setFlash(__('Your account could not be saved. Please correct the errors below and try again.', true));
+			}
+		}
+	}
+
+	function change_password() {
+		if (!Configure::read('feature.manage_accounts')) {
+			$this->Session->setFlash (__('This system uses ' . Configure::read('feature.manage_name') . ' to manage user accounts. Changing your password through Zuluru is disabled.', true));
+			$this->redirect('/');
+		}
+
+		$id = $this->_arg('user');
+		if (!$id) {
+			$id = $this->Auth->user('id');
+		}
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), 'user'));
+			$this->redirect('/');
+		}
+
+		// Read this before trying to save, so that things like the current password are
+		// available for validation
+		$user = $this->User->read(null, $id);
+
+		if (!empty($this->data)) {
+			if ($this->User->save($this->data)) {
+				$this->Session->setFlash(__('The password has been updated', true));
+				$this->redirect('/');
+			} else {
+				$this->Session->setFlash(__('The password could not be updated. Please, try again.', true));
+			}
+		} else {
+			$this->data = $user;
+		}
+		$this->set(compact('user'));
+		$this->set('is_me', ($this->Auth->user('id') == $id));
+	}
+
+	function reset_password($id = null, $code = null) {
+		if (!Configure::read('feature.manage_accounts')) {
+			$this->Session->setFlash (__('This system uses ' . Configure::read('feature.manage_name') . ' to manage user accounts. Changing your password through Zuluru is disabled.', true));
+			$this->redirect('/');
+		}
+
+		if ($this->Auth->user('id') !== null) {
+			$this->Session->setFlash (__('You are already logged in. Use the change password form instead.', true));
+			$this->redirect(array('action' => 'change_password'));
+		}
+
+		if ($code !== null) {
+			// Look up the provided code
+			$this->User->recursive = -1;
+			$matches = $this->User->read (null, $id);
+			if (empty ($matches) || substr ($matches['User']['password'], -8) != $code) {
+				$this->Session->setFlash(__('The provided code is not valid!', true));
+			} else {
+				if ($this->_email_new_password($matches['User'])) {
+					$this->Session->setFlash(__('Your new password has been emailed to you.', true));
+					$this->redirect('/');
+				} else {
+					$this->Session->setFlash(__('There was an error emailing your new password to you, please try again. If you have continued problems, please contact the office.', true));
+				}
+			}
+		} else {
+			if (!empty ($this->data)) {
+				// Remove any empty fields
+				foreach ($this->data['User'] as $field => $value) {
+					if (empty ($value)) {
+						unset ($this->data['User'][$field]);
+					}
+				}
+				if (!empty ($this->data['User'])) {
+					// Find the user and send the email
+					$this->User->recursive = -1;
+					$matches = $this->User->find ('all', array(
+							'conditions' => $this->data['User'],
+							'fields' => array('id', 'user_name', 'first_name', 'last_name', 'password', 'email'),
+					));
+					switch (count($matches)) {
+						case 0:
+							$this->Session->setFlash(__('No matching accounts were found!', true));
+							break;
+
+						case 1:
+							if ($this->_email_reset_code($matches[0]['User'])) {
+								$this->Session->setFlash(__('Your reset code has been emailed to you.', true));
+								$this->redirect('/');
+							} else {
+								$this->Session->setFlash(__('There was an error emailing the reset code to you, please try again. If you have continued problems, please contact the office.', true));
+							}
+							break;
+
+						default:
+							$this->Session->setFlash(__('Multiple matching accounts were found for this email address; you will need to specify the user name.', true));
+							break;
+					}
+				}
+			}
+		}
+	}
+
+	function _email_reset_code($user) {
+		$this->set ($user);
+		$this->set ('code', substr ($user['password'], -8));
+		return $this->_sendMail (array (
+				'to' => $user['email_formatted'],
+				'subject' => 'Password reset code',
+				'template' => 'password_reset',
+				'sendAs' => 'both',
+		));
+	}
+
+	function _email_new_password($user) {
+		$this->User->id = $user['id'];
+		$password = $this->_password(10);
+		$hashed = $this->Auth->authenticate->hashPasswords (array(
+				$this->Auth->authenticate->alias => array(
+						$this->Auth->authenticate->userField => true,
+						$this->Auth->authenticate->pwdField => $password,
+				)
+		));
+		if ($this->User->saveField('password', $hashed[$this->Auth->authenticate->alias][$this->Auth->authenticate->pwdField])) {
+			$this->set ($user);
+			$this->set (compact('password'));
+			return $this->_sendMail (array (
+					'to' => $user['email_formatted'],
+					'subject' => 'New password',
+					'template' => 'password_new',
+					'sendAs' => 'both',
+			));
+		}
+		return false;
+	}
+
+	function _password($length) {
+		$characters = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+		$string_length = strlen($characters) - 1;
+		$string = '';
+
+		for ($p = 0; $p < $length; $p++) {
+			$string .= $characters[mt_rand(0, $string_length)];
+		}
+		return $string;
+	}
+}
+?>
