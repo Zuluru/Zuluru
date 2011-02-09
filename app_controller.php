@@ -298,7 +298,7 @@ class AppController extends Controller {
 			if (Configure::read('feature.manage_accounts')) {
 				$this->_addMenuItem ('Change password', array('controller' => 'users', 'action' => 'change_password'), 'My Profile');
 			}
-			//$this->_addMenuItem ('Upload photo', array('controller' => 'people', 'action' => 'photo'), 'My Profile');
+			$this->_addMenuItem ('Upload photo', array('controller' => 'people', 'action' => 'photo_upload'), 'My Profile');
 		}
 
 		if (Configure::read('feature.registration')) {

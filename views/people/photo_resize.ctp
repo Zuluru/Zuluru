@@ -11,10 +11,11 @@ $this->Html->addCrumb (__('Resize Photo', true));
 $this->ZuluruHtml->css('imgareaselect-default', null, array('inline' => false));
 $this->ZuluruHtml->script('jquery.imgareaselect.pack', array('inline' => false));
 
-echo $this->Form->create(false, array('action' => 'photo', 'enctype' => 'multipart/form-data'));
+echo $this->Form->create(false, array('action' => 'photo_resize', 'enctype' => 'multipart/form-data'));
 
 echo $this->CropImage->createJavaScript($uploaded['imageWidth'], $uploaded['imageHeight'], $size, $size);
-echo $this->CropImage->createForm($uploaded['imagePath'], $size, $size); 
+$temp_dir = Configure::read('urls.league_base') . '/temp/';
+echo $this->CropImage->createForm($temp_dir, $uploaded['imageName'], $size, $size);
 
 echo $this->Form->submit('Done', array('id' => 'save_thumb'));
 ?>

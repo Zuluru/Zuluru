@@ -219,5 +219,45 @@ $this->Html->addCrumb (__('Email', true));
 	));
 	?>
 	</fieldset>
+
+	<fieldset>
+ 		<legend><?php __('Photo Uploads'); ?></legend>
+	<?php
+	echo $this->element ('setting/input', array(
+		'category' => 'email',
+		'name' => 'photo_approved_subject',
+		'options' => array(
+			'label' => 'Subject of photo approval e-mail',
+			'after' => 'Customize the subject of your photo approval mail, sent to a user whose photo has been approved. Available variables are: %site, %fullname, %adminname.',
+		),
+	));
+	echo $this->element ('setting/input', array(
+		'category' => 'email',
+		'name' => 'photo_approved_body',
+		'options' => array(
+			'type' => 'textarea',
+			'label' => 'Body of photo approval e-mail',
+			'after' => 'Customize the body of your photo approval e-mail, sent to a user whose photo has been approved. Available variables are: %site, %fullname, %adminname.',
+		),
+	));
+	echo $this->element ('setting/input', array(
+		'category' => 'email',
+		'name' => 'photo_deleted_subject',
+		'options' => array(
+			'label' => 'Subject of photo deletion e-mail',
+			'after' => 'Customize the subject of your photo deleted mail, sent to a user whose photo has been deleted. Available variables are: %site, %fullname, %adminname.',
+		),
+	));
+	echo $this->element ('setting/input', array(
+		'category' => 'email',
+		'name' => 'photo_deleted_body',
+		'options' => array(
+			'type' => 'textarea',
+			'label' => 'Body of photo deletion e-mail',
+			'after' => 'Customize the body of your photo deleted e-mail, sent to a user whose photo has been deleted. Available variables are: %site, %fullname, %adminname.',
+		),
+	));
+	?>
+	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>

@@ -20,6 +20,7 @@ class PeopleController extends AppController {
 				'view_waiver',
 				'search',
 				'teams',
+				'photo',
 		)))
 		{
 			return true;
@@ -29,7 +30,8 @@ class PeopleController extends AppController {
 		if (in_array ($this->params['action'], array(
 				'edit',
 				'preferences',
-				'photo',
+				'photo_upload',
+				'photo_resize',
 				'registrations',
 		)))
 		{
@@ -260,49 +262,73 @@ class PeopleController extends AppController {
 	}
 
 	function photo() {
-		$person = $this->Auth->user();
-		$person = $person[$this->Auth->userModel];
+		$file_dir = Configure::read('folders.uploads');
+		$photo = $this->Person->Upload->find('first', array(
+				'contain' => array(),
+				'conditions' => array(
+					'other_id' => $this->_arg('person'),
+					'type' => 'person',
+				),
+		));
+		if (!empty ($photo)) {
+			$this->layout = 'file';
+			$file = file_get_contents($file_dir . DS . $photo['Upload']['filename']);
+			$type = 'image/jpeg';
+			$this->set(compact('file', 'type'));
+		}
+	}
+
+	function photo_upload() {
+		$person = $this->_findSessionData('Person', $this->Person);
 		$size = 150;
-		$upload_dir = Configure::read('urls.uploads');
 		$this->set(compact('person', 'size'));
 
-		if (empty ($this->data)) {
-			// First time load
-			$this->render('photo_upload');
-		} else if (array_key_exists ('image', $this->data)) {
+		if (!empty ($this->data) && array_key_exists ('image', $this->data)) {
 			if (empty ($this->data['image']) ||
 				empty ($this->data['image']['name']) ||
 				$this->data['image']['error'] != 0 ||
 				strpos ($this->data['image']['type'], 'image/') === false)
 			{
 				$this->Session->setFlash(__('You must select a photo to upload', true));
-				$this->render('photo_upload');
 				return;
 			}
 
 			// Image was uploaded, ask user to crop it
+			$temp_dir = Configure::read('folders.league_base') . DS . 'temp';
 			$rand = mt_rand();
-			$uploaded = $this->ImageCrop->uploadImage($this->data['image'], $upload_dir, "temp_{$person['id']}_$rand");
+			$uploaded = $this->ImageCrop->uploadImage($this->data['image'], $temp_dir, "temp_{$person['id']}_$rand");
 			$this->set(compact('uploaded'));
 			if (!$uploaded) {
 				$this->Session->setFlash(__('Unexpected error uploading the file', true));
-				$this->render('photo_upload');
 			} else {
 				$this->render('photo_resize');
 			}
-		} else {
+		}
+	}
+
+	function photo_resize() {
+		if (!empty ($this->data)) {
+			$person = $this->_findSessionData('Person', $this->Person);
+			$size = 150;
+			$this->set(compact('person', 'size'));
+			$temp_dir = Configure::read('folders.league_base') . DS . 'temp';
+			$file_dir = Configure::read('folders.uploads');
+
 			// Crop and resize the image
 			$image = $this->ImageCrop->cropImage($size,
 					$this->data['x1'], $this->data['y1'],
 					$this->data['x2'], $this->data['y2'],
 					$this->data['w'], $this->data['h'],
-					$upload_dir . DS . $person['id'],
-					$this->data['imagePath']);
+					$file_dir . DS . $person['id'] . '.jpg',
+					$temp_dir . DS . $this->data['imageName']);
 			if ($image) {
 				// Check if we're overwriting an existing photo.
 				$photo = $this->Person->Upload->find('first', array(
 						'contain' => array(),
-						'conditions' => array('other_id' => $person['id']),
+						'conditions' => array(
+							'other_id' => $person['id'],
+							'type' => 'person',
+						),
 				));
 				if (empty ($photo)) {
 					$this->Person->Upload->save(array(
@@ -342,6 +368,22 @@ class PeopleController extends AppController {
 		$this->Person->Upload->id = $id;
 		$success = $this->Person->Upload->saveField ('approved', true);
 		$this->set(compact('success'));
+
+		$person = $this->Person->Upload->read (null, $id);
+		$variables = array(
+			'%fullname' => $person['Person']['full_name'],
+		);
+
+		if (!$this->_sendMail (array (
+				'to' => $person,
+				'config_subject' => 'photo_approved_subject',
+				'config_body' => "photo_approved_body",
+				'variables' => $variables,
+				'sendAs' => 'text',
+		)))
+		{
+			$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['Person']['email']));
+		}
 	}
 
 	function delete_photo() {
@@ -357,11 +399,26 @@ class PeopleController extends AppController {
 		} else {
 			$success = $this->Person->Upload->delete ($id);
 			if ($success) {
-				$upload_dir = Configure::read('urls.uploads');
-				unlink(WWW_ROOT . $upload_dir . DS . $photo['Upload']['filename']);
+				$file_dir = Configure::read('folders.uploads');
+				unlink($file_dir . DS . $photo['Upload']['filename']);
 			}
 		}
 		$this->set(compact('success'));
+
+		$variables = array(
+			'%fullname' => $photo['Person']['full_name'],
+		);
+
+		if (!$this->_sendMail (array (
+				'to' => $photo,
+				'config_subject' => 'photo_deleted_subject',
+				'config_body' => "photo_deleted_body",
+				'variables' => $variables,
+				'sendAs' => 'text',
+		)))
+		{
+			$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $photo['Person']['email']));
+		}
 	}
 
 	function sign_waiver() {

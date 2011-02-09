@@ -45,16 +45,16 @@ class CropImageHelper extends Helper {
 		</script>");
 	}
 
-	function createForm($imagePath, $tH, $tW){
+	function createForm($tempDir, $imageName, $tH, $tW){
 		$x1 = $this->Form->hidden('x1', array('value' => '', 'id' => 'x1'));
 		$y1 = $this->Form->hidden('y1', array('value' => '', 'id' => 'y1'));
 		$x2 = $this->Form->hidden('x2', array('value' => '', 'id' => 'x2',));
 		$y2 = $this->Form->hidden('y2', array('value' => '', 'id' => 'y2'));
 		$w = $this->Form->hidden('w', array('value' => '', 'id' => 'w'));
 		$h = $this->Form->hidden('h', array('value' => '', 'id' => 'h'));
-		$imgP = $this->Form->hidden('imagePath', array('value' => $imagePath));
-		$imgTum = $this->Html->image($imagePath, array('style' => 'float: left; margin: 10px;', 'id' => 'thumbnail', 'alt' => 'Create Thumbnail'));
-		$imgTumPrev = $this->Html->image($imagePath, array('style' => 'position:relative;', 'id' => 'thumbnail', 'alt' => 'Thumbnail Preview'));
+		$imgP = $this->Form->hidden('imageName', array('value' => $imageName));
+		$imgTum = $this->Html->image($tempDir . $imageName, array('style' => 'float: left; margin: 10px;', 'id' => 'thumbnail', 'alt' => 'Create Thumbnail'));
+		$imgTumPrev = $this->Html->image($tempDir . $imageName, array('style' => 'position:relative;', 'id' => 'thumbnail', 'alt' => 'Thumbnail Preview'));
 		return $this->output($imgTum .
 				$this->Html->tag('div', $imgTumPrev, array('style' => "position:relative; overflow:hidden; width:{$tW}px; height:{$tH}px;")) .
 				"<br style=\"clear:both;\"/>$x1 $y1 $x2 $y2 $w $h $imgP");
