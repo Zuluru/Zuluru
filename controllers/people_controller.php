@@ -203,10 +203,19 @@ class PeopleController extends AppController {
 			$this->data['Person']['complete'] = true;
 			if ($this->Person->save($this->data)) {
 				$this->Session->setFlash(__('The person has been saved', true));
+
+				// There may be callbacks to handle
+				$components = Configure::read('callbacks.user');
+				foreach ($components as $name => $config) {
+					$component = $this->_getComponent('User', $name, $this, false, $config);
+					$component->onEdit($this->data['Person']);
+				}
+
 				if ($this->data['Person']['id'] == $my_id) {
 					// Delete the session data, so it's reloaded next time it's needed
 					$this->Session->delete('Zuluru.Person');
 				}
+
 				$this->redirect('/');
 			} else {
 				$this->Session->setFlash(__('The person could not be saved. Please correct the errors below and try again.', true));

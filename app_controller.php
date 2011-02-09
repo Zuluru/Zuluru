@@ -600,7 +600,7 @@ class AppController extends Controller {
 	 *					  objects are not created unnecessarily.
 	 *
 	 */
-	static function &_getComponent ($type, $specific = '', &$controller = null, $unique = false) {
+	static function &_getComponent ($type, $specific = '', &$controller = null, $unique = false, $config = null) {
 		static $component_cache = array();
 
 		if (!array_key_exists ($type, $component_cache)) {
@@ -633,6 +633,10 @@ class AppController extends Controller {
 			if ($component_cache[$type][$specific]->_controller === null) {
 				$component_cache[$type][$specific]->_controller =& $controller;
 			}
+		}
+
+		if ($config) {
+			$component_cache[$type][$specific]->configure ($config);
 		}
 
 		return $component_cache[$type][$specific];

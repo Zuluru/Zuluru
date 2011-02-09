@@ -79,7 +79,17 @@ class UsersController extends AppController {
 			$this->data['User']['group_id'] = 1;	// TODO: Assumed this is the Player group
 			if ($this->User->save($this->data)) {
 				$this->Session->setFlash(__('Your account has been saved. It must be approved by an administrator before you will have full access to the site. However, you can log in and start exploring right away.', true));
-				// TODO: Automatically log the user in
+
+				// There may be callbacks to handle
+				// TODO: How to handle this in conjunction with third-party auth systems?
+				$this->data['User']['id'] = $this->User->id;
+				$components = Configure::read('callbacks.user');
+				foreach ($components as $name => $config) {
+					$component = $this->_getComponent('User', $name, $this, false, $config);
+					$component->onAdd($this->data['User']);
+				}
+
+				// TODO: Automatically log the user in by writing to the session?
 				$this->redirect(array('action' => 'login'));
 			} else {
 				$this->Session->setFlash(__('Your account could not be saved. Please correct the errors below and try again.', true));
