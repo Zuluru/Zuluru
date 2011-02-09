@@ -31,7 +31,7 @@ $short = Configure::read('organization.short_name');
  		<legend><?php __('Password'); ?></legend>
 	<?php
 		echo $this->Form->input('passwd', array('type' => 'password', 'label' => 'Password'));
-		echo $this->Form->input('confirm_passwd', array('type' => 'password', 'label' => 'Conform Password'));
+		echo $this->Form->input('confirm_passwd', array('type' => 'password', 'label' => 'Confirm Password'));
 	?>
 	</fieldset>
 	<fieldset>
