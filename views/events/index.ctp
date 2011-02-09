@@ -5,7 +5,12 @@ $this->Html->addCrumb (__('List', true));
 
 <div class="events index">
 <h2><?php __('Registration Events List');?></h2>
-<?php echo $this->element('registration/notice'); ?>
+<?php
+echo $this->element('registration/notice');
+if (!$is_logged_in) {
+	echo $this->element('event/not_logged_in');
+}
+?>
 
 <table>
 <tr>
