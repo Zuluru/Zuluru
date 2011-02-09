@@ -174,7 +174,9 @@ class PeopleController extends AppController {
 		$this->set('is_my_captain', false);
 		$positions = Configure::read('privileged_roster_positions');
 		foreach ($person['Team'] as $team) {
-			if (in_array ($team['TeamsPerson']['status'], $positions)) {
+			if (in_array ($team['TeamsPerson']['status'], $positions) &&
+				in_array ($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs'))
+			) {
 				$this->set('is_my_captain', true);
 				break;
 			}
