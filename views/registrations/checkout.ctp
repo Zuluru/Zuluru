@@ -50,11 +50,11 @@ if (!empty($registrations)):
 		<th></th>
 		<th><?php __('Total'); ?>:</th>
 		<th><?php echo $this->Number->currency ($total); ?></th>
-		<th><div class="actions"><ul><li><?php
+		<th class="actions"><?php
 		if (Configure::read ('registration.online_payments')) {
 			echo $this->element ('payment/forms/' . Configure::read('payment.payment_implementation'));
 		}
-		?></li></ul></div></th>
+		?></th>
 	</tr>
 </table>
 <?php endif; ?>

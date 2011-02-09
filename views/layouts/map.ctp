@@ -16,9 +16,17 @@
 		echo $this->Html->meta(array('name' => 'no_cms_wrapper'));
 
 		echo $this->ZuluruHtml->css(array (
-				'cake.generic',
-				'zuluru',
+				'zuluru/layout',
+				'zuluru/look',
 		));
+		if (Configure::read('debug')) {
+			echo $this->ZuluruHtml->css(array ('zuluru/debug'));
+		}
+	?>
+<!--[if lt IE 8]>
+<?php echo $this->ZuluruHtml->css('zuluru/ie_fixes'); ?>
+<![endif]-->
+	<?php
 		$css = Configure::read('additional_css');
 		if (!empty ($css)) {
 			// These files are assumed to come from the normal location, not the Zuluru location.
@@ -33,7 +41,7 @@
 		}
 		echo $scripts_for_layout;
 	?>
-
+	<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;" />
 </head>
 <body onresize="resizeMap()" onunload="GUnload()" style="padding: 0;">
 	<div id="map" style="margin: 0; padding: 0; width: 70%; height: 400px; float: left;"></div>

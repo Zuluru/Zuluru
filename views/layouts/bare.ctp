@@ -17,9 +17,17 @@
 
 		echo $this->ZuluruHtml->css(array (
 				'ui-lightness/jquery-ui-1.8.1.custom',
-				'cake.generic',
-				'zuluru',
+				'zuluru/layout',
+				'zuluru/look',
 		));
+		if (Configure::read('debug')) {
+			echo $this->ZuluruHtml->css(array ('zuluru/debug'));
+		}
+	?>
+<!--[if lt IE 8]>
+<?php echo $this->ZuluruHtml->css('zuluru/ie_fixes'); ?>
+<![endif]-->
+	<?php
 		$css = Configure::read('additional_css');
 		if (!empty ($css)) {
 			// These files are assumed to come from the normal location, not the Zuluru location.
@@ -37,6 +45,7 @@
 		}
 		echo $scripts_for_layout;
 	?>
+	<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;" />
 </head>
 <body>
 	<div id="zuluru">

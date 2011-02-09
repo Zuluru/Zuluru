@@ -5,7 +5,7 @@ $this->Html->addCrumb (__('View', true));
 ?>
 
 <div class="events view">
-<h2><?php echo __('View Event', true) . ': ' . $event['Event']['name'];?></h2>
+	<h2><?php echo __('View Event', true) . ': ' . $event['Event']['name'];?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Name'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
@@ -47,7 +47,7 @@ $this->Html->addCrumb (__('View', true));
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $this->ZuluruTime->Date ($event['League']['close']); ?>
 
-</dd>
+		</dd>
 <?php if (count($times) > 0 && count($times) < 5):
 		$time_list = array();
 		foreach ($times as $start => $end) {
@@ -135,7 +135,12 @@ $this->Html->addCrumb (__('View', true));
 <?php
 else:
 	foreach ($messages as $message) {
-		echo $this->Html->para (null, $message);
+		$class = null;
+		if (is_array($message)) {
+			$class = $message['class'];
+			$message = $message['text'];
+		}
+		echo $this->Html->para ($class, $message);
 	}
 	if ($allowed) {
 		echo $this->Html->tag ('h2', $this->Html->link(__('Register now!', true),

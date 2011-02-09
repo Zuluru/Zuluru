@@ -59,7 +59,7 @@ $display_spirit = $is_admin || $is_coordinator || $team['League']['display_sotg'
 					$this->element('shirt', array('colour' => $game['HomeTeam']['shirt_colour']));
 			}
 			?></td>
-			<td><?php echo $this->ZuluruGame->displayScore ($game, $team['Team']['id']); ?></td>
+			<td class="actions"><?php echo $this->ZuluruGame->displayScore ($game, $team['Team']['id']); ?></td>
 			<?php if ($display_spirit): ?>
 			<td><?php echo $this->element ('spirit/symbol', array(
 					'spirit_obj' => $spirit_obj,

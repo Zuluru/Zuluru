@@ -86,8 +86,8 @@ $this->Html->addCrumb (__('Online Payments', true));
 	));
 	?>
 	</fieldset>
-	<div id="PaymentProviderFields" style="padding:0; margin:0;">
-	<?php // TODOCSS: A class for the above style
+	<div id="PaymentProviderFields">
+	<?php
 	echo $this->element ('payment/settings/' . Configure::read('payment.payment_implementation'));
 	$this->Js->get('#PaymentProvider')->event('change', $this->Js->request(
 			array('action' => 'payment_provider_fields'),

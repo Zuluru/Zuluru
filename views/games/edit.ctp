@@ -72,11 +72,14 @@ $this->Html->addCrumb (__('Edit', true));
 
 	</dd>
 	<?php endif; ?>
+</dl>
 
-	<fieldset class="wide_labels">
- 		<legend><?php __('Scoring'); ?></legend>
-		<?php if (Game::_is_finalized($game)): ?>
-		<?php echo $this->element("league/game/{$league_obj->render_element}/score", compact('game')); ?>
+<fieldset class="wide_labels">
+	<legend><?php __('Scoring'); ?></legend>
+	<?php if (Game::_is_finalized($game)): ?>
+
+	<?php echo $this->element("league/game/{$league_obj->render_element}/score", compact('game')); ?>
+	<dl>
 		<dt><?php __('Score Approved By'); ?></dt>
 		<dd>
 			<?php
@@ -89,80 +92,85 @@ $this->Html->addCrumb (__('Edit', true));
 			}
 			?>
 		</dd>
-		<?php else: ?>
-		<p><?php __('Score not yet finalized'); ?></p>
-		<h3><?php __('Score as entered'); ?></h3>
-		<?php
-		if (array_key_exists ($game['Game']['home_team'], $game['ScoreEntry'])) {
-			$homeScoreEntry = $game['ScoreEntry'][$game['Game']['home_team']];
-		}
-		if (array_key_exists ($game['Game']['away_team'], $game['ScoreEntry'])) {
-			$awayScoreEntry = $game['ScoreEntry'][$game['Game']['away_team']];
-		}
-		?>
-		<table>
-		<tr>
-			<th></th>
-			<th><?php echo $this->Text->truncate ($game['HomeTeam']['name'], 23) . ' (' . __('home', true) . ')'; ?></th>
-			<th><?php echo $this->Text->truncate ($game['AwayTeam']['name'], 23) . ' (' . __('away', true) . ')'; ?></th>
-		</tr>
-		<tr>
-			<td><?php __('Home Score'); ?></td>
-			<td><?php if (isset ($homeScoreEntry)) echo $homeScoreEntry['score_for']; else echo __('not entered'); ?></td>
-			<td><?php if (isset ($awayScoreEntry)) echo $awayScoreEntry['score_against']; else echo __('not entered'); ?></td>
-		</tr>
-		<tr>
-			<td><?php __('Away Score'); ?></td>
-			<td><?php if (isset ($homeScoreEntry)) echo $homeScoreEntry['score_against']; else echo __('not entered'); ?></td>
-			<td><?php if (isset ($awayScoreEntry)) echo $awayScoreEntry['score_for']; else echo __('not entered'); ?></td>
-		</tr>
-		<tr>
-			<td><?php __('Defaulted?'); ?></td>
-			<td><?php if (isset ($homeScoreEntry)) echo $homeScoreEntry['defaulted']; ?></td>
-			<td><?php if (isset ($awayScoreEntry)) echo $awayScoreEntry['defaulted']; ?></td>
-		</tr>
-		<tr>
-			<td><?php __('Entered By'); ?></td>
-			<td><?php if (isset ($homeScoreEntry))
-						echo $this->Html->link($homeScoreEntry['Person']['full_name'],
-							array('controller' => 'people', 'action' => 'view', 'person' => $homeScoreEntry['person_id']));
-			?></td>
-			<td><?php if (isset ($awayScoreEntry))
-						echo $this->Html->link($awayScoreEntry['Person']['full_name'],
-							array('controller' => 'people', 'action' => 'view', 'person' => $awayScoreEntry['person_id']));
-			?></td>
-		</tr>
-		<tr>
-			<td><?php __('Entry Time'); ?></td>
-			<td><?php
-			if (isset ($homeScoreEntry)) {
-				echo $this->ZuluruTime->datetime($homeScoreEntry['created']);
-			}
-			?></td>
-			<td><?php
-			if (isset ($awayScoreEntry)) {
-				echo $this->ZuluruTime->datetime($awayScoreEntry['created']);
-			}
-			?></td>
-		</tr>
-		<?php if ($game['League']['numeric_sotg'] || $game['League']['sotg_questions'] != 'none'): ?>
-		<tr>
-			<td><?php __('Spirit Assigned'); ?></td>
-			<td><?php
-			if (array_key_exists ($game['Game']['home_team'], $game['SpiritEntry'])) {
-				echo $game['SpiritEntry'][$game['Game']['home_team']]['entered_sotg'];
-			}
-			?></td>
-			<td><?php
-			if (array_key_exists ($game['Game']['away_team'], $game['SpiritEntry'])) {
-				echo $game['SpiritEntry'][$game['Game']['away_team']]['entered_sotg'];
-			}
-			?></td>
-		</tr>
-		<?php endif; ?>
-		</table>
-		<?php endif; ?>
+	</dl>
 
+	<?php else: ?>
+
+	<p><?php __('Score not yet finalized'); ?></p>
+	<h3><?php __('Score as entered'); ?></h3>
+	<?php
+	if (array_key_exists ($game['Game']['home_team'], $game['ScoreEntry'])) {
+		$homeScoreEntry = $game['ScoreEntry'][$game['Game']['home_team']];
+	}
+	if (array_key_exists ($game['Game']['away_team'], $game['ScoreEntry'])) {
+		$awayScoreEntry = $game['ScoreEntry'][$game['Game']['away_team']];
+	}
+	?>
+	<table>
+	<tr>
+		<th></th>
+		<th><?php echo $this->Text->truncate ($game['HomeTeam']['name'], 23) . ' (' . __('home', true) . ')'; ?></th>
+		<th><?php echo $this->Text->truncate ($game['AwayTeam']['name'], 23) . ' (' . __('away', true) . ')'; ?></th>
+	</tr>
+	<tr>
+		<td><?php __('Home Score'); ?></td>
+		<td><?php if (isset ($homeScoreEntry)) echo $homeScoreEntry['score_for']; else echo __('not entered'); ?></td>
+		<td><?php if (isset ($awayScoreEntry)) echo $awayScoreEntry['score_against']; else echo __('not entered'); ?></td>
+	</tr>
+	<tr>
+		<td><?php __('Away Score'); ?></td>
+		<td><?php if (isset ($homeScoreEntry)) echo $homeScoreEntry['score_against']; else echo __('not entered'); ?></td>
+		<td><?php if (isset ($awayScoreEntry)) echo $awayScoreEntry['score_for']; else echo __('not entered'); ?></td>
+	</tr>
+	<tr>
+		<td><?php __('Defaulted?'); ?></td>
+		<td><?php if (isset ($homeScoreEntry)) echo $homeScoreEntry['defaulted']; ?></td>
+		<td><?php if (isset ($awayScoreEntry)) echo $awayScoreEntry['defaulted']; ?></td>
+	</tr>
+	<tr>
+		<td><?php __('Entered By'); ?></td>
+		<td><?php if (isset ($homeScoreEntry))
+					echo $this->Html->link($homeScoreEntry['Person']['full_name'],
+						array('controller' => 'people', 'action' => 'view', 'person' => $homeScoreEntry['person_id']));
+		?></td>
+		<td><?php if (isset ($awayScoreEntry))
+					echo $this->Html->link($awayScoreEntry['Person']['full_name'],
+						array('controller' => 'people', 'action' => 'view', 'person' => $awayScoreEntry['person_id']));
+		?></td>
+	</tr>
+	<tr>
+		<td><?php __('Entry Time'); ?></td>
+		<td><?php
+		if (isset ($homeScoreEntry)) {
+			echo $this->ZuluruTime->datetime($homeScoreEntry['created']);
+		}
+		?></td>
+		<td><?php
+		if (isset ($awayScoreEntry)) {
+			echo $this->ZuluruTime->datetime($awayScoreEntry['created']);
+		}
+		?></td>
+	</tr>
+	<?php if ($game['League']['numeric_sotg'] || $game['League']['sotg_questions'] != 'none'): ?>
+	<tr>
+		<td><?php __('Spirit Assigned'); ?></td>
+		<td><?php
+		if (array_key_exists ($game['Game']['home_team'], $game['SpiritEntry'])) {
+			echo $game['SpiritEntry'][$game['Game']['home_team']]['entered_sotg'];
+		}
+		?></td>
+		<td><?php
+		if (array_key_exists ($game['Game']['away_team'], $game['SpiritEntry'])) {
+			echo $game['SpiritEntry'][$game['Game']['away_team']]['entered_sotg'];
+		}
+		?></td>
+	</tr>
+	<?php endif; ?>
+	</table>
+
+	<?php endif; ?>
+
+	<dl>
 		<dt><?php echo $this->Text->truncate ($game['HomeTeam']['name'], 28); ?></dt>
 		<dd>
 			<?php echo $this->Form->input('home_score', array('label' => false, 'size' => 2)); ?>
@@ -173,72 +181,71 @@ $this->Html->addCrumb (__('Edit', true));
 			<?php echo $this->Form->input('away_score', array('label' => false, 'size' => 2)); ?>
 
 		</dd>
-	</fieldset>
+	</dl>
+</fieldset>
 
-	<?php
-	echo $this->element ('spirit/input', array(
-			'team_id' => $game['HomeTeam']['id'],
-			'created_team_id' => $game['AwayTeam']['id'],
-			'game' => $game,
-			'spirit_obj' => $spirit_obj,
-	));
-	?>
+<?php
+echo $this->element ('spirit/input', array(
+		'team_id' => $game['HomeTeam']['id'],
+		'created_team_id' => $game['AwayTeam']['id'],
+		'game' => $game,
+		'spirit_obj' => $spirit_obj,
+));
+?>
 
-	<?php
-	if ($game['League']['allstars'] != 'never'):
-	?>
-	<fieldset id="AllstarDetails">
-	<legend>Allstar Nominations: <?php echo $game['HomeTeam']['name']; ?></legend>
+<?php
+if ($game['League']['allstars'] != 'never'):
+?>
+<fieldset id="AllstarDetails">
+<legend>Allstar Nominations: <?php echo $game['HomeTeam']['name']; ?></legend>
 
-	<?php
-	if (array_key_exists ('Allstar', $this->data)) {
-		$allstars = Set::extract ('/Allstar/person_id', $this->data);
-	} else {
-		$allstars = Set::combine ($game['Allstar'], '{n}.Person.id', '{n}.Person.full_name');
-	}
+<?php
+if (array_key_exists ('Allstar', $this->data)) {
+	$allstars = Set::extract ('/Allstar/person_id', $this->data);
+} else {
+	$allstars = Set::combine ($game['Allstar'], '{n}.Person.id', '{n}.Person.full_name');
+}
 
-	// Build list of allstar options
-	$players = Set::combine ($game['HomeTeam']['Person'], '{n}.id', '{n}.full_name');
-	echo $this->Form->input('Allstar.0.person_id', array(
-			'label' => false,
-			'options' => $players,
-			'multiple' => true,
-			'selected' => $allstars,
-	));
-	?>
+// Build list of allstar options
+$players = Set::combine ($game['HomeTeam']['Person'], '{n}.id', '{n}.full_name');
+echo $this->Form->input('Allstar.0.person_id', array(
+		'label' => false,
+		'options' => $players,
+		'multiple' => true,
+		'selected' => $allstars,
+));
+?>
 
-	</fieldset>
-	<?php endif; ?>
+</fieldset>
+<?php endif; ?>
 
-	<?php
-	echo $this->element ('spirit/input', array(
-			'team_id' => $game['AwayTeam']['id'],
-			'created_team_id' => $game['HomeTeam']['id'],
-			'game' => $game,
-			'spirit_obj' => $spirit_obj,
-	));
-	?>
-	<?php
-	if ($game['League']['allstars'] != 'never'):
-	?>
-	<fieldset id="AllstarDetails">
-	<legend>Allstar Nominations: <?php echo $game['AwayTeam']['name']; ?></legend>
+<?php
+echo $this->element ('spirit/input', array(
+		'team_id' => $game['AwayTeam']['id'],
+		'created_team_id' => $game['HomeTeam']['id'],
+		'game' => $game,
+		'spirit_obj' => $spirit_obj,
+));
+?>
+<?php
+if ($game['League']['allstars'] != 'never'):
+?>
+<fieldset id="AllstarDetails">
+<legend>Allstar Nominations: <?php echo $game['AwayTeam']['name']; ?></legend>
 
-	<?php
-	// Build list of allstar options
-	$players = Set::combine ($game['AwayTeam']['Person'], '{n}.id', '{n}.full_name');
-	echo $this->Form->input('Allstar.1.person_id', array(
-			'label' => false,
-			'options' => $players,
-			'multiple' => true,
-			'selected' => $allstars,
-	));
-	?>
+<?php
+// Build list of allstar options
+$players = Set::combine ($game['AwayTeam']['Person'], '{n}.id', '{n}.full_name');
+echo $this->Form->input('Allstar.1.person_id', array(
+		'label' => false,
+		'options' => $players,
+		'multiple' => true,
+		'selected' => $allstars,
+));
+?>
 
-	</fieldset>
-	<?php endif; ?>
-
-</dl>
+</fieldset>
+<?php endif; ?>
 
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>

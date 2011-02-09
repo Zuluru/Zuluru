@@ -37,8 +37,8 @@ way to fit your requirements.
 }
 
 /* Preload the "on" images */
-.cssplay_preload1 {background: url(../pnimages/cssplay_prodrop8/cssplay_prodrop8_lon.gif);}
-.cssplay_preload2 {background: url(../pnimages/cssplay_prodrop8/cssplay_prodrop8_ron.gif);}
+.cssplay_preload1 {background: url(images/cssplay_prodrop8/cssplay_prodrop8_lon.gif);}
+.cssplay_preload2 {background: url(images/cssplay_prodrop8/cssplay_prodrop8_ron.gif);}
 
 /* The menu styling */
 .cssplay_prodrop {
@@ -47,7 +47,7 @@ way to fit your requirements.
   border: 0;
   list-style: none;
   height: 36px;
-  background: transparent url(../pnimages/cssplay_prodrop8/cssplay_prodrop8_bg.gif);
+  background: transparent url(images/cssplay_prodrop8/cssplay_prodrop8_bg.gif);
   position: relative;
   font-family: arial, verdana, sans-serif;
   z-index:200;
@@ -70,34 +70,34 @@ way to fit your requirements.
   font-weight: bold;
   padding: 0 0 0 5px;
   cursor: pointer;
-  background: url(../pnimages/cssplay_prodrop8/cssplay_prodrop8_loff.gif) no-repeat;
+  background: url(images/cssplay_prodrop8/cssplay_prodrop8_loff.gif) no-repeat;
 }
 .cssplay_prodrop li a.top_link span {
   float: left;
   display: block;
   padding: 0 10px 0 5px;
   height: 36px;
-  background: url(../pnimages/cssplay_prodrop8/cssplay_prodrop8_roff.gif) right top;
+  background: url(images/cssplay_prodrop8/cssplay_prodrop8_roff.gif) right top;
 }
 .cssplay_prodrop li a.top_link:hover,
 .cssplay_prodrop li.selected a.top_link {
   color: #000;
-  background: url(../pnimages/cssplay_prodrop8/cssplay_prodrop8_lon.gif) no-repeat;
+  background: url(images/cssplay_prodrop8/cssplay_prodrop8_lon.gif) no-repeat;
   line-height: 25px;
 }
 .cssplay_prodrop li a.top_link:hover span, 
 .cssplay_prodrop li.selected a.top_link span {
-  background: url(../pnimages/cssplay_prodrop8/cssplay_prodrop8_ron.gif) no-repeat right top;
+  background: url(images/cssplay_prodrop8/cssplay_prodrop8_ron.gif) no-repeat right top;
 }
 .cssplay_prodrop li:hover > a.top_link,
 .cssplay_prodrop li.selected > a.top_link {
   color: #000;
-  background: transparent url(../pnimages/cssplay_prodrop8/cssplay_prodrop8_lon.gif) no-repeat;
+  background: transparent url(images/cssplay_prodrop8/cssplay_prodrop8_lon.gif) no-repeat;
   line-height: 25px;
 }
 .cssplay_prodrop li:hover > a.top_link span,
 .cssplay_prodrop li.selected > a.top_link span {
-  background: transparent url(../pnimages/cssplay_prodrop8/cssplay_prodrop8_ron.gif) no-repeat right top;
+  background: transparent url(images/cssplay_prodrop8/cssplay_prodrop8_ron.gif) no-repeat right top;
 }
 
 /* Style and position the table so it takes no part in the menu function. */
@@ -184,14 +184,14 @@ way to fit your requirements.
   color: #fff;
 }
 .cssplay_prodrop :hover ul li a.fly {
-  background: url(../pnimages/cssplay_prodrop8/cssplay_prodrop8_arrow_off.gif) 170px 7px no-repeat;
+  background: url(images/cssplay_prodrop8/cssplay_prodrop8_arrow_off.gif) 170px 7px no-repeat;
 }
 .cssplay_prodrop :hover ul li a.fly:hover {
-  background: #3a93d2 url(../pnimages/cssplay_prodrop8/cssplay_prodrop8_arrow_on.gif) 170px 7px no-repeat;
+  background: #3a93d2 url(images/cssplay_prodrop8/cssplay_prodrop8_arrow_on.gif) 170px 7px no-repeat;
   color: #fff;
 }
 .cssplay_prodrop :hover ul li:hover > a.fly {
-  background: #3a93d2 url(../pnimages/cssplay_prodrop8/cssplay_prodrop8_arrow_on.gif) 170px 7px no-repeat;
+  background: #3a93d2 url(images/cssplay_prodrop8/cssplay_prodrop8_arrow_on.gif) 170px 7px no-repeat;
   color:#fff;
 } 
 

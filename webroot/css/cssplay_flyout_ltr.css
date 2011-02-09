@@ -28,14 +28,14 @@ way to fit your requirements.
 }
 /* style the list items */
 .cssplay_fly li {
-  background:#b9d3fb; /* #d4d8bd url(/css/images/cssplay_flyout/shade.gif); */
+  background:#b9d3fb; /* #d4d8bd url(images/cssplay_flyout/shade.gif); */
   height:18px;
   margin:0;
   /* for IE7 */
   float:left;
 }
 .cssplay_fly li.sub {
-  background:#b9d3fb url(/css/images/cssplay_flyout/sub.gif) no-repeat right center;
+  background:#b9d3fb url(images/cssplay_flyout/sub.gif) no-repeat right center;
 }
 
 /* get rid of the table */
@@ -90,7 +90,7 @@ way to fit your requirements.
 }
 .cssplay_fly li.sub.selected > a {
   color:#efa;
-  background:#3a93d2 url(/css/images/cssplay_flyout/sub.gif) no-repeat right center;
+  background:#3a93d2 url(images/cssplay_flyout/sub.gif) no-repeat right center;
 }
  
 /* hide the sub levels and give them a positon absolute so that they take up no room */
@@ -103,7 +103,7 @@ way to fit your requirements.
   /* set up the overrun area */
   padding:30px;
   /* this is for IE to make it interpret the overrrun padding */
-  background:transparent url(/css/images/cssplay_flyout/transparent.gif);
+  background:transparent url(images/cssplay_flyout/transparent.gif);
 }
 
 /* for browsers that understand this is all you need for the flyouts */

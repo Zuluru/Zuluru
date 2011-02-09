@@ -1,0 +1,401 @@
+/**
+ * Styles controlling the layout of Zuluru pages (e.g. positioning, borders, etc.).
+ * These should not generally need to be changed from site to site.
+ *
+ * Almost everything here has #zuluru on the beginning.  This is because we don't
+ * want styles on general elements (e.g. fieldset, td, etc.) to change the look
+ * of the rest of the site, just the Zuluru parts.  But because of the cascade
+ * rules, things with IDs are seen as being more specific than general classes.
+ * Thus, even where we are really only defining a class that will be used internally
+ * (e.g. .error-message), we need to make it more specific by putting #Zuluru on
+ * the beginning of the definition.
+ */
+
+/** General Style Info **/
+*
+{
+	margin:0;
+	padding:0;
+}
+body
+{
+	font-family: Verdana,Helvetica,Arial,sans-serif;
+	margin: 0;
+}
+#zuluru
+{
+	text-align: left;
+}
+#zuluru h1,
+#zuluru h2,
+#zuluru h3,
+#zuluru h4
+{
+	margin: 0 0 0.5em 0;
+}
+#zuluru p
+{
+	margin: 1em 0;
+}
+#zuluru a
+{
+	text-decoration: none;
+}
+#zuluru a img
+{
+	border: none;
+}
+#zuluru ol,
+#zuluru ul
+{
+	padding-left: 2em;
+}
+#zuluru .center
+{
+	text-align: center;
+}
+
+/** Specific areas **/
+#zuluru div.crumbs
+{
+	padding-left: 0.25em;
+}
+#zuluru #content,
+#zuluru div.splash
+{
+	margin-top: 0;
+	padding: 0;
+}
+#zuluru .sponsor
+{
+	margin: 1em 0;
+}
+#zuluru .sidebar-left
+{
+	width: 10em;
+	text-align: left;
+}
+#zuluru .sidebar-left ul
+{
+	padding-left: 0em;
+}
+
+/** Tables **/
+#zuluru table
+{
+	border-collapse: collapse;
+	border: 1px solid;
+	clear: both;
+	margin-bottom: 10px;
+	width: 100%;
+}
+#zuluru table.container,
+#zuluru div.splash table,
+#zuluru div.form table,
+#zuluru div.fields table,
+#zuluru div.events table
+{
+	border: 0;
+}
+#zuluru div.splash table li
+{
+	padding-top: 2px;
+	padding-bottom: 2px;
+	margin-bottom: 0;
+}
+#zuluru th
+{
+	border: 0;
+	border-bottom: 2px solid;
+	text-align: left;
+	padding:4px;
+	font-size: 100%;
+}
+#zuluru th a
+{
+	padding: 2px 4px;
+}
+#zuluru td
+{
+	text-align: left;
+	vertical-align: top;
+	padding: 4px;
+	border: 0;
+}
+
+/** Paging **/
+#zuluru div.paging
+{
+	margin-top: 1em;
+	clear:both;
+}
+#zuluru div.paging span.disabled
+{
+	display: inline;
+}
+#zuluru th a.asc:after
+{
+	content: ' ⇣';
+}
+#zuluru th a.desc:after
+{
+	content: ' ⇡';
+}
+
+/** Scaffold View **/
+#zuluru dl
+{
+	line-height: 2em;
+	margin: 0em 0em;
+	width: 100%;
+}
+#zuluru dt
+{
+	font-weight: bold;
+	padding-left: 4px;
+	vertical-align: top;
+}
+#zuluru dd
+{
+	margin-left: 15em;
+	margin-top: -2em;
+	vertical-align: top;
+}
+#zuluru fieldset.wide_labels dd
+{
+	margin-left: 20em;
+}
+
+/** Forms **/
+#zuluru form
+{
+	clear: both;
+	margin-right: 20px;
+	padding: 0;
+	width: 95%;
+}
+#zuluru fieldset
+{
+	border: 1px solid;
+	margin-top: 0;
+	margin-bottom: 1em;
+	padding: 16px 20px;
+}
+#zuluru fieldset legend
+{
+	font-weight: bold;
+}
+#zuluru fieldset fieldset
+{
+	margin-top: 0px;
+	margin-bottom: 20px;
+	padding: 0 10px 10px;
+}
+#zuluru fieldset fieldset legend
+{
+	font-weight: normal;
+}
+#zuluru fieldset fieldset div
+{
+	clear: left;
+	margin: 0 20px;
+}
+#zuluru form div
+{
+	clear: both;
+	margin-bottom: 0.5em;
+	padding: 0.5em;
+	vertical-align: text-top;
+}
+#zuluru form div.input div.input
+{
+	margin: 0;
+	padding: 0;
+}
+#zuluru label
+{
+	font-size: 90%;
+	display: block;
+	margin-bottom:3px;
+}
+#zuluru input,
+#zuluru select,
+#zuluru textarea
+{
+	clear: both;
+    border: 1px solid;
+    padding: 1px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+}
+#zuluru .input p
+{
+	font-weight: normal;
+	margin: 0;
+	font-size: 80%;
+}
+#zuluru .input div.error-message
+{
+	font-weight: normal;
+	margin: 0;
+	padding: 0;
+}
+#zuluru form .required
+{
+	font-weight: bold;
+}
+#zuluru form .required label:after
+{
+	content: '*';
+	display: inline;
+}
+#zuluru select
+{
+	vertical-align: text-bottom;
+}
+#zuluru select[multiple=multiple]
+{
+	width: 100%;
+}
+#zuluru option
+{
+	padding: 0 3px;
+}
+#zuluru input[type=checkbox]
+{
+	clear: left;
+	float: left;
+	margin: 0px 6px 0px 2px;
+	width: auto;
+	border: 0;
+}
+#zuluru div.checkbox label
+{
+	display: inline;
+}
+#zuluru input[type=radio]
+{
+	float: left;
+	margin: 0 3px 0 0;
+	border: 0;
+}
+#zuluru div.radio
+{
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+#zuluru .required div.radio
+{
+	font-weight: normal;
+}
+#zuluru .required div.radio label:after
+{
+	content: '';
+}
+#zuluru form .submit
+{
+	border: 0;
+	clear: both;
+	margin-top: 10px;
+}
+#zuluru input[type=submit],
+#zuluru input[type=reset]
+{
+	display: inline;
+	width: auto;
+}
+
+/** Notices and Errors **/
+#zuluru div.message,
+#zuluru div.error-message
+{
+	clear: both;
+	font-weight: bold;
+	margin: 0 0 1em 0;
+	padding: 5px;
+}
+#zuluru p.error
+{
+	font-family: Courier, monospace;
+	font-size: 120%;
+	line-height: 140%;
+	padding: 0.8em;
+	margin: 1em 0;
+}
+#zuluru p.error em
+{
+	font-weight: normal;
+	line-height: 140%;
+}
+#zuluru .notice
+{
+	display: block;
+	font-family: Courier, monospace;
+	font-size: 120%;
+	line-height: 140%;
+	padding: 0.8em;
+	margin: 1em 0;
+}
+
+/**  Actions  **/
+#zuluru div.actions ul
+{
+	margin: 0;
+	padding: 0 0 0.5em 0;
+	line-height: 2em;
+}
+#zuluru div.actions li
+{
+	list-style-type: none;
+	white-space: nowrap;
+	float: left;
+}
+#zuluru th.actions,
+#zuluru td.actions
+{
+	white-space: nowrap;
+}
+#zuluru input[type=submit],
+#zuluru input[type=reset],
+#zuluru .actions a
+{
+	font-weight: normal;
+	font-size: 80%;
+	padding: 2px 4px;
+	margin: 0 3px 2px;
+	border: 1px solid;
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+	text-decoration: none;
+	min-width: 0;
+}
+#zuluru th.splash_action,
+#zuluru td.splash_action
+{
+	text-align: right;
+}
+
+/** Related **/
+div.related
+{
+	clear: both;
+	display: block;
+}
+
+/** Miscellaneous **/
+#zuluru .team_highlight
+{
+	font-weight: bold;
+}
+
+#zuluru img.thumbnail
+{
+	margin: 0 5px;
+	border: 1px solid black;
+}
+
+#zuluru div.view img.thumbnail
+{
+	float: right;
+}

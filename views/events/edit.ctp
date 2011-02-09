@@ -81,8 +81,8 @@ if (isset ($add)) {
 			'after' => $this->Html->para (null, __('Will results from this event\'s survey be kept anonymous?', true)),
 		));
 	?>
-		<div id="EventTypeFields" style="padding:0; margin:0;">
-		<?php // TODOCSS: A class for the above style
+		<div id="EventTypeFields">
+		<?php
 		echo $this->element('registration/configuration/' . $event_obj->configurationFieldsElement());
 		$this->Js->get('#EventEventTypeId')->event('change', $this->Js->request(
 				array('action' => 'event_type_fields'),

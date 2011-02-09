@@ -6,23 +6,20 @@ $spirit = $this->element ("spirit/input/{$spirit_obj->render_element}",
 if ($game['League']['numeric_sotg']) {
 	if (!isset ($opts))
 		$opts = array();
-	else if  (!is_array($opts))
+	else if (!is_array($opts))
 		$opts = array($opts);
 	$opts = array_merge(array(
 			'size' => 2,
 			'label' => 'Spirit',
 			'div' => false,
-			'after' => '&nbsp;' . sprintf (__('(between 0 and %d)', true), $spirit_obj->max()),
+		'after' => '&nbsp;' . sprintf (__('(between 0 and %d)', true), $spirit_obj->max()) . '&nbsp;' .
+			$this->Html->tag('span',
+				$this->Html->link('Suggest', '#', array(
+						'onclick' => "suggestSpirit('$team_id'); return false;",
+			)), array('class' => 'actions')),
 	), $opts);
 
 	$spirit .= $this->Form->input("SpiritEntry.$team_id.entered_sotg", $opts);
-	// TODOCSS: Move the suggest box next to the input
-	$spirit .= $this->Html->tag('div',
-		$this->Html->tag('ul',
-			$this->Html->tag('li',
-				$this->Html->link('Suggest', '#', array(
-						'onclick' => "suggestSpirit('$team_id'); return false;",
-	)))), array('class' => 'actions'));
 	$this->ZuluruHtml->script ('spirit', array('inline' => false));
 
 	// Don't show this when submitting scores, just when editing. We don't need

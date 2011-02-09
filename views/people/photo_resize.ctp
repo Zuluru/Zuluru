@@ -8,7 +8,7 @@ $this->Html->addCrumb (__('Resize Photo', true));
 <h2><?php  echo __('Resize Photo', true) . ': ' . $person['full_name'];?></h2>
 
 <?php
-$this->ZuluruHtml->css('imgareaselect-default', array('inline' => false));
+$this->ZuluruHtml->css('imgareaselect-default', null, array('inline' => false));
 $this->ZuluruHtml->script('jquery.imgareaselect.pack', array('inline' => false));
 
 echo $this->Form->create(false, array('action' => 'photo', 'enctype' => 'multipart/form-data'));

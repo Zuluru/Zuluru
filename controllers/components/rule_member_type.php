@@ -60,7 +60,11 @@ AND(
 	}
 
 	function desc() {
-		return __('Membership type', true);
+		App::import('helper', 'Time');
+		App::import('helper', 'ZuluruTime');
+		$ZuluruTime = new ZuluruTimeHelper();
+		$date = $ZuluruTime->date ($this->config);
+		return sprintf (__('The membership, if any, that you have in effect as of %s', true), $date);
 	}
 }
 

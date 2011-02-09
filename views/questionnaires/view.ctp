@@ -14,7 +14,6 @@ $this->Html->addCrumb (__('View', true));
 </div>
 
 <div class="actions">
-	<h3><?php __('Actions'); ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Questionnaire', true)), array('action' => 'edit', 'questionnaire' => $questionnaire['Questionnaire']['id'])); ?> </li>
 		<li><?php echo $this->Html->link(sprintf(__('Delete %s', true), __('Questionnaire', true)), array('action' => 'delete', 'questionnaire' => $questionnaire['Questionnaire']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $questionnaire['Questionnaire']['id'])); ?> </li>

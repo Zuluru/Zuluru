@@ -3,7 +3,6 @@
 <?php echo $this->element('question/input', compact('question')); ?>
 </div>
 <div class="actions">
-	<h3><?php __('Actions'); ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Question', true)), array('action' => 'edit', 'question' => $question['Question']['id'])); ?> </li>
 	</ul>

@@ -84,7 +84,7 @@ foreach ($league['Game'] as $game):
 			$this->element('shirt', array('colour' => $game['AwayTeam']['shirt_colour']));
 	}
 	?></td>
-	<td><?php echo $this->ZuluruGame->displayScore ($game); ?></td>
+	<td class="actions"><?php echo $this->ZuluruGame->displayScore ($game); ?></td>
 </tr>
 
 <?php

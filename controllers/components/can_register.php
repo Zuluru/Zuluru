@@ -37,7 +37,7 @@ class CanRegisterComponent extends Object
 		if (!empty ($event['Event']['register_rule'])) {
 			$rule_obj = AppController::_getComponent ('Rule');
 			if (!$rule_obj->init ($event['Event']['register_rule'])) {
-				$this->Session->setFlash(__('Failed to parse the rule', true));
+				$this->controller->Session->setFlash(__('Failed to parse the rule', true));
 			}
 
 			$rule_allowed = $rule_obj->evaluate ($person);
@@ -78,13 +78,13 @@ class CanRegisterComponent extends Object
 		// First, some tests based on whether the person has already registered for this.
 		if ($is_registered) {
 			if ($registrations[0]['payment'] == 'Paid' ) {
-				$messages[] = __('You have already registered and paid for this event.', true);
+				$messages[] = array('text' => __('You have already registered and paid for this event.', true), 'class' => 'open');
 			} else {
-				$messages[] = __('You have already registered for this event, but not yet paid.', true);
+				$messages[] = array('text' => __('You have already registered for this event, but not yet paid.', true), 'class' => 'error-message');
 
 				// An unpaid registration might have been pre-empted by someone who paid.
 				if ($registrations[0]['payment'] == 'Unpaid' && $cap > 0 && $paid >= $cap ) {
-					$messages[] = __('Your payment was not received in time, so your registration has been moved to a waiting list. If you have any questions about this, please contact the head office.', true);
+					$messages[] = array('text' => __('Your payment was not received in time, so your registration has been moved to a waiting list. If you have any questions about this, please contact the head office.', true), 'class' => 'error-message');
 				} else {
 					$messages[] = sprintf (__('To complete your payment, please proceed to the %s.', true),
 						$this->Html->link(__('checkout page', true), array('controller' => 'registrations', 'action' => 'checkout')));
@@ -108,25 +108,25 @@ class CanRegisterComponent extends Object
 			// Admins can test registration before it opens...
 			if (!$this->controller->is_admin) {
 				if (strtotime ($event['Event']['open']) > time()) {
-					$messages[] = __('This event is not yet open for registration.', true);
+					$messages[] = array('text' => __('This event is not yet open for registration.', true), 'class' => 'closed');
 					$continue = false;
 				}
 			}
 			if (time() > strtotime ($event['Event']['close'])) {
-				$messages[] = __('Registration for this event has closed.', true);
+				$messages[] = array('text' => __('Registration for this event has closed.', true), 'class' => 'closed');
 				$continue = false;
 			}
 		}
 
 		if ($continue && !$is_active) {
-			$messages[] = __('You may not register for this event until your account has been approved by an administrator. This normally happens in less than one business day, and often in just a few minutes.', true);
+			$messages[] = array('text' => __('You may not register for this event until your account has been approved by an administrator. This normally happens in less than one business day, and often in just a few minutes.', true), 'class' => 'error-message');
 			$continue = false;
 		}
 
 		if ($continue) {
 			if ($cap == 0) {
 				// 0 means that nobody of this gender is allowed.
-				$messages[] = __('This event is for the opposite gender only.', true);
+				$messages[] = array('text' => __('This event is for the opposite gender only.', true), 'class' => 'error-message');
 				$continue = false;
 			} else if ($cap > 0) {
 				// Check if this event is already full
@@ -135,8 +135,8 @@ class CanRegisterComponent extends Object
 					// TODO: Allow people to put themselves on a waiting list
 					$admin_name = Configure::read('email.admin_name');
 					$admin_addr = Configure::read('email.admin_email');
-					$messages[] = sprintf (__('This event is already full.  You may email the %s or phone the head office to be put on a waiting list in case others drop out.', true),
-							$this->Html->link ($admin_name, "mailto:$admin_addr"));
+					$messages[] = array('text' => sprintf (__('This event is already full.  You may email the %s or phone the head office to be put on a waiting list in case others drop out.', true),
+							$this->Html->link ($admin_name, "mailto:$admin_addr")), 'class' => 'error-message');
 					$continue = false;
 				}
 			}
@@ -152,7 +152,7 @@ class CanRegisterComponent extends Object
 					$messages[] = __('You may register for this event.', true);
 					$allowed = true;
 				} else {
-					$messages[] = __('You may not register for this event', true) . ': ' . $rule_reason;
+					$messages[] = array('text' => __('You may not register for this event', true) . ': ' . $rule_reason, 'class' => 'error-message');
 				}
 			} else {
 				$messages[] = __('You may register for this because there are no prerequisites.', true);

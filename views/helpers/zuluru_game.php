@@ -30,8 +30,6 @@ class ZuluruGameHelper extends Helper {
 			$second_score = $details['away_score'];
 		}
 
-		$actions = array();
-
 		if ($first_score !== null && $second_score !== null) {
 			echo "{$first_score} - {$second_score}";
 			if (strpos ($details['status'], 'default') !== false) {
@@ -57,17 +55,17 @@ class ZuluruGameHelper extends Helper {
 				echo "{$first_score} - {$second_score}";
 
 				if ($team_id) {
-					$actions[] = $this->Html->link(
-									__('Edit score', true),
-									array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $team_id));
+					echo $this->Html->link(
+							__('Edit score', true),
+							array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $team_id));
 				} else {
 					echo ' (' . __('unofficial', true) . ')';
 				}
 			} else if ($end_time < time()) {
 				if ($team_id) {
-					$actions[] = $this->Html->link(
-									__('Submit', true),
-									array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $team_id));
+					echo $this->Html->link(
+							__('Submit', true),
+							array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $team_id));
 				} else {
 					__('not entered');
 				}
@@ -75,9 +73,9 @@ class ZuluruGameHelper extends Helper {
 				// Check if one of the teams involved in the game is a team the current user is on
 				$team_id = array_pop (array_intersect (array($details['home_team'], $details['away_team']), $this->Session->read('Zuluru.TeamIDs')));
 				if ($team_id) {
-					$actions[] = $this->Html->link(
-									__('iCal', true),
-									array('controller' => 'games', 'action' => 'ical', $details['id'], $team_id, 'game.ics'));
+					echo $this->Html->link(
+							__('iCal', true),
+							array('controller' => 'games', 'action' => 'ical', $details['id'], $team_id, 'game.ics'));
 				}
 			}
 		}
@@ -85,21 +83,10 @@ class ZuluruGameHelper extends Helper {
 		// Give admins and coordinators the option to edit games
 		$view =& ClassRegistry::getObject('view');
 		if ($view->viewVars['is_admin'] || in_array ($details['league_id'], $this->Session->read('Zuluru.LeagueIDs'))) {
-			$actions[] = $this->Html->link(
-							__('Edit', true),
-							array('controller' => 'games', 'action' => 'edit', 'game' => $details['id']));
+			echo $this->Html->link(
+					__('Edit', true),
+					array('controller' => 'games', 'action' => 'edit', 'game' => $details['id']));
 		}
-
-		if (!empty ($actions)): ?>
-<div class="actions">
-<ul>
-			<?php foreach ($actions as $action): ?>
-	<li><?php echo $action; ?></li>
-			<?php endforeach; ?>
-</ul>
-</div>
-<?php
-		endif;
 	}
 }
 

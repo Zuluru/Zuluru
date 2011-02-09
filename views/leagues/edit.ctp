@@ -91,8 +91,8 @@ if (isset ($add)) {
 			'after' => $this->Html->para (null, __('What type of scheduling to use. This affects how games are scheduled and standings displayed.', true)),
 		));
 	?>
-		<div id="SchedulingFields" style="padding:0; margin:0;">
-		<?php // TODOCSS: A class for the above style
+		<div id="SchedulingFields">
+		<?php
 		echo $this->element('league/scheduling_fields', array('fields' => $league_obj->schedulingFields($is_admin, $is_coordinator)));
 		$this->Js->get('#LeagueScheduleType')->event('change', $this->Js->request(
 				array('action' => 'scheduling_fields'),

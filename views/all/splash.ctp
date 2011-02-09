@@ -19,7 +19,6 @@ if (!empty($unpaid)) {
 }
 ?>
 
-<?php if (!empty ($teams)) : ?>
 <table cellpadding="0" cellspacing="0">
 <tr>
 	<th colspan="2"><?php __('My Teams');?></th>
@@ -56,7 +55,6 @@ foreach ($teams as $team):
 	</tr>
 <?php endforeach; ?>
 </table>
-<?php endif; ?>
 <div class="actions">
 	<ul>
 		<li><?php echo $this->Html->link(__('Show Team History', true), array('controller' => 'people', 'action' => 'teams')); ?> </li>
@@ -97,7 +95,6 @@ foreach ($leagues as $league):
 </table>
 <?php endif; ?>
 
-<?php if (!empty ($games)) : ?>
 <table cellpadding="0" cellspacing="0">
 <tr>
 	<th colspan="3"><?php __('Recent and Upcoming Games');?></th>
@@ -134,14 +131,12 @@ foreach ($games as $game):
 					array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id']),
 					array('title' => "{$game['GameSlot']['Field']['name']} {$game['GameSlot']['Field']['num']}"));
 		?></td>
-		<td class="splash_action"><?php echo $this->ZuluruGame->displayScore ($game); ?></td>
+		<td class="actions splash_action"><?php echo $this->ZuluruGame->displayScore ($game); ?></td>
 	</tr>
 <?php endforeach; ?>
 </table>
-<?php endif; ?>
 
-<?php // TODOCSS: Why is this style needed here when users are blank? Get rid of it! ?>
-<p style="clear:both;"><?php
+<p><?php
 if (Configure::read('personal.enable_ical')) {
 	__('Get your personal schedule in ');
 	// TODOIMG: Better image locations, alt text

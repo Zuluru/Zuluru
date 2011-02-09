@@ -15,8 +15,10 @@ $this->Html->addCrumb (__('View', true));
 		foreach ($league['Person'] as $person) {
 			$coordinator = $this->Html->link($person['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $person['id']));
 			if ($is_admin) {
-				// TODOCSS: Format this as an action button
-				$coordinator .= '&nbsp;(' . $this->Html->link('Remove Coordinator', array('action' => 'remove_coordinator', 'league' => $league['League']['id'], 'person' => $person['id'])) . ')';
+				$coordinator .= '&nbsp;' .
+					$this->Html->tag('span',
+						$this->Html->link('Remove', array('action' => 'remove_coordinator', 'league' => $league['League']['id'], 'person' => $person['id'])),
+						array('class' => 'actions'));
 			}
 			$coordinators[] = $coordinator;
 		}
