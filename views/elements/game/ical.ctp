@@ -24,7 +24,7 @@ if (in_array ($game['HomeTeam']['id'], $team_id)) {
 }
 
 $field = "{$game['GameSlot']['Field']['long_name']} ({$game['GameSlot']['Field']['code']})";
-$field_address = "{$game['GameSlot']['Field']['name']}, {$game['GameSlot']['Field']['location_street']}, {$game['GameSlot']['Field']['location_city']}, {$game['GameSlot']['Field']['location_province']}";
+$field_address = "{$game['GameSlot']['Field']['location_street']}, {$game['GameSlot']['Field']['location_city']}, {$game['GameSlot']['Field']['location_province']} ({$game['GameSlot']['Field']['long_name']})";
 
 // encode game start and end times
 $game_date = "TZID=$timezone:" . strftime('%Y%m%d', strtotime($game['GameSlot']['game_date'])); // from date type
