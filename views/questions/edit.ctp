@@ -4,7 +4,7 @@ $this->Html->addCrumb (__('Edit', true));
 ?>
 
 <div class="questions form">
-<?php echo $this->Form->create('Question');?>
+<?php echo $this->Form->create('Question', array('url' => $this->here));?>
 	<fieldset>
  		<legend><?php printf(__('Edit %s', true), __('Question', true)); ?></legend>
 	<?php
