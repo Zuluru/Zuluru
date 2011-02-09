@@ -51,7 +51,7 @@ $config['urls'] = array(
     'zuluru_js'         => '/js/',
 
 	// URL where files for permits, etc., shall live.
-	'league_base'		=> '/files/',
+	'league_base'		=> '/files',
 
 	// URL for uploadable files (e.g. player photos)
 	'uploads'			=> '/img/upload',

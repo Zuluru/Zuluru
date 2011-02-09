@@ -144,7 +144,7 @@ class Field extends AppModel {
 				while (($file = readdir($dh)) !== false) {
 					if (fnmatch ($record[$this->alias]['code'] . '*', $file) ) {
 						$record[$this->alias]['permit_name'] = $file;
-						$record[$this->alias]['permit_url'] = Configure::read('urls.league_base') . "$season/current/permits/$file";
+						$record[$this->alias]['permit_url'] = Configure::read('urls.league_base') . "/$season/current/permits/$file";
 					}
 				}
 			}
