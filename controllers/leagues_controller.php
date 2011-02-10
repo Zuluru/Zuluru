@@ -398,8 +398,8 @@ class LeaguesController extends AppController {
 									$this->Session->setFlash(sprintf (__('Team %s was scheduled in overlapping time slots!', true), $team['Team']['name']));
 									return false;
 								}
-								$site1 = ($slot1['Field']['parent_id'] == null ? $slot1['Field']['ParentField']['id'] : $slot1['Field']['id']);
-								$site2 = ($slot2['Field']['parent_id'] == null ? $slot2['Field']['ParentField']['id'] : $slot2['Field']['id']);
+								$site1 = ($slot1['Field']['parent_id'] == null ? $slot1['Field']['Field']['id'] : $slot1['ParentField']['id']);
+								$site2 = ($slot2['Field']['parent_id'] == null ? $slot2['Field']['Field']['id'] : $slot2['ParentField']['id']);
 								if ($site1 != $site2) {
 									$this->Session->setFlash(sprintf (__('Team %s was scheduled on fields at different sites!', true), $team['Team']['name']));
 									return false;
