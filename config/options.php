@@ -20,11 +20,11 @@ $config['options'] = array(
 		'1'					=> __('Enabled', true)
 	),
 
-    'gender'				=> make_options(array(
+	'gender'				=> make_options(array(
 		'Male',
 		'Female',
 	)),
-    'shirt_size'			=> make_options(array(
+	'shirt_size'			=> make_options(array(
 		'Womens XSmall',
 		'Womens Small',
 		'Womens Medium',
@@ -35,13 +35,13 @@ $config['options'] = array(
 		'Mens Large',
 		'Mens XLarge',
 	)),
-    'record_status'			=> make_options(array(
+	'record_status'			=> make_options(array(
 		'new',
 		'inactive',
 		'active',
 		'locked',
 	)),
-    'ratio'					=> make_options(array(
+	'ratio'					=> make_options(array(
 		'4/3',
 		'5/2',
 		'3/3',
@@ -62,7 +62,7 @@ $config['options'] = array(
 		'optional',
 		'always',
 	)),
-    'payment'				=> make_options(array(
+	'payment'				=> make_options(array(
 		'Unpaid',
 		'Pending',
 		'Paid',
@@ -91,14 +91,14 @@ $config['options'] = array(
 	),
 
 	'roster_position' => array(
-		'captain'	        => 'Captain',
-		'assistant'	        => 'Assistant captain',
-		'coach'	            => 'Coach',
-		'player'            => 'Regular player',
-		'substitute'        => 'Substitute player',
+		'captain'			=> 'Captain',
+		'assistant'			=> 'Assistant captain',
+		'coach'				=> 'Coach',
+		'player'			=> 'Regular player',
+		'substitute'		=> 'Substitute player',
 		'captain_request'   => 'Request to join by captain',
-		'player_request'    => 'Request to join by player',
-		'none'              => 'Not on team',
+		'player_request'	=> 'Request to join by player',
+		'none'				=> 'Not on team',
 	),
 
 	'league_position' => array(

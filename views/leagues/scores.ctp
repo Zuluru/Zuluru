@@ -70,7 +70,7 @@ foreach ($league['Team'] as $team_id => $team) {
 			$row[] = array('N/A', array('style' => 'color: gray;'));
 		} else if (array_key_exists ($opp_id, $games[$team_id])) {
 			$results = array();
-            $wins = $losses = 0;
+			$wins = $losses = 0;
 			foreach ($games[$team_id][$opp_id] as $game) {
 				switch($game['Game']['status']) {
 					case 'home_default':

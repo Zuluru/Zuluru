@@ -196,8 +196,8 @@ class TeamsController extends AppController {
 		$defaulting = $this->Team->League->Game->find('all', array(
 				'fields' => array(
 					'League.id', 'League.name', 'League.open',
-		            'IF(Game.status = "home_default",HomeTeam.id,AwayTeam.id) AS team_id',
-		            'IF(Game.status = "home_default",HomeTeam.name,AwayTeam.name) AS team_name',
+					'IF(Game.status = "home_default",HomeTeam.id,AwayTeam.id) AS team_id',
+					'IF(Game.status = "home_default",HomeTeam.name,AwayTeam.name) AS team_name',
 					'COUNT(Game.id) AS count',
 				),
 				'joins' => array(

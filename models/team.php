@@ -167,13 +167,13 @@ class Team extends AppModel {
 
 	static function compareRoster($a, $b) {
 		static $rosterMap = array(
-			'captain'	        => 0,
-			'assistant'	        => 1,
-			'coach'	            => 2,
-			'player'            => 3,
-			'substitute'        => 4,
-			'captain_request'   => 5,
-			'player_request'    => 6,
+			'captain'			=> 0,
+			'assistant'			=> 1,
+			'coach'				=> 2,
+			'player'			=> 3,
+			'substitute'		=> 4,
+			'captain_request'	=> 5,
+			'player_request'	=> 6,
 		);
 		if ($rosterMap[$a['TeamsPerson']['status']] > $rosterMap[$b['TeamsPerson']['status']]) {
 			return 1;

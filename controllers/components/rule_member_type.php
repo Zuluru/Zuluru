@@ -35,11 +35,11 @@ class RuleMemberTypeComponent extends RuleComponent
 /* TODO Incorporate any of this?
 
 AND(
-    compare(member_type('2010-06-01') != 'none'),
-    OR(
-        compare(member_type('2010-06-01') = 'full'),
-        compare(team_count('2010-06-01') = '0')
-    )
+	compare(member_type('2010-06-01') != 'none'),
+	OR(
+		compare(member_type('2010-06-01') = 'full'),
+		compare(team_count('2010-06-01') = '0')
+	)
 )
 
 		if (!$this->player->is_member() && !$this->is_admin) {

@@ -535,7 +535,7 @@ class LeagueTypeComponent extends Object
 				AND t.team_id = ? GROUP BY is_preferred');
 		$sth->execute( array( $this->team_id) );
 
-		$preferred     = 0;
+		$preferred = 0;
 		$not_preferred = 0;
 		while($row = $sth->fetch( PDO::FETCH_ASSOC ) ) {
 			if($row['is_preferred']) {
@@ -693,10 +693,10 @@ class LeagueTypeComponent extends Object
 	 * 	- no bonus given for home-field advantage
 	 */
 	function calculateRatingsChange($home_score, $away_score, $expected_win) {
-		$weight_constant = 40;  // All games weighted equally
-		$score_weight    = 1;   // Games start with a weight of 1
+		$weight_constant = 40;	// All games weighted equally
+		$score_weight = 1;		// Games start with a weight of 1
 
-		$game_value      = 1;   // Game value is always 1 or 0.5 as we're calculating the elo change for the winning team
+		$game_value = 1;		// Game value is always 1 or 0.5 as we're calculating the elo change for the winning team
 
 		// Find winning/losing scores.  In the case of a tie,
 		// the home team is considered the winner for purposes of

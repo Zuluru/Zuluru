@@ -99,7 +99,7 @@ foreach ($registrations as $registration) {
 $amount = sprintf('%.2f', $amount);
 $hash_source = implode ('^', array (
 		$login,
-		$unique_order_num,    
+		$unique_order_num,
 		$time,
 		$amount,
 		$currency,

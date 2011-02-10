@@ -877,7 +877,7 @@ class GamesController extends AppController {
 			'CaptainEmail',
 			'CoordinatorEmail',
 		));
-        $offset = Configure::read('timezone.adjust') * 60;
+		$offset = Configure::read('timezone.adjust') * 60;
 		$games = $this->Game->find ('all', array(
 				'conditions' => array(
 					'League.is_open' => true,

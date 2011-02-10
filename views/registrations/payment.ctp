@@ -23,8 +23,8 @@ echo $this->Html->para(null, 'Click ' .
 $this->Html->scriptBlock('
 function close_and_redirect(url)
 {
-    window.opener.location.href = url;
-    window.close();
+	window.opener.location.href = url;
+	window.close();
 }
 ', array('inline' => false));
 

@@ -62,8 +62,8 @@ $mapurl = null;
 if ($field['Field']['length'] > 0) {
 	$mapurl = array('controller' => 'maps', 'action' => 'view', 'field' => $field['Field']['id']);
 } else if (!empty ($field['Field']['location_url'])) {
-    // Useful during transition period from old maps to new
-    $mapurl = $field['Field']['location_url'];
+	// Useful during transition period from old maps to new
+	$mapurl = $field['Field']['location_url'];
 }
 ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Map'); ?></dt>

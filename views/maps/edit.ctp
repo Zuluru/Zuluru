@@ -86,7 +86,7 @@ $this->Html->scriptBlock ($variables, array('inline' => false));
 <span id="show_length"></span>
 <input type="submit" onclick="return update_length(2)" value="+">
 <input type="submit" onclick="return update_length(-2)" value="-">
-</p>     
+</p>
 
 <p>Playing Field Proper:
 <span id="show_field"></span>

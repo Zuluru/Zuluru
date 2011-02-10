@@ -49,10 +49,10 @@ class FormatterBehavior extends ModelBehavior
 		return $val;
 	}
 
-    // Reformat a phone number into a standard format.
-    // Returns the original input if the input is not something we recognize as being a phone number.
-    // This function explicitly does *not* handle extensions.
-    function phone_format ($num)
+	// Reformat a phone number into a standard format.
+	// Returns the original input if the input is not something we recognize as being a phone number.
+	// This function explicitly does *not* handle extensions.
+	function phone_format ($num)
 	{
 		$num = clean ($num);
 		if (empty ($num))
