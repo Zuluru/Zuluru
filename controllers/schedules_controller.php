@@ -237,10 +237,10 @@ class SchedulesController extends AppController {
 				$this->Session->setFlash(__('Deleted games on the requested date.', true));
 				$db->commit($this->League->Game);
 				$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $id));
+			} else {
+				$this->Session->setFlash(__('Failed to delete games on the requested date.', true));
+				$db->rollback($this->League->Game);
 			}
-		} else {
-			$this->Session->setFlash(__('Failed to delete games on the requested date.', true));
-			$db->rollback($this->League->Game);
 		}
 
 		$this->League->Game->contain (array (
@@ -297,10 +297,11 @@ class SchedulesController extends AppController {
 		$league_obj = $this->_getComponent ('LeagueType', $league['League']['schedule_type'], $this);
 		$league_obj->league = $league;
 		if (!empty ($this->data)) {
+			// Wrap the whole thing in a transaction, for safety.
+			$db =& ConnectionManager::getDataSource($this->League->Game->useDbConfig);
+			$db->begin($this->League->Game);
+
 			if ($league_obj->assignFieldsByPreferences($this->data['new_date'], $league['Game'])) {
-				// Wrap the whole thing in a transaction, for safety.
-				$db =& ConnectionManager::getDataSource($this->League->Game->useDbConfig);
-				$db->begin($this->League->Game);
 
 				if ($this->League->Game->_saveGames ($league_obj->games, $this->data['publish'])) {
 					$unused_slots = Set::extract ('/GameSlot/id', $league['Game']);
