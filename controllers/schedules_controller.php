@@ -219,30 +219,6 @@ class SchedulesController extends AppController {
 		$this->_init($id);
 		$date = $this->_arg('date');
 
-		if ($this->_arg('confirm')) {
-			// Wrap the whole thing in a transaction, for safety.
-			$db =& ConnectionManager::getDataSource($this->League->Game->useDbConfig);
-			$db->begin($this->League->Game);
-
-			// Clear game_id from game_slots. Must be done before we delete the games.
-			if ($this->League->Game->GameSlot->updateAll (array('game_id' => null), array(
-					'Game.league_id' => $id,
-					'GameSlot.game_date' => $date,
-				)) &&
-				$this->League->Game->deleteAll(array(
-						'Game.league_id' => $id,
-						'GameSlot.game_date' => $date,
-				), false))
-			{
-				$this->Session->setFlash(__('Deleted games on the requested date.', true));
-				$db->commit($this->League->Game);
-				$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $id));
-			} else {
-				$this->Session->setFlash(__('Failed to delete games on the requested date.', true));
-				$db->rollback($this->League->Game);
-			}
-		}
-
 		$this->League->Game->contain (array (
 			'GameSlot',
 		));
@@ -254,6 +230,29 @@ class SchedulesController extends AppController {
 				),
 				'fields' => array('Game.id', 'Game.published', 'Game.home_score'),
 		));
+
+		if ($this->_arg('confirm')) {
+			// Wrap the whole thing in a transaction, for safety.
+			$db =& ConnectionManager::getDataSource($this->League->Game->useDbConfig);
+			$db->begin($this->League->Game);
+
+			// Clear game_id from game_slots, and delete the games.
+			$game_ids = Set::extract ('/Game/id', $games);
+			if ($this->League->Game->GameSlot->updateAll (array('game_id' => null), array(
+					'GameSlot.game_id' => $game_ids,
+				)) &&
+				$this->League->Game->deleteAll(array(
+					'Game.id' => $game_ids,
+				), false))
+			{
+				$this->Session->setFlash(__('Deleted games on the requested date.', true));
+				$db->commit($this->League->Game);
+				$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $id));
+			} else {
+				$this->Session->setFlash(__('Failed to delete games on the requested date.', true));
+				$db->rollback($this->League->Game);
+			}
+		}
 
 		$this->set (compact ('date', 'games'));
 	}
