@@ -192,11 +192,7 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 		// or anything, just randomly allocate a gameslot.
 		$num_games = $num_teams / 2;
 		for ($i = 0; $i < $num_games; ++$i) {
-			$this->games[] = array(
-				'GameSlot' => array(
-					'id' => $this->selectRandomGameslot($date),
-				),
-			);
+			$this->createEmptyGame($date);
 		}
 
 		return true;
