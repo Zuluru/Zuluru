@@ -30,19 +30,21 @@ class CropImageHelper extends Helper {
 					var y2 = $('#y2').val();
 					var w = $('#w').val();
 					var h = $('#h').val();
-					if(x1==\"\" || y1==\"\" || x2==\"\" || y2==\"\"|| w==\"\" || h==\"\"){
-						alert('Please choose a area to crop...');
+					if (x1==\"\" || y1==\"\" || x2==\"\" || y2==\"\" ||
+						w==\"\" || h==\"\" || w < 50 || h < 50)
+					{
+						alert('Please choose an area to crop...');
 						return false;
-					}else{
+					} else {
 						return true;
-				}
+					}
+				});
 			});
-		});
 
-		$(window).load(function () {
-			$('#thumbnail').imgAreaSelect({ aspectRatio: '1:1', onSelectChange: preview });
-		});
-		</script>");
+			$(window).load(function () {
+				$('#thumbnail').imgAreaSelect({ aspectRatio: '1:1', onSelectChange: preview });
+			});
+			</script>");
 	}
 
 	function createForm($tempDir, $imageName, $tH, $tW){
