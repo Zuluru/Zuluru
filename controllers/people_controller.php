@@ -284,12 +284,34 @@ class PeopleController extends AppController {
 		$this->set(compact('person', 'size'));
 
 		if (!empty ($this->data) && array_key_exists ('image', $this->data)) {
-			if (empty ($this->data['image']) ||
-				empty ($this->data['image']['name']) ||
-				$this->data['image']['error'] != 0 ||
+			if (empty ($this->data['image'])) {
+				$this->Session->setFlash(__('There was an unexpected error uploading the file. Please try again.', true));
+				return;
+			}
+			if ($this->data['image']['error'] == UPLOAD_ERR_INI_SIZE) {
+				$max = ini_get('upload_max_filesize');
+				$unit = substr($max,-1);
+				if ($unit == 'M' || $unit == 'K') {
+					$max .= 'b';
+				}
+				$this->Session->setFlash(sprintf (__('The selected photo is too large. Photos must be less than %s.', true), $max));
+				return;
+			}
+			if ($this->data['image']['error'] == UPLOAD_ERR_NO_FILE) {
+				$this->Session->setFlash(__('You must select a photo to upload', true));
+				return;
+			}
+			if ($this->data['image']['error'] == UPLOAD_ERR_NO_TMP_DIR ||
+				$this->data['image']['error'] == UPLOAD_ERR_CANT_WRITE)
+			{
+				$this->Session->setFlash(__('This system does not appear to be properly configured for photo uploads. Please contact your administrator to have them correct this.', true));
+				return;
+			}
+			if ($this->data['image']['error'] != 0 ||
 				strpos ($this->data['image']['type'], 'image/') === false)
 			{
-				$this->Session->setFlash(__('You must select a photo to upload', true));
+				$this->log($this->data, 'upload');
+				$this->Session->setFlash(__('There was an unexpected error uploading the file. Please try again.', true));
 				return;
 			}
 
