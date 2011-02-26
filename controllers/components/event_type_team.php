@@ -29,10 +29,6 @@ class EventTypeTeamComponent extends EventTypeComponent
 	// ID numbers don't much matter, but they can't be duplicated between event types,
 	// and they can't ever be changed, because they're in the database.
 	function registrationFields($event) {
-		if ($event['Event']['team_league'] == null) {
-			return array();
-		}
-
 		$fields = array(
 			array(
 				'type' => 'group_start',
@@ -54,24 +50,27 @@ class EventTypeTeamComponent extends EventTypeComponent
 			),
 		);
 
-		if (Configure::read('feature.region_preference') && array_key_exists ('ask_region', $event['Event']) && $event['Event']['ask_region']) {
-			$fields[] = array(
-				'id' => -3,
-				'type' => 'select',
-				'question' => __('Region Preference', true),
-				'after' => __('Area of city where you would prefer to play.', true),
-				// TODO: Populate with possibilities from regions table
-				'options' => array(),
-			);
-		}
+		// These questions are only meaningful when we are creating team records
+		if ($event['Event']['team_league'] != null) {
+			if (Configure::read('feature.region_preference') && array_key_exists ('ask_region', $event['Event']) && $event['Event']['ask_region']) {
+				$fields[] = array(
+					'id' => -3,
+					'type' => 'select',
+					'question' => __('Region Preference', true),
+					'after' => __('Area of city where you would prefer to play.', true),
+					// TODO: Populate with possibilities from regions table
+					'options' => array(),
+				);
+			}
 
-		if (array_key_exists ('ask_status', $event['Event']) && $event['Event']['ask_status']) {
-			$fields[] = array(
-				'id' => -4,
-				'type' => 'checkbox',
-				'question' => __('Open Roster', true),
-				'after' => __('If the team roster is open, others can request to join; otherwise, only the captain can add players.', true),
-			);
+			if (array_key_exists ('ask_status', $event['Event']) && $event['Event']['ask_status']) {
+				$fields[] = array(
+					'id' => -4,
+					'type' => 'checkbox',
+					'question' => __('Open Roster', true),
+					'after' => __('If the team roster is open, others can request to join; otherwise, only the captain can add players.', true),
+				);
+			}
 		}
 
 		$fields[] = array('type' => 'group_end');
@@ -80,14 +79,9 @@ class EventTypeTeamComponent extends EventTypeComponent
 	}
 
 	function registrationFieldsValidation($event) {
-		if ($event['Event']['team_league'] == null) {
-			return array();
-		}
-
 		// 'message' must go into an array with key = 'answer' because
 		// field names when we display this are like Response.{id}.answer
-		// TODO: Add region and open roster validation, if necessary
-		return array(
+		$validation = array(
 			'-1' => array(
 				'notempty' => array(
 					'rule' => array('response', 'notempty'),
@@ -101,6 +95,12 @@ class EventTypeTeamComponent extends EventTypeComponent
 				),
 			),
 		);
+
+		if ($event['Event']['team_league'] == null) {
+			// TODO: Add region and open roster validation, if necessary
+		}
+
+		return $validation;
 	}
 
 	function register($event, &$data) {
