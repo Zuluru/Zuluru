@@ -49,5 +49,16 @@ class Question extends AppModel {
 		)
 	);
 
+	// Return the field name to be used for a questionnaire form element.
+	// Questionnaires save their data in a different format from normal
+	// forms, and the field names need to match in the form, validation
+	// array, and when we load saved data for editing.
+	static function _formName($question, $answer = null) {
+		$name = "q{$question['id']}";
+		if ($answer !== null) {
+			$name .= "a{$answer['id']}";
+		}
+		return $name;
+	}
 }
 ?>

@@ -117,18 +117,13 @@ class RegistrationsController extends AppController {
 				'fields' => array(
 					'question_id',
 					'answer_id',
-					'answer',
-					'COUNT(answer_id) AS count_id',
-					'COUNT(answer) AS count',
+					'COUNT(answer_id) AS count',
 				),
 				'conditions' => array(
 					'event_id' => $id,
-					'OR' => array(
-						array('answer' => null),	// an answer_id is present
-						array('answer' => 1),		// checked checkboxes
-					),
+					'answer' => null,
 				),
-				'group' => array('question_id', 'answer_id', 'answer'),
+				'group' => array('question_id', 'answer_id'),
 				'order' => 'question_id',
 		));
 
@@ -253,30 +248,36 @@ class RegistrationsController extends AppController {
 		if (!$empty) {
 			// array_merge doesn't work, since we have numeric keys
 			$this->Registration->Response->validate =
-				$event_obj->registrationFieldsValidation ($event) +
-				$this->Questionnaire->validation($event['Questionnaire']);
+				$this->Questionnaire->validation($event['Questionnaire']) +
+				$event_obj->registrationFieldsValidation ($event);
+
+			// Remove any unchecked checkboxes; we only save the checked ones.
+			// $delete will be empty here, we don't need to do anything with it.
+			list ($data, $delete) = $this->_splitResponses ($this->data);
 
 			// This is all a little fragile, because of the weird format of the data we're saving.
 			// We need to first set the response data, then validate it.  We can't rely on
 			// Registration->saveAll to validate properly.
-			$this->Registration->Response->set ($this->data);
+			$this->Registration->Response->set ($data);
 
 			if ($this->Registration->Response->validates()) {
 				// Wrap the whole thing in a transaction, for safety.
 				$db =& ConnectionManager::getDataSource($this->Registration->useDbConfig);
 				$db->begin($this->Registration);
 
-				// TODO: Confirmation page
-				// Next, we must do the event registration, as it may add to the $this->data array
-				$result = $event_obj->register($event, $this->data);
+				// Next, we must do the event registration, as it may add to the $data array
+				$result = $event_obj->register($event, $data);
 				if ($result === true) {
 					// Now manually add the event id to all of the responses :-(
-					foreach (array_keys ($this->data['Response']) as $key) {
-						$this->data['Response'][$key]['event_id'] = $id;
+					foreach (array_keys ($data['Response']) as $key) {
+						$data['Response'][$key]['event_id'] = $id;
 					}
 
+					// Use array_values here to get numeric keys in the data to be saved
+					$data['Response'] = array_values($data['Response']);
+
 					// TODO: 'atomic' can go, once we've upgraded everything to Cake 1.3.6
-					if ($this->Registration->saveAll($this->data, array('atomic' => false, 'validate' => false))) {
+					if ($this->Registration->saveAll($data, array('atomic' => false, 'validate' => false))) {
 						$this->Session->setFlash(__('Your preferences for this registration have been saved.', true));
 						if ($event['Event']['anonymous']) {
 							$this->Registration->Response->updateAll (array('registration_id' => null),
@@ -504,22 +505,85 @@ class RegistrationsController extends AppController {
 		$this->_mergeAutoQuestions ($registration, $event_obj, $registration['Event']['Questionnaire']);
 
 		if (!empty($this->data)) {
-			if ($this->Registration->saveAll($this->data)) {
-				$this->Session->setFlash(__('The registration has been saved', true));
-				$this->redirect(array('controller' => 'people', 'action' => 'registrations', 'person' => $registration['Person']['id']));
+			// array_merge doesn't work, since we have numeric keys
+			$this->Registration->Response->validate =
+				$this->Questionnaire->validation($registration['Event']['Questionnaire']) +
+				$event_obj->registrationFieldsValidation ($registration);
+
+			// Remove any unchecked checkboxes; we only save the checked ones.
+			list ($data, $delete) = $this->_splitResponses ($this->data);
+
+			// This is all a little fragile, because of the weird format of the data we're saving.
+			// We need to first set the response data, then validate it.  We can't rely on
+			// Registration->saveAll to validate properly.
+			$this->Registration->Response->set ($data);
+
+			if ($this->Registration->Response->validates()) {
+				// Wrap the whole thing in a transaction, for safety.
+				$db =& ConnectionManager::getDataSource($this->Registration->useDbConfig);
+				$db->begin($this->Registration);
+
+				// TODO: Redo the event registration, in case anything has changed
+				$result = true; //$event_obj->reregister($registration, $data);
+				if ($result === true) {
+					// Now manually add the event id to all of the responses :-(
+					foreach (array_keys ($data['Response']) as $key) {
+						$data['Response'][$key]['event_id'] = $registration['Event']['id'];
+					}
+
+					// Use array_values here to get numeric keys in the data to be saved
+					$data['Response'] = array_values($data['Response']);
+
+					// TODO: 'atomic' can go, once we've upgraded everything to Cake 1.3.6
+					if ($this->Registration->saveAll($data, array('atomic' => false, 'validate' => false))) {
+						if (empty($delete) || $this->Registration->Response->deleteAll (array(
+							'id' => $delete,
+						), false))
+						{
+							if ($db->commit($this->Registration) !== false) {
+								$this->Session->setFlash(__('The registration has been saved', true));
+								$this->redirect(array('controller' => 'people', 'action' => 'registrations', 'person' => $registration['Person']['id']));
+							} else {
+								$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
+							}
+						}
+					} else {
+						$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
+					}
+				} else if ($result === false) {
+					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
+				} else {
+					// TODO: Do a validation-only save, add $result to validation errors
+					$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
+				}
+
+				// If we get here, something failed
+				$db->rollback($this->Registration);
 			} else {
 				$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
 			}
 		} else {
-			// Something like adjustEntryIndices, need a general-purpose AppModel method for this
-			$keys = array_keys ($registration['Response']);
-			foreach ($keys as $key) {
-				$question = $registration['Response'][$key]['question_id'];
-				$registration['Response'][$question] = $registration['Response'][$key];
-				unset ($registration['Response'][$key]);
-			}
-
+			// Convert saved response data into the format required by the output
 			$this->data = $registration;
+			$responses = array();
+			foreach ($registration['Event']['Questionnaire']['Question'] as $question) {
+				if (array_key_exists ('id', $question)) {
+					$saved = Set::extract ("/Response[question_id={$question['id']}]", $registration);
+					if (!empty ($saved)) {
+						if ($question['type'] == 'checkbox') {
+							foreach ($question['Answer'] as $answer) {
+								$id = Set::extract ("/Response[answer_id={$answer['id']}]", $saved);
+								if (!empty ($id)) {
+									$responses[Question::_formName($question, $answer)] = $id[0]['Response'];
+								}
+							}
+						} else {
+							$responses[Question::_formName($question)] = $saved[0]['Response'];
+						}
+					}
+				}
+			}
+			$this->data['Response'] = $responses;
 		}
 
 		$this->set(compact('registration'));
@@ -550,6 +614,20 @@ class RegistrationsController extends AppController {
 		$questionnaire['Question'] = array_merge (
 				$questionnaire['Question'], $event_obj->registrationFields($event)
 		);
+	}
+
+	function _splitResponses($data) {
+		// Make a list of old entries that now have answer_id = 0 (to delete)
+		$delete = Set::extract ('/Response[answer_id=0][id>0]/id', $data);
+
+		// Next, we remove any new checkbox entries with answer_id = 0 (not to be saved)
+		foreach ($data['Response'] as $key => $response) {
+			if (strpos ($key, 'a') !== false && $response['answer_id'] === '0') {
+				unset ($data['Response'][$key]);
+			}
+		}
+
+		return array($data, $delete);
 	}
 }
 ?>

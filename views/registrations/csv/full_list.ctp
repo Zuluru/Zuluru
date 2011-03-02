@@ -26,8 +26,12 @@ $header = array(
 );
 if (!$event['Event']['anonymous']) {
 	foreach ($event['Questionnaire']['Question'] as $question) {
-		if (in_array ($question['type'], array('text', 'textbox', 'radio', 'select', 'checkbox'))) {
+		if (in_array ($question['type'], array('text', 'textbox', 'radio', 'select'))) {
 			$header[] = $question['question'];
+		} else if ($question['type'] == 'checkbox') {
+			foreach ($question['Answer'] as $answer) {
+				$header[] = $answer['answer'];
+			}
 		}
 	}
 }
@@ -62,12 +66,17 @@ foreach($registrations as $registration) {
 	);
 	if (!$event['Event']['anonymous']) {
 		foreach ($event['Questionnaire']['Question'] as $question) {
-			if (in_array ($question['type'], array('text', 'textbox', 'radio', 'select', 'checkbox'))) {
+			if (in_array ($question['type'], array('text', 'textbox', 'radio', 'select'))) {
 				$answer = array_shift (Set::extract ("/Response[question_id={$question['id']}]/.", $registration));
 				if (!empty ($answer['answer_id'])) {
 					$answer = array_shift (Set::extract ("/Answer[id={$answer['answer_id']}]/.", $question));
 				}
 				$row[] = $answer['answer'];
+			} else if ($question['type'] == 'checkbox') {
+				foreach ($question['Answer'] as $answer) {
+					$answers = Set::extract ("/Response[question_id={$question['id']}][answer_id={$answer['id']}]/.", $registration);
+					$row[] = __(empty ($answers) ? 'no' : 'yes', true);
+				}
 			}
 		}
 	}

@@ -19,7 +19,7 @@ $this->Html->addCrumb (__('Edit', true));
 	?>
 	<?php
 	$type = $this->data['Question']['type'];
-	if ($type == 'radio' || $type == 'select'):
+	if ($type == 'radio' || $type == 'select' || $type = 'checkbox'):
 	?>
 		<table id="Answers" class="sortable">
 		<thead>

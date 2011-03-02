@@ -79,16 +79,16 @@ class EventTypeTeamComponent extends EventTypeComponent
 	}
 
 	function registrationFieldsValidation($event) {
-		// 'message' must go into an array with key = 'answer' because
-		// field names when we display this are like Response.{id}.answer
+		// 'message' must go into an array with key = 'q{answer}' because
+		// field names when we display this are like Response.q{id}.answer
 		$validation = array(
-			'-1' => array(
+			'q-1' => array(
 				'notempty' => array(
 					'rule' => array('response', 'notempty'),
 					'message' => array('answer' => 'Team name must not be blank.'),
 				),
 			),
-			'-2' => array(
+			'q-2' => array(
 				'notempty' => array(
 					'rule' => array('response', 'notempty'),
 					'message' => array('answer' => 'Shirt colour must not be blank.'),

@@ -17,7 +17,7 @@ class QuestionnaireComponent extends Object
 				// These types may require a single selection
 				case 'select':
 				case 'radio':
-					$validation[$question['id']] = array(
+					$validation[Question::_formName($question)] = array(
 						'rule' => array('response_select', Set::extract ('/Answer/id', $question), $required),
 						'message' => array('answer_id' => 'Select one'),
 						'required' => true,
@@ -27,7 +27,7 @@ class QuestionnaireComponent extends Object
 				case 'text':
 				case 'textbox':
 					if ($required) {
-						$validation[$question['id']] = array(
+						$validation[Question::_formName($question)] = array(
 							'rule' => array('response', 'notempty'),
 							'message' => array('answer' => 'Must not be blank.'),
 							'required' => true,
