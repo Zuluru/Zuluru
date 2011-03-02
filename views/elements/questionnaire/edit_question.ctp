@@ -8,7 +8,8 @@ if ($i % 2 == 1) {
 	<td class="handle"><?php
 	echo $this->Form->hidden("Question.$i.question_id", array('value' => $question['id']));
 	echo $this->Form->hidden("Question.$i.sort", array('value' => $i));
-	echo $question['question'] . ' (' . $question['type'] . ')';
+	echo $question['question'] . ' (' . $question['type'] . ')' .
+		($question['anonymous'] ? (' (' . __('anonymous', true) . ')') : '');
 	?></td>
 	<td><?php
 	$checked = (array_key_exists ('QuestionnairesQuestion', $question) ? $question['QuestionnairesQuestion']['required'] : false);

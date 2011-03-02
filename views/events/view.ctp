@@ -116,13 +116,6 @@ $this->Html->addCrumb (__('View', true));
 			<?php __($event['Event']['multiple'] ? 'Allowed' : 'Not allowed'); ?>
 
 		</dd>
-<?php if ($event['Event']['anonymous']): ?>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Survey'); ?></dt>
-		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php __('Results of this event\'s survey will be anonymous.'); ?>
-
-		</dd>
-<?php endif; ?>
 	</dl>
 
 <?php

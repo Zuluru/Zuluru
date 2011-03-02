@@ -29,7 +29,6 @@ $this->Html->addCrumb (__('View', true));
 		<th><?php __('Name'); ?></th>
 		<th><?php __('Open'); ?></th>
 		<th><?php __('Close'); ?></th>
-		<th><?php __('Anonymous'); ?></th>
 		<th class="actions"><?php __('Actions');?></th>
 	</tr>
 	<?php
@@ -44,7 +43,6 @@ $this->Html->addCrumb (__('View', true));
 			<td><?php echo $this->Html->link ($event['name'], array('controller' => 'events', 'action' => 'view', 'event' => $event['id']));?></td>
 			<td><?php echo $this->ZuluruTime->fulldatetime ($event['open']);?></td>
 			<td><?php echo $this->ZuluruTime->fulldatetime ($event['close']);?></td>
-			<td><?php __($event['anonymous'] ? 'Yes' : 'No');?></td>
 			<td class="actions">
 				<?php echo $this->Html->link(__('View', true), array('controller' => 'events', 'action' => 'view', 'event' => $event['id'])); ?>
 				<?php echo $this->Html->link(__('Edit', true), array('controller' => 'events', 'action' => 'edit', 'event' => $event['id'])); ?>

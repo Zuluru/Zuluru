@@ -83,14 +83,6 @@ class Event extends AppModel {
 				'message' => 'Indicate whether multiple registrations are allowed.',
 			),
 		),
-		'anonymous' => array(
-			'boolean' => array(
-				'rule' => array('boolean'),
-				'required' => false,
-				'allowEmpty' => true,
-				'message' => 'Indicate whether the survey will be anonymous.',
-			),
-		),
 	);
 
 	var $belongsTo = array(

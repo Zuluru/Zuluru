@@ -13,6 +13,14 @@ class Question extends AppModel {
 				'rule' => array('inconfig', 'options.question_types'),
 			),
 		),
+		'anonymous' => array(
+			'boolean' => array(
+				'rule' => array('boolean'),
+				'required' => false,
+				'allowEmpty' => true,
+				'message' => 'Indicate whether responses to this question will be anonymous.',
+			),
+		),
 	);
 
 	var $hasMany = array(

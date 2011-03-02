@@ -76,10 +76,6 @@ if (isset ($add)) {
 		echo $this->Form->input('questionnaire_id', array(
 			'empty' => 'None',
 		));
-		echo $this->Form->input('anonymous', array(
-			'label' => 'Anonymous statistics',
-			'after' => $this->Html->para (null, __('Will results from this event\'s survey be kept anonymous?', true)),
-		));
 	?>
 		<div id="EventTypeFields">
 		<?php

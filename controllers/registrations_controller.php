@@ -45,15 +45,7 @@ class RegistrationsController extends AppController {
 		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire']);
 
 		if ($this->params['url']['ext'] == 'csv') {
-			// Technically, there's no reason not to include responses for events with
-			// anonymous surveys, because there are none to read. However, it takes a
-			// lot longer to even try, and scripts timeout because those also tend to
-			// be the events with a lot of registrations (memberships).
-			if ($event['Event']['anonymous']) {
-				$this->Registration->contain ('Person');
-			} else {
-				$this->Registration->contain ('Person', 'Response');
-			}
+			$this->Registration->contain ('Person', 'Response');
 			$this->set('registrations', $this->Registration->find ('all', array(
 					'conditions' => array('Registration.event_id' => $id),
 					'order' => array('Registration.payment' => 'DESC', 'Registration.created' => 'DESC'),
@@ -279,9 +271,10 @@ class RegistrationsController extends AppController {
 					// TODO: 'atomic' can go, once we've upgraded everything to Cake 1.3.6
 					if ($this->Registration->saveAll($data, array('atomic' => false, 'validate' => false))) {
 						$this->Session->setFlash(__('Your preferences for this registration have been saved.', true));
-						if ($event['Event']['anonymous']) {
+						$anonymous = Set::extract ('/Question[anonymous=1]/id', $event['Questionnaire']);
+						if (!empty ($anonymous)) {
 							$this->Registration->Response->updateAll (array('registration_id' => null),
-								array('registration_id' => $this->Registration->id));
+								array('question_id' => $anonymous));
 						}
 						if ($db->commit($this->Registration) !== false) {
 							$this->redirect(array('action' => 'checkout'));

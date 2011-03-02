@@ -10,6 +10,10 @@
 				'options' => Configure::read('options.question_types'),
 				'empty' => true,
 		));
+		echo $this->Form->input('anonymous', array(
+			'label' => 'Anonymous results',
+			'after' => $this->Html->para (null, __('Will responses to this question be kept anonymous?', true)),
+		));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>

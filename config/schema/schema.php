@@ -70,7 +70,6 @@ class ZuluruSchema extends CakeSchema {
 		'cap_female' => array('type' => 'integer', 'null' => false, 'default' => '0', 'length' => 10),
 		'multiple' => array('type' => 'boolean', 'null' => true, 'default' => '0'),
 		'questionnaire_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
-		'anonymous' => array('type' => 'boolean', 'null' => true, 'default' => '0'),
 		'custom' => array('type' => 'text', 'null' => true, 'default' => NULL),
 		'register_rule' => array('type' => 'text', 'null' => true, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'name' => array('column' => 'name', 'unique' => 1)),
@@ -279,6 +278,7 @@ class ZuluruSchema extends CakeSchema {
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'question' => array('type' => 'text', 'null' => false, 'default' => NULL),
 		'type' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 20),
+		'anonymous' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
