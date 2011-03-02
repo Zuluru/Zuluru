@@ -166,6 +166,7 @@ class RegistrationsController extends AppController {
 		$this->Registration->Event->contain();
 		$this->set('years', $this->Registration->Event->find('all', array(
 			'fields' => 'DISTINCT YEAR(open) AS year',
+			'order' => 'open',
 		)));
 	}
 
