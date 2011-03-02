@@ -567,7 +567,7 @@ class AppController extends Controller {
 		// Some items are only applicable depending on league configuration
 		if (!empty ($league['League']['schedule_type'])) {
 			$league_obj = $this->_getComponent ('LeagueType', $league['League']['schedule_type'], $this);
-			$league_obj->addMenuItems ($league);
+			$league_obj->addMenuItems ($league, $is_coordinator);
 		}
 	}
 
