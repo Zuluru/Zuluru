@@ -23,7 +23,12 @@ class QuestionnairesController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->Questionnaire->contain(array(
-				'Question' => array('Answer'),
+				'Question' => array(
+					'Answer' => array(
+						'conditions' => array('active' => true),
+					),
+					'conditions' => array('active' => true),
+				),
 				'Event',
 		));
 		$this->set('questionnaire', $this->Questionnaire->read(null, $id));

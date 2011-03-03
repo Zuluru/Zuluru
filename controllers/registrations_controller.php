@@ -205,7 +205,14 @@ class RegistrationsController extends AppController {
 
 		$this->Registration->Event->contain (array(
 			'EventType',
-			'Questionnaire' => array('Question' => array('Answer')),
+			'Questionnaire' => array(
+				'Question' => array(
+					'Answer' => array(
+						'conditions' => array('active' => true),
+					),
+					'conditions' => array('active' => true),
+				),
+			),
 		));
 		$event = $this->Registration->Event->read(null, $id);
 		if ($event === false) {
@@ -485,7 +492,14 @@ class RegistrationsController extends AppController {
 			'Person',
 			'Event' => array(
 				'EventType',
-				'Questionnaire' => array('Question' => array('Answer')),
+				'Questionnaire' => array(
+					'Question' => array(
+						'Answer' => array(
+							'conditions' => array('active' => true),
+						),
+						'conditions' => array('active' => true),
+					),
+				),
 			),
 			'Response',
 		));

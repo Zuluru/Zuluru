@@ -59,6 +59,7 @@ $this->Html->addCrumb (__('Edit', true));
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
+<div id="temp_update" style="display: none;"></div>
 
 <?php
 // Make the table sortable

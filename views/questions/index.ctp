@@ -1,5 +1,10 @@
+<?php
+$this->Html->addCrumb (__('Questions', true));
+$this->Html->addCrumb (__('List', true));
+?>
+
 <div class="questions index">
-	<h2><?php __('Questions');?></h2>
+	<h2><?php __($active ? 'Questions List' : 'Deactivated Questions List');?></h2>
 	<table cellpadding="0" cellspacing="0">
 	<tr>
 			<th><?php echo $this->Paginator->sort('question');?></th>
@@ -23,6 +28,22 @@
 			<?php echo $this->Html->link(__('Preview', true), array('action' => 'view', 'question' => $question['Question']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit', true), array('action' => 'edit', 'question' => $question['Question']['id'])); ?>
 			<?php echo $this->Html->link(__('Delete', true), array('action' => 'delete', 'question' => $question['Question']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $question['Question']['id'])); ?>
+			<?php $id = 'span_' . mt_rand(); ?>
+			<span id="<?php echo $id; ?>">
+			<?php
+			if ($question['Question']['active']) {
+				echo $this->Js->link(__('Deactivate', true),
+						array('action' => 'deactivate', 'question' => $question['Question']['id'], 'id' => $id),
+						array('update' => "#temp_update")
+				);
+			} else {
+				echo $this->Js->link(__('Activate', true),
+						array('action' => 'activate', 'question' => $question['Question']['id'], 'id' => $id),
+						array('update' => "#temp_update")
+				);
+			}
+			?>
+			</span>
 		</td>
 	</tr>
 	<?php endforeach; ?>
@@ -46,3 +67,4 @@
 		<li><?php echo $this->Html->link(sprintf(__('New %s', true), __('Question', true)), array('action' => 'add')); ?></li>
 	</ul>
 </div>
+<div id="temp_update" style="display: none;"></div>

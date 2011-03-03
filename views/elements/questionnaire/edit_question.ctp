@@ -23,5 +23,21 @@ if ($i % 2 == 1) {
 	<td class="actions"><?php
 	echo $this->Html->link ('Edit', array('controller' => 'questions', 'action' => 'edit', 'question' => $question['id']));
 	echo $this->Html->link ('Remove', '#');
-	?></td>
+	$id = 'span_' . mt_rand(); ?>
+	<span id="<?php echo $id; ?>">
+	<?php
+	if ($question['active']) {
+		echo $this->Js->link(__('Deactivate', true),
+				array('controller' => 'questions', 'action' => 'deactivate', 'question' => $question['id'], 'id' => $id),
+				array('update' => "#temp_update")
+		);
+	} else {
+		echo $this->Js->link(__('Activate', true),
+				array('controller' => 'questions', 'action' => 'activate', 'question' => $question['id'], 'id' => $id),
+				array('update' => "#temp_update")
+		);
+	}
+	?>
+	</span>
+	</td>
 </tr>

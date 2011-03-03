@@ -5,7 +5,15 @@ class QuestionsController extends AppController {
 
 	function index() {
 		$this->Question->recursive = 0;
-		$this->set('questions', $this->paginate());
+		$this->set('questions', $this->paginate('Question', array('active' => true)));
+		$this->set('active', true);
+	}
+
+	function deactivated() {
+		$this->Question->recursive = 0;
+		$this->set('questions', $this->paginate('Question', array('active' => false)));
+		$this->set('active', false);
+		$this->render('index');
 	}
 
 	function view() {
@@ -47,6 +55,34 @@ class QuestionsController extends AppController {
 			$this->Question->contain(array('Answer' => array('order' => 'Answer.sort')));
 			$this->data = $this->Question->read(null, $id);
 		}
+	}
+
+	function activate() {
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
+
+		extract($this->params['named']);
+		$this->set($this->params['named']);
+		$name = $this->Question->field('name', array('id' => $question));
+
+		$success = $this->Question->updateAll (array('active' => true), array(
+				'Question.id' => $question,
+		));
+		$this->set(compact('success', 'name'));
+	}
+
+	function deactivate() {
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
+
+		extract($this->params['named']);
+		$this->set($this->params['named']);
+		$name = $this->Question->field('name', array('id' => $question));
+
+		$success = $this->Question->updateAll (array('active' => 0), array(
+				'Question.id' => $question,
+		));
+		$this->set(compact('success', 'name'));
 	}
 
 	function delete() {
@@ -92,7 +128,8 @@ class QuestionsController extends AppController {
 		$this->Question->recursive = -1;
 		$this->set('questions', $this->Question->find('all', array(
 			'conditions' => array(
-				'Question.question LIKE' => "%{$this->params['url']['q']}%"
+				'Question.question LIKE' => "%{$this->params['url']['q']}%",
+				'Question.active' => true,
 			),
 			'fields' => array('Question.id', 'Question.question'),
 			'order' => 'Question.question',

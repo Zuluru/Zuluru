@@ -39,6 +39,7 @@ foreach ($questionnaire['Question'] as $question) {
 		?></li>
 	</ul>
 </div>
+<div id="temp_update" style="display: none;"></div>
 
 <?php
 // Make the table sortable

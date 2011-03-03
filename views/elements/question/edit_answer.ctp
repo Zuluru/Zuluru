@@ -13,5 +13,21 @@
 	?></td>
 	<td class="actions"><?php
 		echo $this->Html->link ('Delete', '#');
-	?></td>
+		$id = 'span_' . mt_rand(); ?>
+		<span id="<?php echo $id; ?>">
+		<?php
+		if ($answer['active']) {
+			echo $this->Js->link(__('Deactivate', true),
+					array('controller' => 'answers', 'action' => 'deactivate', 'answer' => $answer['id'], 'id' => $id),
+					array('update' => "#temp_update")
+			);
+		} else {
+			echo $this->Js->link(__('Activate', true),
+					array('controller' => 'answers', 'action' => 'activate', 'answer' => $answer['id'], 'id' => $id),
+					array('update' => "#temp_update")
+			);
+		}
+		?>
+		</span>
+	</td>
 </tr>
