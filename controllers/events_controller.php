@@ -20,11 +20,44 @@ class EventsController extends AppController {
 		)));
 	}
 
+	function wizard($step = null) {
+		if (!$this->is_logged_in) {
+			$this->redirect(array('action' => 'index'));
+		}
+		$id = $this->Auth->user('id');
+
+		// Find all the events that are potentially available
+		// TODO: Include preregistrations in this query
+		// TODO: Eliminate the events that don't match the step, if any
+		$events = $this->Event->find('all', array(
+			'conditions' => array(
+				'Event.open < DATE_ADD(CURDATE(), INTERVAL 30 DAY)',
+				'Event.close > CURDATE()',
+			),
+			'order' => array('Event.event_type_id', 'Event.open', 'Event.close', 'Event.id'),
+			'contain' => array('EventType'),
+		));
+
+		$types = $this->Event->EventType->find('all', array(
+			'order' => array('EventType.id'),
+		));
+
+		// Prune out the events that are not possible
+		foreach ($events as $key => $event) {
+			$test = $this->CanRegister->test ($id, $event);
+			if (!$test['allowed']) {
+				unset ($events[$key]);
+			}
+		}
+
+		$this->set(compact('events', 'types', 'step'));
+	}
+
 	function view() {
 		$id = $this->_arg('event');
 		if (!$id) {
 			$this->Session->setFlash(__('Invalid event', true));
-			$this->redirect(array('action' => 'index'));
+			$this->redirect(array('action' => 'wizard'));
 		}
 		$this->Event->contain (array(
 			'EventType',

@@ -258,7 +258,7 @@ class AppController extends Controller {
 			// Allow anyone (logged on or not) to log in or log out, list and view things.
 			// 'View' goes by various names.
 			// 'Payment' comes from the payment processor.
-			$this->Auth->allow(array('login', 'logout', 'create_account', 'reset_password', 'index',
+			$this->Auth->allow(array('login', 'logout', 'create_account', 'reset_password', 'index', 'wizard',
 					'view', 'display', 'schedule', 'standings', 'ical', 'letter',
 					'payment', 'cron'));
 		}
@@ -302,7 +302,8 @@ class AppController extends Controller {
 		}
 
 		if (Configure::read('feature.registration')) {
-			$this->_addMenuItem ('Registration', array('controller' => 'events', 'action' => 'index'));
+			$this->_addMenuItem ('Registration', array('controller' => 'events', 'action' => 'wizard'));
+			$this->_addMenuItem ('All events', array('controller' => 'events', 'action' => 'index'), 'Registration');
 			if ($this->is_logged_in) {
 				$this->_addMenuItem ('My history', array('controller' => 'people', 'action' => 'registrations'), 'Registration');
 			}

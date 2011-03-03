@@ -200,7 +200,7 @@ class RegistrationsController extends AppController {
 		$id = $this->_arg('event');
 		if (!$id) {
 			$this->Session->setFlash(__('Invalid event', true));
-			$this->redirect(array('controller' => 'events', 'action' => 'index'));
+			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
 
 		$this->Registration->Event->contain (array(
@@ -217,7 +217,7 @@ class RegistrationsController extends AppController {
 		$event = $this->Registration->Event->read(null, $id);
 		if ($event === false) {
 			$this->Session->setFlash(__('Invalid Event', true));
-			$this->redirect(array('controller' => 'events', 'action' => 'index'));
+			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
 
 		// Re-do "can register" checks to make sure someone hasn't hand-fed us a URL
@@ -229,7 +229,7 @@ class RegistrationsController extends AppController {
 				}
 			}
 			$this->Session->setFlash(implode ('<br>', $test['messages']));
-			$this->redirect(array('controller' => 'events', 'action' => 'index'));
+			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
 
 		// Check the waiver, if any
@@ -340,7 +340,7 @@ class RegistrationsController extends AppController {
 		// disturb the flash message, just go back to the event list.
 		if (empty ($registrations)) {
 			$this->Session->delete ('Zuluru.Unpaid');
-			$this->redirect(array('controller' => 'events', 'action' => 'index'));
+			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
 
 		$this->Registration->Person->recursive = -1;
