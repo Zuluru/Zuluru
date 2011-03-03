@@ -29,8 +29,8 @@ $this->Html->addCrumb (__('Edit', true));
 		<thead>
 			<tr>
 				<th></th>
-				<th>Answer</th>
-				<th>Actions</th>
+				<th><?php __('Answer'); ?></th>
+				<th><?php __('Actions'); ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -48,7 +48,7 @@ $this->Html->addCrumb (__('Edit', true));
 		<div class="actions">
 			<ul>
 				<li><?php
-				echo $this->Html->link('Add an answer to this question', '#', array(
+				echo $this->Html->link(__('Add an answer to this question', true), '#', array(
 						'onclick' => "return addAnswerLocal();"
 				));
 				?></li>

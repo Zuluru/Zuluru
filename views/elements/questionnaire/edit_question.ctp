@@ -21,8 +21,8 @@ if ($i % 2 == 1) {
 	));
 	?></td>
 	<td class="actions"><?php
-	echo $this->Html->link ('Edit', array('controller' => 'questions', 'action' => 'edit', 'question' => $question['id']));
-	echo $this->Html->link ('Remove', '#');
+	echo $this->Html->link (__('Edit', true), array('controller' => 'questions', 'action' => 'edit', 'question' => $question['id']));
+	echo $this->Html->link (__('Remove', true), '#');
 	$id = 'span_' . mt_rand(); ?>
 	<span id="<?php echo $id; ?>">
 	<?php

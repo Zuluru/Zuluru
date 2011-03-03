@@ -1,9 +1,9 @@
 <table id="Questions" class="sortable">
 <thead>
 	<tr>
-		<th>Question</th>
-		<th>Required</th>
-		<th>Actions</th>
+		<th><?php __('Question'); ?></th>
+		<th><?php __('Required'); ?></th>
+		<th><?php __('Actions'); ?></th>
 	</tr>
 </thead>
 <tbody>

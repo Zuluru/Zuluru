@@ -12,7 +12,7 @@
 	));
 	?></td>
 	<td class="actions"><?php
-		echo $this->Html->link ('Delete', '#');
+		echo $this->Html->link (__('Delete', true), '#');
 		$id = 'span_' . mt_rand(); ?>
 		<span id="<?php echo $id; ?>">
 		<?php
