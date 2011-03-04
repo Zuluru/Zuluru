@@ -92,17 +92,31 @@ class QuestionsController extends AppController {
 			$this->redirect(array('action'=>'index'));
 		}
 
-		// TODO: Don't delete questions that are referenced by a questionnaire
-
-		// TODO Handle deletions
-		$this->Session->setFlash(sprintf(__('Deleting %s is disabled', true), 'questions'));
-		$this->redirect(array('action' => 'index'));
-
-		if ($this->Question->delete($id)) {
-			$this->Session->setFlash(sprintf(__('%s deleted', true), 'Question'));
+		// Find all of the questionnaires that use this question
+		$this->QuestionnairesQuestions = ClassRegistry::init ('QuestionnairesQuestions');
+		$this->QuestionnairesQuestions->recursive = -1;
+		$questionnaires = $this->QuestionnairesQuestions->find('count', array(
+				'conditions' => array('question_id' => $id),
+		));
+		if ($questionnaires > 0) {
+			$this->Session->setFlash(__('This question is used by at least one questionnaire and cannot be deleted.', true));
 			$this->redirect(array('action'=>'index'));
 		}
+
+		// Wrap the whole thing in a transaction, for safety.
+		$db =& ConnectionManager::getDataSource($this->Question->useDbConfig);
+		$db->begin($this->Question);
+
+		if ($this->Question->delete($id)) {
+			if ($this->Question->Answer->deleteAll(array('question_id' => $id))) {
+				$this->Session->setFlash(sprintf(__('%s deleted', true), 'Question'));
+				$db->commit($this->Question);
+				$this->redirect(array('action'=>'index'));
+			}
+		}
+
 		$this->Session->setFlash(sprintf(__('%s was not deleted', true), 'Question'));
+		$db->rollback($this->Question);
 		$this->redirect(array('action' => 'index'));
 	}
 
@@ -120,6 +134,31 @@ class QuestionsController extends AppController {
 		if ($this->Question->Answer->save ($answer)) {
 			$answer['id'] = $this->Question->Answer->id;
 			$this->set(compact('answer', 'i'));
+		}
+	}
+
+	function delete_answer() {
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
+
+		extract($this->params['named']);
+		$this->set($this->params['named']);
+
+		// Find if there are responses that use this answer
+		$this->Response = ClassRegistry::init ('Response');
+		$count = $this->Response->find('count', array(
+				'conditions' => array(
+					'answer_id' => $answer,
+				),
+		));
+
+		// Only answers with no responses can be removed
+		if ($count == 0) {
+			$this->set('success', $this->Question->Answer->deleteAll (array(
+					'id' => $answer,
+			), false));
+		} else {
+			$this->set('cannot', true);
 		}
 	}
 

@@ -268,11 +268,12 @@ class ZuluruSchema extends CakeSchema {
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $questionnaires_questions = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'questionnaire_id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'question'),
 		'question_id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'question'),
 		'sort' => array('type' => 'integer', 'null' => false, 'default' => NULL),
 		'required' => array('type' => 'boolean', 'null' => false, 'default' => NULL),
-		'indexes' => array('QUESTION' => array('column' => array('questionnaire_id', 'question_id'), 'unique' => 1), 'questionnaire_id' => array('column' => 'questionnaire_id', 'unique' => 0), 'question_id' => array('column' => 'question_id', 'unique' => 0)),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'QUESTION' => array('column' => array('questionnaire_id', 'question_id'), 'unique' => 1), 'questionnaire_id' => array('column' => 'questionnaire_id', 'unique' => 0), 'question_id' => array('column' => 'question_id', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $questions = array(

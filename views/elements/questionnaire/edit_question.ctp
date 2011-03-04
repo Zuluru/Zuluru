@@ -3,8 +3,9 @@ $class = null;
 if ($i % 2 == 1) {
 	$class = ' class="altrow"';
 }
+$tr_id = 'tr_' . mt_rand();
 ?>
-<tr<?php echo $class;?>>
+<tr id="<?php echo $tr_id; ?>"<?php echo $class;?>>
 	<td class="handle"><?php
 	echo $this->Form->hidden("Question.$i.question_id", array('value' => $question['id']));
 	echo $this->Form->hidden("Question.$i.sort", array('value' => $i));
@@ -22,8 +23,12 @@ if ($i % 2 == 1) {
 	?></td>
 	<td class="actions"><?php
 	echo $this->Html->link (__('Edit', true), array('controller' => 'questions', 'action' => 'edit', 'question' => $question['id']));
-	echo $this->Html->link (__('Remove', true), '#');
-	$id = 'span_' . mt_rand(); ?>
+	echo $this->Js->link (__('Remove', true),
+			array('action' => 'remove_question', 'questionnaire' => $questionnaire['Questionnaire']['id'], 'question' => $question['id'], 'id' => $tr_id),
+			array('update' => "#temp_update")
+	);
+	$id = 'span_' . mt_rand();
+	?>
 	<span id="<?php echo $id; ?>">
 	<?php
 	if ($question['active']) {

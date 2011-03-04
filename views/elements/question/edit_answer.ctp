@@ -1,4 +1,11 @@
-<tr>
+<?php
+$class = null;
+if ($i % 2 == 1) {
+	$class = ' class="altrow"';
+}
+$tr_id = 'tr_' . mt_rand();
+?>
+<tr id="<?php echo $tr_id; ?>"<?php echo $class;?>>
 	<td class="handle"></td>
 	<td><?php
 	echo $this->Form->hidden("Answer.$i.id", array('value' => $answer['id']));
@@ -12,7 +19,10 @@
 	));
 	?></td>
 	<td class="actions"><?php
-		echo $this->Html->link (__('Delete', true), '#');
+		echo $this->Js->link (__('Delete', true),
+				array('action' => 'delete_answer', 'answer' => $answer['id'], 'id' => $tr_id),
+				array('update' => "#temp_update")
+		);
 		$id = 'span_' . mt_rand(); ?>
 		<span id="<?php echo $id; ?>">
 		<?php

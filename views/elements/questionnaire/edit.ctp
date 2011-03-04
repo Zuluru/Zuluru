@@ -11,7 +11,7 @@
 <?php
 foreach ($questionnaire['Question'] as $question) {
 	++$i;
-	echo $this->element('questionnaire/edit_question', compact('question', 'i'));
+	echo $this->element('questionnaire/edit_question', compact('questionnaire', 'question', 'i'));
 }
 ?>
 

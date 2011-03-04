@@ -103,17 +103,31 @@ class QuestionnairesController extends AppController {
 			$this->redirect(array('action'=>'index'));
 		}
 
-		// TODO: Don't delete questionnaires that are referenced by events
-
-		// TODO Handle deletions
-		$this->Session->setFlash(sprintf(__('Deleting %s is disabled', true), 'questionnaires'));
-		$this->redirect(array('action' => 'index'));
-
-		if ($this->Questionnaire->delete($id)) {
-			$this->Session->setFlash(sprintf(__('%s deleted', true), 'Questionnaire'));
+		// Find all of the events that use this questionnaire
+		$this->Questionnaire->Event->recursive = -1;
+		$events = $this->Questionnaire->Event->find('count', array(
+				'conditions' => array('questionnaire_id' => $id),
+		));
+		if ($events > 0) {
+			$this->Session->setFlash(__('This questionnaire is used by at least one event and cannot be deleted.', true));
 			$this->redirect(array('action'=>'index'));
 		}
+
+		// Wrap the whole thing in a transaction, for safety.
+		$db =& ConnectionManager::getDataSource($this->Questionnaire->useDbConfig);
+		$db->begin($this->Questionnaire);
+
+		if ($this->Questionnaire->delete($id, false)) {
+			$this->QuestionnairesQuestions = ClassRegistry::init ('QuestionnairesQuestions');
+			if ($this->QuestionnairesQuestions->deleteAll(array('questionnaire_id' => $id), false)) {
+				$this->Session->setFlash(sprintf(__('%s deleted', true), 'Questionnaire'));
+				$db->commit($this->Questionnaire);
+				$this->redirect(array('action'=>'index'));
+			}
+		}
+
 		$this->Session->setFlash(sprintf(__('%s was not deleted', true), 'Questionnaire'));
+		$db->rollback($this->Questionnaire);
 		$this->redirect(array('action' => 'index'));
 	}
 
@@ -124,6 +138,42 @@ class QuestionnairesController extends AppController {
 		$question = $this->Questionnaire->Question->read(null, $id);
 		$question = $question['Question'];
 		$this->set(compact('question', 'i'));
+	}
+
+	function remove_question() {
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
+
+		extract($this->params['named']);
+		$this->set($this->params['named']);
+
+		// Find all of the events that use this questionnaire
+		$this->Questionnaire->Event->recursive = -1;
+		$events = $this->Questionnaire->Event->find('all', array(
+				'conditions' => array('questionnaire_id' => $questionnaire),
+				'fields' => 'id',
+		));
+		$event_ids = Set::extract ('/Event/id', $events);
+
+		// Now find if there are responses to this question in one of these events
+		$this->Response = ClassRegistry::init ('Response');
+		$count = $this->Response->find('count', array(
+				'conditions' => array(
+					'question_id' => $question,
+					'event_id' => $event_ids,
+				),
+		));
+
+		// Only questions with no responses through this questionnaire can be removed
+		if ($count == 0) {
+			$this->QuestionnairesQuestions = ClassRegistry::init ('QuestionnairesQuestions');
+			$this->set('success', $this->QuestionnairesQuestions->deleteAll (array(
+					'questionnaire_id' => $questionnaire,
+					'question_id' => $question,
+			), false));
+		} else {
+			$this->set('cannot', true);
+		}
 	}
 
 	function consolidate() {
