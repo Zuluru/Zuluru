@@ -278,6 +278,7 @@ class ZuluruSchema extends CakeSchema {
 	);
 	var $questions = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 128),
 		'question' => array('type' => 'text', 'null' => false, 'default' => NULL),
 		'type' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 20),
 		'active' => array('type' => 'boolean', 'null' => false, 'default' => '1'),

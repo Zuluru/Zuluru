@@ -3,6 +3,11 @@ class Question extends AppModel {
 	var $name = 'Question';
 	var $displayField = 'question';
 	var $validate = array(
+		'name' => array(
+			'notempty' => array(
+				'rule' => array('notempty'),
+			),
+		),
 		'question' => array(
 			'notempty' => array(
 				'rule' => array('notempty'),

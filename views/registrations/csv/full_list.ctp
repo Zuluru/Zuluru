@@ -27,7 +27,7 @@ $header = array(
 foreach ($event['Questionnaire']['Question'] as $question) {
 	if (!$question['anonymous']) {
 		if (in_array ($question['type'], array('text', 'textbox', 'radio', 'select'))) {
-			$header[] = $question['question'];
+			$header[] = $question['name'];
 		} else if ($question['type'] == 'checkbox') {
 			foreach ($question['Answer'] as $answer) {
 				$header[] = $answer['answer'];

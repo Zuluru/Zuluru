@@ -3,7 +3,7 @@
 $rows = array();
 foreach ($event['Questionnaire']['Question'] as $question) {
 	if (in_array ($question['type'], array('select', 'radio', 'checkbox'))) {
-		$title = $question['question'];
+		$title = $question['name'];
 		foreach ($question['Answer'] as $answer) {
 			$counts = Set::extract ("/Response[question_id={$question['id']}][answer_id={$answer['id']}]/..", $responses);
 			// Set::extract bug: sometimes it's the nested array returned, sometimes not

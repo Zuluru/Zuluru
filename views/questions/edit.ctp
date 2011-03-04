@@ -9,12 +9,17 @@ $this->Html->addCrumb (__('Edit', true));
  		<legend><?php printf(__('Edit %s', true), __('Question', true)); ?></legend>
 	<?php
 		echo $this->Form->input('id');
+		echo $this->Form->input('name', array(
+			'size' => 60,
+			'after' => $this->Html->para (null, __('A short name for this question, to be used as a heading in administrative reports.', true)),
+		));
 		echo $this->Form->input('question', array(
-				'cols' => 60,
+			'cols' => 60,
+			'after' => $this->Html->para (null, __('The full text of the question, to be shown to users.', true)),
 		));
 		echo $this->Form->input('type', array(
-				'options' => Configure::read('options.question_types'),
-				'empty' => true,
+			'options' => Configure::read('options.question_types'),
+			'empty' => true,
 		));
 		echo $this->Form->input('anonymous', array(
 			'label' => 'Anonymous results',
