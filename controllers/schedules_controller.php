@@ -113,14 +113,14 @@ class SchedulesController extends AppController {
 					'GameSlot.game_id' => null,
 					'LeagueGameslotAvailability.league_id' => $id,
 				),
-				'fields' => 'DISTINCT UNIX_TIMESTAMP(GameSlot.game_date) AS date',
+				'fields' => 'DISTINCT GameSlot.game_date AS date',
 				'order' => 'GameSlot.game_date',
 		));
 		if (count($dates) == 0) {
 			$this->Session->setFlash(__('Sorry, there are no fields available for your league.  Check that fields have been allocated before attempting to proceed.', true));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'view', 'league' => $id));
 		}
-		$dates = Set::extract ('/0/date', $dates);
+		$dates = Set::extract ('/GameSlot/date', $dates);
 
 		list($num_dates, $num_fields) = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams());
 		$desc = $this->league_obj->scheduleDescription ($this->data['Game']['type']);
@@ -175,7 +175,7 @@ class SchedulesController extends AppController {
 		$games = $this->League->Game->find ('count', array(
 				'conditions' => array(
 					'Game.league_id' => $id,
-					'GameSlot.game_date' => date('Y-m-d', $this->data['Game']['start_date']),
+					'GameSlot.game_date' => $this->data['Game']['start_date'],
 				),
 		));
 
@@ -190,13 +190,13 @@ class SchedulesController extends AppController {
 		$fields = $this->League->LeagueGameslotAvailability->find('count', array(
 				'conditions' => array(
 					'GameSlot.game_id' => null,
-					'GameSlot.game_date' => date('Y-m-d', $this->data['Game']['start_date']),
+					'GameSlot.game_date' => $this->data['Game']['start_date'],
 					'LeagueGameslotAvailability.league_id' => $id,
 				),
 		));
 
 		if ($num_fields > $fields) {
-			$this->Session->setFlash(sprintf (__('There are insufficient fields available on %s.', true), date('Y-m-d', $this->data['Game']['start_date'])));
+			$this->Session->setFlash(sprintf (__('There are insufficient fields available on %s.', true), $this->data['Game']['start_date']));
 			return false;
 		}
 
