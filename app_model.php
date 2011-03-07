@@ -157,16 +157,27 @@ class AppModel extends Model {
 		return ($Validation->date ($date) && $Validation->time ($time));
 	}
 
-	function inquery($check, $model, $field) {
+	function inquery($check, $model, $field, $conditions = array()) {
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic
 		$value = array_values($check);
 		$value = $value[0];
 
+		// The validation array is always passed at the end of the arguments;
+		// if no conditions were passed, that will be in this array, so we
+		// need to get rid of that.
+		if (array_key_exists ('allowEmpty', $conditions)) {
+			$conditions = array();
+		}
+
 		$model_obj = ClassRegistry::init($model);
-		$values = $model_obj->find('list', array('fields' => $field));
+		$values = $model_obj->find('list', array('fields' => $field, 'conditions' => $conditions));
 
 		return in_array ($value, $values);
+	}
+
+	function notinquery($check, $model, $field, $conditions = array()) {
+		return (!$this->inquery($check, $model, $field, $conditions));
 	}
 
 	/**

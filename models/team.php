@@ -76,8 +76,24 @@ class Team extends AppModel {
 		)
 	);
 
-	function readByPlayerId($id, $roster_limits = false, $open = true, $order = null)
-	{
+	function beforeValidate() {
+		$league_id = $team_id = null;
+		if (array_key_exists ('Team', $this->data) && array_key_exists ('id', $this->data['Team'])) {
+			$team_id = $this->data['Team']['id'];
+			$Team = ClassRegistry::init('Team');
+			$league_id = $Team->field ('league_id', array('id' => $team_id));
+		}
+
+		$this->validate['name']['unique'] = array(
+			'rule' => array('notinquery', 'Team', 'name', array(
+				'league_id' => $league_id,
+				'id !=' => $team_id,
+			)),
+			'message' => 'There is already a team by that name in this league.',
+		);
+	}
+
+	function readByPlayerId($id, $roster_limits = false, $open = true, $order = null) {
 		// Check for invalid users
 		if ($id === null) {
 			return array();
