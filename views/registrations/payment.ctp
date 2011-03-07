@@ -18,7 +18,7 @@ if ($result === true) {
 }
 
 echo $this->Html->para(null, 'Click ' .
-	$this->Html->link('here', "http://{$_SERVER["SERVER_NAME"]}/", array('onclick' => 'close_and_redirect("' . $this->Html->url(array('controller' => 'events', 'action' => 'index'), true) . '")')) .
+	$this->Html->link('here', "http://{$_SERVER["SERVER_NAME"]}/", array('onclick' => 'close_and_redirect("' . $this->Html->url(array('controller' => 'events', 'action' => 'wizard'), true) . '")')) .
 	' to close this window.');
 $this->Html->scriptBlock('
 function close_and_redirect(url)
