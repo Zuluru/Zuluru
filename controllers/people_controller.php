@@ -730,7 +730,7 @@ class PeopleController extends AppController {
 				);
 
 				if (!$this->_sendMail (array (
-						'to' => array_merge ($person, $existing),
+						'to' => array($person['Person'], $existing['Person']),
 						'config_subject' => "{$disposition}_subject",
 						'config_body' => "{$disposition}_body",
 						'variables' => $variables,
@@ -773,7 +773,7 @@ class PeopleController extends AppController {
 				);
 
 				if (!$this->_sendMail (array (
-						'to' => array_merge ($person, $existing),
+						'to' => array($person['Person'], $existing['Person']),
 						'config_subject' => "{$disposition}_subject",
 						'config_body' => "{$disposition}_body",
 						'variables' => $variables,

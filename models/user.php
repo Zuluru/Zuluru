@@ -280,7 +280,7 @@ class User extends AppModel {
 	function _afterFind ($record) {
 		if (array_key_exists ('first_name', $record[$this->alias]) && array_key_exists ('last_name', $record[$this->alias])) {
 			$record[$this->alias]['full_name'] = trim ("{$record[$this->alias]['first_name']} {$record[$this->alias]['last_name']}");
-			if (array_key_exists ('email', $record[$this->alias])) {
+			if (array_key_exists ('email', $record[$this->alias]) && !empty($record[$this->alias]['email'])) {
 				if (!empty ($record[$this->alias]['full_name'])) {
 					$record[$this->alias]['email_formatted'] = "\"{$record[$this->alias]['full_name']}\" <{$record[$this->alias]['email']}>";
 				} else {
