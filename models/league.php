@@ -41,6 +41,14 @@ class League extends AppModel {
 				'message' => 'You must provide a valid roster deadline.',
 			),
 		),
+		'roster_rule' => array(
+			'valid' => array(
+				'rule' => array('rule'),
+				'required' => false,
+				'allowEmpty' => true,
+				'message' => 'There is an error in the rule syntax.',
+			),
+		),
 		'schedule_type' => array(
 			'inlist' => array(
 				'rule' => array('inconfig', 'options.schedule_type'),

@@ -245,5 +245,15 @@ class AppModel extends Model {
 		// Nothing else is okay
 		return false;
 	}
+
+	function rule($check) {
+		// $check array is passed using the form field name as the key
+		// have to extract the value to make the function generic
+		$value = array_values($check);
+		$value = $value[0];
+
+		$rule_obj = AppController::_getComponent ('Rule');
+		return $rule_obj->init ($value);
+	}
 }
 ?>
