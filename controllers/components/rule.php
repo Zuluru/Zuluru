@@ -26,6 +26,26 @@ class RuleComponent extends Object
 	 * Reason why the rule passed or failed
 	 */
 	var $reason = 'Unknown reason!';
+	
+	/**
+	 * Common string replacements to make reasons more readable
+	 */
+	var $tr = array(
+		'NOT not '										=> '',
+		'have a membership type of none'				=> 'not already have a membership',
+		'have a membership type of intro'				=> 'have an introductory membership',
+		'have a membership type of full'				=> 'have a full membership',
+		'have an introductory membership OR have a full membership' => 'already have a membership',
+		'already have a membership OR already have a membership' => 'already have a membership',
+
+		'have a birthdate greater than or equal to'		=> 'have been born on or after',
+		'have a birthdate greater than'					=> 'have been born after',
+		'have a birthdate less than or equal to'		=> 'have been born on or before',
+		'have a birthdate less than'					=> 'have been born before',
+
+		'have previously registered for the prerequisite OR have previously registered for the prerequisite' => 'have previously registered for one of the prerequisites',
+		'have previously registered for one of the prerequisites OR have previously registered for the prerequisite' => 'have previously registered for one of the prerequisites',
+	);
 
 	function __construct(&$controller) {
 		$this->_controller =& $controller;
@@ -117,6 +137,16 @@ class RuleComponent extends Object
 			return null;
 		$success = $this->rule->evaluate ($params);
 		$this->reason = $this->rule->reason;
+
+		// Do string replacements to make the reason more easily understandable
+		while (true) {
+			$new_reason = strtr ($this->reason, $this->tr);
+			if ($new_reason == $this->reason) {
+				break;
+			}
+			$this->reason = $new_reason;
+		}
+
 		return $success;
 	}
 
