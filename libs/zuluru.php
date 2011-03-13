@@ -76,4 +76,46 @@ function clean($val, $func = 'is_numeric')
 	return $ret;
 }
 
+/**
+ * This class handles database transactions in a safe manner.
+ * Just create an object of this type, passing the model object
+ * and it will start a transaction. If not commited with the
+ * commit function, it will do a rollback when destroyed.
+ * This means that you can start a transaction and then just
+ * return from the function if an error arises, rather than
+ * making sure that the logic flow gets to the rollback point.
+ */
+class DatabaseTransaction {
+	var $db = null;
+	var $model = null;
+
+	function __construct($model) {
+		$this->model = $model;
+		$this->db =& ConnectionManager::getDataSource($this->model->useDbConfig);
+		$this->db->begin($this->model);
+	}
+
+	function __destruct() {
+		$this->rollback();
+	}
+
+	function commit() {
+		if ($this->model !== null) {
+			$ret = $this->db->commit($this->model);
+			$this->model = null;
+			return $ret;
+		}
+		return false;
+	}
+
+	function rollback() {
+		if ($this->model !== null) {
+			$ret = $this->db->rollback($this->model);
+			$this->model = null;
+			return $ret;
+		}
+		return false;
+	}
+}
+
 ?>
