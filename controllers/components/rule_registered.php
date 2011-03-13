@@ -5,7 +5,7 @@
 
 class RuleRegisteredComponent extends RuleComponent
 {
-	var $reason = 'You are not registered for the prerequisite.';
+	var $reason = 'have previously registered for the prerequisite';
 
 	function parse($config) {
 		$config = trim ($config, '"\'');

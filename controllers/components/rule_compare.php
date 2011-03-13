@@ -47,39 +47,41 @@ class RuleCompareComponent extends RuleComponent
 		}
 		$left = $this->rule[0]->evaluate($params);
 		$right = $this->rule[1]->evaluate($params);
+		$prefix = '';
 		switch ($this->config) {
 			case '<':
 				$success = ($left < $right);
-				$result = ($success ? '' : 'NOT ') . 'less than';
+				$result = __('less than', true);
 				break;
 
 			case '<=':
 				$success = ($left <= $right);
-				$result = ($success ? '' : 'NOT ') . 'less than or equal to';
+				$result = __('less than or equal to', true);
 				break;
 
 			case '>':
 				$success = ($left > $right);
-				$result = ($success ? '' : 'NOT ') . 'greater than';
+				$result = __('greater than', true);
 				break;
 
 			case '>=':
 				$success = ($left >= $right);
-				$result = ($success ? '' : 'NOT ') . 'greater than or equal to';
+				$result = __('greater than or equal to', true);
 				break;
 
 			case '=':
 				$success = ($left == $right);
-				$result = ($success ? '' : 'NOT');
+				$result = __('of', true);
 				break;
 
 			case '!=':
 				$success = ($left != $right);
-				$result = ($success ? 'NOT' : '');
+				$result = __('of', true);
+				$prefix = __('NOT ', true);
 				break;
 		}
 
-		$this->reason = $this->rule[0]->desc() . " is $result " . $this->rule[1]->desc();
+		$this->reason = $prefix . $this->rule[0]->desc() . ' ' . $result . ' ' . $this->rule[1]->desc();
 
 		return $success;
 	}

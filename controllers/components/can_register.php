@@ -44,7 +44,6 @@ class CanRegisterComponent extends Object
 			}
 
 			$rule_allowed = $rule_obj->evaluate ($this->person);
-			$rule_reason = $rule_obj->reason;
 		}
 
 		// Find the registration cap and how many are already registered.
@@ -155,7 +154,7 @@ class CanRegisterComponent extends Object
 					$messages[] = __('You may register for this event.', true);
 					$allowed = true;
 				} else {
-					$messages[] = array('text' => __('You may not register for this event', true) . ': ' . $rule_reason, 'class' => 'error-message');
+					$messages[] = array('text' => __('To register for this event, you must', true) . ' ' . $rule_obj->reason . '.', 'class' => 'error-message');
 				}
 			} else {
 				$messages[] = __('You may register for this because there are no prerequisites.', true);

@@ -16,7 +16,7 @@ class RuleAttributeComponent extends RuleComponent
 	}
 
 	function desc() {
-		return __($this->config, true);
+		return sprintf (__('have a %s', true), __($this->config, true));
 	}
 }
 

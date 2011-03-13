@@ -64,7 +64,7 @@ AND(
 		App::import('helper', 'ZuluruTime');
 		$ZuluruTime = new ZuluruTimeHelper();
 		$date = $ZuluruTime->date ($this->config);
-		return sprintf (__('The membership, if any, that you have in effect as of %s', true), $date);
+		return __('have a membership type', true);
 	}
 }
 

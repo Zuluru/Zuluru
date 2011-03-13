@@ -35,7 +35,7 @@ class RuleOrComponent extends RuleComponent
 				$reasons[] = $rule->reason;
 			}
 		}
-		$this->reason = implode (__(' AND ', true), $reasons);
+		$this->reason = implode (__(' OR ', true), $reasons);
 		return false;
 	}
 }
