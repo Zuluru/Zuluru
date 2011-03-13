@@ -553,7 +553,7 @@ class RegistrationsController extends AppController {
 		if (!empty($this->data)) {
 			// array_merge doesn't work, since we have numeric keys
 			$this->Registration->Response->validate =
-				$this->Questionnaire->validation($registration['Event']['Questionnaire']) +
+				$this->Questionnaire->validation($registration['Event']['Questionnaire'], true) +
 				$event_obj->registrationFieldsValidation ($registration);
 
 			// Remove any unchecked checkboxes; we only save the checked ones.

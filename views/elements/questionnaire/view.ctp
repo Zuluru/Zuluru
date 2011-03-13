@@ -2,7 +2,7 @@
 if (array_key_exists ('Question', $questionnaire)) {
 	$rows = array();
 	foreach ($questionnaire['Question'] as $question) {
-		if (!$question['anonymous']) {
+		if (!array_key_exists('anonymous', $question) || !$question['anonymous']) {
 			switch ($question['type'])
 			{
 				case 'radio':
