@@ -10,14 +10,21 @@ if (array_key_exists ('Question', $questionnaire)) {
 				case 'text':
 				case 'textbox':
 					$answer = array_shift (Set::extract ("/Response[question_id={$question['id']}]/.", $response));
-					if ($question['type'] == 'select') {
+					if ($question['type'] == 'select' || $question['type'] == 'radio') {
 						$answer = array_shift (Set::extract ("/Answer[id={$answer['answer_id']}]/.", $question));
 					}
-					$rows[] = array($question['question'], $answer['answer']);
+					$name = $question['question'];
+					if (array_key_exists('name', $question) && !empty($question['name'])) {
+						$name = $question['name'];
+					}
+					$rows[] = array($name, $answer['answer']);
 					break;
 
 				case 'checkbox':
 					$label = $question['question'];
+					if (array_key_exists('name', $question) && !empty($question['name'])) {
+						$label = $question['name'];
+					}
 					$answers = Set::extract ("/Response[question_id={$question['id']}]/answer_id", $response);
 					foreach ($answers as $answer) {
 						$answer = array_shift (Set::extract ("/Answer[id={$answer}]/.", $question));
