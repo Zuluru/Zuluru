@@ -262,19 +262,22 @@ class RegistrationsController extends AppController {
 
 			if ($this->Registration->Response->validates()) {
 				// Wrap the whole thing in a transaction, for safety.
-				$db =& ConnectionManager::getDataSource($this->Registration->useDbConfig);
-				$db->begin($this->Registration);
+				$transaction = new DatabaseTransaction($this->Registration);
 
-				// Next, we must do the event registration, as it may add to the $data array
+				// Use array_values here to get numeric keys in the data to be saved
+				$data['Response'] = array_values($data['Response']);
+
+				// Next, we do the event registration
 				$result = $event_obj->register($event, $data);
-				if ($result === true) {
-					// Now manually add the event id to all of the responses :-(
+				if ($result) {
+					if (is_array ($result)) {
+						$data['Response'] = array_merge($data['Response'], $result);
+					}
+
+					// Manually add the event id to all of the responses :-(
 					foreach (array_keys ($data['Response']) as $key) {
 						$data['Response'][$key]['event_id'] = $id;
 					}
-
-					// Use array_values here to get numeric keys in the data to be saved
-					$data['Response'] = array_values($data['Response']);
 
 					// TODO: 'atomic' can go, once we've upgraded everything to Cake 1.3.6
 					if ($this->Registration->saveAll($data, array('atomic' => false, 'validate' => false))) {
@@ -284,7 +287,7 @@ class RegistrationsController extends AppController {
 							$this->Registration->Response->updateAll (array('registration_id' => null),
 								array('question_id' => $anonymous));
 						}
-						if ($db->commit($this->Registration) !== false) {
+						if ($transaction->commit() !== false) {
 							$this->redirect(array('action' => 'checkout'));
 						} else {
 							$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
@@ -298,9 +301,6 @@ class RegistrationsController extends AppController {
 					// TODO: Do a validation-only save, add $result to validation errors
 					$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
 				}
-
-				// If we get here, something failed
-				$db->rollback($this->Registration);
 			} else {
 				$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
 			}
@@ -424,13 +424,16 @@ class RegistrationsController extends AppController {
 			'Registration' => array(
 				'Event' => array('EventType'),
 				'Response',
-				'conditions' => array('payment NOT ' => array('Refunded', 'Paid')),
+				'conditions' => array('payment !=' => 'Refunded'),
 			),
 		));
 		$person = $this->Registration->Person->read(null, $this->Auth->user('id'));
 		$unregistered = false;
 
-		foreach ($person['Registration'] as $key => $registration) {
+		// Pull out the list of unpaid registrations; these are the ones that might be removed
+		$unpaid = Set::extract ('/Registration[payment!=Paid]/.', $person);
+
+		foreach ($unpaid as $key => $registration) {
 			// Check the registration rule, if any
 			if (!empty ($registration['Event']['register_rule'])) {
 				$rule_obj = AppController::_getComponent ('Rule');
@@ -458,7 +461,8 @@ class RegistrationsController extends AppController {
 
 			$this->Registration->contain (array(
 				'Person',
-				'Event',
+				'Event' => array('EventType'),
+				'Response',
 			));
 			$registrations = $this->Registration->find ('all', array(
 				'conditions' => array('Registration.id' => $registration_ids),
@@ -476,6 +480,39 @@ class RegistrationsController extends AppController {
 				if (!$this->Registration->RegistrationAudit->save (array_merge($audit, array('registration_id' => $id)))) {
 					$errors[] = sprintf (__('There was an error updating the audit record in the database. Contact the office to ensure that your information is updated, quoting order #<b>%s</b>, or you may not be allowed to be added to rosters, etc.', true), $audit['order_id']);
 				}
+			}
+
+			// Wrap the rest in a transaction, for safety. The updates above are
+			// intentionally excluded from this, as we always want as much of that
+			// saved as possible. Missing team records can easily be added later;
+			// missing payments take more work to track down.
+			$transaction = new DatabaseTransaction($this->Registration);
+
+			// Do any event payment processing
+			$success = true;
+			foreach ($registrations as $registration) {
+				$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
+				$result = $event_obj->paid($registration, $registration);
+				if ($result) {
+					if (is_array ($result)) {
+						// Manually add the event id to all of the responses :-(
+						foreach (array_keys ($result) as $key) {
+							$result[$key]['event_id'] = $registration['Event']['id'];
+						}
+						$success = $this->Registration->Response->saveAll($result, array('atomic' => false, 'validate' => false));
+					}
+				} else if ($result === false) {
+					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
+					$success = false;
+				}
+				if (!$success) {
+					$this->Session->setFlash(sprintf (__('There was an error updating the database. Contact the office to ensure that your information is updated, quoting order #<b>%s</b>, or you may not be allowed to be added to rosters, etc.', true), $registration['Registration']['id']));
+					break;
+				}
+			}
+
+			if ($success) {
+				$transaction->commit();
 			}
 		}
 		$this->set (compact ('result', 'audit', 'registrations', 'errors'));
@@ -511,6 +548,7 @@ class RegistrationsController extends AppController {
 
 		$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
 		$this->_mergeAutoQuestions ($registration, $event_obj, $registration['Event']['Questionnaire']);
+		$this->set(compact('registration'));
 
 		if (!empty($this->data)) {
 			// array_merge doesn't work, since we have numeric keys
@@ -526,49 +564,78 @@ class RegistrationsController extends AppController {
 			// Registration->saveAll to validate properly.
 			$this->Registration->Response->set ($data);
 
-			if ($this->Registration->Response->validates()) {
-				// Wrap the whole thing in a transaction, for safety.
-				$db =& ConnectionManager::getDataSource($this->Registration->useDbConfig);
-				$db->begin($this->Registration);
-
-				// TODO: Redo the event registration, in case anything has changed
-				$result = true; //$event_obj->reregister($registration, $data);
-				if ($result === true) {
-					// Now manually add the event id to all of the responses :-(
-					foreach (array_keys ($data['Response']) as $key) {
-						$data['Response'][$key]['event_id'] = $registration['Event']['id'];
-					}
-
-					// Use array_values here to get numeric keys in the data to be saved
-					$data['Response'] = array_values($data['Response']);
-
-					// TODO: 'atomic' can go, once we've upgraded everything to Cake 1.3.6
-					if ($this->Registration->saveAll($data, array('atomic' => false, 'validate' => false))) {
-						if (empty($delete) || $this->Registration->Response->deleteAll (array(
-							'id' => $delete,
-						), false))
-						{
-							if ($db->commit($this->Registration) !== false) {
-								$this->Session->setFlash(__('The registration has been saved', true));
-								$this->redirect(array('controller' => 'people', 'action' => 'registrations', 'person' => $registration['Person']['id']));
-							} else {
-								$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
-							}
-						}
-					} else {
-						$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
-					}
-				} else if ($result === false) {
-					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
-				} else {
-					// TODO: Do a validation-only save, add $result to validation errors
-					$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
-				}
-
-				// If we get here, something failed
-				$db->rollback($this->Registration);
-			} else {
+			if (!$this->Registration->Response->validates()) {
 				$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
+				return;
+			}
+
+			// Wrap the whole thing in a transaction, for safety.
+			$transaction = new DatabaseTransaction($this->Registration);
+
+			// Use array_values here to get numeric keys in the data to be saved
+			$data['Response'] = array_values($data['Response']);
+
+			// If the payment status has changed, we may need to do extra processing
+			$paid = array('Paid', 'Pending');
+			$was_paid = in_array ($registration['Registration']['payment'], $paid);
+			$now_paid = in_array ($data['Registration']['payment'], $paid);
+			if (!$was_paid && $now_paid) {
+				// When it's marked as paid, the responses that the event object
+				// should use are the new ones just now submitted.
+				$result = $event_obj->paid($registration, $data);
+				if (!$result) {
+					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
+					return;
+				}
+				if (is_array ($result)) {
+					$data['Response'] = array_merge($data['Response'], $result);
+				}
+			} else if ($was_paid && !$now_paid) {
+				// When it's marked as unpaid, the responses that the event object
+				// should use are the saved ones.
+				$result = $event_obj->unpaid($registration, $registration);
+				if (!$result) {
+					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
+					return;
+				}
+				if (is_array ($result)) {
+					$delete = array_merge ($delete, $result);
+				}
+			}
+
+			// TODO: Redo the event registration, in case anything has changed. But
+			// how will this interact with the payment status change handling above?
+			$result = true; //$event_obj->reregister($registration, $data);
+			if (!$result) {
+				$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
+				return;
+			}
+
+			// Now manually add the event id to all of the responses :-(
+			foreach (array_keys ($data['Response']) as $key) {
+				$data['Response'][$key]['event_id'] = $registration['Event']['id'];
+			}
+
+			// TODO: 'atomic' can go, once we've upgraded everything to Cake 1.3.6
+			if (!$this->Registration->saveAll($data, array('atomic' => false, 'validate' => false))) {
+				$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
+				return;
+			}
+
+			// Remove any old response records that are no longer valid
+			if (!empty($delete)) {
+				if (!$this->Registration->Response->deleteAll (array(
+					'id' => $delete,
+					), false))
+				{
+					$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
+					return;
+				}
+			}
+
+			if ($transaction->commit() !== false) {
+				$this->Session->setFlash(__('The registration has been saved', true));
+				$this->redirect(array('controller' => 'people', 'action' => 'registrations', 'person' => $registration['Person']['id']));
 			}
 		} else {
 			// Convert saved response data into the format required by the output
@@ -593,8 +660,6 @@ class RegistrationsController extends AppController {
 			}
 			$this->data['Response'] = $responses;
 		}
-
-		$this->set(compact('registration'));
 	}
 
 	function preregistrations() { // TODO

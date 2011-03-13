@@ -111,7 +111,17 @@ class EventTypeTeamComponent extends EventTypeComponent
 		return $validation;
 	}
 
-	function register($event, &$data) {
+	// TODO: A site or per-league configuration controlling whether team records
+	// are created when registered or when paid
+	function paid($event, $data) {
+		return $this->_createTeam($event, $data);
+	}
+
+	function unpaid($event, $data) {
+		return $this->_deleteTeam($event, $data);
+	}
+
+	function _createTeam($event, $data) {
 		if ($event['Event']['team_league'] == null) {
 			return true;
 		}
@@ -133,36 +143,57 @@ class EventTypeTeamComponent extends EventTypeComponent
 		);
 
 		if ($this->_controller->Team->save ($team)) {
-			$this->Roster = ClassRegistry::init ('TeamsPerson');
-			$this->Roster->save (array(
+			// If this is a pre-existing registration that's being paid,
+			// the captain is the person that registered it. This is the
+			// case when an offline payment is recorded by an admin, for
+			// example. Otherwise, the captain is the current user.
+			if (array_key_exists ('person_id', $data['Registration'])) {
+				$captain_id = $data['Registration']['person_id'];
+			} else {
+				$captain_id = $this->_controller->Auth->user('id');
+			}
+
+			$roster = ClassRegistry::init ('TeamsPerson');
+			$roster->save (array(
 				'team_id' => $this->_controller->Team->id,
-				'person_id' => $this->_controller->Auth->user('id'),
+				'person_id' => $captain_id,
 				'status' => 'captain',
 			));
 
 			// TODO: Return validation errors?
-			$data['Response'][] = array(
+			$response = array(
 				'question_id' => -5,
 				'answer' => $this->_controller->Team->id,
 			);
+			if (array_key_exists('Registration', $data)) {
+				$response['registration_id'] = $data['Registration']['id'];
+			}
 			$this->_controller->_deleteTeamSessionData();
-			return true;
+
+			// The caller is expecting an array of responses
+			return array($response);
 		}
 		return false;
 	}
 
-	function unregister($event, $data) {
+	function _deleteTeam($event, $data) {
 		if ($event['Event']['team_league'] == null) {
 			return true;
 		}
 
-		if (!isset ($this->_controller->Team)) {
-			$this->_controller->Team = ClassRegistry::init ('Team');
+		$team = $this->_extractAnswer ($data, -5);
+		if ($team) {
+			$this->_controller->_deleteTeamSessionData();
+			if (!isset ($this->_controller->Team)) {
+				$this->_controller->Team = ClassRegistry::init ('Team');
+			}
+			if ($this->_controller->Team->delete ($team)) {
+				return array($this->_extractAnswerId ($data, -5));
+			}
+			return false;
 		}
 
-		$team = $this->_extractAnswer ($data, -5);
-		$this->_controller->_deleteTeamSessionData();
-		return $this->_controller->Team->delete ($team);
+		return true;
 	}
 }
 

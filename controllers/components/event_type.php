@@ -55,11 +55,19 @@ class EventTypeComponent extends Object
 		return array();
 	}
 
-	function register($data = array()) {
+	function register($event, &$data) {
 		return true;
 	}
 
-	function unregister($data = array()) {
+	function unregister($event, $data) {
+		return true;
+	}
+
+	function paid($event, &$data) {
+		return true;
+	}
+
+	function unpaid($event, $data) {
 		return true;
 	}
 
@@ -82,6 +90,26 @@ class EventTypeComponent extends Object
 			}
 		}
 		return $answers;
+	}
+
+	function _extractAnswerId($data, $question) {
+		$id = Set::extract ("/Response[question_id=$question]/id", $data);
+		if (!empty ($id)) {
+			return $id[0];
+		} else {
+			return null;
+		}
+	}
+
+	function _extractAnswerIds($data, $questions) {
+		$ids = array();
+		foreach ($questions as $field => $question) {
+			$id = $this->_extractAnswerId ($data, $question);
+			if (!empty ($id)) {
+				$ids[$field] = $id;
+			}
+		}
+		return $ids;
 	}
 }
 
