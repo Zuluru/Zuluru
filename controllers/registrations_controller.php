@@ -424,7 +424,7 @@ class RegistrationsController extends AppController {
 			'Registration' => array(
 				'Event' => array('EventType'),
 				'Response',
-				'conditions' => array('payment NOT ' => array('Refunded', 'Paid'), 'id !=' => 33723),
+				'conditions' => array('payment NOT ' => array('Refunded', 'Paid')),
 			),
 		));
 		$person = $this->Registration->Person->read(null, $this->Auth->user('id'));
