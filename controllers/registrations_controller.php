@@ -327,6 +327,7 @@ class RegistrationsController extends AppController {
 	function checkout($op = null) {
 		$this->Registration->contain (array(
 			'Event' => array('EventType'),
+			'Response',
 		));
 		$registrations = $this->Registration->find('all', array(
 				'conditions' => array(
@@ -364,6 +365,10 @@ class RegistrationsController extends AppController {
 					unset ($registrations[$key]);
 				}
 			}
+
+			// Set the description for the invoice
+			$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
+			$registrations[$key]['Event']['payment_desc'] = $event_obj->longDescription($registration);
 		}
 		// Reset the array to 0-indexed keys
 		$registrations = array_values ($registrations);

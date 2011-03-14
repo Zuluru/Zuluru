@@ -71,6 +71,10 @@ class EventTypeComponent extends Object
 		return true;
 	}
 
+	function longDescription($data) {
+		return $data['Event']['name'];
+	}
+
 	function _extractAnswer($data, $question) {
 		$answer = Set::extract ("/Response[question_id=$question]/.", $data);
 		if (!empty ($answer)) {

@@ -87,7 +87,7 @@ foreach ($registrations as $registration) {
 	echo quick_hidden($this, 'x_line_item', implode ($join, array(
 			sprintf(Configure::read('payment.reg_id_format'), $registration['Event']['id']),
 			$registration['Event']['name'],
-			$registration['Event']['name'],
+			$registration['Event']['payment_desc'],
 			'1',
 			$registration['Event']['cost'],
 			($registration['Event']['tax1'] + $registration['Event']['tax2'] > 0) ? 'YES' : 'NO',

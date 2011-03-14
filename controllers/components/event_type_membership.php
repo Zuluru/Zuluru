@@ -46,6 +46,9 @@ class EventTypeMembershipComponent extends EventTypeComponent
 		return null;
 	}
 
+	function longDescription($data) {
+		return "{$data['Event']['name']}: Valid from {$data['Event']['membership_begins']} to {$data['Event']['membership_ends']}";
+	}
 }
 
 ?>

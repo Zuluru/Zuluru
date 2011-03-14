@@ -195,6 +195,11 @@ class EventTypeTeamComponent extends EventTypeComponent
 
 		return true;
 	}
+
+	function longDescription($data) {
+		$team = $this->_extractAnswer ($data, -1);
+		return "{$data['Event']['name']}: $team";
+	}
 }
 
 ?>
