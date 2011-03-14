@@ -237,15 +237,13 @@ class RegistrationsController extends AppController {
 
 		$event_obj = $this->_getComponent ('EventType', $event['EventType']['type'], $this);
 		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire']);
+		$this->set(compact ('id', 'event', 'event_obj'));
 
-		$empty = empty($this->data);
-		$this->data['Registration']['event_id'] = $id;
-		if ($event['Event']['cost'] == 0) {
-			$this->data['Registration']['payment'] = 'Paid';
-		}
+		// Wrap the whole thing in a transaction, for safety.
+		$transaction = new DatabaseTransaction($this->Registration);
 
 		// Data was posted, save it and proceed
-		if (!$empty) {
+		if (!empty($this->data)) {
 			// array_merge doesn't work, since we have numeric keys
 			$this->Registration->Response->validate =
 				$this->Questionnaire->validation($event['Questionnaire']) +
@@ -260,68 +258,77 @@ class RegistrationsController extends AppController {
 			// Registration->saveAll to validate properly.
 			$this->Registration->Response->set ($data);
 
-			if ($this->Registration->Response->validates()) {
-				// Wrap the whole thing in a transaction, for safety.
-				$transaction = new DatabaseTransaction($this->Registration);
+			if (!$this->Registration->Response->validates()) {
+				$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
+				return;
+			}
 
-				// Use array_values here to get numeric keys in the data to be saved
-				$data['Response'] = array_values($data['Response']);
+			// Use array_values here to get numeric keys in the data to be saved
+			$data['Response'] = array_values($data['Response']);
 
-				// Next, we do the event registration
-				$result = $event_obj->register($event, $data);
-				if ($result) {
-					if (is_array ($result)) {
-						$data['Response'] = array_merge($data['Response'], $result);
-					}
+			// Set the flash message that will be used, if there are no errors
+			$this->Session->setFlash(__('Your preferences for this registration have been saved.', true));
+			$save = true;
+		}
 
-					// Manually add the event id to all of the responses :-(
-					foreach (array_keys ($data['Response']) as $key) {
-						$data['Response'][$key]['event_id'] = $id;
-					}
+		if (empty ($event['Questionnaire']['Question'])) {
+			// The event has no questionnaire, save trivial registration data and proceed
+			$data = array('Registration' => array(), 'Response' => array());
 
-					// TODO: 'atomic' can go, once we've upgraded everything to Cake 1.3.6
-					if ($this->Registration->saveAll($data, array('atomic' => false, 'validate' => false))) {
-						$this->Session->setFlash(__('Your preferences for this registration have been saved.', true));
-						$anonymous = Set::extract ('/Question[anonymous=1]/id', $event['Questionnaire']);
-						if (!empty ($anonymous)) {
-							$this->Registration->Response->updateAll (array('registration_id' => null),
-								array('question_id' => $anonymous));
-						}
-						if ($transaction->commit() !== false) {
-							$this->redirect(array('action' => 'checkout'));
-						} else {
-							$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
-						}
-					} else {
-						$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
-					}
-				} else if ($result === false) {
+			// Set the flash message that will be used, if there are no errors
+			$this->Session->setFlash(__('Your registration for this event has been confirmed.', true));
+			$save = true;
+		}
+
+		if (isset ($save)) {
+			$data['Registration']['event_id'] = $id;
+
+			// Next, we do the event registration
+			$result = $event_obj->register($event, $data);
+			if ($result === false) {
+				$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
+				return;
+			}
+			if (is_array ($result)) {
+				$data['Response'] = array_merge($data['Response'], $result);
+			}
+
+			// Free events may need even more processing
+			if ($event['Event']['cost'] == 0) {
+				$result = $event_obj->paid($event, $data);
+				if ($result === false) {
 					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
-				} else {
-					// TODO: Do a validation-only save, add $result to validation errors
-					$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
+					return;
 				}
+				if (is_array ($result)) {
+					$data['Response'] = array_merge($data['Response'], $result);
+				}
+				$data['Registration']['payment'] = 'Paid';
+			}
+
+			// Manually add the event id to all of the responses :-(
+			foreach (array_keys ($data['Response']) as $key) {
+				$data['Response'][$key]['event_id'] = $id;
+			}
+
+			// TODO: 'atomic' can go, once we've upgraded everything to Cake 1.3.6
+			if (!$this->Registration->saveAll($data, array('atomic' => false, 'validate' => false))) {
+				$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
+				return;
+			}
+
+			$anonymous = Set::extract ('/Question[anonymous=1]/id', $event['Questionnaire']);
+			if (!empty ($anonymous)) {
+				$this->Registration->Response->updateAll (array('registration_id' => null),
+					array('question_id' => $anonymous));
+			}
+			if ($transaction->commit() !== false) {
+				$this->Session->delete ('Zuluru.Unpaid');
+				$this->redirect(array('action' => 'checkout'));
 			} else {
 				$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
 			}
 		}
-
-		// The event has no questionnaire, save trivial registration data and proceed
-		if (empty ($event['Questionnaire']['Question'])) {
-			if ($event_obj->register($event, $this->data) === true) {
-				if ($this->Registration->save($this->data)) {
-					$this->Session->setFlash(__('Your registration for this event has been confirmed.', true));
-					$this->Session->delete ('Zuluru.Unpaid');
-					$this->redirect (array('action' => 'checkout'));
-				} else {
-					$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
-				}
-			} else {
-				$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
-			}
-		}
-
-		$this->set(compact ('id', 'event', 'event_obj'));
 	}
 
 	function checkout($op = null) {
