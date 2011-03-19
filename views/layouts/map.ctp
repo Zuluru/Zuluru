@@ -36,7 +36,7 @@
 
 		if (isset ($this->Js)) {
 			echo $this->ZuluruHtml->script(array(
-					'jquery-1.4.2.min.js',
+					'http://cdn.jquerytools.org/1.2.5/jquery.tools.min.js',
 			));
 		}
 		echo $scripts_for_layout;

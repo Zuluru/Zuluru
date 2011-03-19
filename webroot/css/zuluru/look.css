@@ -198,3 +198,20 @@ dl .altrow
 {
 	color: #00cc00;
 }
+
+/* Tooltip styling. By default the element to be styled is .tooltip  */
+.tooltip {
+	display: none;
+	background: transparent url(images/tooltip/black_arrow.png);
+	font-size: 11px;
+	height: 90px;
+	width: 180px;
+	padding: 15px;
+	color: #fff;
+	z-index: 900;
+}
+
+.tooltip a {
+	color: #fff;
+	text-decoration: underline !important;
+}

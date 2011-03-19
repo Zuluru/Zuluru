@@ -35,8 +35,7 @@ foreach ($teams as $team):
 ?>
 	<tr<?php echo $class;?>>
 		<td class="splash_item"><?php
-			echo $this->Html->link($team['Team']['name'],
-				array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id'])) .
+			echo $this->element('team/block', array('team' => $team['Team'])) .
 				' (' . $this->Html->link(__($roster_descriptions[$team['TeamsPerson']['status']], true),
 						array('controller' => 'teams', 'action' => 'roster_status', 'team' => $team['Team']['id'], 'person' => $id)) .
 				')';
@@ -115,18 +114,12 @@ foreach ($games as $game):
 			echo $this->Html->link($time, array('controller' => 'games', 'action' => 'view', 'game' => $game['Game']['id']));
 		?></td>
 		<td class="splash_item"><?php
-			echo $this->ZuluruHtml->link($game['HomeTeam']['name'],
-					array('controller' => 'teams', 'action' => 'view', 'team' => $game['HomeTeam']['id']),
-					array('max_length' => 16)) .
+			echo $this->element('team/block', array('team' => $game['HomeTeam'], 'options' => array('max_length' => 16))) .
 				' (' . __('home', true) . ') ' .
-				$this->element('shirt', array('colour' => $game['HomeTeam']['shirt_colour'])) .
-				' ' . __('vs.', true) . ' ' .
-				$this->ZuluruHtml->link($game['AwayTeam']['name'],
-					array('controller' => 'teams', 'action' => 'view', 'team' => $game['AwayTeam']['id']),
-					array('max_length' => 16)) .
+				__('vs.', true) . ' ' .
+				$this->element('team/block', array('team' => $game['AwayTeam'], 'options' => array('max_length' => 16))) .
 				' (' . __('away', true) . ') ' .
-				$this->element('shirt', array('colour' => $game['AwayTeam']['shirt_colour'])) .
-				' ' . __('at', true) . ' ' .
+				__('at', true) . ' ' .
 				$this->Html->link("{$game['GameSlot']['Field']['code']} {$game['GameSlot']['Field']['num']}",
 					array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id']),
 					array('title' => "{$game['GameSlot']['Field']['name']} {$game['GameSlot']['Field']['num']}"));

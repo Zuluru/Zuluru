@@ -7,8 +7,7 @@ if (count ($classes)) {
 <tr<?php echo $class;?>>
 	<td><?php echo $seed; ?></td>
 	<td><?php
-	echo $this->Html->link($team['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['id'])) .
-		' ' . $this->element('shirt', array('colour' => $team['shirt_colour']));
+	echo $this->element('team/block', array('team' => $team));
 	?></td>
 	<?php // TODO: current round ?>
 	<td><?php echo $team['results']['W']; ?></td>

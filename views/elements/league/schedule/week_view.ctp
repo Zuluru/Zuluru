@@ -68,20 +68,14 @@ foreach ($league['Game'] as $game):
 	if (empty ($game['HomeTeam'])) {
 		__('Unassigned');
 	} else {
-		echo $this->ZuluruHtml->link($game['HomeTeam']['name'],
-			array('controller' => 'teams', 'action' => 'view', 'team' => $game['home_team']),
-			array('max_length' => 16)) . ' ' .
-			$this->element('shirt', array('colour' => $game['HomeTeam']['shirt_colour']));
+		echo $this->element('team/block', array('team' => $game['HomeTeam'], 'options' => array('max_length' => 16)));
 	}
 	?></td>
 	<td><?php
 	if (empty ($game['AwayTeam'])) {
 		__('Unassigned');
 	} else {
-		echo $this->ZuluruHtml->link($game['AwayTeam']['name'],
-			array('controller' => 'teams', 'action' => 'view', 'team' => $game['away_team']),
-			array('max_length' => 16)) . ' ' .
-			$this->element('shirt', array('colour' => $game['AwayTeam']['shirt_colour']));
+		echo $this->element('team/block', array('team' => $game['AwayTeam'], 'options' => array('max_length' => 16)));
 	}
 	?></td>
 	<td class="actions"><?php echo $this->ZuluruGame->displayScore ($game); ?></td>

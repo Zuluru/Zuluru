@@ -52,11 +52,9 @@ $display_spirit = $is_admin || $is_coordinator || $team['League']['display_sotg'
 					array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id']), array('title' => "{$game['GameSlot']['Field']['name']} {$game['GameSlot']['Field']['num']}")); ?></td>
 			<td><?php
 			if ($team['Team']['id'] == $game['Game']['home_team']) {
-				echo $this->Html->link($game['AwayTeam']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $game['Game']['away_team'])) . ' ' .
-					$this->element('shirt', array('colour' => $game['AwayTeam']['shirt_colour']));
+				echo $this->element('team/block', array('team' => $game['AwayTeam']));
 			} else {
-				echo $this->Html->link($game['HomeTeam']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $game['Game']['home_team'])) . ' ' .
-					$this->element('shirt', array('colour' => $game['HomeTeam']['shirt_colour']));
+				echo $this->element('team/block', array('team' => $game['HomeTeam']));
 			}
 			?></td>
 			<td class="actions"><?php echo $this->ZuluruGame->displayScore ($game, $team['Team']['id']); ?></td>

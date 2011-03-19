@@ -6,8 +6,7 @@ if (count ($classes)) {
 ?>
 <tr<?php echo $class;?>>
 	<td><?php
-	echo $this->Html->link($team['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['id'])) .
-		' ' . $this->element('shirt', array('colour' => $team['shirt_colour']));
+	echo $this->element('team/block', array('team' => $team));
 	?></td>
 	<td><?php
 	$roster_required = Configure::read("roster_requirements.{$league['League']['ratio']}");
