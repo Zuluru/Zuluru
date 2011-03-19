@@ -15,7 +15,7 @@ class LoginComponent extends object
 				$this->_controller->Session->delete('Message.auth');
 			} else {
 				// Delete invalid cookie
-				$this->Cookie->delete('Auth.User');
+				$this->_controller->Cookie->delete('Auth.User');
 			}
 		}
 
