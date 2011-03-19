@@ -60,6 +60,7 @@ class CanRegisterComponent extends Object
 			$this->controller->Event = ClassRegistry::init ('Event');
 		}
 		if ($cap != -1) {
+			$this->controller->Event->Registration->contain ('Person');
 			$paid = $this->controller->Event->Registration->find ('count', array('conditions' => $conditions));
 		}
 
