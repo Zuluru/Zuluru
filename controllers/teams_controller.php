@@ -639,7 +639,17 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 
-		if (!$this->is_admin && $team['League']['roster_deadline'] < date('Y-m-d')) {
+		// To avoid abuses, whether intentional or accidental, we limit the permissions
+		// of admins when managing teams they are on.
+		$this->effective_admin = false;
+		if ($this->is_admin) {
+			$on_team = in_array ($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs'));
+			if (!$on_team) {
+				$this->effective_admin = true;
+			}
+		}
+
+		if (!$this->effective_admin && $team['League']['roster_deadline'] < date('Y-m-d')) {
 			$this->Session->setFlash(__('The roster deadline for this league has already passed.', true));
 			$this->redirect(array('action' => 'view', 'team' => $id));
 		}
@@ -794,7 +804,17 @@ class TeamsController extends AppController {
 		));
 		$team = $this->Team->read(null, $team_id);
 
-		if (!$this->is_admin && $team['League']['roster_deadline'] < date('Y-m-d')) {
+		// To avoid abuses, whether intentional or accidental, we limit the permissions
+		// of admins when managing teams they are on.
+		$this->effective_admin = false;
+		if ($this->is_admin) {
+			$on_team = in_array ($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs'));
+			if (!$on_team) {
+				$this->effective_admin = true;
+			}
+		}
+
+		if (!$this->effective_admin && $team['League']['roster_deadline'] < date('Y-m-d')) {
 			$this->Session->setFlash(__('The roster deadline for this league has already passed.', true));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
@@ -852,7 +872,7 @@ class TeamsController extends AppController {
 		unset ($roster_options[$status]);
 
 		// Admins can move anyone to anything
-		if ($this->is_admin) {
+		if ($this->effective_admin) {
 			return $roster_options;
 		}
 
