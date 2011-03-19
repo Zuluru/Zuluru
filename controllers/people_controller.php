@@ -657,6 +657,7 @@ class PeopleController extends AppController {
 
 				$variables = array(
 					'%fullname' => $saved['Person']['full_name'],
+					'%memberid' => $id,
 					'%username' => $saved['Person']['user_name'],
 				);
 
