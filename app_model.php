@@ -163,6 +163,11 @@ class AppModel extends Model {
 		$value = array_values($check);
 		$value = $value[0];
 
+		// This needs to work for questionnaire submissions
+		if (is_array($value) && array_key_exists('answer', $value)) {
+			$value = $value['answer'];
+		}
+
 		// The validation array is always passed at the end of the arguments;
 		// if no conditions were passed, that will be in this array, so we
 		// need to get rid of that.
