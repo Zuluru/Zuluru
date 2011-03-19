@@ -999,7 +999,7 @@ class TeamsController extends AppController {
 
 			$full_person = $this->Team->Person->read(null, $person['Person']['id']);
 			if (!$rule_obj->evaluate ($full_person)) {
-				return __('Cannot add this player to this team', true) . ': ' . $rule_obj->reason;
+				return __('To be added to this team, this player must first', true) . ' ' . $rule_obj->reason . '.';
 			}
 		}
 
