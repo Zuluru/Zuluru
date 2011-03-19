@@ -12,8 +12,6 @@ class ZuluruGameHelper extends Helper {
 			// ...or the Game model is at the top and others are below
 			$details = $game;
 		}
-		// TODO: Confirm that the only score entry that can be here is the current user's team,
-		// so that if (!empty(...)) below always does what we expect it to
 		$score_entry = $game['ScoreEntry'];
 
 		// Calculate the game end time stamp
@@ -37,9 +35,9 @@ class ZuluruGameHelper extends Helper {
 			}
 		} else {
 			// Check if one of the teams involved in the game is a team the current user is a captain of
-			$team_id = array_pop (array_intersect (array($details['home_team'], $details['away_team']), $this->Session->read('Zuluru.OwnedTeamIDs')));
+			$teams = array_intersect (array($details['home_team'], $details['away_team']), $this->Session->read('Zuluru.OwnedTeamIDs'));
+			$team_id = array_pop ($teams);
 
-			// TODO: What happens if someone is a captain on both teams that played each other?
 			if (!empty ($score_entry)) {
 				// If scores are being shown from a particular team's perspective,
 				// we may need to swap the home and away scores.
@@ -58,6 +56,14 @@ class ZuluruGameHelper extends Helper {
 					echo $this->Html->link(
 							__('Edit score', true),
 							array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $team_id));
+
+					// Check if someone is a captain on both teams that played each other
+					$team_id = array_pop ($teams);
+					if ($team_id) {
+						echo $this->Html->link(
+								__('Submit', true),
+								array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $team_id));
+					}
 				} else {
 					echo ' (' . __('unofficial', true) . ')';
 				}
