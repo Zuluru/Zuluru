@@ -99,10 +99,17 @@ class EventTypeTeamComponent extends EventTypeComponent
 		if ($event['Event']['team_league'] == null) {
 			// TODO: Add region and open roster validation, if necessary
 		} else {
+			if (array_key_exists('Response', $event)) {
+				$team_id = $this->_extractAnswer ($event, -5);
+			} else {
+				$team_id = null;
+			}
+
 			// If we're creating team records in a league, make sure the name is unique in that league
 			$validation['q-1']['unique'] = array(
 				'rule' => array('notinquery', 'Team', 'name', array(
 						'league_id' => $event['Event']['team_league'],
+						'id !=' => $team_id,
 				)),
 				'message' => array('answer' => 'There is already a team by that name in this league.'),
 			);
