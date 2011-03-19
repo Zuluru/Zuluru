@@ -504,16 +504,16 @@ class RegistrationsController extends AppController {
 			$success = true;
 			foreach ($registrations as $registration) {
 				$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
-				$result = $event_obj->paid($registration, $registration);
-				if ($result) {
-					if (is_array ($result)) {
+				$extra = $event_obj->paid($registration, $registration);
+				if ($extra) {
+					if (is_array ($extra)) {
 						// Manually add the event id to all of the responses :-(
-						foreach (array_keys ($result) as $key) {
-							$result[$key]['event_id'] = $registration['Event']['id'];
+						foreach (array_keys ($extra) as $key) {
+							$extra[$key]['event_id'] = $registration['Event']['id'];
 						}
-						$success = $this->Registration->Response->saveAll($result, array('atomic' => false, 'validate' => false));
+						$success = $this->Registration->Response->saveAll($extra, array('atomic' => false, 'validate' => false));
 					}
-				} else if ($result === false) {
+				} else if ($extra === false) {
 					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
 					$success = false;
 				}
