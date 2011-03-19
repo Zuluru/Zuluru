@@ -11,6 +11,9 @@ $roster_descriptions = Configure::read('options.roster_position');
 
 <div class="people form">
 <h2><?php  echo __('Roster Status', true) . ': ' . $team['Team']['name'] . ': ' . $person['Person']['full_name'];?></h2>
+<?php if ($can_add !== true): ?>
+<p><?php echo $can_add; ?></p>
+<?php else: ?>
 <p>You are attempting to change player status for <?php
 echo $this->Html->link ($person['Person']['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $person['Person']['id']));
 ?> on team <?php
@@ -27,6 +30,7 @@ echo $this->Form->input('status', array(
 ));
 echo $this->Form->end(__('Submit', true));
 ?>
+<?php endif; ?>
 
 </p>
 </div>

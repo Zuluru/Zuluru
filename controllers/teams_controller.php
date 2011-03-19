@@ -847,7 +847,11 @@ class TeamsController extends AppController {
 			}
 		}
 
-		$roster_options = $this->_rosterOptions ($status, $team_id, $team['Team']['open_roster']);
+		// Check if this person can even be added
+		$can_add = $this->_canAdd ($person, $team);
+		if ($can_add === true) {
+			$roster_options = $this->_rosterOptions ($status, $team_id, $team['Team']['open_roster']);
+		}
 
 		if (!empty($this->data)) {
 			if (!array_key_exists ($this->data['Person']['status'], $roster_options)) {
@@ -862,7 +866,7 @@ class TeamsController extends AppController {
 			}
 		}
 
-		$this->set(compact('person', 'team', 'status', 'roster_options'));
+		$this->set(compact('person', 'team', 'status', 'roster_options', 'can_add'));
 	}
 
 	function _rosterOptions ($status, $team, $open) {
