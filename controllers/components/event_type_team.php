@@ -156,6 +156,8 @@ class EventTypeTeamComponent extends EventTypeComponent
 			// example. Otherwise, the captain is the current user.
 			if (array_key_exists ('person_id', $data['Registration'])) {
 				$captain_id = $data['Registration']['person_id'];
+			} else if (array_key_exists ('Registration', $event) && array_key_exists ('person_id', $event['Registration'])) {
+				$captain_id = $event['Registration']['person_id'];
 			} else {
 				$captain_id = $this->_controller->Auth->user('id');
 			}
