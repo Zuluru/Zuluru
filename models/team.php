@@ -78,10 +78,19 @@ class Team extends AppModel {
 
 	function beforeValidate() {
 		$league_id = $team_id = null;
-		if (array_key_exists ('Team', $this->data) && array_key_exists ('id', $this->data['Team'])) {
-			$team_id = $this->data['Team']['id'];
+		if (array_key_exists ('Team', $this->data)) {
+			$team = $this->data['Team'];
+		} else {
+			$team = $this->data;
+		}
+
+		if (array_key_exists ('id', $team)) {
+			$team_id = $team['id'];
 			$Team = ClassRegistry::init('Team');
 			$league_id = $Team->field ('league_id', array('id' => $team_id));
+		}
+		if (array_key_exists ('league_id', $team)) {
+			$league_id = $team['league_id'];
 		}
 
 		$this->validate['name']['unique'] = array(
