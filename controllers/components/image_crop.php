@@ -83,14 +83,17 @@ class ImageCropComponent extends Object {
 
 		$ext = strtolower(substr(basename($thumb), strrpos(basename($thumb), '.') + 1));
 		if($ext == 'png') {
-			imagepng($newImage, $thumb, 0);
+			$result = imagepng($newImage, $thumb, 0);
 		} elseif($ext == 'jpg' || $ext == 'jpeg') {
-			imagejpeg($newImage, $thumb, 90);
+			$result = imagejpeg($newImage, $thumb, 90);
 		} elseif($ext == 'gif') {
-			imagegif($newImage, $thumb);
+			$result = imagegif($newImage, $thumb);
+		}
+		if (!$result) {
+			return false;
 		}
 
-		chmod($thumb, 0777);
+		chmod($thumb, 0664);
 		return $thumb;
 	}
 
@@ -98,6 +101,9 @@ class ImageCropComponent extends Object {
 		$scale = $thumb_width/$w;
 		$cropped = $this->resizeThumbnailImage($thumb, $image, $w, $h, $x1, $y1, $scale);
 		unlink ($image);
+		if (!$cropped) {
+			return false;
+		}
 		return $thumb;
 	}
 }
