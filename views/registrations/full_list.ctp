@@ -52,7 +52,7 @@ foreach ($registrations as $registration):
 			?>
 		</td>
 		<td>
-			<?php echo $this->Html->link ($registration['Person']['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $registration['Person']['id'])); ?>
+			<?php echo $this->element('people/block', array('person' => $registration['Person'])); ?>
 		</td>
 		<td>
 			<?php echo $registration['Registration']['created']; ?>

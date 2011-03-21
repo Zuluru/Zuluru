@@ -13,7 +13,7 @@ $this->Html->addCrumb (__('View', true));
 		<?php
 		$coordinators = array();
 		foreach ($league['Person'] as $person) {
-			$coordinator = $this->Html->link($person['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $person['id']));
+			$coordinator = $this->element('people/block', compact('person'));
 			if ($is_admin) {
 				$coordinator .= '&nbsp;' .
 					$this->Html->tag('span',
@@ -23,7 +23,7 @@ $this->Html->addCrumb (__('View', true));
 			$coordinators[] = $coordinator;
 		}
 		echo implode ('<br />', $coordinators);
-		?>
+		?></dd>
 		<?php endif; ?>
 		<?php if (!empty ($league['League']['coord_list'])) : ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Coordinator Email List'); ?></dt>

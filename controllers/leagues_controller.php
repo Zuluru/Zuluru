@@ -84,6 +84,9 @@ class LeaguesController extends AppController {
 		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.LeagueIDs')));
 
 		$this->_addLeagueMenuItems ($this->League->data);
+
+		// Set up a couple more variables that the player popup block needs
+		$this->set('my_id', $this->Auth->user('id'));
 	}
 
 	function add() {
@@ -306,8 +309,19 @@ class LeaguesController extends AppController {
 			'Game' => array(
 				'GameSlot' => array('Field' => array('ParentField')),
 				'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $this->Session->read('Zuluru.TeamIDs'))),
-				'HomeTeam',
-				'AwayTeam',
+				// Get the list of captains for each team, for the popup
+				'HomeTeam' => array(
+					'Person' => array(
+						'conditions' => array('TeamsPerson.status' => Configure::read('privileged_roster_positions')),
+						'fields' => array('id', 'first_name', 'last_name'),
+					),
+				),
+				'AwayTeam' => array(
+					'Person' => array(
+						'conditions' => array('TeamsPerson.status' => Configure::read('privileged_roster_positions')),
+						'fields' => array('id', 'first_name', 'last_name'),
+					),
+				),
 			),
 		));
 		$league = $this->League->read(null, $id);
@@ -578,7 +592,13 @@ class LeaguesController extends AppController {
 
 		$this->League->contain (array (
 			'Day' => array('order' => 'day_id'),
-			'Team',
+			// Get the list of captains for each team, for the popup
+			'Team' => array(
+				'Person' => array(
+					'conditions' => array('TeamsPerson.status' => Configure::read('privileged_roster_positions')),
+					'fields' => array('id', 'first_name', 'last_name'),
+				),
+			),
 		));
 		$league = $this->League->read(null, $id);
 		if ($league === false) {

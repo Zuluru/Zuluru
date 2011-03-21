@@ -119,7 +119,7 @@ $this->Html->addCrumb (__('View', true));
 	?>
 	<tr<?php echo $class;?>>
 		<td><?php
-		echo $this->Html->link($person['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $person['id']));
+		echo $this->element('people/block', compact('person'));
 		if (!empty ($conflicts)) {
 			echo '<div class="roster_conflict">' . implode ('<br />', $conflicts) . '</div>';
 		}

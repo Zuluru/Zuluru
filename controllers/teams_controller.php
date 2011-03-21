@@ -332,7 +332,7 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->Team->contain (array(
-				'Person',
+				'Person' => array('Upload'),
 				'League',
 		));
 		$team = $this->Team->read(null, $id);
@@ -346,6 +346,11 @@ class TeamsController extends AppController {
 		$this->set('is_captain', in_array($id, $this->Session->read('Zuluru.OwnedTeamIDs')));
 		$this->set('is_coordinator', in_array($this->Team->data['Team']['league_id'], $this->Session->read('Zuluru.LeagueIDs')));
 		$this->_addTeamMenuItems ($this->Team->data);
+
+		// Set up a couple more variables that the player popup block needs
+		$this->set('my_id', $this->Auth->user('id'));
+		$captain_in_league_ids = Set::extract ('/Team/league_id', $this->Session->read('Zuluru.OwnedTeams'));
+		$this->set('is_league_captain', in_array ($team['Team']['league_id'], $captain_in_league_ids));
 	}
 
 	function add() {
@@ -493,8 +498,19 @@ class TeamsController extends AppController {
 				'GameSlot' => array('Field' => array('ParentField')),
 				'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $this->Session->read('Zuluru.TeamIDs'))),
 				'SpiritEntry',
-				'HomeTeam',
-				'AwayTeam',
+				// Get the list of captains for each team, for the popup
+				'HomeTeam' => array(
+					'Person' => array(
+						'conditions' => array('TeamsPerson.status' => Configure::read('privileged_roster_positions')),
+						'fields' => array('id', 'first_name', 'last_name'),
+					),
+				),
+				'AwayTeam' => array(
+					'Person' => array(
+						'conditions' => array('TeamsPerson.status' => Configure::read('privileged_roster_positions')),
+						'fields' => array('id', 'first_name', 'last_name'),
+					),
+				),
 		));
 		$team['Game'] = $this->Team->League->Game->find('all', array(
 				'conditions' => array('OR' => array(
