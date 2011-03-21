@@ -420,6 +420,8 @@ class AppController extends Controller {
 				$this->_addMenuItem ('Create account', array('controller' => 'users', 'action' => 'create_account'), 'Players');
 			}
 		}
+
+		$this->_addMenuItem ('Help', array('controller' => 'help'));
 	}
 
 	function _initSessionData($my_id) {

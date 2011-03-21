@@ -77,6 +77,51 @@ class ZuluruHtmlHelper extends HtmlHelper {
 		echo parent::link (parent::image ($img, $imgOptions),
 							$url, array_merge (array('escape' => false), $urlOptions));
 	}
+
+	/**
+	 * Create pop-up help links.
+	 */
+	function help($url) {
+		// Add "/help" to the beginning of whatever URL is provided
+		$url = array_merge (array('controller' => 'help'), $url);
+
+		// Add the help image, with a link to a pop-up with the help
+		$id = implode ('_', array_values ($url));
+		echo $this->imageLink('help.png', $url, array(
+			'id' => $id,
+			'alt' => __('[Help]', true),
+			'title' => __('Additional help', true),
+		), array('target' => '_blank'));
+
+		// Add an invisible div with the help text in it, and attach an event to the image
+		$view =& ClassRegistry::getObject('view');
+		$element = implode ('/', array_values ($url));
+		$title = array_map (array('Inflector', 'humanize'), array_values ($url));
+		echo $this->tag ('div', $view->element ($element), array(
+				'id' => "{$id}_div",
+				'class' => 'help',
+				'title' => implode (' &raquo; ', $title),
+		));
+		$view->Js->get("#$id")->event('click', "show_help('$id');");
+
+		if (!isset ($this->dialogHandlerOutput)) {
+			echo $view->Html->scriptBlock ("
+function show_help(id) {
+	$('#' + id + '_div').dialog({
+		buttons: {
+			'Close': function() { $('#' + id + '_div').dialog('close'); },
+		},
+		modal: true,
+		resizable: false,
+		width: 480,
+		height: 250
+	});
+}
+", array('inline' => false));
+			$this->dialogHandlerOutput = true;
+		}
+
+	}
 }
 
 ?>

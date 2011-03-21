@@ -38,6 +38,11 @@
 	Router::connect('/', array('controller' => 'all', 'action' => 'splash'));
 
 /**
+ * Connect the help pages
+ */
+	Router::connect('/help/*', array('controller' => 'help', 'action' => 'view'));
+
+/**
  * Connect most settings URLs to the edit function.
  */
 	Router::connect('/settings/payment_provider_fields', array('controller' => 'settings', 'action' => 'payment_provider_fields'));

@@ -399,3 +399,14 @@ div.related
 {
 	float: right;
 }
+
+/* Help dialog styling. */
+div.help
+{
+	display: none;
+}
+
+div.help p
+{
+	margin: 1em 0;
+}
