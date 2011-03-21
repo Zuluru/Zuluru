@@ -151,7 +151,7 @@ if (Configure::read('personal.enable_ical')) {
 <?php
 if ($empty) {
 	echo $this->Html->para (null, sprintf (__('You are not yet on any teams. Perhaps you would like to %s, %s or %s.', true),
-		$this->Html->link ('register for membership or an event', array('controller' => 'events')),
+		$this->Html->link ('register for membership or an event', array('controller' => 'events', 'action' => 'wizard')),
 		$this->Html->link ('look for a team to join', array('controller' => 'teams')),
 		$this->Html->link ('check out the leagues we are currently offering', array('controller' => 'leagues'))
 	));
