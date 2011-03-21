@@ -21,7 +21,10 @@ if (!empty($unpaid)) {
 
 <table cellpadding="0" cellspacing="0">
 <tr>
-	<th colspan="2"><?php __('My Teams');?></th>
+	<th colspan="2"><?php
+	__('My Teams');
+	echo $this->ZuluruHtml->help(array('action' => 'teams', 'my_teams'));
+	?></th>
 </tr>
 <?php
 $roster_descriptions = Configure::read('options.roster_position');
@@ -96,7 +99,10 @@ foreach ($leagues as $league):
 
 <table cellpadding="0" cellspacing="0">
 <tr>
-	<th colspan="3"><?php __('Recent and Upcoming Games');?></th>
+	<th colspan="3"><?php
+	__('Recent and Upcoming Games');
+	echo $this->ZuluruHtml->help(array('action' => 'games', 'recent_and_upcoming'));
+	?></th>
 </tr>
 <?php
 $i = 0;
@@ -140,7 +146,7 @@ if (Configure::read('personal.enable_ical')) {
 	echo $this->Html->link (__('Edit your preferences', true), array('controller' => 'people', 'action' => 'preferences'));
 	__(' to enable your personal iCal feed');
 }
-?>.</p>
+?>. <?php echo $this->ZuluruHtml->help(array('action' => 'games', 'personal_feed')); ?></p>
 
 <?php
 if ($empty) {
