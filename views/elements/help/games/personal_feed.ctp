@@ -1,0 +1,4 @@
+<p>iCal is a standardized format for exchanging schedule information between applications. Zuluru supports iCal output in a variety of ways, but perhaps the most useful is the "Personal Feed".</p>
+<p>If you <?php echo $this->Html->link (__('edit your preferences', true), array('controller' => 'people', 'action' => 'preferences')); ?> to enable this, you will be able to have iCal, Google Calendar and others automatically pull your schedule, from week to week, season to season, and year to year, and keep you informed of all of your upcoming games.</p>
+<p>To add your personal feed to iCal, copy the link from the iCal logo at the bottom of the main Zuluru page. Then, go to the Calendar menu in iCal, pick Subscribe, and paste in the link.</p>
+<p>To add your personal feed to Google Calendar, just click the "Add to Google Calendar" link at the bottom of the main Zuluru page.</p>
