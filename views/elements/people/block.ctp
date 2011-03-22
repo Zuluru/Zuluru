@@ -29,14 +29,15 @@ $view_contact = ((isset($my_id) && $my_id == $person['id'])
 	|| (isset($is_captain) && $is_captain)
 	|| (isset($is_league_captain) && $is_league_captain && in_array($person['TeamsPerson']['status'], Configure::read('privileged_roster_positions')))
 );
-if ($view_contact || ($is_logged_in && $person['publish_email']))
+if (!empty($person['email']) &&
+	($view_contact || ($is_logged_in && $person['publish_email'])))
 {
-	echo $person['email'] . $this->Html->tag('br') ;
+	echo $this->Html->link ($person['email'], "mailto:{$person['email']}") . $this->Html->tag('br');
 }
 if (!empty($person['home_phone']) &&
 	($view_contact || ($is_logged_in && $person['publish_home_phone'])))
 {
-	echo $person['home_phone'] . ' (' . __('home', true) . ')' . $this->Html->tag('br') ;
+	echo $person['home_phone'] . ' (' . __('home', true) . ')' . $this->Html->tag('br');
 }
 if (!empty($person['work_phone']) &&
 	($view_contact || ($is_logged_in && $person['publish_work_phone'])))
@@ -45,12 +46,12 @@ if (!empty($person['work_phone']) &&
 	if (!empty($person['work_ext'])) {
 		echo ' x' . $person['work_ext'];
 	}
-	echo ' (' . __('work', true) . ')' . $this->Html->tag('br') ;
+	echo ' (' . __('work', true) . ')' . $this->Html->tag('br');
 }
 if (!empty($person['mobile_phone']) &&
 	($view_contact || ($is_logged_in && $person['publish_mobile_phone'])))
 {
-	echo $person['mobile_phone'] . ' (' . __('mobile', true) . ')' . $this->Html->tag('br') ;
+	echo $person['mobile_phone'] . ' (' . __('mobile', true) . ')' . $this->Html->tag('br');
 }
 ?>
 </div>
