@@ -100,7 +100,7 @@ switch ($step) {
 		if (!empty ($events_by_type[2])) {
 			echo $this->Html->para(null, __('You are eligible to register a league team. This is for team captains looking to add their team for the upcoming season.', true));
 			echo $this->Html->tag('span',
-					$this->Html->link('Register a team', array('action' => 'wizard', 'league_team')),
+					$this->Html->link('Register a league team', array('action' => 'wizard', 'league_team')),
 					array('class' => 'actions'));
 		}
 
@@ -114,7 +114,7 @@ switch ($step) {
 		if (!empty ($events_by_type[4])) {
 			echo $this->Html->para(null, __('You are eligible to register a team for a one-time event. This is for team captains looking to add their team for a tournament or similar event.', true));
 			echo $this->Html->tag('span',
-					$this->Html->link('Register a team', array('action' => 'wizard', 'event_team')),
+					$this->Html->link('Register a team for an event', array('action' => 'wizard', 'event_team')),
 					array('class' => 'actions'));
 		}
 
