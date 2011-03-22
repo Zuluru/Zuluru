@@ -572,9 +572,12 @@ class PeopleController extends AppController {
 			if (strlen ($test) < 2) {
 				$this->set('short', true);
 			} else {
-				$this->Person->recursive = 0;
 				$this->_mergePaginationParams();
-				$this->set('people', $this->paginate('Person', $this->_generateSearchConditions($params)));
+				$this->paginate['Person'] = array(
+					'conditions' => $this->_generateSearchConditions($params),
+					'contain' => array('Upload'),
+				);
+				$this->set('people', $this->paginate('Person'));
 			}
 		}
 		$this->set(compact('url'));

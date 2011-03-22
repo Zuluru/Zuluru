@@ -681,9 +681,12 @@ class TeamsController extends AppController {
 			} else {
 				// This pagination needs the model at the top level
 				$this->Person = $this->Team->Person;
-				$this->Person->recursive = 0;
 				$this->_mergePaginationParams();
-				$this->set('people', $this->paginate('Person', $this->_generateSearchConditions($params, 'Person')));
+				$this->paginate['Person'] = array(
+					'conditions' => $this->_generateSearchConditions($params, 'Person'),
+					'contain' => array('Upload'),
+				);
+				$this->set('people', $this->paginate('Person'));
 			}
 		}
 		$this->set(compact('url'));
@@ -744,6 +747,7 @@ class TeamsController extends AppController {
 			'Person' => array(
 				'fields' => array(
 					'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.status',
+					'Person.home_phone', 'Person.work_phone', 'Person.work_ext', 'Person.mobile_phone',
 				),
 				'order' => array(
 					'Person.gender DESC', 'Person.last_name', 'Person.first_name',

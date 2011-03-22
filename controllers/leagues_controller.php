@@ -190,12 +190,15 @@ class LeaguesController extends AppController {
 			} else {
 				// This pagination needs the model at the top level
 				$this->Person = $this->League->Person;
-				$this->Person->recursive = 0;
 				$this->_mergePaginationParams();
-				$this->set('people', $this->paginate('Person', array_merge (
+				$this->paginate['Person'] = array(
+					'conditions' => array_merge (
 						$this->_generateSearchConditions($params, 'Person'),
 						array('Group.name' => array('Volunteer', 'Administrator'))
-				)));
+					),
+					'contain' => array('Group', 'Upload'),
+				);
+				$this->set('people', $this->paginate('Person'));
 			}
 		}
 		$this->set(compact('url'));

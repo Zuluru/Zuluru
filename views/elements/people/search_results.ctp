@@ -35,10 +35,10 @@ foreach ($people as $person):
 ?>
 	<tr<?php echo $class;?>>
 		<td>
-			<?php echo $person['Person']['first_name']; ?>
+			<?php echo $this->element('people/block', array('person' => $person, 'display_field' => 'first_name')); ?>
 		</td>
 		<td>
-			<?php echo $person['Person']['last_name']; ?>
+			<?php echo $this->element('people/block', array('person' => $person, 'display_field' => 'last_name')); ?>
 		</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View', true), array('controller' => 'people', 'action' => 'view', 'person' => $person['Person']['id'])); ?>

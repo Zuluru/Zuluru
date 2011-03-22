@@ -1,4 +1,9 @@
 <?php
+// Sometimes, there will be a 'Person' key, sometimes not
+if (array_key_exists ('Person', $person)) {
+	$person = array_merge ($person, $person['Person']);
+	unset ($person['Person']);
+}
 $id = "person{$person['id']}";
 
 // Global variable. Ew.
@@ -66,7 +71,10 @@ if (isset ($options)) {
 } else {
 	$options = array('class' => $id);
 }
-echo $this->ZuluruHtml->link($person['full_name'],
+if (!isset($display_field)) {
+	$display_field = 'full_name';
+}
+echo $this->ZuluruHtml->link($person[$display_field],
 	array('controller' => 'people', 'action' => 'view', 'person' => $person['id']),
 	$options);
 ?>

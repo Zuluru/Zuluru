@@ -19,12 +19,12 @@ if (empty ($old_team['Person'])) {
 	foreach ($old_team['Person'] as $person) {
 		if ($person['can_add'] === true) {
 			echo $this->Form->input("player.{$person['id']}", array(
-					'label' => $person['full_name'],
+					'label' => $this->element('people/block', compact('person')),
 					'type' => 'checkbox',
 					'hiddenField' => false,
 			));
 		} else {
-			$cannot[] = $this->Html->tag('span', $person['full_name'], array('title' => $person['can_add']));
+			$cannot[] = $this->Html->tag('span', $this->element('people/block', compact('person')), array('title' => $person['can_add']));
 		}
 	}
 
