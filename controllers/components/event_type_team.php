@@ -149,6 +149,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 			))
 		);
 
+		$this->_controller->Team->create();
 		if ($this->_controller->Team->save ($team)) {
 			// If this is a pre-existing registration that's being paid,
 			// the captain is the person that registered it. This is the
