@@ -195,6 +195,15 @@ class Team extends AppModel {
 			$rosterMap = array_flip(array_keys(Configure::read('options.roster_position')));
 		}
 
+		// Sort eligible from non-eligible
+		if (array_key_exists('can_add', $a) && array_key_exists('can_add', $b)) {
+			if ($a['can_add'] === true && $b['can_add'] !== true) {
+				return -1;
+			} else if ($a['can_add'] !== true && $b['can_add'] === true) {
+				return 1;
+			}
+		}
+
 		if ($a['TeamsPerson']['status'] == ROSTER_APPROVED && $b['TeamsPerson']['status'] != ROSTER_APPROVED) {
 			return -1;
 		} else if ($a['TeamsPerson']['status'] != ROSTER_APPROVED && $b['TeamsPerson']['status'] == ROSTER_APPROVED) {

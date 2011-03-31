@@ -84,6 +84,10 @@ $this->Html->addCrumb (__('View', true));
 
 <?php if ($is_logged_in):?>
 <div class="related">
+	<?php
+	$cols = 5;
+	$warning = false;
+	?>
 	<table cellpadding = "0" cellspacing = "0">
 	<tr>
 		<th><?php __('Name'); ?></th>
@@ -92,13 +96,33 @@ $this->Html->addCrumb (__('View', true));
 		<th><?php __('Rating'); ?></th>
 		<?php if ($is_admin || $is_coordinator) : ?>
 		<th><?php __('Shirt Size'); ?></th>
-		<?php endif; ?>
+		<?php
+			++$cols;
+		endif;
+		?>
 		<th><?php __('Date Joined'); ?></th>
 	</tr>
 	<?php
 		$i = $roster_count = $skill_count = $skill_total = 0;
 		$roster_required = Configure::read("roster_requirements.{$team['League']['ratio']}");
 		foreach ($team['Person'] as $person):
+			// Maybe add a warning
+			if ($person['can_add'] !== true && !$warning):
+				$warning = true;
+				$class = ' class="error-message"';
+				if ($i++ % 2 == 0) {
+					$class = ' class="altrow error-message"';
+				}
+	?>
+	<tr<?php echo $class;?>>
+		<td colspan="<?php echo $cols; ?>"><strong>
+			<?php echo sprintf(__('Notice: The following players are currently INELIGIBLE to participate on this roster. This is typically because they do not have a current membership. They are not allowed to play with this team until this is corrected. Hover your mouse over the %s to see the specific reason why.', true),
+				$this->Html->image('help.png', array('alt' => '?'))); ?>
+		</strong></td>
+	</tr>
+	<?php
+			endif;
+
 			$class = null;
 			if ($i++ % 2 == 0) {
 				$class = ' class="altrow"';
@@ -126,8 +150,11 @@ $this->Html->addCrumb (__('View', true));
 			echo '<div class="roster_conflict">' . implode ('<br />', $conflicts) . '</div>';
 		}
 		?></td>
-		<td><?php
+		<td<?php if ($warning) echo ' class="error-message"';?>><?php
 		echo $this->element('people/roster', array('roster' => $person['TeamsPerson'], 'league' => $team['League']));
+		if ($person['can_add'] !== true) {
+			echo ' ' . $this->Html->image('help.png', array('title' => $person['can_add'], 'alt' => '?'));
+		}
 		?></td>
 		<td><?php __($person['gender']);?></td>
 		<td><?php echo $person['skill_level'];?></td>
