@@ -288,7 +288,9 @@ class RegistrationsController extends AppController {
 			}
 
 			// Use array_values here to get numeric keys in the data to be saved
-			$data['Response'] = array_values($data['Response']);
+			if (is_array($data) && array_key_exists('Response', $data)) {
+				$data['Response'] = array_values($data['Response']);
+			}
 
 			// Set the flash message that will be used, if there are no errors
 			$this->Session->setFlash(__('Your preferences for this registration have been saved.', true));
@@ -609,7 +611,9 @@ class RegistrationsController extends AppController {
 			$transaction = new DatabaseTransaction($this->Registration);
 
 			// Use array_values here to get numeric keys in the data to be saved
-			$data['Response'] = array_values($data['Response']);
+			if (is_array($data) && array_key_exists('Response', $data)) {
+				$data['Response'] = array_values($data['Response']);
+			}
 
 			// If the payment status has changed, we may need to do extra processing
 			$paid = array('Paid', 'Pending');
@@ -648,8 +652,10 @@ class RegistrationsController extends AppController {
 			}
 
 			// Now manually add the event id to all of the responses :-(
-			foreach (array_keys ($data['Response']) as $key) {
-				$data['Response'][$key]['event_id'] = $registration['Event']['id'];
+			if (is_array($data) && array_key_exists('Response', $data)) {
+				foreach (array_keys ($data['Response']) as $key) {
+					$data['Response'][$key]['event_id'] = $registration['Event']['id'];
+				}
 			}
 
 			// TODO: 'atomic' can go, once we've upgraded everything to Cake 1.3.6
@@ -730,9 +736,11 @@ class RegistrationsController extends AppController {
 		$delete = Set::extract ('/Response[answer_id=0][id>0]/id', $data);
 
 		// Next, we remove any new checkbox entries with answer_id = 0 (not to be saved)
-		foreach ($data['Response'] as $key => $response) {
-			if (strpos ($key, 'a') !== false && $response['answer_id'] === '0') {
-				unset ($data['Response'][$key]);
+		if (is_array($data) && array_key_exists('Response', $data)) {
+			foreach ($data['Response'] as $key => $response) {
+				if (strpos ($key, 'a') !== false && $response['answer_id'] === '0') {
+					unset ($data['Response'][$key]);
+				}
 			}
 		}
 
