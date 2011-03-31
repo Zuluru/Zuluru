@@ -52,7 +52,8 @@ if (isset ($add)) {
 		));
 		echo $this->Form->input('roster_rule', array(
 			'cols' => 70,
-			'after' => $this->Html->para (null, __('Rules that must be passed to allow a player to be added to the roster of a team in this league.', true)),
+		'after' => $this->Html->para (null, __('Rules that must be passed to allow a player to be added to the roster of a team in this league.', true) .
+				' ' . $this->ZuluruHtml->help(array('action' => 'rules', 'rules'))),
 		));
 	?>
 	</fieldset>

@@ -38,7 +38,8 @@ if (isset ($add)) {
 			));
 		}
 		echo $this->Form->input('open_roster', array(
-			'after' => $this->Html->para (null, __('If the team roster is open, others can request to join; otherwise, only the captain can add players.', true)),
+			'after' => ' ' . $this->ZuluruHtml->help(array('action' => 'teams', 'roster_status')) .
+				$this->Html->para (null, __('If the team roster is open, others can request to join; otherwise, only the captain can add players.', true)),
 		));
 	?>
 	</fieldset>

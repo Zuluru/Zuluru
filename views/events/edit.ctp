@@ -89,7 +89,8 @@ if (isset ($add)) {
 	<?php
 		echo $this->Form->input('register_rule', array(
 			'cols' => 70,
-			'after' => $this->Html->para (null, __('Rules that must be passed to allow a person to register for this event.', true)),
+			'after' => $this->Html->para (null, __('Rules that must be passed to allow a person to register for this event.', true) .
+				' ' . $this->ZuluruHtml->help(array('action' => 'rules', 'rules'))),
 		));
 	?>
 	</fieldset>

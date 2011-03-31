@@ -43,7 +43,10 @@ $this->Html->addCrumb (__('View', true));
 		<?php endif; ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Roster Status'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php __($team['Team']['open_roster'] ? 'Open' : 'Closed'); ?>
+			<?php
+			__($team['Team']['open_roster'] ? 'Open' : 'Closed');
+			echo ' ' . $this->ZuluruHtml->help(array('action' => 'teams', 'roster_status'));
+			?>
 
 		</dd>
 		<?php // TODO: SBF ?>
