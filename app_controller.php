@@ -717,7 +717,7 @@ class AppController extends Controller {
 		}
 
 		// We may have been given complex Person arrays that the sender wants us to extract details from
-		foreach (array('to' => false, 'cc' => true, 'bcc' => true, 'from' => false, 'replyTo' => false) as $key => $array) {
+		foreach (array('to' => true, 'cc' => true, 'bcc' => true, 'from' => false, 'replyTo' => false) as $key => $array) {
 			if (array_key_exists ($key, $opts)) {
 				$opts[$key] = $this->_extractEmails($opts[$key], $array);
 			}
