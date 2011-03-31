@@ -96,4 +96,4 @@ if (isset ($add)) {
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
 
-<?php $this->ZuluruHtml->script ('datepicker', array('inline' => false));
+<?php echo $this->ZuluruHtml->script ('datepicker', array('inline' => false));

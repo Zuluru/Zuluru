@@ -28,10 +28,11 @@ class ZuluruHtmlHelper extends HtmlHelper {
 		$base = Configure::read('urls.zuluru_css');
 
 		if (is_array($path)) {
+			$paths = array();
 			foreach ($path as $i) {
-				echo $this->css($i, $rel, $options);
+				$paths[] = $this->css($i, $rel, $options);
 			}
-			return;
+			return implode("\n", $paths);
 		}
 
 		if (strpos($path, '://') !== false) {
@@ -41,7 +42,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 				$url = $base . $path;
 			}
 		}
-		echo parent::css($url, $rel, $options);
+		return parent::css($url, $rel, $options);
 	}
 
 	/**
@@ -54,10 +55,11 @@ class ZuluruHtmlHelper extends HtmlHelper {
 		$base = Configure::read('urls.zuluru_js');
 
 		if (is_array($path)) {
+			$scripts = array();
 			foreach ($path as $i) {
-				echo $this->script($i, $options);
+				$scripts[] = $this->script($i, $options);
 			}
-			return;
+			return implode("\n", $scripts);
 		}
 
 		if (strpos($path, '://') !== false) {
@@ -67,14 +69,14 @@ class ZuluruHtmlHelper extends HtmlHelper {
 				$url = $base . $path;
 			}
 		}
-		echo parent::script($url, $options);
+		return parent::script($url, $options);
 	}
 
 	/**
 	 * Create links from images.
 	 */
 	function imageLink($img, $url, $imgOptions = array(), $urlOptions = array()) {
-		echo parent::link (parent::image ($img, $imgOptions),
+		return parent::link (parent::image ($img, $imgOptions),
 							$url, array_merge (array('escape' => false), $urlOptions));
 	}
 
@@ -82,12 +84,14 @@ class ZuluruHtmlHelper extends HtmlHelper {
 	 * Create pop-up help links.
 	 */
 	function help($url) {
+		$help = '';
+
 		// Add "/help" to the beginning of whatever URL is provided
 		$url = array_merge (array('controller' => 'help'), $url);
 
 		// Add the help image, with a link to a pop-up with the help
 		$id = implode ('_', array_values ($url));
-		echo $this->imageLink('help.png', $url, array(
+		$help .= $this->imageLink('help.png', $url, array(
 			'id' => $id,
 			'alt' => __('[Help]', true),
 			'title' => __('Additional help', true),
@@ -97,7 +101,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 		$view =& ClassRegistry::getObject('view');
 		$element = implode ('/', array_values ($url));
 		$title = array_map (array('Inflector', 'humanize'), array_values ($url));
-		echo $this->tag ('div', $view->element ($element), array(
+		$help .= $this->tag ('div', $view->element ($element), array(
 				'id' => "{$id}_div",
 				'class' => 'help',
 				'title' => implode (' &raquo; ', $title),
@@ -105,7 +109,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 		$view->Js->get("#$id")->event('click', "show_help('$id');");
 
 		if (!isset ($this->dialogHandlerOutput)) {
-			echo $view->Html->scriptBlock ("
+			$help .= $view->Html->scriptBlock ("
 function show_help(id) {
 	$('#' + id + '_div').dialog({
 		buttons: {
@@ -121,6 +125,7 @@ function show_help(id) {
 			$this->dialogHandlerOutput = true;
 		}
 
+		return $help;
 	}
 }
 

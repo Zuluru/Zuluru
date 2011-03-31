@@ -118,7 +118,7 @@ echo $this->Form->input('weeks', array(
 </div>
 
 <?php
-$this->ZuluruHtml->script ('datepicker', array('inline' => false));
+echo $this->ZuluruHtml->script ('datepicker', array('inline' => false));
 $url = $this->Html->url (array('controller' => 'leagues', 'action' => 'select'));
 
 // Add JavaScript functions for "select all" buttons, hiding blocks of fields, and populating the league list

@@ -43,7 +43,7 @@ foreach ($questionnaire['Question'] as $question) {
 
 <?php
 // Make the table sortable
-$this->ZuluruHtml->script (array('jquery.tableSort', 'jquery.autocomplete', 'questionnaire'), array('inline' => false));
+echo $this->ZuluruHtml->script (array('jquery.tableSort', 'jquery.autocomplete', 'questionnaire'), array('inline' => false));
 $add_question_url = $this->Html->url (array('controller' => 'questionnaires', 'action' => 'add_question'));
 $auto_complete_url = $this->Html->url (array('controller' => 'questions', 'action' => 'autocomplete'));
 $this->Js->buffer ("

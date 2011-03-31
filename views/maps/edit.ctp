@@ -56,7 +56,7 @@ foreach ($field['SiteFields'] as $related) {
 	}
 }
 
-$this->ZuluruHtml->script (array(
+echo $this->ZuluruHtml->script (array(
 		"http://maps.google.com/maps?file=api&amp;v=2&amp;key=$gmaps_key",
 		"map_common.js",
 		"map_view.js",

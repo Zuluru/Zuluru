@@ -68,7 +68,7 @@ $this->Html->addCrumb (__('Edit', true));
 
 <?php
 // Make the table sortable
-$this->ZuluruHtml->script (array('jquery.tableSort', 'questionnaire'), array('inline' => false));
+echo $this->ZuluruHtml->script (array('jquery.tableSort', 'questionnaire'), array('inline' => false));
 $url = $this->Html->url (array('controller' => 'questions', 'action' => 'add_answer'));
 $this->Js->buffer ("
 	$('.sortable').tableSort(tableReorder);

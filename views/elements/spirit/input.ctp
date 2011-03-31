@@ -20,7 +20,7 @@ if ($game['League']['numeric_sotg']) {
 	), $opts);
 
 	$spirit .= $this->Form->input("SpiritEntry.$team_id.entered_sotg", $opts);
-	$this->ZuluruHtml->script ('spirit', array('inline' => false));
+	echo $this->ZuluruHtml->script ('spirit', array('inline' => false));
 
 	// Don't show this when submitting scores, just when editing. We don't need
 	// to check admin/coordinator permissions, as that's already been done.
