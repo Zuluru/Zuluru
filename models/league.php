@@ -224,7 +224,7 @@ class League extends AppModel {
 		return Set::extract("/Day[id=$day]/..", $leagues);
 	}
 
-	function readByPlayerId($id, $open = true) {
+	function readByPlayerId($id, $open = true, $teams = false) {
 		// Check for invalid users
 		if ($id === null) {
 			return array();
@@ -236,7 +236,7 @@ class League extends AppModel {
 		);
 
 		$this->recursive = -1;
-		$teams = $this->find('all', array(
+		$leagues = $this->find('all', array(
 			'conditions' => $conditions,
 			// By grouping, we get only one record per team, regardless
 			// of how many days the league may operate on. Without this,
@@ -250,6 +250,7 @@ class League extends AppModel {
 				'LeaguesPerson.person_id', 'LeaguesPerson.status',
 				'LeaguesDay.day_id',
 			),
+			'contain' => ($teams ? 'Team' : null),
 			'joins' => array(
 				array(
 					'table' => "{$this->tablePrefix}leagues_people",
@@ -268,7 +269,7 @@ class League extends AppModel {
 			),
 		));
 
-		return $teams;
+		return $leagues;
 	}
 
 	/**

@@ -282,6 +282,16 @@ class AppController extends Controller {
 		}
 	}
 
+	function _limitOverride($team_id) {
+		$on_team = in_array ($team_id, $this->Session->read('Zuluru.TeamIDs'));
+
+		$this->effective_admin = ($this->is_admin && !$on_team);
+
+		$leagues = $this->Session->read('Zuluru.Leagues');
+		$teams = Set::extract ('/Team/id', $leagues);
+		$this->effective_coordinator = (in_array ($team_id, $teams) && !$on_team);
+	}
+
 	/**
 	 * Put basic items on the menu, some based on configuration settings.
 	 * Other items like specific teams and leagues are added elsewhere.
@@ -477,7 +487,7 @@ class AppController extends Controller {
 				}
 				$this->League = new League();
 			}
-			$leagues = $this->League->readByPlayerId ($my_id);
+			$leagues = $this->League->readByPlayerId ($my_id, true, true);
 
 			$this->Session->write ('Zuluru.Leagues', $leagues);
 			$this->Session->write ('Zuluru.LeagueIDs', Set::extract ('/League/id', $leagues));
@@ -521,6 +531,7 @@ class AppController extends Controller {
 	 */
 	function _addTeamMenuItems($team) {
 		$is_captain = in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs'));
+		$this->_limitOverride($team['Team']['id']);
 
 		$this->_addMenuItem ($team['Team']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']), 'Teams', "{$team['Team']['name']}::{$team['Team']['id']}");
 		$this->_addMenuItem ('Schedule', array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
@@ -533,10 +544,12 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Edit', array('controller' => 'teams', 'action' => 'edit', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
 			$this->_addMenuItem ('Player emails', array('controller' => 'teams', 'action' => 'emails', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
 		}
-		if ($this->is_admin || ($is_captain && $team['League']['roster_deadline'] >= date('Y-m-d'))) {
+		if ($this->effective_admin ||
+			(($is_captain || $this->effective_coordinator) && $team['League']['roster_deadline'] >= date('Y-m-d')))
+		{
 			$this->_addMenuItem ('Add player', array('controller' => 'teams', 'action' => 'add_player', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
 		}
-		if ($this->is_admin) {
+		if ($this->effective_admin) {
 			$this->_addMenuItem ('Move', array('controller' => 'teams', 'action' => 'move', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
 			$this->_addMenuItem ('Spirit', array('controller' => 'teams', 'action' => 'spirit', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
 		}

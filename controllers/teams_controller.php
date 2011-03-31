@@ -656,14 +656,9 @@ class TeamsController extends AppController {
 		}
 
 		// To avoid abuses, whether intentional or accidental, we limit the permissions
-		// of admins when managing teams they are on.
-		$this->effective_admin = false;
-		if ($this->is_admin) {
-			$on_team = in_array ($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs'));
-			if (!$on_team) {
-				$this->effective_admin = true;
-			}
-		}
+		// of admins and coordinators when managing teams they are on.
+		$this->_limitOverride($id);
+		$this->set('is_coordinator', $this->effective_coordinator);
 
 		if (!$this->effective_admin && $team['League']['roster_deadline'] < date('Y-m-d')) {
 			$this->Session->setFlash(__('The roster deadline for this league has already passed.', true));
@@ -826,13 +821,7 @@ class TeamsController extends AppController {
 
 		// To avoid abuses, whether intentional or accidental, we limit the permissions
 		// of admins when managing teams they are on.
-		$this->effective_admin = false;
-		if ($this->is_admin) {
-			$on_team = in_array ($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs'));
-			if (!$on_team) {
-				$this->effective_admin = true;
-			}
-		}
+		$this->_limitOverride($team_id);
 
 		if (!$this->effective_admin && $team['League']['roster_deadline'] < date('Y-m-d')) {
 			$this->Session->setFlash(__('The roster deadline for this league has already passed.', true));
@@ -870,6 +859,9 @@ class TeamsController extends AppController {
 		// Check if this person can even be added
 		$can_add = $this->_canAdd ($person, $team);
 		if ($can_add === true) {
+			// We're not already on this team, so the "effective" calculations won't
+			// have blocked us, but we still don't want to give overrides for joining.
+			$this->effective_admin = $this->effective_coordinator = false;
 			$roster_options = $this->_rosterOptions ($status, $team_id, $team['Team']['open_roster']);
 		}
 
@@ -895,8 +887,8 @@ class TeamsController extends AppController {
 		// Can never set anyone to their current status
 		unset ($roster_options[$status]);
 
-		// Admins can move anyone to anything
-		if ($this->effective_admin) {
+		// Admins and coordinators can make anyone anything
+		if ($this->effective_admin || $this->effective_coordinator) {
 			return $roster_options;
 		}
 
