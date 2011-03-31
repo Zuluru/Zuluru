@@ -26,13 +26,30 @@ if (!empty ($teams)) {
 	foreach ($teams as $history) {
 		$options[$history['id']] = "{$history['name']} ({$history['League']['season']})";
 	}
-	echo $this->Form->create(false, array('url' => array('action' => 'add_from', 'team' => $team['Team']['id'])));
+	echo $this->Form->create(false, array('url' => array('action' => 'add_from_team', 'team' => $team['Team']['id'])));
 	echo $this->Form->input ('team', array(
 			'label' => false,
 			'options' => $options,
 			'empty' => '-- select from list --',
 	));
 	echo $this->Form->end(__('Show roster', true));
+}
+?></p>
+
+<p><?php
+if (!empty ($events)) {
+	__('Or select a recent event to add people that are registered.');
+	$options = array();
+	foreach ($events as $event) {
+		$options[$event['Event']['id']] = $event['Event']['name'];
+	}
+	echo $this->Form->create(false, array('url' => array('action' => 'add_from_event', 'team' => $team['Team']['id'])));
+	echo $this->Form->input ('event', array(
+			'label' => false,
+			'options' => $options,
+			'empty' => '-- select from list --',
+	));
+	echo $this->Form->end(__('Show registrations', true));
 }
 ?></p>
 </div>

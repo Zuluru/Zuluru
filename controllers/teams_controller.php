@@ -10,7 +10,7 @@ class TeamsController extends AppController {
 				'edit',
 				'delete',
 				'add_player',
-				'add_from',
+				'add_from_team',
 				'roster_position',
 				'roster_invite',
 				'emails',
@@ -40,6 +40,7 @@ class TeamsController extends AppController {
 		// People can perform these operations on leagues they coordinate
 		if (in_array ($this->params['action'], array(
 				'add_player',
+				'add_from_event',
 				'roster_add',
 				'roster_position',
 		)))
@@ -723,9 +724,22 @@ class TeamsController extends AppController {
 		// TODO: May need to change this once we can schedule playoffs
 		$teams = Set::extract("/League[id!={$team['Team']['league_id']}][schedule_type!=none]/..", $teams['Team']);
 		$this->set(compact('teams'));
+
+		// Admins and coordinators get to add people based on registration events
+		if ($this->effective_admin || $this->effective_coordinator) {
+			$this->Team->Person->Registration->Event->recursive = -1;
+			$events = $this->Team->Person->Registration->Event->find('all', array(
+					'conditions' => array(
+						'Event.open < NOW()',
+						'Event.close > DATE_ADD(CURDATE(), INTERVAL -30 DAY)',
+					),
+					'order' => array('Event.event_type_id', 'Event.open', 'Event.close', 'Event.id'),
+			));
+			$this->set(compact('events'));
+		}
 	}
 
-	function add_from() {
+	function add_from_team() {
 		$id = $this->_arg('team');
 		if (!$id) {
 			$this->Session->setFlash(__('Invalid team', true));
@@ -813,6 +827,101 @@ class TeamsController extends AppController {
 		}
 
 		$this->set(compact('team', 'old_team'));
+	}
+
+	function add_from_event() {
+		$id = $this->_arg('team');
+		if (!$id) {
+			$this->Session->setFlash(__('Invalid team', true));
+			$this->redirect(array('action' => 'index'));
+		}
+
+		if (empty ($this->data)) {
+			$this->Session->setFlash(__('Invalid event', true));
+			$this->redirect(array('action' => 'index'));
+		}
+
+		// Read the current team roster, just need the ids
+		$this->Team->contain (array (
+			'Person' => array(
+				'fields' => array(
+					'Person.id',
+				),
+			),
+			// We need league information for sending out invites, may as well read it now
+			'League' => array(
+				'Day',
+			),
+		));
+		$team = $this->Team->read(null, $id);
+		if ($team === false) {
+			$this->Session->setFlash(__('Invalid team', true));
+			$this->redirect(array('action' => 'index'));
+		}
+
+		// Only include people that aren't yet on the new roster
+		$current = Set::extract('/Person/id', $team);
+		if (count ($current) == 1) {
+			$conditions = array('Person.id !=' => array_shift ($current));
+		} else {
+			$conditions = array('Person.id NOT' => $current);
+		}
+		// Read the list of registrations
+		$this->Team->Person->Registration->Event->contain (array (
+			'Registration' => array(
+				'Person' => array(
+					'fields' => array(
+						'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.status',
+						'Person.home_phone', 'Person.work_phone', 'Person.work_ext', 'Person.mobile_phone',
+						'Person.publish_email', 'Person.publish_home_phone', 'Person.publish_work_phone', 'Person.publish_mobile_phone',
+					),
+					'order' => array(
+						'Person.gender DESC', 'Person.last_name', 'Person.first_name',
+					),
+					'conditions' => $conditions,
+				),
+				'conditions' => array('Payment' => 'Paid'),
+			),
+		));
+		$event = $this->Team->Person->Registration->Event->read(null, $this->data['event']);
+		if ($event === false) {
+			$this->Session->setFlash(__('Invalid event', true));
+			$this->redirect(array('action' => 'index'));
+		}
+
+		// If this is a form submission, set the position to 'player' for each player
+		if (array_key_exists ('player', $this->data)) {
+			// We need this model for updating position.
+			$this->Roster = ClassRegistry::init ('TeamsPerson');
+
+			$success = $failure = array();
+			foreach ($this->data['player'] as $player => $bool) {
+				$person = array_shift (Set::extract("/Registration/Person[id=$player]", $event));
+				unset ($person['Person']['TeamsPerson']);
+				// Only admins have this option, typically used for building hat teams,
+				// so their adds are always approved
+				if ($this->_setRosterPosition ($person, $team, 'player', ROSTER_APPROVED)) {
+					$success[] = $person['Person']['full_name'];
+				} else {
+					$failure[] = $person['Person']['full_name'];
+				}
+			}
+			$msg = array();
+			if (!empty ($success)) {
+				$msg[] = __((count($success) > 1 ? 'Invitations have' : 'Invitation has') . ' been sent to ', true) . implode (', ', $success) . '.';
+			}
+			if (!empty ($failure)) {
+				$msg[] .= __('Failed to send invitation' . (count($success) > 1 ? 's' : '') . ' to ', true) . implode (', ', $failure) . '.';
+			}
+			$this->Session->setFlash(implode (' ', $msg));
+			$this->redirect(array('action' => 'view', 'team' => $id));
+		}
+
+		foreach ($event['Registration'] as $key => $registration) {
+			$event['Registration'][$key]['can_add'] = $this->_canAdd (array('Person' => $registration['Person']), $team);
+		}
+
+		$this->set(compact('team', 'event'));
 	}
 
 	function roster_position() {
