@@ -158,7 +158,12 @@ class PeopleController extends AppController {
 		// Check if the current user is a coordinator of a league the viewed player is a captain in
 		$positions = Configure::read('privileged_roster_positions');
 		$my_league_ids = $this->Session->read('Zuluru.LeagueIDs');
-		$league_ids = Set::extract ('/Team/league_id', $person['Team']);
+		$league_ids = array();
+		foreach ($positions as $position) {
+			$league_ids = array_merge ($league_ids,
+				Set::extract ("/Team/TeamsPerson[position=$position]/../Team/league_id", $person)
+			);
+		}
 		$in_my_leagues = array_intersect ($my_league_ids, $league_ids);
 		$this->set('is_coordinator', !empty ($in_my_leagues));
 
