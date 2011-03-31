@@ -171,14 +171,11 @@ class Team extends AppModel {
 
 	static function consolidateRoster(&$team) {
 		if (array_key_exists ('Person', $team)) {
-			$roster_count = $roster_invited = $skill_total = $skill_invited = 0;
+			$roster_count = $skill_total = 0;
 			foreach ($team['Person'] as $person) {
 				if (in_array ($person['TeamsPerson']['status'], Configure::read('playing_roster_positions'))) {
 					++$roster_count;
 					$skill_total += $person['skill_level'];
-				} else {
-					++$roster_invited;
-					$skill_invited += $person['skill_level'];
 				}
 			}
 			if ($roster_count) {
