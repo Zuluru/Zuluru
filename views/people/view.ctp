@@ -347,8 +347,3 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 </div>
 <?php endif; ?>
 <?php endif; ?>
-
-<?php
-//echo $this->Js->get('.thumbnail')->event('mouseover', $this->Js->something('that makes it full size'));
-//echo $this->Js->get('.thumbnail')->event('mouseout', $this->Js->something('that shrinks it again'));
-?>
