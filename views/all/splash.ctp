@@ -39,8 +39,8 @@ foreach ($teams as $team):
 	<tr<?php echo $class;?>>
 		<td class="splash_item"><?php
 			echo $this->element('team/block', array('team' => $team['Team'])) .
-				' (' . $this->Html->link(__($roster_descriptions[$team['TeamsPerson']['status']], true),
-						array('controller' => 'teams', 'action' => 'roster_status', 'team' => $team['Team']['id'], 'person' => $id)) .
+				' (' . $this->Html->link(__($roster_descriptions[$team['TeamsPerson']['position']], true),
+						array('controller' => 'teams', 'action' => 'roster_position', 'team' => $team['Team']['id'], 'person' => $id)) .
 				')';
 		?></td>
 		<td class="actions splash_action">

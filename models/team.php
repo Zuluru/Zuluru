@@ -120,7 +120,7 @@ class Team extends AppModel {
 			$conditions['League.schedule_type !='] = 'none';
 		}
 		if ($roster_limits) {
-			$conditions['TeamsPerson.status'] = $roster_limits;
+			$conditions['TeamsPerson.position'] = $roster_limits;
 		}
 		if ($order === null) {
 			$order = array('LeaguesDay.day_id', 'League.open');
@@ -138,7 +138,7 @@ class Team extends AppModel {
 				'order' => $order,
 				'fields' => array(
 					'Team.*',
-					'TeamsPerson.team_id', 'TeamsPerson.status',
+					'TeamsPerson.team_id', 'TeamsPerson.position',
 					'League.id', 'League.name', 'League.roster_deadline', 'League.open', 'League.close',
 				),
 				'joins' => array(
@@ -173,7 +173,7 @@ class Team extends AppModel {
 		if (array_key_exists ('Person', $team)) {
 			$roster_count = $skill_total = 0;
 			foreach ($team['Person'] as $person) {
-				if (in_array ($person['TeamsPerson']['status'], Configure::read('playing_roster_positions'))) {
+				if (in_array ($person['TeamsPerson']['position'], Configure::read('playing_roster_positions'))) {
 					++$roster_count;
 					$skill_total += $person['skill_level'];
 				}
@@ -188,18 +188,14 @@ class Team extends AppModel {
 	}
 
 	static function compareRoster($a, $b) {
-		static $rosterMap = array(
-			'captain'			=> 0,
-			'assistant'			=> 1,
-			'coach'				=> 2,
-			'player'			=> 3,
-			'substitute'		=> 4,
-			'captain_request'	=> 5,
-			'player_request'	=> 6,
-		);
-		if ($rosterMap[$a['TeamsPerson']['status']] > $rosterMap[$b['TeamsPerson']['status']]) {
+		static $rosterMap = null;
+		if ($rosterMap == null) {
+			$rosterMap = array_flip(array_keys(Configure::read('options.roster_position')));
+		}
+
+		if ($rosterMap[$a['TeamsPerson']['position']] > $rosterMap[$b['TeamsPerson']['position']]) {
 			return 1;
-		} else if ($rosterMap[$a['TeamsPerson']['status']] < $rosterMap[$b['TeamsPerson']['status']]) {
+		} else if ($rosterMap[$a['TeamsPerson']['position']] < $rosterMap[$b['TeamsPerson']['position']]) {
 			return -1;
 		} else if ($a['gender'] < $b['gender']) {
 			return 1;

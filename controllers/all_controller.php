@@ -46,13 +46,13 @@ class AllController extends AppController {
 					// Get the list of captains for each team, for the popup
 					'HomeTeam' => array(
 						'Person' => array(
-							'conditions' => array('TeamsPerson.status' => Configure::read('privileged_roster_positions')),
+							'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
 							'fields' => array('id', 'first_name', 'last_name'),
 						),
 					),
 					'AwayTeam' => array(
 						'Person' => array(
-							'conditions' => array('TeamsPerson.status' => Configure::read('privileged_roster_positions')),
+							'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
 							'fields' => array('id', 'first_name', 'last_name'),
 						),
 					),

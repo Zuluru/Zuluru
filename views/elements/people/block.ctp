@@ -27,7 +27,7 @@ $view_contact = ((isset($my_id) && $my_id == $person['id'])
 	|| $is_admin
 	|| (isset($is_coordinator) && $is_coordinator)
 	|| (isset($is_captain) && $is_captain)
-	|| (isset($is_league_captain) && $is_league_captain && in_array($person['TeamsPerson']['status'], Configure::read('privileged_roster_positions')))
+	|| (isset($is_league_captain) && $is_league_captain && in_array($person['TeamsPerson']['position'], Configure::read('privileged_roster_positions')))
 );
 if (!empty($person['email']) &&
 	($view_contact || ($is_logged_in && $person['publish_email'])))

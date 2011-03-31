@@ -156,6 +156,7 @@ class PeopleController extends AppController {
 		$this->set('is_captain', !empty ($on_my_teams));
 
 		// Check if the current user is a coordinator of a league the viewed player is a captain in
+		$positions = Configure::read('privileged_roster_positions');
 		$my_league_ids = $this->Session->read('Zuluru.LeagueIDs');
 		$league_ids = Set::extract ('/Team/league_id', $person['Team']);
 		$in_my_leagues = array_intersect ($my_league_ids, $league_ids);
@@ -165,7 +166,7 @@ class PeopleController extends AppController {
 		$captain_in_league_ids = Set::extract ('/Team/league_id', $this->Session->read('Zuluru.OwnedTeams'));
 		$opponent_captain_in_league_ids = array();
 		foreach ($person['Team'] as $team) {
-			if (in_array ($team['TeamsPerson']['status'], Configure::read('privileged_roster_positions'))) {
+			if (in_array ($team['TeamsPerson']['position'], $positions)) {
 				$opponent_captain_in_league_ids[] = $team['Team']['league_id'];
 			}
 		}
@@ -174,9 +175,8 @@ class PeopleController extends AppController {
 
 		// Check if the current user is on a team the viewed player is a captain of
 		$this->set('is_my_captain', false);
-		$positions = Configure::read('privileged_roster_positions');
 		foreach ($person['Team'] as $team) {
-			if (in_array ($team['TeamsPerson']['status'], $positions) &&
+			if (in_array ($team['TeamsPerson']['position'], $positions) &&
 				in_array ($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs'))
 			) {
 				$this->set('is_my_captain', true);

@@ -13,7 +13,7 @@ $this->Html->addCrumb ($team['Team']['name']);
 
 <?php endif; ?>
 
-<?php echo $this->element('people/search_results', array('extra_url' => array('Add to team' => array('controller' => 'teams', 'action' => 'roster_status', 'team' => $team['Team']['id'])))); ?>
+<?php echo $this->element('people/search_results', array('extra_url' => array('Add to team' => array('controller' => 'teams', 'action' => 'roster_position', 'team' => $team['Team']['id'])))); ?>
 
 <?php if (!$this->params['isAjax']): ?>
 

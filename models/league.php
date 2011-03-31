@@ -247,7 +247,7 @@ class League extends AppModel {
 			'order' => 'LeaguesDay.day_id, League.open',
 			'fields' => array(
 				'League.*',
-				'LeaguesPerson.person_id', 'LeaguesPerson.status',
+				'LeaguesPerson.person_id', 'LeaguesPerson.position',
 				'LeaguesDay.day_id',
 			),
 			'contain' => ($teams ? 'Team' : null),

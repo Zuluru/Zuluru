@@ -64,7 +64,7 @@ $this->Html->addCrumb (__('View', true));
 		if ($is_logged_in && $team['Team']['open_roster'] && $team['League']['roster_deadline'] >= date('Y-m-d') &&
 			!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
 		{
-			echo $this->Html->tag ('li', $this->Html->link(__('Join Team', true), array('controller' => 'teams', 'action' => 'roster_status', 'team' => $team['Team']['id'])));
+			echo $this->Html->tag ('li', $this->Html->link(__('Join Team', true), array('controller' => 'teams', 'action' => 'roster_position', 'team' => $team['Team']['id'])));
 		}
 		if ($is_admin || $is_captain) {
 			echo $this->Html->tag ('li', $this->Html->link(__('Edit Team', true), array('action' => 'edit', 'team' => $team['Team']['id'])));
@@ -105,7 +105,7 @@ $this->Html->addCrumb (__('View', true));
 			if ($i++ % 2 == 0) {
 				$class = ' class="altrow"';
 			}
-			if (in_array ($person['TeamsPerson']['status'], Configure::read('playing_roster_positions'))) {
+			if (in_array ($person['TeamsPerson']['position'], Configure::read('playing_roster_positions'))) {
 				++ $roster_count;
 				if ($person['skill_level']) {
 					++ $skill_count;
@@ -130,10 +130,10 @@ $this->Html->addCrumb (__('View', true));
 		if ($is_admin || $is_coordinator ||
 			(($is_captain || $person['id'] == $my_id) && $team['League']['roster_deadline'] >= date('Y-m-d'))
 		)
-			echo $this->Html->link(__($roster_descriptions[$person['TeamsPerson']['status']], true),
-					array('controller' => 'teams', 'action' => 'roster_status', 'team' => $team['Team']['id'], 'person' => $person['id']));
+			echo $this->Html->link(__($roster_descriptions[$person['TeamsPerson']['position']], true),
+					array('controller' => 'teams', 'action' => 'roster_position', 'team' => $team['Team']['id'], 'person' => $person['id']));
 		else
-			__($roster_descriptions[$person['TeamsPerson']['status']]);
+			__($roster_descriptions[$person['TeamsPerson']['position']]);
 		?></td>
 		<td><?php __($person['gender']);?></td>
 		<td><?php echo $person['skill_level'];?></td>

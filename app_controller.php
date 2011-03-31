@@ -92,7 +92,7 @@ class AppController extends Controller {
 
 			// Force response to roster requests, if enabled
 			if (Configure::read('feature.force_roster_request')) {
-				$teams = Set::extract ('/TeamsPerson[status=captain_request]/..', $this->Session->read('Zuluru.Teams'));
+				$teams = Set::extract ('/TeamsPerson[position=captain_request]/..', $this->Session->read('Zuluru.Teams'));
 				$response_required = array();
 				foreach ($teams as $team) {
 					// Only force responses to leagues that have started play, but the roster deadline hasn't passed
@@ -105,7 +105,7 @@ class AppController extends Controller {
 					($this->name != 'Teams' || !in_array ($this->_arg('team'), $response_required)))
 				{
 					$this->Session->setFlash(__('You have been invited to join a team, and must either accept or decline this invitation before proceeding. Before deciding, you have the ability to look at this team\'s roster, schedule, etc.', true));
-					$this->redirect (array('controller' => 'teams', 'action' => 'roster_status', 'team' => array_shift($response_required), 'person' => $this->Auth->user('id')));
+					$this->redirect (array('controller' => 'teams', 'action' => 'roster_position', 'team' => array_shift($response_required), 'person' => $this->Auth->user('id')));
 				}
 			}
 		}
@@ -471,7 +471,7 @@ class AppController extends Controller {
 			$positions = Configure::read('privileged_roster_positions');
 			$owned_teams = array();
 			foreach ($teams as $team) {
-				if (in_array ($team['TeamsPerson']['status'], $positions)) {
+				if (in_array ($team['TeamsPerson']['position'], $positions)) {
 					$owned_teams[] = $team;
 				}
 			}
@@ -539,7 +539,7 @@ class AppController extends Controller {
 		if ($this->is_logged_in && $team['Team']['open_roster'] && $team['League']['roster_deadline'] >= date('Y-m-d') &&
 			!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
 		{
-			$this->_addMenuItem ('Join team', array('controller' => 'teams', 'action' => 'roster_status', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
+			$this->_addMenuItem ('Join team', array('controller' => 'teams', 'action' => 'roster_position', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
 		}
 		if ($this->is_admin || $is_captain) {
 			$this->_addMenuItem ('Delete', array('controller' => 'teams', 'action' => 'delete', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));

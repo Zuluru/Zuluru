@@ -190,8 +190,8 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 		?>
 		<tr<?php echo $class;?>>
 			<td><?php
-			echo $this->Html->link(__($roster_descriptions[$team['TeamsPerson']['status']], true),
-				array('controller' => 'teams', 'action' => 'roster_status', 'team' => $team['Team']['id'], 'person' => $person['Person']['id'])) .
+			echo $this->Html->link(__($roster_descriptions[$team['TeamsPerson']['position']], true),
+				array('controller' => 'teams', 'action' => 'roster_position', 'team' => $team['Team']['id'], 'person' => $person['Person']['id'])) .
 				' ' . __('on', true) . ' ' .
 				$this->element('team/block', array('team' => $team['Team'])) .
 				' (' . $this->Html->link($team['League']['name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $team['League']['id'])) . ')';
@@ -222,7 +222,7 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 			}
 		?>
 		<tr<?php echo $class;?>>
-			<td><?php echo __(Configure::read("options.league_position.{$league['LeaguesPerson']['status']}"), true) . ' ' . __('of', true) . ' ' .
+			<td><?php echo __(Configure::read("options.league_position.{$league['LeaguesPerson']['position']}"), true) . ' ' . __('of', true) . ' ' .
 					$this->Html->link($league['League']['name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $league['League']['id']));?></td>
 		</tr>
 		<?php endforeach; ?>

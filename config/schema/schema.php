@@ -198,7 +198,7 @@ class ZuluruSchema extends CakeSchema {
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'league_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
 		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
-		'status' => array('type' => 'string', 'null' => true, 'default' => 'coordinator', 'length' => 64),
+		'position' => array('type' => 'string', 'null' => true, 'default' => 'coordinator', 'length' => 64),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'leaguemembers_league' => array('column' => 'league_id', 'unique' => 0), 'full' => array('column' => array('league_id', 'person_id'), 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
@@ -396,7 +396,7 @@ class ZuluruSchema extends CakeSchema {
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'team_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
 		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
-		'status' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 16),
+		'position' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 16),
 		'created' => array('type' => 'date', 'null' => true, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'full' => array('column' => array('team_id', 'person_id'), 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')

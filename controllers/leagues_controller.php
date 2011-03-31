@@ -131,8 +131,8 @@ class LeaguesController extends AppController {
 		$this->set('league_obj', $this->_getComponent ('LeagueType', $this->data['League']['schedule_type'], $this));
 		$this->set('is_coordinator',
 			array_key_exists ('LeaguesPerson', $this->data['League']) &&
-			array_key_exists ('status', $this->data['League']['LeaguesPerson']) &&
-			$this->data['League']['LeaguesPerson']['status'] == 'coordinator');
+			array_key_exists ('position', $this->data['League']['LeaguesPerson']) &&
+			$this->data['League']['LeaguesPerson']['position'] == 'coordinator');
 
 		$this->_addLeagueMenuItems ($this->League->data);
 	}
@@ -168,7 +168,7 @@ class LeaguesController extends AppController {
 			} else {
 				$people = Set::extract ('/Person/id', $league);
 				$people[] = $person['Person']['id'];
-				// TODO: If we add more coordinator types, we need to save the status here
+				// TODO: If we add more coordinator types, we need to save the position here
 				if ($this->League->saveAll (array(
 						'League' => array('id' => $id),
 						'Person' => $people,
@@ -315,13 +315,13 @@ class LeaguesController extends AppController {
 				// Get the list of captains for each team, for the popup
 				'HomeTeam' => array(
 					'Person' => array(
-						'conditions' => array('TeamsPerson.status' => Configure::read('privileged_roster_positions')),
+						'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
 						'fields' => array('id', 'first_name', 'last_name'),
 					),
 				),
 				'AwayTeam' => array(
 					'Person' => array(
-						'conditions' => array('TeamsPerson.status' => Configure::read('privileged_roster_positions')),
+						'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
 						'fields' => array('id', 'first_name', 'last_name'),
 					),
 				),
@@ -598,7 +598,7 @@ class LeaguesController extends AppController {
 			// Get the list of captains for each team, for the popup
 			'Team' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.status' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
 					'fields' => array('id', 'first_name', 'last_name'),
 				),
 			),
@@ -949,7 +949,7 @@ class LeaguesController extends AppController {
 		$this->League->contain (array (
 			'Team' => array (
 				'Person' => array(
-					'conditions' => array('TeamsPerson.status' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
 					'fields' => array('first_name', 'last_name', 'email'),
 				),
 			),
@@ -1018,13 +1018,13 @@ class LeaguesController extends AppController {
 			// Get the list of captains for each team, for building the email link
 			'HomeTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.status' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
 					'fields' => array('first_name', 'last_name', 'email'),
 				),
 			),
 			'AwayTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.status' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
 					'fields' => array('first_name', 'last_name', 'email'),
 				),
 			),

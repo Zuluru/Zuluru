@@ -18,7 +18,7 @@ if (!in_array($team['id'], $team_blocks_shown)) {
 <?php if ($is_logged_in && !empty ($team['Person'])):
 	$links = array();
 	foreach (Configure::read('privileged_roster_positions') as $position) {
-		$captains = Set::extract ("/Person/TeamsPerson[status=$position]/..", $team);
+		$captains = Set::extract ("/Person/TeamsPerson[position=$position]/..", $team);
 		foreach ($captains as $captain) {
 			$link = $this->Html->link($captain['Person']['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $captain['Person']['id']));
 			if ($position == 'assistant') {

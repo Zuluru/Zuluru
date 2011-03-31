@@ -19,7 +19,7 @@ foreach ($teams as $team) {
 	}
 	$rows[] = array($year,
 			$this->Html->link ($team['Team']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id'])),
-			$team['TeamsPerson']['status'],
+			$team['TeamsPerson']['position'],
 			$this->Html->link ($team['League']['long_name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $team['League']['id'])),
 	);
 }

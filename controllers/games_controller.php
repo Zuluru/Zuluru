@@ -63,13 +63,13 @@ class GamesController extends AppController {
 			// Get the list of captains for each team, we may need to email them
 			'HomeTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.status' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
 					'fields' => array('first_name', 'last_name', 'email'),
 				),
 			),
 			'AwayTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.status' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
 					'fields' => array('first_name', 'last_name', 'email'),
 				),
 			),
@@ -150,13 +150,13 @@ class GamesController extends AppController {
 			'GameSlot' => array('Field' => array('ParentField')),
 			'HomeTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.status' => Configure::read('extended_playing_roster_positions')),
+					'conditions' => array('TeamsPerson.position' => Configure::read('extended_playing_roster_positions')),
 					'fields' => array('id', 'first_name', 'last_name', 'gender'),
 				),
 			),
 			'AwayTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.status' => Configure::read('extended_playing_roster_positions')),
+					'conditions' => array('TeamsPerson.position' => Configure::read('extended_playing_roster_positions')),
 					'fields' => array('id', 'first_name', 'last_name', 'gender'),
 				),
 			),
@@ -318,13 +318,13 @@ class GamesController extends AppController {
 			$contain = array_merge($contain, array(
 				'HomeTeam' => array(
 					'Person' => array(
-						'conditions' => array('TeamsPerson.status' => Configure::read('extended_playing_roster_positions')),
+						'conditions' => array('TeamsPerson.position' => Configure::read('extended_playing_roster_positions')),
 						'fields' => array('id', 'first_name', 'last_name', 'gender'),
 					),
 				),
 				'AwayTeam' => array(
 					'Person' => array(
-						'conditions' => array('TeamsPerson.status' => Configure::read('extended_playing_roster_positions')),
+						'conditions' => array('TeamsPerson.position' => Configure::read('extended_playing_roster_positions')),
 						'fields' => array('id', 'first_name', 'last_name', 'gender'),
 					),
 				),
@@ -530,13 +530,13 @@ class GamesController extends AppController {
 			// Get the list of captains for each team, we may need to email them
 			'HomeTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.status' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
 					'fields' => array('first_name', 'last_name', 'email'),
 				),
 			),
 			'AwayTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.status' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
 					'fields' => array('first_name', 'last_name', 'email'),
 				),
 			),
@@ -864,13 +864,13 @@ class GamesController extends AppController {
 			// Get the list of captains for each team, we may need to email them
 			'HomeTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.status' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
 					'fields' => array('first_name', 'last_name', 'email'),
 				),
 			),
 			'AwayTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.status' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
 					'fields' => array('first_name', 'last_name', 'email'),
 				),
 			),

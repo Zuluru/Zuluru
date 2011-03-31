@@ -167,7 +167,8 @@ class EventTypeTeamComponent extends EventTypeComponent
 			$roster->save (array(
 				'team_id' => $this->_controller->Team->id,
 				'person_id' => $captain_id,
-				'status' => 'captain',
+				'position' => 'captain',
+
 			));
 
 			// TODO: Return validation errors?
