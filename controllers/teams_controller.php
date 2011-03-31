@@ -783,6 +783,7 @@ class TeamsController extends AppController {
 				'fields' => array(
 					'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.status',
 					'Person.home_phone', 'Person.work_phone', 'Person.work_ext', 'Person.mobile_phone',
+					'Person.publish_email', 'Person.publish_home_phone', 'Person.publish_work_phone', 'Person.publish_mobile_phone',
 				),
 				'order' => array(
 					'Person.gender DESC', 'Person.last_name', 'Person.first_name',
