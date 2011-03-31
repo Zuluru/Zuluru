@@ -180,7 +180,7 @@ dl .altrow
 }
 #zuluru tr.tier_alt_highlight td
 {
-	background-color: #cfffcf;
+	background-color: #cfffcf !important;
 }
 #zuluru tr.unpublished td
 {
