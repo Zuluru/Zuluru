@@ -170,6 +170,30 @@ class RegistrationsController extends AppController {
 		)));
 	}
 
+	function report() {
+		$start_date = '2011-01-01';
+		$end_date = '2011-12-31';
+		$conditions = array(
+			'Registration.created >=' => $start_date,
+			'Registration.created <=' => $end_date,
+		);
+		$contain = array(
+			'Event' => 'EventType',
+			'Person',
+		);
+		$order = array('Registration.payment' => 'DESC', 'Registration.created');
+
+		if ($this->params['url']['ext'] == 'csv') {
+			$this->set('registrations', $this->Registration->find ('all', compact('conditions', 'contain', 'order')));
+			$this->set('download_file_name', 'Registrations');
+		} else {
+			$this->paginate = array(
+				'Registration' => compact('conditions', 'contain', 'order'),
+			);
+			$this->set('registrations', $this->paginate ('Registration'));
+		}
+	}
+
 	function view() {
 		$id = $this->_arg('registration');
 		if (!$id) {
