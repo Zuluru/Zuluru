@@ -138,48 +138,6 @@ $this->Html->addCrumb (__('Email', true));
 	?>
 	</fieldset>
 
-	<?php if (Configure::read('feature.generate_roster_email')) : ?>
-	<fieldset>
- 		<legend><?php __('Roster Management'); ?></legend>
-	<?php
-	echo $this->element ('setting/input', array(
-		'category' => 'email',
-		'name' => 'captain_request_subject',
-		'options' => array(
-			'label' => 'Subject of captain request e-mail',
-			'after' => 'Customize the subject of your captain request mail, sent to a user who has been invited to join a team. Available variables are: %site, %fullname, %captain, %team, %league, %day, %adminname.',
-		),
-	));
-	echo $this->element ('setting/input', array(
-		'category' => 'email',
-		'name' => 'captain_request_body',
-		'options' => array(
-			'type' => 'textarea',
-			'label' => 'Body of captain request e-mail',
-			'after' => 'Customize the body of your captain request e-mail, sent to a user who has been invited to join a team. Available variables are: %site, %fullname, %captain, %team, %teamurl, %league, %day, %adminname.',
-		),
-	));
-	echo $this->element ('setting/input', array(
-		'category' => 'email',
-		'name' => 'player_request_subject',
-		'options' => array(
-			'label' => 'Subject of player request e-mail',
-			'after' => 'Customize the subject of your player request mail, sent to captains when a player asks to join their team. Available variables are: %site, %fullname, %team, %league, %day, %adminname.',
-		),
-	));
-	echo $this->element ('setting/input', array(
-		'category' => 'email',
-		'name' => 'player_request_body',
-		'options' => array(
-			'type' => 'textarea',
-			'label' => 'Body of player request e-mail',
-			'after' => 'Customize the body of your player request e-mail, sent to captains when a player asks to join their team. Available variables are: %site, %fullname, %captains, %team, %teamurl, %league, %day, %adminname.',
-		),
-	));
-	?>
-	</fieldset>
-	<?php endif; ?>
-
 	<fieldset>
  		<legend><?php __('Scoring'); ?></legend>
 	<?php

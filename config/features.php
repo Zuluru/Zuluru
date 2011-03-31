@@ -45,4 +45,10 @@ $config['privileged_roster_positions'] = array(
 	'assistant',
 );
 
+if (!defined('ROSTER_APPROVED')) {
+	define('ROSTER_APPROVED', 1);
+	define('ROSTER_INVITED', 2);
+	define('ROSTER_REQUESTED', 3);
+}
+
 ?>

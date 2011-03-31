@@ -180,7 +180,6 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 	<?php if (!empty($person['Team'])):?>
 	<table cellpadding = "0" cellspacing = "0">
 	<?php
-		$roster_descriptions = Configure::read('options.roster_position');
 		$i = 0;
 		foreach ($person['Team'] as $team):
 			$class = null;
@@ -190,8 +189,7 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 		?>
 		<tr<?php echo $class;?>>
 			<td><?php
-			echo $this->Html->link(__($roster_descriptions[$team['TeamsPerson']['position']], true),
-				array('controller' => 'teams', 'action' => 'roster_position', 'team' => $team['Team']['id'], 'person' => $person['Person']['id'])) .
+			echo $this->element('people/roster', array('roster' => $team['TeamsPerson'], 'league' => $team['League'])) .
 				' ' . __('on', true) . ' ' .
 				$this->element('team/block', array('team' => $team['Team'])) .
 				' (' . $this->Html->link($team['League']['name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $team['League']['id'])) . ')';

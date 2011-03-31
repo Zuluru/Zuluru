@@ -64,7 +64,7 @@ $this->Html->addCrumb (__('View', true));
 		if ($is_logged_in && $team['Team']['open_roster'] && $team['League']['roster_deadline'] >= date('Y-m-d') &&
 			!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
 		{
-			echo $this->Html->tag ('li', $this->Html->link(__('Join Team', true), array('controller' => 'teams', 'action' => 'roster_position', 'team' => $team['Team']['id'])));
+			echo $this->Html->tag ('li', $this->Html->link(__('Join Team', true), array('controller' => 'teams', 'action' => 'roster_request', 'team' => $team['Team']['id'])));
 		}
 		if ($is_admin || $is_captain) {
 			echo $this->Html->tag ('li', $this->Html->link(__('Edit Team', true), array('action' => 'edit', 'team' => $team['Team']['id'])));
@@ -96,8 +96,6 @@ $this->Html->addCrumb (__('View', true));
 		<th><?php __('Date Joined'); ?></th>
 	</tr>
 	<?php
-		$roster_descriptions = Configure::read('options.roster_position');
-
 		$i = $roster_count = $skill_count = $skill_total = 0;
 		$roster_required = Configure::read("roster_requirements.{$team['League']['ratio']}");
 		foreach ($team['Person'] as $person):
@@ -105,7 +103,9 @@ $this->Html->addCrumb (__('View', true));
 			if ($i++ % 2 == 0) {
 				$class = ' class="altrow"';
 			}
-			if (in_array ($person['TeamsPerson']['position'], Configure::read('playing_roster_positions'))) {
+			if (in_array ($person['TeamsPerson']['position'], Configure::read('playing_roster_positions')) &&
+				$person['TeamsPerson']['status'] == ROSTER_APPROVED)
+			{
 				++ $roster_count;
 				if ($person['skill_level']) {
 					++ $skill_count;
@@ -127,13 +127,7 @@ $this->Html->addCrumb (__('View', true));
 		}
 		?></td>
 		<td><?php
-		if ($is_admin || $is_coordinator ||
-			(($is_captain || $person['id'] == $my_id) && $team['League']['roster_deadline'] >= date('Y-m-d'))
-		)
-			echo $this->Html->link(__($roster_descriptions[$person['TeamsPerson']['position']], true),
-					array('controller' => 'teams', 'action' => 'roster_position', 'team' => $team['Team']['id'], 'person' => $person['id']));
-		else
-			__($roster_descriptions[$person['TeamsPerson']['position']]);
+		echo $this->element('people/roster', array('roster' => $person['TeamsPerson'], 'league' => $team['League']));
 		?></td>
 		<td><?php __($person['gender']);?></td>
 		<td><?php echo $person['skill_level'];?></td>

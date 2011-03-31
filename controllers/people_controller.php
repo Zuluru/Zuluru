@@ -146,12 +146,12 @@ class PeopleController extends AppController {
 		}
 
 		$person = $this->Person->readCurrent($id);
-		$this->set(compact('person'));
+		$this->set(compact('person', 'my_id'));
 		$this->set('is_me', ($id === $my_id));
 
 		// Check if the current user is a captain of a team the viewed player is on
 		$my_team_ids = $this->Session->read('Zuluru.OwnedTeamIDs');
-		$team_ids = Set::extract ('/Team/id', $person['Team']);
+		$team_ids = Set::extract ('/Team/TeamsPerson[status=' . ROSTER_APPROVED . ']/team_id', $person);
 		$on_my_teams = array_intersect ($my_team_ids, $team_ids);
 		$this->set('is_captain', !empty ($on_my_teams));
 

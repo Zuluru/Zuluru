@@ -18,6 +18,7 @@ class RuleTeamCountComponent extends RuleComponent
 		$positions = Configure::read('playing_roster_positions');
 		foreach ($params['Team'] as $team) {
 			if (in_array($team['TeamsPerson']['position'], $positions) &&
+				$team['TeamsPerson']['status'] == ROSTER_APPROVED &&
 				strtotime ($team['League']['open']) <= $date &&
 				$date <= strtotime ($team['League']['close']))
 			{

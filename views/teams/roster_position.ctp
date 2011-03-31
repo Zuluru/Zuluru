@@ -9,19 +9,14 @@ $this->Html->addCrumb ($person['Person']['full_name']);
 <h2><?php  echo __('Roster Position', true) . ': ' . $team['Team']['name'] . ': ' . $person['Person']['full_name'];?></h2>
 <?php
 $roster_descriptions = Configure::read('options.roster_position');
-?>
+echo $this->Html->para(null, __('You are attempting to change player position for', true) . ' ' .
+	$this->Html->link($person['Person']['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $person['Person']['id'])) .
+	' ' . __('on the team', true) . ' ' .
+	$this->Html->link($team['Team']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id'])));
+echo $this->Html->para(null, __('Current position:', true) . ' ' .
+	$this->Html->tag('strong', __($roster_descriptions[$position], true)));
 
-<?php if ($can_add !== true): ?>
-<p><?php echo $can_add; ?></p>
-<?php else: ?>
-<p>You are attempting to change player position for <?php
-echo $this->Html->link ($person['Person']['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $person['Person']['id']));
-?> on team <?php
-echo $this->Html->link ($team['Team']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']));
-?>.</p>
-<p>Current position: <strong><?php echo $roster_descriptions[$position]; ?></strong></p>
-<p>Choices are:
-<?php
+echo $this->Html->para(null, __('Possible roster positions are:', true));
 echo $this->Form->create('Person', array('url' => array('controller' => 'teams', 'action' => 'roster_position', 'team' => $team['Team']['id'], 'person' => $person['Person']['id'])));
 echo $this->Form->input('position', array(
 		'legend' => false,
@@ -31,7 +26,5 @@ echo $this->Form->input('position', array(
 ));
 echo $this->Form->end(__('Submit', true));
 ?>
-<?php endif; ?>
 
-</p>
 </div>

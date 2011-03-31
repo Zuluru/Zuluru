@@ -96,8 +96,6 @@ $config['options'] = array(
 		'coach'				=> 'Coach',
 		'player'			=> 'Regular player',
 		'substitute'		=> 'Substitute player',
-		'captain_request'   => 'Request to join by captain',
-		'player_request'	=> 'Request to join by player',
 		'none'				=> 'Not on team',
 	),
 
