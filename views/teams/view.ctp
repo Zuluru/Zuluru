@@ -61,7 +61,9 @@ $this->Html->addCrumb (__('View', true));
 			echo $this->Html->tag ('li', $this->Html->link(__('Schedule', true), array('action' => 'schedule', 'team' => $team['Team']['id'])));
 			echo $this->Html->tag ('li', $this->Html->link(__('Standings', true), array('controller' => 'leagues', 'action' => 'standings', 'league' => $team['League']['id'], 'team' => $team['Team']['id'])));
 		}
-		if ($is_logged_in && $team['Team']['open_roster']) {
+		if ($is_logged_in && $team['Team']['open_roster'] && $team['League']['roster_deadline'] >= date('Y-m-d') &&
+			!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
+		{
 			echo $this->Html->tag ('li', $this->Html->link(__('Join Team', true), array('controller' => 'teams', 'action' => 'roster_status', 'team' => $team['Team']['id'])));
 		}
 		if ($is_admin || $is_captain) {

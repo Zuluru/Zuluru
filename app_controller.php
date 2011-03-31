@@ -536,7 +536,9 @@ class AppController extends Controller {
 		$this->_addMenuItem ($team['Team']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']), 'Teams', "{$team['Team']['name']}::{$team['Team']['id']}");
 		$this->_addMenuItem ('Schedule', array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
 		$this->_addMenuItem ('Standings', array('controller' => 'leagues', 'action' => 'standings', 'league' => $team['League']['id'], 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
-		if ($this->is_logged_in && $team['Team']['open_roster']) {
+		if ($this->is_logged_in && $team['Team']['open_roster'] && $team['League']['roster_deadline'] >= date('Y-m-d') &&
+			!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
+		{
 			$this->_addMenuItem ('Join team', array('controller' => 'teams', 'action' => 'roster_status', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
 		}
 		if ($this->is_admin || $is_captain) {
