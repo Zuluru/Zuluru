@@ -35,14 +35,13 @@ foreach ($teams as $team):
 ?>
 	<tr<?php echo $class;?>>
 		<td>
-			<?php echo $team['Team']['name']; ?>
+			<?php echo $this->element('team/block', array('team' => $team['Team'])); ?>
 		</td>
 		<td>
 			<?php echo $this->Html->link($team['League']['long_name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $team['League']['id'])); ?>
 		</td>
 		<td class="actions">
 			<?php
-			echo $this->Html->link(__('View', true), array('action' => 'view', 'team' => $team['Team']['id']));
 			echo $this->Html->link(__('Schedule', true), array('action' => 'schedule', 'team' => $team['Team']['id']));
 			echo $this->Html->link(__('Standings', true), array('controller' => 'leagues', 'action' => 'standings', 'league' => $team['League']['id'], 'team' => $team['Team']['id']));
 			if ($is_admin) {
