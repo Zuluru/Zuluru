@@ -29,7 +29,7 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Email Address'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php
-				echo $person['Person']['email'];
+				echo $this->Html->link($person['Person']['email'], "mailto:{$person['Person']['email']}");
 				echo ' (' . __($person['Person']['publish_email'] ? 'published' : 'private', true) . ')';
 				?>
 
