@@ -64,13 +64,13 @@ class GamesController extends AppController {
 			'HomeTeam' => array(
 				'Person' => array(
 					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
-					'fields' => array('first_name', 'last_name', 'email'),
+					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
 			'AwayTeam' => array(
 				'Person' => array(
 					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
-					'fields' => array('first_name', 'last_name', 'email'),
+					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
 			'ApprovedBy',
@@ -524,20 +524,20 @@ class GamesController extends AppController {
 	function _finalize($id) {
 		$this->Game->contain (array (
 			'GameSlot',
-			'League' => array('Person' => array('fields' => array('first_name', 'last_name', 'email'))),
+			'League' => array('Person' => array('fields' => array('id', 'first_name', 'last_name', 'email'))),
 			'ScoreEntry',
 			'SpiritEntry',
 			// Get the list of captains for each team, we may need to email them
 			'HomeTeam' => array(
 				'Person' => array(
 					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
-					'fields' => array('first_name', 'last_name', 'email'),
+					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
 			'AwayTeam' => array(
 				'Person' => array(
 					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
-					'fields' => array('first_name', 'last_name', 'email'),
+					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
 			'CaptainEmail',
@@ -858,20 +858,20 @@ class GamesController extends AppController {
 		$this->layout = 'bare';
 		$this->Game->contain (array (
 			'GameSlot',
-			'League' => array('Person' => array('fields' => array('first_name', 'last_name', 'email'))),
+			'League' => array('Person' => array('fields' => array('id', 'first_name', 'last_name', 'email'))),
 			'ScoreEntry',
 			'SpiritEntry',
 			// Get the list of captains for each team, we may need to email them
 			'HomeTeam' => array(
 				'Person' => array(
 					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
-					'fields' => array('first_name', 'last_name', 'email'),
+					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
 			'AwayTeam' => array(
 				'Person' => array(
 					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
-					'fields' => array('first_name', 'last_name', 'email'),
+					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
 			'CaptainEmail',

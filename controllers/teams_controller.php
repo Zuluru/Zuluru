@@ -1696,7 +1696,7 @@ class TeamsController extends AppController {
 					'TeamsPerson.position' => Configure::read('privileged_roster_positions'),
 					'TeamsPerson.status' => ROSTER_APPROVED,
 				),
-				'fields' => array('first_name', 'last_name', 'email'),
+				'fields' => array('id', 'first_name', 'last_name', 'email'),
 			),
 		));
 		$captains = $this->Team->read (null, $team['Team']['id']);

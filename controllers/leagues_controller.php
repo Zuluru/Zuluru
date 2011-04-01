@@ -950,7 +950,7 @@ class LeaguesController extends AppController {
 			'Team' => array (
 				'Person' => array(
 					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
-					'fields' => array('first_name', 'last_name', 'email'),
+					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
 		));
@@ -1019,13 +1019,13 @@ class LeaguesController extends AppController {
 			'HomeTeam' => array(
 				'Person' => array(
 					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
-					'fields' => array('first_name', 'last_name', 'email'),
+					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
 			'AwayTeam' => array(
 				'Person' => array(
 					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
-					'fields' => array('first_name', 'last_name', 'email'),
+					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
 			'GameSlot',
