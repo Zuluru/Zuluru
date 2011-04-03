@@ -919,7 +919,12 @@ class TeamsController extends AppController {
 		}
 
 		foreach ($event['Registration'] as $key => $registration) {
-			$event['Registration'][$key]['can_add'] = $this->_canAdd (array('Person' => $registration['Person']), $team);
+			// People that are already on the roster will have an empty Person array
+			if (empty($registration['Person'])) {
+				unset ($event['Registration'][$key]);
+			} else {
+				$event['Registration'][$key]['can_add'] = $this->_canAdd (array('Person' => $registration['Person']), $team);
+			}
 		}
 
 		$this->set(compact('team', 'event'));
