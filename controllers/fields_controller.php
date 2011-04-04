@@ -64,9 +64,16 @@ class FieldsController extends AppController {
 	function add() {
 		if (!empty($this->data)) {
 			$this->Field->create();
+
+			// If there's a parent field given, the name and code can be skipped
+			if (!empty ($this->data['Field']['parent_id'])) {
+				unset ($this->Field->validate['name']);
+				unset ($this->Field->validate['code']);
+			}
+
 			if ($this->Field->save($this->data)) {
 				$this->Session->setFlash(__('The field has been saved', true));
-				$this->redirect(array('action' => 'index'));
+				$this->redirect(array('action' => 'edit', 'field' => $this->Field->id));
 			} else {
 				$this->Session->setFlash(__('The field could not be saved. Please, try again.', true));
 			}

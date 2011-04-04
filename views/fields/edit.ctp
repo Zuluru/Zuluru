@@ -42,10 +42,11 @@
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
-<?php if (!empty ($this->data['Field']['parent_id'])): ?>
 <div class="actions">
 	<ul>
+<?php if (!empty ($this->data['Field']['parent_id'])): ?>
 		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Parent', true)), array('action' => 'edit', 'field' => $this->data['Field']['parent_id']));?></li>
+<?php endif; ?>
+		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Layout', true)), array('controller' => 'maps', 'action' => 'edit', 'field' => $this->data['Field']['id']));?></li>
 	</ul>
 </div>
-<?php endif; ?>
