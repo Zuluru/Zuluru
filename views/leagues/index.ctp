@@ -27,7 +27,9 @@ foreach ($leagues as $league):
 			echo $this->Html->link(__('Schedule', true), array('action' => 'schedule', 'league' => $league['League']['id']));
 			echo $this->Html->link(__('Standings', true), array('action' => 'standings', 'league' => $league['League']['id']));
 			if ($is_admin) {
-				echo $this->Html->link(__('Allstars', true), array('action' => 'allstars', 'league' => $league['League']['id']));
+				if ($league['League']['allstars'] != 'never') {
+					echo $this->Html->link(__('Allstars', true), array('action' => 'allstars', 'league' => $league['League']['id']));
+				}
 				echo $this->Html->link(__('Edit', true), array('action' => 'edit', 'league' => $league['League']['id']));
 				echo $this->Html->link(__('Delete', true), array('action' => 'delete', 'league' => $league['League']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $league['League']['id']));
 			}
