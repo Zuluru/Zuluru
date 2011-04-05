@@ -256,11 +256,11 @@ class User extends AppModel {
 	var $pwdField = 'password';
 
 	/**
-	 * Function to use for hashing passwords.
+	 * Function to use for hashing passwords. This must match the type given
+	 * in the hash call in the install controller.
 	 */
-	// TODO: This is good for converted Leaguerunner databases, but SHA256 is more secure for new ones.
-	// Maybe a user_leaguerunner class that extends this class and just overrides this setting?
-	var $hashMethod = 'md5';
+	// TODO: Use md5 for converted Leaguerunner databases.
+	var $hashMethod = 'sha256';
 
 	/**
 	 * Accounts (add, delete, passwords) are managed by Zuluru.
@@ -305,11 +305,7 @@ class User extends AppModel {
 		if (is_array($data) && isset($data[$this->alias])) {
 			if (isset($data[$this->alias][$this->userField]) && isset($data[$this->alias][$this->pwdField])) {
 				// Existing user databases didn't hash passwords using the salt
-				if (Configure::read ('security.salted_hash')) {
-					$data[$this->alias][$this->pwdField] = Security::hash($data[$this->alias][$this->pwdField]);
-				} else {
-					$data[$this->alias][$this->pwdField] = Security::hash($data[$this->alias][$this->pwdField], null, '');
-				}
+				$data[$this->alias][$this->pwdField] = Security::hash($data[$this->alias][$this->pwdField], null, Configure::read ('security.salted_hash'));
 			}
 		}
 		return $data;

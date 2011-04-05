@@ -164,7 +164,7 @@ Configure::write('debug', 0);
  * characters."
  * @link http://php.net/session_name
  */
-	Configure::write('Session.cookie', 'POSTNUKESID');
+	Configure::write('Session.cookie', 'ZULURUSID');
 
 /**
  * Session time out time (in seconds).

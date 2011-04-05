@@ -157,7 +157,7 @@ class InstallController extends InstallAppController {
 			if(!$db->isConnected()) {
 				$this->Session->setFlash(__('Could not connect to database.', true), 'default', array('class' => 'error'));
 			} else {
-				$schema =& new CakeSchema(array('name'=>'app'));
+				$schema =& new CakeSchema();
 				$schema = $schema->load();
 				foreach($schema->tables as $table => $fields) {
 					$create = $db->createSchema($schema, $table);
@@ -236,7 +236,7 @@ class InstallController extends InstallAppController {
 		}
 
 		// set password, hashed according to new salt value
-		$User->saveField('password', Security::hash('password', null, $salt));
+		$User->saveField('password', Security::hash('password', 'sha256', $salt));
 	}
 
 }
