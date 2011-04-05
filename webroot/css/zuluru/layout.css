@@ -157,8 +157,7 @@ body
 }
 #zuluru dd
 {
-	margin-left: 15em;
-	margin-top: -2em;
+	margin: -2em 0 0 15em;
 	vertical-align: top;
 }
 #zuluru fieldset.wide_labels dd
