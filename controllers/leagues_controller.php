@@ -1069,7 +1069,33 @@ class LeaguesController extends AppController {
 	}
 
 	function cron() {
-		// TODO UPDATE leagues SET is_open = IF(`open` < DATE_ADD(NOW(), INTERVAL 30 DAY) AND `close` > DATE_ADD(NOW(), INTERVAL -30 DAY), 1, 0);
+		$this->layout = 'bare';
+
+		$to_close = $this->League->find('all', array(
+				'conditions' => array(
+					'is_open' => true,
+					'OR' => array(
+						'open > DATE_ADD(NOW(), INTERVAL 30 DAY)',
+						'close < DATE_ADD(NOW(), INTERVAL -14 DAY)',
+					),
+				),
+				'contain' => array(),
+				'order' => 'open',
+		));
+		$to_open = $this->League->find('all', array(
+				'conditions' => array(
+					'is_open' => 0,
+					'open < DATE_ADD(NOW(), INTERVAL 30 DAY)',
+					'close > DATE_ADD(NOW(), INTERVAL -14 DAY)',
+				),
+				'contain' => array(),
+				'order' => 'open',
+		));
+
+		$this->set(compact('to_close', 'to_open'));
+
+		$this->League->updateAll (array('is_open' => 0), array('League.id' => Set::extract('/League/id', $to_close)));
+		$this->League->updateAll (array('is_open' => true), array('League.id' => Set::extract('/League/id', $to_open)));
 	}
 }
 ?>

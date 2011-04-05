@@ -76,9 +76,11 @@ class AllController extends AppController {
 	function cron() {
 		$this->layout = 'bare';
 		Configure::write ('debug', 0);
-		$games = $this->requestAction(array('controller' => 'games', 'action' => 'cron'), array('return'));
-		$people = $this->requestAction(array('controller' => 'people', 'action' => 'cron'), array('return'));
-		$this->set(compact ('games', 'people'));
+		$controllers = array('people', 'leagues', 'games');
+		$this->set(compact('controllers'));
+		foreach ($controllers as $controller) {
+			$this->set($controller, $this->requestAction(array('controller' => $controller, 'action' => 'cron'), array('return')));
+		}
 	}
 }
 ?>
