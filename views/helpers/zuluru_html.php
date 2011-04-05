@@ -113,7 +113,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 function show_help(id) {
 	$('#' + id + '_div').dialog({
 		buttons: {
-			'Close': function() { $('#' + id + '_div').dialog('close'); },
+			'Close': function() { $('#' + id + '_div').dialog('close'); }
 		},
 		modal: true,
 		resizable: false,
