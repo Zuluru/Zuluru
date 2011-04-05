@@ -6,6 +6,18 @@ if (array_key_exists ('Person', $person)) {
 }
 $id = "person{$person['id']}";
 
+if (isset ($options)) {
+	$options = array_merge (array('class' => $id), $options);
+} else {
+	$options = array('class' => $id);
+}
+if (!isset($display_field)) {
+	$display_field = 'full_name';
+}
+echo $this->ZuluruHtml->link($person[$display_field],
+	array('controller' => 'people', 'action' => 'view', 'person' => $person['id']),
+	$options);
+
 // Global variable. Ew.
 global $person_blocks_shown;
 if (!isset($person_blocks_shown)) {
@@ -66,16 +78,4 @@ $('.$id').tooltip({
 });
 ");
 }
-
-if (isset ($options)) {
-	$options = array_merge (array('class' => $id), $options);
-} else {
-	$options = array('class' => $id);
-}
-if (!isset($display_field)) {
-	$display_field = 'full_name';
-}
-echo $this->ZuluruHtml->link($person[$display_field],
-	array('controller' => 'people', 'action' => 'view', 'person' => $person['id']),
-	$options);
 ?>
