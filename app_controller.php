@@ -193,6 +193,7 @@ class AppController extends Controller {
 
 			if ($user && method_exists ($auth, 'merge_user_record')) {
 				$auth->merge_user_record($user);
+				$this->Session->delete('Zuluru.Person');
 			}
 		}
 

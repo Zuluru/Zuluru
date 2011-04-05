@@ -203,6 +203,13 @@ class PeopleController extends AppController {
 		}
 		$this->set(compact('id'));
 
+		// Any time that come here (whether manually or forced), we want to expire the
+		// login so that session data will be reloaded. Do this even when it's not a save,
+		// because when we use third-party auth modules, this page might just have a
+		// link to some other edit page, but we still want to refresh the session next
+		// time we load any Zuluru page.
+		$this->Session->delete('Zuluru.login_time');
+
 		$this->_loadAddressOptions();
 		$this->_loadGroupOptions();
 
