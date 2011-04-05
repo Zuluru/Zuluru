@@ -1,5 +1,17 @@
 <?php
+// Sometimes, there will be a 'Team' key, sometimes not
+if (array_key_exists ('Team', $team)) {
+	$team = array_merge ($team, $team['Team']);
+	unset ($team['Team']);
+}
 $id = "team{$team['id']}";
+if (array_key_exists ('league_id', $team)) {
+	$league_id = $team['league_id'];
+} else if (array_key_exists ('League', $team) && array_key_exists ('id', $team['League'])) {
+	$league_id = $team['League']['id'];
+} else {
+	$league_id = null;
+}
 
 // Global variable. Ew.
 global $team_blocks_shown;
@@ -12,8 +24,10 @@ if (!in_array($team['id'], $team_blocks_shown)) {
 <div id="<?php echo $id; ?>" class="tooltip">
 <h2><?php echo $team['name']; ?></h2>
 <dl>
+<?php if (array_key_exists ('shirt_colour', $team)): ?>
 	<dt><?php __('Shirt colour'); ?></dt>
 	<dd><?php echo $team['shirt_colour']; ?></dd>
+<?php endif; ?>
 
 <?php if ($is_logged_in && !empty ($team['Person'])):
 	$links = array();
@@ -36,11 +50,11 @@ if (!in_array($team['id'], $team_blocks_shown)) {
 	<dd><?php echo $this->Html->link(__('Details & roster', true), array('controller' => 'teams', 'action' => 'view', 'team' => $team['id'])); ?>
 
 <?php
-if ($team['league_id']) {
+if ($league_id) {
 	echo ' / ' .
 		$this->Html->link(__('Schedule', true), array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['id'])) .
 		' / ' .
-		$this->Html->link(__('Standings', true), array('controller' => 'leagues', 'action' => 'standings', 'league' => $team['league_id'], 'team' => $team['id']));
+		$this->Html->link(__('Standings', true), array('controller' => 'leagues', 'action' => 'standings', 'league' => $league_id, 'team' => $team['id']));
 }
 if (!empty ($team['website'])) {
 	echo ' / ' . $this->Html->link(__('Website', true), $team['website']);
@@ -48,14 +62,19 @@ if (!empty ($team['website'])) {
 ?>
 	</dd>
 
-<?php if ($team['league_id']): ?>
+<?php if ($league_id): ?>
 	<dt><?php __('League'); ?></dt>
 	<dd><?php
-	echo $this->Html->link(__('Details', true), array('controller' => 'leagues', 'action' => 'view', 'league' => $team['league_id'])) .
+	if (array_key_exists ('League', $team)) {
+		$title = array('title' => $team['League']['long_name']);
+	} else {
+		$title = array();
+	}
+	echo $this->Html->link(__('Details', true), array('controller' => 'leagues', 'action' => 'view', 'league' => $league_id), $title) .
 		' / ' .
-		$this->Html->link(__('Schedule', true), array('controller' => 'leagues', 'action' => 'schedule', 'league' => $team['league_id'])) .
+		$this->Html->link(__('Schedule', true), array('controller' => 'leagues', 'action' => 'schedule', 'league' => $league_id)) .
 		' / ' .
-		$this->Html->link(__('Standings', true), array('controller' => 'leagues', 'action' => 'standings', 'league' => $team['league_id']));
+		$this->Html->link(__('Standings', true), array('controller' => 'leagues', 'action' => 'standings', 'league' => $league_id));
 	?></dd>
 <?php endif; ?>
 
@@ -80,6 +99,8 @@ if (isset ($options)) {
 }
 echo $this->ZuluruHtml->link($team['name'],
 	array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']),
-	$options) .
-	' ' . $this->element('shirt', array('colour' => $team['shirt_colour']));
+	$options);
+if (array_key_exists ('shirt_colour', $team)) {
+	echo ' ' . $this->element('shirt', array('colour' => $team['shirt_colour']));
+}
 ?>

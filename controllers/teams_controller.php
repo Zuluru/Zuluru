@@ -214,8 +214,8 @@ class TeamsController extends AppController {
 		$defaulting = $this->Team->League->Game->find('all', array(
 				'fields' => array(
 					'League.id', 'League.name', 'League.open',
-					'IF(Game.status = "home_default",HomeTeam.id,AwayTeam.id) AS team_id',
-					'IF(Game.status = "home_default",HomeTeam.name,AwayTeam.name) AS team_name',
+					'IF(Game.status = "home_default",HomeTeam.id,AwayTeam.id) AS id',
+					'IF(Game.status = "home_default",HomeTeam.name,AwayTeam.name) AS name',
 					'COUNT(Game.id) AS count',
 				),
 				'joins' => array(
@@ -237,7 +237,7 @@ class TeamsController extends AppController {
 				'conditions' => array_merge ($conditions, array(
 					'Game.status' => array('home_default', 'away_default'),
 				)),
-				'group' => 'team_id',
+				'group' => 'id',
 				'order' => 'count DESC',
 		));
 
@@ -248,8 +248,8 @@ class TeamsController extends AppController {
 		$no_scores = $this->Team->League->Game->find('all', array(
 				'fields' => array(
 					'League.id', 'League.name', 'League.open',
-					'IF(Game.approved_by = -3,HomeTeam.id,AwayTeam.id) AS team_id',
-					'IF(Game.approved_by = -3,HomeTeam.name,AwayTeam.name) AS team_name',
+					'IF(Game.approved_by = -3,HomeTeam.id,AwayTeam.id) AS id',
+					'IF(Game.approved_by = -3,HomeTeam.name,AwayTeam.name) AS name',
 					'COUNT(Game.id) AS count',
 				),
 				'joins' => array(
@@ -271,7 +271,7 @@ class TeamsController extends AppController {
 				'conditions' => array_merge ($conditions, array(
 					'Game.approved_by' => array(-2,-3),
 				)),
-				'group' => 'team_id',
+				'group' => 'id',
 				'order' => 'count DESC',
 		));
 

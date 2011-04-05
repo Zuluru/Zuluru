@@ -48,10 +48,7 @@ foreach ($counts as $league):
 foreach ($shorts as $team):
 ?>
 		<tr>
-			<td><?php echo $this->Html->link ($team['Team']['name'],
-					array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']),
-					array('title' => "League: {$team['League']['long_name']}"));
-			?></td>
+			<td><?php echo $this->element ('team/block', compact('team')); ?></td>
 			<td><?php
 			echo $team[0]['size'];
 			if ($team[0]['subs'] > 0) {
@@ -77,10 +74,7 @@ foreach ($shorts as $team):
 foreach ($top_rating as $team):
 ?>
 		<tr>
-			<td><?php echo $this->Html->link ($team['Team']['name'],
-					array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']),
-					array('title' => "League: {$team['League']['long_name']}"));
-			?></td>
+			<td><?php echo $this->element ('team/block', compact('team')); ?></td>
 			<td><?php echo $team['Team']['rating']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -101,10 +95,7 @@ foreach ($top_rating as $team):
 foreach ($lowest_rating as $team):
 ?>
 		<tr>
-			<td><?php echo $this->Html->link ($team['Team']['name'],
-					array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']),
-					array('title' => "League: {$team['League']['long_name']}"));
-			?></td>
+			<td><?php echo $this->element ('team/block', compact('team')); ?></td>
 			<td><?php echo $team['Team']['rating']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -123,13 +114,11 @@ foreach ($lowest_rating as $team):
 	<tbody>
 <?php
 foreach ($defaulting as $team):
+	$team['Team'] = $team[0];
 ?>
 		<tr>
-			<td><?php echo $this->Html->link ($team[0]['team_name'],
-					array('controller' => 'teams', 'action' => 'view', 'team' => $team[0]['team_id']),
-					array('title' => "League: {$team['League']['long_name']}"));
-			?></td>
-			<td><?php echo $team[0]['count']; ?></td>
+			<td><?php echo $this->element ('team/block', compact('team')); ?></td>
+			<td><?php echo $team['Team']['count']; ?></td>
 		</tr>
 <?php endforeach; ?>
 
@@ -147,12 +136,10 @@ foreach ($defaulting as $team):
 	<tbody>
 <?php
 foreach ($no_scores as $team):
+	$team['Team'] = $team[0];
 ?>
 		<tr>
-			<td><?php echo $this->Html->link ($team[0]['team_name'],
-					array('controller' => 'teams', 'action' => 'view', 'team' => $team[0]['team_id']),
-					array('title' => "League: {$team['League']['long_name']}"));
-			?></td>
+			<td><?php echo $this->element ('team/block', compact('team')); ?></td>
 			<td><?php echo $team[0]['count']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -173,10 +160,7 @@ foreach ($no_scores as $team):
 foreach ($top_spirit as $team):
 ?>
 		<tr>
-			<td><?php echo $this->Html->link ($team['Team']['name'],
-					array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']),
-					array('title' => "League: {$team['League']['long_name']}"));
-			?></td>
+			<td><?php echo $this->element ('team/block', compact('team')); ?></td>
 			<td><?php echo $team[0]['avgspirit']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -197,10 +181,7 @@ foreach ($top_spirit as $team):
 foreach ($lowest_spirit as $team):
 ?>
 		<tr>
-			<td><?php echo $this->Html->link ($team['Team']['name'],
-					array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']),
-					array('title' => "League: {$team['League']['long_name']}"));
-			?></td>
+			<td><?php echo $this->element ('team/block', compact('team')); ?></td>
 			<td><?php echo $team[0]['avgspirit']; ?></td>
 		</tr>
 <?php endforeach; ?>
