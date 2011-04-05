@@ -161,8 +161,8 @@ if ( $game['League']['allstars'] == 'always' ) {
 <?php
 // Build list of allstar options
 $players = array();
-foreach ($opponent['Person'] as $player) {
-	$players[$player['gender']][$player['id']] = $player['full_name'];
+foreach ($opponent['Person'] as $person) {
+	$players[$person['gender']][$person['id']] = $this->element('people/block', compact('person'));
 }
 
 // May need to tweak saved allstar data
@@ -184,19 +184,19 @@ if (array_key_exists ('Allstar', $this->data)) {
 
 if (!empty ($players['Male'])) {
 	echo $this->Form->input('Allstar.0.person_id', array(
-			'label' => 'Male',
+			'type' => 'radio',
+			'legend' => __('Male', true),
 			'options' => $players['Male'],
-			'empty' => 'none',
-			'selected' => $male,
+			'default' => $male,
 	));
 }
 
 if (!empty ($players['Female'])) {
 	echo $this->Form->input('Allstar.1.person_id', array(
-			'label' => 'Female',
+			'type' => 'radio',
+			'legend' => __('Female', true),
 			'options' => $players['Female'],
-			'empty' => 'none',
-			'selected' => $female,
+			'default' => $female,
 	));
 }
 

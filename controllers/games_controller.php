@@ -319,13 +319,21 @@ class GamesController extends AppController {
 				'HomeTeam' => array(
 					'Person' => array(
 						'conditions' => array('TeamsPerson.position' => Configure::read('extended_playing_roster_positions')),
-						'fields' => array('id', 'first_name', 'last_name', 'gender'),
+						'fields' => array(
+							'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.gender',
+							'Person.home_phone', 'Person.work_phone', 'Person.work_ext', 'Person.mobile_phone',
+							'Person.publish_email', 'Person.publish_home_phone', 'Person.publish_work_phone', 'Person.publish_mobile_phone',
+						),
 					),
 				),
 				'AwayTeam' => array(
 					'Person' => array(
 						'conditions' => array('TeamsPerson.position' => Configure::read('extended_playing_roster_positions')),
-						'fields' => array('id', 'first_name', 'last_name', 'gender'),
+						'fields' => array(
+							'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.gender',
+							'Person.home_phone', 'Person.work_phone', 'Person.work_ext', 'Person.mobile_phone',
+							'Person.publish_email', 'Person.publish_home_phone', 'Person.publish_work_phone', 'Person.publish_mobile_phone',
+						),
 					),
 				),
 				'Allstar' => array('Person'),
