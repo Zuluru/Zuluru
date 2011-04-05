@@ -547,7 +547,7 @@ class TeamsController extends AppController {
 		));
 		if (empty ($team['Game'])) {
 			$this->Session->setFlash(__('This team has no games scheduled yet.', true));
-			$this->redirect(array('action' => 'index'));
+			$this->redirect(array('action' => 'view', 'team' => $id));
 		}
 
 		// Sort games by date, time and field
@@ -627,7 +627,7 @@ class TeamsController extends AppController {
 		));
 		if (empty ($team['Game'])) {
 			$this->Session->setFlash(__('This team has no games scheduled yet.', true));
-			$this->redirect(array('action' => 'index'));
+			$this->redirect(array('action' => 'view', 'team' => $id));
 		}
 
 		// Sort games by date, time and field
