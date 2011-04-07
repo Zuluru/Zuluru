@@ -46,6 +46,52 @@ class InstallController extends InstallAppController {
 	}
 
 /**
+ * Delete the installation plugin
+ *
+ * @return true if it succeeds, false otherwise
+ */
+	function _delete() {
+		App::import('Core', 'Folder');
+		$this->folder = new Folder;
+		if ($this->folder->delete(APP . 'plugins' . DS . 'install')) {
+			$this->Session->setFlash(__('Installation files deleted successfully.', true), 'default', array('class' => 'success'));
+			return true;
+		} else {
+			$this->Session->setFlash(__('Could not delete installation files.', true), 'default', array('class' => 'error'));
+			return false;
+		}
+	}
+
+/**
+ * Create or update the installed.php file with version details
+ *
+ * @return void
+ */
+	function _writeInstalled() {
+		$file = new File(CONFIGS . 'installed.php', true);
+		$date = date('r');
+
+		$installed = <<<CONFIG
+<?php
+\$config['installed'] = array(
+	'date' => '$date',
+	'ip' => '{$_SERVER['REMOTE_ADDR']}',
+	'version' => '1.0.23',
+	'schema_version' => 3,
+);
+?>
+CONFIG;
+
+		if (!$file->write($installed)) {
+			$this->set('config_file', $file->pwd());
+			$this->set('config_contents', $installed);
+			return false;
+		}
+
+		return true;
+	}
+
+/**
  * Step 0: welcome
  *
  * A simple welcome message for the installer.
@@ -200,17 +246,10 @@ class InstallController extends InstallAppController {
  */
 	function finish() {
 		$this->set('title_for_layout', __('Installation completed successfully', true));
+
 		if (isset($this->params['named']['delete'])) {
-			App::import('Core', 'Folder');
-			$this->folder = new Folder;
-			if ($this->folder->delete(APP . 'plugins' . DS . 'install')) {
-				$file = new File(CONFIGS . 'installed.php', true);
-				$file->write(date('r') . "\n" . $_SERVER['REMOTE_ADDR'] . "\n");
-				
-				$this->Session->setFlash(__('Installation files deleted successfully.', true), 'default', array('class' => 'success'));
+			if ($this->_delete()) {
 				$this->redirect('/');
-			} else {
-				return $this->Session->setFlash(__('Could not delete installation files.', true), 'default', array('class' => 'error'));
 			}
 		}
 		$this->_check();
@@ -237,7 +276,83 @@ class InstallController extends InstallAppController {
 
 		// set password, hashed according to new salt value
 		$User->saveField('password', Security::hash('password', 'sha256', $salt));
+
+		$this->_writeInstalled();
 	}
 
+/**
+ * Step 5: update
+ *
+ * Contents of this have been copied and modified from the cake console schema task.
+ * 
+ * Remind the user to delete 'install' plugin.
+ *
+ * @return void
+ * @access public
+ */
+	function update() {
+		$this->set('title_for_layout', __('Update database', true));
+
+		if (isset($this->params['named']['delete'])) {
+			if ($this->_delete()) {
+				$this->redirect('/');
+			}
+		}
+
+		App::import('Model', 'CakeSchema', false);
+
+		$schema =& new CakeSchema();
+		$schema = $schema->load();
+		$db =& ConnectionManager::getDataSource($schema->connection);
+		if(!$db->isConnected()) {
+			$this->Session->setFlash(__('Could not connect to database.', true), 'default', array('class' => 'error'));
+			return;
+		}
+
+		// Not all of our tables have real models
+		$old = $schema->read(array('models' => false));
+		$compare = $schema->compare($old, $schema);
+
+		$contents = array();
+		foreach ($compare as $table => $changes) {
+			$contents[$table] = $db->alterSchema(array($table => $changes), $table);
+		}
+
+		if (empty($contents)) {
+			$this->Session->setFlash(__('Database is already up to date.', true), 'default', array('class' => 'error'));
+			return;
+		}
+
+		if (isset($this->params['named']['execute'])) {
+			$results = array();
+			$failed = false;
+			foreach ($contents as $table => $sql) {
+				if (!$schema->before(array('update' => $table))) {
+					$this->Session->setFlash(__('Failed to perform pre-processing on table ', true) . $table, 'default', array('class' => 'error'));
+					break;
+				}
+				$error = null;
+				if (!$db->execute($sql)) {
+					$error = $table . ': '  . $db->lastError();
+				}
+
+				$schema->after(array('update' => $table, 'errors' => $error));
+
+				if (!empty($error)) {
+					$results[$table] = $error;
+					$failed = true;
+					break;
+				} else {
+					$results[$table] = __('updated.', true);
+				}
+			}
+
+			if (!$failed) {
+				$this->_writeInstalled();
+			}
+		}
+
+		$this->set(compact('contents', 'results', 'failed'));
+	}
 }
 ?>

@@ -1,6 +1,4 @@
-<?php 
-/* SVN FILE: $Id$ */
-/* Zuluru schema generated on: 2010-12-30 20:12:32 : 1293759692*/
+<?php
 class ZuluruSchema extends CakeSchema {
 	var $name = 'Zuluru';
 

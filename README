@@ -152,8 +152,9 @@ a manual conversion.
 UPDATES
 
 When updates to Zuluru are released, there may also be changes to the
-database required. After updating the code, go to <ZULURU>/update and
-Zuluru will take care of these changes for you.
+database required. After updating the code, go to
+<ZULURU>/install/install/update and Zuluru will take care of these
+changes for you.
 
 DEBUGGING
 

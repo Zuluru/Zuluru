@@ -24,5 +24,6 @@
         echo $this->Form->input('database', array('label' => 'Name', 'default' => 'zuluru'));
         echo $this->Form->input('port', array('label' => 'Port (leave blank if unknown)'));
         echo $this->Form->end('Submit');
+		echo $this->Html->para(null, 'Ensure that the database user has CREATE and ALTER permissions on the database.');
     ?>
 </div>
