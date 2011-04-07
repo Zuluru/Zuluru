@@ -1,10 +1,10 @@
 <div class="install">
-    <h2><?php echo $title_for_layout; ?></h2>
+	<h2><?php echo $title_for_layout; ?></h2>
 
-    <p>
-        Username: admin<br />
-        Password: password
-    </p>
+	<p>
+		Username: admin<br />
+		Password: password
+	</p>
 
 	<?php
 		if (isset($config_file)) {
@@ -15,11 +15,11 @@
 
 		echo $this->Html->para(null, __('Delete the installation directory', true) . ' ' .
 			$this->Html->tag('strong', '/app/plugins/install') . '.');
-        echo $this->Html->link(__('Click here to delete installation files', true), array(
-            'plugin' => 'install',
-            'controller' => 'install',
-            'action' => 'finish',
-            'delete' => 1,
-        ));
-    ?>
+		echo $this->Html->link(__('Click here to delete installation files', true), array(
+			'plugin' => 'install',
+			'controller' => 'install',
+			'action' => 'finish',
+			'delete' => 1,
+		));
+	?>
 </div>

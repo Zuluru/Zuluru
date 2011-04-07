@@ -1,5 +1,5 @@
 <div class="install">
-    <h2><?php echo $title_for_layout; ?></h2>
+	<h2><?php echo $title_for_layout; ?></h2>
 
 <?php
 if (isset($this->params['named']['execute'])) {
@@ -34,12 +34,12 @@ if (isset($this->params['named']['execute'])) {
 	echo $this->Html->para(null, sprintf(__('Found %d tables to update.', true), count($contents)));
 	echo $this->Html->para(null, 'Ensure that the configured database user has CREATE and ALTER permissions on the database.');
 	echo $this->Html->para(null, 'WARNING: You should perform a backup before proceeding. These updates are not typically reversible, and if anything goes wrong you will want a backup to restore from.');
-    echo $this->Html->link(__('Click here to proceed with database updates.', true), array(
-        'plugin' => 'install',
-        'controller' => 'install',
-        'action' => 'update',
-        'execute' => 1,
-    ));
+	echo $this->Html->link(__('Click here to proceed with database updates.', true), array(
+		'plugin' => 'install',
+		'controller' => 'install',
+		'action' => 'update',
+		'execute' => 1,
+	));
 }
 
 ?>
