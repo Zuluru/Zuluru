@@ -1,4 +1,9 @@
 <?php
+// This can happen when an invalid game or team is requested
+if (!isset($calendar_type)) {
+	return;
+}
+
 $short = Configure::read('organization.short_name');
 
 header('Content-type: text/calendar; charset=UTF-8');

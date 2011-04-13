@@ -830,7 +830,7 @@ class PeopleController extends AppController {
 					'Game.published' => true,
 				),
 				'fields' => array(
-					'Game.id', 'Game.home_team', 'Game.home_score', 'Game.away_team', 'Game.away_score', 'Game.status', 'Game.league_id',
+					'Game.id', 'Game.home_team', 'Game.home_score', 'Game.away_team', 'Game.away_score', 'Game.status', 'Game.league_id', 'Game.created', 'Game.updated',
 					'GameSlot.game_date', 'GameSlot.game_start', 'GameSlot.game_end',
 					'HomeTeam.id', 'HomeTeam.name',
 					'AwayTeam.id', 'AwayTeam.name',
