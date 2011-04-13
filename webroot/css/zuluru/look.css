@@ -220,8 +220,7 @@ dl .altrow
 #zuluru .tooltip dd
 {
 	line-height: 1.75em;
-	margin-top: -1.75em;
-	margin-left: 9em;
+	margin: -1.75em 0 0 9em;
 }
 
 #zuluru .tooltip img
