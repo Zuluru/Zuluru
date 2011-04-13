@@ -14,8 +14,9 @@ $this->Html->addCrumb ($team['Team']['name']);
 <?php endif; ?>
 
 <?php
-$action = (($is_admin || $is_coordinator) ? 'roster_add' : 'roster_invite');
-echo $this->element('people/search_results', array('extra_url' => array('Add to team' => array('controller' => 'teams', 'action' => $action, 'team' => $team['Team']['id'])))); ?>
+$action = (($is_effective_admin || $is_coordinator) ? 'roster_add' : 'roster_invite');
+echo $this->element('people/search_results', array('extra_url' => array('Add to team' => array('controller' => 'teams', 'action' => $action, 'team' => $team['Team']['id']))));
+?>
 
 <?php if (!$this->params['isAjax']): ?>
 

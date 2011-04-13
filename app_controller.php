@@ -289,10 +289,12 @@ class AppController extends Controller {
 		$on_team = in_array ($team_id, $this->Session->read('Zuluru.TeamIDs'));
 
 		$this->effective_admin = ($this->is_admin && !$on_team);
+		$this->set('is_effective_admin', $this->effective_admin);
 
 		$leagues = $this->Session->read('Zuluru.Leagues');
 		$teams = Set::extract ('/Team/id', $leagues);
 		$this->effective_coordinator = (in_array ($team_id, $teams) && !$on_team);
+		$this->set('is_effective_coordinator', $this->effective_coordinator);
 	}
 
 	/**
