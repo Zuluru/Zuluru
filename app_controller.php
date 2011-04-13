@@ -73,7 +73,11 @@ class AppController extends Controller {
 		$this->Auth->autoRedirect = false;
 		$this->Auth->loginRedirect = '/';
 		$this->Auth->logoutRedirect = '/';
-		$this->Auth->authError = __('You must login to access full site functionality.', true);
+		if ($this->is_logged_in) {
+			$this->Auth->authError = __('You do not have permission to access that page.', true);
+		} else {
+			$this->Auth->authError = __('You must login to access full site functionality.', true);
+		}
 
 		$this->_initSessionData($this->Auth->user('id'));
 
