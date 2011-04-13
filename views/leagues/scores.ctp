@@ -68,7 +68,7 @@ foreach ($league['Team'] as $team_id => $team) {
 	foreach ($all_teams as $opp_id => $opp) {
 		if ($team_id == $opp_id) {
 			$row[] = array('N/A', array('style' => 'color: gray;'));
-		} else if (array_key_exists ($opp_id, $games[$team_id])) {
+		} else if (array_key_exists ($team_id, $games) && array_key_exists ($opp_id, $games[$team_id])) {
 			$results = array();
 			$wins = $losses = 0;
 			foreach ($games[$team_id][$opp_id] as $game) {
