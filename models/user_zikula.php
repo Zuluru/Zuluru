@@ -54,6 +54,9 @@ class UserZikula extends User {
 	function merge_user_record($data) {
 		$this->User->recursive = -1;
 		$user = $this->User->read(null, $data[$this->alias][$this->primaryKey]);
+		if (!$user) {
+			return false;
+		}
 
 		$field_map = array(
 			'user_name'	=> 'pn_uname',
@@ -64,6 +67,7 @@ class UserZikula extends User {
 				$this->User->saveField ($new, $data[$this->alias][$old]);
 			}
 		}
+		return true;
 	}
 
 	function delete_duplicate_user($id) {
