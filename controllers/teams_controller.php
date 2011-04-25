@@ -375,7 +375,6 @@ class TeamsController extends AppController {
 		$this->_addTeamMenuItems ($this->Team->data);
 
 		// Set up a couple more variables that the player popup block needs
-		$this->set('my_id', $this->Auth->user('id'));
 		$captain_in_league_ids = Set::extract ('/Team/league_id', $this->Session->read('Zuluru.OwnedTeams'));
 		$this->set('is_league_captain', in_array ($team['Team']['league_id'], $captain_in_league_ids));
 	}
