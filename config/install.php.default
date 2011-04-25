@@ -29,6 +29,15 @@ $config['email'] = array(
 // See README.themes for more details.
 $config['theme'] = null;
 
+// Set up which icon pack to use. Icon packs replace some or all of the default icons
+// by placing image files with the same name in a subfolder of the base icon folder
+// (see icon_base setting below). For example, to use an icon pack called "bubbles",
+// change this setting to 'bubbles', create an {icon_base}/bubbles folder, and put
+// your new images in there. They will automatically be used by the system. For any
+// image that doesn't exist there, it will automatically fall back to the default one,
+// no need to copy everything over.
+$config['icon_pack'] = 'default';
+
 // Add any additional CSS files required. By adding CSS here, you can make basic
 // changes to the layout without changing the layout file.
 $config['additional_css'] = array();
@@ -37,6 +46,9 @@ $config['additional_css'] = array();
 $config['folders'] = array(
 	// The filesystem location where files for permits, etc, shall live.
 	'league_base'		=> '{webroot}/files',
+
+	// The filesystem location where icon packs live.
+	'icon_base'		=> '{webroot}/img',
 );
 
 // Set up where certain resources are found in the web site.
@@ -49,6 +61,7 @@ $config['urls'] = array(
 	// Location of Zuluru CSS and JS files, must end in /
 	'zuluru_css'		=> '/css/',
 	'zuluru_js'			=> '/js/',
+	'zuluru_img'		=> '/img/',
 
 	// URL where files for permits, etc., shall live.
 	'league_base'		=> '/files',

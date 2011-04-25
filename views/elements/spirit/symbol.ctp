@@ -13,17 +13,17 @@ if ($value === null) {
 	switch ($type) {
 		case 'coordinator_only':
 			if ($is_admin || $is_coordinator) {
-				echo $this->Html->image (Configure::read('urls.zuluru_base') . "/img/$file.png");
+				echo $this->ZuluruHtml->icon("spirit_$file.png");
 				printf(' (%.2f)', $value);
 			}
 
 		case 'symbols_only':
-			echo $this->Html->image (Configure::read('urls.zuluru_base') . "/img/$file.png");
+			echo $this->ZuluruHtml->icon("spirit_$file.png");
 			break;
 
 		case 'numeric':
 		case 'all':
-			echo $this->Html->image (Configure::read('urls.zuluru_base') . "/img/$file.png");
+			echo $this->ZuluruHtml->icon("spirit_$file.png");
 			printf(' (%.2f)', $value);
 			break;
 	}

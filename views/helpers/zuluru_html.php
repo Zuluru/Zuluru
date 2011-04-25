@@ -81,6 +81,37 @@ class ZuluruHtmlHelper extends HtmlHelper {
 	}
 
 	/**
+	 * Use local settings to select an icon.
+	 */
+	function icon($img, $imgOptions = array()) {
+		$base_folder = Configure::read('folders.icon_base');
+		$base_url = Configure::read('urls.zuluru_img');
+
+		$icon_pack = Configure::read('icon_pack');
+		if ($icon_pack == 'default') {
+			$icon_pack = '';
+		} else {
+			$icon_pack = "/$icon_pack";
+		}
+
+		if (file_exists("$base_folder$icon_pack/$img")) {
+			return parent::image ("$base_url$icon_pack/$img", $imgOptions);
+		}
+		if (file_exists("$base_folder/$img")) {
+			return parent::image ("$base_url/$img", $imgOptions);
+		}
+		return parent::image($img, $imgOptions);
+	}
+
+	/**
+	 * Create links from icons.
+	 */
+	function iconLink($img, $url, $imgOptions = array(), $urlOptions = array()) {
+		return parent::link ($this->icon ($img, $imgOptions),
+							$url, array_merge (array('escape' => false), $urlOptions));
+	}
+
+	/**
 	 * Create pop-up help links.
 	 */
 	function help($url) {
@@ -91,7 +122,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 
 		// Add the help image, with a link to a pop-up with the help
 		$id = implode ('_', array_values ($url));
-		$help .= $this->imageLink('help.png', $url, array(
+		$help .= $this->iconLink('help_16.png', $url, array(
 			'id' => $id,
 			'alt' => __('[Help]', true),
 			'title' => __('Additional help', true),

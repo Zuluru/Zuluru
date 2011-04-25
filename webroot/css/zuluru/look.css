@@ -223,7 +223,7 @@ dl .altrow
 	margin: -1.75em 0 0 9em;
 }
 
-#zuluru .tooltip img
+#zuluru .tooltip img.thumbnail
 {
 	float: right;
 	border: 0;

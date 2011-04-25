@@ -61,25 +61,45 @@ $this->Html->addCrumb (__('View', true));
 	<ul>
 		<?php
 		if ($team['League']['id']) {
-			echo $this->Html->tag ('li', $this->Html->link(__('Schedule', true), array('action' => 'schedule', 'team' => $team['Team']['id'])));
-			echo $this->Html->tag ('li', $this->Html->link(__('Standings', true), array('controller' => 'leagues', 'action' => 'standings', 'league' => $team['League']['id'], 'team' => $team['Team']['id'])));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('schedule_32.png',
+				array('action' => 'schedule', 'team' => $team['Team']['id']),
+				array('alt' => __('Schedule', true), 'title' => __('View Team Schedule', true))));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('standings_32.png',
+				array('controller' => 'leagues', 'action' => 'standings', 'league' => $team['League']['id'], 'team' => $team['Team']['id']),
+				array('alt' => __('Standings', true), 'title' => __('View Team Standings', true))));
+
 		}
 		if ($is_logged_in && $team['Team']['open_roster'] && $team['League']['roster_deadline'] >= date('Y-m-d') &&
 			!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
 		{
-			echo $this->Html->tag ('li', $this->Html->link(__('Join Team', true), array('controller' => 'teams', 'action' => 'roster_request', 'team' => $team['Team']['id'])));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('roster_add_32.png',
+				array('action' => 'roster_request', 'team' => $team['Team']['id']),
+				array('alt' => __('Join Team', true), 'title' => __('Join Team', true))));
 		}
 		if ($is_admin || $is_captain) {
-			echo $this->Html->tag ('li', $this->Html->link(__('Edit Team', true), array('action' => 'edit', 'team' => $team['Team']['id'])));
-			echo $this->Html->tag ('li', $this->Html->link(__('Player Emails', true), array('action' => 'emails', 'team' => $team['Team']['id'])));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('edit_32.png',
+				array('action' => 'edit', 'team' => $team['Team']['id']),
+				array('alt' => __('Edit Team', true), 'title' => __('Edit Team', true))));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('email_32.png',
+				array('action' => 'emails', 'team' => $team['Team']['id']),
+				array('alt' => __('Player Emails', true), 'title' => __('Player Emails', true))));
 		}
 		if ($is_admin || ($is_captain && $team['League']['roster_deadline'] >= date('Y-m-d'))) {
-			echo $this->Html->tag ('li', $this->Html->link(__('Add player', true), array('action' => 'add_player', 'team' => $team['Team']['id'])));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('roster_add_32.png',
+				array('action' => 'add_player', 'team' => $team['Team']['id']),
+				array('alt' => __('Add Player', true), 'title' => __('Add Player', true))));
 		}
 		if ($is_admin) {
-			echo $this->Html->tag ('li', $this->Html->link(__('Delete Team', true), array('action' => 'delete', 'team' => $team['Team']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $team['Team']['id'])));
-			echo $this->Html->tag ('li', $this->Html->link(__('Move Team', true), array('action' => 'move', 'team' => $team['Team']['id'])));
-			echo $this->Html->tag ('li', $this->Html->link(__('Spirit', true), array('action' => 'spirit', 'team' => $team['Team']['id'])));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('spirit_32.png',
+				array('action' => 'spirit', 'team' => $team['Team']['id']),
+				array('alt' => __('Spirit', true), 'title' => __('See Team Spirit Report', true))));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('move_32.png',
+				array('action' => 'move', 'team' => $team['Team']['id']),
+				array('alt' => __('Move Team', true), 'title' => __('Move Team', true))));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('delete_32.png',
+				array('action' => 'delete', 'team' => $team['Team']['id']),
+				array('alt' => __('Delete', true), 'title' => __('Delete Team', true)),
+				array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $team['Team']['id']))));
 		}
 		?>
 	</ul>
@@ -120,7 +140,7 @@ $this->Html->addCrumb (__('View', true));
 	<tr<?php echo $class;?>>
 		<td colspan="<?php echo $cols; ?>"><strong>
 			<?php echo sprintf(__('Notice: The following players are currently INELIGIBLE to participate on this roster. This is typically because they do not have a current membership. They are not allowed to play with this team until this is corrected. Hover your mouse over the %s to see the specific reason why.', true),
-				$this->Html->image('help.png', array('alt' => '?'))); ?>
+				$this->ZuluruHtml->icon('help_16.png', array('alt' => '?'))); ?>
 		</strong></td>
 	</tr>
 	<?php
@@ -156,7 +176,7 @@ $this->Html->addCrumb (__('View', true));
 		<td<?php if ($warning) echo ' class="error-message"';?>><?php
 		echo $this->element('people/roster', array('roster' => $person['TeamsPerson'], 'league' => $team['League']));
 		if ($person['can_add'] !== true) {
-			echo ' ' . $this->Html->image('help.png', array('title' => $person['can_add'], 'alt' => '?'));
+			echo ' ' . $this->ZuluruHtml->icon('help_16.png', array('title' => $person['can_add'], 'alt' => '?'));
 		}
 		?></td>
 		<td><?php __($person['gender']);?></td>

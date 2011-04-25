@@ -45,11 +45,23 @@ foreach ($teams as $team):
 			if ($team['League']['roster_deadline'] >= date('Y-m-d') &&
 				in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs')))
 			{
-				echo $this->Html->link(__('Add player', true), array('controller' => 'teams', 'action' => 'add_player', 'team' => $team['Team']['id']));
+				echo $this->ZuluruHtml->iconLink('roster_add_24.png',
+					array('controller' => 'teams', 'action' => 'add_player', 'team' => $team['Team']['id']),
+					array('alt' => __('Add Player', true), 'title' => __('Add Player', true)));
+			}
+
+			echo $this->ZuluruHtml->iconLink('schedule_24.png',
+				array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['Team']['id']),
+				array('alt' => __('Schedule', true), 'title' => __('View Team Schedule', true)));
+			echo $this->ZuluruHtml->iconLink('standings_24.png',
+				array('controller' => 'leagues', 'action' => 'standings', 'league' => $team['League']['id'], 'team' => $team['Team']['id']),
+				array('alt' => __('Standings', true), 'title' => __('View Team Standings', true)));
+			if ($is_admin || in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs'))) {
+				echo $this->ZuluruHtml->iconLink('edit_24.png',
+					array('controller' => 'teams', 'action' => 'edit', 'team' => $team['Team']['id']),
+					array('alt' => __('Edit', true), 'title' => __('Edit Team', true)));
 			}
 			?>
-			<?php echo $this->Html->link(__('Schedule', true), array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['Team']['id'])); ?>
-			<?php echo $this->Html->link(__('Standings', true), array('controller' => 'leagues', 'action' => 'standings', 'league' => $team['League']['id'], 'team' => $team['Team']['id'])); ?>
 		</td>
 	</tr>
 <?php endforeach; ?>
@@ -81,13 +93,25 @@ foreach ($leagues as $league):
 					array('max_length' => 32));
 		?></td>
 		<td class="actions splash_action">
-			<?php echo $this->Html->link(__('Edit', true), array('controller' => 'leagues', 'action' => 'edit', 'league' => $league['League']['id'])); ?>
-			<?php if ($league['League']['schedule_type'] != 'none') : ?>
-			<?php echo $this->Html->link(__('Schedule', true), array('controller' => 'leagues', 'action' => 'schedule', 'league' => $league['League']['id'])); ?>
-			<?php echo $this->Html->link(__('Standings', true), array('controller' => 'leagues', 'action' => 'standings', 'league' => $league['League']['id'])); ?>
-			<?php echo $this->Html->link(__('Approve scores', true), array('controller' => 'leagues', 'action' => 'approve_scores', 'league' => $league['League']['id'])); ?>
-			<?php echo $this->Html->link(__('Add games', true), array('controller' => 'schedules', 'action' => 'add', 'league' => $league['League']['id'])); ?>
-			<?php endif; ?>
+			<?php
+			echo $this->ZuluruHtml->iconLink('edit_24.png',
+				array('controller' => 'leagues', 'action' => 'edit', 'league' => $league['League']['id']),
+				array('alt' => __('Edit', true), 'title' => __('Edit League', true)));
+			if ($league['League']['schedule_type'] != 'none') {
+				echo $this->ZuluruHtml->iconLink('schedule_24.png',
+					array('controller' => 'leagues', 'action' => 'schedule', 'league' => $league['League']['id']),
+					array('alt' => __('Schedule', true), 'title' => __('View League Schedule', true)));
+				echo $this->ZuluruHtml->iconLink('standings_24.png',
+					array('controller' => 'leagues', 'action' => 'standings', 'league' => $league['League']['id']),
+					array('alt' => __('Standings', true), 'title' => __('View League Standings', true)));
+				echo $this->ZuluruHtml->iconLink('score_approve_24.png',
+					array('controller' => 'leagues', 'action' => 'approve_scores', 'league' => $league['League']['id']),
+					array('alt' => __('Approve scores', true), 'title' => __('Approve scores', true)));
+				echo $this->ZuluruHtml->iconLink('schedule_add_24.png',
+					array('controller' => 'schedules', 'action' => 'add', 'league' => $league['League']['id']),
+					array('alt' => __('Add games', true), 'title' => __('Add games', true)));
+			}
+			?>
 		</td>
 	</tr>
 <?php endforeach; ?>
@@ -136,9 +160,14 @@ foreach ($games as $game):
 if (Configure::read('personal.enable_ical')) {
 	__('Get your personal schedule in ');
 	// TODOIMG: Better image locations, alt text
-	echo $this->ZuluruHtml->imageLink ('/img/ical.gif', array('controller' => 'people', 'action' => 'ical', $id, 'player.ics'), array('alt' => 'iCal'));
+	echo $this->ZuluruHtml->iconLink ('ical.gif',
+		array('controller' => 'people', 'action' => 'ical', $id, 'player.ics'),
+		array('alt' => 'iCal'));
 	__(' format or ');
-	echo $this->ZuluruHtml->imageLink ('http://www.google.com/calendar/images/ext/gc_button6.gif', 'http://www.google.com/calendar/render?cid=' . $this->Html->url(array('controller' => 'people', 'action' => 'ical', $id), true), array('alt' => 'add to Google Calendar'), array('target' => '_blank'));
+	echo $this->ZuluruHtml->imageLink ('http://www.google.com/calendar/images/ext/gc_button6.gif',
+		'http://www.google.com/calendar/render?cid=' . $this->Html->url(array('controller' => 'people', 'action' => 'ical', $id), true),
+		array('alt' => 'add to Google Calendar'),
+		array('target' => '_blank'));
 } else {
 	echo $this->Html->link (__('Edit your preferences', true), array('controller' => 'people', 'action' => 'preferences'));
 	__(' to enable your personal iCal feed');

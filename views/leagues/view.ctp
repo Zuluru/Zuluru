@@ -17,7 +17,9 @@ $this->Html->addCrumb (__('View', true));
 			if ($is_admin) {
 				$coordinator .= '&nbsp;' .
 					$this->Html->tag('span',
-						$this->Html->link('Remove', array('action' => 'remove_coordinator', 'league' => $league['League']['id'], 'person' => $person['id'])),
+						$this->ZuluruHtml->iconLink('coordinator_delete_24.png',
+							array('action' => 'remove_coordinator', 'league' => $league['League']['id'], 'person' => $person['id']),
+							array('alt' => __('Remove', true), 'title' => __('Remove', true))),
 						array('class' => 'actions'));
 			}
 			$coordinators[] = $coordinator;
@@ -155,19 +157,38 @@ $this->Html->addCrumb (__('View', true));
 <div class="actions">
 	<ul>
 		<?php
-		echo $this->Html->tag ('li', $this->Html->link(__('Schedule', true), array('action' => 'schedule', 'league' => $league['League']['id'])));
-		echo $this->Html->tag ('li', $this->Html->link(__('Standings', true), array('action' => 'standings', 'league' => $league['League']['id'])));
+		echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('schedule_32.png',
+			array('action' => 'schedule', 'league' => $league['League']['id']),
+			array('alt' => __('Schedule', true), 'title' => __('Schedule', true))));
+		echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('standings_32.png',
+			array('action' => 'standings', 'league' => $league['League']['id']),
+			array('alt' => __('Standings', true), 'title' => __('Standings', true))));
 		if ($is_admin || $is_coordinator) {
-			echo $this->Html->tag ('li', $this->Html->link(__('Edit League', true), array('action' => 'edit', 'league' => $league['League']['id'])));
-			echo $this->Html->tag ('li', $this->Html->link(__('Captain Emails', true), array('action' => 'emails', 'league' => $league['League']['id'])));
-			echo $this->Html->tag ('li', $this->Html->link(__('Approve scores', true), array('action' => 'approve_scores', 'league' => $league['League']['id'])));
-			echo $this->Html->tag ('li', $this->Html->link(__('Add games', true), array('controller' => 'schedules', 'action' => 'add', 'league' => $league['League']['id'])));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('edit_32.png',
+				array('action' => 'edit', 'league' => $league['League']['id']),
+				array('alt' => __('Edit', true), 'title' => __('Edit League', true))));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('email_32.png',
+				array('action' => 'emails', 'league' => $league['League']['id']),
+				array('alt' => __('Captain Emails', true), 'title' => __('Captain Emails', true))));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('score_approve_32.png',
+				array('action' => 'approve_scores', 'league' => $league['League']['id']),
+				array('alt' => __('Approve scores', true), 'title' => __('Approve scores', true))));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('schedule_add_32.png',
+				array('controller' => 'schedules', 'action' => 'add', 'league' => $league['League']['id']),
+				array('alt' => __('Add Games', true), 'title' => __('Add Games', true))));
 			// TODO: More links to reports, etc.
 		}
 		if ($is_admin) {
-			echo $this->Html->tag ('li', $this->Html->link(__('Add Coordinator', true), array('action' => 'add_coordinator', 'league' => $league['League']['id'])));
-			echo $this->Html->tag ('li', $this->Html->link(__('Spirit', true), array('action' => 'spirit', 'league' => $league['League']['id'])));
-			echo $this->Html->tag ('li', $this->Html->link(__('Delete League', true), array('action' => 'delete', 'league' => $league['League']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $league['League']['id'])));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('coordinator_add_32.png',
+				array('action' => 'add_coordinator', 'league' => $league['League']['id']),
+				array('alt' => __('Add Coordinator', true), 'title' => __('Add Coordinator', true))));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('spirit_32.png',
+				array('action' => 'spirit', 'league' => $league['League']['id']),
+				array('alt' => __('Spirit', true), 'title' => __('See League Spirit Report', true))));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('delete_32.png',
+				array('action' => 'delete', 'league' => $league['League']['id']),
+				array('alt' => __('Delete', true), 'title' => __('Delete League', true)),
+				array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $league['League']['id']))));
 		}
 		?>
 	</ul>

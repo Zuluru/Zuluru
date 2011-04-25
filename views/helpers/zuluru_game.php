@@ -1,7 +1,7 @@
 <?php
 
 class ZuluruGameHelper extends Helper {
-	var $helpers = array('Html', 'Session');
+	var $helpers = array('Html', 'ZuluruHtml', 'Session');
 
 	function displayScore($game, $show_score_for_team = false) {
 		// Data may come in one of two forms.
@@ -91,9 +91,9 @@ class ZuluruGameHelper extends Helper {
 		// Give admins and coordinators the option to edit games
 		$view =& ClassRegistry::getObject('view');
 		if ($view->viewVars['is_admin'] || in_array ($details['league_id'], $this->Session->read('Zuluru.LeagueIDs'))) {
-			echo $this->Html->link(
-					__('Edit', true),
-					array('controller' => 'games', 'action' => 'edit', 'game' => $details['id']));
+			echo $this->ZuluruHtml->iconLink('edit_24.png',
+				array('controller' => 'games', 'action' => 'edit', 'game' => $details['id']),
+				array('alt' => __('Edit', true), 'title' => __('Edit', true)));
 		}
 	}
 }
