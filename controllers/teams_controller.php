@@ -1174,7 +1174,9 @@ class TeamsController extends AppController {
 					__(($person['Person']['TeamsPerson']['status'] == ROSTER_INVITED) ? 'invitation' : 'request', true)));
 
 			// Send email to the affected people
-			$this->_sendAccept($person, $team, $person['Person']['TeamsPerson']['position'], $person['Person']['TeamsPerson']['status']);
+			if (Configure::read('feature.generate_roster_email')) {
+				$this->_sendAccept($person, $team, $person['Person']['TeamsPerson']['position'], $person['Person']['TeamsPerson']['status']);
+			}
 
 			if ($person_id == $my_id) {
 				$this->_deleteTeamSessionData();
@@ -1244,7 +1246,9 @@ class TeamsController extends AppController {
 					__(($person['Person']['TeamsPerson']['status'] == ROSTER_INVITED) ? 'invitation' : 'request', true)));
 
 			// Send email to the affected people
-			$this->_sendDecline($person, $team, $person['Person']['TeamsPerson']['position'], $person['Person']['TeamsPerson']['status']);
+			if (Configure::read('feature.generate_roster_email')) {
+				$this->_sendDecline($person, $team, $person['Person']['TeamsPerson']['position'], $person['Person']['TeamsPerson']['status']);
+			}
 
 			if ($person_id == $my_id) {
 				$this->_deleteTeamSessionData();
@@ -1333,7 +1337,10 @@ class TeamsController extends AppController {
 		if ($position == 'none') {
 			if ($this->Roster->delete ($person['Person']['TeamsPerson']['id'])) {
 				$this->Session->setFlash(__('Removed the player from the team.', true));
-				return $this->_sendRemove($person, $team);
+				if (Configure::read('feature.generate_roster_email')) {
+					$this->_sendRemove($person, $team);
+				}
+				return true;
 			} else {
 				$this->Session->setFlash(__('Failed to remove the player from the team.', true));
 				return false;
