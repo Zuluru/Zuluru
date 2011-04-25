@@ -43,7 +43,7 @@ foreach ($teams as $team):
 		<td class="actions splash_action">
 			<?php
 			if ($team['League']['roster_deadline'] >= date('Y-m-d') &&
-				($is_admin || in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs'))))
+				in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs')))
 			{
 				echo $this->Html->link(__('Add player', true), array('controller' => 'teams', 'action' => 'add_player', 'team' => $team['Team']['id']));
 			}
