@@ -315,7 +315,11 @@ CONFIG;
 
 		$contents = array();
 		foreach ($compare as $table => $changes) {
-			$contents[$table] = $db->alterSchema(array($table => $changes), $table);
+			if (array_key_exists ($table, $old['tables'])) {
+				$contents[$table] = $db->alterSchema(array($table => $changes), $table);
+			} else {
+				$contents[$table] = $create = $db->createSchema($schema, $table);
+			}
 		}
 
 		if (empty($contents)) {
