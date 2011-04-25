@@ -24,15 +24,24 @@ if (empty ($old_team['Person'])) {
 					'hiddenField' => false,
 			));
 		} else {
-			$cannot[] = $this->Html->tag('span', $this->element('people/block', compact('person')), array('title' => $person['can_add']));
+			$cannot[] = $this->Form->input("player.{$person['id']}", array(
+					'label' => $this->element('people/block', compact('person')),
+					'type' => 'checkbox',
+					'hiddenField' => false,
+					'after' => ' ' . $this->Html->image('help.png', array('title' => $person['can_add'], 'alt' => '?')),
+			));
 		}
 	}
 
-	echo $this->Form->end(__('Invite', true));
 	if (!empty ($cannot)) {
-		echo $this->Html->para(null, __('The following players cannot be added to your roster. Hover your mouse over a name to see the reason why.', true));
-		echo $this->Html->para(null, implode (', ', $cannot) . '.');
+		echo $this->Html->para('error-message',
+				sprintf(__('Notice: The following players are currently INELIGIBLE to participate on this roster. This is typically because they do not have a current membership. They are not allowed to play with this team until this is corrected. Hover your mouse over the %s to see the specific reason why.', true),
+				$this->Html->image('help.png', array('alt' => '?'))));
+		echo $this->Html->para('error-message', __('They can still be invited to join, but will not be able to accept the invitation until this is resolved.', true));
+		echo implode ('', $cannot);
 	}
+
+	echo $this->Form->end(__('Invite', true));
 }
 ?>
 
