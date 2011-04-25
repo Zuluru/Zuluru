@@ -1,9 +1,4 @@
 <?php
-define("APPROVAL_AUTOMATIC", -1);		// approval, scores agree
-define("APPROVAL_AUTOMATIC_HOME", -2);  // approval, home score used
-define("APPROVAL_AUTOMATIC_AWAY", -3);  // approval, away score used
-define("APPROVAL_AUTOMATIC_FORFEIT", -4); // approval, no score entered
-
 class Game extends AppModel {
 	var $name = 'Game';
 	var $displayField = 'id';

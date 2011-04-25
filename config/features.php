@@ -16,11 +16,18 @@ $config['roster_requirements'] = array(
 	'open'	=> 12,
 );
 
+if (!defined('APPROVAL_AUTOMATIC')) {
+	define('APPROVAL_AUTOMATIC', -1);		// approval, scores agree
+	define('APPROVAL_AUTOMATIC_HOME', -2);  // approval, home score used
+	define('APPROVAL_AUTOMATIC_AWAY', -3);  // approval, away score used
+	define('APPROVAL_AUTOMATIC_FORFEIT', -4); // approval, no score entered
+}
+
 $config['approved_by'] = array(
-	-1		=> 'automatic approval',
-	-2		=> 'automatic approval using home submission',
-	-3		=> 'automatic approval using away submission',
-	-4		=> 'game automatically forfeited due to lack of score submission',
+	APPROVAL_AUTOMATIC			=> 'automatic approval',
+	APPROVAL_AUTOMATIC_HOME		=> 'automatic approval using home submission',
+	APPROVAL_AUTOMATIC_AWAY		=> 'automatic approval using away submission',
+	APPROVAL_AUTOMATIC_FORFEIT	=> 'game automatically forfeited due to lack of score submission',
 );
 
 // List of roster positions which denote player status on a roster.
