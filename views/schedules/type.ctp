@@ -35,7 +35,18 @@ echo $this->Form->input('publish', array(
 ));
 ?>
 
-<p>If this is checked, players will be able to view games immediately after creation.  Uncheck it if you wish to make changes before players can view.</p>
+<p>If this is checked, players will be able to view games immediately after creation. Uncheck it if you wish to make changes before players can view.</p>
+
+<?php
+echo $this->Form->input ('double_header', array(
+		'label' => __('Allow double-headers?', true),
+		'type' => 'checkbox',
+		'checked' => false,
+));
+?>
+
+<p>If this is checked, you will be allowed to schedule more than the expected number of games. Check it only if you need this, as it disables some safety checks.</p>
+
 </fieldset>
 
 <?php echo $this->Form->end(__('Next step', true)); ?>

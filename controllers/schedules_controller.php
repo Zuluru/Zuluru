@@ -179,7 +179,7 @@ class SchedulesController extends AppController {
 				),
 		));
 
-		if ($this->_numTeams() == $games * 2) {
+		if ($this->_numTeams() >= $games * 2 && !$this->data['Game']['double_header']) {
 			$this->Session->setFlash(__('This league is already fully scheduled on the selected date.', true));
 			return false;
 		}
