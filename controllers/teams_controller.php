@@ -1715,5 +1715,105 @@ class TeamsController extends AppController {
 
 		return $captains;
 	}
+
+	function cron() {
+		$this->layout = 'bare';
+
+		if (Configure::read('feature.generate_roster_email')) {
+			$this->Roster = ClassRegistry::init ('TeamsPerson');
+
+			$people = $this->Roster->find ('all', array(
+					'conditions' => array(
+						'TeamsPerson.status' => array(ROSTER_INVITED, ROSTER_REQUESTED),
+						'TeamsPerson.created < DATE_ADD(CURDATE(), INTERVAL -7 DAY)',
+					),
+					'contain' => array(
+						'Team' => array(
+							'League' => array(
+								'Day',
+								'fields' => array('League.id', 'League.name', 'League.open', 'League.ratio', 'League.roster_deadline'),
+							),
+							'Person' => array(
+								'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+								'fields' => array('Person.id', 'Person.first_name', 'Person.last_name', 'Person.email'),
+								'order' => 'TeamsPerson.id',
+							),
+							'fields' => array('Team.id', 'Team.name'),
+						),
+						'Person' => array(
+							'fields' => array('Person.id', 'Person.first_name', 'Person.last_name', 'Person.email'),
+						),
+					),
+			));
+
+			$log = ClassRegistry::init ('ActivityLog');
+			$emailed = $expired = $outstanding = 0;
+			$activity = array();
+			// Expire invites that have had reminders sent more than 7.5 days ago
+			$expire = 7.5 * 24 * 60 * 60;
+			foreach ($people as $key => $person) {
+				$conditions = array(
+					'type' => ($person['TeamsPerson'] == ROSTER_INVITED ? 'roster_invite_reminder' : 'roster_request_reminder'),
+					'primary_id' => $person['Team']['id'],
+					'secondary_id' => $person['Person']['id'],
+				);
+				$sent = $log->find('first', array('conditions' => $conditions));
+				if (!empty ($sent)) {
+					$age = time() - strtotime ($sent['ActivityLog']['created']);
+					if ($age > $expire) {
+						// TODO: Remove expired invitations, and send emails about that too
+						++$expired;
+					} else {
+						++$outstanding;
+					}
+				} else {
+					$success = $people[$key]['emailed'] =
+						$this->_rosterRemind($person['Person'], $person['Team']['Person'], $person['Team'], $person['Team']['League'], $person['TeamsPerson']);
+					if ($success) {
+						$activity[] = $conditions;
+						++$emailed;
+					}
+				}
+			}
+
+			$this->set(compact('emailed', 'expired', 'outstanding'));
+			// Update the activity log
+			$log->saveAll ($activity);
+		}
+	}
+
+	function _rosterRemind($person, $captains, $team, $league, $roster) {
+		$code = $this->_hash($roster);
+		$this->set(compact('person', 'team', 'league', 'roster', 'code'));
+		$this->set ('captains', implode (', ', Set::extract ('/first_name', $captains)));
+
+		if ($roster['status'] == ROSTER_INVITED) {
+			if (!$this->_sendMail (array (
+					'to' => $person,
+					'from' => 'TUC Webmaster <webmaster@tuc.org>',
+					'replyTo' => $captains[0],
+					'subject' => "Reminder of invitation to join {$team['name']}",
+					'template' => 'roster_invite_reminder',
+					'sendAs' => 'both',
+			)))
+			{
+				return false;
+			}
+		} else {
+			if (!$this->_sendMail (array (
+					'to' => $captains,
+					'from' => 'TUC Webmaster <webmaster@tuc.org>',
+					'replyTo' => $person,
+					'subject' => "Reminder of request to join {$team['name']}",
+					'template' => 'roster_request_reminder',
+					'sendAs' => 'both',
+			)))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
 }
 ?>
