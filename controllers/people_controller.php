@@ -760,6 +760,7 @@ class PeopleController extends AppController {
 			// This is basically the same as the delete duplicate, except
 			// that some old information (e.g. user ID) is preserved
 			case 'merge_duplicate':
+				$transaction = new DatabaseTransaction($this->Person);
 				if (method_exists ($this->Auth->authenticate, 'merge_duplicate_user')) {
 					$this->Auth->authenticate->merge_duplicate_user($person['Person']['id'], $existing['Person']['id']);
 				}
@@ -778,6 +779,9 @@ class PeopleController extends AppController {
 				$saved = $this->Person->save ($person);
 				if (!$saved) {
 					$this->Session->setFlash(__('Couldn\'t save new member information', true));
+					break;
+				} else {
+					$transaction->commit();
 				}
 
 				$variables = array(
