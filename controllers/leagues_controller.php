@@ -84,9 +84,6 @@ class LeaguesController extends AppController {
 		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.LeagueIDs')));
 
 		$this->_addLeagueMenuItems ($this->League->data);
-
-		// Set up a couple more variables that the player popup block needs
-		$this->set('my_id', $this->Auth->user('id'));
 	}
 
 	function add() {

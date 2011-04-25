@@ -146,7 +146,7 @@ class PeopleController extends AppController {
 		}
 
 		$person = $this->Person->readCurrent($id);
-		$this->set(compact('person', 'my_id'));
+		$this->set(compact('person'));
 		$this->set('is_me', ($id === $my_id));
 
 		// Check if the current user is a captain of a team the viewed player is on
