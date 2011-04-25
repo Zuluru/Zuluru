@@ -13,6 +13,18 @@ if (array_key_exists ('league_id', $team)) {
 	$league_id = null;
 }
 
+if (isset ($options)) {
+	$options = array_merge (array('class' => $id), $options);
+} else {
+	$options = array('class' => $id);
+}
+echo $this->ZuluruHtml->link($team['name'],
+	array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']),
+	$options);
+if (array_key_exists ('shirt_colour', $team)) {
+	echo ' ' . $this->element('shirt', array('colour' => $team['shirt_colour']));
+}
+
 // Global variable. Ew.
 global $team_blocks_shown;
 if (!isset($team_blocks_shown)) {
@@ -90,17 +102,5 @@ $('.$id').tooltip({
 	tip: '#$id'
 });
 ");
-}
-
-if (isset ($options)) {
-	$options = array_merge (array('class' => $id), $options);
-} else {
-	$options = array('class' => $id);
-}
-echo $this->ZuluruHtml->link($team['name'],
-	array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']),
-	$options);
-if (array_key_exists ('shirt_colour', $team)) {
-	echo ' ' . $this->element('shirt', array('colour' => $team['shirt_colour']));
 }
 ?>
