@@ -1603,6 +1603,9 @@ class TeamsController extends AppController {
 	}
 
 	function _sendChange ($person, $team, $position) {
+		if ($position == $person['Person']['TeamsPerson']['position']) {
+			return true;
+		}
 		$this->_initRosterEmail($person, $team, $position);
 
 		$this->set (array(
@@ -1617,7 +1620,7 @@ class TeamsController extends AppController {
 			if (!$this->_sendMail (array (
 					'to' => $captains,
 					'replyTo' => $person,
-					'subject' => "Removal from {$team['Team']['name']} roster",
+					'subject' => "Change on {$team['Team']['name']} roster",
 					'template' => 'roster_change_by_player',
 					'sendAs' => 'both',
 			)))
