@@ -8,7 +8,7 @@ $url = Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => 
 echo $this->Html->link($url, $url);
 ?></p>
 <p>You need to be logged into the website to update this.</p>
-<p>We ask that you please accept or decline this request at your earliest convenience. The request will expire after a couple of weeks.</p>
+<p>We ask that you please accept or decline this request at your earliest convenience. The request will expire <?php echo $days; ?> days from now.</p>
 <p>If you accept the request, <?php echo $person['first_name']; ?> will be added to the team's roster as a <?php
 echo Configure::read("options.roster_position.${roster['position']}"); ?>. You have the option of changing their position on the team afterwards.</p>
 <p>Accept the request here:

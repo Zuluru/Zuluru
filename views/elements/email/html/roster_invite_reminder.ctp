@@ -9,7 +9,7 @@ echo implode (' and ', Set::extract ('/Day/name', $league)); ?>.</p>
 $url = Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']), true);
 echo $this->Html->link($url, $url);
 ?></p>
-<p>We ask that you please accept or decline this invitation at your earliest convenience. The invitation will expire after a couple of weeks.</p>
+<p>We ask that you please accept or decline this invitation at your earliest convenience. The invitation will expire <?php echo $days; ?> days from now.</p>
 <p>If you accept the invitation, you will be added to the team's roster and your contact information will be made available to the team captain.</p>
 <p>Note that, before accepting the invitation, you must be a registered member of <?php echo Configure::read('organization.short_name'); ?>.</p>
 <p>Accept the invitation here:

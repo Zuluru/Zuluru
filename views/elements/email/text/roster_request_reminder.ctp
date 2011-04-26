@@ -9,7 +9,7 @@ The <?php echo $team['name']; ?> roster may be accessed at
 
 You need to be logged into the website to update this.
 
-We ask that you please accept or decline this request at your earliest convenience. The request will expire after a couple of weeks.
+We ask that you please accept or decline this request at your earliest convenience. The request will expire <?php echo $days; ?> days from now.
 
 If you accept the request, <?php echo $person['first_name']; ?> will be added to the team's roster as a <?php
 echo Configure::read("options.roster_position.${roster['position']}"); ?>. You have the option of changing their position on the team afterwards.
@@ -34,4 +34,4 @@ echo $this->Time->format($date_format, $league['roster_deadline']);
 Thanks,
 <?php echo Configure::read('email.admin_name'); ?>
 
-<?php echo Configure::read('organization.short_name'); ?> Webteam
+<?php echo Configure::read('organization.short_name'); ?> web team

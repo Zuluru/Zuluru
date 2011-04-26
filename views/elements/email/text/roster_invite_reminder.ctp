@@ -11,7 +11,7 @@ More details about <?php echo $team['name']; ?> may be found at
 <?php echo Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']), true); ?>
 
 
-We ask that you please accept or decline this invitation at your earliest convenience. The invitation will expire after a couple of weeks.
+We ask that you please accept or decline this invitation at your earliest convenience. The invitation will expire <?php echo $days; ?> days from now.
 
 If you accept the invitation, you will be added to the team's roster and your contact information will be made available to the team captain.
 

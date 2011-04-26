@@ -34,4 +34,4 @@ echo $this->Time->format($date_format, $league['roster_deadline']);
 Thanks,
 <?php echo Configure::read('email.admin_name'); ?>
 
-<?php echo Configure::read('organization.short_name'); ?> Webteam
+<?php echo Configure::read('organization.short_name'); ?> web team
