@@ -114,6 +114,7 @@ class Person extends User {
 		'Team' => array(
 			'className' => 'Team',
 			'joinTable' => 'teams_people',
+			'with' => 'TeamsPerson',
 			'foreignKey' => 'person_id',
 			'associationForeignKey' => 'team_id',
 			'unique' => true,
