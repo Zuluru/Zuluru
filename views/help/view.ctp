@@ -1,3 +1,4 @@
+<div class="help">
 <?php
 $elements = array('help');
 $heading = 'Zuluru';
@@ -9,6 +10,9 @@ if (isset ($controller)) {
 		$heading = null;
 		if (isset ($item)) {
 			$elements[] = $item;
+			if (isset ($subitem)) {
+				$elements[] = $subitem;
+			}
 		}
 	}
 }
@@ -33,3 +37,4 @@ $body = htmlspecialchars ('I have a suggestion for the Zuluru online help page a
 <p>If you have suggestions for additions, changes or other improvements to this online help, please send them to <?php
 echo $this->Html->link ('admin@zuluru.org', "mailto:admin@zuluru.org?subject=Zuluru%20Online%20Help%20Suggestion&body=$body");
 ?>.</p>
+</div>

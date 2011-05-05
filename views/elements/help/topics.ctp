@@ -4,6 +4,10 @@ $replacements = array(
 	' Or ' => ' or ',
 );
 
+if (!isset($level)) {
+	$level = 3;
+}
+
 foreach ($topics as $topic => $title)
 {
 	// TODO: Add a name anchor here, and a list of topics at the top
@@ -14,7 +18,7 @@ foreach ($topics as $topic => $title)
 		$title = strtr (Inflector::humanize($topic), $replacements);
 	}
 
-	echo $this->Html->tag ('h3', __($title, true));
-	echo $this->element("help/$section/$topic");
+	echo $this->Html->tag ("h$level", __($title, true));
+	echo $this->element("help/$section/$topic", array('level' => $level + 1));
 }
 ?>

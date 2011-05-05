@@ -403,13 +403,41 @@ div.related
 	float: right;
 }
 
-/* Help dialog styling. */
-div.help
+/* Help styling. */
+#zuluru div.help h2
+{
+}
+
+#zuluru div.help h3,
+#zuluru p.help3
+{
+	margin-left: 1em;
+}
+
+#zuluru div.help h4,
+#zuluru p.help4
+{
+	margin-left: 2em;
+}
+
+#zuluru div.help h5,
+#zuluru p.help5
+{
+	margin-left: 3em;
+}
+
+#zuluru div.help h6,
+#zuluru p.help6
+{
+	margin-left: 4em;
+}
+
+div.help_dialog
 {
 	display: none;
 }
 
-div.help p
+div.help_dialog p
 {
 	margin: 1em 0;
 }
