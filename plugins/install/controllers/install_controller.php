@@ -77,7 +77,7 @@ class InstallController extends InstallAppController {
 	'date' => '$date',
 	'ip' => '{$_SERVER['REMOTE_ADDR']}',
 	'version' => '1.0.23',
-	'schema_version' => 3,
+	'schema_version' => 4,
 );
 ?>
 CONFIG;
