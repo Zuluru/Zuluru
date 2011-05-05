@@ -60,6 +60,19 @@ class LeaguesController extends AppController {
 		)));
 	}
 
+	function summary() {
+		$this->League->recursive = -1;
+		$this->set('leagues', $this->League->find('all', array(
+			'conditions' => array(
+				'OR' => array(
+					'League.is_open' => true,
+					'League.open > CURDATE()',
+				),
+			),
+			'order' => 'League.open',
+		)));
+	}
+
 	function view() {
 		$id = $this->_arg('league');
 		if (!$id) {
