@@ -131,13 +131,13 @@ class Game extends AppModel {
 			'finderQuery' => '',
 			'counterQuery' => ''
 		),
-		'CaptainEmail' => array(
+		'ScoreReminderEmail' => array(
 			'className' => 'ActivityLog',
 			'foreignKey' => 'primary_id',
 			'dependent' => true,
 			'conditions' => array('type' => array('email_score_reminder', 'email_approval_notice')),
 		),
-		'CoordinatorEmail' => array(
+		'ScoreMismatchEmail' => array(
 			'className' => 'ActivityLog',
 			'foreignKey' => 'primary_id',
 			'dependent' => true,
@@ -209,7 +209,7 @@ class Game extends AppModel {
 			return;
 		}
 
-		foreach (array('ScoreEntry' => 'team_id', 'SpiritEntry' => 'team_id', 'CaptainEmail' => 'secondary_id') as $model => $field) {
+		foreach (array('ScoreEntry' => 'team_id', 'SpiritEntry' => 'team_id', 'ScoreReminderEmail' => 'secondary_id') as $model => $field) {
 			if (array_key_exists ($model, $game)) {
 				$keys = array_keys ($game[$model]);
 				$new = array();

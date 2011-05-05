@@ -549,8 +549,8 @@ class GamesController extends AppController {
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
-			'CaptainEmail',
-			'CoordinatorEmail',
+			'ScoreReminderEmail',
+			'ScoreMismatchEmail',
 		));
 		$game = $this->Game->read(null, $id);
 		$this->Game->_adjustEntryIndices($game);
@@ -613,7 +613,7 @@ class GamesController extends AppController {
 			} else {
 				// Maybe send a notification email to the convener
 				// TODO: Do this on a recurring basis, every few days, instead of just once
-				if (empty ($game['CoordinatorEmail'])) {
+				if (empty ($game['ScoreMismatchEmail'])) {
 					$this->set(compact ('game'));
 					if ($this->_sendMail (array (
 							'to' => $game['League'],
@@ -623,9 +623,9 @@ class GamesController extends AppController {
 					)))
 					{
 						// TODO: Save this directly
-						$this->Game->CoordinatorEmail->create();
-//						$data['CoordinatorEmail'][0] = array(
-						$this->Game->CoordinatorEmail->save(array(
+						$this->Game->ScoreMismatchEmail->create();
+//						$data['ScoreMismatchEmail'][0] = array(
+						$this->Game->ScoreMismatchEmail->save(array(
 							'type' => 'email_score_mismatch',
 							'primary_id' => $game['Game']['id'],
 						));
@@ -826,7 +826,7 @@ class GamesController extends AppController {
 		}
 
 		if ($update_db) {
-			if (array_key_exists ($team['id'], $game['CaptainEmail'])) {
+			if (array_key_exists ($team['id'], $game['ScoreReminderEmail'])) {
 				return false;
 			}
 		}
@@ -853,8 +853,8 @@ class GamesController extends AppController {
 		}
 
 		if ($update_db) {
-			$this->Game->CaptainEmail->create();
-			$this->Game->CaptainEmail->save(array(
+			$this->Game->ScoreReminderEmail->create();
+			$this->Game->ScoreReminderEmail->save(array(
 				'type' => "email_$reason",
 				'primary_id' => $game['Game']['id'],
 				'secondary_id' => $team['id'],
@@ -888,8 +888,8 @@ class GamesController extends AppController {
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
-			'CaptainEmail',
-			'CoordinatorEmail',
+			'ScoreReminderEmail',
+			'ScoreMismatchEmail',
 		));
 		$offset = Configure::read('timezone.adjust') * 60;
 		$games = $this->Game->find ('all', array(
