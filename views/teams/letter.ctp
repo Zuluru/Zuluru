@@ -42,11 +42,36 @@ foreach ($teams as $team):
 		</td>
 		<td class="actions">
 			<?php
-			echo $this->Html->link(__('Schedule', true), array('action' => 'schedule', 'team' => $team['Team']['id']));
-			echo $this->Html->link(__('Standings', true), array('controller' => 'leagues', 'action' => 'standings', 'league' => $team['League']['id'], 'team' => $team['Team']['id']));
+			echo $this->ZuluruHtml->iconLink('schedule_24.png',
+				array('action' => 'schedule', 'team' => $team['Team']['id']),
+				array('alt' => __('Schedule', true), 'title' => __('Schedule', true)));
+			echo $this->ZuluruHtml->iconLink('standings_24.png',
+				array('controller' => 'leagues', 'action' => 'standings', 'league' => $team['League']['id'], 'team' => $team['Team']['id']),
+				array('alt' => __('Standings', true), 'title' => __('Standings', true)));
+			if ($is_admin || $is_captain) {
+				echo $this->ZuluruHtml->iconLink('edit_24.png',
+					array('action' => 'edit', 'team' => $team['Team']['id']),
+					array('alt' => __('Edit Team', true), 'title' => __('Edit Team', true)));
+				echo $this->ZuluruHtml->iconLink('email_24.png',
+					array('action' => 'emails', 'team' => $team['Team']['id']),
+					array('alt' => __('Player Emails', true), 'title' => __('Player Emails', true)));
+			}
+			if ($is_admin || ($is_captain && $league['League']['roster_deadline'] >= date('Y-m-d'))) {
+				echo $this->ZuluruHtml->iconLink('roster_add_24.png',
+					array('action' => 'add_player', 'team' => $team['Team']['id']),
+					array('alt' => __('Add Player', true), 'title' => __('Add Player', true)));
+			}
 			if ($is_admin) {
-				echo $this->Html->link(__('Edit', true), array('action' => 'edit', 'team' => $team['Team']['id']));
-				echo $this->Html->link(__('Delete', true), array('action' => 'delete', 'team' => $team['Team']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $team['Team']['id']));
+				echo $this->ZuluruHtml->iconLink('spirit_24.png',
+					array('action' => 'spirit', 'team' => $team['Team']['id']),
+					array('alt' => __('Spirit', true), 'title' => __('See Team Spirit Report', true)));
+				echo $this->ZuluruHtml->iconLink('move_24.png',
+					array('action' => 'move', 'team' => $team['Team']['id']),
+					array('alt' => __('Move Team', true), 'title' => __('Move Team', true)));
+				echo $this->ZuluruHtml->iconLink('delete_24.png',
+					array('action' => 'delete', 'team' => $team['Team']['id']),
+					array('alt' => __('Delete', true), 'title' => __('Delete Team', true)),
+					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $team['Team']['id'])));
 			}
 			?>
 		</td>
