@@ -359,6 +359,7 @@ class AppController extends Controller {
 
 		$this->_addMenuItem ('Leagues', array('controller' => 'leagues', 'action' => 'index'));
 		if ($this->is_admin) {
+			$this->_addMenuItem ('League summary', array('controller' => 'leagues', 'action' => 'summary'), 'Leagues');
 			$this->_addMenuItem ('Create league', array('controller' => 'leagues', 'action' => 'add'), 'Leagues');
 		}
 
