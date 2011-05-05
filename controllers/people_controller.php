@@ -914,7 +914,8 @@ class PeopleController extends AppController {
 
 			$current = array();
 			foreach ($events as $event) {
-				if (strtotime ($event['Event']['membership_begins']) < $now &&
+				if (array_key_exists('membership_begins', $event['Event']) &&
+					strtotime ($event['Event']['membership_begins']) < $now &&
 					$now < strtotime ($event['Event']['membership_ends']))
 				{
 					$current[] = $event['Event']['id'];
