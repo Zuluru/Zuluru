@@ -4,7 +4,7 @@ class PeopleController extends AppController {
 	var $name = 'People';
 	var $uses = array('Person', 'Team', 'League', 'Group', 'Province', 'Country');
 	var $helpers = array('CropImage');
-	var $components = array('ImageCrop');
+	var $components = array('ImageCrop', 'Lock');
 	var $paginate = array(
 		'Person' => array(),
 		'Registration' => array(
@@ -896,6 +896,10 @@ class PeopleController extends AppController {
 	function cron() {
 		$this->layout = 'bare';
 
+		if (!$this->Lock->lock ('cron')) {
+			return false;
+		}
+
 		if (Configure::read('feature.registration')) {
 			$types = $this->Person->Registration->Event->EventType->find ('list', array(
 					'fields' => 'id',
@@ -956,6 +960,8 @@ class PeopleController extends AppController {
 			$log = ClassRegistry::init ('ActivityLog');
 			$log->saveAll ($activity);
 		}
+
+		$this->Lock->unlock();
 	}
 }
 ?>

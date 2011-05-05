@@ -3,6 +3,7 @@ class GamesController extends AppController {
 
 	var $name = 'Games';
 	var $helpers = array('ZuluruGame');
+	var $components = array('Lock');
 
 	function isAuthorized() {
 		// Anyone that's logged in can perform these operations
@@ -864,6 +865,11 @@ class GamesController extends AppController {
 
 	function cron() {
 		$this->layout = 'bare';
+
+		if (!$this->Lock->lock ('cron')) {
+			return false;
+		}
+
 		$this->Game->contain (array (
 			'GameSlot',
 			'League' => array('Person' => array('fields' => array('id', 'first_name', 'last_name', 'email'))),
@@ -922,6 +928,8 @@ class GamesController extends AppController {
 		}
 
 		$this->set(compact('games'));
+
+		$this->Lock->unlock();
 	}
 
 }

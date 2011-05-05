@@ -3,6 +3,7 @@ class TeamsController extends AppController {
 
 	var $name = 'Teams';
 	var $helpers = array('ZuluruGame', 'Ajax');
+	var $components = array('Lock');
 
 	function isAuthorized() {
 		// People can perform these operations on teams they run
@@ -1722,6 +1723,10 @@ class TeamsController extends AppController {
 	function cron() {
 		$this->layout = 'bare';
 
+		if (!$this->Lock->lock ('cron')) {
+			return false;
+		}
+
 		if (Configure::read('feature.generate_roster_email')) {
 			$this->Roster = ClassRegistry::init ('TeamsPerson');
 
@@ -1795,6 +1800,8 @@ class TeamsController extends AppController {
 			// Update the activity log
 			$log->saveAll ($activity);
 		}
+
+		$this->Lock->unlock();
 	}
 
 	function _rosterRemind($person, $captains, $team, $league, $roster, $second = false) {

@@ -1068,6 +1068,10 @@ class LeaguesController extends AppController {
 	function cron() {
 		$this->layout = 'bare';
 
+		if (!$this->Lock->lock ('cron')) {
+			return false;
+		}
+
 		$to_close = $this->League->find('all', array(
 				'conditions' => array(
 					'is_open' => true,
@@ -1093,6 +1097,8 @@ class LeaguesController extends AppController {
 
 		$this->League->updateAll (array('is_open' => 0), array('League.id' => Set::extract('/League/id', $to_close)));
 		$this->League->updateAll (array('is_open' => true), array('League.id' => Set::extract('/League/id', $to_open)));
+
+		$this->Lock->unlock();
 	}
 }
 ?>
