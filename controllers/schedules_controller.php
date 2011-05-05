@@ -57,12 +57,12 @@ class SchedulesController extends AppController {
 			$this->redirect(array('controller' => 'leagues', 'action' => 'view', 'league' => $id));
 		}
 
-		// Must currently have even # of teams for scheduling unless the excludeTeams flag is set
-		if ($this->_numTeams() % 2 && !$this->league['League']['excludeTeams']) {
+		// Must currently have even # of teams for scheduling unless the exclude_teams flag is set
+		if ($this->_numTeams() % 2 && !$this->league['League']['exclude_teams']) {
 			// TODO: Embed a link to "edit your league" into this, in a way that doesn't break i18n
 			$this->Session->setFlash(__('Must currently have an even number of teams in your league. ' . 
 				'If you need a bye, please create a team named Bye and add it to your league. ' .
-				'Otherwise, edit your league and set the "excludeTeams" flag.', true));
+				'Otherwise, edit your league and set the "exclude teams" flag.', true));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'view', 'league' => $id));
 		}
 
