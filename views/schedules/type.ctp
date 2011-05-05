@@ -26,7 +26,9 @@ echo $this->Form->input('type', array(
 ));
 ?>
 
-<p>Select the type of game or games to add.  Note that for auto-generated round-robins, fields will be automatically allocated.</p>
+<p>Select the type of game or games to add. Note that for auto-generated schedules, fields will be automatically allocated.
+<?php echo $this->ZuluruHtml->help(array('action' => 'schedules', 'add', 'schedule_type', $league['League']['schedule_type'])); ?>
+</p>
 
 <?php
 echo $this->Form->input('publish', array(
