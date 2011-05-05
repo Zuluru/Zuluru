@@ -1877,7 +1877,9 @@ class TeamsController extends AppController {
 
 			$this->set(compact('emailed', 'reminded', 'expired', 'outstanding'));
 			// Update the activity log
-			$log->saveAll ($activity);
+			if (!empty ($activity)) {
+				$log->saveAll ($activity);
+			}
 		}
 
 		$this->Lock->unlock();
