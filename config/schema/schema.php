@@ -34,6 +34,18 @@ class ZuluruSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'question_id' => array('column' => 'question_id', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
+	var $attendances = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'team_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
+		'game_date' => array('type' => 'date', 'null' => true, 'default' => NULL),
+		'game_id' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'key' => 'index'),
+		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
+		'status' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
+		'updated' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'game_id' => array('column' => 'game_id', 'unique' => 0), 'team_id' => array('column' => 'team_id', 'unique' => 0), 'person_id' => array('column' => 'person_id', 'unique' => 0)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
 	var $countries = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 32),
@@ -386,6 +398,10 @@ class ZuluruSchema extends CakeSchema {
 		'home_field' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'region_preference' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
 		'open_roster' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'track_attendance' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'attendance_reminder' => array('type' => 'integer', 'null' => true, 'default' => '-1'),
+		'attendance_summary' => array('type' => 'integer', 'null' => true, 'default' => '-1'),
+		'attendance_notification' => array('type' => 'integer', 'null' => true, 'default' => '-1'),
 		'rating' => array('type' => 'integer', 'null' => true, 'default' => '1500'),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'name' => array('column' => 'name', 'unique' => 0), 'league' => array('column' => 'league_id', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')

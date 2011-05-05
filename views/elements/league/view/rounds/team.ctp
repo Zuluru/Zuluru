@@ -21,6 +21,13 @@ if (count ($classes)) {
 	<?php if ($is_admin || $is_coordinator): ?>
 	<td class="actions">
 	<?php
+		if ($team['track_attendance'] &&
+			in_array($team['id'], $this->Session->read('Zuluru.TeamIDs')))
+		{
+			echo $this->ZuluruHtml->iconLink('attendance_24.png',
+				array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['id']),
+				array('alt' => __('Attendance', true), 'title' => __('View Season Attendance Report', true)));
+		}
 		if ($is_logged_in && $team['open_roster'] && $league['League']['roster_deadline'] >= date('Y-m-d') &&
 			!in_array($team['id'], $this->Session->read('Zuluru.TeamIDs')))
 		{

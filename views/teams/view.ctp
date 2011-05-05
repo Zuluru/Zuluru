@@ -49,6 +49,85 @@ $this->Html->addCrumb (__('View', true));
 			?>
 
 		</dd>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Track Attendance'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php
+			__($team['Team']['track_attendance'] ? 'Yes' : 'No');
+			echo ' ' . $this->ZuluruHtml->help(array('action' => 'teams', 'track_attendance'));
+			?>
+
+		</dd>
+		<?php if ($team['Team']['track_attendance']): ?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Attendance Reminder'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php
+			switch ($team['Team']['attendance_reminder']) {
+				case -1:
+					__('disabled');
+					break;
+
+				case 0:
+					__('day of game');
+					break;
+
+				case 1:
+					__('day before game');
+					break;
+
+				default:
+					printf(__('%d days before game', true), $team['Team']['attendance_reminder']);
+					break;
+			}
+			?>
+
+		</dd>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Attendance Summary'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php
+			switch ($team['Team']['attendance_summary']) {
+				case -1:
+					__('disabled');
+					break;
+
+				case 0:
+					__('day of game');
+					break;
+
+				case 1:
+					__('day before game');
+					break;
+
+				default:
+					printf(__('%d days before game', true), $team['Team']['attendance_summary']);
+					break;
+			}
+			?>
+
+		</dd>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Attendance Notification'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php
+			switch ($team['Team']['attendance_notification']) {
+				case -1:
+					__('disabled');
+					break;
+
+				case 0:
+					__('day of game');
+					break;
+
+				case 1:
+					__('day before game');
+					break;
+
+				default:
+					printf(__('%d days before game', true), $team['Team']['attendance_notification']);
+					break;
+			}
+			?>
+
+		</dd>
+		<?php endif; ?>
 		<?php // TODO: SBF ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Rating'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
@@ -67,7 +146,13 @@ $this->Html->addCrumb (__('View', true));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('standings_32.png',
 				array('controller' => 'leagues', 'action' => 'standings', 'league' => $team['League']['id'], 'team' => $team['Team']['id']),
 				array('alt' => __('Standings', true), 'title' => __('View Team Standings', true))));
-
+		}
+		if ($team['Team']['track_attendance'] &&
+			in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
+		{
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('attendance_32.png',
+				array('action' => 'attendance', 'team' => $team['Team']['id']),
+				array('alt' => __('Attendance', true), 'title' => __('View Season Attendance Report', true))));
 		}
 		if ($is_logged_in && $team['Team']['open_roster'] && $team['League']['roster_deadline'] >= date('Y-m-d') &&
 			!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))

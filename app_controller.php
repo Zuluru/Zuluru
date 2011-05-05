@@ -262,11 +262,11 @@ class AppController extends Controller {
 		} else {
 			// Allow anyone (logged on or not) to log in or log out, list and view things.
 			// 'View' goes by various names.
-			// Roster updates may come from emailed links; people might not be logged in
+			// Roster and attendance updates may come from emailed links; people might not be logged in
 			// 'Payment' comes from the payment processor.
 			$this->Auth->allow(array('login', 'logout', 'create_account', 'reset_password', 'index', 'wizard',
 					'view', 'display', 'schedule', 'standings', 'ical', 'letter',
-					'roster_accept', 'roster_decline',
+					'roster_accept', 'roster_decline', 'attendance_change',
 					'payment', 'cron'));
 		}
 
@@ -548,6 +548,11 @@ class AppController extends Controller {
 		$this->_addMenuItem ($team['Team']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']), 'Teams', "{$team['Team']['name']}::{$team['Team']['id']}");
 		$this->_addMenuItem ('Schedule', array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
 		$this->_addMenuItem ('Standings', array('controller' => 'leagues', 'action' => 'standings', 'league' => $team['League']['id'], 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
+		if ($team['Team']['track_attendance'] &&
+			in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
+		{
+			$this->_addMenuItem ('Attendance', array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
+		}
 		if ($this->is_logged_in && $team['Team']['open_roster'] && $team['League']['roster_deadline'] >= date('Y-m-d') &&
 			!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
 		{

@@ -20,6 +20,9 @@ $display_spirit = $is_admin || $is_coordinator || $team['League']['display_sotg'
 			<?php if ($display_spirit): ?>
 			<th><?php __('Spirit'); ?></th>
 			<?php endif; ?>
+			<?php if ($display_attendance): ?>
+			<th><?php __('Attendance'); ?></th>
+			<?php endif; ?>
 		</tr>
 	<?php
 	$i = 0;
@@ -66,6 +69,19 @@ $display_spirit = $is_admin || $is_coordinator || $team['League']['display_sotg'
 					'value' => $value,
 			)); ?></td>
 			<?php endif; ?>
+			<?php if ($display_attendance): ?>
+			<td class="actions"><?php
+			echo $this->Html->link(__('View', true), array('controller' => 'games', 'action' => 'attendance', 'team' => $team['Team']['id'], 'game' => $game['Game']['id']));
+			$counts = array();
+			foreach (array('Male', 'Female') as $gender) {
+				$count = count(Set::extract("/Person[gender=$gender]", $game['Attendance']));
+				if ($count) {
+					$counts[] = $count . substr (__($gender, true), 0, 1);
+				}
+			}
+			echo implode (' / ', $counts);
+			?></td>
+			<?php endif; ?>
 		</tr>
 	<?php
 	endforeach;
@@ -89,6 +105,13 @@ echo $this->ZuluruHtml->imageLink ('http://www.google.com/calendar/images/ext/gc
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('standings_32.png',
 				array('controller' => 'leagues', 'action' => 'standings', 'league' => $team['League']['id'], 'team' => $team['Team']['id']),
 				array('alt' => __('Standings', true), 'title' => __('View Team Standings', true))));
+		}
+		if ($team['Team']['track_attendance'] &&
+			in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
+		{
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('attendance_32.png',
+				array('action' => 'attendance', 'team' => $team['Team']['id']),
+				array('alt' => __('Attendance', true), 'title' => __('View Season Attendance Report', true))));
 		}
 		if ($is_logged_in && $team['Team']['open_roster'] && $team['League']['roster_deadline'] >= date('Y-m-d') &&
 			!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))

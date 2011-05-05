@@ -14,6 +14,17 @@ class GamesController extends AppController {
 			return true;
 		}
 
+		// People can perform these operations on teams they are on
+		if (in_array ($this->params['action'], array(
+				'attendance',
+		)))
+		{
+			$team = $this->_arg('team');
+			if ($team && in_array ($team, $this->Session->read('Zuluru.TeamIDs'))) {
+				return true;
+			}
+		}
+
 		// Captains are permitted to perform these operations for their teams
 		if (in_array ($this->params['action'], array(
 				'submit_score',
@@ -295,13 +306,283 @@ class GamesController extends AppController {
 		$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $game['League']['id']));
 	}
 
-	function submit_score() {
+	function attendance() {
 		$id = $this->_arg('game');
-		$team_id = $this->_arg('team');
 		if (!$id) {
 			$this->Session->setFlash(__('Invalid id for game', true));
 			$this->redirect('/');
 		}
+
+		$team_id = $this->_arg('team');
+		if (!$team_id) {
+			$this->Session->setFlash(__('Invalid id for team', true));
+			$this->redirect('/');
+		}
+
+		$this->Game->contain(array(
+			// Get the list of captains for each team, for the team pop-up
+			'HomeTeam' => array(
+				'Person' => array(
+					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+					'fields' => array('id', 'first_name', 'last_name', 'email'),
+				),
+			),
+			'AwayTeam' => array(
+				'Person' => array(
+					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+					'fields' => array('id', 'first_name', 'last_name', 'email'),
+				),
+			),
+			'GameSlot',
+		));
+		$game = $this->Game->read(null, $id);
+		if ($game['Game']['home_team'] == $team_id) {
+			$team = $game['HomeTeam'];
+			$opponent = $game['AwayTeam'];
+		} else if ($game['Game']['away_team'] == $team_id) {
+			$team = $game['AwayTeam'];
+			$opponent = $game['HomeTeam'];
+		} else {
+			$this->Session->setFlash(__('That team is not playing in this game.', true));
+			$this->redirect('/');
+		}
+
+		if (!$team['track_attendance']) {
+			$this->Session->setFlash(__('That team does not have attendance tracking enabled.', true));
+			$this->redirect('/');
+		}
+
+		$attendance = $this->Game->_read_attendance($team_id, $id);
+		$this->set(compact('game', 'team', 'opponent', 'attendance'));
+		$this->set('is_captain', in_array($team_id, $this->Session->read('Zuluru.OwnedTeamIDs')));
+	}
+
+	function attendance_change() {
+		$id = $this->_arg('game');
+		$date = $this->_arg('date');
+		if (!$id && !$date) {
+			$this->Session->setFlash(__('Invalid id for game', true));
+			$this->redirect('/');
+		}
+
+		$team_id = $this->_arg('team');
+		if (!$team_id) {
+			$this->Session->setFlash(__('Invalid id for team', true));
+			$this->redirect('/');
+		}
+
+		$person_id = $this->_arg('person');
+		$my_id = $this->Auth->user('id');
+		if (!$person_id) {
+			$person_id = $my_id;
+			if (!$person_id) {
+				$this->Session->setFlash(__('Invalid id for player', true));
+				$this->redirect('/');
+			}
+		}
+
+		if ($id) {
+			$this->Game->contain(array(
+				// Get the list of captains for each team, for the team pop-up
+				'HomeTeam' => array(
+					'Person' => array(
+						'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+						'fields' => array('id', 'first_name', 'last_name', 'email'),
+					),
+				),
+				'AwayTeam' => array(
+					'Person' => array(
+						'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+						'fields' => array('id', 'first_name', 'last_name', 'email'),
+					),
+				),
+				'GameSlot',
+				// We need to specify the team id here, in case the person is on both teams in this game
+				'Attendance' => array(
+					'conditions' => array(
+						'team_id' => $team_id,
+						'person_id' => $person_id,
+					),
+					'Person' => array(
+						'Team' => array(
+							'conditions' => array('team_id' => $team_id),
+						),
+					),
+				),
+			));
+			$game = $this->Game->read(null, $id);
+			$date = $game['GameSlot']['game_date'];
+			$past = ("{$game['GameSlot']['game_date']} {$game['GameSlot']['game_start']}" < date('Y-m-d H:i:s'));
+
+			if ($game['Game']['home_team'] == $team_id) {
+				$team = $game['HomeTeam'];
+				$opponent = $game['AwayTeam'];
+			} else if ($game['Game']['away_team'] == $team_id) {
+				$team = $game['AwayTeam'];
+				$opponent = $game['HomeTeam'];
+			} else {
+				$this->Session->setFlash(__('That team is not playing in this game.', true));
+				$this->redirect('/');
+			}
+
+			// Pull out the player and attendance records.
+			$attendance = $game['Attendance'][0];
+			$person = $attendance['Person'];
+		} else {
+			$this->Game->Attendance->contain(array(
+				'Person' => array(
+					'Team' => array(
+						'conditions' => array('team_id' => $team_id),
+					),
+				),
+				'Team',
+			));
+			$record = $this->Game->Attendance->find('first', array(
+					'conditions' => array(
+						'person_id' => $person_id,
+						'team_id' => $team_id,
+						'game_date' => $date,
+					),
+			));
+
+			// Pull out the player, attendance and team records.
+			$attendance = $record['Attendance'];
+			$person = $record['Person'];
+			$team = $record['Team'];
+			$past = false;
+		}
+
+		if (!$team['track_attendance']) {
+			$this->Session->setFlash(__('That team does not have attendance tracking enabled.', true));
+			$this->redirect('/');
+		}
+
+		if (!$attendance) {
+			$this->Session->setFlash(__('That person does not have an attendance record for this game.', true));
+			$this->redirect('/');
+		}
+
+		$is_me = ($person_id == $this->Auth->user('id'));
+		$is_captain = in_array ($team_id, $this->Session->read('Zuluru.OwnedTeamIDs'));
+
+		// We must do other permission checks here, because we allow non-logged-in users to accept
+		// through email links
+		$code = $this->_arg('code');
+		if ($code) {
+			// Authenticate the hash code
+			$player_hash = $this->_hash($attendance);
+			$captain_hash = $this->_hash(array_merge ($attendance, array('captain' => true)));
+			if ($player_hash == $code) {
+				// Only the player will have this confirmation code
+				$is_me = true;
+			} else if ($captain_hash == $code) {
+				$is_captain = true;
+			} else {
+				$this->Session->setFlash(__('The authorization code is invalid.', true));
+				$this->redirect('/');
+			}
+
+			// Fake the posted data array with the status from the URL
+			$this->data = array('Person' => array('status' => $this->_arg('status')));
+		} else {
+			// Players can change their own attendance, captains can change any attendance on their teams
+			if (!$is_me && !$is_captain) {
+				$this->Session->setFlash(__('You are not allowed to change this attendance record.', true));
+				$this->redirect('/');
+			}
+		}
+
+		$position = $person['Team'][0]['TeamsPerson']['position'];
+		$attendance_options = $this->Game->_attendanceOptions ($team_id, $position, $attendance['status'], $past, $is_captain);
+
+		if (!empty ($this->data)) {
+			$status = $this->data['Person']['status'];
+			if (!array_key_exists ($status, $attendance_options)) {
+				$this->Session->setFlash(__('That is not currently a valid attendance status for this player for this game.', true));
+				if ($code) {
+					$this->redirect('/');
+				}
+			} else {
+				$this->Game->Attendance->id = $attendance['id'];
+				if ($this->Game->Attendance->saveField ('status', $status)) {
+					$this->Session->setFlash(sprintf (__('Attendance has been updated to %s.', true), $attendance_options[$status]));
+
+					// Maybe send some emails, only if the game is in the future and the status changed
+					if (!$past && $status != $attendance['status']) {
+						$this->set(compact('game', 'date', 'team', 'opponent', 'person', 'status'));
+
+						// Send email from the player to the captain if it's within the configured date range
+						// This "days" calculation isn't precise, as it doesn't handle leap years.
+						// However, it's close enough since we're never looking at periods that span
+						// from a year end to a leap day.
+						$days = date('Y') * 365 + date('z');
+						$days_to_game = date('Y', strtotime($date)) * 365 + date('z', strtotime($date)) - $days;
+						if ($is_me && $team['attendance_reminder'] >= $days_to_game) {
+							// Make sure the current player isn't in the list of captains to send to
+							$captains = Set::extract ("/Person[id!={$person['id']}]", $team);
+							if (!empty ($captains)) {
+								$this->set('captains', implode (', ', Set::extract ('/Person/first_name', $captains)));
+								$this->set('code', $this->_hash(array_merge ($attendance, array('captain' => true))));
+								$this->_sendMail (array (
+										'to' => $captains,
+										'replyTo' => $person,
+										'subject' => "{$team['name']} attendance change",
+										'template' => 'attendance_captain_notification',
+										'sendAs' => 'both',
+								));
+							}
+						}
+						// Always send an email from the captain to substitute players. It will likely
+						// be an invitation to play or a response to a request or cancelling attendance
+						// if another player is available. Regardless, we need to communicate this.
+						else if ($is_captain && !in_array($position, Configure::read('privileged_roster_positions'))) {
+							$captain = $this->Session->read('Zuluru.Person.full_name');
+							if (!$captain) {
+								$captain = __('A captain', true);
+							}
+							$this->set(compact('captain'));
+							$this->set('player_options',
+								$this->Game->_attendanceOptions ($team_id, $position, $status, $past, false));
+							$this->set('code', $this->_hash ($attendance));
+
+							$this->_sendMail (array (
+									'to' => $person,
+									'replyTo' => $this->Session->read('Zuluru.Person'),
+									'subject' => "{$team['name']} attendance change",
+									'template' => 'attendance_substitute_notification',
+									'sendAs' => 'both',
+							));
+						}
+					}
+
+					// Where do we go from here? It depends...
+					if ($this->RequestHandler->isAjax()) {
+						$this->action = 'attendance_change_ajax';
+						$this->set(compact('is_captain', 'status'));
+					} else if (!$this->is_logged_in) {
+						$this->redirect(array('controller' => 'teams', 'action' => 'view', 'team' => $team_id));
+					} else if ($id) {
+						$this->redirect(array('action' => 'attendance', 'team' => $team_id, 'game' => $id));
+					} else {
+						$this->redirect(array('controller' => 'teams', 'action' => 'attendance', 'team' => $team_id));
+					}
+				} else {
+					$this->Session->setFlash(__('Failed to update the attendance status!', true));
+				}
+			}
+		}
+
+		$this->set(compact('game', 'date', 'team', 'opponent', 'person', 'attendance', 'attendance_options'));
+	}
+
+	function submit_score() {
+		$id = $this->_arg('game');
+		if (!$id) {
+			$this->Session->setFlash(__('Invalid id for game', true));
+			$this->redirect('/');
+		}
+
+		$team_id = $this->_arg('team');
 		if (!$team_id) {
 			$this->Session->setFlash(__('Invalid id for team', true));
 			$this->redirect('/');
@@ -927,10 +1208,200 @@ class GamesController extends AppController {
 			}
 		}
 
-		$this->set(compact('games'));
+		// This "days" calculation isn't precise, as it doesn't handle leap years.
+		// However, it's close enough since we're never looking at periods that span
+		// from a year end to a leap day.
+		$days = date('Y') * 365 + date('z');
+
+		// Find all of the games that might have players that need to be reminded about attendance
+		// TODO: Do we need to do something to handle games that aren't yet scheduled?
+		$this->Game->contain(array(
+			'GameSlot',
+			'HomeTeam',
+			'AwayTeam',
+			'AttendanceReminderEmail',
+		));
+		$remind = $this->Game->find ('all', array(
+				'conditions' => array(
+					'Game.published' => true,
+					'GameSlot.game_date >= CURDATE()',
+					'OR' => array(
+						// DATEDIFF might be a better way to do this, but it's less standardized
+						array(
+							'HomeTeam.track_attendance' => true,
+							'HomeTeam.attendance_reminder !=' => -1,
+							'DATE_ADD(CURDATE(), INTERVAL HomeTeam.attendance_reminder DAY) >= GameSlot.game_date',
+						),
+						array(
+							'AwayTeam.track_attendance' => true,
+							'AwayTeam.attendance_reminder !=' => -1,
+							'DATE_ADD(CURDATE(), INTERVAL AwayTeam.attendance_reminder DAY) >= GameSlot.game_date',
+						),
+					),
+				),
+		));
+
+		$remind_count = 0;
+		foreach ($remind as $game) {
+			$game_date = strtotime($game['GameSlot']['game_date']);
+			$days_to_game = date('Y', $game_date) * 365 + date('z', $game_date) - $days;
+			$reminded = Set::extract('/AttendanceReminderEmail/secondary_id', $game);
+
+			if ($game['HomeTeam']['track_attendance'] && $game['HomeTeam']['attendance_reminder'] >= $days_to_game) {
+				$remind_count += $this->_remind_attendance($game, $game['HomeTeam'], $game['AwayTeam'], $reminded);
+			}
+			if ($game['AwayTeam']['track_attendance'] && $game['AwayTeam']['attendance_reminder'] >= $days_to_game) {
+				$remind_count += $this->_remind_attendance($game, $game['AwayTeam'], $game['HomeTeam'], $reminded);
+			}
+		}
+
+		// Find all of the games that might have captains that need attendance summaries
+		// TODO: Do we need to do something to handle games that aren't yet scheduled?
+		$this->Game->contain(array(
+			'GameSlot',
+			// Get the list of captains for each team, we may need to email them
+			'HomeTeam' => array(
+				'Person' => array(
+					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+					'fields' => array('id', 'first_name', 'last_name', 'email'),
+				),
+			),
+			'AwayTeam' => array(
+				'Person' => array(
+					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+					'fields' => array('id', 'first_name', 'last_name', 'email'),
+				),
+			),
+			'AttendanceSummaryEmail',
+		));
+		$summary = $this->Game->find ('all', array(
+				'conditions' => array(
+					'Game.published' => true,
+					'GameSlot.game_date >= CURDATE()',
+					'OR' => array(
+						// DATEDIFF might be a better way to do this, but it's less standardized
+						array(
+							'HomeTeam.track_attendance' => true,
+							'HomeTeam.attendance_summary !=' => -1,
+							'DATE_ADD(CURDATE(), INTERVAL HomeTeam.attendance_summary DAY) >= GameSlot.game_date',
+						),
+						array(
+							'AwayTeam.track_attendance' => true,
+							'AwayTeam.attendance_summary !=' => -1,
+							'DATE_ADD(CURDATE(), INTERVAL AwayTeam.attendance_summary DAY) >= GameSlot.game_date',
+						),
+					),
+				),
+		));
+
+		$summary_count = 0;
+		foreach ($summary as $game) {
+			$game_date = strtotime($game['GameSlot']['game_date']);
+			$days_to_game = date('Y', $game_date) * 365 + date('z', $game_date) - $days;
+			$summarized = Set::extract('/AttendanceSummaryEmail/secondary_id', $game);
+
+			if ($game['HomeTeam']['track_attendance'] && $game['HomeTeam']['attendance_summary'] >= $days_to_game) {
+				$summary_count += $this->_summarize_attendance($game, $game['HomeTeam'], $game['AwayTeam'], $summarized);
+			}
+			if ($game['AwayTeam']['track_attendance'] && $game['AwayTeam']['attendance_summary'] >= $days_to_game) {
+				$summary_count += $this->_summarize_attendance($game, $game['AwayTeam'], $game['HomeTeam'], $summarized);
+			}
+		}
+
+		$this->set(compact('games', 'remind_count', 'summary_count'));
 
 		$this->Lock->unlock();
 	}
 
+	function _remind_attendance($game, $team, $opponent, $reminded) {
+		$this->set(compact ('game', 'team', 'opponent'));
+
+		// Read the attendance records for this game and team.
+		// We have to do it this way, not as a contain on the main find,
+		// so that any missing records are created for us.
+		$attendance = $this->Game->_read_attendance($team['id'], $game['Game']['id']);
+		$sent = 0;
+		foreach ($attendance['Person'] as $person) {
+			$regular = in_array($person['TeamsPerson']['position'], Configure::read('playing_roster_positions'));
+			$sub = (!$regular && in_array($person['TeamsPerson']['position'], Configure::read('extended_playing_roster_positions')));
+			if (!is_array($reminded) || !in_array($person['id'], $reminded)) {
+				if (($regular && $person['Attendance'][0]['status'] == ATTENDANCE_UNKNOWN) ||
+					($sub && $person['Attendance'][0]['status'] == ATTENDANCE_INVITED))
+				{
+					$this->set(compact ('person'));
+					$this->set('code', $this->_hash ($person['Attendance'][0]));
+
+					if ($this->_sendMail (array (
+							'to' => $person,
+							// Attendance array is sorted by position, so the first one is the captain
+							'replyTo' => $attendance['Person'][0],
+							'subject' => "{$team['name']} attendance reminder",
+							'template' => 'attendance_reminder',
+							'sendAs' => 'both',
+					)))
+					{
+						++$sent;
+						$this->Game->AttendanceReminderEmail->create();
+						$this->Game->AttendanceReminderEmail->save(array(
+							'type' => 'email_attendance_reminder',
+							'primary_id' => $game['Game']['id'],
+							'secondary_id' => $person['id'],
+						));
+					}
+				}
+			}
+		}
+
+		return $sent;
+	}
+
+	function _summarize_attendance($game, $team, $opponent, $summarized) {
+		if (is_array($summarized) && in_array($team['id'], $summarized)) {
+			return;
+		}
+
+		$this->set(compact ('game', 'team', 'opponent'));
+
+		// Read the attendance records for this game and team.
+		// We have to do it this way, not as a contain on the main find,
+		// so that any missing records are created for us.
+		$attendance = $this->Game->_read_attendance($team['id'], $game['Game']['id']);
+
+		// Summarize by attendance status
+		$summary = array_fill_keys(array_keys(Configure::read('attendance')),
+				array_fill_keys(array_keys(Configure::read('options.gender')), array())
+		);
+		foreach ($attendance['Person'] as $person) {
+			$summary[$person['Attendance'][0]['status']][$person['gender']][] = $person['full_name'];
+		}
+		$this->set(compact ('summary'));
+
+		$this->set('captains', implode (', ', Set::extract ('/Person/first_name', $team)));
+		if ($this->_sendMail (array (
+				'to' => $team['Person'],
+				'subject' => "{$team['name']} attendance summary",
+				'template' => 'attendance_summary',
+				'sendAs' => 'both',
+		)))
+		{
+			$this->Game->AttendanceSummaryEmail->create();
+			$this->Game->AttendanceSummaryEmail->save(array(
+				'type' => 'email_attendance_summary',
+				'primary_id' => $game['Game']['id'],
+				'secondary_id' => $team['id'],
+			));
+			return 1;
+		}
+		return 0;
+	}
+
+	function _hash ($attendance) {
+		// Build a string of the inputs
+		$input = "{$attendance['id']}:{$attendance['team_id']}:{$attendance['game_id']}:{$attendance['person_id']}:{$attendance['created']}";
+		if (array_key_exists ('captain', $attendance)) {
+			$input .= ":captain";
+		}
+		return md5($input);
+	}
 }
 ?>

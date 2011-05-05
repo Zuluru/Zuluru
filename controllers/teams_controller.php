@@ -38,6 +38,17 @@ class TeamsController extends AppController {
 			}
 		}
 
+		// People can perform these operations on teams they are on
+		if (in_array ($this->params['action'], array(
+				'attendance',
+		)))
+		{
+			$team = $this->_arg('team');
+			if ($team && in_array ($team, $this->Session->read('Zuluru.TeamIDs'))) {
+				return true;
+			}
+		}
+
 		// People can perform these operations on leagues they coordinate
 		if (in_array ($this->params['action'], array(
 				'add_player',
@@ -538,6 +549,12 @@ class TeamsController extends AppController {
 						'fields' => array('id', 'first_name', 'last_name'),
 					),
 				),
+				'Attendance' => array(
+					'Person' => array(
+						'fields' => array('gender'),
+					),
+					'conditions' => array('Attendance.team_id' => $id, 'Attendance.status' => ATTENDANCE_ATTENDING),
+				),
 		));
 		$team['Game'] = $this->Team->League->Game->find('all', array(
 				'conditions' => array('OR' => array(
@@ -557,6 +574,7 @@ class TeamsController extends AppController {
 		$this->set('is_coordinator', in_array($team['Team']['league_id'], $this->Session->read('Zuluru.LeagueIDs')));
 		$this->set('is_captain', in_array($id, $this->Session->read('Zuluru.OwnedTeamIDs')));
 		$this->set('spirit_obj', $this->_getComponent ('Spirit', $team['League']['sotg_questions'], $this));
+		$this->set('display_attendance', $team['Team']['track_attendance'] && in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')));
 		$this->_addTeamMenuItems ($this->Team->data);
 	}
 
@@ -636,6 +654,58 @@ class TeamsController extends AppController {
 		$this->set(compact('team'));
 		$this->set('spirit_obj', $this->_getComponent ('Spirit', $team['League']['sotg_questions'], $this));
 		$this->_addTeamMenuItems ($this->Team->data);
+	}
+
+	function attendance() {
+		$id = $this->_arg('team');
+		if (!$id) {
+			$this->Session->setFlash(__('Invalid id for team', true));
+			$this->redirect('/');
+		}
+
+		$this->Team->contain(array(
+			'League' => array('Day'),
+			'Person' => array(
+				'conditions' => array('TeamsPerson.status' => ROSTER_APPROVED),
+			),
+		));
+		$team = $this->Team->read(null, $id);
+		if (!$team) {
+			$this->Session->setFlash(__('Invalid id for team', true));
+			$this->redirect('/');
+		}
+
+		if (!$team['Team']['track_attendance']) {
+			$this->Session->setFlash(__('That team does not have attendance tracking enabled.', true));
+			$this->redirect('/');
+		}
+
+		$dates = array();
+		$days = Set::extract('/League/Day/id', $team);
+		$ds = 24*60*60;
+		for ($date = strtotime ($team['League']['open']); $date <= strtotime ($team['League']['close']) + $ds - 1; $date += $ds) {
+			$day = date('w', $date) + 1;
+			if (in_array ($day, $days)) {
+				$dates[] = date('Y-m-d', $date);
+			}
+		}
+		$attendance = $this->Team->League->Game->_read_attendance($team, null, $dates);
+
+		$this->Team->League->Game->contain (array(
+			'GameSlot' => array('Field' => array('ParentField')),
+			'HomeTeam',
+			'AwayTeam',
+		));
+		$games = $this->Team->League->Game->find('all', array(
+				'conditions' => array('OR' => array(
+					'Game.home_team' => $id,
+					'Game.away_team' => $id,
+				)),
+				'order' => array('GameSlot.game_date', 'GameSlot.game_start'),
+		));
+
+		$this->set(compact('team', 'attendance', 'dates', 'games'));
+		$this->set('is_captain', in_array($id, $this->Session->read('Zuluru.OwnedTeamIDs')));
 	}
 
 	function emails() {
@@ -1336,16 +1406,25 @@ class TeamsController extends AppController {
 	function _setRosterPosition ($person, $team, $position, $status) {
 		// We can always remove people from rosters
 		if ($position == 'none') {
+			$transaction = new DatabaseTransaction($this->Roster);
 			if ($this->Roster->delete ($person['Person']['TeamsPerson']['id'])) {
-				$this->Session->setFlash(__('Removed the player from the team.', true));
-				if (Configure::read('feature.generate_roster_email')) {
-					$this->_sendRemove($person, $team);
+				// Delete any future attendance records
+				if ($this->Team->Attendance->deleteAll (array(
+						'team_id' => $team['Team']['id'],
+						'person_id' => $person['Person']['id'],
+						'game_date > CURDATE()',
+				)))
+				{
+					$transaction->commit();
+					$this->Session->setFlash(__('Removed the player from the team.', true));
+					if (Configure::read('feature.generate_roster_email')) {
+						$this->_sendRemove($person, $team);
+					}
+					return true;
 				}
-				return true;
-			} else {
-				$this->Session->setFlash(__('Failed to remove the player from the team.', true));
-				return false;
 			}
+			$this->Session->setFlash(__('Failed to remove the player from the team.', true));
+			return false;
 		}
 
 		$result = $this->_canAdd ($person, $team);

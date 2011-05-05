@@ -28,6 +28,19 @@ class Person extends User {
 			'finderQuery' => '',
 			'counterQuery' => ''
 		),
+		'Attendance' => array(
+			'className' => 'Attendance',
+			'foreignKey' => 'person_id',
+			'dependent' => true,
+			'conditions' => '',
+			'fields' => '',
+			'order' => '',
+			'limit' => '',
+			'offset' => '',
+			'exclusive' => '',
+			'finderQuery' => '',
+			'counterQuery' => ''
+		),
 		'Preregistration' => array(
 			'className' => 'Preregistration',
 			'foreignKey' => 'person_id',

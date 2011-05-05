@@ -201,6 +201,16 @@ dl .altrow
 	color: #00cc00;
 }
 
+/* Attendance styling. */
+#zuluru .attending, #zuluru .attending a:link, #zuluru .attending a:visited
+{
+	color: #00cc00;
+}
+#zuluru .absent, #zuluru .absent a:link, #zuluru .absent a:visited
+{
+	color: #cc0000;
+}
+
 /* Tooltip styling. By default the element to be styled is .tooltip  */
 #zuluru .tooltip
 {

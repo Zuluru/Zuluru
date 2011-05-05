@@ -4,7 +4,7 @@ echo $this->element('help/topics', array(
 		'topics' => array(
 			'my_teams',
 			'roster_status',
-
+			'track_attendance',
 		),
 ));
 ?>

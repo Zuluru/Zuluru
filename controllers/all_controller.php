@@ -56,6 +56,9 @@ class AllController extends AppController {
 							'fields' => array('id', 'first_name', 'last_name'),
 						),
 					),
+					'Attendance' => array(
+						'conditions' => array('Attendance.person_id' => $this->Auth->user('id')),
+					),
 				),
 			);
 

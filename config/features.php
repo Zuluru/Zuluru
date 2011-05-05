@@ -58,4 +58,40 @@ if (!defined('ROSTER_APPROVED')) {
 	define('ROSTER_REQUESTED', 3);
 }
 
+if (!defined('ATTENDANCE_UNKNOWN')) {
+	define('ATTENDANCE_UNKNOWN', 0);	// status is unknown
+	define('ATTENDANCE_ATTENDING', 1);	// attendance has been confirmed by player (and captain, if a substitute)
+	define('ATTENDANCE_ABSENT', 2);		// absence has been confirmed by player
+	define('ATTENDANCE_INVITED', 3);	// substitute has been invited by the captain
+	define('ATTENDANCE_AVAILABLE', 4);	// substitute has indicated they are available
+	define('ATTENDANCE_NO_SHOW', 5);	// player said they were coming, but didn't show
+}
+
+$config['attendance'] = array(
+	ATTENDANCE_ATTENDING	=> 'Attending',
+	ATTENDANCE_ABSENT		=> 'Absent',
+	ATTENDANCE_UNKNOWN		=> 'Unknown',
+	ATTENDANCE_INVITED		=> 'Invited',
+	ATTENDANCE_AVAILABLE	=> 'Available',
+	ATTENDANCE_NO_SHOW		=> 'No Show',
+);
+
+$config['attendance_alt'] = array(
+	ATTENDANCE_ATTENDING	=> 'Y',
+	ATTENDANCE_ABSENT		=> 'N',
+	ATTENDANCE_UNKNOWN		=> '?',
+	ATTENDANCE_INVITED		=> 'I',
+	ATTENDANCE_AVAILABLE	=> 'A',
+	ATTENDANCE_NO_SHOW		=> 'X',
+);
+
+$config['attendance_verb'] = array(
+	ATTENDANCE_ATTENDING	=> 'attending',
+	ATTENDANCE_ABSENT		=> 'absent for',
+	ATTENDANCE_UNKNOWN		=> 'unknown/undecided for',
+	ATTENDANCE_INVITED		=> 'invited to sub for',
+	ATTENDANCE_AVAILABLE	=> 'available to sub for',
+	ATTENDANCE_NO_SHOW		=> 'a no-show for',
+);
+
 ?>

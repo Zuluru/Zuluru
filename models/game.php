@@ -92,6 +92,19 @@ class Game extends AppModel {
 			'finderQuery' => '',
 			'counterQuery' => ''
 		),
+		'Attendance' => array(
+			'className' => 'Attendance',
+			'foreignKey' => 'game_id',
+			'dependent' => true,
+			'conditions' => '',
+			'fields' => '',
+			'order' => '',
+			'limit' => '',
+			'offset' => '',
+			'exclusive' => '',
+			'finderQuery' => '',
+			'counterQuery' => ''
+		),
 		'Incident' => array(
 			'className' => 'Incident',
 			'foreignKey' => 'game_id',
@@ -142,6 +155,18 @@ class Game extends AppModel {
 			'foreignKey' => 'primary_id',
 			'dependent' => true,
 			'conditions' => array('type' => 'email_score_mismatch'),
+		),
+		'AttendanceReminderEmail' => array(
+			'className' => 'ActivityLog',
+			'foreignKey' => 'primary_id',
+			'dependent' => true,
+			'conditions' => array('type' => array('email_attendance_reminder')),
+		),
+		'AttendanceSummaryEmail' => array(
+			'className' => 'ActivityLog',
+			'foreignKey' => 'primary_id',
+			'dependent' => true,
+			'conditions' => array('type' => 'email_attendance_summary'),
 		),
 	);
 
@@ -290,6 +315,293 @@ class Game extends AppModel {
 		} else {
 			return (isset($game['home_score']) && isset($game['away_score']));
 		}
+	}
+
+	/**
+	 * Read the attendance records for a game.
+	 * This will also create any missing records, with "unknown" status.
+	 *
+	 * @param mixed $team The team to read attendance for.
+	 * @param mixed $game_id The game id, if known.
+	 * @param mixed $date The date of the game, or an array of dates.
+	 * @return mixed List of attendance records.
+	 *
+	 */
+	function _read_attendance($team, $game_id, $dates = null) {
+		// We accept either a pre-read team array with roster info, or just an id
+		if (!is_array($team)) {
+			$team_id = $team;
+			$this->Attendance->Team->contain (array(
+				'Person' => array(
+					'fields' => array('Person.id'),
+				),
+			));
+			$team = $this->Attendance->Team->read(null, $team_id);
+		} else {
+			$team_id = $team['Team']['id'];
+		}
+
+		// Make sure that all required records exist
+		if (is_array($dates)) {
+			foreach ($dates as $date) {
+				$this->_create_attendance($team, null, $date);
+			}
+			$conditions = array('game_date' => $dates);
+		} else {
+			$this->_create_attendance($team, $game_id, $dates);
+			if ($game_id !== null) {
+				$conditions = array('game_id' => $game_id);
+			} else {
+				$conditions = array('game_date' => $dates);
+			}
+		}
+
+		// Re-read whatever is current, including join tables that will be useful in the output
+		$this->Attendance->Team->contain (array(
+			'Person' => array(
+				'Upload',
+				'Attendance' => array(
+					'conditions' => array_merge (array('team_id' => $team_id), $conditions),
+				),
+				'conditions' => array('TeamsPerson.status' => ROSTER_APPROVED),
+				'fields' => array(
+					'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.gender', 'Person.skill_level',
+					'Person.home_phone', 'Person.work_phone', 'Person.work_ext', 'Person.mobile_phone',
+					'Person.publish_email', 'Person.publish_home_phone', 'Person.publish_work_phone', 'Person.publish_mobile_phone',
+				),
+			),
+		));
+		$attendance = $this->Attendance->Team->read(null, $team_id);
+
+		// There may be other attendance records from people that are no longer on the roster
+		$this->Attendance->contain (array(
+			'Person' => array(
+				'Upload',
+				'fields' => array(
+					'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.gender', 'Person.skill_level',
+					'Person.home_phone', 'Person.work_phone', 'Person.work_ext', 'Person.mobile_phone',
+					'Person.publish_email', 'Person.publish_home_phone', 'Person.publish_work_phone', 'Person.publish_mobile_phone',
+				),
+			),
+		));
+		$extra = $this->Attendance->find('all', array(
+				'conditions' => array_merge($conditions, array(
+					'team_id' => $team_id,
+					'person_id NOT' => Set::extract('/Person/id', $attendance),
+				)),
+		));
+
+		// Mangle these records into the same format as from the read above
+		$new = array();
+		foreach ($extra as $person) {
+			if (!array_key_exists($person['Person']['id'], $new)) {
+				$new[$person['Person']['id']] = array_merge ($person['Person'], array(
+					'Attendance' => array(),
+					'TeamsPerson' => array('position' => 'none', 'status' => ROSTER_APPROVED),
+				));
+			}
+			$new[$person['Person']['id']]['Attendance'][] = $person['Attendance'];
+		}
+		$attendance['Person'] = array_merge ($attendance['Person'], $new);
+
+		usort ($attendance['Person'], array('Team', 'compareRoster'));
+		return $attendance;
+	}
+
+	function _create_attendance($team, $game_id, $date) {
+		// Find game details
+		if ($game_id !== null) {
+			$this->Contain (array(
+				'GameSlot',
+				));
+			$game = $this->read(null, $game_id);
+			if (!$game) {
+				return;
+			}
+			if ($game['Game']['home_team'] != $team['Team']['id'] && $game['Game']['away_team'] != $team['Team']['id']) {
+				return;
+			}
+			$date = $game['GameSlot']['game_date'];
+
+			// Find all attendance records for this team for this game
+			$attendance = $this->Attendance->find('all', array(
+				'contain' => array(),
+				'conditions' => array(
+							'team_id' => $team['Team']['id'],
+							'game_id' => $game_id,
+							),
+						));
+
+			if (empty ($attendance)) {
+				// There might be no attendance records because of a schedule change.
+				// Check for other attendance records for this team on the same date.
+				$attendance = $this->Attendance->find('all', array(
+					'contain' => array(),
+					'conditions' => array(
+								'team_id' => $team['Team']['id'],
+								'game_date' => $date,
+								),
+							));
+				$attendance_game_ids = array_unique (Set::extract('/Attendance/game_id', $attendance));
+
+				// Check for other scheduled games including this team on the same date.
+				$this->contain('GameSlot');
+				$games = $this->find('all', array(
+					'conditions' => array(
+								'OR' => array(
+									'Game.home_team' => $team['Team']['id'],
+									'Game.away_team' => $team['Team']['id'],
+									),
+								'GameSlot.game_date' => $date,
+								'Game.id !=' => $game_id,
+								),
+							'order' => 'GameSlot.game_start',
+							));
+				$scheduled_game_ids = array_unique (Set::extract('/Game/id', $games));
+
+				if (count($attendance_game_ids) > count($scheduled_game_ids)) {
+					// If there are more other games with attendance records than there
+					// are other games scheduled, then one of those games must be this
+					// game, but it was rescheduled. Figure out which one.
+					// Note that this guess may not be right when a team has more than
+					// one game that gets rescheduled; this will hopefully be a very
+					// rare circumstance.
+					foreach ($attendance_game_ids as $i) {
+						if (!in_array($i, $scheduled_game_ids)) {
+							$rescheduled_game_id = $i;
+							break;
+						}
+					}
+				} else {
+					// Otherwise, this game is a new one. If there are other attendance
+					// records, we'll copy them.
+					$copy_from_game_id = array_shift ($attendance_game_ids);
+				}
+			}
+		} else if ($date !== null) {
+			$this->contain('GameSlot');
+			$games = $this->find('all', array(
+					'conditions' => array(
+						'OR' => array(
+							'Game.home_team' => $team['Team']['id'],
+							'Game.away_team' => $team['Team']['id'],
+						),
+						'GameSlot.game_date' => $date,
+						'Game.published' => true,
+					),
+					'order' => 'GameSlot.game_start',
+			));
+			if (empty($games)) {
+				// Find all attendance records for this team for this date
+				$attendance = $this->Attendance->find('all', array(
+					'contain' => array(),
+					'conditions' => array(
+						'team_id' => $team['Team']['id'],
+						'game_date' => $date,
+					),
+				));
+			} else {
+				foreach ($games as $game) {
+					$this->_create_attendance($team, $game['Game']['id'], $date);
+				}
+				return;
+			}
+		} else {
+			return;
+		}
+
+		// Extract list of players on the roster as of this date
+		$roster = Set::extract ("/Person/TeamsPerson[created<=$date][status=" . ROSTER_APPROVED ."]/../.", $team);
+
+		// Go through the roster and make sure there are records for all players on this date.
+		$attendance_update = array();
+		foreach ($roster as $person) {
+			$update = false;
+			$conditions = "[person_id={$person['id']}]";
+			if (isset($copy_from_game_id)) {
+				$conditions .= "[game_id=$copy_from_game_id]";
+			} else if (isset($rescheduled_game_id)) {
+				// We might need to update an existing record with a rescheduled game id.
+				$conditions .= "[game_id=$rescheduled_game_id]";
+			}
+
+			$record = Set::extract ("/Attendance$conditions/.", $attendance);
+
+			// Any record we have at this point is either something to copy from,
+			// rescheduled or a new game on a date that we already had a placeholder
+			// record for, or correct.
+			if (!empty ($record)) {
+				if (isset($copy_from_game_id)) {
+					$update = $record[0];
+					$update['game_id'] = $game_id;
+					unset($update['id']);
+				} else if ($game_id != $record[0]['game_id']) {
+					$update = array(
+						'id' => $record[0]['id'],
+						'game_id' => $game_id,
+						// Preserve the last update time, don't overwrite with "now"
+						'updated' => $record[0]['updated'],
+					);
+				}
+			} else {
+				// We didn't find any appropriate record, so create a new one
+				$update = array(
+					'team_id' => $team['Team']['id'],
+					'game_date' => $date,
+					'game_id' => $game_id,
+					'person_id' => $person['id'],
+					'status' => ATTENDANCE_UNKNOWN,
+				);
+			}
+
+			if ($update) {
+				$attendance_update[] = $update;
+			}
+		}
+		if (!empty ($attendance_update)) {
+			$this->Attendance->saveAll($attendance_update);
+		}
+	}
+
+	static function _attendanceOptions($team_id, $position, $status, $past = false, $is_captain = null) {
+		if ($is_captain === null) {
+			$is_captain = in_array($team_id, CakeSession::read('Zuluru.OwnedTeamIDs'));
+		}
+		$is_regular = in_array($position, Configure::read('playing_roster_positions'));
+		$options = Configure::read('attendance');
+
+		// Only a captain can mark someone as a no show for a past game
+		if (!$is_captain || !$past) {
+			unset($options[ATTENDANCE_NO_SHOW]);
+		}
+
+		// Invited and available are only for subs
+		if ($is_regular) {
+			unset($options[ATTENDANCE_INVITED]);
+			unset($options[ATTENDANCE_AVAILABLE]);
+		} else if (!$is_captain) {
+			// What a sub can set themselves to depends on their current status
+			switch ($status) {
+				case ATTENDANCE_UNKNOWN:
+				case ATTENDANCE_ABSENT:
+				case ATTENDANCE_AVAILABLE:
+					unset($options[ATTENDANCE_ATTENDING]);
+					unset($options[ATTENDANCE_INVITED]);
+					break;
+
+				case ATTENDANCE_ATTENDING:
+					unset($options[ATTENDANCE_INVITED]);
+					unset($options[ATTENDANCE_AVAILABLE]);
+					break;
+
+				case ATTENDANCE_INVITED:
+					unset($options[ATTENDANCE_UNKNOWN]);
+					unset($options[ATTENDANCE_AVAILABLE]);
+					break;
+			}
+		}
+
+		return $options;
 	}
 }
 ?>

@@ -30,6 +30,30 @@ class Team extends AppModel {
 				'allowEmpty' => true,
 			),
 		),
+		'track_attendance' => array(
+			'boolean' => array(
+				'rule' => array('boolean'),
+				'allowEmpty' => true,
+			),
+		),
+		'attendance_reminder' => array(
+			'range' => array(
+				'rule' => array('range', -1, 4),
+				'message' => 'Attendance reminders can be sent a maximum of four days in advance',
+			),
+		),
+		'attendance_summary' => array(
+			'range' => array(
+				'rule' => array('range', -1, 4),
+				'message' => 'Attendance summaries can be sent a maximum of four days in advance',
+			),
+		),
+		'attendance_notifications' => array(
+			'range' => array(
+				'rule' => array('range', -1, 14),
+				'message' => 'Attendance notifications can be sent starting a maximum of 14 days in advance',
+			),
+		),
 	);
 
 	var $belongsTo = array(
@@ -43,6 +67,19 @@ class Team extends AppModel {
 	);
 
 	var $hasMany = array(
+		'Attendance' => array(
+			'className' => 'Attendance',
+			'foreignKey' => 'team_id',
+			'dependent' => true,
+			'conditions' => '',
+			'fields' => '',
+			'order' => '',
+			'limit' => '',
+			'offset' => '',
+			'exclusive' => '',
+			'finderQuery' => '',
+			'counterQuery' => ''
+		),
 		'Incident' => array(
 			'className' => 'Incident',
 			'foreignKey' => 'team_id',

@@ -41,7 +41,41 @@ if (isset ($add)) {
 			'after' => ' ' . $this->ZuluruHtml->help(array('action' => 'teams', 'roster_status')) .
 				$this->Html->para (null, __('If the team roster is open, others can request to join; otherwise, only the captain can add players.', true)),
 		));
+		echo $this->Form->input('track_attendance', array(
+			'after' => ' ' . $this->ZuluruHtml->help(array('action' => 'teams', 'track_attendance')) .
+				$this->Html->para (null, __('If selected, the system will help you to monitor attendance on a game-to-game basis.', true)),
+			'onclick' => 'attendanceCheckboxChanged()',
+		));
 	?>
+		<fieldset id="AttendanceDetails">
+	<?php
+		echo $this->Form->input('attendance_reminder', array(
+			'size' => 1,
+			'after' => $this->Html->para (null, __('Reminder emails will be sent to players that have not finalized their attendance this many days before the game. 0 means the day of the game, -1 will disable these reminders.', true)),
+		));
+		echo $this->Form->input('attendance_summary', array(
+			'size' => 1,
+			'after' => $this->Html->para (null, __('Attendance summary emails will be sent to captains this many days before the game. 0 means the day of the game, -1 will disable these summaries.', true)),
+		));
+		echo $this->Form->input('attendance_notification', array(
+			'size' => 1,
+			'after' => $this->Html->para (null, __('Emails notifying captains about changes in attendance status will be sent starting this many days before the game. 0 means the day of the game, -1 will disable these notifications. You will never receive notifications about any changes that happen before this time.', true)),
+		));
+	?>
+		</fieldset>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
+
+<?php
+echo $this->Html->scriptBlock("
+function attendanceCheckboxChanged() {
+	if ($('#TeamTrackAttendance').attr('checked')) {
+		$('#AttendanceDetails').css('display', '');
+	} else {
+		$('#AttendanceDetails').css('display', 'none');
+	}
+}
+");
+$this->Js->buffer('attendanceCheckboxChanged();');
+?>

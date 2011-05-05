@@ -49,7 +49,11 @@ foreach ($teams as $team):
 					array('controller' => 'teams', 'action' => 'add_player', 'team' => $team['Team']['id']),
 					array('alt' => __('Add Player', true), 'title' => __('Add Player', true)));
 			}
-
+			if ($team['Team']['track_attendance']) {
+				echo $this->ZuluruHtml->iconLink('attendance_24.png',
+					array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['Team']['id']),
+					array('alt' => __('Attendance', true), 'title' => __('View Season Attendance Report', true)));
+			}
 			echo $this->ZuluruHtml->iconLink('schedule_24.png',
 				array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['Team']['id']),
 				array('alt' => __('Schedule', true), 'title' => __('View Team Schedule', true)));
@@ -151,7 +155,32 @@ foreach ($games as $game):
 					array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id']),
 					array('title' => "{$game['GameSlot']['Field']['name']} {$game['GameSlot']['Field']['num']}"));
 		?></td>
-		<td class="actions splash_action"><?php echo $this->ZuluruGame->displayScore ($game); ?></td>
+		<td class="actions splash_action"><?php
+		if (in_array ($game['HomeTeam']['id'], $this->Session->read('Zuluru.TeamIDs'))) {
+			$team = $game['HomeTeam'];
+		} else {
+			$team = $game['AwayTeam'];
+		}
+		if ($team['track_attendance']) {
+			$position = Set::extract("/TeamsPerson[team_id={$team['id']}]/position", $teams);
+			echo $this->element('game/attendance_change', array(
+				'team' => $team,
+				'game_id' => $game['Game']['id'],
+				'game_date' => $game['GameSlot']['game_date'],
+				'game_time' => $game['GameSlot']['game_start'],
+				'position' => $position[0],
+				'status' => (array_key_exists (0, $game['Attendance']) ? $game['Attendance'][0]['status'] : ATTENDANCE_UNKNOWN),
+				'future_only' => true,
+			));
+			if ($game['GameSlot']['game_date'] >= date('Y-m-d')) {
+				echo $this->ZuluruHtml->iconLink('attendance_24.png',
+					array('controller' => 'games', 'action' => 'attendance', 'team' => $team['id'], 'game' => $game['Game']['id']),
+					array('alt' => __('Attendance', true), 'title' => __('View Game Attendance Report', true)));
+			}
+		}
+
+		echo $this->ZuluruGame->displayScore ($game);
+		?></td>
 	</tr>
 <?php endforeach; ?>
 </table>
@@ -185,3 +214,5 @@ if ($empty) {
 ?>
 
 </div>
+
+<?php echo $this->element('game/attendance_div'); ?>
