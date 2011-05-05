@@ -535,7 +535,7 @@ class GamesController extends AppController {
 						// Always send an email from the captain to substitute players. It will likely
 						// be an invitation to play or a response to a request or cancelling attendance
 						// if another player is available. Regardless, we need to communicate this.
-						else if ($is_captain && !in_array($position, Configure::read('privileged_roster_positions'))) {
+						else if ($is_captain && !in_array($position, Configure::read('playing_roster_positions'))) {
 							$captain = $this->Session->read('Zuluru.Person.full_name');
 							if (!$captain) {
 								$captain = __('A captain', true);
