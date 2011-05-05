@@ -67,6 +67,10 @@ class UserZikula extends User {
 				$this->User->saveField ($new, $data[$this->alias][$old]);
 			}
 		}
+
+		// We don't want this data hanging around in $User->data to mess up later saves
+		$this->User->data = null;
+
 		return true;
 	}
 

@@ -857,6 +857,9 @@ class AppController extends Controller {
 				$data = Set::extract("/{$model->alias}/.", $data);
 			}
 			$this->Session->write("Zuluru.$key", $data);
+
+			// We don't want this data hanging around in $model->data to mess up later saves
+			$model->data = null;
 		}
 		return $data;
 	}
