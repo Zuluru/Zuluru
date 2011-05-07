@@ -4,8 +4,21 @@ $this->Html->addCrumb ($league['League']['long_name']);
 $this->Html->addCrumb (__('Field Distribution Report', true));
 ?>
 
-<div class="leagues fields">
+<div class="leagues field_distribution">
 <h2><?php  echo __('Field Distribution Report', true) . ': ' . $league['League']['long_name'];?></h2>
+<?php
+if (isset ($published)) {
+	echo $this->Html->para(null,
+			sprintf(__('This report includes only games that are published. You may also see it %s.', true),
+				$this->Html->link(__('including all games', true), array('action' => 'fields', 'league' => $league['League']['id'])))
+	);
+} else {
+	echo $this->Html->para(null,
+		sprintf(__('This report includes all games. You may also see it %s.', true),
+				$this->Html->link(__('including only games that are published', true), array('action' => 'fields', 'league' => $league['League']['id'], 'published' => true)))
+	);
+}
+?>
 <table>
 <thead>
 <?php // TODO: Use a league element ?>
@@ -21,28 +34,37 @@ if ($region_prefs) :
 <?php
 endif;
 
+$regions = count (array_unique (Set::extract ('/Region/name', $fields)));
 $count = 0;
 $last_region = null;
 foreach ($fields as $field) {
-$heading[] = $this->Html->link ($field['Field']['code'],
-					array('controller' => 'fields', 'action' => 'view', 'field' => $field['Field']['id']),
-					array('title' => $field['Field']['name'])) .
-			' ' . $this->ZuluruTime->time ($field['GameSlot']['game_start']);
 	if ($last_region == $field['Region']['name']) {
 		++ $count;
 	} else {
 		if ($count) {
+			if ($regions > 1) {
+				$heading[] = __('Sub total', true);
+				++ $count;
+			}
 			echo $this->Html->tag ('th', $last_region, array('colspan' => $count));
 		}
 		$last_region = $field['Region']['name'];
 		$count = 1;
 	}
+	$heading[] = $this->Html->link ($field['Field']['code'],
+					array('controller' => 'fields', 'action' => 'view', 'field' => $field['Field']['id']),
+					array('title' => $field['Field']['name'])) .
+			' ' . $this->ZuluruTime->time ($field['GameSlot']['game_start']);
 }
 if ($count) {
+	if ($regions > 1) {
+		$heading[] = __('Sub total', true);
+		++ $count;
+	}
 	echo $this->Html->tag ('th', __($last_region, true), array('colspan' => $count));
 }
 ?>
-	<th rowspan="2"><?php __('Games', true); ?></th>
+	<th rowspan="2"><?php __('Total'); ?></th>
 </tr>
 
 <?php echo $this->Html->tableHeaders ($heading); ?>
@@ -79,15 +101,25 @@ $numteams = count ($team_count);
 $rows = array();
 foreach ($league['Team'] as $team) {
 	$id = $team['id'];
-	$row = array ($this->Html->link ($team['name'], array('controller' => 'teams', 'action' => 'view', 'id' => $team['id'])),
+	$row = array ($this->Html->link ($team['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['id'])),
 					$team['rating']);
 	if ($region_prefs) {
 		$row[] = $team['region_preference'];
 	}
 
+	$last_region = null;
 	$total = 0;
 	foreach ($fields as $field) {
-		if (array_key_exists ($field['Field']['code'], $team_count[$id]) &&
+		if ($regions > 1 && $last_region != $field['Region']['name']) {
+			if ($last_region !== null) {
+				$row[] = array($region_total, array('class' => 'sub-total'));
+			}
+			$region_total = 0;
+			$last_region = $field['Region']['name'];
+		}
+
+		if (array_key_exists ($id, $team_count) &&
+			array_key_exists ($field['Field']['code'], $team_count[$id]) &&
 			array_key_exists ($field['GameSlot']['game_start'], $team_count[$id][$field['Field']['code']]))
 		{
 			$games = $team_count[$id][$field['Field']['code']][$field['GameSlot']['game_start']];
@@ -95,6 +127,9 @@ foreach ($league['Team'] as $team) {
 			$games = 0;
 		}
 		$total += $games;
+		if ($regions > 1) {
+			$region_total += $games;
+		}
 
 		if (array_key_exists ($field['Field']['code'], $field_count) &&
 			array_key_exists ($field['GameSlot']['game_start'], $field_count[$field['Field']['code']]))
@@ -105,11 +140,16 @@ foreach ($league['Team'] as $team) {
 		}
 
 		if (abs ($avg - $games) > 1.5) {
-			$row[] = array($games, array('class' => 'error-message'));
+			$row[] = array($games, array('class' => 'field-usage-highlight'));
 		} else {
 			$row[] = $games;
 		}
 	}
+
+	if ($regions > 1) {
+		$row[] = array($region_total, array('class' => 'sub-total'));
+	}
+
 	$row[] = $total;
 	$rows[] = $row;
 }
@@ -117,7 +157,18 @@ foreach ($league['Team'] as $team) {
 // Output totals line
 $total_row = array(array(__('Total games', true), array('colspan' => 2)));
 $avg_row = array(array(__('Average', true), array('colspan' => 2)));
+$region_total = 0;
+$last_region = null;
 foreach ($fields as $field) {
+	if ($regions > 1 && $last_region != $field['Region']['name']) {
+		if ($last_region !== null) {
+			$total_row[] = array($region_total, array('class' => 'sub-total'));
+			$avg_row[] = array(sprintf ('%0.1f', $region_total / $numteams * 2), array('class' => 'sub-total'));	// Each game has 2 teams participating
+		}
+		$region_total = 0;
+		$last_region = $field['Region']['name'];
+	}
+
 	if (array_key_exists ($field['Field']['code'], $field_count) &&
 		array_key_exists ($field['GameSlot']['game_start'], $field_count[$field['Field']['code']]))
 	{
@@ -125,9 +176,16 @@ foreach ($fields as $field) {
 	} else {
 		$total = 0;
 	}
+	$region_total += $total;
 	$total_row[] = $total;
-	$avg_row[] = sprintf ('%0.1f', $total / $numteams * 2);	// Each game has 2 teams participating
+	$avg_row[] = sprintf ('%0.1f', $total / $numteams * 2);
 }
+
+if ($regions > 1) {
+	$total_row[] = array($region_total, array('class' => 'sub-total'));
+	$avg_row[] = array(sprintf ('%0.1f', $region_total / $numteams * 2), array('class' => 'sub-total'));
+}
+
 $total = $total_row[] = array_sum ($total_row);
 $avg_row[] = sprintf ('%0.1f', $total / $numteams * 2);
 $rows[] = $total_row;
@@ -139,6 +197,7 @@ echo $this->Html->tableCells ($rows, array(), array('class' => 'altrow'));
 <?php
 array_unshift ($heading, __('Rating', true));
 array_unshift ($heading, __('Team', true));
+$heading[] = __('Total', true);
 
 echo $this->Html->tableHeaders ($heading);
 ?>

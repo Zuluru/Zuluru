@@ -738,9 +738,17 @@ class LeaguesController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 
+		if ($this->_arg('published')) {
+			$conditions = array('Game.published' => true);
+			$this->set('published', true);
+		} else {
+			$conditions = array();
+		}
+
 		$this->League->contain (array (
 			'Team',
 			'Game' => array(
+				'conditions' => $conditions,
 				'GameSlot' => array('Field' => array('ParentField')),
 				'HomeTeam',
 				'AwayTeam',
