@@ -1,9 +1,11 @@
 <?php
 if ($is_admin) {
 	echo $this->element('help/topics', array(
-			'section' => 'rules',
+			'section' => 'fields',
 			'topics' => array(
-				'rules' => 'Rule Definitions',
+				'edit' => array(
+					'image' => 'edit_32.png',
+				),
 			),
 	));
 }

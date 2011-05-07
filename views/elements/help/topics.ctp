@@ -4,21 +4,35 @@ $replacements = array(
 	' Or ' => ' or ',
 );
 
-if (!isset($level)) {
-	$level = 3;
-}
-
 foreach ($topics as $topic => $title)
 {
 	// TODO: Add a name anchor here, and a list of topics at the top
-	// TODO: Handle one more level of nesting in topics
 
-	if (is_numeric ($topic)) {
-		$topic = $title;
-		$title = strtr (Inflector::humanize($topic), $replacements);
+	if (is_array ($title)) {
+		$opts = $title;
+		if (array_key_exists ('title', $opts)) {
+			$title = $opts['title'];
+		} else {
+			$title = strtr (Inflector::humanize($topic), $replacements);
+		}
+	} else {
+		$opts = array();
+		if (is_numeric ($topic)) {
+			$topic = $title;
+			$title = strtr (Inflector::humanize($topic), $replacements);
+		}
+	}
+	$title = __($title, true);
+
+	if (array_key_exists ('image', $opts)) {
+		$title = $this->ZuluruHtml->icon($opts['image']) . ' ' . $title;
 	}
 
-	echo $this->Html->tag ("h$level", __($title, true));
-	echo $this->element("help/$section/$topic", array('level' => $level + 1));
+	if (!isset ($compact) || $compact === false) {
+		echo $this->Html->tag ('hr');
+	}
+
+	echo $this->Html->tag ('h3', $title);
+	echo $this->Html->tag ('div', $this->element("help/$section/$topic"), array('class' => 'help_block'));
 }
 ?>

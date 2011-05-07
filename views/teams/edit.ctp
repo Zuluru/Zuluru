@@ -17,13 +17,15 @@ if (isset ($add)) {
 			echo $this->Form->input('id');
 		}
 		echo $this->Form->input('name', array(
-			'after' => $this->Html->para (null, __('The full name of your team.', true)),
+			'after' => ' ' . $this->ZuluruHtml->help(array('action' => 'teams', 'edit', 'name')) .
+				$this->Html->para (null, __('The full name of your team.', true)),
 		));
 		echo $this->Form->input('website', array(
 			'after' => $this->Html->para (null, __('Your team\'s website, if you have one.', true)),
 		));
 		echo $this->Form->input('shirt_colour', array(
-			'after' => $this->Html->para (null, __('Shirt colour of your team. If you don\'t have team shirts, pick \'light\' or \'dark\'.', true)),
+			'after' => ' ' . $this->ZuluruHtml->help(array('action' => 'teams', 'edit', 'shirt_colour')) .
+				$this->Html->para (null, __('Shirt colour of your team. If you don\'t have team shirts, pick \'light\' or \'dark\'.', true)),
 		));
 		if ($is_admin) {
 			// TODO: populate with possibilities from fields table
@@ -38,11 +40,11 @@ if (isset ($add)) {
 			));
 		}
 		echo $this->Form->input('open_roster', array(
-			'after' => ' ' . $this->ZuluruHtml->help(array('action' => 'teams', 'roster_status')) .
+			'after' => ' ' . $this->ZuluruHtml->help(array('action' => 'teams', 'edit', 'roster_status')) .
 				$this->Html->para (null, __('If the team roster is open, others can request to join; otherwise, only the captain can add players.', true)),
 		));
 		echo $this->Form->input('track_attendance', array(
-			'after' => ' ' . $this->ZuluruHtml->help(array('action' => 'teams', 'track_attendance')) .
+			'after' => ' ' . $this->ZuluruHtml->help(array('action' => 'teams', 'edit', 'track_attendance')) .
 				$this->Html->para (null, __('If selected, the system will help you to monitor attendance on a game-to-game basis.', true)),
 			'onclick' => 'attendanceCheckboxChanged()',
 		));

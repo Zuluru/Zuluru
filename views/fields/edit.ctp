@@ -6,7 +6,9 @@
 		echo $this->Form->input('id');
 
 		if (empty ($this->data['Field']['parent_id'])) {
-			echo $this->Form->input('name');
+			echo $this->Form->input('name', array(
+					'after' => ' ' . $this->ZuluruHtml->help(array('action' => 'fields', 'edit', 'name')),
+			));
 			echo $this->Form->input('code');
 			echo $this->Form->hidden('parent_id', array('value' => null));
 		} else {

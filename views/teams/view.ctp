@@ -16,7 +16,10 @@ $this->Html->addCrumb (__('View', true));
 		<?php endif; ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Shirt Colour'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php __($team['Team']['shirt_colour']); ?>
+			<?php
+			__($team['Team']['shirt_colour']);
+			echo ' ' . $this->ZuluruHtml->help(array('action' => 'teams', 'edit', 'shirt_colour'));
+			?>
 			&nbsp;
 		</dd>
 		<?php if ($team['League']['id']): ?>
@@ -45,7 +48,7 @@ $this->Html->addCrumb (__('View', true));
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php
 			__($team['Team']['open_roster'] ? 'Open' : 'Closed');
-			echo ' ' . $this->ZuluruHtml->help(array('action' => 'teams', 'roster_status'));
+			echo ' ' . $this->ZuluruHtml->help(array('action' => 'teams', 'edit', 'roster_status'));
 			?>
 
 		</dd>
@@ -53,7 +56,7 @@ $this->Html->addCrumb (__('View', true));
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php
 			__($team['Team']['track_attendance'] ? 'Yes' : 'No');
-			echo ' ' . $this->ZuluruHtml->help(array('action' => 'teams', 'track_attendance'));
+			echo ' ' . $this->ZuluruHtml->help(array('action' => 'teams', 'edit', 'track_attendance'));
 			?>
 
 		</dd>

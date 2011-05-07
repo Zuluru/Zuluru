@@ -12,7 +12,7 @@ class HelpController extends AppController {
 			Configure::write ('debug', 0);
 		}
 		$this->set(compact('controller', 'topic', 'item', 'subitem'));
-		$this->set('is_coordinator', Configure::read('Zuluru.LeagueIDs') != null);
+		$this->set('is_coordinator', $this->Session->read('Zuluru.LeagueIDs') != null);
 	}
 }
 ?>

@@ -5,3 +5,4 @@ if (array_key_exists ('team', $this->passedArgs)) {
 	echo '"edit team"';
 }
 ?> page.</p>
+<p>When attendance tracking is enabled, there are additional options that allow you to customize which emails the system will send (reminders to players, game summaries and change notifications to captains), and when they will be sent.</p>

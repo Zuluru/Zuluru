@@ -132,7 +132,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 		$view =& ClassRegistry::getObject('view');
 		$element = implode ('/', array_values ($url));
 		$title = array_map (array('Inflector', 'humanize'), array_values ($url));
-		$help .= $this->tag ('div', $view->element ($element, array('level' => 3)), array(
+		$help .= $this->tag ('div', $view->element ($element), array(
 				'id' => "{$id}_div",
 				'class' => 'help_dialog',
 				'title' => implode (' &raquo; ', $title),

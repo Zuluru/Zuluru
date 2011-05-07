@@ -1,0 +1,1 @@
+<p>When there are multiple fields at a single site, the name of the "field" should be descriptive of the site in general (e.g. the name of the school or complex where the fields are found). Individual fields at this site are distinguished by "number". A future version of Zuluru will simplify this structure.</p>

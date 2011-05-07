@@ -6,6 +6,5 @@ echo $this->element('help/topics', array(
 			'add/schedule_type/roundrobin' => 'Round Robin',
 			'add/schedule_type/ratings_ladder' => 'Ratings Ladder',
 		),
-		'level' => $level,
 ));
 ?>

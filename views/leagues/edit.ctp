@@ -19,7 +19,8 @@ if (isset ($add)) {
 		}
 		echo $this->Form->input('name', array(
 			'size' => 70,
-			'after' => $this->Html->para (null, __('The full name of the league. Year and tier numbering will be automatically added.', true)),
+			'after' => ' ' . $this->ZuluruHtml->help(array('action' => 'leagues', 'edit', 'name')) .
+				$this->Html->para (null, __('The full name of the league. Year and tier numbering will be automatically added.', true)),
 		));
 		echo $this->Form->input('coord_list', array(
 			'label' => __('Coordinator Email List', true),
