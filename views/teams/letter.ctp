@@ -56,7 +56,7 @@ foreach ($teams as $team):
 					array('action' => 'emails', 'team' => $team['Team']['id']),
 					array('alt' => __('Player Emails', true), 'title' => __('Player Emails', true)));
 			}
-			if ($is_admin || (in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs')) && $league['League']['roster_deadline'] >= date('Y-m-d'))) {
+			if ($is_admin || (in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs')) && $team['League']['roster_deadline'] >= date('Y-m-d'))) {
 				echo $this->ZuluruHtml->iconLink('roster_add_24.png',
 					array('action' => 'add_player', 'team' => $team['Team']['id']),
 					array('alt' => __('Add Player', true), 'title' => __('Add Player', true)));
