@@ -130,7 +130,7 @@ dl .altrow
 	color: #fff;
 	background: #c73e14;
 }
-#zuluru .error-message
+#zuluru .error-message, #zuluru .field-usage-highlight
 {
 	color: red;
 }
@@ -176,11 +176,11 @@ dl .altrow
 }
 
 /** Miscellaneous **/
-#zuluru tr.tier_highlight td
+#zuluru tr.tier_highlight td, #zuluru .altrow td.sub-total
 {
-	background-color: #afffaf;
+	background-color: #afffaf !important;
 }
-#zuluru tr.tier_alt_highlight td
+#zuluru tr.tier_alt_highlight td, #zuluru .sub-total
 {
 	background-color: #cfffcf !important;
 }
