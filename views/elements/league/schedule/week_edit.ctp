@@ -28,7 +28,7 @@ foreach ($league['Game'] as $game):
 ?>
 
 <tr<?php if (!$game['published']) echo ' class="unpublished"'; ?>>
-	<td colspan="2"><?php
+	<td><?php
 	echo $this->Form->hidden ("Game.{$game['id']}.id", array('value' => $game['id']));
 	echo $this->Form->hidden ("Game.{$game['id']}.GameSlot.game_id", array('value' => $game['id']));
 	echo $this->Form->input ("Game.{$game['id']}.GameSlot.id", array(
