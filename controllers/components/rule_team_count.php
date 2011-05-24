@@ -29,7 +29,7 @@ class RuleTeamCountComponent extends RuleComponent
 	}
 
 	function desc() {
-		return __('team count', true);
+		return __('have a team count', true);
 	}
 }
 

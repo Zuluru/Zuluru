@@ -43,6 +43,8 @@ class RuleComponent extends Object
 		'have a birthdate less than or equal to'		=> 'have been born on or before',
 		'have a birthdate less than'					=> 'have been born before',
 
+		'have a team count of 0'						=> 'not be on another roster',
+
 		'have previously registered for the prerequisite OR have previously registered for the prerequisite' => 'have previously registered for one of the prerequisites',
 		'have previously registered for one of the prerequisites OR have previously registered for the prerequisite' => 'have previously registered for one of the prerequisites',
 	);
