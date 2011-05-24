@@ -517,7 +517,7 @@ class GamesController extends AppController {
 						// from a year end to a leap day.
 						$days = date('Y') * 365 + date('z');
 						$days_to_game = date('Y', strtotime($date)) * 365 + date('z', strtotime($date)) - $days;
-						if ($is_me && $team['attendance_reminder'] >= $days_to_game) {
+						if ($is_me && $team['attendance_notification'] >= $days_to_game) {
 							// Make sure the current player isn't in the list of captains to send to
 							$captains = Set::extract ("/Person[id!={$person['id']}]", $team);
 							if (!empty ($captains)) {
@@ -548,7 +548,7 @@ class GamesController extends AppController {
 							$this->_sendMail (array (
 									'to' => $person,
 									'replyTo' => $this->Session->read('Zuluru.Person'),
-									'subject' => "{$team['name']} attendance change",
+									'subject' => "{$team['name']} attendance change for game on $date",
 									'template' => 'attendance_substitute_notification',
 									'sendAs' => 'both',
 							));

@@ -697,10 +697,13 @@ class TeamsController extends AppController {
 			'AwayTeam',
 		));
 		$games = $this->Team->League->Game->find('all', array(
-				'conditions' => array('OR' => array(
-					'Game.home_team' => $id,
-					'Game.away_team' => $id,
-				)),
+				'conditions' => array(
+					'OR' => array(
+						'Game.home_team' => $id,
+						'Game.away_team' => $id,
+					),
+					'Game.published' => true,
+				),
 				'order' => array('GameSlot.game_date', 'GameSlot.game_start'),
 		));
 
