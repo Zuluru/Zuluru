@@ -79,7 +79,7 @@ foreach ($spirit_obj->questions as $question => $detail) {
 $rows = $overall = array();
 foreach ($team_records as $team) {
 	$row = array(
-		$this->Html->link ($team['details']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['details']['id'])),
+		$this->element('team/block', array('team' => $team['details'])),
 		$this->element ('spirit/symbol', array(
 				'spirit_obj' => $spirit_obj,
 				'type' => $league['League']['display_sotg'],
