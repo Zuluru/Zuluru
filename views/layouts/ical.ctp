@@ -14,8 +14,8 @@ header("Cache-Control: no-cache, must-revalidate");
 // TODO: Handle other time zones, hopefully there's an easy way to do this dynamically
 ?>
 BEGIN:VCALENDAR
-PRODID:-//Zuluru//<?php echo $calendar_type; ?>//EN
 VERSION:2.0
+PRODID:-//Zuluru//<?php echo $calendar_type; ?>//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
 X-WR-CALNAME:<?php echo $calendar_name; ?> from <?php echo $short; ?>
