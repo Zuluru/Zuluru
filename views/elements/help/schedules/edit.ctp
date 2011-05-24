@@ -1,4 +1,18 @@
 <p>Schedules are edited on a day-by-day basis with the "Edit Day" link from the league schedule. This link is only available for days that have at least one game that is not yet finalized.</p>
 <p>Editing the schedule for a day is a simple matter of selecting which teams will play in each game, and in which game slot.</p>
-<p>If the "Set as published" box is checked, games will be visible to everyone; otherwise, they will be visible only to admins and coordinators, where they will be highlighted so it's obvious that they aren't yet published.</p>
-<p>If the "Allow double-headers" box is checked, you will be allowed to schedule the same team in more than one game slot, though the system will still ensure that all such games are at the same facility and not in overlapping times. If the box is not checked, the system will ensure that you have not scheduled the same team more than once. Checks are always done to make sure that the same game slot is not booked more than once.</p>
+<?php
+echo $this->element('help/topics', array(
+		'section' => 'games',
+		'topics' => array(
+			'edit/publish' => 'Publish',
+			'edit/double_header' => 'Double-headers',
+		),
+		'compact' => true,
+));
+echo $this->element('help/topics', array(
+		'section' => 'leagues',
+		'topics' => array(
+			'fields' => 'Field Distribution Report',
+		),
+));
+?>

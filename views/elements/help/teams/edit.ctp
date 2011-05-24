@@ -15,7 +15,7 @@ echo $this->element('help/topics', array(
 		'topics' => array(
 			'name',
 			'shirt_colour',
-			'roster_status',
+			'open_roster',
 			'track_attendance' => array(
 				'image' => 'attendance_32.png',
 			),
