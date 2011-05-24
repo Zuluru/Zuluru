@@ -84,7 +84,7 @@ if (!empty ($duplicates)) {
 				}
 			}
 			$class = "player_id_{$duplicate['Person']['id']}";
-			if ($val == $user_val) {
+			if (low($val) == low($user_val)) {
 				$class .= ' error-message';
 			}
 			$cols[$duplicate['Person']['id']][] = array($val, array('class' => $class));
