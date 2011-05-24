@@ -11,10 +11,9 @@ if (!empty ($edit_date)) {
 	echo $this->Form->create ('Game', array('url' => $this->here));
 
 	// Put the slots into a more useful form for us
-	$slots = $game_slot = array();
+	$slots = array();
 	foreach ($game_slots as $slot) {
 		$slots[$slot['GameSlot']['id']] = $this->ZuluruTime->time ($slot['GameSlot']['game_start']) . ' ' . $slot['Field']['long_name'];
-		$game_slot[$slot['Game']['id']] = $slot['GameSlot']['id'];
 	}
 	asort ($slots);
 }
@@ -31,7 +30,7 @@ if (!empty ($edit_date)) {
 	$dates = array_unique(Set::extract ('/Game/GameSlot/game_date', $league));
 	foreach ($dates as $date) {
 		if ($date == $edit_date) {
-			echo $this->element ('league/schedule/week_edit', compact ('date', 'slots', 'game_slot'));
+			echo $this->element ('league/schedule/week_edit', compact ('date', 'slots'));
 		} else {
 			echo $this->element ('league/schedule/week_view', compact ('date'));
 		}
