@@ -30,6 +30,12 @@ foreach ($league['Game'] as $game):
 	if ($date != $game['GameSlot']['game_date']) {
 		continue;
 	}
+
+	if (empty ($this->data)) {
+		$data = $game;
+	} else {
+		$data = array_shift (Set::extract("/Game[id={$game['id']}]/.", $this->data));
+	}
 ?>
 
 <tr<?php if (!$game['published']) echo ' class="unpublished"'; ?>>
@@ -41,7 +47,7 @@ foreach ($league['Game'] as $game):
 			'label' => false,
 			'options' => $slots,
 			'empty' => '---',
-			'selected' => $game_slot[$game['id']],
+			'selected' => $data['GameSlot']['id'],
 	));
 	?></td>
 	<td><?php
@@ -50,7 +56,7 @@ foreach ($league['Game'] as $game):
 			'label' => false,
 			'options' => $teams,
 			'empty' => '---',
-			'selected' => $game['home_team'],
+			'selected' => $data['home_team'],
 	));
 	?></td>
 	<td><?php
@@ -59,7 +65,7 @@ foreach ($league['Game'] as $game):
 			'label' => false,
 			'options' => $teams,
 			'empty' => '---',
-			'selected' => $game['away_team'],
+			'selected' => $data['away_team'],
 	));
 	?></td>
 	<td></td>
