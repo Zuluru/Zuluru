@@ -32,10 +32,12 @@ switch ($details['type'])
 {
 	case 'radio':
 		$key = Question::_formName($details);
-		$options['legend'] = $details['question'];
+		$options['legend'] = false;
 		$options['options'] = Set::combine ($question['Answer'], '{n}.id', '{n}.answer');
-		$item = $this->Form->hidden ("Response.$key.question_id", array('value' => $details['id'])) .
-			$this->Form->input ("Response.$key.{$field[$details['type']]}", $options);
+		$item = $this->Html->tag('fieldset',
+			$this->Html->tag('legend', $details['name']) . $details['question'] .
+			$this->Form->hidden ("Response.$key.question_id", array('value' => $details['id'])) .
+				$this->Form->input ("Response.$key.{$field[$details['type']]}", $options));
 		break;
 
 	case 'select':
