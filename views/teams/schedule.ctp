@@ -133,17 +133,19 @@ echo $this->ZuluruHtml->imageLink ('http://www.google.com/calendar/images/ext/gc
 				array('action' => 'add_player', 'team' => $team['Team']['id']),
 				array('alt' => __('Add Player', true), 'title' => __('Add Player', true))));
 		}
+		if ($is_admin || $is_coordinator) {
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('spirit_32.png',
+				array('action' => 'spirit', 'team' => $team['Team']['id']),
+				array('alt' => __('Spirit', true), 'title' => __('See Team Spirit Report', true))));
+		}
 		if ($is_admin) {
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('move_32.png',
+				array('action' => 'move', 'team' => $team['Team']['id']),
+				array('alt' => __('Move Team', true), 'title' => __('Move Team', true))));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('delete_32.png',
 				array('action' => 'delete', 'team' => $team['Team']['id']),
 				array('alt' => __('Delete', true), 'title' => __('Delete Team', true)),
 				array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $team['Team']['id']))));
-			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('move_32.png',
-				array('action' => 'move', 'team' => $team['Team']['id']),
-				array('alt' => __('Move Team', true), 'title' => __('Move Team', true))));
-			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('spirit_32.png',
-				array('action' => 'spirit', 'team' => $team['Team']['id']),
-				array('alt' => __('Spirit', true), 'title' => __('See Team Spirit Report', true))));
 		}
 		?>
 	</ul>

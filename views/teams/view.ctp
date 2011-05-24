@@ -177,10 +177,12 @@ $this->Html->addCrumb (__('View', true));
 				array('action' => 'add_player', 'team' => $team['Team']['id']),
 				array('alt' => __('Add Player', true), 'title' => __('Add Player', true))));
 		}
-		if ($is_admin) {
+		if ($is_admin || $is_coordinator) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('spirit_32.png',
 				array('action' => 'spirit', 'team' => $team['Team']['id']),
 				array('alt' => __('Spirit', true), 'title' => __('See Team Spirit Report', true))));
+		}
+		if ($is_admin) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('move_32.png',
 				array('action' => 'move', 'team' => $team['Team']['id']),
 				array('alt' => __('Move Team', true), 'title' => __('Move Team', true))));

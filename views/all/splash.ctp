@@ -98,9 +98,6 @@ foreach ($leagues as $league):
 		?></td>
 		<td class="actions splash_action">
 			<?php
-			echo $this->ZuluruHtml->iconLink('edit_24.png',
-				array('controller' => 'leagues', 'action' => 'edit', 'league' => $league['League']['id']),
-				array('alt' => __('Edit', true), 'title' => __('Edit League', true)));
 			if ($league['League']['schedule_type'] != 'none') {
 				echo $this->ZuluruHtml->iconLink('schedule_24.png',
 					array('controller' => 'leagues', 'action' => 'schedule', 'league' => $league['League']['id']),
@@ -115,6 +112,9 @@ foreach ($leagues as $league):
 					array('controller' => 'schedules', 'action' => 'add', 'league' => $league['League']['id']),
 					array('alt' => __('Add games', true), 'title' => __('Add games', true)));
 			}
+			echo $this->ZuluruHtml->iconLink('edit_24.png',
+				array('controller' => 'leagues', 'action' => 'edit', 'league' => $league['League']['id']),
+				array('alt' => __('Edit', true), 'title' => __('Edit League', true)));
 			?>
 		</td>
 	</tr>

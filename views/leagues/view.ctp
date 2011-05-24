@@ -176,15 +176,18 @@ $this->Html->addCrumb (__('View', true));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('schedule_add_32.png',
 				array('controller' => 'schedules', 'action' => 'add', 'league' => $league['League']['id']),
 				array('alt' => __('Add Games', true), 'title' => __('Add Games', true))));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('spirit_32.png',
+				array('action' => 'spirit', 'league' => $league['League']['id']),
+				array('alt' => __('Spirit', true), 'title' => __('See League Spirit Report', true))));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('field_report_32.png',
+				array('action' => 'fields', 'league' => $league['League']['id']),
+				array('alt' => __('Field Distribution', true), 'title' => __('Field Distribution Report', true))));
 			// TODO: More links to reports, etc.
 		}
 		if ($is_admin) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('coordinator_add_32.png',
 				array('action' => 'add_coordinator', 'league' => $league['League']['id']),
 				array('alt' => __('Add Coordinator', true), 'title' => __('Add Coordinator', true))));
-			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('spirit_32.png',
-				array('action' => 'spirit', 'league' => $league['League']['id']),
-				array('alt' => __('Spirit', true), 'title' => __('See League Spirit Report', true))));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('delete_32.png',
 				array('action' => 'delete', 'league' => $league['League']['id']),
 				array('alt' => __('Delete', true), 'title' => __('Delete League', true)),

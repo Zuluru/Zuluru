@@ -11,10 +11,15 @@ natcasesort ($teams);
 ?>
 
 <tr>
-	<th colspan="5"><a name="<?php echo $date; ?>"><?php echo $this->ZuluruTime->fulldate($date); ?></a></th>
+	<th colspan="3"><a name="<?php echo $date; ?>"><?php echo $this->ZuluruTime->fulldate($date); ?></a></th>
+	<th colspan="2" class="actions splash_action">
+	<?php echo $this->ZuluruHtml->iconLink('field_24.png',
+			array('action' => 'slots', 'league' => $league['League']['id'], 'date' => $date),
+			array('alt' => __('Fields', true), 'title' => __('Available Fields', true))); ?>
+	</th>
 </tr>
 <tr>
-	<th><?php __('Time/Field'); ?></th>
+	<th colspan="2"><?php __('Time/Field'); ?></th>
 	<th><?php __('Home'); ?></th>
 	<th><?php __('Away'); ?></th>
 	<th></th>
@@ -28,7 +33,7 @@ foreach ($league['Game'] as $game):
 ?>
 
 <tr<?php if (!$game['published']) echo ' class="unpublished"'; ?>>
-	<td><?php
+	<td colspan="2"><?php
 	echo $this->Form->hidden ("Game.{$game['id']}.id", array('value' => $game['id']));
 	echo $this->Form->hidden ("Game.{$game['id']}.GameSlot.game_id", array('value' => $game['id']));
 	echo $this->Form->input ("Game.{$game['id']}.GameSlot.id", array(

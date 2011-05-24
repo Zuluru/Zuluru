@@ -46,14 +46,14 @@ foreach ($leagues as $league):
 				echo $this->ZuluruHtml->iconLink('schedule_add_32.png',
 					array('controller' => 'schedules', 'action' => 'add', 'league' => $league['League']['id']),
 					array('alt' => __('Add Games', true), 'title' => __('Add Games', true)));
+				echo $this->ZuluruHtml->iconLink('spirit_32.png',
+					array('action' => 'spirit', 'league' => $league['League']['id']),
+					array('alt' => __('Spirit', true), 'title' => __('See League Spirit Report', true)));
 			}
 			if ($is_admin) {
 				echo $this->ZuluruHtml->iconLink('coordinator_add_32.png',
 					array('action' => 'add_coordinator', 'league' => $league['League']['id']),
 					array('alt' => __('Add Coordinator', true), 'title' => __('Add Coordinator', true)));
-				echo $this->ZuluruHtml->iconLink('spirit_32.png',
-					array('action' => 'spirit', 'league' => $league['League']['id']),
-					array('alt' => __('Spirit', true), 'title' => __('See League Spirit Report', true)));
 				if ($league['League']['allstars'] != 'never') {
 					echo $this->Html->link(__('Allstars', true), array('action' => 'allstars', 'league' => $league['League']['id']));
 				}

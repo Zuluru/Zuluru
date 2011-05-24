@@ -49,10 +49,12 @@ if (count ($classes)) {
 				array('controller' => 'teams', 'action' => 'add_player', 'team' => $team['id']),
 				array('alt' => __('Add Player', true), 'title' => __('Add Player', true)));
 		}
-		if ($is_admin) {
+		if ($is_admin || $is_coordinator) {
 			echo $this->ZuluruHtml->iconLink('spirit_24.png',
 				array('controller' => 'teams', 'action' => 'spirit', 'team' => $team['id']),
 				array('alt' => __('Spirit', true), 'title' => __('See Team Spirit Report', true)));
+		}
+		if ($is_admin) {
 			echo $this->ZuluruHtml->iconLink('move_24.png',
 				array('controller' => 'teams', 'action' => 'move', 'team' => $team['id']),
 				array('alt' => __('Move Team', true), 'title' => __('Move Team', true)));

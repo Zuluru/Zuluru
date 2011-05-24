@@ -20,15 +20,27 @@ foreach ($league['Game'] as $game) {
 	<th colspan="3" class="actions splash_action"><?php
 	if (!$finalized && ($is_admin || $is_coordinator)):
 	?>
-		<?php echo $this->Html->link(__('Fields', true), array('action' => 'slots', 'league' => $league['League']['id'], 'date' => $date)); ?>
-		<?php echo $this->Html->link(__('Edit Day', true), array('controller' => 'leagues', 'action' => 'schedule', 'league' => $league['League']['id'], 'edit_date' => $date, '#' => $date)); ?>
-		<?php echo $this->Html->link(__('Delete Day', true), array('controller' => 'schedules', 'action' => 'delete', 'league' => $league['League']['id'], 'date' => $date)); ?>
-		<?php echo $this->Html->link(__('Reschedule', true), array('controller' => 'schedules', 'action' => 'reschedule', 'league' => $league['League']['id'], 'date' => $date)); ?>
+		<?php echo $this->ZuluruHtml->iconLink('field_24.png',
+				array('action' => 'slots', 'league' => $league['League']['id'], 'date' => $date),
+				array('alt' => __('Fields', true), 'title' => __('Available Fields', true))); ?>
+		<?php echo $this->ZuluruHtml->iconLink('edit_24.png',
+				array('controller' => 'leagues', 'action' => 'schedule', 'league' => $league['League']['id'], 'edit_date' => $date, '#' => $date),
+				array('alt' => __('Edit Day', true), 'title' => __('Edit Day', true))); ?>
+		<?php echo $this->ZuluruHtml->iconLink('delete_24.png',
+				array('controller' => 'schedules', 'action' => 'delete', 'league' => $league['League']['id'], 'date' => $date),
+				array('alt' => __('Delete Day', true), 'title' => __('Delete Day', true))); ?>
+		<?php echo $this->ZuluruHtml->iconLink('reschedule_24.png',
+				array('controller' => 'schedules', 'action' => 'reschedule', 'league' => $league['League']['id'], 'date' => $date),
+				array('alt' => __('Reschedule', true), 'title' => __('Reschedule', true))); ?>
 		<?php
 		if ($published) {
-			echo $this->Html->link(__('Unpublish', true), array('controller' => 'schedules', 'action' => 'unpublish', 'league' => $league['League']['id'], 'date' => $date));
+			echo $this->ZuluruHtml->iconLink('unpublish_24.png',
+					array('controller' => 'schedules', 'action' => 'unpublish', 'league' => $league['League']['id'], 'date' => $date),
+					array('alt' => __('Unpublish', true), 'title' => __('Unpublish', true)));
 		} else {
-			echo $this->Html->link(__('Publish', true), array('controller' => 'schedules', 'action' => 'publish', 'league' => $league['League']['id'], 'date' => $date));
+			echo $this->ZuluruHtml->iconLink('publish_24.png',
+					array('controller' => 'schedules', 'action' => 'publish', 'league' => $league['League']['id'], 'date' => $date),
+					array('alt' => __('Publish', true), 'title' => __('Publish', true)));
 		}
 		?>
 	<?php
