@@ -563,6 +563,12 @@ class LeaguesController extends AppController {
 			}
 		}
 
+		foreach ($league['Team'] as $key => $team) {
+			if (!array_key_exists('current_rating', $team)) {
+				$league['Team'][$key]['current_rating'] = $league['Team'][$key]['rating'];
+			}
+		}
+
 		if ($correct && !empty ($game_updates)) {
 			$this->League->Game->saveAll ($game_updates);
 		}
