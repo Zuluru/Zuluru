@@ -6,15 +6,8 @@ $this->Html->addCrumb (__('Select Exclusions', true));
 ?>
 
 <div class="schedules add">
-<p>The 'exclude teams' option is set for this league.
-This gives you the chance to <b>EXCLUDE</b> some teams from scheduling.
-You may want to do this because you have an un-even number of teams in your league,
-or if your league consists of some teams who don't play every game...</p>
-<p>Please select the teams you wish to <b>EXCLUDE</b> from scheduling.</p>
-<p>You must ensure that you leave an even number of teams.</p>
-<p>If you never need this option, <?php
-echo $this->Html->link(__('edit the league', true), array('controller' => 'leagues', 'action' => 'edit', 'league' => $id));
-?> and turn off this option.</p>
+<p>The 'exclude teams' option is set for this league. <?php echo $this->ZuluruHtml->help(array('action' => 'leagues', 'edit', 'exclude_teams')); ?></p>
+<p>Please select the teams you wish to <b>EXCLUDE</b> from scheduling. You must ensure that you leave an even number of teams.</p>
 <?php
 echo $this->Form->create ('Game', array('url' => array('controller' => 'schedules', 'action' => 'add', 'league' => $id)));
 echo $this->Form->hidden('step', array('value' => 'exclude'));
