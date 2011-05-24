@@ -31,32 +31,6 @@ class RuleMemberTypeComponent extends RuleComponent
 		}
 
 		return ($intro ? 'intro' : 'none');
-
-/* TODO Incorporate any of this?
-
-AND(
-	compare(member_type('2010-06-01') != 'none'),
-	OR(
-		compare(member_type('2010-06-01') = 'full'),
-		compare(team_count('2010-06-01') = '0')
-	)
-)
-
-		if (!$this->player->is_member() && !$this->is_admin) {
-			if(!$this->player->is_player() ) {
-				return error_exit('Only registered players can be added to a team.');
-			} else {
-				$he = ($this->player->gender == 'Male' ? 'he' : 'she');
-				$his = ($this->player->gender == 'Male' ? 'his' : 'her');
-				$him = ($this->player->gender == 'Male' ? 'him' : 'her');
-				$mail = l(variable_get('app_admin_name', 'Leaguerunner Administrator'),
-							'mailto:' . variable_get('app_admin_email','webmaster@localhost'));
-				return error_exit("Only registered players can be added to a team. {$this->player->firstname} has yet to register and pay for this year's membership.  Please contact {$this->player->firstname} to remind $him to pay for $his membership.  If $he has registered and paid for $his membership please have $him contact $mail.");
-			}
-		}
-*/
-
-		return 'intro';
 	}
 
 	function desc() {
