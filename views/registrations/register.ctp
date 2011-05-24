@@ -28,5 +28,7 @@ echo $this->element ('questionnaire/input', array('questionnaire' => $event['Que
 
 <?php echo $this->Form->submit('Reset', array('div' => false, 'type' => 'reset')); ?>
 
+</div>
 <?php echo $this->Form->end(); ?>
+
 </div>
