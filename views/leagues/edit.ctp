@@ -17,17 +17,16 @@ if (isset ($add)) {
 		if (!isset ($add)) {
 			echo $this->Form->input('id');
 		}
-		echo $this->Form->input('name', array(
+		echo $this->ZuluruForm->input('name', array(
 			'size' => 70,
-			'after' => ' ' . $this->ZuluruHtml->help(array('action' => 'leagues', 'edit', 'name')) .
-				$this->Html->para (null, __('The full name of the league. Year and tier numbering will be automatically added.', true)),
+			'after' => $this->Html->para (null, __('The full name of the league. Year and tier numbering will be automatically added.', true)),
 		));
-		echo $this->Form->input('coord_list', array(
+		echo $this->ZuluruForm->input('coord_list', array(
 			'label' => __('Coordinator Email List', true),
 			'size' => 70,
 			'after' => $this->Html->para (null, __('An email alias for all coordinators of this league (can be a comma separated list of individual email addresses).', true)),
 		));
-		echo $this->Form->input('capt_list', array(
+		echo $this->ZuluruForm->input('capt_list', array(
 			'label' => __('Captain Email List', true),
 			'size' => 70,
 			'after' => $this->Html->para (null, __('An email alias for all captains of this league.', true)),
@@ -37,17 +36,17 @@ if (isset ($add)) {
 	<fieldset>
  		<legend><?php __('Dates'); ?></legend>
 	<?php
-		echo $this->Form->input('open', array(
+		echo $this->ZuluruForm->input('open', array(
 			'label' => 'First Game',
 			'empty' => '---',
 			'after' => $this->Html->para (null, __('Date of the first game in the schedule. Will be used to determine open/closed status.', true)),
 		));
-		echo $this->Form->input('close', array(
+		echo $this->ZuluruForm->input('close', array(
 			'label' => 'Last Game',
 			'empty' => '---',
 			'after' => $this->Html->para (null, __('Date of the last game in the schedule. Will be used to determine open/closed status.', true)),
 		));
-		echo $this->Form->input('roster_deadline', array(
+		echo $this->ZuluruForm->input('roster_deadline', array(
 			'empty' => '---',
 			'after' => $this->Html->para (null, __('The date after which teams are no longer allowed to edit their rosters. Leave blank for no deadline (changes can be made until the league is closed).', true)),
 		));
@@ -69,12 +68,12 @@ if (isset ($add)) {
 			'empty' => '---',
 			'after' => $this->Html->para (null, __('Day, or days, on which this league will play.', true)),
 		));
-		echo $this->Form->input('tier', array(
+		echo $this->ZuluruForm->input('tier', array(
 			'options' => Configure::read('options.tier'),
 			'empty' => '---',
 			'after' => $this->Html->para (null, __('Tier number. Choose 0 to not have numbered tiers.', true)),
 		));
-		echo $this->Form->input('ratio', array(
+		echo $this->ZuluruForm->input('ratio', array(
 			'label' => __('Gender Ratio', true),
 			'options' => Configure::read('options.ratio'),
 			'empty' => '---',
@@ -103,7 +102,7 @@ if (isset ($add)) {
 		?>
 		</div>
 	<?php
-		echo $this->Form->input('exclude_teams', array(
+		echo $this->ZuluruForm->input('exclude_teams', array(
 			'options' => Configure::read('options.enable'),
 			'empty' => '---',
 			'after' => $this->Html->para (null, __('Allows coordinators to exclude teams from schedule generation.', true)),
@@ -114,41 +113,41 @@ if (isset ($add)) {
  		<legend><?php __('Scoring'); ?></legend>
 	<?php
 		echo $this->Html->para('error-message', __('NOTE: If you set the questionnaire to "' . Configure::read('options.spirit_questions.none') . '" and disable numeric entry, spirit will not be tracked for this league.', true));
-		echo $this->Form->input('sotg_questions', array(
+		echo $this->ZuluruForm->input('sotg_questions', array(
 			'options' => Configure::read('options.spirit_questions'),
 			'empty' => '---',
 			'label' => 'Spirit Questionnaire',
 			'default' => Configure::read('scoring.spirit_questions'),
 			'after' => $this->Html->para (null, __('Select which questionnaire to use for spirit scoring, or "' . Configure::read('options.spirit_questions.none') . '" to use numeric scoring only.', true)),
 		));
-		echo $this->Form->input('numeric_sotg', array(
+		echo $this->ZuluruForm->input('numeric_sotg', array(
 			'options' => Configure::read('options.enable'),
 			'empty' => '---',
 			'label' => 'Spirit Numeric Entry',
 			'default' => Configure::read('scoring.spirit_numeric'),
 			'after' => $this->Html->para (null, __('Enable or disable the entry of a numeric spirit score, independent of the questionnaire selected above.', true)),
 		));
-		echo $this->Form->input('display_sotg', array(
+		echo $this->ZuluruForm->input('display_sotg', array(
 			'options' => Configure::read('options.sotg_display'),
 			'empty' => '---',
 			'label' => 'Spirit Display',
 			'after' => $this->Html->para (null, __('Control spirit display. "all" shows numeric scores and survey answers (if applicable) to any player. "numeric" shows game scores but not survey answers. "symbols_only" shows only star, check, and X, with no numeric values attached. "coordinator_only" restricts viewing of any per-game information to coordinators only.', true)),
 		));
-		echo $this->Form->input('expected_max_score', array(
+		echo $this->ZuluruForm->input('expected_max_score', array(
 			'size' => 5,
 			'default' => 17,
 			'after' => $this->Html->para (null, __('Used as the size of the ratings table.', true)),
 		));
-		echo $this->Form->input('email_after', array(
+		echo $this->ZuluruForm->input('email_after', array(
 			'size' => 5,
 			'after' => $this->Html->para (null, __('Email captains who haven\'t scored games after this many hours, no reminder if 0.', true)),
 		));
-		echo $this->Form->input('finalize_after', array(
+		echo $this->ZuluruForm->input('finalize_after', array(
 			'size' => 5,
 			'after' => $this->Html->para (null, __('Games which haven\'t been scored will be automatically finalized after this many hours, no finalization if 0.', true)),
 		));
 		if (Configure::read('scoring.allstars')) {
-			echo $this->Form->input('allstars', array(
+			echo $this->ZuluruForm->input('allstars', array(
 				'options' => Configure::read('options.allstar'),
 				'empty' => '---',
 				'after' => $this->Html->para (null, __('When to ask captains for allstar nominations.', true)),

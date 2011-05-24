@@ -31,7 +31,7 @@ echo $this->Form->input('type', array(
 </p>
 
 <?php
-echo $this->Form->input('publish', array(
+echo $this->ZuluruForm->input('publish', array(
 		'label' => __('Publish created games for player viewing?', true),
 		'type' => 'checkbox',
 ));
@@ -40,7 +40,7 @@ echo $this->Form->input('publish', array(
 <p>If this is checked, players will be able to view games immediately after creation. Uncheck it if you wish to make changes before players can view.</p>
 
 <?php
-echo $this->Form->input ('double_header', array(
+echo $this->ZuluruForm->input ('double_header', array(
 		'label' => __('Allow double-headers?', true),
 		'type' => 'checkbox',
 		'checked' => false,

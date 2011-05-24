@@ -9,10 +9,10 @@ $this->Html->addCrumb (__('Edit', true));
  		<legend><?php printf(__('Edit %s', true), __('Game Slot', true)); ?></legend>
 	<?php
 		echo $this->Form->input('id');
-		echo $this->Form->input('game_date');
-		echo $this->Form->input('game_start');
-		echo $this->Form->input('game_end');
-		echo $this->Form->input('league_id', array(
+		echo $this->ZuluruForm->input('game_date');
+		echo $this->ZuluruForm->input('game_start');
+		echo $this->ZuluruForm->input('game_end');
+		echo $this->ZuluruForm->input('league_id', array(
 				'multiple' => 'checkbox',
 		));
 	?>

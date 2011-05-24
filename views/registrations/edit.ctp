@@ -8,22 +8,22 @@
 		echo $this->Form->input('id', array(
 				'value' => $registration['Registration']['id'],
 		));
-		echo $this->Form->input('order', array(
+		echo $this->ZuluruForm->input('order', array(
 				'label' => 'Order ID',
 				'value' => sprintf (Configure::read('registration.order_id_format'), $registration['Registration']['id']),
 				'readonly' => true,
 		));
-		echo $this->Form->input('name', array(
+		echo $this->ZuluruForm->input('name', array(
 				'value' => $registration['Person']['full_name'],
 				'readonly' => true,
 				'size' => 75,
 		));
-		echo $this->Form->input('event', array(
+		echo $this->ZuluruForm->input('event', array(
 				'value' => $registration['Event']['name'],
 				'readonly' => true,
 				'size' => 75,
 		));
-		echo $this->Form->input('payment', array(
+		echo $this->ZuluruForm->input('payment', array(
 				'options' => Configure::read('options.payment'),
 		));
 		echo $this->Form->input('notes', array(

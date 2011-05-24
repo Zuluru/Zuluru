@@ -10,8 +10,8 @@ $this->Html->addCrumb (__('Edit', true));
  		<legend><?php printf(__('Edit %s', true), __('Questionnaire', true)); ?></legend>
 	<?php
 		echo $this->Form->input('id');
-		echo $this->Form->input('name', array('size' => 60));
-		echo $this->Form->input('active');
+		echo $this->ZuluruForm->input('name', array('size' => 60));
+		echo $this->ZuluruForm->input('active');
 	?>
 	</fieldset>
 	<fieldset>

@@ -15,12 +15,12 @@ $short = Configure::read('organization.short_name');
 	<fieldset>
  		<legend><?php __('Identity'); ?></legend>
 	<?php
-		echo $this->Form->input('first_name', array(
+		echo $this->ZuluruForm->input('first_name', array(
 			'after' => $this->Html->para (null, __('First (and, if desired, middle) name.', true)),
 		));
-		echo $this->Form->input('last_name');
-		echo $this->Form->input('user_name');
-		echo $this->Form->input('gender', array(
+		echo $this->ZuluruForm->input('last_name');
+		echo $this->ZuluruForm->input('user_name');
+		echo $this->ZuluruForm->input('gender', array(
 			'type' => 'select',
 			'empty' => '---',
 			'options' => Configure::read('options.gender'),
@@ -30,15 +30,15 @@ $short = Configure::read('organization.short_name');
 	<fieldset>
  		<legend><?php __('Password'); ?></legend>
 	<?php
-		echo $this->Form->input('passwd', array('type' => 'password', 'label' => 'Password'));
-		echo $this->Form->input('confirm_passwd', array('type' => 'password', 'label' => 'Confirm Password'));
+		echo $this->ZuluruForm->input('passwd', array('type' => 'password', 'label' => 'Password'));
+		echo $this->ZuluruForm->input('confirm_passwd', array('type' => 'password', 'label' => 'Confirm Password'));
 	?>
 	</fieldset>
 	<fieldset>
  		<legend><?php __('Online Contact'); ?></legend>
 	<?php
-		echo $this->Form->input('email');
-		echo $this->Form->input('publish_email', array(
+		echo $this->ZuluruForm->input('email');
+		echo $this->ZuluruForm->input('publish_email', array(
 			'label' => __('Allow other players to view my email address', true),
 		));
 	?>
@@ -46,29 +46,29 @@ $short = Configure::read('organization.short_name');
 	<fieldset>
  		<legend><?php __('Street Address'); ?></legend>
 	<?php
-		echo $this->Form->input('addr_street', array(
+		echo $this->ZuluruForm->input('addr_street', array(
 			'label' => __('Street and Number', true),
 			'after' => $this->Html->para (null, __('Number, street name, and apartment number if necessary.', true)),
 		));
-		echo $this->Form->input('addr_city', array(
+		echo $this->ZuluruForm->input('addr_city', array(
 			'label' => __('City', true),
 			'after' => $this->Html->para (null, __('Name of city.', true)),
 		));
-		echo $this->Form->input('addr_prov', array(
+		echo $this->ZuluruForm->input('addr_prov', array(
 			'label' => __('Province', true),
 			'type' => 'select',
 			'empty' => '---',
 			'options' => $provinces,
 			'after' => $this->Html->para (null, __('Select a province/state from the list', true)),
 		));
-		echo $this->Form->input('addr_country', array(
+		echo $this->ZuluruForm->input('addr_country', array(
 			'label' => __('Country', true),
 			'type' => 'select',
 			'empty' => '---',
 			'options' => $countries,
 			'after' => $this->Html->para (null, __('Select a country from the list.', true)),
 		));
-		echo $this->Form->input('addr_postalcode', array(
+		echo $this->ZuluruForm->input('addr_postalcode', array(
 			'label' => __('Postal Code', true),
 			'after' => $this->Html->para (null, __("Please enter a correct postal code matching the address above. $short uses this information to help locate new fields near its members.", true)),
 		));
@@ -77,26 +77,26 @@ $short = Configure::read('organization.short_name');
 	<fieldset>
  		<legend><?php __('Telephone Numbers'); ?></legend>
 	<?php
-		echo $this->Form->input('home_phone', array(
+		echo $this->ZuluruForm->input('home_phone', array(
 			'after' => $this->Html->para (null, __('Enter your home telephone number. If you have only a mobile phone, enter that number both here and below.', true)),
 		));
-		echo $this->Form->input('publish_home_phone', array(
+		echo $this->ZuluruForm->input('publish_home_phone', array(
 			'label' => __('Allow other players to view home number', true),
 		));
-		echo $this->Form->input('work_phone', array(
+		echo $this->ZuluruForm->input('work_phone', array(
 			'after' => $this->Html->para (null, __('Enter your work telephone number (optional).', true)),
 		));
-		echo $this->Form->input('work_ext', array(
+		echo $this->ZuluruForm->input('work_ext', array(
 			'label' => 'Work Extension',
 			'after' => $this->Html->para (null, __('Enter your work extension (optional).', true)),
 		));
-		echo $this->Form->input('publish_work_phone', array(
+		echo $this->ZuluruForm->input('publish_work_phone', array(
 			'label' => __('Allow other players to view work number', true),
 		));
-		echo $this->Form->input('mobile_phone', array(
+		echo $this->ZuluruForm->input('mobile_phone', array(
 			'after' => $this->Html->para (null, __('Enter your cell or pager number (optional).', true)),
 		));
-		echo $this->Form->input('publish_mobile_phone', array(
+		echo $this->ZuluruForm->input('publish_mobile_phone', array(
 			'label' => __('Allow other players to view mobile number', true),
 		));
 	?>
@@ -105,13 +105,13 @@ $short = Configure::read('organization.short_name');
 	<fieldset>
  		<legend><?php __('Account Information'); ?></legend>
 	<?php
-		echo $this->Form->input('group_id', array(
+		echo $this->ZuluruForm->input('group_id', array(
 			'label' => __('Account Type', true),
 			'type' => 'select',
 			'empty' => '---',
 			'options' => $groups,
 		));
-		echo $this->Form->input('status', array(
+		echo $this->ZuluruForm->input('status', array(
 			'type' => 'select',
 			'empty' => '---',
 			'options' => Configure::read('options.record_status'),
@@ -122,13 +122,13 @@ $short = Configure::read('organization.short_name');
 	<fieldset>
  		<legend><?php __('Player and Skill Information'); ?></legend>
 	<?php
-		echo $this->Form->input('skill_level', array(
+		echo $this->ZuluruForm->input('skill_level', array(
 			'type' => 'select',
 			'empty' => '---',
 			'options' => Configure::read('options.skill'),
 			'after' => $this->Html->para(null, __('Please use the questionnaire to ', true) . $this->Html->link (__('calculate your rating', true), '#', array('onclick' => 'dorating(); return false;')) . '.'),
 		));
-		echo $this->Form->input('year_started', array(
+		echo $this->ZuluruForm->input('year_started', array(
 			'type' => 'select',
 			'options' => $this->Form->__generateOptions('year', array(
 					'min' => Configure::read('options.year.started.min'),
@@ -138,27 +138,27 @@ $short = Configure::read('organization.short_name');
 			'empty' => '---',
 			'after' => $this->Html->para(null, 'The year you started playing Ultimate in <strong>this</strong> league.'),
 		));
-		echo $this->Form->input('birthdate', array(
+		echo $this->ZuluruForm->input('birthdate', array(
 			'minYear' => Configure::read('options.year.born.min'),
 			'maxYear' => Configure::read('options.year.born.max'),
 			'after' => $this->Html->para(null, __('Please enter a correct birthdate; having accurate information is important for insurance purposes.', true)),
 		));
-		echo $this->Form->input('height', array(
+		echo $this->ZuluruForm->input('height', array(
 			'size' => 6,
 			'after' => $this->Html->para(null, __('Please enter your height in inches (5 feet is 60 inches; 6 feet is 72 inches). This is used to help generate even teams for hat leagues.', true)),
 		));
-		echo $this->Form->input('shirt_size', array(
+		echo $this->ZuluruForm->input('shirt_size', array(
 			'type' => 'select',
 			'empty' => '---',
 			'options' => Configure::read('options.shirt_size'),
 		));
 		if (Configure::read('feature.dog_questions')) {
-			echo $this->Form->input('has_dog');
+			echo $this->ZuluruForm->input('has_dog');
 		}
-		echo $this->Form->input('willing_to_volunteer', array(
+		echo $this->ZuluruForm->input('willing_to_volunteer', array(
 			'label' => __("Can $short contact you about volunteering?", true),
 		));
-		echo $this->Form->input('contact_for_feedback', array(
+		echo $this->ZuluruForm->input('contact_for_feedback', array(
 			'label' => __("From time to time, $short would like to contact members with information on our programs and to solicit feedback. Can $short contact you in this regard?"),
 		));
 	?>

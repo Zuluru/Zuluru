@@ -55,7 +55,7 @@ $this->Html->addCrumb (__('Edit', true));
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Game Status'); ?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php
-		echo $this->Form->input('status', array(
+		echo $this->ZuluruForm->input('status', array(
 			'div' => false,
 			'label' => false,
 			'type' => 'select',
@@ -173,12 +173,12 @@ $this->Html->addCrumb (__('Edit', true));
 	<dl>
 		<dt><?php echo $this->Text->truncate ($game['HomeTeam']['name'], 28); ?></dt>
 		<dd>
-			<?php echo $this->Form->input('home_score', array('label' => false, 'size' => 2)); ?>
+			<?php echo $this->ZuluruForm->input('home_score', array('label' => false, 'size' => 2)); ?>
 
 		</dd>
 		<dt><?php echo $this->Text->truncate ($game['AwayTeam']['name'], 28); ?></dt>
 		<dd>
-			<?php echo $this->Form->input('away_score', array('label' => false, 'size' => 2)); ?>
+			<?php echo $this->ZuluruForm->input('away_score', array('label' => false, 'size' => 2)); ?>
 
 		</dd>
 	</dl>

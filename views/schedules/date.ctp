@@ -33,7 +33,7 @@ echo $this->element('hidden', array('fields' => $this->data));
 // We have an array like 0 => timestamp, and need timestamp => readable
 $dates = array_combine(array_values($dates), array_values($dates));
 $dates = array_map(array($this->ZuluruTime, 'fulldate'), $dates);
-echo $this->Form->input('start_date', array(
+echo $this->ZuluruForm->input('start_date', array(
 		'options' => $dates,
 ));
 ?>

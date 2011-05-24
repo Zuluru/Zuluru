@@ -6,39 +6,37 @@
 		echo $this->Form->input('id');
 
 		if (empty ($this->data['Field']['parent_id'])) {
-			echo $this->Form->input('name', array(
-					'after' => ' ' . $this->ZuluruHtml->help(array('action' => 'fields', 'edit', 'name')),
-			));
-			echo $this->Form->input('code');
+			echo $this->ZuluruForm->input('name');
+			echo $this->ZuluruForm->input('code');
 			echo $this->Form->hidden('parent_id', array('value' => null));
 		} else {
-			echo $this->Form->input('parent_id');
+			echo $this->ZuluruForm->input('parent_id');
 		}
-		echo $this->Form->input('num', array('label' => 'Number'));
-		echo $this->Form->input('is_open');
-		echo $this->Form->input('rating', array(
+		echo $this->ZuluruForm->input('num', array('label' => 'Number'));
+		echo $this->ZuluruForm->input('is_open');
+		echo $this->ZuluruForm->input('rating', array(
 				'options' => Configure::read('options.field_rating'),
 				'empty' => '---',
 		));
 		if (empty ($this->data['Field']['parent_id'])) {
-			echo $this->Form->input('location_street', array('label' => 'Address'));
-			echo $this->Form->input('location_city', array('label' => 'City'));
-			echo $this->Form->input('location_province', array(
+			echo $this->ZuluruForm->input('location_street', array('label' => 'Address'));
+			echo $this->ZuluruForm->input('location_city', array('label' => 'City'));
+			echo $this->ZuluruForm->input('location_province', array(
 					'label' => 'Province',
 					'options' => $provinces,
 					'empty' => '---',
 			));
-			echo $this->Form->input('region_id');
-			echo $this->Form->input('driving_directions', array('cols' => 70));
-			echo $this->Form->input('parking_details', array('cols' => 70));
-			echo $this->Form->input('transit_directions', array('cols' => 70));
-			echo $this->Form->input('biking_directions', array('cols' => 70));
-			echo $this->Form->input('washrooms', array('cols' => 70));
-			echo $this->Form->input('public_instructions', array('cols' => 70));
-			echo $this->Form->input('site_instructions', array('cols' => 70));
-			echo $this->Form->input('sponsor', array('cols' => 70));
-			echo $this->Form->input('location_url');
-			echo $this->Form->input('layout_url');
+			echo $this->ZuluruForm->input('region_id');
+			echo $this->ZuluruForm->input('driving_directions', array('cols' => 70));
+			echo $this->ZuluruForm->input('parking_details', array('cols' => 70));
+			echo $this->ZuluruForm->input('transit_directions', array('cols' => 70));
+			echo $this->ZuluruForm->input('biking_directions', array('cols' => 70));
+			echo $this->ZuluruForm->input('washrooms', array('cols' => 70));
+			echo $this->ZuluruForm->input('public_instructions', array('cols' => 70));
+			echo $this->ZuluruForm->input('site_instructions', array('cols' => 70));
+			echo $this->ZuluruForm->input('sponsor', array('cols' => 70));
+			echo $this->ZuluruForm->input('location_url');
+			echo $this->ZuluruForm->input('layout_url');
 		}
 	?>
 	</fieldset>
