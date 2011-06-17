@@ -70,6 +70,29 @@ class AllController extends AppController {
 				'conditions' => array('GameSlot.game_date >= CURDATE()'),
 				'order' => 'GameSlot.game_date ASC, GameSlot.game_start ASC',
 			)));
+
+			// Check if we need to update attendance records for any upcoming games
+			$reread = false;
+			foreach ($future_games as $game) {
+				if (empty ($game['Attendance'])) {
+					if ($game['HomeTeam']['track_attendance'] && in_array($game['HomeTeam']['id'], $team_ids)) {
+						$attendance = $this->Game->_read_attendance($game['HomeTeam']['id'], $game['Game']['id']);
+						$reread = true;
+					}
+					if ($game['AwayTeam']['track_attendance'] && in_array($game['AwayTeam']['id'], $team_ids)) {
+						$attendance = $this->Game->_read_attendance($game['AwayTeam']['id'], $game['Game']['id']);
+						$reread = true;
+					}
+				}
+			}
+
+			if ($reread) {
+				$future_games = $this->Game->find ('all', array_merge_recursive ($game_opts, array(
+					'conditions' => array('GameSlot.game_date >= CURDATE()'),
+					'order' => 'GameSlot.game_date ASC, GameSlot.game_start ASC',
+				)));
+			}
+
 			$this->set('games', array_merge ($past_games, $future_games));
 		} else {
 			$this->set('games', array());
