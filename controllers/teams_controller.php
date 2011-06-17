@@ -362,20 +362,64 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->Team->contain (array(
-				'Person' => array('Upload'),
-				'League',
+			'Person' => array('Upload'),
+			'League' => array('Day'),
 		));
+
 		$team = $this->Team->read(null, $id);
 		if (!$team) {
 			$this->Session->setFlash(__('Invalid team', true));
 			$this->redirect(array('action' => 'index'));
 		}
+		$team_days = Set::extract('/League/Day/id', $team);
+
+		$member_rule = "compare(member_type('{$team['League']['open']}') != 'none')";
 
 		foreach ($team['Person'] as $key => $person) {
+			// Get everything from the user record that the rule might need
+			$this->Team->Person->contain(array(
+				'Registration' => array(
+					'Event' => array(
+						'EventType',
+					),
+					'conditions' => array('Registration.payment' => 'paid'),
+				),
+				'Team' => array(
+					'League' => array('Day'),
+					'TeamsPerson',
+					'conditions' => array('Team.id !=' => $id),
+				),
+			));
+			$full_person = $this->Team->Person->read(null, $person['id']);
+
 			if ($person['TeamsPerson']['status'] == ROSTER_APPROVED) {
 				$team['Person'][$key]['can_add'] = true;
 			} else {
-				$team['Person'][$key]['can_add'] = $this->_canAdd (array('Person' => $person), $team);
+				$team['Person'][$key]['can_add'] = $this->_canAdd ($full_person, $team);
+			}
+
+			// Check if the player is a member, so we can highlight any that aren't
+			$rule_obj = AppController::_getComponent ('Rule');
+			if (!$rule_obj->init ($member_rule)) {
+				return __('Failed to parse the rule', true);
+			}
+			$team['Person'][$key]['is_a_member'] = $rule_obj->evaluate ($full_person);
+
+			// Check for any roster conflicts
+			$team['Person'][$key]['roster_conflict'] = false;
+			if (!empty ($team_days)) {
+				foreach ($full_person['Team'] as $other_team) {
+					if (($other_team['League']['open'] <= $team['League']['open'] && $other_team['League']['close'] >= $team['League']['open']) ||
+						($team['League']['open'] <= $other_team['League']['open'] && $team['League']['close'] >= $other_team['League']['open']))
+					{
+						$other_team_days = Set::extract('/League/Day/id', $other_team);
+						$overlap = array_intersect($team_days, $other_team_days);
+						if (!empty($overlap)) {
+							$team['Person'][$key]['roster_conflict'] = true;
+							break;
+						}
+					}
+				}
 			}
 		}
 
@@ -1498,23 +1542,26 @@ class TeamsController extends AppController {
 				return __('Failed to parse the rule', true);
 			}
 
-			// Get everything from the user record that the rule might need
-			$this->Team->Person->contain (array (
-				'Registration' => array(
-					'Event' => array(
-						'EventType',
+			if (!array_key_exists('Registration', $person['Person']) || !array_key_exists('Team', $person['Person'])) {
+				// Get everything from the user record that the rule might need
+				$this->Team->Person->contain (array (
+					'Registration' => array(
+						'Event' => array(
+							'EventType',
+						),
+						'conditions' => array('Registration.payment' => 'paid'),
 					),
-					'conditions' => array('Registration.payment' => 'paid'),
-				),
-				'Team' => array(
-					'League',
-					'TeamsPerson',
-					'conditions' => array('Team.id !=' => $team['Team']['id']),
-				),
-			));
+					'Team' => array(
+						'League',
+						'TeamsPerson',
+						'conditions' => array('Team.id !=' => $team['Team']['id']),
+					),
+				));
 
-			$full_person = $this->Team->Person->read(null, $person['Person']['id']);
-			if (!$rule_obj->evaluate ($full_person)) {
+				$person = $this->Team->Person->read(null, $person['Person']['id']);
+			}
+
+			if (!$rule_obj->evaluate ($person)) {
 				return __('To be added to this team, this player must first', true) . ' ' . $rule_obj->reason . '.';
 			}
 		}

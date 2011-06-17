@@ -251,16 +251,23 @@ $this->Html->addCrumb (__('View', true));
 			}
 
 			$conflicts = array();
-			// TODO: Check for roster conflicts
 			if ($person['status'] == 'inactive') {
-				$conflicts[] = '(' . __('account inactive', true) . ')';
+				$conflicts[] = __('account inactive', true);
+			}
+			if (!$person['is_a_member']) {
+				$conflicts[] = __('not a member', true);
+			}
+			if ($person['roster_conflict']) {
+				$conflicts[] = __('roster conflict', true);
 			}
 	?>
 	<tr<?php echo $class;?>>
 		<td><?php
 		echo $this->element('people/block', compact('person'));
 		if (!empty ($conflicts)) {
-			echo '<div class="roster_conflict">' . implode ('<br />', $conflicts) . '</div>';
+			echo $this->Html->tag('div',
+				'(' . implode (', ', $conflicts) . ')',
+				array('class' => 'error-message'));
 		}
 		?></td>
 		<td<?php if ($warning) echo ' class="error-message"';?>><?php
