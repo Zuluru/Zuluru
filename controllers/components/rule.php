@@ -36,6 +36,7 @@ class RuleComponent extends Object
 		'have a membership type of intro'				=> 'have an introductory membership',
 		'have a membership type of full'				=> 'have a full membership',
 		'have an introductory membership OR have a full membership' => 'have a valid membership',
+		'have a full membership OR have an introductory membership' => 'have a valid membership',
 		'have a valid membership OR have a valid membership' => 'have a valid membership',
 
 		'have a birthdate greater than or equal to'		=> 'have been born on or after',
