@@ -239,7 +239,11 @@ class GamesController extends AppController {
 						$allstars[] = array('person_id' => $allstar);
 					}
 				}
-				$this->data['Allstar'] = $allstars;
+				if (empty ($allstars)) {
+					unset ($this->data['Allstar']);
+				} else {
+					$this->data['Allstar'] = $allstars;
+				}
 			}
 
 			$this->_adjustScoreAndRatings($game, $this->data);

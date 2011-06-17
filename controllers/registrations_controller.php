@@ -332,9 +332,13 @@ class RegistrationsController extends AppController {
 				$data['Registration']['payment'] = 'Paid';
 			}
 
-			// Manually add the event id to all of the responses :-(
-			foreach (array_keys ($data['Response']) as $key) {
-				$data['Response'][$key]['event_id'] = $id;
+			if (empty ($data['Response'])) {
+				unset ($data['Response']);
+			} else {
+				// Manually add the event id to all of the responses :-(
+				foreach (array_keys ($data['Response']) as $key) {
+					$data['Response'][$key]['event_id'] = $id;
+				}
 			}
 
 			if (!$this->Registration->saveAll($data, array('validate' => false))) {
