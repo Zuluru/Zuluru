@@ -7,13 +7,18 @@ class GameSlotsController extends AppController {
 		$id = $this->_arg('slot');
 		if (!$id) {
 			$this->Session->setFlash(__('Invalid game slot', true));
-			$this->redirect(array('action' => 'index'));
+			$this->redirect('/');
 		}
 		$this->GameSlot->contain(array(
 				'Field' => array('ParentField'),
 				'LeagueGameslotAvailability' => array('League'),
 		));
-		$this->set('gameSlot', $this->GameSlot->read(null, $id));
+		$gameSlot = $this->GameSlot->read(null, $id);
+		if (!$gameSlot) {
+			$this->Session->setFlash(__('Invalid game slot', true));
+			$this->redirect('/');
+		}
+		$this->set(compact('gameSlot'));
 	}
 
 	function add() {
@@ -113,7 +118,7 @@ class GameSlotsController extends AppController {
 		$id = $this->_arg('slot');
 		if (!$id && empty($this->data)) {
 			$this->Session->setFlash(__('Invalid game slot', true));
-			$this->redirect(array('action' => 'index'));
+			$this->redirect('/');
 		}
 		if (!empty($this->data)) {
 			// Set and then save the data back, so the date is deconstructed and can
@@ -160,14 +165,14 @@ class GameSlotsController extends AppController {
 		$id = $this->_arg('slot');
 		if (!$id) {
 			$this->Session->setFlash(__('Invalid id for game slot', true));
-			$this->redirect(array('action'=>'index'));
+			$this->redirect('/');
 		}
 		if ($this->GameSlot->delete($id)) {
 			$this->Session->setFlash(__('Game slot deleted', true));
-			$this->redirect(array('action'=>'index'));
+			$this->redirect('/');
 		}
 		$this->Session->setFlash(__('Game slot was not deleted', true));
-		$this->redirect(array('action' => 'index'));
+		$this->redirect('/');
 	}
 }
 ?>
