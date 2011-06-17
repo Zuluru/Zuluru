@@ -222,6 +222,15 @@ class GamesController extends AppController {
 			$this->data['SpiritEntry'][$game['Game']['away_team']]['team_id'] = $game['Game']['away_team'];
 			$this->data['SpiritEntry'][$game['Game']['away_team']]['created_team_id'] = $game['Game']['home_team'];
 
+			// We want to remember what each team's rating was going into this game.
+			// Ratings are not set until a game is finalized, so we don't want to
+			// change this if it was already present, as that means we are changing
+			// a score that was already approved.
+			if ($game['Game']['rating_home'] === null) {
+				$this->data['Game']['rating_home'] = $game['HomeTeam']['rating'];
+				$this->data['Game']['rating_away'] = $game['AwayTeam']['rating'];
+			}
+
 			// We need to merge the two allstar nomination areas
 			$allstars = array();
 			if (array_key_exists ('Allstar', $this->data)) {
