@@ -72,6 +72,15 @@ $this->Html->addCrumb (__('Edit', true));
 
 	</dd>
 	<?php endif; ?>
+
+	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Captain Emails'); ?></dt>
+	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+		<?php
+		$captains = array_merge ($captains['HomeTeam']['Person'], $captains['AwayTeam']['Person']);
+		echo $this->Html->link(__('Email all captains', true), 'mailto:' . implode (';', Set::extract ('/email_formatted', $captains)));
+		?>
+
+	</dd>
 </dl>
 
 <fieldset class="wide_labels">

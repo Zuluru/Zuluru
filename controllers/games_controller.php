@@ -163,13 +163,13 @@ class GamesController extends AppController {
 			'HomeTeam' => array(
 				'Person' => array(
 					'conditions' => array('TeamsPerson.position' => Configure::read('extended_playing_roster_positions')),
-					'fields' => array('id', 'first_name', 'last_name', 'gender'),
+					'fields' => array('id', 'first_name', 'last_name', 'gender', 'email'),
 				),
 			),
 			'AwayTeam' => array(
 				'Person' => array(
 					'conditions' => array('TeamsPerson.position' => Configure::read('extended_playing_roster_positions')),
-					'fields' => array('id', 'first_name', 'last_name', 'gender'),
+					'fields' => array('id', 'first_name', 'last_name', 'gender', 'email'),
 				),
 			),
 			'ApprovedBy',
@@ -185,6 +185,23 @@ class GamesController extends AppController {
 			$this->Session->setFlash(__('You do not have permission to edit that game.', true));
 			$this->redirect('/');
 		}
+
+		$this->Game->contain(array(
+			// Get the list of captains for each team, for the email link
+			'HomeTeam' => array(
+				'Person' => array(
+					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+					'fields' => array('id', 'first_name', 'last_name', 'email'),
+				),
+			),
+			'AwayTeam' => array(
+				'Person' => array(
+					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+					'fields' => array('id', 'first_name', 'last_name', 'email'),
+				),
+			),
+		));
+		$captains = $this->Game->read(null, $id);
 
 		// Spirit score entry validation comes from the spirit component
 		$spirit_obj = $this->_getComponent ('Spirit', $game['League']['sotg_questions'], $this);
@@ -245,7 +262,7 @@ class GamesController extends AppController {
 
 		// To maximize shared code between the edit and view templates, we'll
 		// set it in the 'game' variable here too.
-		$this->set(compact (array ('game', 'spirit_obj', 'league_obj')));
+		$this->set(compact (array ('game', 'captains', 'spirit_obj', 'league_obj')));
 		$this->set('is_coordinator', in_array ($game['League']['id'], $this->Session->read('Zuluru.LeagueIDs')));
 	}
 
