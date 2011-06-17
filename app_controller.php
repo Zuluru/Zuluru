@@ -453,7 +453,8 @@ class AppController extends Controller {
 			return;
 		}
 
-		if (!$this->Session->check('Zuluru.Unpaid')) {
+		$unpaid = $this->Session->read('Zuluru.Unpaid');
+		if (empty($unpaid)) {
 			if (!isset ($this->Registration)) {
 				if (!class_exists ('Registration')) {
 					App::import ('Model', 'Registration');
@@ -469,7 +470,8 @@ class AppController extends Controller {
 			));
 		}
 
-		if (!$this->Session->check('Zuluru.Teams')) {
+		$teams = $this->Session->read('Zuluru.Teams');
+		if (empty($teams)) {
 			if (!isset ($this->Team)) {
 				$this->Team = ClassRegistry::init ('Team');
 			}
@@ -492,7 +494,8 @@ class AppController extends Controller {
 			$this->Session->write ('Zuluru.OwnedTeamIDs', Set::extract ('/Team/id', $owned_teams));
 		}
 
-		if (!$this->Session->check('Zuluru.Leagues')) {
+		$leagues = $this->Session->read('Zuluru.Leagues');
+		if (empty($leagues)) {
 			if (!isset ($this->League)) {
 				if (!class_exists ('League')) {
 					App::import ('Model', 'League');
