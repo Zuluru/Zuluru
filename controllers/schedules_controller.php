@@ -233,8 +233,7 @@ class SchedulesController extends AppController {
 
 		if ($this->_arg('confirm')) {
 			// Wrap the whole thing in a transaction, for safety.
-			$db =& ConnectionManager::getDataSource($this->League->Game->useDbConfig);
-			$db->begin($this->League->Game);
+			$transaction = new DatabaseTransaction($this->League->Game);
 
 			// Clear game_id from game_slots, and delete the games.
 			$game_ids = Set::extract ('/Game/id', $games);
@@ -246,11 +245,10 @@ class SchedulesController extends AppController {
 				), false))
 			{
 				$this->Session->setFlash(__('Deleted games on the requested date.', true));
-				$db->commit($this->League->Game);
+				$transaction->commit();
 				$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $id));
 			} else {
 				$this->Session->setFlash(__('Failed to delete games on the requested date.', true));
-				$db->rollback($this->League->Game);
 			}
 		}
 
@@ -297,8 +295,7 @@ class SchedulesController extends AppController {
 		$league_obj->league = $league;
 		if (!empty ($this->data)) {
 			// Wrap the whole thing in a transaction, for safety.
-			$db =& ConnectionManager::getDataSource($this->League->Game->useDbConfig);
-			$db->begin($this->League->Game);
+			$transaction = new DatabaseTransaction($this->League->Game);
 
 			if ($league_obj->assignFieldsByPreferences($this->data['new_date'], $league['Game'])) {
 
@@ -306,7 +303,7 @@ class SchedulesController extends AppController {
 					$unused_slots = Set::extract ('/GameSlot/id', $league['Game']);
 					if ($this->League->Game->GameSlot->updateAll (array('game_id' => null), array('GameSlot.id' => $unused_slots))) {
 						$this->Session->setFlash(__('Games rescheduled', true));
-						$db->commit($this->League->Game);
+						$transaction->commit();
 						$this->redirect (array('controller' => 'leagues', 'action' => 'schedule', 'league' => $id));
 					} else {
 						$this->Session->setFlash(__('Problem! Games were rescheduled, but old game slots were not freed. Schedule will be unstable!', true));
@@ -314,7 +311,6 @@ class SchedulesController extends AppController {
 				}
 			}
 			// Failure flash message will have been set by whatever failed
-			$db->rollback($this->League->Game);
 		}
 
 		// Find the list of available dates for scheduling this league

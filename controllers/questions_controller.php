@@ -104,19 +104,17 @@ class QuestionsController extends AppController {
 		}
 
 		// Wrap the whole thing in a transaction, for safety.
-		$db =& ConnectionManager::getDataSource($this->Question->useDbConfig);
-		$db->begin($this->Question);
+		$transaction = new DatabaseTransaction($this->Question);
 
 		if ($this->Question->delete($id)) {
 			if ($this->Question->Answer->deleteAll(array('question_id' => $id))) {
 				$this->Session->setFlash(sprintf(__('%s deleted', true), 'Question'));
-				$db->commit($this->Question);
+				$transaction->commit();
 				$this->redirect(array('action'=>'index'));
 			}
 		}
 
 		$this->Session->setFlash(sprintf(__('%s was not deleted', true), 'Question'));
-		$db->rollback($this->Question);
 		$this->redirect(array('action' => 'index'));
 	}
 

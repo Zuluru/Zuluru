@@ -299,8 +299,7 @@ class LeagueTypeComponent extends Object
 		// indicates to Cake that slots are supposed to be created for games,
 		// rather than being created ahead of time and assigned to games).
 		// So, we replicate the important bits of saveAll here.
-		$db =& ConnectionManager::getDataSource($this->_controller->League->Game->useDbConfig);
-		$db->begin($this->_controller->League->Game);
+		$transaction = new DatabaseTransaction($this->_controller->League->Game);
 		foreach ($this->games as $game) {
 			$this->_controller->League->Game->create();
 			$success = $this->_controller->League->Game->save($game);
@@ -310,12 +309,11 @@ class LeagueTypeComponent extends Object
 			}
 
 			if (!$success) {
-				$db->rollback($this->_controller->League->Game);
 				return false;
 			}
 		}
 
-		return ($db->commit($this->_controller->League->Game) !== false);
+		return ($transaction->commit() !== false);
 	}
 
 	/**

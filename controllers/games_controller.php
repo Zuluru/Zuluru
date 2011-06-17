@@ -219,15 +219,14 @@ class GamesController extends AppController {
 			$this->_adjustScoreAndRatings($game, $this->data);
 
 			// Wrap the whole thing in a transaction, for safety.
-			$db =& ConnectionManager::getDataSource($this->Game->useDbConfig);
-			$db->begin($this->Game);
+			$transaction = new DatabaseTransaction($this->Game);
 
 			if ($this->Game->Allstar->deleteAll(array('game_id' => $id))) {
 				if ($this->Game->saveAll($this->data, array('validate' => 'first'))) {
 					$this->Session->setFlash(__('The game has been saved', true));
 					// Delete score entries
 					$this->Game->ScoreEntry->deleteAll(array('game_id' => $id));
-					$db->commit($this->Game);
+					$transaction->commit();
 					$this->redirect(array('action' => 'view', 'game' => $id));
 				} else {
 					$this->Session->setFlash(__('The game could not be saved. Please, try again.', true));
@@ -235,9 +234,6 @@ class GamesController extends AppController {
 					$validationErrors = $this->Game->validationErrors;
 				}
 			}
-
-			// If we get here, something failed.
-			$db->rollback($this->Game);
 		}
 
 		if (empty($this->data)) {
@@ -289,12 +285,11 @@ class GamesController extends AppController {
 		// If the game isn't finalized, and there's no score entry, then there won't
 		// be any other related records either, and it's safe to delete it.
 		// Wrap the whole thing in a transaction, for safety.
-		$db =& ConnectionManager::getDataSource($this->Game->useDbConfig);
-		$db->begin($this->Game);
+		$transaction = new DatabaseTransaction($this->Game);
 		if ($this->Game->delete($id)) {
 			if ($this->Game->GameSlot->updateAll (array('game_id' => null), array('GameSlot.id' => $game['GameSlot']['id']))) {
 				$this->Session->setFlash(__('Game deleted', true));
-				$db->commit($this->Game);
+				$transaction->commit();
 				$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $game['League']['id']));
 			} else {
 				$this->Session->setFlash(__('Game was deleted, but game slot was not cleared', true));
@@ -302,7 +297,6 @@ class GamesController extends AppController {
 		} else {
 			$this->Session->setFlash(__('Game was not deleted', true));
 		}
-		$db->rollback($this->Game);
 		$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $game['League']['id']));
 	}
 

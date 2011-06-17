@@ -33,8 +33,7 @@ class GameSlotsController extends AppController {
 					// saveAll handles hasMany relations OR multiple records, but not both,
 					// so we have to save each slot separately. Wrap the whole thing in a
 					// transaction, for safety.
-					$db =& ConnectionManager::getDataSource($this->GameSlot->useDbConfig);
-					$db->begin($this->GameSlot);
+					$transaction = new DatabaseTransaction($this->GameSlot);
 					$success = true;
 
 					$game_end = (empty ($this->data['GameSlot']['game_end']) ? null : $this->data['GameSlot']['game_end']);
@@ -55,14 +54,13 @@ class GameSlotsController extends AppController {
 							// Try to save; if it fails, we need to break out of two levels of foreach
 							// TODO: 'atomic' can go, once we've upgraded everything to Cake 1.3.6
 							if (!$this->GameSlot->saveAll($slot, array('atomic' => false))) {
-								$db->rollback($this->GameSlot);
 								$success = false;
 								break 2;
 							}
 						}
 					}
 
-					if ($success && $db->commit($this->GameSlot) !== false) {
+					if ($success && $transaction->commit() !== false) {
 						$this->Session->setFlash(__('The game slots have been saved', true));
 						// We intentionally don't redirect here, leaving the user back on the
 						// original "add" form, with the last game date/start/end/weeks options
@@ -136,19 +134,17 @@ class GameSlotsController extends AppController {
 			}
 
 			// Wrap the whole thing in a transaction, for safety.
-			$db =& ConnectionManager::getDataSource($this->GameSlot->useDbConfig);
-			$db->begin($this->GameSlot);
+			$transaction = new DatabaseTransaction($this->GameSlot);
 
 			if ($this->GameSlot->LeagueGameslotAvailability->deleteAll(array('game_slot_id' => $id))) {
 				// TODO: 'atomic' can go, once we've upgraded everything to Cake 1.3.6
 				if ($this->GameSlot->saveAll($this->data, array('atomic' => false))) {
 					$this->Session->setFlash(__('The game slot has been saved', true));
-					$db->commit($this->GameSlot);
+					$transaction->commit();
 					$this->redirect(array('action' => 'view', 'slot' => $id));
 				}
 			}
 			$this->Session->setFlash(__('The game slot could not be saved. Please, try again.', true));
-			$db->rollback($this->GameSlot);
 		}
 
 		if (empty($this->data)) {
