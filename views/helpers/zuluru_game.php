@@ -15,7 +15,7 @@ class ZuluruGameHelper extends Helper {
 		$score_entry = $game['ScoreEntry'];
 
 		// Calculate the game end time stamp
-		$end_time = strtotime("{$game['GameSlot']['game_date']} {$game['GameSlot']['game_end']}") +
+		$end_time = strtotime("{$game['GameSlot']['game_date']} {$game['GameSlot']['display_game_end']}") +
 				Configure::read('timezone.adjust') * 60;
 
 		// If scores are being shown from a particular team's perspective,
@@ -69,7 +69,9 @@ class ZuluruGameHelper extends Helper {
 				} else {
 					echo ' (' . __('unofficial', true) . ')';
 				}
-			} else if ($end_time < time()) {
+			} else if (time() > $end_time - 60 * 60) {
+				// Allow score submissions up to an hour before scheduled game end time.
+				// Some people like to submit via mobile phone immediately, and games can end early.
 				if ($team_id) {
 					echo $this->Html->link(
 							__('Submit', true),
