@@ -52,10 +52,8 @@ class GameSlotsController extends AppController {
 								$slot['LeagueGameslotAvailability'][] = array('league_id' => $league_id);
 							}
 							// Try to save; if it fails, we need to break out of two levels of foreach
-							// TODO: 'atomic' can go, once we've upgraded everything to Cake 1.3.6
-							if (!$this->GameSlot->saveAll($slot, array('atomic' => false))) {
+							if (!$this->GameSlot->saveAll($slot)) {
 								$success = false;
-								break 2;
 							}
 						}
 					}
@@ -137,8 +135,7 @@ class GameSlotsController extends AppController {
 			$transaction = new DatabaseTransaction($this->GameSlot);
 
 			if ($this->GameSlot->LeagueGameslotAvailability->deleteAll(array('game_slot_id' => $id))) {
-				// TODO: 'atomic' can go, once we've upgraded everything to Cake 1.3.6
-				if ($this->GameSlot->saveAll($this->data, array('atomic' => false))) {
+				if ($this->GameSlot->saveAll($this->data)) {
 					$this->Session->setFlash(__('The game slot has been saved', true));
 					$transaction->commit();
 					$this->redirect(array('action' => 'view', 'slot' => $id));

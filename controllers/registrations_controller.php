@@ -337,8 +337,7 @@ class RegistrationsController extends AppController {
 				$data['Response'][$key]['event_id'] = $id;
 			}
 
-			// TODO: 'atomic' can go, once we've upgraded everything to Cake 1.3.6
-			if (!$this->Registration->saveAll($data, array('atomic' => false, 'validate' => false))) {
+			if (!$this->Registration->saveAll($data, array('validate' => false))) {
 				$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
 				return;
 			}
@@ -658,8 +657,7 @@ class RegistrationsController extends AppController {
 				}
 			}
 
-			// TODO: 'atomic' can go, once we've upgraded everything to Cake 1.3.6
-			if (!$this->Registration->saveAll($data, array('atomic' => false, 'validate' => false))) {
+			if (!$this->Registration->saveAll($data, array('validate' => false))) {
 				$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
 				return;
 			}
