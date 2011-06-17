@@ -428,7 +428,7 @@ class RegistrationsController extends AppController {
 		));
 		$registration = $this->Registration->read(null, $id);
 
-		if ($registration['Registration']['payment'] == 'Paid') {
+		if ($registration['Registration']['payment'] == 'Paid' && $registration['Event']['cost'] > 0) {
 			$this->Session->setFlash(__('You have already paid for this! Contact the office to arrange a refund.', true));
 			$this->redirect(array('action' => 'checkout'));
 		}
