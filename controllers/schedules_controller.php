@@ -112,6 +112,7 @@ class SchedulesController extends AppController {
 				'conditions' => array(
 					'GameSlot.game_id' => null,
 					'LeagueGameslotAvailability.league_id' => $id,
+					'GameSlot.game_date >= CURDATE()',
 				),
 				'fields' => 'DISTINCT GameSlot.game_date AS date',
 				'order' => 'GameSlot.game_date',
