@@ -167,7 +167,7 @@ class User extends AppModel {
 		'addr_postalcode' => array(
 			'postal' => array(
 				'rule' => array('postal', null, 'ca'),
-				// TODO: validate this better: by province and country
+				// TODO: validate this by province
 				'message' => 'You must enter a valid Canadian postal code',
 			),
 		),
@@ -268,6 +268,15 @@ class User extends AppModel {
 	var $manageAccounts = true;
 	var $manageName = 'Zuluru';
 	var $loginComponent = null;
+
+	function beforeValidate() {
+		if ($this->data[$this->alias]['addr_country'] == 'United States') {
+			$this->validate['addr_postalcode']['postal'] = array(
+				'rule' => array('postal', null, 'us'),
+				'message' => 'You must enter a valid US zip code',
+			);
+		}
+	}
 
 	function beforeSave() {
 		if (array_key_exists ('User', $this->data) && array_key_exists ('passwd', $this->data['User'])) {
