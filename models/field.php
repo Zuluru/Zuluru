@@ -139,7 +139,7 @@ class Field extends AppModel {
 
 		// Auto-detect the permit URLs
 		$record[$this->alias]['permit_url'] = '';
-		if (array_key_exists ('code', $record[$this->alias]) && is_dir($permit_dir)) {
+		if (array_key_exists ('code', $record[$this->alias]) && !empty($record[$this->alias]['code']) && is_dir($permit_dir)) {
 			if ($dh = opendir($permit_dir)) {
 				while (($file = readdir($dh)) !== false) {
 					if (fnmatch ($record[$this->alias]['code'] . '*', $file) ) {
