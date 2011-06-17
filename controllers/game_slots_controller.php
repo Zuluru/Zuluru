@@ -167,9 +167,16 @@ class GameSlotsController extends AppController {
 			$this->Session->setFlash(__('Invalid id for game slot', true));
 			$this->redirect('/');
 		}
+
+		// Wrap the whole thing in a transaction, for safety.
+		$transaction = new DatabaseTransaction($this->GameSlot);
+
 		if ($this->GameSlot->delete($id)) {
-			$this->Session->setFlash(__('Game slot deleted', true));
-			$this->redirect('/');
+			if ($this->GameSlot->LeagueGameslotAvailability->deleteAll(array('game_slot_id' => $id))) {
+				$this->Session->setFlash(__('Game slot deleted', true));
+				$transaction->commit();
+				$this->redirect('/');
+			}
 		}
 		$this->Session->setFlash(__('Game slot was not deleted', true));
 		$this->redirect('/');
