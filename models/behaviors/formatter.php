@@ -92,6 +92,7 @@ class FormatterBehavior extends ModelBehavior
 		return preg_replace(
 			'/
 				(?: ^ | \\b )			# assertion: beginning of string or a word boundary
+				( O\' | Ma?c | Van )	# attempt to match common surnames
 				( [^\W\d_] )			# match next char; we exclude digits and _ from \w
 			/xe',
 			"'\$1' . strtoupper('\$2')",
