@@ -15,8 +15,12 @@ $this->Html->addCrumb (__('View', true));
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Home Team'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php
+			$rating = $game['Game']['rating_home'];
+			if ($rating === null) {
+				$rating = $game['HomeTeam']['rating'];
+			}
 			echo $this->element('team/block', array('team' => $game['HomeTeam'])) .
-					' (' . __('rated', true) . ': ' . $game['HomeTeam']['rating'] . ') ';
+					' (' . __('rated', true) . ': ' . $rating . ') ';
 			if (!Game::_is_finalized($game))
 				printf ('(%0.1f%% %s)', Game::_calculate_expected_win($game['HomeTeam']['rating'], $game['AwayTeam']['rating']) * 100, __('chance to win', true));
 			?>
@@ -25,8 +29,12 @@ $this->Html->addCrumb (__('View', true));
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Away Team'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php
+			$rating = $game['Game']['rating_away'];
+			if ($rating === null) {
+				$rating = $game['AwayTeam']['rating'];
+			}
 			echo $this->element('team/block', array('team' => $game['AwayTeam'])) .
-					' (' . __('rated', true) . ': ' . $game['AwayTeam']['rating'] . ') ';
+					' (' . __('rated', true) . ': ' . $rating . ') ';
 			if (!Game::_is_finalized($game))
 				printf ('(%0.1f%% %s)', Game::_calculate_expected_win($game['AwayTeam']['rating'], $game['HomeTeam']['rating']) * 100, __('chance to win', true));
 			?>
