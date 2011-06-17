@@ -337,6 +337,8 @@ class Game extends AppModel {
 				),
 			));
 			$team = $this->Attendance->Team->read(null, $team_id);
+		} else if (array_key_exists ('id', $team)) {
+			$team_id = $team['id'];
 		} else {
 			$team_id = $team['Team']['id'];
 		}
@@ -409,6 +411,12 @@ class Game extends AppModel {
 	}
 
 	function _create_attendance($team, $game_id, $date) {
+		if (array_key_exists ('id', $team)) {
+			$team_id = $team['id'];
+		} else {
+			$team_id = $team['Team']['id'];
+		}
+
 		// Find game details
 		if ($game_id !== null) {
 			$this->Contain (array(
@@ -418,7 +426,7 @@ class Game extends AppModel {
 			if (!$game) {
 				return;
 			}
-			if ($game['Game']['home_team'] != $team['Team']['id'] && $game['Game']['away_team'] != $team['Team']['id']) {
+			if ($game['Game']['home_team'] != $team_id && $game['Game']['away_team'] != $team_id) {
 				return;
 			}
 			$date = $game['GameSlot']['game_date'];
@@ -427,7 +435,7 @@ class Game extends AppModel {
 			$attendance = $this->Attendance->find('all', array(
 				'contain' => array(),
 				'conditions' => array(
-							'team_id' => $team['Team']['id'],
+							'team_id' => $team_id,
 							'game_id' => $game_id,
 							),
 						));
@@ -438,7 +446,7 @@ class Game extends AppModel {
 				$attendance = $this->Attendance->find('all', array(
 					'contain' => array(),
 					'conditions' => array(
-								'team_id' => $team['Team']['id'],
+								'team_id' => $team_id,
 								'game_date' => $date,
 								),
 							));
@@ -449,8 +457,8 @@ class Game extends AppModel {
 				$games = $this->find('all', array(
 					'conditions' => array(
 								'OR' => array(
-									'Game.home_team' => $team['Team']['id'],
-									'Game.away_team' => $team['Team']['id'],
+									'Game.home_team' => $team_id,
+									'Game.away_team' => $team_id,
 									),
 								'GameSlot.game_date' => $date,
 								'Game.id !=' => $game_id,
@@ -483,8 +491,8 @@ class Game extends AppModel {
 			$games = $this->find('all', array(
 					'conditions' => array(
 						'OR' => array(
-							'Game.home_team' => $team['Team']['id'],
-							'Game.away_team' => $team['Team']['id'],
+							'Game.home_team' => $team_id,
+							'Game.away_team' => $team_id,
 						),
 						'GameSlot.game_date' => $date,
 						'Game.published' => true,
@@ -496,7 +504,7 @@ class Game extends AppModel {
 				$attendance = $this->Attendance->find('all', array(
 					'contain' => array(),
 					'conditions' => array(
-						'team_id' => $team['Team']['id'],
+						'team_id' => $team_id,
 						'game_date' => $date,
 					),
 				));
@@ -546,7 +554,7 @@ class Game extends AppModel {
 			} else {
 				// We didn't find any appropriate record, so create a new one
 				$update = array(
-					'team_id' => $team['Team']['id'],
+					'team_id' => $team_id,
 					'game_date' => $date,
 					'game_id' => $game_id,
 					'person_id' => $person['id'],
