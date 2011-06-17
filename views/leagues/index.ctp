@@ -49,6 +49,9 @@ foreach ($leagues as $league):
 				echo $this->ZuluruHtml->iconLink('spirit_32.png',
 					array('action' => 'spirit', 'league' => $league['League']['id']),
 					array('alt' => __('Spirit', true), 'title' => __('See League Spirit Report', true)));
+				echo $this->ZuluruHtml->iconLink('field_report_32.png',
+					array('action' => 'fields', 'league' => $league['League']['id']),
+					array('alt' => __('Field Distribution', true), 'title' => __('Field Distribution Report', true)));
 			}
 			if ($is_admin) {
 				echo $this->ZuluruHtml->iconLink('coordinator_add_32.png',
