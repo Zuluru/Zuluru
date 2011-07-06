@@ -2,6 +2,9 @@ Dear <?php echo $captains; ?>,
 
 This is your attendance summary for the <?php
 echo $team['name']; ?> game against <?php echo $opponent['name']; ?> at <?php
+$url = Router::url(array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id']), true);
+echo "{$game['GameSlot']['Field']['name']} {$game['GameSlot']['Field']['num']} ($url)";
+?> starting at <?php
 echo $this->ZuluruTime->time($game['GameSlot']['game_start']); ?> on <?php
 echo $this->ZuluruTime->date($game['GameSlot']['game_date']);
 ?>.

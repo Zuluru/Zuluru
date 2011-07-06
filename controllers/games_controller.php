@@ -363,7 +363,7 @@ class GamesController extends AppController {
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
-			'GameSlot',
+			'GameSlot' => array('Field' => array('ParentField')),
 		));
 		$game = $this->Game->read(null, $id);
 		if ($game['Game']['home_team'] == $team_id) {
@@ -426,7 +426,7 @@ class GamesController extends AppController {
 						'fields' => array('id', 'first_name', 'last_name', 'email'),
 					),
 				),
-				'GameSlot',
+				'GameSlot' => array('Field' => array('ParentField')),
 				// We need to specify the team id here, in case the person is on both teams in this game
 				'Attendance' => array(
 					'conditions' => array(
@@ -1246,7 +1246,7 @@ class GamesController extends AppController {
 		// Find all of the games that might have players that need to be reminded about attendance
 		// TODO: Do we need to do something to handle games that aren't yet scheduled?
 		$this->Game->contain(array(
-			'GameSlot',
+			'GameSlot' => array('Field' => array('ParentField')),
 			'HomeTeam',
 			'AwayTeam',
 			'AttendanceReminderEmail',
@@ -1288,7 +1288,7 @@ class GamesController extends AppController {
 		// Find all of the games that might have captains that need attendance summaries
 		// TODO: Do we need to do something to handle games that aren't yet scheduled?
 		$this->Game->contain(array(
-			'GameSlot',
+			'GameSlot' => array('Field' => array('ParentField')),
 			// Get the list of captains for each team, we may need to email them
 			'HomeTeam' => array(
 				'Person' => array(

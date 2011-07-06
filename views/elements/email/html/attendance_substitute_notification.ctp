@@ -3,7 +3,10 @@
 echo Configure::read("attendance_verb.$status");
 ?> the <?php echo $team['name']; ?> game<?php
 if (isset($game)) {
-	echo ' against ' . $opponent['name'] . ' at ' . $this->ZuluruTime->time($game['GameSlot']['game_start']);
+	$url = Router::url(array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id']), true);
+	echo ' against ' . $opponent['name'] .
+		' at ' . $this->Html->link("{$game['GameSlot']['Field']['name']} {$game['GameSlot']['Field']['num']}", $url) .
+		' starting at ' . $this->ZuluruTime->time($game['GameSlot']['game_start']);
 	$arg = 'game';
 	$val = $game['Game']['id'];
 } else {
