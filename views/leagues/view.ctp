@@ -205,6 +205,7 @@ $this->Html->addCrumb (__('View', true));
 			compact ('is_admin', 'is_coordinator'));
 	$seed = $i = 0;
 	foreach ($league['Team'] as $team) {
+		$is_captain = in_array($team['id'], $this->Session->read('Zuluru.OwnedTeamIDs'));
 		$classes = array();
 		if (floor ($seed++ / 8) % 2 == 1) {
 			if (++$i % 2 == 1) {
@@ -219,7 +220,7 @@ $this->Html->addCrumb (__('View', true));
 		}
 		Team::consolidateRoster ($team);
 		echo $this->element("league/view/{$league_obj->render_element}/team",
-				compact ('is_admin', 'is_coordinator', 'league', 'team', 'seed', 'classes'));
+				compact ('is_admin', 'is_coordinator', 'is_captain', 'league', 'team', 'seed', 'classes'));
 	}
 	?>
 	</table>
