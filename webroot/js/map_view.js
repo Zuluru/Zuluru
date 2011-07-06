@@ -87,7 +87,7 @@ function initialize_view()
 		var code = gdir.getStatus().code;
 		var reason = "Code " + code;
 		if (reasons[code]) {
-			reason = reasons[code]
+			reason = reasons[code];
 		} 
 		alert("Failed to obtain directions.\n\n" + reason);
 	});
