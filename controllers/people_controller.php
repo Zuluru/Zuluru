@@ -769,6 +769,23 @@ class PeopleController extends AppController {
 					$this->Auth->authenticate->merge_duplicate_user($person['Person']['id'], $existing['Person']['id']);
 				}
 
+				// Update all related records
+				foreach ($this->Person->hasMany as $class => $details) {
+					$this->Person->$class->updateAll(
+						array($details['foreignKey'] => $dup_id),
+						array($details['foreignKey'] => $person['Person']['id'])
+					);
+				}
+
+				foreach ($this->Person->hasAndBelongsToMany as $class => $details) {
+					if (array_key_exists ('with', $details)) {
+						$this->Person->$class->{$details['with']}->updateAll(
+							array($details['foreignKey'] => $dup_id),
+							array($details['foreignKey'] => $person['Person']['id'])
+						);
+					}
+				}
+
 				if (! $this->Person->delete($person['Person']['id'], false) ) {
 					$this->Session->setFlash(sprintf (__('Failed to delete %s', true), $person['Person']['full_name']));
 					break;
