@@ -792,7 +792,11 @@ class AppController extends Controller {
 			return $emails;
 		}
 		// Anything else, return as-is and hope for the best!
-		return $input;
+		if ($array) {
+			return array($input);
+		} else {
+			return $input;
+		}
 	}
 
 	function _extractSearchParams() {

@@ -239,8 +239,10 @@ class GamesController extends AppController {
 			$allstars = array();
 			if (array_key_exists ('Allstar', $this->data)) {
 				foreach ($this->data['Allstar'] as $team_allstars) {
-					foreach ($team_allstars['person_id'] as $allstar) {
-						$allstars[] = array('person_id' => $allstar);
+					if (is_array($team_allstars['person_id'])) {
+						foreach ($team_allstars['person_id'] as $allstar) {
+							$allstars[] = array('person_id' => $allstar);
+						}
 					}
 				}
 				if (empty ($allstars)) {

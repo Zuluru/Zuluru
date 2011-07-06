@@ -170,13 +170,15 @@ $male = $female = null;
 if (array_key_exists ('Allstar', $this->data)) {
 	$allstars = array();
 	foreach ($this->data['Allstar'] as $allstar) {
-		if (array_key_exists ($allstar['person_id'], $players[$allstar['Person']['gender']])) {
-			if ($allstar['Person']['gender'] == 'Male') {
-				$male = $allstar['Person']['id'];
-				echo $this->Form->hidden('Allstar.0.id', array('value' => $allstar['id']));
-			} else {
-				$female = $allstar['Person']['id'];
-				echo $this->Form->hidden('Allstar.1.id', array('value' => $allstar['id']));
+		if (is_array ($players[$allstar['Person']['gender']])) {
+			if (array_key_exists ($allstar['person_id'], $players[$allstar['Person']['gender']])) {
+				if ($allstar['Person']['gender'] == 'Male') {
+					$male = $allstar['Person']['id'];
+					echo $this->Form->hidden('Allstar.0.id', array('value' => $allstar['id']));
+				} else {
+					$female = $allstar['Person']['id'];
+					echo $this->Form->hidden('Allstar.1.id', array('value' => $allstar['id']));
+				}
 			}
 		}
 	}

@@ -409,14 +409,16 @@ class TeamsController extends AppController {
 			$team['Person'][$key]['roster_conflict'] = false;
 			if (!empty ($team_days)) {
 				foreach ($full_person['Team'] as $other_team) {
-					if (($other_team['League']['open'] <= $team['League']['open'] && $other_team['League']['close'] >= $team['League']['open']) ||
-						($team['League']['open'] <= $other_team['League']['open'] && $team['League']['close'] >= $other_team['League']['open']))
-					{
-						$other_team_days = Set::extract('/League/Day/id', $other_team);
-						$overlap = array_intersect($team_days, $other_team_days);
-						if (!empty($overlap)) {
-							$team['Person'][$key]['roster_conflict'] = true;
-							break;
+					if (array_key_exists ('open', $other_team['League']) && array_key_exists ('open', $team['League'])) {
+						if (($other_team['League']['open'] <= $team['League']['open'] && $other_team['League']['close'] >= $team['League']['open']) ||
+							($team['League']['open'] <= $other_team['League']['open'] && $team['League']['close'] >= $other_team['League']['open']))
+						{
+							$other_team_days = Set::extract('/League/Day/id', $other_team);
+							$overlap = array_intersect($team_days, $other_team_days);
+							if (!empty($overlap)) {
+								$team['Person'][$key]['roster_conflict'] = true;
+								break;
+							}
 						}
 					}
 				}
