@@ -54,6 +54,10 @@ class FieldsController extends AppController {
 		));
 
 		$field = $this->Field->read(null, $id);
+		if ($field === false) {
+			$this->Session->setFlash(__('Invalid field', true));
+			$this->redirect(array('action' => 'index'));
+		}
 		$field['SiteFields'] = $this->Field->readAtSite ($id, $field['Field']['parent_id']);
 
 		$this->set(compact ('field'));

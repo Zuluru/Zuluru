@@ -63,6 +63,10 @@ class EventsController extends AppController {
 			'EventType',
 		));
 		$event = $this->Event->read(null, $id);
+		if ($event === false) {
+			$this->Session->setFlash(__('Invalid event', true));
+			$this->redirect(array('action' => 'wizard'));
+		}
 
 		// Extract some more details, if it's a league registration
 		if (array_key_exists ('team_league', $event['Event']) && $event['Event']['team_league'] != null) {

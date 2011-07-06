@@ -367,7 +367,7 @@ class TeamsController extends AppController {
 		));
 
 		$team = $this->Team->read(null, $id);
-		if (!$team) {
+		if ($team === false) {
 			$this->Session->setFlash(__('Invalid team', true));
 			$this->redirect(array('action' => 'index'));
 		}

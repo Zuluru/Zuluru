@@ -146,6 +146,10 @@ class PeopleController extends AppController {
 		}
 
 		$person = $this->Person->readCurrent($id);
+		if ($person === false) {
+			$this->Session->setFlash(__('Invalid person', true));
+			$this->redirect('/');
+		}
 		$this->set(compact('person'));
 		$this->set('is_me', ($id === $my_id));
 

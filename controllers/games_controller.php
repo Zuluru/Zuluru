@@ -92,6 +92,10 @@ class GamesController extends AppController {
 			'Incident',
 		));
 		$game = $this->Game->read(null, $id);
+		if ($game === false) {
+			$this->Session->setFlash(__('Invalid game', true));
+			$this->redirect('/');
+		}
 		$this->Game->_adjustEntryIndices($game);
 		$this->set('game', $game);
 		$this->set('spirit_obj', $this->_getComponent ('Spirit', $this->Game->data['League']['sotg_questions'], $this));
