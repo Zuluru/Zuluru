@@ -2,21 +2,28 @@
 $this->Html->addCrumb (__('Games', true));
 $this->Html->addCrumb (__('Attendance', true));
 $this->Html->addCrumb ($team['name']);
+$this->Html->addCrumb ($this->ZuluruTime->date($game['GameSlot']['game_date']));
 ?>
 
 <div class="games">
 <h2><?php  __('Attendance'); ?></h2>
-	<dl>
-		<dt><?php __('Game Date'); ?></dt>
-		<dd><?php echo $this->ZuluruTime->date($game['GameSlot']['game_date']); ?></dd>
-		<dt><?php __('Game Time'); ?></dt>
-		<dd><?php echo $this->ZuluruTime->time($game['GameSlot']['game_start']); ?> - <?php echo $this->ZuluruTime->time($game['GameSlot']['display_game_end']); ?></dd>
-		<dt><?php __('Team'); ?></dt>
-		<dd><?php echo $this->element('team/block', array('team' => $team)); ?></dd>
-		<dt><?php __('Opponent'); ?></dt>
-		<dd><?php echo $this->element('team/block', array('team' => $opponent)); ?></dd>
-		<dt><?php __('Totals'); ?></dt>
-		<dd><?php
+	<dl><?php $i = 0; $class = ' class="altrow"';?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Game Date'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>><?php echo $this->ZuluruTime->date($game['GameSlot']['game_date']); ?></dd>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Game Time'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>><?php echo $this->ZuluruTime->time($game['GameSlot']['game_start']); ?> - <?php echo $this->ZuluruTime->time($game['GameSlot']['display_game_end']); ?></dd>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Team'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>><?php echo $this->element('team/block', array('team' => $team)); ?></dd>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Opponent'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>><?php echo $this->element('team/block', array('team' => $opponent)); ?></dd>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Location');?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo $this->Html->link("{$game['GameSlot']['Field']['code']} {$game['GameSlot']['Field']['num']}",
+					array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['field_id'])); ?>
+
+		</dd>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Totals'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>><?php
 		// Build the totals
 		$statuses = Configure::read('attendance');
 		$alt = Configure::read('attendance_alt');
