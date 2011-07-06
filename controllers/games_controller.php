@@ -1153,8 +1153,7 @@ class GamesController extends AppController {
 
 		if (!$this->_sendMail (array (
 				'to' => $team,
-				// TODO: Make the email come from the league coordinator instead of club admin
-				//'from' => $game['League'],
+				'replyTo' => $game['League']['Person'],
 				'config_subject' => "{$reason}_subject",
 				'config_body' => "{$reason}_body",
 				'variables' => $variables,
