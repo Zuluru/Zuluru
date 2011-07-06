@@ -387,9 +387,9 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 			return -1;
 		} else if ($a['GameSlot']['game_date'] > $b['GameSlot']['game_date']) {
 			return 1;
-		} else if ($a['GameSlot']['game_time'] < $b['GameSlot']['game_time']) {
+		} else if ($a['GameSlot']['game_start'] < $b['GameSlot']['game_start']) {
 			return -1;
-		} else if ($a['GameSlot']['game_time'] > $b['GameSlot']['game_time']) {
+		} else if ($a['GameSlot']['game_start'] > $b['GameSlot']['game_start']) {
 			return 1;
 		} else {
 			// This should never happen, how can a team have two games on the same day at the same time?
