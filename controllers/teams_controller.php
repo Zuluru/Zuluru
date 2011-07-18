@@ -1080,9 +1080,9 @@ class TeamsController extends AppController {
 		// Check if this user is the only approved captain on the team
 		if ($position == 'captain') {
 			$captains = $this->Roster->find ('count', array('conditions' => array(
-					'position' => 'captain',
-					'status' => ROSTER_APPROVED,
-					'team_id' => $team_id,
+					'TeamsPerson.position' => 'captain',
+					'TeamsPerson.status' => ROSTER_APPROVED,
+					'TeamsPerson.team_id' => $team_id,
 			)));
 			if ($captains == 1) {
 				$this->Session->setFlash(__('All teams must have at least one player as captain.', true));
