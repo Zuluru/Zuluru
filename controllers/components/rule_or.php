@@ -20,19 +20,22 @@ class RuleOrComponent extends RuleComponent
 			}
 			$this->rule[] = $rule;
 		}
-		return (!empty ($this->rule));
+		return (count($this->rule) > 1);
 	}
 
-	function evaluate($params) {
+	function evaluate($params, $team) {
 		if (empty ($this->rule))
 			return null;
 		$reasons = array();
 		foreach ($this->rule as $rule) {
-			if ($rule->evaluate ($params)) {
+			if ($rule->evaluate ($params, $team)) {
 				$this->reason = $rule->reason;
+				$this->reason_type = $rule->reason_type;
 				return true;
 			} else {
 				$reasons[] = $rule->reason;
+				// This isn't ideal, but will do until we find a test case demands something better
+				$this->reason_type = $rule->reason_type;
 			}
 		}
 		$this->reason = implode (__(' OR ', true), $reasons);

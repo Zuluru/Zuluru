@@ -13,11 +13,6 @@ class RuleComponent extends Object
 	var $config = array();
 
 	/**
-	 * Set to true if the rule is a leaf node (cannot have rules nested inside them)
-	 */
-	var $leaf = false;
-
-	/**
 	 * Rule (or chain of rules)
 	 */
 	var $rule = null;
@@ -26,6 +21,7 @@ class RuleComponent extends Object
 	 * Reason why the rule passed or failed
 	 */
 	var $reason = 'Unknown reason!';
+	var $reason_type = REASON_TYPE_PLAYER_ACTIVE;
 
 	/**
 	 * Common string replacements to make reasons more readable
@@ -82,6 +78,10 @@ class RuleComponent extends Object
 			// Anything else should be a rule name followed by arguments in parentheses
 			$p = strpos ($config, '(');
 			$rule_name = trim (substr ($config, 0, $p));
+			if (empty ($rule_name)) {
+				$this->log("Didn't find a rule name in $config.", 'rules');
+				return false;
+			}
 			$p2 = $this->findClose ($config, $p, ')', '(');
 		}
 		if ($p2 === false) {
@@ -131,15 +131,17 @@ class RuleComponent extends Object
 	 * Evaluate the rule chain against an input.
 	 *
 	 * @param mixed $params An array with parameters used by the various rules
+	 * @param mixed $team An array with team information, if applicable
 	 * @return mixed True if the rule check passes, false if it fails, null if
 	 * there is an error
 	 *
 	 */
-	function evaluate($params) {
+	function evaluate($params, $team = null) {
 		if ($this->rule == null)
 			return null;
-		$success = $this->rule->evaluate ($params);
+		$success = $this->rule->evaluate ($params, $team);
 		$this->reason = $this->rule->reason;
+		$this->reason_type = $this->rule->reason_type;
 
 		// Do string replacements to make the reason more easily understandable
 		while (true) {
