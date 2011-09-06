@@ -67,17 +67,19 @@ $this->Html->addCrumb (__('View', true));
 
 			</dd>
 		<?php endif; ?>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __(count ($league['Day']) == 1 ? 'Day' : 'Days'); ?></dt>
-		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php
-			$days = array();
-			foreach ($league['Day'] as $day) {
-				$days[] = __($day['name'], true);
-			}
-			echo implode (', ', $days);
-			?>
+		<?php if (!empty ($league['Day'])): ?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __(count ($league['Day']) == 1 ? 'Day' : 'Days'); ?></dt>
+			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+				<?php
+				$days = array();
+				foreach ($league['Day'] as $day) {
+					$days[] = __($day['name'], true);
+				}
+				echo implode (', ', $days);
+				?>
 
-		</dd>
+			</dd>
+		<?php endif; ?>
 		<?php if (!empty ($league['League']['tier'])): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Tier'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
