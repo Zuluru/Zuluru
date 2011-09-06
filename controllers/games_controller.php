@@ -40,6 +40,7 @@ class GamesController extends AppController {
 		// Permit coordinators to perform these operations on their games
 		if (in_array ($this->params['action'], array(
 				'edit',
+				'delete',
 		)))
 		{
 			$game = $this->_arg('game');
