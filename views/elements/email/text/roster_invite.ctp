@@ -4,8 +4,12 @@ Dear <?php echo $person['first_name']; ?>,
 echo Configure::read('organization.name'); ?> team <?php echo $team['name']; ?> as a <?php
 echo Configure::read("options.roster_position.$position"); ?>.
 
-<?php echo $team['name']; ?> plays in the <?php echo $league['name']; ?> league, which operates on <?php
-echo implode (' and ', Set::extract ('/Day/name', $league)); ?>.
+<?php echo $team['name']; ?> plays in the <?php echo $league['name']; ?> league<?php
+if (!empty ($league['Day'])):
+?>, which operates on <?php
+echo implode (' and ', Set::extract ('/Day/name', $league)); ?><?php
+endif;
+?>.
 
 More details about <?php echo $team['name']; ?> may be found at
 <?php echo Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']), true); ?>
