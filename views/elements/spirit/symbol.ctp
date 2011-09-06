@@ -9,21 +9,23 @@ if ($value === null) {
 } else {
 	$ratio = $value / $max;
 	$file = $spirit_obj->symbol ($ratio);
+	echo $this->ZuluruHtml->icon("spirit_$file.png");
 
 	switch ($type) {
-		case 'coordinator_only':
-			if ($is_admin || $is_coordinator) {
-				echo $this->ZuluruHtml->icon("spirit_$file.png");
+		case 'symbols_only':
+			if ($is_admin) {
 				printf(' (%.2f)', $value);
 			}
+			break;
 
-		case 'symbols_only':
-			echo $this->ZuluruHtml->icon("spirit_$file.png");
+		case 'coordinator_only':
+			if ($is_admin || $is_coordinator) {
+				printf(' (%.2f)', $value);
+			}
 			break;
 
 		case 'numeric':
 		case 'all':
-			echo $this->ZuluruHtml->icon("spirit_$file.png");
 			printf(' (%.2f)', $value);
 			break;
 	}
