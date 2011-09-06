@@ -42,7 +42,7 @@ class RegistrationsController extends AppController {
 		}
 
 		$event_obj = $this->_getComponent ('EventType', $event['EventType']['type'], $this);
-		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire']);
+		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], true);
 
 		if ($this->params['url']['ext'] == 'csv') {
 			$this->Registration->contain ('Person', 'Response');
@@ -51,6 +51,7 @@ class RegistrationsController extends AppController {
 					'order' => array('Registration.payment' => 'DESC', 'Registration.created' => 'DESC'),
 			)));
 			$this->set('download_file_name', "Registrations - {$event['Event']['name']}");
+			Configure::write ('debug', 0);
 		} else {
 			$this->set('registrations', $this->paginate ('Registration', array('event_id' => $id)));
 		}
@@ -75,7 +76,7 @@ class RegistrationsController extends AppController {
 		}
 
 		$event_obj = $this->_getComponent ('EventType', $event['EventType']['type'], $this);
-		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire']);
+		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], true);
 
 		$this->Registration->contain ('Person');
 		$gender = $this->Registration->find('all', array(
@@ -216,7 +217,7 @@ class RegistrationsController extends AppController {
 		}
 
 		$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
-		$this->_mergeAutoQuestions ($registration, $event_obj, $registration['Event']['Questionnaire']);
+		$this->_mergeAutoQuestions ($registration, $event_obj, $registration['Event']['Questionnaire'], true);
 		$this->set(compact('registration'));
 	}
 
@@ -268,10 +269,10 @@ class RegistrationsController extends AppController {
 
 		// Data was posted, save it and proceed
 		if (!empty($this->data)) {
-			// array_merge doesn't work, since we have numeric keys
-			$this->Registration->Response->validate =
-				$this->Questionnaire->validation($event['Questionnaire']) +
-				$event_obj->registrationFieldsValidation ($event);
+			$this->Registration->Response->validate = array_merge(
+				$this->Questionnaire->validation($event['Questionnaire']),
+				$event_obj->registrationFieldsValidation ($event)
+			);
 
 			// Remove any unchecked checkboxes; we only save the checked ones.
 			// $delete will be empty here, we don't need to do anything with it.
@@ -592,10 +593,10 @@ class RegistrationsController extends AppController {
 		$this->set(compact('registration'));
 
 		if (!empty($this->data)) {
-			// array_merge doesn't work, since we have numeric keys
-			$this->Registration->Response->validate =
-				$this->Questionnaire->validation($registration['Event']['Questionnaire'], true) +
-				$event_obj->registrationFieldsValidation ($registration);
+			$this->Registration->Response->validate = array_merge(
+				$this->Questionnaire->validation($registration['Event']['Questionnaire'], true),
+				$event_obj->registrationFieldsValidation ($registration)
+			);
 
 			// Remove any unchecked checkboxes; we only save the checked ones.
 			list ($data, $delete) = $this->_splitResponses ($this->data);
@@ -724,12 +725,12 @@ class RegistrationsController extends AppController {
 		$this->set(compact('registrations'));
 	}
 
-	function _mergeAutoQuestions($event, $event_obj, &$questionnaire) {
+	function _mergeAutoQuestions($event, $event_obj, &$questionnaire, $for_output = false) {
 		if (!array_key_exists ('Question', $questionnaire)) {
 			$questionnaire['Question'] = array();
 		}
 		$questionnaire['Question'] = array_merge (
-				$questionnaire['Question'], $event_obj->registrationFields($event)
+			$questionnaire['Question'], $event_obj->registrationFields($event, $for_output)
 		);
 	}
 

@@ -41,7 +41,7 @@ class EventTypeComponent extends Object
 	 * Return an array of registration fields in questionnaire format.
 	 *
 	 */
-	function registrationFields($event) {
+	function registrationFields($event, $for_output = false) {
 		return array();
 	}
 
@@ -75,20 +75,23 @@ class EventTypeComponent extends Object
 		return $data['Event']['name'];
 	}
 
-	function _extractAnswer($data, $question) {
+	static function _extractAnswer($data, $question) {
 		$answer = Set::extract ("/Response[question_id=$question]/.", $data);
 		if (!empty ($answer)) {
-			// TODO: Handle those with answer_id instead of answer, when we do region preference and roster status
-			return $answer[0]['answer'];
+			if (array_key_exists('answer_id', $answer[0]) && !empty($answer[0]['answer_id'])) {
+				return $answer[0]['answer_id'];
+			} else {
+				return $answer[0]['answer'];
+			}
 		} else {
 			return null;
 		}
 	}
 
-	function _extractAnswers($data, $questions) {
+	static function _extractAnswers($data, $questions) {
 		$answers = array();
 		foreach ($questions as $field => $question) {
-			$answer = $this->_extractAnswer ($data, $question);
+			$answer = self::_extractAnswer ($data, $question);
 			if (!empty ($answer)) {
 				$answers[$field] = $answer;
 			}
@@ -96,7 +99,7 @@ class EventTypeComponent extends Object
 		return $answers;
 	}
 
-	function _extractAnswerId($data, $question) {
+	static function _extractAnswerId($data, $question) {
 		$id = Set::extract ("/Response[question_id=$question]/id", $data);
 		if (!empty ($id)) {
 			return $id[0];
@@ -105,10 +108,10 @@ class EventTypeComponent extends Object
 		}
 	}
 
-	function _extractAnswerIds($data, $questions) {
+	static function _extractAnswerIds($data, $questions) {
 		$ids = array();
 		foreach ($questions as $field => $question) {
-			$id = $this->_extractAnswerId ($data, $question);
+			$id = self::_extractAnswerId ($data, $question);
 			if (!empty ($id)) {
 				$ids[$field] = $id;
 			}

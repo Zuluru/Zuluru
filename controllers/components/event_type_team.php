@@ -28,7 +28,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 
 	// ID numbers don't much matter, but they can't be duplicated between event types,
 	// and they can't ever be changed, because they're in the database.
-	function registrationFields($event) {
+	function registrationFields($event, $for_output = false) {
 		$fields = array(
 			array(
 				'type' => 'group_start',
@@ -50,8 +50,17 @@ class EventTypeTeamComponent extends EventTypeComponent
 			),
 		);
 
+		if ($for_output) {
+			$fields[] = array(
+				'id' => TEAM_ID,
+				'type' => 'text',
+				'question' => __('Team ID', true),
+			);
+		}
+
 		// These questions are only meaningful when we are creating team records
-		if ($event['Event']['team_league'] != null) {
+		if (array_key_exists('team_league', $event['Event']) && $event['Event']['team_league'] != null) {
+
 			if (Configure::read('feature.region_preference') && array_key_exists ('ask_region', $event['Event']) && $event['Event']['ask_region']) {
 				$fields[] = array(
 					'id' => REGION_PREFERENCE,
@@ -96,7 +105,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 			),
 		);
 
-		if ($event['Event']['team_league'] == null) {
+		if (!array_key_exists('team_league', $event['Event']) || $event['Event']['team_league'] == null) {
 			// TODO: Add region and open roster validation, if necessary
 		} else {
 			if (array_key_exists('Response', $event)) {
@@ -129,7 +138,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 	}
 
 	function _createTeam($event, $data) {
-		if ($event['Event']['team_league'] == null) {
+		if (!array_key_exists('team_league', $event['Event']) || $event['Event']['team_league'] == null) {
 			return true;
 		}
 
@@ -164,19 +173,23 @@ class EventTypeTeamComponent extends EventTypeComponent
 			}
 
 			$roster = ClassRegistry::init ('TeamsPerson');
-			$roster->save (array(
+			if (!$roster->save (array(
 				'team_id' => $this->_controller->Team->id,
 				'person_id' => $captain_id,
 				'position' => 'captain',
 				'status' => ROSTER_APPROVED,
-			));
+			)))
+			{
+				return false;
+			}
+
 
 			// TODO: Return validation errors?
 			$response = array(
 				'question_id' => TEAM_ID,
 				'answer' => $this->_controller->Team->id,
 			);
-			if (array_key_exists('Registration', $data)) {
+			if (array_key_exists('Registration', $data) && array_key_exists('id', $data['Registration'])) {
 				$response['registration_id'] = $data['Registration']['id'];
 			}
 			$this->_controller->_deleteTeamSessionData();
@@ -188,7 +201,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 	}
 
 	function _deleteTeam($event, $data) {
-		if ($event['Event']['team_league'] == null) {
+		if (!array_key_exists('team_league', $event['Event']) || $event['Event']['team_league'] == null) {
 			return true;
 		}
 
@@ -199,6 +212,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 				$this->_controller->Team = ClassRegistry::init ('Team');
 			}
 			if ($this->_controller->Team->delete ($team)) {
+				$this->_controller->_deleteTeamSessionData();
 				return array($this->_extractAnswerId ($data, TEAM_ID));
 			}
 			return false;
