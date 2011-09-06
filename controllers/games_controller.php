@@ -871,7 +871,7 @@ class GamesController extends AppController {
 			return false;
 		}
 
-		$result = $this->_finalize_game ($game);
+		$result = $this->_finalizeGame ($game);
 		if ($result !== true) {
 			$this->Session->setFlash($result);
 			return false;
@@ -894,7 +894,7 @@ class GamesController extends AppController {
 	 *  3) two scores entered, agreeing
 	 *  	- scores are entered as provided, as are spirit values.
 	 */
-	function _finalize_game($game) {
+	function _finalizeGame($game) {
 		// Initialize data to be saved
 		$data = array('Game' => array('id' => $game['Game']['id'], 'status' => 'normal'));
 		$spirit_obj = $this->_getComponent ('Spirit', $game['League']['sotg_questions'], $this);
@@ -972,7 +972,7 @@ class GamesController extends AppController {
 				'score_entry_penalty' => -$penalty,
 			);
 			$data['Game']['approved_by'] = APPROVAL_AUTOMATIC_HOME;
-			$this->_remind_team($game, $game['AwayTeam'], $game['HomeTeam'], 'approval_notice', false);
+			$this->_remindTeam($game, $game['AwayTeam'], $game['HomeTeam'], 'approval_notice', false);
 		} else if ( !$home_entry && $away_entry ) {
 			switch( $away_entry['defaulted'] ) {
 				case 'us':
@@ -1001,7 +1001,7 @@ class GamesController extends AppController {
 				'score_entry_penalty' => -$penalty,
 			);
 			$data['Game']['approved_by'] = APPROVAL_AUTOMATIC_AWAY;
-			$this->_remind_team($game, $game['HomeTeam'], $game['AwayTeam'], 'approval_notice', false);
+			$this->_remindTeam($game, $game['HomeTeam'], $game['AwayTeam'], 'approval_notice', false);
 		} else if ( !$home_entry && !$away_entry ) {
 			// TODO: don't do automatic forfeit yet.  Make it per-league configurable
 			return __('No score entry found for either team; cannot finalize this game.', true);
@@ -1062,7 +1062,7 @@ class GamesController extends AppController {
 
 		// Finalize the rating change if we've just updated the score
 		if ($data['Game']['home_score'] != $game['Game']['home_score'] || $data['Game']['away_score'] != $game['Game']['away_score']) {
-			$this->_modify_team_ratings($game, $data);
+			$this->_modifyTeamRatings($game, $data);
 		}
 	}
 
@@ -1070,7 +1070,7 @@ class GamesController extends AppController {
 	 * Calculate the value to be added/subtracted from the competing
 	 * teams' ratings, using the defined league component.
 	 */
-	function _modify_team_ratings ($game, &$data) {
+	function _modifyTeamRatings ($game, &$data) {
 		// Initialize what the home and away team ratings will be after this game is finalized
 		// We also need to set the team ids in the data to be saved
 		$data['HomeTeam'] = array(
@@ -1131,7 +1131,7 @@ class GamesController extends AppController {
 		return true;
 	}
 
-	function _remind_team($game, $team, $opponent, $reason, $update_db) {
+	function _remindTeam($game, $team, $opponent, $reason, $update_db) {
 		if (array_key_exists($team['id'], $game['ScoreEntry'])) {
 			return false;
 		}
@@ -1228,12 +1228,12 @@ class GamesController extends AppController {
 			$games[$key]['finalized'] = $games[$key]['emailed'] = false;
 			if ($now > $finalize_time) {
 				$games[$key]['finalized'] = true;
-				$games[$key]['finalized'] = $this->_finalize_game ($game);
+				$games[$key]['finalized'] = $this->_finalizeGame ($game);
 			}
 			if ($games[$key]['finalized'] !== true && $now > $email_time) {
 				$games[$key]['emailed'] =
-					$this->_remind_team($game, $game['HomeTeam'], $game['AwayTeam'], 'score_reminder', true) ||
-					$this->_remind_team($game, $game['AwayTeam'], $game['HomeTeam'], 'score_reminder', true);
+					$this->_remindTeam($game, $game['HomeTeam'], $game['AwayTeam'], 'score_reminder', true) ||
+					$this->_remindTeam($game, $game['AwayTeam'], $game['HomeTeam'], 'score_reminder', true);
 			}
 		}
 
@@ -1277,10 +1277,10 @@ class GamesController extends AppController {
 			$reminded = Set::extract('/AttendanceReminderEmail/secondary_id', $game);
 
 			if ($game['HomeTeam']['track_attendance'] && $game['HomeTeam']['attendance_reminder'] >= $days_to_game) {
-				$remind_count += $this->_remind_attendance($game, $game['HomeTeam'], $game['AwayTeam'], $reminded);
+				$remind_count += $this->_remindAttendance($game, $game['HomeTeam'], $game['AwayTeam'], $reminded);
 			}
 			if ($game['AwayTeam']['track_attendance'] && $game['AwayTeam']['attendance_reminder'] >= $days_to_game) {
-				$remind_count += $this->_remind_attendance($game, $game['AwayTeam'], $game['HomeTeam'], $reminded);
+				$remind_count += $this->_remindAttendance($game, $game['AwayTeam'], $game['HomeTeam'], $reminded);
 			}
 		}
 
@@ -1330,10 +1330,10 @@ class GamesController extends AppController {
 			$summarized = Set::extract('/AttendanceSummaryEmail/secondary_id', $game);
 
 			if ($game['HomeTeam']['track_attendance'] && $game['HomeTeam']['attendance_summary'] >= $days_to_game) {
-				$summary_count += $this->_summarize_attendance($game, $game['HomeTeam'], $game['AwayTeam'], $summarized);
+				$summary_count += $this->_summarizeAttendance($game, $game['HomeTeam'], $game['AwayTeam'], $summarized);
 			}
 			if ($game['AwayTeam']['track_attendance'] && $game['AwayTeam']['attendance_summary'] >= $days_to_game) {
-				$summary_count += $this->_summarize_attendance($game, $game['AwayTeam'], $game['HomeTeam'], $summarized);
+				$summary_count += $this->_summarizeAttendance($game, $game['AwayTeam'], $game['HomeTeam'], $summarized);
 			}
 		}
 
@@ -1342,7 +1342,7 @@ class GamesController extends AppController {
 		$this->Lock->unlock();
 	}
 
-	function _remind_attendance($game, $team, $opponent, $reminded) {
+	function _remindAttendance($game, $team, $opponent, $reminded) {
 		$this->set(compact ('game', 'team', 'opponent'));
 
 		// Read the attendance records for this game and team.
@@ -1384,7 +1384,7 @@ class GamesController extends AppController {
 		return $sent;
 	}
 
-	function _summarize_attendance($game, $team, $opponent, $summarized) {
+	function _summarizeAttendance($game, $team, $opponent, $summarized) {
 		if (is_array($summarized) && in_array($team['id'], $summarized)) {
 			return;
 		}
