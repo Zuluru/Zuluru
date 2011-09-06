@@ -1,6 +1,6 @@
 <p>Dear <?php echo $captains; ?>,</p>
-<p><?php echo $person['full_name']; ?> has declined your invitation to join the roster of the <?php
-echo Configure::read('organization.name'); ?> team <?php echo $team['name']; ?>.</p>
+<p>Your invitation for <?php echo $person['full_name']; ?> to join the roster of the <?php
+echo Configure::read('organization.name'); ?> team <?php echo $team['name']; ?> has been declined.</p>
 <p>The <?php echo $team['name']; ?> roster may be accessed at
 <?php
 $url = Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']), true);

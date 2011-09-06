@@ -1704,8 +1704,11 @@ class TeamsController extends AppController {
 		$this->_initRosterEmail($person, $team, $position);
 
 		if ($status == ROSTER_INVITED) {
-			if ($this->_arg('code') !== null || $person['Person']['id'] == $this->Auth->user('id')) {
-				// A player has declined an invitation
+			$is_player = ($this->_arg('code') !== null || $person['Person']['id'] == $this->Auth->user('id'));
+			$is_captain = in_array($team['Team']['id'], Configure::read('Zuluru.OwnedTeamIDs'));
+
+			if ($is_player || $this->effective_admin || $this->effective_coordinator) {
+				// A player or admin has declined an invitation
 				$captains = $this->_initRosterCaptains ($team);
 
 				if (!$this->_sendMail (array (
@@ -1719,8 +1722,9 @@ class TeamsController extends AppController {
 					$this->Session->setFlash(__('Error sending email to team captains.', true));
 					return false;
 				}
-			} else {
-				// A captain has removed an invitation
+			}
+			if ($is_captain || $this->effective_admin || $this->effective_coordinator) {
+				// A captain or admin has removed an invitation
 				$this->set (array(
 					'captain' => $this->Session->read('Zuluru.Person.full_name'),
 				));
