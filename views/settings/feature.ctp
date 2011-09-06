@@ -75,15 +75,6 @@ $this->Html->addCrumb (__('Feature', true));
 			'after' => 'If enabled, emails will be sent to players invited to join rosters, and captains who have players request to join their teams.',
 		),
 	));
-	echo $this->element ('setting/input', array(
-		'category' => 'feature',
-		'name' => 'narrow_display',
-		'options' => array(
-			'type' => 'radio',
-			'options' => Configure::read('options.enable'),
-			'after' => 'If enabled, various displays will be adjusted for horizontal compactness. This is most useful when using Zikula, as its left menu block eats up valuable real estate.',
-		),
-	));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>

@@ -7,6 +7,10 @@
 class SpiritNoneComponent extends SpiritComponent
 {
 	var $render_element = 'none';
+
+	function maxs() {
+		return Configure::read('scoring.spirit_max');
+	}
 }
 
 ?>

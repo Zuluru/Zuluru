@@ -63,6 +63,15 @@ $this->Html->addCrumb (__('Scoring', true));
 
 	echo $this->element ('setting/input', array(
 		'category' => 'scoring',
+		'name' => 'spirit_max',
+		'options' => array(
+			'label' => 'Maximum spirit score, when no questionnaire is used',
+			'size' => 6,
+		),
+	));
+
+	echo $this->element ('setting/input', array(
+		'category' => 'scoring',
 		'name' => 'missing_score_spirit_penalty',
 		'options' => array(
 			'label' => 'Spirit penalty for not entering score',

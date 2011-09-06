@@ -83,11 +83,6 @@ class SettingsData {
 		),
 		array(
 			'category' => 'feature',
-			'name' => 'narrow_display',
-			'value' => '0',
-		),
-		array(
-			'category' => 'feature',
 			'name' => 'registration',
 			'value' => '1',
 		),
@@ -135,6 +130,11 @@ class SettingsData {
 			'category' => 'scoring',
 			'name' => 'spirit_numeric',
 			'value' => '1',
+		),
+		array(
+			'category' => 'scoring',
+			'name' => 'spirit_max',
+			'value' => '5',
 		),
 		array(
 			'category' => 'scoring',

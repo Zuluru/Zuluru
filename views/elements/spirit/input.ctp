@@ -8,15 +8,22 @@ if ($game['League']['numeric_sotg']) {
 		$opts = array();
 	else if (!is_array($opts))
 		$opts = array($opts);
+
+	if ($spirit_obj->render_element != 'none') {
+		$suggest = '&nbsp;' .
+				$this->Html->tag('span',
+					$this->Html->link('Suggest', '#', array(
+							'onclick' => "suggestSpirit('$team_id'); return false;",
+				)), array('class' => 'actions'));
+	} else {
+		$suggest = null;
+	}
+
 	$opts = array_merge(array(
 			'size' => 2,
 			'label' => 'Spirit',
 			'div' => false,
-		'after' => '&nbsp;' . sprintf (__('(between 0 and %d)', true), $spirit_obj->max()) . '&nbsp;' .
-			$this->Html->tag('span',
-				$this->Html->link('Suggest', '#', array(
-						'onclick' => "suggestSpirit('$team_id'); return false;",
-			)), array('class' => 'actions')),
+		'after' => '&nbsp;' . sprintf (__('(between 0 and %d)', true), $spirit_obj->max()) . $suggest,
 	), $opts);
 
 	$spirit .= $this->Form->input("SpiritEntry.$team_id.entered_sotg", $opts);
