@@ -35,14 +35,14 @@ class EventTypeTeamComponent extends EventTypeComponent
 				'question' => __('Team Details', true),
 			),
 			array(
-				'id' => -1,
+				'id' => TEAM_NAME,
 				'type' => 'text',
 				'question' => __('Team Name', true),
 				'after' => __('The full name of your team.', true),
 				'required' => true,
 			),
 			array(
-				'id' => -2,
+				'id' => SHIRT_COLOUR,
 				'type' => 'text',
 				'question' => __('Shirt Colour', true),
 				'after' => __('Shirt colour of your team. If you don\'t have team shirts, pick \'light\' or \'dark\'.', true),
@@ -54,7 +54,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 		if ($event['Event']['team_league'] != null) {
 			if (Configure::read('feature.region_preference') && array_key_exists ('ask_region', $event['Event']) && $event['Event']['ask_region']) {
 				$fields[] = array(
-					'id' => -3,
+					'id' => REGION_PREFERENCE,
 					'type' => 'select',
 					'question' => __('Region Preference', true),
 					'after' => __('Area of city where you would prefer to play.', true),
@@ -65,7 +65,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 
 			if (array_key_exists ('ask_status', $event['Event']) && $event['Event']['ask_status']) {
 				$fields[] = array(
-					'id' => -4,
+					'id' => OPEN_ROSTER,
 					'type' => 'checkbox',
 					'question' => __('Open Roster', true),
 					'after' => __('If the team roster is open, others can request to join; otherwise, only the captain can add players.', true),
@@ -82,13 +82,13 @@ class EventTypeTeamComponent extends EventTypeComponent
 		// 'message' must go into an array with key = 'q{answer}' because
 		// field names when we display this are like Response.q{id}.answer
 		$validation = array(
-			'q-1' => array(
+			'q' . TEAM_NAME => array(
 				'notempty' => array(
 					'rule' => array('response', 'notempty'),
 					'message' => array('answer' => 'Team name must not be blank.'),
 				),
 			),
-			'q-2' => array(
+			'q' . SHIRT_COLOUR => array(
 				'notempty' => array(
 					'rule' => array('response', 'notempty'),
 					'message' => array('answer' => 'Shirt colour must not be blank.'),
@@ -100,13 +100,13 @@ class EventTypeTeamComponent extends EventTypeComponent
 			// TODO: Add region and open roster validation, if necessary
 		} else {
 			if (array_key_exists('Response', $event)) {
-				$team_id = $this->_extractAnswer ($event, -5);
+				$team_id = $this->_extractAnswer ($event, TEAM_ID);
 			} else {
 				$team_id = null;
 			}
 
 			// If we're creating team records in a league, make sure the name is unique in that league
-			$validation['q-1']['unique'] = array(
+			$validation['q' . TEAM_NAME]['unique'] = array(
 				'rule' => array('notinquery', 'Team', 'name', array(
 						'league_id' => $event['Event']['team_league'],
 						'id !=' => $team_id,
@@ -142,10 +142,10 @@ class EventTypeTeamComponent extends EventTypeComponent
 				'league_id' => $event['Event']['team_league'],
 			),
 			$this->_extractAnswers ($data, array(
-				'name' => -1,
-				'shirt_colour' => -2,
-				'region_preference' => -3,
-				'open_roster' => -4,
+				'name' => TEAM_NAME,
+				'shirt_colour' => SHIRT_COLOUR,
+				'region_preference' => REGION_PREFERENCE,
+				'open_roster' => OPEN_ROSTER,
 			))
 		);
 
@@ -173,7 +173,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 
 			// TODO: Return validation errors?
 			$response = array(
-				'question_id' => -5,
+				'question_id' => TEAM_ID,
 				'answer' => $this->_controller->Team->id,
 			);
 			if (array_key_exists('Registration', $data)) {
@@ -192,14 +192,14 @@ class EventTypeTeamComponent extends EventTypeComponent
 			return true;
 		}
 
-		$team = $this->_extractAnswer ($data, -5);
+		$team = $this->_extractAnswer ($data, TEAM_ID);
 		if ($team) {
 			$this->_controller->_deleteTeamSessionData();
 			if (!isset ($this->_controller->Team)) {
 				$this->_controller->Team = ClassRegistry::init ('Team');
 			}
 			if ($this->_controller->Team->delete ($team)) {
-				return array($this->_extractAnswerId ($data, -5));
+				return array($this->_extractAnswerId ($data, TEAM_ID));
 			}
 			return false;
 		}
@@ -208,7 +208,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 	}
 
 	function longDescription($data) {
-		$team = $this->_extractAnswer ($data, -1);
+		$team = $this->_extractAnswer ($data, TEAM_NAME);
 		return "{$data['Event']['name']}: $team";
 	}
 }

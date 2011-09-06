@@ -100,4 +100,15 @@ $config['attendance_verb'] = array(
 	ATTENDANCE_NO_SHOW		=> 'a no-show for',
 );
 
+// Constants for IDs of automatic questions
+// Must all be negative to avoid conflicts with user-created questions
+if (!defined('TEAM_NAME')) {
+	define('TEAM_NAME', -1);
+	define('SHIRT_COLOUR', -2);
+	define('REGION_PREFERENCE', -3);
+	define('OPEN_ROSTER', -4);
+	define('TEAM_ID', -5);
+	define('FRANCHISE_ID', -6);
+}
+
 ?>
