@@ -277,10 +277,12 @@ class LeagueTypeComponent extends Object
 		}
 
 		// Add the publish flag and league id to every game
-		for ($i = 0; $i < count ($this->games); ++ $i) {
+		foreach (array_keys($this->games) as $i) {
 			$this->games[$i]['league_id'] = $league_id;
-			$this->games[$i]['round'] = ($this->league['League']['current_round'] === null ? 0 : $this->league['League']['current_round']);
 			$this->games[$i]['published'] = $publish;
+			if (!array_key_exists ('round', $this->games[$i])) {
+				$this->games[$i]['round'] = ($this->league['League']['current_round'] === null ? 0 : $this->league['League']['current_round']);
+			}
 		}
 
 		// Check that chosen game slots didn't somehow get allocated elsewhere in the meantime
@@ -327,6 +329,11 @@ class LeagueTypeComponent extends Object
 			return false;
 		}
 
+		$game_slot_id = $this->selectRandomGameslot($date);
+		if ($game_slot_id === false) {
+			return false;
+		}
+
 		// TODO: 'GameSlot' can't be the first key, or else Model::set uses it as the
 		// parameter to getAssociated and the return value isn't null. Report as a bug
 		// in CakePHP?
@@ -334,7 +341,7 @@ class LeagueTypeComponent extends Object
 			'home_team' => null,
 			'away_team' => null,
 			'GameSlot' => array(
-				'id' => $this->selectRandomGameslot($date),
+				'id' => $game_slot_id,
 			),
 		);
 
