@@ -11,7 +11,8 @@ class QuestionnaireComponent extends Object
 		foreach ($questionnaire['Question'] as $question) {
 			// Anonymous questions are not included when editing an existing registration
 			if (!$edit || !array_key_exists('anonymous', $question) || !$question['anonymous']) {
-				$required = array_key_exists ('QuestionnairesQuestion', $question) && $question['QuestionnairesQuestion']['required'];
+				$required = (array_key_exists ('QuestionnairesQuestion', $question) && $question['QuestionnairesQuestion']['required']) ||
+							(array_key_exists ('required', $question) && $question['required']);
 
 				// 'message' must go into an array with key = 'answer' or 'answer_id' because
 				// field names when we display this are like Response.{id}.answer
@@ -19,8 +20,15 @@ class QuestionnaireComponent extends Object
 					// These types may require a single selection
 					case 'select':
 					case 'radio':
+						if (array_key_exists('Answer', $question)) {
+							$options = Set::extract ('/Answer/id', $question);
+						} else if (array_key_exists('options', $question)) {
+							$options = array_keys($question['options']);
+						} else {
+							$options = array();
+						}
 						$validation[Question::_formName($question)] = array(
-							'rule' => array('response_select', Set::extract ('/Answer/id', $question), $required),
+							'rule' => array('response_select', $options, $required),
 							'message' => array('answer_id' => 'Select one'),
 							'required' => true,
 						);
