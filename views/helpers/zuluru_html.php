@@ -75,9 +75,9 @@ class ZuluruHtmlHelper extends HtmlHelper {
 	/**
 	 * Create links from images.
 	 */
-	function imageLink($img, $url, $imgOptions = array(), $urlOptions = array()) {
+	function imageLink($img, $url, $imgOptions = array(), $urlOptions = array(), $confirmMessage = false) {
 		return parent::link (parent::image ($img, $imgOptions),
-							$url, array_merge (array('escape' => false), $urlOptions));
+							$url, array_merge (array('escape' => false), $urlOptions), $confirmMessage);
 	}
 
 	/**
@@ -106,9 +106,9 @@ class ZuluruHtmlHelper extends HtmlHelper {
 	/**
 	 * Create links from icons.
 	 */
-	function iconLink($img, $url, $imgOptions = array(), $urlOptions = array()) {
+	function iconLink($img, $url, $imgOptions = array(), $urlOptions = array(), $confirmMessage = false) {
 		return parent::link ($this->icon ($img, $imgOptions),
-							$url, array_merge (array('escape' => false), $urlOptions));
+							$url, array_merge (array('escape' => false), $urlOptions), $confirmMessage);
 	}
 
 	/**
