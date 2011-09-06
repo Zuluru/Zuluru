@@ -124,7 +124,7 @@ class SchedulesController extends AppController {
 		$dates = Set::extract ('/GameSlot/date', $dates);
 
 		list($num_dates, $num_fields) = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams());
-		$desc = $this->league_obj->scheduleDescription ($this->data['Game']['type']);
+		$desc = $this->league_obj->scheduleDescription ($this->data['Game']['type'], $this->_numTeams());
 
 		$this->set(compact('dates', 'num_dates', 'num_fields', 'desc'));
 		$this->render('date');
