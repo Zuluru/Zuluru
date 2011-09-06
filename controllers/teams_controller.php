@@ -260,8 +260,8 @@ class TeamsController extends AppController {
 		$no_scores = $this->Team->League->Game->find('all', array(
 				'fields' => array(
 					'League.id', 'League.name', 'League.open',
-					'IF(Game.approved_by = -3,HomeTeam.id,AwayTeam.id) AS id',
-					'IF(Game.approved_by = -3,HomeTeam.name,AwayTeam.name) AS name',
+					'IF(Game.approved_by = ' . APPROVAL_AUTOMATIC_HOME . ',HomeTeam.id,AwayTeam.id) AS id',
+					'IF(Game.approved_by = ' . APPROVAL_AUTOMATIC_AWAY . ',HomeTeam.name,AwayTeam.name) AS name',
 					'COUNT(Game.id) AS count',
 				),
 				'joins' => array(
@@ -281,7 +281,7 @@ class TeamsController extends AppController {
 					),
 				),
 				'conditions' => array_merge ($conditions, array(
-					'Game.approved_by' => array(-2,-3),
+					'Game.approved_by' => array(APPROVAL_AUTOMATIC_HOME,APPROVAL_AUTOMATIC_AWAY),
 				)),
 				'group' => 'id',
 				'order' => 'count DESC',
