@@ -24,7 +24,7 @@ if (!empty ($teams)) {
 	__('Or select a team from your history below to invite people from that roster.');
 	$options = array();
 	foreach ($teams as $history) {
-		$options[$history['id']] = "{$history['name']} ({$history['League']['season']})";
+		$options[$history['id']] = "{$history['name']} ({$history['League']['long_season']})";
 	}
 	echo $this->Form->create(false, array('url' => array('action' => 'add_from_team', 'team' => $team['Team']['id'])));
 	echo $this->Form->input ('team', array(

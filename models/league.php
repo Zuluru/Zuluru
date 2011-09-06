@@ -191,7 +191,7 @@ class League extends AppModel {
 				$long_name = "$year $long_name";
 			}
 			// TODO: Add the season "enum" back into the database? Calculate based on opening date?
-			$record[$this->alias]['season'] = $year;
+			$record[$this->alias]['long_season'] = $year;
 		}
 
 		$record[$this->alias]['long_name'] = $long_name;
@@ -305,17 +305,33 @@ class League extends AppModel {
 	}
 
 	static function compareDay ($a, $b) {
+		// If the league open dates are far apart, we use that
+		$a_open = strtotime ($a['League']['open']);
+		$b_open = strtotime ($b['League']['open']);
+		if (abs ($a_open - $b_open) > 5 * 7 * 24 * 60 * 60) {
+			if ($a_open > $b_open) {
+				return 1;
+			} else if ($a_open < $b_open) {
+				return -1;
+			}
+		}
+
 		$a_days = Set::extract ('/Day/id', $a);
 		$b_days = Set::extract ('/Day/id', $b);
 		if (empty ($a_days)) {
 			$a_min = 0;
 		} else {
 			$a_min = min($a_days);
+			// Make Sunday the last day of the week instead of first, for playoff ordering
+			if ($a_min == 1)
+				$a_min = 8;
 		}
 		if (empty ($b_days)) {
 			$b_min = 0;
 		} else {
 			$b_min = min($b_days);
+			if ($b_min == 1)
+				$b_min = 8;
 		}
 
 		if ($a_min > $b_min) {
@@ -339,6 +355,14 @@ class League extends AppModel {
 			return -1;
 		} else if ($a['GameSlot']['game_start'] > $b['GameSlot']['game_start']) {
 			return 1;
+		}
+
+		if (array_key_exists ('name', $a) && !empty ($a['name'])) {
+			if ($a['name'] < $b['name']) {
+				return -1;
+			} else if ($a['name'] > $b['name']) {
+				return 1;
+			}
 		}
 
 		if ($a['GameSlot']['field_id'] < $b['GameSlot']['field_id']) {

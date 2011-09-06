@@ -9,9 +9,9 @@ $this->Html->addCrumb ($team['Team']['name']);
 
 <?php
 if (empty ($old_team['Person'])) {
-	echo $this->Html->para(null, "All players from {$old_team['Team']['name']} ({$old_team['League']['season']}) are already on your roster.");
+	echo $this->Html->para(null, "All players from {$old_team['Team']['name']} ({$old_team['League']['long_season']}) are already on your roster.");
 } else {
-	echo $this->Html->para(null, "The following players were on the roster for {$old_team['Team']['name']} in {$old_team['League']['season']} but are not on your current roster:");
+	echo $this->Html->para(null, "The following players were on the roster for {$old_team['Team']['name']} in {$old_team['League']['long_season']} but are not on your current roster:");
 	echo $this->Form->create(false, array('url' => array('action' => 'add_from_team', 'team' => $team['Team']['id'])));
 	echo $this->Form->hidden('team', array('value' => $old_team['Team']['id']));
 
