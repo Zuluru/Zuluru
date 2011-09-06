@@ -137,6 +137,19 @@ $this->Html->addCrumb (__('View', true));
 			<?php echo $team['Team']['rating']; ?>
 
 		</dd>
+		<?php if (Configure::read('feature.franchises') && !empty ($team['Franchise'])):?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Franchises'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php
+			$franchises = array();
+			foreach ($team['Franchise'] as $franchise) {
+				$franchises[] = $this->Html->link($franchise['name'], array('controller' => 'franchises', 'action' => 'view', 'franchise' => $franchise['id']));
+			}
+			echo implode (', ', $franchises);
+			?>
+
+		</dd>
+		<?php endif; ?>
 	</dl>
 </div>
 <div class="actions">

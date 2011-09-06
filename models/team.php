@@ -114,6 +114,22 @@ class Team extends AppModel {
 			'finderQuery' => '',
 			'deleteQuery' => '',
 			'insertQuery' => ''
+		),
+		'Franchise' => array(
+			'className' => 'Franchise',
+			'joinTable' => 'franchises_teams',
+			'with' => 'FranchisesTeam',
+			'foreignKey' => 'team_id',
+			'associationForeignKey' => 'franchise_id',
+			'unique' => true,
+			'conditions' => '',
+			'fields' => '',
+			'order' => 'Franchise.name',
+			'limit' => '',
+			'offset' => '',
+			'finderQuery' => '',
+			'deleteQuery' => '',
+			'insertQuery' => ''
 		)
 	);
 

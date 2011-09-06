@@ -364,6 +364,7 @@ class TeamsController extends AppController {
 		$this->Team->contain (array(
 			'Person' => array('Upload'),
 			'League' => array('Day'),
+			'Franchise',
 		));
 
 		$team = $this->Team->read(null, $id);
@@ -887,6 +888,7 @@ class TeamsController extends AppController {
 					'Person.gender',
 				),
 			),
+			'Franchise',
 			// We need league information for sending out invites, may as well read it now
 			'League' => array(
 				'Day',
@@ -1361,6 +1363,7 @@ class TeamsController extends AppController {
 					'Person.complete',
 				),
 			),
+			'Franchise',
 			// We need league information for sending out invites, may as well read it now
 			'League' => array(
 				'Day',
@@ -1548,6 +1551,7 @@ class TeamsController extends AppController {
 					'Team' => array(
 						'League',
 						'TeamsPerson',
+						'Franchise',
 						'conditions' => array('Team.id !=' => $team['Team']['id']),
 					),
 				));

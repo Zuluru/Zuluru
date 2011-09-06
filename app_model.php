@@ -261,6 +261,41 @@ class AppModel extends Model {
 		return false;
 	}
 
+	function franchise_owner($check, $owner, $is_admin) {
+		if ($is_admin) {
+			return true;
+		}
+
+		// $check array is passed using the form field name as the key
+		// have to extract the value to make the function generic
+		$value = array_values($check);
+		$value = $value[0];
+		$value = $value['answer_id'];
+
+		// -1 means make a new one with the same name as the team
+		if ($value != -1) {
+			return $this->inquery ($check, 'Franchise', 'id', array('person_id' => $owner));
+		}
+
+		return true;
+	}
+
+	function franchise_unique($check) {
+		// $check array is passed using the form field name as the key
+		// have to extract the value to make the function generic
+		$value = array_values($check);
+		$value = $value[0];
+		$value = $value['answer_id'];
+
+		// -1 means make a new one with the same name as the team
+		if ($value == -1) {
+			$name = EventTypeComponent::_extractAnswer($this->data, TEAM_NAME);
+			return $this->notinquery (array(array('answer' => $name)), 'Franchise', 'name');
+		}
+
+		return true;
+	}
+
 	function rule($check) {
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic

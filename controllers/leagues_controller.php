@@ -83,7 +83,7 @@ class LeaguesController extends AppController {
 		$this->League->contain (array (
 			'Person',
 			'Day' => array('order' => 'day_id'),
-			'Team' => array ('Person'),
+			'Team' => array ('Person', 'Franchise'),
 		));
 		$league = $this->League->read(null, $id);
 		if ($league === false) {

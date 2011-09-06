@@ -41,6 +41,16 @@ $this->Html->addCrumb (__('Feature', true));
 	));
 	echo $this->element ('setting/input', array(
 		'category' => 'feature',
+		'name' => 'franchises',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'label' => 'Handle franchises',
+			'after' => 'Enable or disable linking of teams through franchises.',
+		),
+	));
+	echo $this->element ('setting/input', array(
+		'category' => 'feature',
 		'name' => 'dog_questions',
 		'options' => array(
 			'type' => 'radio',

@@ -42,7 +42,7 @@ class RegistrationsController extends AppController {
 		}
 
 		$event_obj = $this->_getComponent ('EventType', $event['EventType']['type'], $this);
-		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], true);
+		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], null, true);
 
 		if ($this->params['url']['ext'] == 'csv') {
 			$this->Registration->contain ('Person', 'Response');
@@ -76,7 +76,7 @@ class RegistrationsController extends AppController {
 		}
 
 		$event_obj = $this->_getComponent ('EventType', $event['EventType']['type'], $this);
-		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], true);
+		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], null, true);
 
 		$this->Registration->contain ('Person');
 		$gender = $this->Registration->find('all', array(
@@ -217,7 +217,7 @@ class RegistrationsController extends AppController {
 		}
 
 		$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
-		$this->_mergeAutoQuestions ($registration, $event_obj, $registration['Event']['Questionnaire'], true);
+		$this->_mergeAutoQuestions ($registration, $event_obj, $registration['Event']['Questionnaire'], $registration['Person']['id'], true);
 		$this->set(compact('registration'));
 	}
 
@@ -261,7 +261,7 @@ class RegistrationsController extends AppController {
 		$this->set('waivered', $this->_checkWaiver($event['Event']));
 
 		$event_obj = $this->_getComponent ('EventType', $event['EventType']['type'], $this);
-		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire']);
+		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], $this->Auth->user('id'));
 		$this->set(compact ('id', 'event', 'event_obj'));
 
 		// Wrap the whole thing in a transaction, for safety.
@@ -455,7 +455,7 @@ class RegistrationsController extends AppController {
 			while ($this->_unregisterDependencies()) {}
 
 			$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
-			if ($registration['Registration']['payment'] == 'paid') {
+			if ($registration['Registration']['payment'] == 'Paid') {
 				if (!$event_obj->unpaid($registration, $registration)) {
 					$success = false;
 					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
@@ -605,7 +605,7 @@ class RegistrationsController extends AppController {
 		}
 
 		$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
-		$this->_mergeAutoQuestions ($registration, $event_obj, $registration['Event']['Questionnaire']);
+		$this->_mergeAutoQuestions ($registration, $event_obj, $registration['Event']['Questionnaire'], $registration['Person']['id']);
 		$this->set(compact('registration'));
 
 		if (!empty($this->data)) {
@@ -741,12 +741,12 @@ class RegistrationsController extends AppController {
 		$this->set(compact('registrations'));
 	}
 
-	function _mergeAutoQuestions($event, $event_obj, &$questionnaire, $for_output = false) {
+	function _mergeAutoQuestions($event, $event_obj, &$questionnaire, $user_id = null, $for_output = false) {
 		if (!array_key_exists ('Question', $questionnaire)) {
 			$questionnaire['Question'] = array();
 		}
 		$questionnaire['Question'] = array_merge (
-			$questionnaire['Question'], $event_obj->registrationFields($event, $for_output)
+			$questionnaire['Question'], $event_obj->registrationFields($event, $user_id, $for_output)
 		);
 	}
 

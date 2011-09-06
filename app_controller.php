@@ -357,6 +357,11 @@ class AppController extends Controller {
 			$this->_addMenuItem ('My history', array('controller' => 'people', 'action' => 'teams'), 'Teams');
 		}
 
+		if ($this->is_logged_in && Configure::read('feature.franchises')) {
+			$this->_addMenuItem ('Franchises', array('controller' => 'franchises', 'action' => 'index'), 'Teams');
+			$this->_addMenuItem ('Create franchise', array('controller' => 'franchises', 'action' => 'add'), array('Teams', 'Franchises'));
+		}
+
 		$this->_addMenuItem ('Leagues', array('controller' => 'leagues', 'action' => 'index'));
 		if ($this->is_admin) {
 			$this->_addMenuItem ('League summary', array('controller' => 'leagues', 'action' => 'summary'), 'Leagues');
@@ -494,6 +499,20 @@ class AppController extends Controller {
 			$this->Session->write ('Zuluru.OwnedTeamIDs', Set::extract ('/Team/id', $owned_teams));
 		}
 
+		$franchises = $this->Session->read('Zuluru.Franchises');
+		if (empty($franchises)) {
+			if (!isset ($this->Franchise)) {
+				if (!class_exists ('Franchise')) {
+					App::import ('Model', 'Franchise');
+				}
+				$this->Franchise = new Franchise();
+			}
+			$franchises = $this->Franchise->readByPlayerId ($my_id, true, true);
+
+			$this->Session->write ('Zuluru.Franchises', $franchises);
+			$this->Session->write ('Zuluru.FranchiseIDs', Set::extract ('/Franchise/id', $franchises));
+		}
+
 		$leagues = $this->Session->read('Zuluru.Leagues');
 		if (empty($leagues)) {
 			if (!isset ($this->League)) {
@@ -520,6 +539,14 @@ class AppController extends Controller {
 	}
 
 	/**
+	 * Delete all of the cached session information related to franchises.
+	 */
+	function _deleteFranchiseSessionData() {
+		$this->Session->delete('Zuluru.Franchises');
+		$this->Session->delete('Zuluru.FranchiseIDs');
+	}
+
+	/**
 	 * Put personalized items like specific teams and leagues on the menu.
 	 */
 	function _initPersonalMenu() {
@@ -533,6 +560,13 @@ class AppController extends Controller {
 		$teams = $this->Session->read('Zuluru.Teams');
 		foreach ($teams as $team) {
 			$this->_addTeamMenuItems ($team);
+		}
+
+		if (Configure::read('feature.franchises')) {
+			$franchises = $this->Session->read('Zuluru.Franchises');
+			foreach ($franchises as $franchise) {
+				$this->_addFranchiseMenuItems ($franchise);
+			}
 		}
 
 		$leagues = $this->Session->read('Zuluru.Leagues');
@@ -562,9 +596,9 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Join team', array('controller' => 'teams', 'action' => 'roster_request', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
 		}
 		if ($this->is_admin || $is_captain) {
-			$this->_addMenuItem ('Delete', array('controller' => 'teams', 'action' => 'delete', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
 			$this->_addMenuItem ('Edit', array('controller' => 'teams', 'action' => 'edit', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
 			$this->_addMenuItem ('Player emails', array('controller' => 'teams', 'action' => 'emails', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
+			$this->_addMenuItem ('Delete', array('controller' => 'teams', 'action' => 'delete', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
 		}
 		if ($this->effective_admin ||
 			(($is_captain || $this->effective_coordinator) && $team['League']['roster_deadline'] >= date('Y-m-d')))
@@ -574,6 +608,20 @@ class AppController extends Controller {
 		if ($this->effective_admin) {
 			$this->_addMenuItem ('Move', array('controller' => 'teams', 'action' => 'move', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
 			$this->_addMenuItem ('Spirit', array('controller' => 'teams', 'action' => 'spirit', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
+		}
+	}
+
+	/**
+	 * Add all the links for a franchise to the menu.
+	 */
+	function _addFranchiseMenuItems($franchise) {
+		$this->_addMenuItem ($franchise['Franchise']['name'], array('controller' => 'franchises', 'action' => 'view', 'franchise' => $franchise['Franchise']['id']), array('Teams', 'Franchises'), "{$franchise['Franchise']['name']}::{$franchise['Franchise']['id']}");
+		$is_owner = in_array($franchise['Franchise']['id'], $this->Session->read('Zuluru.FranchiseIDs'));
+		if ($this->is_admin || $is_owner) {
+			$this->_addMenuItem ('Edit', array('controller' => 'franchises', 'action' => 'edit', 'franchise' => $franchise['Franchise']['id']), array('Teams', 'Franchises', "{$franchise['Franchise']['name']}::{$franchise['Franchise']['id']}"));
+			$this->_addMenuItem ('Add team', array('controller' => 'franchises', 'action' => 'add_team', 'franchise' => $franchise['Franchise']['id']), array('Teams', 'Franchises', "{$franchise['Franchise']['name']}::{$franchise['Franchise']['id']}"));
+			$this->_addMenuItem ('Transfer ownership', array('controller' => 'franchises', 'action' => 'transfer', 'franchise' => $franchise['Franchise']['id']), array('Teams', 'Franchises', "{$franchise['Franchise']['name']}::{$franchise['Franchise']['id']}"));
+			$this->_addMenuItem ('Delete', array('controller' => 'franchises', 'action' => 'delete', 'franchise' => $franchise['Franchise']['id']), array('Teams', 'Franchises', "{$franchise['Franchise']['name']}::{$franchise['Franchise']['id']}"));
 		}
 	}
 

@@ -41,7 +41,7 @@ class EventTypeComponent extends Object
 	 * Return an array of registration fields in questionnaire format.
 	 *
 	 */
-	function registrationFields($event, $for_output = false) {
+	function registrationFields($event, $user_id, $for_output = false) {
 		return array();
 	}
 

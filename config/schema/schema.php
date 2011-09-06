@@ -119,6 +119,21 @@ class ZuluruSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
+	var $franchises = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'name' => array('type' => 'string', 'null' => true, 'default' => NULL),
+		'website' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
+		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
+	var $franchises_teams = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'franchise_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
+		'team_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'franchise' => array('column' => 'franchise_id', 'unique' => 0), 'team' => array('column' => 'team_id', 'unique' => 0)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
 	var $game_slots = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'field_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
