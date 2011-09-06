@@ -1,7 +1,7 @@
 <h3>Single blank, unscheduled game</h3>
 <p>Creates a single game on a chosen date. No teams or field are assigned.</p>
 <h3>Set of blank unscheduled games for all teams in a tier</h3>
-<p>Creates enough blank games to schedule the entire tier on a chosen date. No teams or field are assigned.</p>
+<p>Creates enough blank games to schedule the entire tier on a chosen date. No teams or fields are assigned.</p>
 <h3>Set of randomly scheduled games for all teams in a tier</h3>
 <p>Creates enough games to schedule the entire tier on a chosen date. Teams are assigned randomly and fields assigned according to settings.</p>
 <h3>Full-tier round-robin</h3>
