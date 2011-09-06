@@ -444,15 +444,30 @@ class RegistrationsController extends AppController {
 			$this->redirect(array('action' => 'checkout'));
 		}
 
+		// Wrap the rest in a transaction, for safety.
+		$transaction = new DatabaseTransaction($this->Registration);
+
 		if ($this->Registration->delete()) {
+			$success = true;
 			$this->Session->setFlash(__('Successfully unregistered from this event.', true));
 
 			// Check if anything else must be removed as a result (e.g. team reg after removing membership)
 			while ($this->_unregisterDependencies()) {}
 
 			$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
+			if ($registration['Registration']['payment'] == 'paid') {
+				if (!$event_obj->unpaid($registration, $registration)) {
+					$success = false;
+					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
+				}
+			}
 			if (!$event_obj->unregister($registration, $registration)) {
+				$success = false;
 				$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
+			}
+
+			if ($success) {
+				$transaction->commit();
 			}
 		} else {
 			$this->Session->setFlash(__('Failed to unregister from this event!', true));
