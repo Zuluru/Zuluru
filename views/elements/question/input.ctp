@@ -43,7 +43,11 @@ switch ($details['type'])
 	case 'select':
 		$key = Question::_formName($details);
 
-		$options['options'] = Set::combine ($question['Answer'], '{n}.id', '{n}.answer');
+		if (array_key_exists('options', $question)) {
+			$options['options'] = $question['options'];
+		} else {
+			$options['options'] = Set::combine ($question['Answer'], '{n}.id', '{n}.answer');
+		}
 		$options['empty'] = '---';
 		$item = $this->Form->hidden ("Response.$key.question_id", array('value' => $details['id'])) .
 			$this->Form->input ("Response.$key.{$field[$details['type']]}", $options);
