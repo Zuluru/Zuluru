@@ -58,6 +58,12 @@ if (!defined('ROSTER_APPROVED')) {
 	define('ROSTER_REQUESTED', 3);
 }
 
+if (!defined('REASON_TYPE_PLAYER_ACTIVE')) {
+	define('REASON_TYPE_PLAYER_ACTIVE', 1);
+	define('REASON_TYPE_PLAYER_PASSIVE', 2);
+	define('REASON_TYPE_TEAM', 3);
+}
+
 if (!defined('ATTENDANCE_UNKNOWN')) {
 	define('ATTENDANCE_UNKNOWN', 0);	// status is unknown
 	define('ATTENDANCE_ATTENDING', 1);	// attendance has been confirmed by player (and captain, if a substitute)
