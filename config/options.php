@@ -99,6 +99,11 @@ $config['options'] = array(
 		'none'				=> 'Not on team',
 	),
 
+	'roster_methods' => array(
+		'invite'			=> 'Players are invited and must accept',
+		'add'				=> 'Players are added directly',
+	),
+
 	'league_position' => array(
 		'coordinator'		=> 'Coordinator',
 	),

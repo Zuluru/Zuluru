@@ -50,11 +50,6 @@ if (isset ($add)) {
 			'empty' => '---',
 			'after' => $this->Html->para (null, __('The date after which teams are no longer allowed to edit their rosters. Leave blank for no deadline (changes can be made until the league is closed).', true)),
 		));
-		echo $this->Form->input('roster_rule', array(
-			'cols' => 70,
-		'after' => $this->Html->para (null, __('Rules that must be passed to allow a player to be added to the roster of a team in this league.', true) .
-				' ' . $this->ZuluruHtml->help(array('action' => 'rules', 'rules'))),
-		));
 	?>
 	</fieldset>
 	<fieldset>
@@ -78,6 +73,16 @@ if (isset ($add)) {
 			'options' => Configure::read('options.ratio'),
 			'empty' => '---',
 			'after' => $this->Html->para (null, __('Gender format for the league.', true)),
+		));
+		echo $this->Form->input('roster_rule', array(
+			'cols' => 70,
+			'after' => $this->Html->para (null, __('Rules that must be passed to allow a player to be added to the roster of a team in this league.', true) .
+				' ' . $this->ZuluruHtml->help(array('action' => 'rules', 'rules'))),
+		));
+		echo $this->ZuluruForm->input('roster_method', array(
+			'options' => Configure::read('options.roster_methods'),
+			'empty' => '---',
+			'after' => $this->Html->para (null, __('Do players need to accept invitations, or can they just be added? The latter has privacy policy implications and should be used only when necessary.', true)),
 		));
 	?>
 	</fieldset>
