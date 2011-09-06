@@ -164,8 +164,12 @@ class AppModel extends Model {
 		$value = $value[0];
 
 		// This needs to work for questionnaire submissions
-		if (is_array($value) && array_key_exists('answer', $value)) {
-			$value = $value['answer'];
+		if (is_array($value)) {
+			if (array_key_exists('answer_id', $value)) {
+				$value = $value['answer_id'];
+			} else if (array_key_exists('answer', $value)) {
+				$value = $value['answer'];
+			}
 		}
 
 		// The validation array is always passed at the end of the arguments;
@@ -222,7 +226,10 @@ class AppModel extends Model {
 	 *
 	 */
 	function response($check, $rule) {
-		$value = array_shift ($check);
+		// $check array is passed using the form field name as the key
+		// have to extract the value to make the function generic
+		$value = array_values($check);
+		$value = $value[0];
 		$value = $value['answer'];
 
 		$Validation =& Validation::getInstance();
@@ -238,7 +245,10 @@ class AppModel extends Model {
 	}
 
 	function response_select($check, $opts, $required) {
-		$value = array_shift ($check);
+		// $check array is passed using the form field name as the key
+		// have to extract the value to make the function generic
+		$value = array_values($check);
+		$value = $value[0];
 		$value = $value['answer_id'];
 
 		// A value from the provided list of options is okay
