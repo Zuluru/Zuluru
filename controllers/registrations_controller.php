@@ -400,6 +400,7 @@ class RegistrationsController extends AppController {
 				if ($cap <= $paid) {
 					$full[] = $registration;
 					unset ($registrations[$key]);
+					continue;
 				}
 			}
 
