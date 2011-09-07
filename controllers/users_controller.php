@@ -36,7 +36,6 @@ class UsersController extends AppController {
 			}
 
 			if (!empty($this->data[$auth->alias]['remember_me'])) {
-				unset($this->data[$auth->alias]['remember_me']);
 				$this->Cookie->write('Auth.User', $this->data[$auth->alias], true, '+1 year');
 			} else if ($this->Cookie->read('Auth.User')) {
 				$this->Cookie->delete('Auth.User');
