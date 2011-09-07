@@ -224,8 +224,14 @@ class GamesController extends AppController {
 			$this->data['Game']['approved_by'] = $this->Auth->user('id');
 			$this->data['SpiritEntry'][$game['Game']['home_team']]['team_id'] = $game['Game']['home_team'];
 			$this->data['SpiritEntry'][$game['Game']['home_team']]['created_team_id'] = $game['Game']['away_team'];
+			if (array_key_exists($game['Game']['home_team'], $game['SpiritEntry'])) {
+				$this->data['SpiritEntry'][$game['Game']['home_team']]['id'] = $game['SpiritEntry'][$game['Game']['home_team']]['id'];
+			}
 			$this->data['SpiritEntry'][$game['Game']['away_team']]['team_id'] = $game['Game']['away_team'];
 			$this->data['SpiritEntry'][$game['Game']['away_team']]['created_team_id'] = $game['Game']['home_team'];
+			if (array_key_exists($game['Game']['away_team'], $game['SpiritEntry'])) {
+				$this->data['SpiritEntry'][$game['Game']['away_team']]['id'] = $game['SpiritEntry'][$game['Game']['away_team']]['id'];
+			}
 
 			// We want to remember what each team's rating was going into this game.
 			// Ratings are not set until a game is finalized, so we don't want to
