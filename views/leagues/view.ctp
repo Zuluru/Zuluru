@@ -96,7 +96,10 @@ $this->Html->addCrumb (__('View', true));
 		<?php endif; ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Schedule Type'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php __(Inflector::Humanize ($league['League']['schedule_type'])); ?>
+			<?php
+			__(Inflector::Humanize ($league['League']['schedule_type']));
+			echo '&nbsp;' . $this->ZuluruHtml->help(array('action' => 'leagues', 'edit', 'schedule_type', $league['League']['schedule_type']));
+			?>
 
 		</dd>
 		<?php
@@ -105,7 +108,10 @@ $this->Html->addCrumb (__('View', true));
 		?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __($options['label']); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-				<?php echo $league['League'][$field]; ?>
+				<?php
+				echo $league['League'][$field];
+				echo '&nbsp;' . $this->ZuluruHtml->help(array('action' => 'leagues', 'edit', $field));
+				?>
 
 			</dd>
 		<?php endforeach; ?>
