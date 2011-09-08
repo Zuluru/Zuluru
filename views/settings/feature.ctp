@@ -72,8 +72,9 @@ $this->Html->addCrumb (__('Feature', true));
 		'name' => 'force_roster_request',
 		'options' => array(
 			'type' => 'radio',
+			'label' => 'Force Roster Request Responses',
 			'options' => Configure::read('options.enable'),
-			'after' => 'If enabled, players will be forced to respond to roster requests the next time they sign on.',
+			'after' => 'If enabled, players will be forced to respond to roster requests the next time they sign on. It is recommended to use either this or Generate Roster Emails, not both.',
 		),
 	));
 	echo $this->element ('setting/input', array(
@@ -82,7 +83,7 @@ $this->Html->addCrumb (__('Feature', true));
 		'options' => array(
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
-			'after' => 'If enabled, emails will be sent to players invited to join rosters, and captains who have players request to join their teams.',
+			'after' => 'If enabled, emails will be sent to players invited to join rosters, and captains who have players request to join their teams. It is recommended to use either this or Force Roster Request Responses, not both.',
 		),
 	));
 	?>
