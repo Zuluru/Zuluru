@@ -34,6 +34,7 @@ if (isset ($controller) && !isset ($topic)) {
 $body = htmlspecialchars ('I have a suggestion for the Zuluru online help page at ' . implode(' : ', $elements));
 ?>
 
+<hr>
 <p>If you have suggestions for additions, changes or other improvements to this online help, please send them to <?php
 echo $this->Html->link ('admin@zuluru.org', "mailto:admin@zuluru.org?subject=Zuluru%20Online%20Help%20Suggestion&body=$body");
 ?>.</p>

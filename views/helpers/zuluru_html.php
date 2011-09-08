@@ -128,23 +128,37 @@ class ZuluruHtmlHelper extends HtmlHelper {
 			'title' => __('Additional help', true),
 		), array('target' => '_blank'));
 
+		// Build the link for suggestions
+		$body = htmlspecialchars ('I have a suggestion for the Zuluru online help page at ' . implode(' : ', $url));
+		$add = $this->tag('hr') .
+				$this->para(null, 'If you have suggestions for additions, changes or other improvements to this online help, please send them to ' .
+					$this->link ('admin@zuluru.org', "mailto:admin@zuluru.org?subject=Zuluru%20Online%20Help%20Suggestion&body=$body") . '.');
+
 		// Add an invisible div with the help text in it, and attach an event to the image
 		$view =& ClassRegistry::getObject('view');
 		$element = implode ('/', array_values ($url));
 		$title = array_map (array('Inflector', 'humanize'), array_values ($url));
-		$help .= $this->tag ('div', $view->element ($element), array(
+		$help .= $this->tag ('div', $view->element ($element) . $add, array(
 				'id' => "{$id}_div",
 				'class' => 'help_dialog',
 				'title' => implode (' &raquo; ', $title),
 		));
-		$view->Js->get("#$id")->event('click', "show_help('$id');");
+
+		$link = Router::url ($url);
+		$view->Js->get("#$id")->event('click', "show_help('$id', '$link');");
 
 		if (!isset ($this->dialogHandlerOutput)) {
 			$help .= $view->Html->scriptBlock ("
-function show_help(id) {
+function show_help(id, link) {
 	$('#' + id + '_div').dialog({
 		buttons: {
-			'Close': function() { $('#' + id + '_div').dialog('close'); }
+			'Close': function() {
+				$('#' + id + '_div').dialog('close');
+			},
+			'Open this help page in a new window': function() {
+				$('#' + id + '_div').dialog('close');
+				window.open(link, '_blank');
+			}
 		},
 		modal: true,
 		resizable: false,
