@@ -136,7 +136,7 @@ if (isset ($add)) {
 			'options' => Configure::read('options.sotg_display'),
 			'empty' => '---',
 			'label' => 'Spirit Display',
-			'after' => $this->Html->para (null, __('Control spirit display. "all" shows numeric scores and survey answers (if applicable) to any player. "numeric" shows game scores but not survey answers. "symbols_only" shows only star, check, and X, with no numeric values attached. "coordinator_only" restricts viewing of any per-game information to coordinators only.', true)),
+			'after' => $this->Html->para (null, __('Control spirit display. "All" shows numeric scores and survey answers (if applicable) to any player. "Numeric" shows game scores but not survey answers. "Symbols Only" shows only star, check, and X, with no numeric values attached. "Coordinator Only" restricts viewing of any per-game information to coordinators only.', true)),
 		));
 		echo $this->ZuluruForm->input('expected_max_score', array(
 			'size' => 5,

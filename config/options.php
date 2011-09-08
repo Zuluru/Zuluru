@@ -14,6 +14,12 @@ function make_options($values)
 	return array_combine ($values, $values);
 }
 
+function make_human_options($values)
+{
+	$human = array_map (array('Inflector', 'Humanize'), $values);
+	return array_combine ($values, $human);
+}
+
 $config['options'] = array(
 	'enable' => array(
 		'0'					=> __('Disabled', true),
@@ -51,7 +57,7 @@ $config['options'] = array(
 		'mens',
 		'open',
 	)),
-	'sotg_display'			=> make_options(array(
+	'sotg_display'			=> make_human_options(array(
 		'coordinator_only',
 		'symbols_only',
 		'numeric',
