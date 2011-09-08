@@ -4,6 +4,6 @@ foreach ($fields as $field => $options) {
 	if (array_key_exists ('after', $options)) {
 		$options['after'] = $this->Html->para(null, $options['after']);
 	}
-	echo $this->Form->input($field, $options);
+	echo $this->ZuluruForm->input($field, $options);
 }
 ?>
