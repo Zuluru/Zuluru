@@ -281,7 +281,7 @@ class LeagueTypeComponent extends Object
 			$this->games[$i]['league_id'] = $league_id;
 			$this->games[$i]['published'] = $publish;
 			if (!array_key_exists ('round', $this->games[$i])) {
-				$this->games[$i]['round'] = ($this->league['League']['current_round'] === null ? 0 : $this->league['League']['current_round']);
+				$this->games[$i]['round'] = $this->league['League']['current_round'];
 			}
 		}
 
