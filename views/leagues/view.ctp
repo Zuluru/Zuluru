@@ -94,6 +94,18 @@ $this->Html->addCrumb (__('View', true));
 
 			</dd>
 		<?php endif; ?>
+		<?php if ($is_admin || $is_coordinator): ?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Roster Rule'); ?></dt>
+			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+				<?php echo $this->Html->tag('pre', $league['League']['roster_rule']); ?>
+
+			</dd>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Roster Method'); ?></dt>
+			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+				<?php echo Configure::read("options.roster_methods.{$league['League']['roster_method']}"); ?>
+
+			</dd>
+		<?php endif; ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Schedule Type'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php
@@ -136,6 +148,11 @@ $this->Html->addCrumb (__('View', true));
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Spirit Display'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php __(Inflector::Humanize ($league['League']['display_sotg'])); ?>
+
+			</dd>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Expected Max Score'); ?></dt>
+			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+				<?php echo $league['League']['expected_max_score']; ?>
 
 			</dd>
 			<?php if ($league['League']['email_after'] != 0): ?>
