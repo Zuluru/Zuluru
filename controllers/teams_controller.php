@@ -1709,7 +1709,7 @@ class TeamsController extends AppController {
 
 		if ($status == ROSTER_INVITED) {
 			$is_player = ($this->_arg('code') !== null || $person['Person']['id'] == $this->Auth->user('id'));
-			$is_captain = in_array($team['Team']['id'], Configure::read('Zuluru.OwnedTeamIDs'));
+			$is_captain = in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs'));
 
 			if ($is_player || $this->effective_admin || $this->effective_coordinator) {
 				// A player or admin has declined an invitation
