@@ -41,6 +41,7 @@ if (!$approved) {
 					$remove = true;
 				}
 			}
+			$type = __('invitation', true);
 			break;
 
 		case ROSTER_REQUESTED:
@@ -51,6 +52,7 @@ if (!$approved) {
 					$remove = true;
 				}
 			}
+			$type = __('request', true);
 			break;
 	}
 
@@ -60,21 +62,21 @@ if (!$approved) {
 			'action' => 'roster_decline',
 			'team' => $roster['team_id'],
 			'person' => $roster['person_id'],
-			));
+		), null, sprintf(__('Are you sure you want to %s this %s?', true), __('remove', true), $type));
 	} else if ($permission) {
 		echo ': ' . $this->Html->link (__('accept', true), array(
 			'controller' => 'teams',
 			'action' => 'roster_accept',
 			'team' => $roster['team_id'],
 			'person' => $roster['person_id'],
-		)) .
+		), null, sprintf(__('Are you sure you want to %s this %s?', true), __('accept', true), $type)) .
 		' or ' .
 		$this->Html->link (__('decline', true), array(
 			'controller' => 'teams',
 			'action' => 'roster_decline',
 			'team' => $roster['team_id'],
 			'person' => $roster['person_id'],
-		));
+		), null, sprintf(__('Are you sure you want to %s this %s?', true), __('decline', true), $type));
 	}
 
 	echo ']';
