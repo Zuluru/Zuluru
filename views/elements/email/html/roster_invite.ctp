@@ -16,6 +16,10 @@ echo $this->Html->link($url, $url);
 <p>We ask that you please accept or decline this invitation at your earliest convenience. The invitation will expire after a couple of weeks.</p>
 <p>If you accept the invitation, you will be added to the team's roster and your contact information will be made available to the team captain.</p>
 <p>Note that, before accepting the invitation, you must be a registered member of <?php echo Configure::read('organization.short_name'); ?>.</p>
+<?php if (isset($accept_warning)): ?>
+<p>The system has also generated this warning which must be resolved before you can accept this invitation:
+<br /><?php echo $accept_warning; ?></p>
+<?php endif; ?>
 <p>Accept the invitation here:
 <?php
 $url = Router::url(array('controller' => 'teams', 'action' => 'roster_accept', 'team' => $team['id'], 'person' => $person['id'], 'code' => $code), true);

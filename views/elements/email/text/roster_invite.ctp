@@ -21,6 +21,12 @@ If you accept the invitation, you will be added to the team's roster and your co
 
 Note that, before accepting the invitation, you must be a registered member of <?php echo Configure::read('organization.short_name'); ?>.
 
+<?php if (isset($accept_warning)): ?>
+The system has also generated this warning which must be resolved before you can accept this invitation:
+<?php echo $accept_warning; ?>
+
+<?php endif; ?>
+
 Accept the invitation here:
 <?php echo Router::url(array('controller' => 'teams', 'action' => 'roster_accept', 'team' => $team['id'], 'person' => $person['id'], 'code' => $code), true); ?>
 

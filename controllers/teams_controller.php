@@ -1477,6 +1477,8 @@ class TeamsController extends AppController {
 			}
 		} else {
 			if ($status === ROSTER_INVITED) {
+				// Set the reason that they can't be added for the email
+				$this->set('accept_warning', $can_add);
 				$can_add = $this->_canInvite ($person, $team, $position);
 			}
 			if ($can_add !== true) {
