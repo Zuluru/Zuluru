@@ -1,6 +1,5 @@
 <?php
-// TODOCAKE: $file = Inflector::slug(low($colour)); doesn't work on TUC site?
-$file = str_replace(' ', '_', trim(low($colour), ' !()/,'));
+$file = Inflector::slug(trim(low($colour), ' !()/,'));
 
 // Remove anything after "with"
 $with = strpos($file, '_with');
