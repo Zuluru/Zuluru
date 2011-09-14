@@ -83,6 +83,18 @@ $config['options'] = array(
 		'Other',
 	)),
 
+	'season'				=> make_options(array(
+		'None',
+		'Winter',
+		'Winter Indoor',
+		'Spring',
+		'Spring Indoor',
+		'Summer',
+		'Summer Indoor',
+		'Fall',
+		'Fall Indoor',
+	)),
+
 	'skill' => array(
 		'10'				=> '10: High calibre competitive player (team was top 4 at nationals)',
 		'9'					=> '9: Medium calibre competitive player',

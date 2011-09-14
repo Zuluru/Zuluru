@@ -6,6 +6,17 @@ class SettingsController extends AppController {
 
 	function edit($section) {
 		if (!empty($this->data)) {
+			// There may be dates that need to be deconstructed
+			foreach ($this->data['Setting'] as $key => $value) {
+				if (is_array($value['value'])) {
+					if (array_key_exists ('year', $value['value'])) {
+						$this->data['Setting'][$key]['value'] = $value['value']['year'] . '-' . $value['value']['month'] . '-' . $value['value']['day'];
+					} else if (array_key_exists ('month', $value['value'])) {
+						$this->data['Setting'][$key]['value'] = '0-' . $value['value']['month'] . '-' . $value['value']['day'];
+					}
+				}
+			}
+
 			if ($this->Setting->saveAll ($this->data['Setting'], array('validate' => false))) {
 				$this->Session->setFlash(sprintf(__('The %s have been saved', true), __('settings', true)), 'default', array('class' => 'success'));
 				// Reload the configuration right away, so it affects any rendering we do now,

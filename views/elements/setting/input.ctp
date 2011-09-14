@@ -57,7 +57,7 @@ if (array_key_exists ('after', $options)) {
 
 if ($options['type'] == 'textarea') {
 	$options = array_merge (array('cols' => 70, 'rows' => 10), $options);
-} else if ($options['type'] != 'select' && !array_key_exists ('size', $options)) {
+} else if ($options['type'] == 'text' && !array_key_exists ('size', $options)) {
 	$options['size'] = 70;
 }
 

@@ -10,6 +10,12 @@ class League extends AppModel {
 				'message' => 'A valid league name must be entered.',
 			),
 		),
+		'season' => array(
+			'inlist' => array(
+				'rule' => array('inconfig', 'options.season'),
+				'message' => 'You must select a valid season.',
+			),
+		),
 		'open' => array(
 			'date' => array(
 				'rule' => array('date'),
@@ -190,8 +196,9 @@ class League extends AppModel {
 				// TODO: Add closing year, if different than opening
 				$long_name = "$year $long_name";
 			}
-			// TODO: Add the season "enum" back into the database? Calculate based on opening date?
-			$record[$this->alias]['long_season'] = $year;
+			if (array_key_exists('season', $record[$this->alias])) {
+				$record[$this->alias]['long_season'] = "$year {$record[$this->alias]['season']}";
+			}
 		}
 
 		$record[$this->alias]['long_name'] = $long_name;
@@ -305,6 +312,16 @@ class League extends AppModel {
 	}
 
 	static function compareDay ($a, $b) {
+		// If they are in different seasons, we use that
+		$seasons = array_flip(array_values(Configure::read('options.season')));
+		$a_season = $seasons[$a['League']['season']];
+		$b_season = $seasons[$b['League']['season']];
+		if ($a_season > $b_season) {
+			return 1;
+		} else if ($a_season < $b_season) {
+			return -1;
+		}
+
 		// If the league open dates are far apart, we use that
 		$a_open = strtotime ($a['League']['open']);
 		$b_open = strtotime ($b['League']['open']);

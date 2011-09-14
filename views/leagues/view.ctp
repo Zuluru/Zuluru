@@ -46,6 +46,11 @@ $this->Html->addCrumb (__('View', true));
 			<?php __($league['League']['is_open'] ? 'Open' : 'Closed'); ?>
 
 		</dd>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Season'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php __($league['League']['season']); ?>
+
+		</dd>
 		<?php if ($league['League']['open'] != '0000-00-00'): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('First Game'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>

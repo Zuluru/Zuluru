@@ -90,6 +90,7 @@ class ZuluruSchema extends CakeSchema {
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'num' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 15),
 		'is_open' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'indoor' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'rating' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 16),
 		'notes' => array('type' => 'text', 'null' => true, 'default' => NULL),
 		'parent_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
@@ -188,6 +189,7 @@ class ZuluruSchema extends CakeSchema {
 	var $leagues = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'name' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
+		'season' => array('type' => 'string', 'null' => false, 'default' => 'none', 'length' => 16),
 		'open' => array('type' => 'date', 'null' => false, 'default' => NULL),
 		'close' => array('type' => 'date', 'null' => false, 'default' => NULL),
 		'tier' => array('type' => 'integer', 'null' => true, 'default' => NULL),

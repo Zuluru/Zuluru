@@ -36,6 +36,41 @@ function local_sunset_for_date ($date) {
 	return date('H:i:s', $end_timestamp);
 }
 
+function season($indoor) {
+	// The configuration settings values have "0" for the year, to facilitate form input
+	$today = date('0-m-d');
+	$today_wrap = date('1-m-d');
+
+	// Build the list of applicable seasons
+	$seasons = Configure::read('options.season');
+	unset($seasons['None']);
+	foreach (array_keys($seasons) as $season) {
+		$season_indoor = (strpos($season, 'Indoor') !== false);
+		if ($indoor != $season_indoor) {
+			unset($seasons[$season]);
+		}
+	}
+
+	// Create array of which season follows which
+	$seasons = array_values($seasons);
+	$seasons_shift = $seasons;
+	array_push($seasons_shift, array_shift($seasons_shift));
+	$next = array_combine($seasons, $seasons_shift);
+
+	// Look for the season that has started without the next one starting
+	foreach ($next as $a => $b) {
+		$start = Configure::read('organization.' . Inflector::slug(low($a)) . '_start');
+		$end = Configure::read('organization.' . Inflector::slug(low($b)) . '_start');
+		// Check for a season that wraps past the end of the year
+		if ($start > $end) {
+			$end[0] = '1';
+		}
+		if (($today >= $start && $today < $end) || ($today_wrap >= $start && $today_wrap < $end)) {
+			return $a;
+		}
+	}
+}
+
 if (!function_exists ('stats_standard_deviation')) {
 
 	// Function to calculate square of value - mean
@@ -65,8 +100,7 @@ function array_transpose($array, $selectKey = false) {
 	return $return;
 }
 
-function clean($val, $func = 'is_numeric')
-{
+function clean($val, $func = 'is_numeric') {
 	$ret = '';
 	for ($i = 0; $i < strlen ($val); ++$i)
 	{

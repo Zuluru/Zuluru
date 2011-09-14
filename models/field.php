@@ -131,20 +131,22 @@ class Field extends AppModel {
 			$record[$this->alias]['long_name'] = $record[$this->alias]['name'];
 		}
 
-		// TODO: Determine this automatically?
-		$season = 'summer';
-		$permit_dir = join(DS, array(
-				Configure::read('folders.league_base'),
-				$season, 'current', 'permits'));
+		// If we haven't read the "indoor" field, we don't need any of the permit info either
+		if (array_key_exists('indoor', $record[$this->alias])) {
+			$season = Inflector::slug(low(season($record[$this->alias]['indoor'])));
+			$permit_dir = join(DS, array(
+					Configure::read('folders.league_base'),
+					$season, 'current', 'permits'));
 
-		// Auto-detect the permit URLs
-		$record[$this->alias]['permit_url'] = '';
-		if (array_key_exists ('code', $record[$this->alias]) && !empty($record[$this->alias]['code']) && is_dir($permit_dir)) {
-			if ($dh = opendir($permit_dir)) {
-				while (($file = readdir($dh)) !== false) {
-					if (fnmatch ($record[$this->alias]['code'] . '*', $file) ) {
-						$record[$this->alias]['permit_name'] = $file;
-						$record[$this->alias]['permit_url'] = Configure::read('urls.league_base') . "/$season/current/permits/$file";
+			// Auto-detect the permit URLs
+			$record[$this->alias]['permit_url'] = '';
+			if (array_key_exists ('code', $record[$this->alias]) && !empty($record[$this->alias]['code']) && is_dir($permit_dir)) {
+				if ($dh = opendir($permit_dir)) {
+					while (($file = readdir($dh)) !== false) {
+						if (fnmatch ($record[$this->alias]['code'] . '*', $file) ) {
+							$record[$this->alias]['permit_name'] = $file;
+							$record[$this->alias]['permit_url'] = Configure::read('urls.league_base') . "/$season/current/permits/$file";
+						}
 					}
 				}
 			}

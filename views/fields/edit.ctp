@@ -14,6 +14,7 @@
 		}
 		echo $this->ZuluruForm->input('num', array('label' => 'Number'));
 		echo $this->ZuluruForm->input('is_open');
+		echo $this->ZuluruForm->input('indoor');
 		echo $this->ZuluruForm->input('rating', array(
 				'options' => Configure::read('options.field_rating'),
 				'empty' => '---',

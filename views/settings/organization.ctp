@@ -121,6 +121,25 @@ $this->Html->addCrumb (__('Organization', true));
 		),
 	));
 	?>
+
+	<p>The following settings are used for determining which season is currently in effect, for the purposes of providing links to current field permits.</p>
+	<?php
+	$seasons = Configure::read('options.season');
+	unset($seasons['None']);
+	foreach ($seasons as $season) {
+		$season = low($season);
+		$season_key = Inflector::slug($season);
+		echo $this->element ('setting/input', array(
+			'category' => 'organization',
+			'name' => "{$season_key}_start",
+			'options' => array(
+				'type' => 'date',
+				'dateFormat' => 'MD',
+				'after' => "First day that would be considered for a $season game",
+			),
+		));
+	}
+	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>

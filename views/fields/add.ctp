@@ -13,6 +13,7 @@
 		echo $this->Html->para('error-message', __('The following fields are always required.', true));
 		echo $this->Form->input('num', array('label' => 'Number'));
 		echo $this->Form->input('is_open');
+		echo $this->Form->input('indoor');
 		echo $this->Form->input('rating', array(
 				'options' => Configure::read('options.field_rating'),
 				'empty' => '---',

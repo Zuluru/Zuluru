@@ -10,6 +10,7 @@ $this->Html->addCrumb (__('Summary', true));
 	<th><?php echo __('Name');?></th>
 	<th><?php echo __('Schedule Type');?></th>
 	<th><?php echo __('Games Before Repeat');?></th>
+	<th><?php echo __('Season');?></th>
 	<th><?php echo __('First Game');?></th>
 	<th><?php echo __('Last Game');?></th>
 	<th><?php echo __('Roster Deadline');?></th>
@@ -37,6 +38,7 @@ foreach ($leagues as $league):
 		</td>
 		<td><?php __(Inflector::humanize($league['League']['schedule_type'])); ?></td>
 		<td><?php echo $league['League']['games_before_repeat']; ?></td>
+		<td><?php __($league['League']['season']); ?></td>
 		<td><?php echo $this->ZuluruTime->date($league['League']['open']); ?></td>
 		<td><?php echo $this->ZuluruTime->date($league['League']['close']); ?></td>
 		<td><?php echo $this->ZuluruTime->date($league['League']['roster_deadline']); ?></td>

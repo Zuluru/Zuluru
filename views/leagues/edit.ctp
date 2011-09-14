@@ -36,6 +36,11 @@ if (isset ($add)) {
 	<fieldset>
  		<legend><?php __('Dates'); ?></legend>
 	<?php
+		echo $this->ZuluruForm->input('season', array(
+			'options' => Configure::read('options.season'),
+			'empty' => '---',
+			'after' => $this->Html->para (null, __('Season during which this league\'s games take place.', true)),
+		));
 		echo $this->ZuluruForm->input('open', array(
 			'label' => 'First Game',
 			'empty' => '---',

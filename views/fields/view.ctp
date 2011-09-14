@@ -22,6 +22,11 @@ $this->Html->addCrumb (__('View', true));
 			<?php __($field['Field']['is_open'] ? 'Open' : 'Closed'); ?>
 
 		</dd>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Indoor'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php __($field['Field']['indoor'] ? 'Yes' : 'No'); ?>
+
+		</dd>
 <?php if ($is_admin): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Rating'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
