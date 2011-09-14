@@ -177,7 +177,7 @@ class Person extends User {
 		// Unfortunate that we have to manually specify the joins, but it seems
 		// that it's (currently) the only way to fetch all this data in a
 		// single query.
-		if (Configure::read('scoring.allstar')) {
+		if (Configure::read('scoring.allstars')) {
 			$this->Allstar->recursive = -1;
 			$person['Allstar'] = $this->Allstar->find('all', array(
 					'conditions' => array(

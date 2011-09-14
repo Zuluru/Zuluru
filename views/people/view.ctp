@@ -228,7 +228,7 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 </div>
 <?php endif; ?>
 
-<?php if (Configure::read('scoring.allstar') && ($is_admin || $is_coordinator)):?>
+<?php if (Configure::read('scoring.allstars') && ($is_admin || $is_coordinator)):?>
 <div class="related">
 	<h3><?php __('Allstar Nominations');?></h3>
 	<?php if (!empty($person['Allstar'])):?>
