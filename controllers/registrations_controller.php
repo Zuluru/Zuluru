@@ -294,7 +294,11 @@ class RegistrationsController extends AppController {
 			}
 
 			// Set the flash message that will be used, if there are no errors
-			$this->Session->setFlash(__('Your preferences for this registration have been saved.', true));
+			if ($event['Event']['cost'] == 0) {
+				$this->Session->setFlash(__('Your preferences have been saved and your registration confirmed.', true), 'default', array('class' => 'success'));
+			} else {
+				$this->Session->setFlash(__('Your preferences for this registration have been saved.', true), 'default', array('class' => 'success'));
+			}
 			$save = true;
 		}
 
