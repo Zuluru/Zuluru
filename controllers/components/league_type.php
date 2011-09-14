@@ -248,7 +248,7 @@ class LeagueTypeComponent extends Object
 		));
 		$this->league = $this->_controller->League->read(null, $league_id);
 		if ($this->league === false) {
-			$this->_controller->Session->setFlash(__('Invalid league', true));
+			$this->_controller->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'warning'));
 			return false;
 		}
 
@@ -293,7 +293,7 @@ class LeagueTypeComponent extends Object
 				'game_id !=' => null,
 		)));
 		if (!empty ($taken)) {
-			$this->_controller->Session->setFlash(__('A game slot chosen for this schedule has been allocated elsewhere in the interim. Please try again.', true));
+			$this->_controller->Session->setFlash(__('A game slot chosen for this schedule has been allocated elsewhere in the interim. Please try again.', true), 'default', array('class' => 'warning'));
 			return false;
 		}
 
@@ -325,7 +325,7 @@ class LeagueTypeComponent extends Object
 		$num_teams = count($this->league['Team']);
 
 		if ($num_teams < 2) {
-			$this->_controller->Session->setFlash(__('Must have two teams', true));
+			$this->_controller->Session->setFlash(__('Must have two teams', true), 'default', array('class' => 'warning'));
 			return false;
 		}
 
@@ -467,7 +467,7 @@ class LeagueTypeComponent extends Object
 			}
 			$message = __('Failed to assign gameslots for requested games on ', true) . $date . ': ' .
 				__($e->getMessage(), true);
-			$this->_controller->Session->setFlash($message);
+			$this->_controller->Session->setFlash($message, 'default', array('class' => 'warning'));
 			return false;
 		}
 
@@ -574,7 +574,7 @@ class LeagueTypeComponent extends Object
 		}
 		$slots = Set::extract("/LeagueGameslotAvailability/GameSlot[game_date=$date]/id", $this->league);
 		if (empty ($slots)) {
-			$this->_controller->Session->setFlash('Couldn\'t get a slot ID');
+			$this->_controller->Session->setFlash(__('Couldn\'t get a slot ID', true), 'default', array('class' => 'warning'));
 			return false;
 		}
 

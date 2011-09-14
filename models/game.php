@@ -194,7 +194,7 @@ class Game extends AppModel {
 				'NOT' => array('game_id' => $game_ids),
 		)));
 		if (!empty ($taken)) {
-			$this->Session->setFlash(__('A game slot chosen for this schedule has been allocated elsewhere in the interim. Please try again.', true));
+			$this->Session->setFlash(__('A game slot chosen for this schedule has been allocated elsewhere in the interim. Please try again.', true), 'default', array('class' => 'info'));
 			return false;
 		}
 
@@ -209,7 +209,7 @@ class Game extends AppModel {
 			{
 				if ($begun)
 					$db->rollback($this);
-				$this->Session->setFlash(__('Failed to save schedule changes!', true));
+				$this->Session->setFlash(__('Failed to save schedule changes!', true), 'default', array('class' => 'warning'));
 				return false;
 			}
 		}

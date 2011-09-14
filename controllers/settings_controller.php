@@ -7,13 +7,13 @@ class SettingsController extends AppController {
 	function edit($section) {
 		if (!empty($this->data)) {
 			if ($this->Setting->saveAll ($this->data['Setting'], array('validate' => false))) {
-				$this->Session->setFlash(__('The settings have been saved', true));
+				$this->Session->setFlash(sprintf(__('The %s have been saved', true), __('settings', true)), 'default', array('class' => 'success'));
 				// Reload the configuration right away, so it affects any rendering we do now,
 				// and rebuild the menu based on any changes.
 				$this->Configuration->load($this->Auth->user('id'));
 				$this->_initMenu();
 			} else {
-				$this->Session->setFlash(__('Failed to save the settings', true));
+				$this->Session->setFlash(__('Failed to save the settings', true), 'default', array('class' => 'warning'));
 			}
 		}
 		$this->data = $this->Setting->find('all', array(

@@ -19,7 +19,7 @@ class QuestionnairesController extends AppController {
 	function view() {
 		$id = $this->_arg('questionnaire');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), 'questionnaire'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('questionnaire', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->Questionnaire->contain(array(
@@ -38,10 +38,10 @@ class QuestionnairesController extends AppController {
 		if (!empty($this->data)) {
 			$this->Questionnaire->create();
 			if ($this->Questionnaire->save($this->data)) {
-				$this->Session->setFlash(sprintf(__('The %s has been saved', true), 'questionnaire'));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('questionnaire', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'edit', 'questionnaire' => $this->Questionnaire->id));
 			} else {
-				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please, try again.', true), 'questionnaire'));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('questionnaire', true)), 'default', array('class' => 'warning'));
 			}
 		}
 	}
@@ -49,15 +49,15 @@ class QuestionnairesController extends AppController {
 	function edit() {
 		$id = $this->_arg('questionnaire');
 		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), 'questionnaire'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('questionnaire', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		if (!empty($this->data)) {
 			if ($this->Questionnaire->saveAll($this->data)) {
-				$this->Session->setFlash(sprintf(__('The %s has been saved', true), 'questionnaire'));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('questionnaire', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please, try again.', true), 'questionnaire'));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('questionnaire', true)), 'default', array('class' => 'warning'));
 			}
 		}
 		if (empty($this->data)) {
@@ -99,7 +99,7 @@ class QuestionnairesController extends AppController {
 	function delete() {
 		$id = $this->_arg('questionnaire');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid id for %s', true), 'questionnaire'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('questionnaire', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action'=>'index'));
 		}
 
@@ -109,7 +109,7 @@ class QuestionnairesController extends AppController {
 				'conditions' => array('questionnaire_id' => $id),
 		));
 		if ($events > 0) {
-			$this->Session->setFlash(__('This questionnaire is used by at least one event and cannot be deleted.', true));
+			$this->Session->setFlash(__('This questionnaire is used by at least one event and cannot be deleted.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action'=>'index'));
 		}
 
@@ -119,13 +119,13 @@ class QuestionnairesController extends AppController {
 		if ($this->Questionnaire->delete($id, false)) {
 			$this->QuestionnairesQuestions = ClassRegistry::init ('QuestionnairesQuestions');
 			if ($this->QuestionnairesQuestions->deleteAll(array('questionnaire_id' => $id), false)) {
-				$this->Session->setFlash(sprintf(__('%s deleted', true), 'Questionnaire'));
+				$this->Session->setFlash(sprintf(__('%s deleted', true), __('Questionnaire', true)), 'default', array('class' => 'success'));
 				$transaction->commit();
 				$this->redirect(array('action'=>'index'));
 			}
 		}
 
-		$this->Session->setFlash(sprintf(__('%s was not deleted', true), 'Questionnaire'));
+		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Questionnaire', true)), 'default', array('class' => 'warning'));
 		$this->redirect(array('action' => 'index'));
 	}
 

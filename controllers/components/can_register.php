@@ -40,7 +40,7 @@ class CanRegisterComponent extends Object
 		if (!empty ($event['Event']['register_rule'])) {
 			$rule_obj = AppController::_getComponent ('Rule');
 			if (!$rule_obj->init ($event['Event']['register_rule'])) {
-				$this->controller->Session->setFlash(__('Failed to parse the rule', true));
+				$this->controller->Session->setFlash(__('Failed to parse the rule', true), 'default', array('class' => 'error'));
 			}
 
 			$rule_allowed = $rule_obj->evaluate ($this->person);

@@ -43,7 +43,7 @@ class FieldsController extends AppController {
 	function view() {
 		$id = $this->_arg('field');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid field', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('field', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->Field->contain (array (
@@ -55,7 +55,7 @@ class FieldsController extends AppController {
 
 		$field = $this->Field->read(null, $id);
 		if ($field === false) {
-			$this->Session->setFlash(__('Invalid field', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('field', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		$field['SiteFields'] = $this->Field->readAtSite ($id, $field['Field']['parent_id']);
@@ -76,10 +76,10 @@ class FieldsController extends AppController {
 			}
 
 			if ($this->Field->save($this->data)) {
-				$this->Session->setFlash(__('The field has been saved', true));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('field', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'edit', 'field' => $this->Field->id));
 			} else {
-				$this->Session->setFlash(__('The field could not be saved. Please, try again.', true));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('field', true)), 'default', array('class' => 'warning'));
 			}
 		}
 		$parents = $this->Field->ParentField->find('list', array(
@@ -97,15 +97,15 @@ class FieldsController extends AppController {
 	function edit() {
 		$id = $this->_arg('field');
 		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(__('Invalid field', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('field', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		if (!empty($this->data)) {
 			if ($this->Field->save($this->data)) {
-				$this->Session->setFlash(__('The field has been saved', true));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('field', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The field could not be saved. Please, try again.', true));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('field', true)), 'default', array('class' => 'warning'));
 			}
 		}
 		if (empty($this->data)) {
@@ -158,26 +158,26 @@ class FieldsController extends AppController {
 	function delete() {
 		$id = $this->_arg('field');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid id for field', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('field', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action'=>'index'));
 		}
 
 		// TODO Handle deletions
-		$this->Session->setFlash(__('Deletions are not currently supported', true));
+		$this->Session->setFlash(__('Deletions are not currently supported', true), 'default', array('class' => 'info'));
 		$this->redirect('/');
 
 		if ($this->Field->delete($id)) {
-			$this->Session->setFlash(__('Field deleted', true));
+			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Field', true)), 'default', array('class' => 'success'));
 			$this->redirect(array('action'=>'index'));
 		}
-		$this->Session->setFlash(__('Field was not deleted', true));
+		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Field', true)), 'default', array('class' => 'warning'));
 		$this->redirect(array('action' => 'index'));
 	}
 
 	function bookings() {
 		$id = $this->_arg('field');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid id for field', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('field', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action'=>'index'));
 		}
 		// TODO: Is there a better condition to use? Some leagues wrap around a year boundary.

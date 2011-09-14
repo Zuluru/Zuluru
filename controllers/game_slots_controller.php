@@ -6,7 +6,7 @@ class GameSlotsController extends AppController {
 	function view() {
 		$id = $this->_arg('slot');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid game slot', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game slot', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 		$this->GameSlot->contain(array(
@@ -15,7 +15,7 @@ class GameSlotsController extends AppController {
 		));
 		$gameSlot = $this->GameSlot->read(null, $id);
 		if (!$gameSlot) {
-			$this->Session->setFlash(__('Invalid game slot', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game slot', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 		$this->set(compact('gameSlot'));
@@ -25,7 +25,7 @@ class GameSlotsController extends AppController {
 		if (!empty($this->data)) {
 			if (array_key_exists ('confirm', $this->data['GameSlot'])) {
 				if (!array_key_exists ('Create', $this->data['GameSlot'])) {
-					$this->Session->setFlash(__('You must select at least one game slot!', true));
+					$this->Session->setFlash(__('You must select at least one game slot!', true), 'default', array('class' => 'info'));
 					$this->action = 'confirm';
 				} else {
 					// Build the list of dates to re-use
@@ -64,20 +64,20 @@ class GameSlotsController extends AppController {
 					}
 
 					if ($success && $transaction->commit() !== false) {
-						$this->Session->setFlash(__('The game slots have been saved', true));
+						$this->Session->setFlash(sprintf(__('The %s have been saved', true), __('game slots', true)), 'default', array('class' => 'success'));
 						// We intentionally don't redirect here, leaving the user back on the
 						// original "add" form, with the last game date/start/end/weeks options
 						// already selected. Fields and leagues are NOT selected, because those
 						// are no longer in $this->data, but that's more of a feature than a bug.
 					} else {
-						$this->Session->setFlash(__('The game slots could not be saved. Please, try again.', true));
+						$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('game slots', true)), 'default', array('class' => 'warning'));
 					}
 				}
 			// Validate the input
 			} else if (!array_key_exists('Field', $this->data)) {
-				$this->Session->setFlash(__('You must select at least one field!', true));
+				$this->Session->setFlash(__('You must select at least one field!', true), 'default', array('class' => 'info'));
 			} else if (!array_key_exists('League', $this->data)) {
-				$this->Session->setFlash(__('You must select at least one league!', true));
+				$this->Session->setFlash(__('You must select at least one league!', true), 'default', array('class' => 'info'));
 			} else {
 				// By calling 'set', we deconstruct the dates from arrays to more useful strings
 				$this->GameSlot->set ($this->data);
@@ -117,7 +117,7 @@ class GameSlotsController extends AppController {
 	function edit() {
 		$id = $this->_arg('slot');
 		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(__('Invalid game slot', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game slot', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 		if (!empty($this->data)) {
@@ -141,12 +141,12 @@ class GameSlotsController extends AppController {
 
 			if ($this->GameSlot->LeagueGameslotAvailability->deleteAll(array('game_slot_id' => $id))) {
 				if ($this->GameSlot->saveAll($this->data)) {
-					$this->Session->setFlash(__('The game slot has been saved', true));
+					$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('game slot', true)), 'default', array('class' => 'success'));
 					$transaction->commit();
 					$this->redirect(array('action' => 'view', 'slot' => $id));
 				}
 			}
-			$this->Session->setFlash(__('The game slot could not be saved. Please, try again.', true));
+			$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('game slot', true)), 'default', array('class' => 'warning'));
 		}
 
 		if (empty($this->data)) {
@@ -164,7 +164,7 @@ class GameSlotsController extends AppController {
 	function delete() {
 		$id = $this->_arg('slot');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid id for game slot', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game slot', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -173,12 +173,12 @@ class GameSlotsController extends AppController {
 
 		if ($this->GameSlot->delete($id)) {
 			if ($this->GameSlot->LeagueGameslotAvailability->deleteAll(array('game_slot_id' => $id))) {
-				$this->Session->setFlash(__('Game slot deleted', true));
+				$this->Session->setFlash(sprintf(__('%s deleted', true), __('Game slot', true)), 'default', array('class' => 'success'));
 				$transaction->commit();
 				$this->redirect('/');
 			}
 		}
-		$this->Session->setFlash(__('Game slot was not deleted', true));
+		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Game slot', true)), 'default', array('class' => 'warning'));
 		$this->redirect('/');
 	}
 }

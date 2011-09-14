@@ -66,7 +66,7 @@ class GamesController extends AppController {
 	function view() {
 		$id = $this->_arg('game');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid game', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -94,7 +94,7 @@ class GamesController extends AppController {
 		));
 		$game = $this->Game->read(null, $id);
 		if ($game === false) {
-			$this->Session->setFlash(__('Invalid game', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 		$this->Game->_adjustEntryIndices($game);
@@ -107,7 +107,7 @@ class GamesController extends AppController {
 	function ratings_table() {
 		$id = $this->_arg('game');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid game', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -155,7 +155,7 @@ class GamesController extends AppController {
 	function edit() {
 		$id = $this->_arg('game');
 		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(__('Invalid game', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -187,7 +187,7 @@ class GamesController extends AppController {
 		$this->Game->_adjustEntryIndices($game);
 
 		if (!$this->is_admin && !in_array ($game['League']['id'], $this->Session->read('Zuluru.LeagueIDs'))) {
-			$this->Session->setFlash(__('You do not have permission to edit that game.', true));
+			$this->Session->setFlash(__('You do not have permission to edit that game.', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -266,13 +266,14 @@ class GamesController extends AppController {
 
 			if ($this->Game->Allstar->deleteAll(array('game_id' => $id))) {
 				if ($this->Game->saveAll($this->data, array('validate' => 'first'))) {
-					$this->Session->setFlash(__('The game has been saved', true));
+					$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('game', true)), 'default', array('class' => 'success'));
+
 					// Delete score entries
 					$this->Game->ScoreEntry->deleteAll(array('game_id' => $id));
 					$transaction->commit();
 					$this->redirect(array('action' => 'view', 'game' => $id));
 				} else {
-					$this->Session->setFlash(__('The game could not be saved. Please, try again.', true));
+					$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('game', true)), 'default', array('class' => 'warning'));
 					// Save the validation errors, as they get reset by the read() below
 					$validationErrors = $this->Game->validationErrors;
 				}
@@ -295,7 +296,7 @@ class GamesController extends AppController {
 	function delete() {
 		$id = $this->_arg('game');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid id for game', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -312,16 +313,16 @@ class GamesController extends AppController {
 		));
 		$game = $this->Game->read(null, $id);
 		if (!$game) {
-			$this->Session->setFlash(__('Invalid id for game', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
 		if (Game::_is_finalized($game)) {
-			$this->Session->setFlash(__('The score for that game has already been finalized.', true));
+			$this->Session->setFlash(__('The score for that game has already been finalized.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'game' => $game['Game']['id']));
 		}
 		if (!empty ($game['ScoreEntry'])) {
-			$this->Session->setFlash(__('A score has already been submitted for that game.', true));
+			$this->Session->setFlash(__('A score has already been submitted for that game.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'game' => $game['Game']['id']));
 		}
 
@@ -331,14 +332,14 @@ class GamesController extends AppController {
 		$transaction = new DatabaseTransaction($this->Game);
 		if ($this->Game->delete($id)) {
 			if ($this->Game->GameSlot->updateAll (array('game_id' => null), array('GameSlot.id' => $game['GameSlot']['id']))) {
-				$this->Session->setFlash(__('Game deleted', true));
+				$this->Session->setFlash(sprintf(__('%s deleted', true), __('Game', true)), 'default', array('class' => 'success'));
 				$transaction->commit();
 				$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $game['League']['id']));
 			} else {
-				$this->Session->setFlash(__('Game was deleted, but game slot was not cleared', true));
+				$this->Session->setFlash(__('Game was deleted, but game slot was not cleared', true), 'default', array('class' => 'warning'));
 			}
 		} else {
-			$this->Session->setFlash(__('Game was not deleted', true));
+			$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Game', true)), 'default', array('class' => 'warning'));
 		}
 		$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $game['League']['id']));
 	}
@@ -346,13 +347,13 @@ class GamesController extends AppController {
 	function attendance() {
 		$id = $this->_arg('game');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid id for game', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
 		$team_id = $this->_arg('team');
 		if (!$team_id) {
-			$this->Session->setFlash(__('Invalid id for team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -380,12 +381,12 @@ class GamesController extends AppController {
 			$team = $game['AwayTeam'];
 			$opponent = $game['HomeTeam'];
 		} else {
-			$this->Session->setFlash(__('That team is not playing in this game.', true));
+			$this->Session->setFlash(__('That team is not playing in this game.', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
 		if (!$team['track_attendance']) {
-			$this->Session->setFlash(__('That team does not have attendance tracking enabled.', true));
+			$this->Session->setFlash(__('That team does not have attendance tracking enabled.', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -398,13 +399,13 @@ class GamesController extends AppController {
 		$id = $this->_arg('game');
 		$date = $this->_arg('date');
 		if (!$id && !$date) {
-			$this->Session->setFlash(__('Invalid id for game', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
 		$team_id = $this->_arg('team');
 		if (!$team_id) {
-			$this->Session->setFlash(__('Invalid id for team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -413,7 +414,7 @@ class GamesController extends AppController {
 		if (!$person_id) {
 			$person_id = $my_id;
 			if (!$person_id) {
-				$this->Session->setFlash(__('Invalid id for player', true));
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('player', true)), 'default', array('class' => 'info'));
 				$this->redirect('/');
 			}
 		}
@@ -458,7 +459,7 @@ class GamesController extends AppController {
 				$team = $game['AwayTeam'];
 				$opponent = $game['HomeTeam'];
 			} else {
-				$this->Session->setFlash(__('That team is not playing in this game.', true));
+				$this->Session->setFlash(__('That team is not playing in this game.', true), 'default', array('class' => 'info'));
 				$this->redirect('/');
 			}
 
@@ -490,12 +491,12 @@ class GamesController extends AppController {
 		}
 
 		if (!$team['track_attendance']) {
-			$this->Session->setFlash(__('That team does not have attendance tracking enabled.', true));
+			$this->Session->setFlash(__('That team does not have attendance tracking enabled.', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
 		if (!$attendance) {
-			$this->Session->setFlash(__('That person does not have an attendance record for this game.', true));
+			$this->Session->setFlash(__('That person does not have an attendance record for this game.', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -515,7 +516,7 @@ class GamesController extends AppController {
 			} else if ($captain_hash == $code) {
 				$is_captain = true;
 			} else {
-				$this->Session->setFlash(__('The authorization code is invalid.', true));
+				$this->Session->setFlash(__('The authorization code is invalid.', true), 'default', array('class' => 'warning'));
 				$this->redirect('/');
 			}
 
@@ -524,7 +525,7 @@ class GamesController extends AppController {
 		} else {
 			// Players can change their own attendance, captains can change any attendance on their teams
 			if (!$is_me && !$is_captain) {
-				$this->Session->setFlash(__('You are not allowed to change this attendance record.', true));
+				$this->Session->setFlash(__('You are not allowed to change this attendance record.', true), 'default', array('class' => 'info'));
 				$this->redirect('/');
 			}
 		}
@@ -535,14 +536,14 @@ class GamesController extends AppController {
 		if (!empty ($this->data)) {
 			$status = $this->data['Person']['status'];
 			if (!array_key_exists ($status, $attendance_options)) {
-				$this->Session->setFlash(__('That is not currently a valid attendance status for this player for this game.', true));
+				$this->Session->setFlash(__('That is not currently a valid attendance status for this player for this game.', true), 'default', array('class' => 'info'));
 				if ($code) {
 					$this->redirect('/');
 				}
 			} else {
 				$this->Game->Attendance->id = $attendance['id'];
 				if ($this->Game->Attendance->saveField ('status', $status)) {
-					$this->Session->setFlash(sprintf (__('Attendance has been updated to %s.', true), $attendance_options[$status]));
+					$this->Session->setFlash(sprintf (__('Attendance has been updated to %s.', true), $attendance_options[$status]), 'default', array('class' => 'success'));
 
 					// Maybe send some emails, only if the game is in the future and the status changed
 					if (!$past && $status != $attendance['status']) {
@@ -604,7 +605,7 @@ class GamesController extends AppController {
 						$this->redirect(array('controller' => 'teams', 'action' => 'attendance', 'team' => $team_id));
 					}
 				} else {
-					$this->Session->setFlash(__('Failed to update the attendance status!', true));
+					$this->Session->setFlash(__('Failed to update the attendance status!', true), 'default', array('class' => 'warning'));
 				}
 			}
 		}
@@ -615,13 +616,13 @@ class GamesController extends AppController {
 	function submit_score() {
 		$id = $this->_arg('game');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid id for game', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
 		$team_id = $this->_arg('team');
 		if (!$team_id) {
-			$this->Session->setFlash(__('Invalid id for team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -669,17 +670,17 @@ class GamesController extends AppController {
 		}
 
 		if ($team_id != $game['Game']['home_team'] && $team_id != $game['Game']['away_team']) {
-			$this->Session->setFlash(__('That team did not play in that game!', true));
+			$this->Session->setFlash(__('That team did not play in that game!', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
 		if ($game['GameSlot']['game_date'] > time()) {
-			$this->Session->setFlash(__('That game has not yet occurred!', true));
+			$this->Session->setFlash(__('That game has not yet occurred!', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
 		if ($this->Game->_is_finalized ($game)) {
-			$this->Session->setFlash(__('The score for that game has already been finalized.', true));
+			$this->Session->setFlash(__('The score for that game has already been finalized.', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -714,9 +715,9 @@ class GamesController extends AppController {
 			}
 			if ($saved !== $posted) {
 				if (!$posted) {
-					$this->Session->setFlash(__('There is already a score submitted by your team for this game. To update this, use the "edit" link.', true));
+					$this->Session->setFlash(__('There is already a score submitted by your team for this game. To update this, use the "edit" link.', true), 'default', array('class' => 'info'));
 				} else {
-					$this->Session->setFlash(__('ID for posted score does not match the saved ID.', true));
+					$this->Session->setFlash(__('ID for posted score does not match the saved ID.', true), 'default', array('class' => 'error'));
 				}
 				$this->redirect('/');
 			}
@@ -731,9 +732,9 @@ class GamesController extends AppController {
 			}
 			if ($saved !== $posted) {
 				if (!$posted) {
-					$this->Session->setFlash(__('There is already a spirit score submitted by your team for this game. To update this, use the "edit" link.', true));
+					$this->Session->setFlash(__('There is already a spirit score submitted by your team for this game. To update this, use the "edit" link.', true), 'default', array('class' => 'info'));
 				} else {
-					$this->Session->setFlash(__('ID for posted spirit score does not match the saved ID.', true));
+					$this->Session->setFlash(__('ID for posted spirit score does not match the saved ID.', true), 'default', array('class' => 'error'));
 				}
 				$this->redirect('/');
 			}
@@ -790,12 +791,12 @@ class GamesController extends AppController {
 				// Check if the opponent has an entry
 				if (!$this->Game->_get_score_entry($game, $opponent['id'])) {
 					// No, so we just mention that it's been saved and move on
-					$this->Session->setFlash(__('This score has been saved.  Once your opponent has entered their score, it will be officially posted.', true));
+					$this->Session->setFlash(__('This score has been saved.  Once your opponent has entered their score, it will be officially posted.', true), 'default', array('class' => 'success'));
 				} else {
 					// Otherwise, both teams have an entry.  So, attempt to finalize using
 					// this information.
 					if( $this->_finalize($id) ) {
-						$this->Session->setFlash(__('This score agrees with the score submitted by your opponent. It will now be posted as an official game result.', true));
+						$this->Session->setFlash(__('This score agrees with the score submitted by your opponent. It will now be posted as an official game result.', true), 'default', array('class' => 'success'));
 					} else {
 						// Or, we have a problem.  A flash message will have been set in the finalize function.
 					}
@@ -829,7 +830,7 @@ class GamesController extends AppController {
 
 				$this->redirect('/');
 			} else {
-				$this->Session->setFlash(__('The game results could not be saved. Please, try again.', true));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('game results', true)), 'default', array('class' => 'warning'));
 			}
 		} else {
 			$this->data = $game;
@@ -874,13 +875,13 @@ class GamesController extends AppController {
 		$this->Game->_adjustEntryIndices($game);
 
 		if ($this->Game->_is_finalized($game)) {
-			$this->Session->setFlash(__('Game has already been finalized.', true));
+			$this->Session->setFlash(__('Game has already been finalized.', true), 'default', array('class' => 'info'));
 			return false;
 		}
 
 		$result = $this->_finalizeGame ($game);
 		if ($result !== true) {
-			$this->Session->setFlash($result);
+			$this->Session->setFlash($result, 'default', array('class' => 'warning'));
 			return false;
 		}
 		return true;

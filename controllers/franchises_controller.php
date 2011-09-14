@@ -67,7 +67,7 @@ class FranchisesController extends AppController {
 	function letter() {
 		$letter = up($this->_arg('letter'));
 		if (!$letter) {
-			$this->Session->setFlash(__('Invalid letter', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('letter', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -91,7 +91,7 @@ class FranchisesController extends AppController {
 	function view() {
 		$id = $this->_arg('franchise');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid franchise', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->Franchise->contain (array(
@@ -101,7 +101,7 @@ class FranchisesController extends AppController {
 
 		$franchise = $this->Franchise->read(null, $id);
 		if ($franchise === false) {
-			$this->Session->setFlash(__('Invalid franchise', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -112,11 +112,11 @@ class FranchisesController extends AppController {
 		if (!empty($this->data)) {
 			$this->Franchise->create();
 			if ($this->Franchise->save($this->data)) {
-				$this->Session->setFlash(__('The franchise has been saved', true));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('franchise', true)), 'default', array('class' => 'success'));
 				$this->_deleteFranchiseSessionData();
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The franchise could not be saved. Please correct the errors below and try again.', true));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('franchise', true)), 'default', array('class' => 'warning'));
 			}
 		}
 
@@ -127,15 +127,15 @@ class FranchisesController extends AppController {
 	function edit() {
 		$id = $this->_arg('franchise');
 		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(__('Invalid franchise', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		if (!empty($this->data)) {
 			if ($this->Franchise->save($this->data)) {
-				$this->Session->setFlash(__('The franchise has been saved', true));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('franchise', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The franchise could not be saved. Please correct the errors below and try again.', true));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('franchise', true)), 'default', array('class' => 'warning'));
 			}
 		}
 		if (empty($this->data)) {
@@ -146,34 +146,34 @@ class FranchisesController extends AppController {
 	function delete() {
 		$id = $this->_arg('franchise');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid id for franchise', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action'=>'index'));
 		}
 
 		// TODO Handle deletions
-		$this->Session->setFlash(__('Deletions are not currently supported', true));
+		$this->Session->setFlash(__('Deletions are not currently supported', true), 'default', array('class' => 'info'));
 		$this->redirect('/');
 
 		if ($this->Franchise->delete($id)) {
-			$this->Session->setFlash(__('Franchise deleted', true));
+			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Franchise', true)), 'default', array('class' => 'success'));
 			$this->_deleteFranchiseSessionData();
 			$this->redirect(array('action'=>'index'));
 		}
-		$this->Session->setFlash(__('Franchise was not deleted', true));
+		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Franchise', true)), 'default', array('class' => 'warning'));
 		$this->redirect(array('action' => 'index'));
 	}
 
 	function add_team() {
 		$id = $this->_arg('franchise');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid franchise', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
 		$this->Franchise->contain('Team');
 		$franchise = $this->Franchise->read(null, $id);
 		if ($franchise === false) {
-			$this->Session->setFlash(__('Invalid franchise', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -196,10 +196,10 @@ class FranchisesController extends AppController {
 
 		if ($this->data) {
 			if (in_array($this->data['team_id'], $existing_team_ids)) {
-				$this->Session->setFlash(__('That team is already part of this franchise', true));
+				$this->Session->setFlash(__('That team is already part of this franchise', true), 'default', array('class' => 'info'));
 			}
 			else if (!in_array($this->data['team_id'], Set::extract('/Team/id', $teams))) {
-				$this->Session->setFlash(__('You are not a captain, assistant captain or coach of the selected team', true));
+				$this->Session->setFlash(__('You are not a captain, assistant captain or coach of the selected team', true), 'default', array('class' => 'info'));
 			}
 			else {
 				if ($this->Franchise->FranchisesTeam->save(array(
@@ -207,10 +207,10 @@ class FranchisesController extends AppController {
 						'team_id' => $this->data['team_id'],
 				)))
 				{
-					$this->Session->setFlash(__('The selected team has been added to this franchise', true));
+					$this->Session->setFlash(__('The selected team has been added to this franchise', true), 'default', array('class' => 'success'));
 					$this->redirect(array('action' => 'view', 'franchise' => $id));
 				} else {
-					$this->Session->setFlash(__('Failed to add the selected team to this franchise', true));
+					$this->Session->setFlash(__('Failed to add the selected team to this franchise', true), 'default', array('class' => 'warning'));
 				}
 			}
 		}
@@ -221,38 +221,38 @@ class FranchisesController extends AppController {
 	function remove_team() {
 		$id = $this->_arg('franchise');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid franchise', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
 		$this->Franchise->contain('Team');
 		$franchise = $this->Franchise->read(null, $id);
 		if ($franchise === false) {
-			$this->Session->setFlash(__('Invalid franchise', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
 		$team_id = $this->_arg('team');
 		if (!$team_id) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'franchise' => $id));
 		}
 
 		$existing_team_ids = Set::extract ('/Team/id', $franchise);
 		if (!in_array($team_id, $existing_team_ids)) {
-			$this->Session->setFlash(__('That team is not part of this franchise', true));
+			$this->Session->setFlash(__('That team is not part of this franchise', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'franchise' => $id));
 		}
 
 		$this->Franchise->Team->contain('Franchise');
 		$team = $this->Franchise->Team->read(null, $team_id);
 		if ($team === false) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'franchise' => $id));
 		}
 
 		if (count($team['Franchise']) == 1) {
-			$this->Session->setFlash(__('All teams must be members of at least one franchise. Before you can remove this team from this franchise, you must first add it to another one.', true));
+			$this->Session->setFlash(__('All teams must be members of at least one franchise. Before you can remove this team from this franchise, you must first add it to another one.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'franchise' => $id));
 		}
 
@@ -265,18 +265,18 @@ class FranchisesController extends AppController {
 			if (count($franchise['Team']) == 1) {
 				if ($this->Franchise->delete ($id)) {
 					$this->Session->setFlash(__('The selected team has been removed from this franchise.', true) . ' ' .
-							__('As there were no other teams in the franchise, it has been deleted as well.', true));
+							__('As there were no other teams in the franchise, it has been deleted as well.', true), 'default', array('class' => 'success'));
 					$this->_deleteFranchiseSessionData();
 					$this->redirect('/');
 				} else {
 					$this->Session->setFlash(__('The selected team has been removed from this franchise.', true) . ' ' .
-							__('There are no other teams in the franchise, but deletion of the franchise failed.', true));
+							__('There are no other teams in the franchise, but deletion of the franchise failed.', true), 'default', array('class' => 'warning'));
 				}
 			} else {
-				$this->Session->setFlash(__('The selected team has been removed from this franchise.', true));
+				$this->Session->setFlash(__('The selected team has been removed from this franchise.', true), 'default', array('class' => 'success'));
 			}
 		} else {
-			$this->Session->setFlash(__('Failed to remove the selected team from this franchise.', true));
+			$this->Session->setFlash(__('Failed to remove the selected team from this franchise.', true), 'default', array('class' => 'warning'));
 		}
 
 		$this->redirect(array('action' => 'view', 'franchise' => $id));
@@ -285,13 +285,13 @@ class FranchisesController extends AppController {
 	function transfer() {
 		$id = $this->_arg('franchise');
 		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(__('Invalid franchise', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
 		$franchise = $this->Franchise->read(null, $id);
 		if ($franchise === false) {
-			$this->Session->setFlash(__('Invalid franchise', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->set(compact('franchise'));
@@ -299,11 +299,11 @@ class FranchisesController extends AppController {
 		$person_id = $this->_arg('person');
 		if ($person_id) {
 			if ($this->Franchise->saveField('person_id', $person_id)) {
-				$this->Session->setFlash(__('Ownership of the franchise has been transferred', true));
+				$this->Session->setFlash(__('Ownership of the franchise has been transferred', true), 'default', array('class' => 'success'));
 				$this->_deleteFranchiseSessionData();
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The franchise could not be transferred.', true));
+				$this->Session->setFlash(__('The franchise could not be transferred.', true), 'default', array('class' => 'warning'));
 			}
 		}
 

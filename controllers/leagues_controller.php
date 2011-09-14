@@ -76,7 +76,7 @@ class LeaguesController extends AppController {
 	function view() {
 		$id = $this->_arg('league');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -87,7 +87,7 @@ class LeaguesController extends AppController {
 		));
 		$league = $this->League->read(null, $id);
 		if ($league === false) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		$league_obj = $this->_getComponent ('LeagueType', $league['League']['schedule_type'], $this);
@@ -103,10 +103,10 @@ class LeaguesController extends AppController {
 		if (!empty($this->data)) {
 			$this->League->create();
 			if ($this->League->save($this->data)) {
-				$this->Session->setFlash(__('The league has been saved', true));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('league', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The league could not be saved. Please, try again.', true));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('league', true)), 'default', array('class' => 'warning'));
 			}
 		}
 
@@ -120,15 +120,15 @@ class LeaguesController extends AppController {
 	function edit() {
 		$id = $this->_arg('league');
 		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		if (!empty($this->data)) {
 			if ($this->League->saveAll($this->data)) {
-				$this->Session->setFlash(__('The league has been saved', true));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('league', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The league could not be saved. Please, try again.', true));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('league', true)), 'default', array('class' => 'warning'));
 			}
 		}
 		if (empty($this->data)) {
@@ -156,14 +156,14 @@ class LeaguesController extends AppController {
 	function add_coordinator() {
 		$id = $this->_arg('league');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
 		$this->League->contain('Person');
 		$league = $this->League->read(null, $id);
 		if ($league === false) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -174,7 +174,7 @@ class LeaguesController extends AppController {
 			$this->League->Person->contain(array('League' => array('conditions' => array('League.id' => $id))));
 			$person = $this->League->Person->read(null, $person_id);
 			if (!empty ($person['League'])) {
-				$this->Session->setFlash(__("{$person['Person']['full_name']} is already a coordinator of this league", true));
+				$this->Session->setFlash(__("{$person['Person']['full_name']} is already a coordinator of this league", true), 'default', array('class' => 'info'));
 			} else {
 				$people = Set::extract ('/Person/id', $league);
 				$people[] = $person['Person']['id'];
@@ -184,7 +184,7 @@ class LeaguesController extends AppController {
 						'Person' => $people,
 				)))
 				{
-					$this->Session->setFlash(__("Added {$person['Person']['full_name']} as coordinator", true));
+					$this->Session->setFlash(__("Added {$person['Person']['full_name']} as coordinator", true), 'default', array('class' => 'success'));
 					$this->redirect(array('action' => 'view', 'league' => $id));
 				}
 			}
@@ -217,20 +217,20 @@ class LeaguesController extends AppController {
 	function remove_coordinator() {
 		$id = $this->_arg('league');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		$person_id = $this->_arg('person');
 		if (!$person_id) {
-			$this->Session->setFlash(__('Invalid person', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'league' => $id));
 		}
 
 		$join = ClassRegistry::init('LeaguesPerson');
 		if ($join->deleteAll (array('league_id' => $id, 'person_id' => $person_id))) {
-			$this->Session->setFlash(__('Successfully removed coordinator', true));
+			$this->Session->setFlash(__('Successfully removed coordinator', true), 'default', array('class' => 'success'));
 		} else {
-			$this->Session->setFlash(__('Failed to remove coordinator!', true));
+			$this->Session->setFlash(__('Failed to remove coordinator!', true), 'default', array('class' => 'warning'));
 		}
 		$this->redirect(array('action' => 'view', 'league' => $id));
 	}
@@ -238,16 +238,16 @@ class LeaguesController extends AppController {
 	function ratings() {
 		$id = $this->_arg('league');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
 		if (!empty($this->data)) {
 			if ($this->League->Team->saveAll($this->data['Team'])) {
-				$this->Session->setFlash(__('The league has been saved', true));
+				$this->Session->setFlash(__sprintf(__('The %s has been saved', true), __('league', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'view', 'league' => $id));
 			} else {
-				$this->Session->setFlash(__('The league could not be saved. Please, try again.', true));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('league', true)), 'default', array('class' => 'warning'));
 			}
 		}
 
@@ -260,7 +260,7 @@ class LeaguesController extends AppController {
 		));
 		$league = $this->League->read(null, $id);
 		if ($league === false) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -271,26 +271,26 @@ class LeaguesController extends AppController {
 	function delete() {
 		$id = $this->_arg('league');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid id for league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action'=>'index'));
 		}
 
 		// TODO: Handle deletions
-		$this->Session->setFlash(__('Deletions are not currently supported', true));
+		$this->Session->setFlash(__('Deletions are not currently supported', true), 'default', array('class' => 'info'));
 		$this->redirect('/');
 
 		if ($this->League->delete($id)) {
-			$this->Session->setFlash(__('League deleted', true));
+			$this->Session->setFlash(sprintf(__('%s deleted', true), __('League', true)), 'default', array('class' => 'success'));
 			$this->redirect(array('action'=>'index'));
 		}
-		$this->Session->setFlash(__('League was not deleted', true));
+		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('League', true)), 'default', array('class' => 'warning'));
 		$this->redirect(array('action' => 'index'));
 	}
 
 	function schedule() {
 		$id = $this->_arg('league');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -339,11 +339,11 @@ class LeaguesController extends AppController {
 		));
 		$league = $this->League->read(null, $id);
 		if ($league === false) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		if (empty ($league['Game'])) {
-			$this->Session->setFlash(__('This league has no games scheduled yet.', true));
+			$this->Session->setFlash(__('This league has no games scheduled yet.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		// Sort games by date, time and field
@@ -365,7 +365,7 @@ class LeaguesController extends AppController {
 		$this->data['Game'] = array_values($this->data['Game']);
 		$slots = Set::extract ('/Game/GameSlot/id', $this->data);
 		if (in_array ('', $slots)) {
-			$this->Session->setFlash(__('You cannot choose the "---" as the game time/place!', true));
+			$this->Session->setFlash(__('You cannot choose the "---" as the game time/place!', true), 'default', array('class' => 'info'));
 			return false;
 		}
 
@@ -378,7 +378,7 @@ class LeaguesController extends AppController {
 				$slot = $this->League->Game->GameSlot->read(null, $slot_id);
 				$slot_field = $slot['Field']['long_name'];
 				$slot_time = "{$slot['GameSlot']['game_date']} {$slot['GameSlot']['game_start']}";
-				$this->Session->setFlash(sprintf (__('Game slot at %s on %s was selected more than once!', true), $slot_field, $slot_time));
+				$this->Session->setFlash(sprintf (__('Game slot at %s on %s was selected more than once!', true), $slot_field, $slot_time), 'default', array('class' => 'info'));
 				return false;
 			}
 		}
@@ -388,7 +388,7 @@ class LeaguesController extends AppController {
 				Set::extract ('/Game/away_team', $this->data)
 		);
 		if (in_array ('', $teams)) {
-			$this->Session->setFlash(__('You cannot choose the "---" as the team!', true));
+			$this->Session->setFlash(__('You cannot choose the "---" as the team!', true), 'default', array('class' => 'info'));
 			return false;
 		}
 
@@ -405,7 +405,7 @@ class LeaguesController extends AppController {
 						Set::extract ("/Game[away_team=$team_id]/GameSlot/id", $this->data)
 					);
 					if (count ($team_slot_ids) != count (array_unique ($team_slot_ids))) {
-						$this->Session->setFlash(sprintf (__('Team %s was scheduled twice in the same time slot!', true), $team['Team']['name']));
+						$this->Session->setFlash(sprintf (__('Team %s was scheduled twice in the same time slot!', true), $team['Team']['name']), 'default', array('class' => 'info'));
 						return false;
 					}
 
@@ -422,20 +422,20 @@ class LeaguesController extends AppController {
 									$slot1['GameSlot']['game_start'] >= $slot2['GameSlot']['game_start'] &&
 									$slot1['GameSlot']['game_start'] < $slot2['GameSlot']['display_game_end'])
 								{
-									$this->Session->setFlash(sprintf (__('Team %s was scheduled in overlapping time slots!', true), $team['Team']['name']));
+									$this->Session->setFlash(sprintf (__('Team %s was scheduled in overlapping time slots!', true), $team['Team']['name']), 'default', array('class' => 'info'));
 									return false;
 								}
 								$site1 = ($slot1['Field']['parent_id'] == null ? $slot1['Field']['Field']['id'] : $slot1['ParentField']['id']);
 								$site2 = ($slot2['Field']['parent_id'] == null ? $slot2['Field']['Field']['id'] : $slot2['ParentField']['id']);
 								if ($site1 != $site2) {
-									$this->Session->setFlash(sprintf (__('Team %s was scheduled on fields at different sites!', true), $team['Team']['name']));
+									$this->Session->setFlash(sprintf (__('Team %s was scheduled on fields at different sites!', true), $team['Team']['name']), 'default', array('class' => 'info'));
 									return false;
 								}
 							}
 						}
 					}
 				} else {
-					$this->Session->setFlash(sprintf (__('Team %s was selected more than once!', true), $team['Team']['name']));
+					$this->Session->setFlash(sprintf (__('Team %s was selected more than once!', true), $team['Team']['name']), 'default', array('class' => 'info'));
 					return false;
 				}
 			}
@@ -452,10 +452,10 @@ class LeaguesController extends AppController {
 
 		$unused_slots = array_diff (Set::extract ('/GameSlot/id', $available_slots), $slots);
 		if ($this->League->Game->GameSlot->updateAll (array('game_id' => null), array('GameSlot.id' => $unused_slots))) {
-			$this->Session->setFlash(__('Schedule changes saved!', true));
+			$this->Session->setFlash(__('Schedule changes saved!', true), 'default', array('class' => 'success'));
 			return true;
 		} else {
-			$this->Session->setFlash(__('Saved schedule changes, but failed to clear unused slots!', true));
+			$this->Session->setFlash(__('Saved schedule changes, but failed to clear unused slots!', true), 'default', array('class' => 'warning'));
 			return false;
 		}
 	}
@@ -464,7 +464,7 @@ class LeaguesController extends AppController {
 	function validate_ratings() {
 		$id = $this->_arg('league');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		$correct = $this->_arg('correct');
@@ -474,7 +474,7 @@ class LeaguesController extends AppController {
 		));
 		$league = $this->League->read(null, $id);
 		if ($league === false) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -491,7 +491,7 @@ class LeaguesController extends AppController {
 		));
 
 		if (empty ($league['Game'])) {
-			$this->Session->setFlash(__('This league has no games scheduled yet.', true));
+			$this->Session->setFlash(__('This league has no games scheduled yet.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		$league_obj = $this->_getComponent ('LeagueType', $league['League']['schedule_type'], $this);
@@ -605,7 +605,7 @@ class LeaguesController extends AppController {
 		$teamid = $this->_arg('team');
 		$showall = $this->_arg('full');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -621,7 +621,7 @@ class LeaguesController extends AppController {
 		));
 		$league = $this->League->read(null, $id);
 		if ($league === false) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -638,7 +638,7 @@ class LeaguesController extends AppController {
 		));
 
 		if (empty ($league['Game'])) {
-			$this->Session->setFlash(__('Cannot generate standings for a league with no schedule.', true));
+			$this->Session->setFlash(__('Cannot generate standings for a league with no schedule.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -684,7 +684,7 @@ class LeaguesController extends AppController {
 	function scores() {
 		$id = $this->_arg('league');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -694,7 +694,7 @@ class LeaguesController extends AppController {
 		));
 		$league = $this->League->read(null, $id);
 		if ($league === false) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -714,7 +714,7 @@ class LeaguesController extends AppController {
 				),
 		));
 		if (empty ($league['Game'])) {
-			$this->Session->setFlash(__('This league has no games scheduled yet.', true));
+			$this->Session->setFlash(__('This league has no games scheduled yet.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -740,7 +740,7 @@ class LeaguesController extends AppController {
 	function fields() {
 		$id = $this->_arg('league');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -762,11 +762,11 @@ class LeaguesController extends AppController {
 		));
 		$league = $this->League->read(null, $id);
 		if ($league === false) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		if (empty ($league['Game'])) {
-			$this->Session->setFlash(__('This league has no games scheduled yet.', true));
+			$this->Session->setFlash(__('This league has no games scheduled yet.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		$league_obj = $this->_getComponent ('LeagueType', $league['League']['schedule_type'], $this);
@@ -864,14 +864,14 @@ class LeaguesController extends AppController {
 	function slots() {
 		$id = $this->_arg('league');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
 		$this->League->recursive = -1;
 		$league = $this->League->read(null, $id);
 		if ($league === false) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -922,7 +922,7 @@ class LeaguesController extends AppController {
 	function status() { // TODO
 		$id = $this->_arg('league');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -931,7 +931,7 @@ class LeaguesController extends AppController {
 	function allstars() {
 		$id = $this->_arg('league');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		$min = $this->_arg('min');
@@ -942,7 +942,7 @@ class LeaguesController extends AppController {
 		$this->League->recursive = -1;
 		$league = $this->League->read(null, $id);
 		if ($league === false) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -966,7 +966,7 @@ class LeaguesController extends AppController {
 	function emails() {
 		$id = $this->_arg('league');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -980,7 +980,7 @@ class LeaguesController extends AppController {
 		));
 		$league = $this->League->read(null, $id);
 		if ($league === false) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->set(compact('league'));
@@ -991,7 +991,7 @@ class LeaguesController extends AppController {
 	function spirit() {
 		$id = $this->_arg('league');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -1006,11 +1006,11 @@ class LeaguesController extends AppController {
 		));
 		$league = $this->League->read(null, $id);
 		if ($league === false) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		if (empty ($league['Game'])) {
-			$this->Session->setFlash(__('This league has no games scheduled yet.', true));
+			$this->Session->setFlash(__('This league has no games scheduled yet.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -1027,14 +1027,14 @@ class LeaguesController extends AppController {
 	function approve_scores() {
 		$id = $this->_arg('league');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
 		$this->League->recursive = -1;
 		$league = $this->League->read(null, $id);
 		if ($league === false) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -1070,7 +1070,7 @@ class LeaguesController extends AppController {
 				'order' => array('GameSlot.game_date', 'GameSlot.game_start', 'Game.id'),
 		));
 		if (empty ($games)) {
-			$this->Session->setFlash(__('There are currently no games to approve in this league.', true));
+			$this->Session->setFlash(__('There are currently no games to approve in this league.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->League->Game->_adjustEntryIndices($games);

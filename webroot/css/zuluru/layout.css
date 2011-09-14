@@ -309,7 +309,6 @@ body
 }
 
 /** Notices and Errors **/
-#zuluru div.message,
 #zuluru div.error-message
 {
 	clear: both;

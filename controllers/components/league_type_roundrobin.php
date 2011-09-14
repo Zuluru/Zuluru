@@ -98,7 +98,7 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 			'splayoff' => 'playoff ladder with semi and final games, and a consolation round',
 			*/
 		);
-		if( (($num_teams / 2) % 2) ) {
+		if($num_teams % 4) {
 			// Can't do a half-round without an even number of teams in
 			// each half.
 			unset($types['halfroundstandings']);
@@ -179,12 +179,12 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 		$num_teams = count($this->league['Team']);
 
 		if ($num_teams < 2) {
-			$this->_controller->Session->setFlash(__('Must have two teams', true));
+			$this->_controller->Session->setFlash(__('Must have two teams', true), 'default', array('class' => 'warning'));
 			return false;
 		}
 
 		if ($num_teams % 2) {
-			$this->_controller->Session->setFlash(__('Must have even number of teams', true));
+			$this->_controller->Session->setFlash(__('Must have even number of teams', true), 'default', array('class' => 'warning'));
 			return false;
 		}
 
@@ -205,12 +205,12 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 		$num_teams = count($this->league['Team']);
 
 		if ($num_teams < 2) {
-			$this->_controller->Session->setFlash(__('Must have two teams', true));
+			$this->_controller->Session->setFlash(__('Must have two teams', true), 'default', array('class' => 'warning'));
 			return false;
 		}
 
 		if ($num_teams % 2) {
-			$this->_controller->Session->setFlash(__('Must have even number of teams', true));
+			$this->_controller->Session->setFlash(__('Must have even number of teams', true), 'default', array('class' => 'warning'));
 			return false;
 		}
 
@@ -227,12 +227,12 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 		$num_teams = count($this->league['Team']);
 
 		if ($num_teams < 2) {
-			$this->_controller->Session->setFlash(__('Must have two teams', true));
+			$this->_controller->Session->setFlash(__('Must have two teams', true), 'default', array('class' => 'warning'));
 			return false;
 		}
 
 		if ($num_teams % 2) {
-			$this->_controller->Session->setFlash(__('Must have even number of teams', true));
+			$this->_controller->Session->setFlash(__('Must have even number of teams', true), 'default', array('class' => 'warning'));
 			return false;
 		}
 
@@ -282,18 +282,18 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 		$num_teams = count($teams);
 
 		if ($num_teams < 2) {
-			$this->_controller->Session->setFlash(__('Must have two teams', true));
+			$this->_controller->Session->setFlash(__('Must have two teams', true), 'default', array('class' => 'warning'));
 			return false;
 		}
 
 		if ($num_teams % 2) {
-			$this->_controller->Session->setFlash(__('Must have even number of teams', true));
+			$this->_controller->Session->setFlash(__('Must have even number of teams', true), 'default', array('class' => 'warning'));
 			return false;
 		}
 
 		// TODO: Temporary check to make sure that inputs are valid
 		if (!array_key_exists (0, $teams)) {
-			$this->_controller->Session->setFlash(__('Teams array must be zero-indexed', true));
+			$this->_controller->Session->setFlash(__('Teams array must be zero-indexed', true), 'default', array('class' => 'warning'));
 			return false;
 		}
 
@@ -304,7 +304,7 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 		$day_count = $this->countAvailableGameslotDays($date);
 
 		if ($day_count < $iterations_remaining) {
-			$this->_controller->Session->setFlash(sprintf (__('Need %s weeks of gameslots, yet only %s are available. Add more gameslots.', true), $iterations_remaining, $day_count));
+			$this->_controller->Session->setFlash(sprintf (__('Need %s weeks of gameslots, yet only %s are available. Add more gameslots.', true), $iterations_remaining, $day_count), 'default', array('class' => 'warning'));
 			return false;
 		}
 
@@ -321,7 +321,7 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 
 			// b. schedule them
 			if (!$this->assignFields($date, $set_teams)) {
-				$this->_controller->Session->setFlash(sprintf (__('Had to stop with %s sets left to schedule: could not assign fields', true), $iterations_remaining));
+				$this->_controller->Session->setFlash(sprintf (__('Had to stop with %s sets left to schedule: could not assign fields', true), $iterations_remaining), 'default', array('class' => 'error'));
 				return false;
 			}
 

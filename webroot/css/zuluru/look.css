@@ -125,11 +125,6 @@ dl .altrow
 }
 
 /** Notices and Errors **/
-#zuluru .message
-{
-	color: #fff;
-	background: #c73e14;
-}
 #zuluru .error-message, #zuluru .field-usage-highlight
 {
 	color: red;
@@ -152,6 +147,41 @@ dl .altrow
 {
 	background: green;
 	color: #fff;
+}
+
+#zuluru div.message {
+	border: 1px solid;
+	margin: 10px 0px;
+	padding:15px 10px;
+}
+#zuluru #authMessage, #zuluru div.info, #zuluru div.success, #zuluru div.warning, #zuluru div.error {
+	border: 1px solid;
+	margin: 10px 0px;
+	padding:15px 10px 15px 50px;
+	background-repeat: no-repeat;
+	background-position: 10px center;
+	font-size: 125%;
+}
+#zuluru #authMessage, #zuluru div.info {
+	border-color: #00529B;
+	background-color: #BDE5F8;
+	background-image: url('images/message/info.png');
+}
+#zuluru div.success {
+	color: black;
+	border-color: #4F8A10;
+	background-color: #DFF2BF;
+	background-image:url('images/message/success.png');
+}
+#zuluru div.warning {
+	border-color: #9F6000;
+	background-color: #FFFABF;
+	background-image: url('images/message/warning.png');
+}
+#zuluru div.error {
+	border-color: #D8000C;
+	background-color: #FFBABA;
+	background-image: url('images/message/error.png');
 }
 
 /**  Actions  **/

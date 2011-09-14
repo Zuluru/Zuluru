@@ -19,7 +19,7 @@ class QuestionsController extends AppController {
 	function view() {
 		$id = $this->_arg('question');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), 'question'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('question', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->set('question', $this->Question->read(null, $id));
@@ -29,10 +29,10 @@ class QuestionsController extends AppController {
 		if (!empty($this->data)) {
 			$this->Question->create();
 			if ($this->Question->save($this->data)) {
-				$this->Session->setFlash(sprintf(__('The %s has been saved', true), 'question'));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('question', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'edit', 'question' => $this->Question->id));
 			} else {
-				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please, try again.', true), 'question'));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('question', true)), 'default', array('class' => 'warning'));
 			}
 		}
 	}
@@ -40,15 +40,15 @@ class QuestionsController extends AppController {
 	function edit() {
 		$id = $this->_arg('question');
 		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), 'question'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('question', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		if (!empty($this->data)) {
 			if ($this->Question->saveAll($this->data)) {
-				$this->Session->setFlash(sprintf(__('The %s has been saved', true), 'question'));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('question', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please, try again.', true), 'question'));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('question', true)), 'default', array('class' => 'warning'));
 			}
 		}
 		if (empty($this->data)) {
@@ -88,7 +88,7 @@ class QuestionsController extends AppController {
 	function delete() {
 		$id = $this->_arg('question');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid id for %s', true), 'question'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('question', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action'=>'index'));
 		}
 
@@ -99,7 +99,7 @@ class QuestionsController extends AppController {
 				'conditions' => array('question_id' => $id),
 		));
 		if ($questionnaires > 0) {
-			$this->Session->setFlash(__('This question is used by at least one questionnaire and cannot be deleted.', true));
+			$this->Session->setFlash(__('This question is used by at least one questionnaire and cannot be deleted.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action'=>'index'));
 		}
 
@@ -108,13 +108,13 @@ class QuestionsController extends AppController {
 
 		if ($this->Question->delete($id)) {
 			if ($this->Question->Answer->deleteAll(array('question_id' => $id))) {
-				$this->Session->setFlash(sprintf(__('%s deleted', true), 'Question'));
+				$this->Session->setFlash(sprintf(__('%s deleted', true), __('Question', true)), 'default', array('class' => 'success'));
 				$transaction->commit();
 				$this->redirect(array('action'=>'index'));
 			}
 		}
 
-		$this->Session->setFlash(sprintf(__('%s was not deleted', true), 'Question'));
+		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Question', true)), 'default', array('class' => 'warning'));
 		$this->redirect(array('action' => 'index'));
 	}
 

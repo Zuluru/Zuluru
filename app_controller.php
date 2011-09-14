@@ -85,12 +85,12 @@ class AppController extends Controller {
 		if ($this->is_member && $this->action != 'logout') {
 			$email = $this->Session->read('Zuluru.Person.email');
 			if (($this->name != 'People' || $this->action != 'edit') && empty ($email)) {
-				$this->Session->setFlash(__('Last time we tried to contact you, your email bounced. We require a valid email address as part of your profile. You must update it before proceeding.', true));
+				$this->Session->setFlash(__('Last time we tried to contact you, your email bounced. We require a valid email address as part of your profile. You must update it before proceeding.', true), 'default', array('class' => 'warning'));
 				$this->redirect (array('controller' => 'people', 'action' => 'edit'));
 			}
 
 			if (($this->name != 'People' || $this->action != 'edit') && $this->Session->read('Zuluru.Person.complete') == 0) {
-				$this->Session->setFlash(__('Your player profile is incomplete. You must update it before proceeding.', true));
+				$this->Session->setFlash(__('Your player profile is incomplete. You must update it before proceeding.', true), 'default', array('class' => 'warning'));
 				$this->redirect (array('controller' => 'people', 'action' => 'edit'));
 			}
 
@@ -108,7 +108,7 @@ class AppController extends Controller {
 					// We will let people look at information about teams that they've been invited to
 					($this->name != 'Teams' || !in_array ($this->_arg('team'), $response_required)))
 				{
-					$this->Session->setFlash(__('You have been invited to join a team, and must either accept or decline this invitation before proceeding. Before deciding, you have the ability to look at this team\'s roster, schedule, etc.', true));
+					$this->Session->setFlash(__('You have been invited to join a team, and must either accept or decline this invitation before proceeding. Before deciding, you have the ability to look at this team\'s roster, schedule, etc.', true), 'default', array('class' => 'info'));
 					$this->redirect (array('controller' => 'teams', 'action' => 'view', 'team' => array_shift($response_required), 'person' => $this->Auth->user('id')));
 				}
 			}
@@ -958,7 +958,7 @@ class AppController extends Controller {
 		));
 		$waiver = $this->_findWaiver($waivers, $check_date);
 		if ($waiver === null) {
-			$this->Session->setFlash(__('You must sign the waiver before proceeding.', true));
+			$this->Session->setFlash(__('You must sign the waiver before proceeding.', true), 'default', array('class' => 'info'));
 			$this->redirect (array('controller' => 'people', 'action' => 'sign_waiver', 'type' => $type, 'year' => $this->membershipYear ($check_date), 'event' => $event['id']));
 		} else {
 			return $this->membershipYear ($check_date);

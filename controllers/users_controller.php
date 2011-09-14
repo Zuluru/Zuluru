@@ -63,12 +63,12 @@ class UsersController extends AppController {
 
 	function create_account() {
 		if (!Configure::read('feature.manage_accounts')) {
-			$this->Session->setFlash (__('This system uses ' . Configure::read('feature.manage_name') . ' to manage user accounts. Account creation through Zuluru is disabled.', true));
+			$this->Session->setFlash (__('This system uses ' . Configure::read('feature.manage_name') . ' to manage user accounts. Account creation through Zuluru is disabled.', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
 		if (!$this->is_admin && $this->Auth->user('id')) {
-			$this->Session->setFlash(__('You are already logged in!', true));
+			$this->Session->setFlash(__('You are already logged in!', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -80,7 +80,7 @@ class UsersController extends AppController {
 			$this->data['User']['complete'] = true;
 			$this->data['User']['group_id'] = 1;	// TODO: Assumed this is the Player group
 			if ($this->User->save($this->data)) {
-				$this->Session->setFlash(__('Your account has been saved. It must be approved by an administrator before you will have full access to the site. However, you can log in and start exploring right away.', true));
+				$this->Session->setFlash(__('Your account has been saved. It must be approved by an administrator before you will have full access to the site. However, you can log in and start exploring right away.', true), 'default', array('class' => 'success'));
 
 				// There may be callbacks to handle
 				// TODO: How to handle this in conjunction with third-party auth systems?
@@ -94,14 +94,14 @@ class UsersController extends AppController {
 				// TODO: Automatically log the user in by writing to the session?
 				$this->redirect(array('action' => 'login'));
 			} else {
-				$this->Session->setFlash(__('Your account could not be saved. Please correct the errors below and try again.', true));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('account', true)), 'default', array('class' => 'warning'));
 			}
 		}
 	}
 
 	function change_password() {
 		if (!Configure::read('feature.manage_accounts')) {
-			$this->Session->setFlash (__('This system uses ' . Configure::read('feature.manage_name') . ' to manage user accounts. Changing your password through Zuluru is disabled.', true));
+			$this->Session->setFlash (__('This system uses ' . Configure::read('feature.manage_name') . ' to manage user accounts. Changing your password through Zuluru is disabled.', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -110,7 +110,7 @@ class UsersController extends AppController {
 			$id = $this->Auth->user('id');
 		}
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), 'user'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('user', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -120,10 +120,10 @@ class UsersController extends AppController {
 
 		if (!empty($this->data)) {
 			if ($this->User->save($this->data)) {
-				$this->Session->setFlash(__('The password has been updated', true));
+				$this->Session->setFlash(__('The password has been updated', true), 'default', array('class' => 'success'));
 				$this->redirect('/');
 			} else {
-				$this->Session->setFlash(__('The password could not be updated. Please, try again.', true));
+				$this->Session->setFlash(__('The password could not be updated. Please, try again.', true), 'default', array('class' => 'warning'));
 			}
 		} else {
 			$this->data = $user;
@@ -134,12 +134,12 @@ class UsersController extends AppController {
 
 	function reset_password($id = null, $code = null) {
 		if (!Configure::read('feature.manage_accounts')) {
-			$this->Session->setFlash (__('This system uses ' . Configure::read('feature.manage_name') . ' to manage user accounts. Changing your password through Zuluru is disabled.', true));
+			$this->Session->setFlash (__('This system uses ' . Configure::read('feature.manage_name') . ' to manage user accounts. Changing your password through Zuluru is disabled.', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
 		if ($this->Auth->user('id') !== null) {
-			$this->Session->setFlash (__('You are already logged in. Use the change password form instead.', true));
+			$this->Session->setFlash (__('You are already logged in. Use the change password form instead.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'change_password'));
 		}
 
@@ -148,13 +148,13 @@ class UsersController extends AppController {
 			$this->User->recursive = -1;
 			$matches = $this->User->read (null, $id);
 			if (empty ($matches) || substr ($matches['User']['password'], -8) != $code) {
-				$this->Session->setFlash(__('The provided code is not valid!', true));
+				$this->Session->setFlash(__('The provided code is not valid!', true), 'default', array('class' => 'warning'));
 			} else {
 				if ($this->_email_new_password($matches['User'])) {
-					$this->Session->setFlash(__('Your new password has been emailed to you.', true));
+					$this->Session->setFlash(__('Your new password has been emailed to you.', true), 'default', array('class' => 'success'));
 					$this->redirect('/');
 				} else {
-					$this->Session->setFlash(__('There was an error emailing your new password to you, please try again. If you have continued problems, please contact the office.', true));
+					$this->Session->setFlash(__('There was an error emailing your new password to you, please try again. If you have continued problems, please contact the office.', true), 'default', array('class' => 'warning'));
 				}
 			}
 		} else {
@@ -174,20 +174,20 @@ class UsersController extends AppController {
 					));
 					switch (count($matches)) {
 						case 0:
-							$this->Session->setFlash(__('No matching accounts were found!', true));
+							$this->Session->setFlash(__('No matching accounts were found!', true), 'default', array('class' => 'info'));
 							break;
 
 						case 1:
 							if ($this->_email_reset_code($matches[0]['User'])) {
-								$this->Session->setFlash(__('Your reset code has been emailed to you.', true));
+								$this->Session->setFlash(__('Your reset code has been emailed to you.', true), 'default', array('class' => 'success'));
 								$this->redirect('/');
 							} else {
-								$this->Session->setFlash(__('There was an error emailing the reset code to you, please try again. If you have continued problems, please contact the office.', true));
+								$this->Session->setFlash(__('There was an error emailing the reset code to you, please try again. If you have continued problems, please contact the office.', true), 'default', array('class' => 'warning'));
 							}
 							break;
 
 						default:
-							$this->Session->setFlash(__('Multiple matching accounts were found for this email address; you will need to specify the user name.', true));
+							$this->Session->setFlash(__('Multiple matching accounts were found for this email address; you will need to specify the user name.', true), 'default', array('class' => 'info'));
 							break;
 					}
 				}

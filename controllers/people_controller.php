@@ -140,14 +140,14 @@ class PeopleController extends AppController {
 		if (!$id) {
 			$id = $my_id;
 			if (!$id) {
-				$this->Session->setFlash(__('Invalid person', true));
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 				$this->redirect('/');
 			}
 		}
 
 		$person = $this->Person->readCurrent($id);
 		if ($person === false) {
-			$this->Session->setFlash(__('Invalid person', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 		$this->set(compact('person'));
@@ -201,7 +201,7 @@ class PeopleController extends AppController {
 		if (!$id && empty($this->data)) {
 			$id = $my_id;
 			if (!$id) {
-				$this->Session->setFlash(__('Invalid person', true));
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 				$this->redirect('/');
 			}
 		}
@@ -220,7 +220,7 @@ class PeopleController extends AppController {
 		if (!empty($this->data)) {
 			$this->data['Person']['complete'] = true;
 			if ($this->Person->save($this->data)) {
-				$this->Session->setFlash(__('The person has been saved', true));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('person', true)), 'default', array('class' => 'success'));
 
 				// There may be callbacks to handle
 				$components = Configure::read('callbacks.user');
@@ -236,7 +236,7 @@ class PeopleController extends AppController {
 
 				$this->redirect('/');
 			} else {
-				$this->Session->setFlash(__('The person could not be saved. Please correct the errors below and try again.', true));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('person', true)), 'default', array('class' => 'warning'));
 			}
 		}
 		if (empty($this->data)) {
@@ -252,7 +252,7 @@ class PeopleController extends AppController {
 		if (!$id) {
 			$id = $my_id;
 			if (!$id) {
-				$this->Session->setFlash(__('Invalid person', true));
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 				$this->redirect('/');
 			}
 		}
@@ -262,13 +262,13 @@ class PeopleController extends AppController {
 		$setting = ClassRegistry::init('Setting');
 		if (!empty($this->data)) {
 			if ($setting->saveAll ($this->data['Setting'], array('validate' => false))) {
-				$this->Session->setFlash(__('Your preferences have been saved', true));
+				$this->Session->setFlash(sprintf(__('The %s have been saved', true), __('preferences', true)), 'default', array('class' => 'success'));
 				// Reload the configuration right away, so it affects any rendering we do now,
 				// and rebuild the menu based on any changes.
 				$this->Configuration->load($my_id);
 				$this->_initMenu();
 			} else {
-				$this->Session->setFlash(__('Failed to save your preferences', true));
+				$this->Session->setFlash(__('Failed to save your preferences', true), 'default', array('class' => 'warning'));
 			}
 		}
 
@@ -301,7 +301,7 @@ class PeopleController extends AppController {
 
 		if (!empty ($this->data) && array_key_exists ('image', $this->data)) {
 			if (empty ($this->data['image'])) {
-				$this->Session->setFlash(__('There was an unexpected error uploading the file. Please try again.', true));
+				$this->Session->setFlash(__('There was an unexpected error uploading the file. Please try again.', true), 'default', array('class' => 'warning'));
 				return;
 			}
 			if ($this->data['image']['error'] == UPLOAD_ERR_INI_SIZE) {
@@ -310,24 +310,24 @@ class PeopleController extends AppController {
 				if ($unit == 'M' || $unit == 'K') {
 					$max .= 'b';
 				}
-				$this->Session->setFlash(sprintf (__('The selected photo is too large. Photos must be less than %s.', true), $max));
+				$this->Session->setFlash(sprintf (__('The selected photo is too large. Photos must be less than %s.', true), $max), 'default', array('class' => 'warning'));
 				return;
 			}
 			if ($this->data['image']['error'] == UPLOAD_ERR_NO_FILE) {
-				$this->Session->setFlash(__('You must select a photo to upload', true));
+				$this->Session->setFlash(__('You must select a photo to upload', true), 'default', array('class' => 'warning'));
 				return;
 			}
 			if ($this->data['image']['error'] == UPLOAD_ERR_NO_TMP_DIR ||
 				$this->data['image']['error'] == UPLOAD_ERR_CANT_WRITE)
 			{
-				$this->Session->setFlash(__('This system does not appear to be properly configured for photo uploads. Please contact your administrator to have them correct this.', true));
+				$this->Session->setFlash(__('This system does not appear to be properly configured for photo uploads. Please contact your administrator to have them correct this.', true), 'default', array('class' => 'error'));
 				return;
 			}
 			if ($this->data['image']['error'] != 0 ||
 				strpos ($this->data['image']['type'], 'image/') === false)
 			{
 				$this->log($this->data, 'upload');
-				$this->Session->setFlash(__('There was an unexpected error uploading the file. Please try again.', true));
+				$this->Session->setFlash(__('There was an unexpected error uploading the file. Please try again.', true), 'default', array('class' => 'warning'));
 				return;
 			}
 
@@ -337,7 +337,7 @@ class PeopleController extends AppController {
 			$uploaded = $this->ImageCrop->uploadImage($this->data['image'], $temp_dir, "temp_{$person['id']}_$rand");
 			$this->set(compact('uploaded'));
 			if (!$uploaded) {
-				$this->Session->setFlash(__('Unexpected error uploading the file', true));
+				$this->Session->setFlash(__('Unexpected error uploading the file', true), 'default', array('class' => 'warning'));
 			} else {
 				$this->render('photo_resize');
 			}
@@ -378,7 +378,7 @@ class PeopleController extends AppController {
 					$this->Person->Upload->id = $photo['Upload']['id'];
 					$this->Person->Upload->saveField ('approved', false);
 				}
-				$this->Session->setFlash(__('Photo saved, but will not be visible by others until approved', true));
+				$this->Session->setFlash(__('Photo saved, but will not be visible by others until approved', true), 'default', array('class' => 'success'));
 			}
 			$this->redirect(array('action' => 'view'));
 		}
@@ -390,7 +390,7 @@ class PeopleController extends AppController {
 				'conditions' => array('approved' => 0),
 		));
 		if (empty ($photos)) {
-			$this->Session->setFlash(__('There are no photos to approve.', true));
+			$this->Session->setFlash(__('There are no photos to approve.', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 		$this->set(compact('photos'));
@@ -420,7 +420,7 @@ class PeopleController extends AppController {
 				'sendAs' => 'text',
 		)))
 		{
-			$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['Person']['email']));
+			$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['Person']['email']), 'default', array('class' => 'error'), 'email');
 		}
 	}
 
@@ -455,20 +455,20 @@ class PeopleController extends AppController {
 				'sendAs' => 'text',
 		)))
 		{
-			$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $photo['Person']['email']));
+			$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $photo['Person']['email']), 'default', array('class' => 'error'), 'email');
 		}
 	}
 
 	function sign_waiver() {
 		$type = $this->_arg('type');
 		if ($type == null || !array_key_exists ($type, Configure::read('options.waiver_types'))) {
-			$this->Session->setFlash(__('Unknown waiver type', true));
+			$this->Session->setFlash(__('Unknown waiver type', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
 		$id = $this->Auth->user('id');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid person', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 		$this->Person->contain ('Waiver');
@@ -484,13 +484,13 @@ class PeopleController extends AppController {
 
 		$waiver = $this->_findWaiver ($person['Waiver'], $expiry);
 		if ($waiver != null) {
-			$this->Session->setFlash(__('You have already accepted this waiver', true));
+			$this->Session->setFlash(__('You have already accepted this waiver', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 		$this->set(compact('person', 'waiver'));
 
 		if ($year != $current && $year != $current+1) {
-			$this->Session->setFlash(__('Invalid membership year', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('membership year', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -504,7 +504,7 @@ class PeopleController extends AppController {
 				{
 					// By deleting the waivers session variable, the next page will reload them
 					$this->Session->delete('Zuluru.Waivers');
-					$this->Session->setFlash(__('Waiver signed.', true));
+					$this->Session->setFlash(__('Waiver signed.', true), 'default', array('class' => 'success'));
 					$event = $this->_arg('event');
 					if ($event) {
 						$this->redirect(array('controller' => 'registrations', 'action' => 'register', 'event' => $event));
@@ -512,10 +512,10 @@ class PeopleController extends AppController {
 						$this->redirect('/');
 					}
 				} else {
-					$this->Session->setFlash(__('Failed to save the waiver.', true));
+					$this->Session->setFlash(__('Failed to save the waiver.', true), 'default', array('class' => 'warning'));
 				}
 			} else {
-				$this->Session->setFlash(__('Sorry, you may only proceed with registration by agreeing to the waiver.', true));
+				$this->Session->setFlash(__('Sorry, you may only proceed with registration by agreeing to the waiver.', true), 'default', array('class' => 'warning'));
 			}
 		}
 		$this->set(compact('type', 'year'));
@@ -524,13 +524,13 @@ class PeopleController extends AppController {
 	function view_waiver() {
 		$type = $this->_arg('type');
 		if ($type == null || !array_key_exists ($type, Configure::read('options.waiver_types'))) {
-			$this->Session->setFlash(__('Unknown waiver type', true));
+			$this->Session->setFlash(__('Unknown waiver type', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
 		$id = $this->Auth->user('id');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid person', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 		$this->Person->contain ('Waiver');
@@ -547,7 +547,7 @@ class PeopleController extends AppController {
 		$this->set(compact('person', 'waiver'));
 
 		if ($year != $current && $year != $current+1) {
-			$this->Session->setFlash(__('Invalid membership year', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('membership year', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -556,28 +556,28 @@ class PeopleController extends AppController {
 
 	function delete() {
 		if (!Configure::read('feature.manage_accounts')) {
-			$this->Session->setFlash (__('This system uses ' . Configure::read('feature.manage_name') . ' to manage user accounts. Account deletion through Zuluru is disabled.', true));
+			$this->Session->setFlash (__('This system uses ' . Configure::read('feature.manage_name') . ' to manage user accounts. Account deletion through Zuluru is disabled.', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
 		$id = $this->_arg('person');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid id for person', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
 		// TODO: Don't delete people that have paid registration history, are on team rosters, league coordinators, or the only admin
 
 		// TODO Handle deletions
-		$this->Session->setFlash(sprintf(__('Deleting %s is disabled', true), 'players'));
+		$this->Session->setFlash(sprintf(__('Deleting %s is disabled', true), 'players'), 'default', array('class' => 'info'));
 		$this->redirect('/');
 
 		if ($this->Person->delete($id)) {
-			$this->Session->setFlash(__('Person deleted', true));
+			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Person', true)), 'default', array('class' => 'success'));
 			// TODO: Unwind any registrations, including calling event_obj for additional processing like deleting team records
 			$this->redirect('/');
 		}
-		$this->Session->setFlash(__('Person was not deleted', true));
+		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Person', true)), 'default', array('class' => 'warning'));
 		$this->redirect('/');
 	}
 
@@ -614,7 +614,7 @@ class PeopleController extends AppController {
 		if (!empty ($this->data)) {
 			if (empty ($this->data['Person']['disposition'])) {
 				$id = $this->data['Person']['id'];
-				$this->Session->setFlash(__('You must select a disposition for this account', true));
+				$this->Session->setFlash(__('You must select a disposition for this account', true), 'default', array('class' => 'info'));
 			} else {
 				$this->_approve();
 				$this->redirect(array('action' => 'list_new'));
@@ -624,18 +624,18 @@ class PeopleController extends AppController {
 		}
 
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid person', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'list_new'));
 		}
 
 		$this->Person->recursive = -1;
 		$person = $this->Person->read(null, $id);
 		if (!$person) {
-			$this->Session->setFlash(__('Invalid person', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'list_new'));
 		}
 		if ($person['Person']['status'] != 'new') {
-			$this->Session->setFlash(__('That account has already been approved', true));
+			$this->Session->setFlash(__('That account has already been approved', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'list_new'));
 		}
 
@@ -670,7 +670,7 @@ class PeopleController extends AppController {
 				);
 				$saved = $this->Person->save ($data, false, array_keys ($data));
 				if (!$saved) {
-					$this->Session->setFlash(__('Couldn\'t save new member activation', true));
+					$this->Session->setFlash(__('Couldn\'t save new member activation', true), 'default', array('class' => 'warning'));
 					$this->redirect(array('action' => 'approve', 'person' => $person['Person']['id']));
 				}
 
@@ -688,7 +688,7 @@ class PeopleController extends AppController {
 						'sendAs' => 'text',
 				)))
 				{
-					$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['Person']['email']));
+					$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['Person']['email']), 'default', array('class' => 'error'), 'email');
 				}
 				break;
 
@@ -701,7 +701,7 @@ class PeopleController extends AppController {
 				);
 				$saved = $this->Person->save ($data, false, array_keys ($data));
 				if (!$saved) {
-					$this->Session->setFlash(__('Couldn\'t save new member activation', true));
+					$this->Session->setFlash(__('Couldn\'t save new member activation', true), 'default', array('class' => 'warning'));
 					$this->redirect(array('action' => 'approve', 'person' => $person['Person']['id']));
 				}
 
@@ -718,7 +718,7 @@ class PeopleController extends AppController {
 						'sendAs' => 'text',
 				)))
 				{
-					$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['Person']['email']));
+					$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['Person']['email']), 'default', array('class' => 'error'), 'email');
 				}
 				break;
 
@@ -727,7 +727,7 @@ class PeopleController extends AppController {
 					$this->Auth->authenticate->delete_duplicate_user($person['Person']['id']);
 				}
 				if (! $this->Person->delete($person['Person']['id']) ) {
-					$this->Session->setFlash(sprintf (__('Failed to delete %s', true), $person['Person']['full_name']));
+					$this->Session->setFlash(sprintf (__('Failed to delete %s', true), $person['Person']['full_name']), 'default', array('class' => 'warning'));
 				}
 				break;
 
@@ -737,7 +737,7 @@ class PeopleController extends AppController {
 				}
 
 				if (! $this->Person->delete($person['Person']['id']) ) {
-					$this->Session->setFlash(sprintf (__('Failed to delete %s', true), $person['Person']['full_name']));
+					$this->Session->setFlash(sprintf (__('Failed to delete %s', true), $person['Person']['full_name']), 'default', array('class' => 'warning'));
 					break;
 				}
 
@@ -757,7 +757,7 @@ class PeopleController extends AppController {
 						'sendAs' => 'text',
 				)))
 				{
-					$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['Person']['email']));
+					$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['Person']['email']), 'default', array('class' => 'error'), 'email');
 				}
 				break;
 
@@ -787,7 +787,7 @@ class PeopleController extends AppController {
 				}
 
 				if (! $this->Person->delete($person['Person']['id'], false) ) {
-					$this->Session->setFlash(sprintf (__('Failed to delete %s', true), $person['Person']['full_name']));
+					$this->Session->setFlash(sprintf (__('Failed to delete %s', true), $person['Person']['full_name']), 'default', array('class' => 'warning'));
 					break;
 				}
 
@@ -799,7 +799,7 @@ class PeopleController extends AppController {
 
 				$saved = $this->Person->save ($person);
 				if (!$saved) {
-					$this->Session->setFlash(__('Couldn\'t save new member information', true));
+					$this->Session->setFlash(__('Couldn\'t save new member information', true), 'default', array('class' => 'warning'));
 					break;
 				} else {
 					$transaction->commit();
@@ -821,7 +821,7 @@ class PeopleController extends AppController {
 						'sendAs' => 'text',
 				)))
 				{
-					$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['Person']['email']));
+					$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['Person']['email']), 'default', array('class' => 'error'), 'email');
 				}
 				break;
 		}
@@ -887,7 +887,7 @@ class PeopleController extends AppController {
 		if (!$id) {
 			$id = $my_id;
 			if (!$id) {
-				$this->Session->setFlash(__('Invalid person', true));
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 				$this->redirect('/');
 			}
 		}
@@ -904,7 +904,7 @@ class PeopleController extends AppController {
 		if (!$id) {
 			$id = $my_id;
 			if (!$id) {
-				$this->Session->setFlash(__('Invalid person', true));
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 				$this->redirect('/');
 			}
 		}

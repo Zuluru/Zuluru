@@ -10,7 +10,7 @@ class MapsController extends AppController {
 	function view() {
 		$id = $this->_arg('field');
 		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(__('Invalid field', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('field', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'fields', 'action' => 'index'));
 		}
 
@@ -20,7 +20,7 @@ class MapsController extends AppController {
 
 		$field = $this->Field->read(null, $id);
 		if (!$field['Field']['length']) {
-			$this->Session->setFlash(__('That field has not yet been laid out.', true));
+			$this->Session->setFlash(__('That field has not yet been laid out.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'fields', 'action' => 'index'));
 		}
 		$field['SiteFields'] = $this->Field->readAtSite ($id, $field['Field']['parent_id'], array('Field.length >' => 0));
@@ -39,16 +39,16 @@ class MapsController extends AppController {
 	function edit() {
 		$id = $this->_arg('field');
 		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(__('Invalid field', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('field', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'fields', 'action' => 'index'));
 		}
 
 		if (!empty ($this->data)) {
 			if ($this->Field->save($this->data)) {
-				$this->Session->setFlash(__('The field layout has been saved', true));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('field layout', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('controller' => 'maps', 'action' => 'view', 'field' => $id));
 			} else {
-				$this->Session->setFlash(__('The field layout could not be saved. Please correct the errors and try again.', true));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('field layout', true)), 'default', array('class' => 'warning'));
 			}
 		}
 
@@ -58,7 +58,7 @@ class MapsController extends AppController {
 
 		$field = $this->Field->read(null, $id);
 		if (!$field) {
-			$this->Session->setFlash(__('Invalid field', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('field', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'fields', 'action' => 'index'));
 		}
 		$field['SiteFields'] = $this->Field->readAtSite ($id, $field['Field']['parent_id'], array('Field.length >' => 0));

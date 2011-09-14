@@ -17,7 +17,7 @@ class LockComponent extends Object
 			if ($age > 15) {
 				$this->Lock->delete ($locks[0]['Lock']['id']);
 			} else {
-				$this->controller->Session->setFlash(__('There is currently a schedule creation or edit in progress. If unsuccessful, it will expire in 15 minutes.', true));
+				$this->controller->Session->setFlash(__('There is currently a schedule creation or edit in progress. If unsuccessful, it will expire in 15 minutes.', true), 'default', array('class' => 'info'));
 				return false;
 			}
 		}

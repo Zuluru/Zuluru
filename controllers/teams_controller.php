@@ -85,7 +85,7 @@ class TeamsController extends AppController {
 	function letter() {
 		$letter = up($this->_arg('letter'));
 		if (!$letter) {
-			$this->Session->setFlash(__('Invalid letter', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('letter', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -358,7 +358,7 @@ class TeamsController extends AppController {
 	function view() {
 		$id = $this->_arg('team');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->Team->contain (array(
@@ -369,7 +369,7 @@ class TeamsController extends AppController {
 
 		$team = $this->Team->read(null, $id);
 		if ($team === false) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->_limitOverride($id);
@@ -449,17 +449,17 @@ class TeamsController extends AppController {
 
 	function add() {
 		if (!$this->is_admin && Configure::read('feature.registration')) {
-			$this->Session->setFlash (__('This system creates teams through the registration process. Team creation through Zuluru is disabled. If you need a team created for some other reason (e.g. a touring team), please email ' . Configure::read('email.admin_email') . ' with the details, or call the office.', true));
+			$this->Session->setFlash (__('This system creates teams through the registration process. Team creation through Zuluru is disabled. If you need a team created for some other reason (e.g. a touring team), please email ' . Configure::read('email.admin_email') . ' with the details, or call the office.', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
 		if (!empty($this->data)) {
 			$this->Team->create();
 			if ($this->Team->save($this->data)) {
-				$this->Session->setFlash(__('The team has been saved', true));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('team', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The team could not be saved. Please correct the errors below and try again.', true));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('team', true)), 'default', array('class' => 'warning'));
 			}
 		}
 
@@ -470,15 +470,15 @@ class TeamsController extends AppController {
 	function edit() {
 		$id = $this->_arg('team');
 		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		if (!empty($this->data)) {
 			if ($this->Team->save($this->data)) {
-				$this->Session->setFlash(__('The team has been saved', true));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('team', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The team could not be saved. Please correct the errors below and try again.', true));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('team', true)), 'default', array('class' => 'warning'));
 			}
 		}
 		if (empty($this->data)) {
@@ -489,19 +489,19 @@ class TeamsController extends AppController {
 	function delete() {
 		$id = $this->_arg('team');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid id for team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action'=>'index'));
 		}
 
 		// TODO Handle deletions
-		$this->Session->setFlash(__('Deletions are not currently supported', true));
+		$this->Session->setFlash(__('Deletions are not currently supported', true), 'default', array('class' => 'info'));
 		$this->redirect('/');
 
 		if ($this->Team->delete($id)) {
-			$this->Session->setFlash(__('Team deleted', true));
+			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Team', true)), 'default', array('class' => 'success'));
 			$this->redirect(array('action'=>'index'));
 		}
-		$this->Session->setFlash(__('Team was not deleted', true));
+		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Team', true)), 'default', array('class' => 'warning'));
 		$this->redirect(array('action' => 'index'));
 	}
 
@@ -509,14 +509,14 @@ class TeamsController extends AppController {
 	function move() {
 		$id = $this->_arg('team');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
 		$this->Team->contain (array ('League' => array('Day')));
 		$team = $this->Team->read(null, $id);
 		if ($team === false) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -526,18 +526,18 @@ class TeamsController extends AppController {
 			// Don't do league comparisons when the team being moved is not in a league
 			if ($team['League']['id']) {
 				if ($league['Day'][0]['id'] != $team['League']['Day'][0]['id']) {
-					$this->Session->setFlash(__('Cannot move a team to a different day', true));
+					$this->Session->setFlash(__('Cannot move a team to a different day', true), 'default', array('class' => 'info'));
 					$this->redirect(array('action' => 'view', 'team' => $id));
 				}
 				if ($league['League']['ratio'] != $team['League']['ratio']) {
-					$this->Session->setFlash(__('Destination league must have the same gender ratio', true));
+					$this->Session->setFlash(__('Destination league must have the same gender ratio', true), 'default', array('class' => 'info'));
 					$this->redirect(array('action' => 'view', 'team' => $id));
 				}
 			}
 			if ($this->Team->saveField ('league_id', $this->data['Team']['to'])) {
-				$this->Session->setFlash(sprintf (__('Team has been moved to %s', true), $league['League']['long_name']));
+				$this->Session->setFlash(sprintf (__('Team has been moved to %s', true), $league['League']['long_name']), 'default', array('class' => 'success'));
 			} else {
-				$this->Session->setFlash(__('Failed to move the team!', true));
+				$this->Session->setFlash(__('Failed to move the team!', true), 'default', array('class' => 'warning'));
 			}
 			$this->redirect(array('action' => 'view', 'team' => $id));
 		}
@@ -568,7 +568,7 @@ class TeamsController extends AppController {
 
 		// Make sure there's somewhere to move it to
 		if (empty ($leagues)) {
-			$this->Session->setFlash(__('No similar league found to move this team to!', true));
+			$this->Session->setFlash(__('No similar league found to move this team to!', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $id));
 		}
 
@@ -578,14 +578,14 @@ class TeamsController extends AppController {
 	function schedule() {
 		$id = $this->_arg('team');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
 		$this->Team->contain (array ('League'));
 		$team = $this->Team->read(null, $id);
 		if ($team === false) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->Team->League->Game->contain (array(
@@ -619,7 +619,7 @@ class TeamsController extends AppController {
 				)),
 		));
 		if (empty ($team['Game'])) {
-			$this->Session->setFlash(__('This team has no games scheduled yet.', true));
+			$this->Session->setFlash(__('This team has no games scheduled yet.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $id));
 		}
 
@@ -677,14 +677,14 @@ class TeamsController extends AppController {
 	function spirit() {
 		$id = $this->_arg('team');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
 		$this->Team->contain (array ('League'));
 		$team = $this->Team->read(null, $id);
 		if ($team === false) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->Team->League->Game->contain (array(
@@ -700,7 +700,7 @@ class TeamsController extends AppController {
 				)),
 		));
 		if (empty ($team['Game'])) {
-			$this->Session->setFlash(__('This team has no games scheduled yet.', true));
+			$this->Session->setFlash(__('This team has no games scheduled yet.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $id));
 		}
 
@@ -715,7 +715,7 @@ class TeamsController extends AppController {
 	function attendance() {
 		$id = $this->_arg('team');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid id for team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -727,12 +727,12 @@ class TeamsController extends AppController {
 		));
 		$team = $this->Team->read(null, $id);
 		if (!$team) {
-			$this->Session->setFlash(__('Invalid id for team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
 		if (!$team['Team']['track_attendance']) {
-			$this->Session->setFlash(__('That team does not have attendance tracking enabled.', true));
+			$this->Session->setFlash(__('That team does not have attendance tracking enabled.', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -770,7 +770,7 @@ class TeamsController extends AppController {
 	function emails() {
 		$id = $this->_arg('team');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -790,7 +790,7 @@ class TeamsController extends AppController {
 		));
 		$team = $this->Team->read(null, $id);
 		if ($team === false) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -800,14 +800,14 @@ class TeamsController extends AppController {
 	function add_player() {
 		$id = $this->_arg('team');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
 		$this->Team->contain('League');
 		$team = $this->Team->read(null, $id);
 		if ($team === false) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -817,7 +817,7 @@ class TeamsController extends AppController {
 		$this->set('is_coordinator', $this->effective_coordinator);
 
 		if (!$this->effective_admin && $team['League']['roster_deadline'] < date('Y-m-d')) {
-			$this->Session->setFlash(__('The roster deadline for this league has already passed.', true));
+			$this->Session->setFlash(__('The roster deadline for this league has already passed.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $id));
 		}
 
@@ -871,12 +871,12 @@ class TeamsController extends AppController {
 	function add_from_team() {
 		$id = $this->_arg('team');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
 		if (empty ($this->data)) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -896,7 +896,7 @@ class TeamsController extends AppController {
 		));
 		$team = $this->Team->read(null, $id);
 		if ($team === false) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->_limitOverride($id);
@@ -925,7 +925,7 @@ class TeamsController extends AppController {
 		));
 		$old_team = $this->Team->read(null, $this->data['team']);
 		if ($old_team === false) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -944,11 +944,13 @@ class TeamsController extends AppController {
 			$msg = array();
 			if (!empty ($success)) {
 				$msg[] = __((count($success) > 1 ? 'Invitations have' : 'Invitation has') . ' been sent to ', true) . implode (', ', $success) . '.';
+				$class = 'success';
 			}
 			if (!empty ($failure)) {
 				$msg[] .= __('Failed to send invitation' . (count($success) > 1 ? 's' : '') . ' to ', true) . implode (', ', $failure) . '.';
+				$class = 'warning';
 			}
-			$this->Session->setFlash(implode (' ', $msg));
+			$this->Session->setFlash(implode (' ', $msg), 'default', array('class' => $class));
 			$this->redirect(array('action' => 'view', 'team' => $id));
 		}
 
@@ -962,12 +964,12 @@ class TeamsController extends AppController {
 	function add_from_event() {
 		$id = $this->_arg('team');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
 		if (empty ($this->data)) {
-			$this->Session->setFlash(__('Invalid event', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -985,7 +987,7 @@ class TeamsController extends AppController {
 		));
 		$team = $this->Team->read(null, $id);
 		if ($team === false) {
-			$this->Session->setFlash(__('Invalid team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->_limitOverride($id);
@@ -1016,7 +1018,7 @@ class TeamsController extends AppController {
 		));
 		$event = $this->Team->Person->Registration->Event->read(null, $this->data['event']);
 		if ($event === false) {
-			$this->Session->setFlash(__('Invalid event', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 
@@ -1037,11 +1039,13 @@ class TeamsController extends AppController {
 			$msg = array();
 			if (!empty ($success)) {
 				$msg[] = __((count($success) > 1 ? 'Invitations have' : 'Invitation has') . ' been sent to ', true) . implode (', ', $success) . '.';
+				$class = 'success';
 			}
 			if (!empty ($failure)) {
 				$msg[] .= __('Failed to send invitation' . (count($success) > 1 ? 's' : '') . ' to ', true) . implode (', ', $failure) . '.';
+				$class = 'warning';
 			}
-			$this->Session->setFlash(implode (' ', $msg));
+			$this->Session->setFlash(implode (' ', $msg), 'default', array('class' => $class));
 			$this->redirect(array('action' => 'view', 'team' => $id));
 		}
 
@@ -1063,7 +1067,7 @@ class TeamsController extends AppController {
 		if (!$person_id) {
 			$person_id = $my_id;
 			if (!$person_id) {
-				$this->Session->setFlash(__('Invalid id for player', true));
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('player', true)), 'default', array('class' => 'info'));
 				$this->redirect('/');
 			}
 		}
@@ -1072,20 +1076,20 @@ class TeamsController extends AppController {
 		$team_id = $team['Team']['id'];
 
 		if (empty ($person)) {
-			$this->Session->setFlash(__('This player is not on this team.', true));
+			$this->Session->setFlash(__('This player is not on this team.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
 		$position = $person['Person']['TeamsPerson']['position'];
 		if ($person['Person']['TeamsPerson']['status'] != ROSTER_APPROVED) {
-			$this->Session->setFlash(__('A player\'s position on a team cannot be changed until they have been approved on the roster.', true));
+			$this->Session->setFlash(__('A player\'s position on a team cannot be changed until they have been approved on the roster.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
 		// Check if this user is the only approved captain on the team
 		if ($position == 'captain') {
 			if (count (Set::extract ('/Person/TeamsPerson[position=captain][status=' . ROSTER_APPROVED . ']', $team)) == 1) {
-				$this->Session->setFlash(__('All teams must have at least one player as captain.', true));
+				$this->Session->setFlash(__('All teams must have at least one player as captain.', true), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'view', 'team' => $team_id));
 			}
 		}
@@ -1094,7 +1098,7 @@ class TeamsController extends AppController {
 
 		if (!empty($this->data)) {
 			if (!array_key_exists ($this->data['Person']['position'], $roster_options)) {
-				$this->Session->setFlash(__('You do not have permission to set that position.', true));
+				$this->Session->setFlash(__('You do not have permission to set that position.', true), 'default', array('class' => 'info'));
 			} else {
 				if ($this->_setRosterPosition ($person, $team, $this->data['Person']['position'], ROSTER_APPROVED)) {
 					if ($person_id == $my_id) {
@@ -1111,7 +1115,7 @@ class TeamsController extends AppController {
 	function roster_add() {
 		$person_id = $this->_arg('person');
 		if (!$person_id) {
-			$this->Session->setFlash(__('Invalid id for player', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('player', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -1119,7 +1123,7 @@ class TeamsController extends AppController {
 		$team_id = $team['Team']['id'];
 
 		if (!empty ($player)) {
-			$this->Session->setFlash(__('This player is already on this team.', true));
+			$this->Session->setFlash(__('This player is already on this team.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
@@ -1142,7 +1146,7 @@ class TeamsController extends AppController {
 			// If not, we may still allow the invitation, but give the captain a warning
 			$can_invite = $this->_canInvite ($person, $team);
 			if ($can_invite !== true) {
-				$this->Session->setFlash($can_invite);
+				$this->Session->setFlash($can_invite, 'default', array('class' => 'warning'));
 				$this->redirect(array('action' => 'view', 'team' => $team_id));
 			}
 		}
@@ -1161,7 +1165,7 @@ class TeamsController extends AppController {
 		$team_id = $team['Team']['id'];
 
 		if (!empty ($person)) {
-			$this->Session->setFlash(__('You are already on this team.', true));
+			$this->Session->setFlash(__('You are already on this team.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
@@ -1172,7 +1176,7 @@ class TeamsController extends AppController {
 		// Check if this person can even be added
 		$can_add = $this->_canAdd ($person, $team);
 		if ($can_add !== true) {
-			$this->Session->setFlash($can_add);
+			$this->Session->setFlash($can_add, 'default', array('class' => 'warning'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
@@ -1183,7 +1187,7 @@ class TeamsController extends AppController {
 
 		if (!empty($this->data)) {
 			if (!array_key_exists ($this->data['Person']['position'], $roster_options)) {
-				$this->Session->setFlash(__('You are not allowed to request that position.', true));
+				$this->Session->setFlash(__('You are not allowed to request that position.', true), 'default', array('class' => 'info'));
 			} else {
 				if ($this->_setRosterPosition ($person, $team, $this->data['Person']['position'], ROSTER_REQUESTED)) {
 					$this->_deleteTeamSessionData();
@@ -1201,7 +1205,7 @@ class TeamsController extends AppController {
 		if (!$person_id) {
 			$person_id = $my_id;
 			if (!$person_id) {
-				$this->Session->setFlash(__('Invalid id for player', true));
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('player', true)), 'default', array('class' => 'info'));
 				$this->redirect('/');
 			}
 		}
@@ -1210,12 +1214,12 @@ class TeamsController extends AppController {
 		$team_id = $team['Team']['id'];
 
 		if (empty ($person)) {
-			$this->Session->setFlash(__('This player has neither been invited nor requested to join this team.', true));
+			$this->Session->setFlash(__('This player has neither been invited nor requested to join this team.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
 		if ($person['Person']['TeamsPerson']['status'] == ROSTER_APPROVED) {
-			$this->Session->setFlash(__('This player has already been added to the roster.', true));
+			$this->Session->setFlash(__('This player has already been added to the roster.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
@@ -1226,7 +1230,7 @@ class TeamsController extends AppController {
 			// Authenticate the hash code
 			$hash = $this->_hash($person['Person']['TeamsPerson']);
 			if ($hash != $code) {
-				$this->Session->setFlash(__('The authorization code is invalid.', true));
+				$this->Session->setFlash(__('The authorization code is invalid.', true), 'default', array('class' => 'warning'));
 				$this->redirect(array('action' => 'view', 'team' => $team_id));
 			}
 		} else {
@@ -1239,7 +1243,8 @@ class TeamsController extends AppController {
 			)
 			{
 				$this->Session->setFlash(sprintf (__('You are not allowed to accept this roster %s.', true),
-						__(($person['Person']['TeamsPerson']['status'] == ROSTER_INVITED) ? 'invitation' : 'request', true)));
+						__(($person['Person']['TeamsPerson']['status'] == ROSTER_INVITED) ? 'invitation' : 'request', true)),
+					'default', array('class' => 'warning'));
 				$this->redirect(array('action' => 'view', 'team' => $team_id));
 			}
 		}
@@ -1247,7 +1252,7 @@ class TeamsController extends AppController {
 		// Check if this person can even be added
 		$can_add = $this->_canAdd ($person, $team, $person['Person']['TeamsPerson']['position']);
 		if ($can_add !== true) {
-			$this->Session->setFlash($can_add);
+			$this->Session->setFlash($can_add, 'default', array('class' => 'warning'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
@@ -1255,7 +1260,8 @@ class TeamsController extends AppController {
 		$this->Roster->id = $person['Person']['TeamsPerson']['id'];
 		if ($this->Roster->saveField ('status', ROSTER_APPROVED)) {
 			$this->Session->setFlash(sprintf (__('You have accepted this roster %s.', true),
-					__(($person['Person']['TeamsPerson']['status'] == ROSTER_INVITED) ? 'invitation' : 'request', true)));
+					__(($person['Person']['TeamsPerson']['status'] == ROSTER_INVITED) ? 'invitation' : 'request', true)),
+				'default', array('class' => 'success'));
 
 			// Send email to the affected people
 			if (Configure::read('feature.generate_roster_email')) {
@@ -1268,7 +1274,8 @@ class TeamsController extends AppController {
 			}
 		} else {
 			$this->Session->setFlash(sprintf (__('The database failed to save the acceptance of this roster %s.', true),
-					__(($person['Person']['TeamsPerson']['status'] == ROSTER_INVITED) ? 'invitation' : 'request', true)));
+					__(($person['Person']['TeamsPerson']['status'] == ROSTER_INVITED) ? 'invitation' : 'request', true)),
+				'default', array('class' => 'warning'));
 		}
 		$this->redirect(array('action' => 'view', 'team' => $team_id));
 	}
@@ -1279,7 +1286,7 @@ class TeamsController extends AppController {
 		if (!$person_id) {
 			$person_id = $my_id;
 			if (!$person_id) {
-				$this->Session->setFlash(__('Invalid id for player', true));
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('player', true)), 'default', array('class' => 'info'));
 				$this->redirect('/');
 			}
 		}
@@ -1288,12 +1295,12 @@ class TeamsController extends AppController {
 		$team_id = $team['Team']['id'];
 
 		if (empty ($person)) {
-			$this->Session->setFlash(__('This player has neither been invited nor requested to join this team.', true));
+			$this->Session->setFlash(__('This player has neither been invited nor requested to join this team.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
 		if ($person['Person']['TeamsPerson']['status'] == ROSTER_APPROVED) {
-			$this->Session->setFlash(__('This player has already been added to the roster.', true));
+			$this->Session->setFlash(__('This player has already been added to the roster.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
@@ -1304,7 +1311,7 @@ class TeamsController extends AppController {
 			// Authenticate the hash code
 			$hash = $this->_hash($person['Person']['TeamsPerson']);
 			if ($hash != $code) {
-				$this->Session->setFlash(__('The authorization code is invalid.', true));
+				$this->Session->setFlash(__('The authorization code is invalid.', true), 'default', array('class' => 'warning'));
 				$this->redirect(array('action' => 'view', 'team' => $team_id));
 			}
 		} else {
@@ -1317,7 +1324,8 @@ class TeamsController extends AppController {
 			)
 			{
 				$this->Session->setFlash(sprintf (__('You are not allowed to decline this roster %s.', true),
-						__(($person['Person']['TeamsPerson']['status'] == ROSTER_INVITED) ? 'invitation' : 'request', true)));
+						__(($person['Person']['TeamsPerson']['status'] == ROSTER_INVITED) ? 'invitation' : 'request', true)),
+					'default', array('class' => 'warning'));
 				$this->redirect(array('action' => 'view', 'team' => $team_id));
 			}
 		}
@@ -1325,7 +1333,8 @@ class TeamsController extends AppController {
 		$this->Roster = ClassRegistry::init ('TeamsPerson');
 		if ($this->Roster->delete ($person['Person']['TeamsPerson']['id'])) {
 			$this->Session->setFlash(sprintf (__('You have declined this roster %s.', true),
-					__(($person['Person']['TeamsPerson']['status'] == ROSTER_INVITED) ? 'invitation' : 'request', true)));
+					__(($person['Person']['TeamsPerson']['status'] == ROSTER_INVITED) ? 'invitation' : 'request', true)),
+				'default', array('class' => 'success'));
 
 			// Send email to the affected people
 			if (Configure::read('feature.generate_roster_email')) {
@@ -1338,7 +1347,8 @@ class TeamsController extends AppController {
 			}
 		} else {
 			$this->Session->setFlash(sprintf (__('The database failed to save the removal of this roster %s.', true),
-					__(($person['Person']['TeamsPerson']['status'] == ROSTER_INVITED) ? 'invitation' : 'request', true)));
+					__(($person['Person']['TeamsPerson']['status'] == ROSTER_INVITED) ? 'invitation' : 'request', true)),
+				'default', array('class' => 'warning'));
 		}
 		$this->redirect(array('action' => 'view', 'team' => $team['Team']['id']));
 	}
@@ -1346,7 +1356,7 @@ class TeamsController extends AppController {
 	function _initTeamForRosterChange($person_id) {
 		$team_id = $this->_arg('team');
 		if (!$team_id) {
-			$this->Session->setFlash(__('Invalid id for team', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -1383,7 +1393,7 @@ class TeamsController extends AppController {
 		$this->_limitOverride($team_id);
 
 		if (!$this->effective_admin && $team['League']['roster_deadline'] < date('Y-m-d')) {
-			$this->Session->setFlash(__('The roster deadline for this league has already passed.', true));
+			$this->Session->setFlash(__('The roster deadline for this league has already passed.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
@@ -1418,7 +1428,7 @@ class TeamsController extends AppController {
 
 			case 'none':
 				if (!$team['Team']['open_roster']) {
-					$this->Session->setFlash(__('Sorry, this team is not open for new players to join.', true));
+					$this->Session->setFlash(__('Sorry, this team is not open for new players to join.', true), 'default', array('class' => 'info'));
 					$this->redirect(array('action' => 'view', 'team' => $team['Team']['id']));
 				}
 		}
@@ -1444,14 +1454,14 @@ class TeamsController extends AppController {
 				)))
 				{
 					$transaction->commit();
-					$this->Session->setFlash(__('Removed the player from the team.', true));
+					$this->Session->setFlash(__('Removed the player from the team.', true), 'default', array('class' => 'success'));
 					if (Configure::read('feature.generate_roster_email')) {
 						$this->_sendRemove($person, $team);
 					}
 					return true;
 				}
 			}
-			$this->Session->setFlash(__('Failed to remove the player from the team.', true));
+			$this->Session->setFlash(__('Failed to remove the player from the team.', true), 'default', array('class' => 'warning'));
 			return false;
 		}
 
@@ -1470,7 +1480,7 @@ class TeamsController extends AppController {
 				$can_add = $this->_canInvite ($person, $team, $position);
 			}
 			if ($can_add !== true) {
-				$this->Session->setFlash($can_add);
+				$this->Session->setFlash($can_add, 'default', array('class' => 'warning'));
 				return false;
 			}
 		}
@@ -1517,7 +1527,7 @@ class TeamsController extends AppController {
 				return $this->_sendChange($person, $team, $position);
 			}
 		} else {
-			$this->Session->setFlash(__('Failed to set player to that state.', true));
+			$this->Session->setFlash(__('Failed to set player to that state.', true), 'default', array('class' => 'warning'));
 			return false;
 		}
 	}
@@ -1618,7 +1628,7 @@ class TeamsController extends AppController {
 				'sendAs' => 'both',
 		)))
 		{
-			$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), $person['Person']['full_name']));
+			$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), $person['Person']['full_name']), 'default', array('class' => 'error'), 'email');
 			return false;
 		}
 
@@ -1639,7 +1649,7 @@ class TeamsController extends AppController {
 				'sendAs' => 'both',
 		)))
 		{
-			$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), $person['Person']['full_name']));
+			$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), $person['Person']['full_name']), 'default', array('class' => 'error'), 'email');
 			return false;
 		}
 
@@ -1658,7 +1668,7 @@ class TeamsController extends AppController {
 				'sendAs' => 'both',
 		)))
 		{
-			$this->Session->setFlash(__('Error sending email to team captains.', true));
+			$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team captains.', true)), 'default', array('class' => 'error'), 'email');
 			return false;
 		}
 
@@ -1680,7 +1690,7 @@ class TeamsController extends AppController {
 					'sendAs' => 'both',
 			)))
 			{
-				$this->Session->setFlash(__('Error sending email to team captains.', true));
+				$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team captains.', true)), 'default', array('class' => 'error'), 'email');
 				return false;
 			}
 		} else {
@@ -1697,7 +1707,7 @@ class TeamsController extends AppController {
 					'sendAs' => 'both',
 			)))
 			{
-				$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), $person['Person']['full_name']));
+				$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), $person['Person']['full_name']), 'default', array('class' => 'error'), 'email');
 				return false;
 			}
 		}
@@ -1723,7 +1733,7 @@ class TeamsController extends AppController {
 						'sendAs' => 'both',
 				)))
 				{
-					$this->Session->setFlash(__('Error sending email to team captains.', true));
+					$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team captains.', true)), 'default', array('class' => 'error'), 'email');
 					return false;
 				}
 			}
@@ -1741,7 +1751,7 @@ class TeamsController extends AppController {
 						'sendAs' => 'both',
 				)))
 				{
-					$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), $person['Person']['full_name']));
+					$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), $person['Person']['full_name']), 'default', array('class' => 'error'), 'email');
 					return false;
 				}
 			}
@@ -1758,7 +1768,7 @@ class TeamsController extends AppController {
 					'sendAs' => 'both',
 			)))
 			{
-				$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), $person['Person']['full_name']));
+				$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), $person['Person']['full_name']), 'default', array('class' => 'error'), 'email');
 				return false;
 			}
 		}
@@ -1788,7 +1798,7 @@ class TeamsController extends AppController {
 					'sendAs' => 'both',
 			)))
 			{
-				$this->Session->setFlash(__('Error sending email to team captains.', true));
+				$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team captains.', true)), 'default', array('class' => 'error'), 'email');
 				return false;
 			}
 		} else {
@@ -1804,7 +1814,7 @@ class TeamsController extends AppController {
 					'sendAs' => 'both',
 			)))
 			{
-				$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), $person['Person']['full_name']));
+				$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), $person['Person']['full_name']), 'default', array('class' => 'error'), 'email');
 				return false;
 			}
 		}
@@ -1832,7 +1842,7 @@ class TeamsController extends AppController {
 					'sendAs' => 'both',
 			)))
 			{
-				$this->Session->setFlash(__('Error sending email to team captains.', true));
+				$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team captains.', true)), 'default', array('class' => 'error'), 'email');
 				return false;
 			}
 		} else {
@@ -1848,7 +1858,7 @@ class TeamsController extends AppController {
 					'sendAs' => 'both',
 			)))
 			{
-				$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), $person['Person']['full_name']));
+				$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), $person['Person']['full_name']), 'default', array('class' => 'error'), 'email');
 				return false;
 			}
 		}

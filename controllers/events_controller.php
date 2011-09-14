@@ -56,7 +56,7 @@ class EventsController extends AppController {
 	function view() {
 		$id = $this->_arg('event');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid event', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'wizard'));
 		}
 		$this->Event->contain (array(
@@ -64,7 +64,7 @@ class EventsController extends AppController {
 		));
 		$event = $this->Event->read(null, $id);
 		if ($event === false) {
-			$this->Session->setFlash(__('Invalid event', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'wizard'));
 		}
 
@@ -106,10 +106,10 @@ class EventsController extends AppController {
 
 			$this->Event->create();
 			if ($this->Event->save($this->data)) {
-				$this->Session->setFlash(__('The event has been saved', true));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('event', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The event could not be saved. Please, try again.', true));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('event', true)), 'default', array('class' => 'warning'));
 			}
 		} else {
 			// Set up defaults
@@ -129,7 +129,7 @@ class EventsController extends AppController {
 	function edit() {
 		$id = $this->_arg('event');
 		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(__('Invalid event', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
 		if (!empty($this->data)) {
@@ -142,10 +142,10 @@ class EventsController extends AppController {
 			$this->data = array_merge ($this->data, $type);
 
 			if ($this->Event->save($this->data)) {
-				$this->Session->setFlash(__('The event has been saved', true));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('event', true)), 'default', array('class' => 'succcess'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The event could not be saved. Please, try again.', true));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('event', true)), 'default', array('class' => 'warning'));
 			}
 		}
 		if (empty($this->data)) {
@@ -175,14 +175,14 @@ class EventsController extends AppController {
 	function delete() {
 		$id = $this->_arg('event');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid id for event', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action'=>'index'));
 		}
 		if ($this->Event->delete($id)) {
-			$this->Session->setFlash(__('Event deleted', true));
+			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Event', true)), 'default', array('class' => 'success'));
 			$this->redirect(array('action'=>'index'));
 		}
-		$this->Session->setFlash(__('Event was not deleted', true));
+		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Event', true)), 'default', array('class' => 'warning'));
 		$this->redirect(array('action' => 'index'));
 	}
 }

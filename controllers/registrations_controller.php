@@ -27,7 +27,7 @@ class RegistrationsController extends AppController {
 	function full_list() {
 		$id = $this->_arg('event');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid event', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -37,7 +37,7 @@ class RegistrationsController extends AppController {
 		));
 		$event = $this->Registration->Event->read(null, $id);
 		if ($event === false) {
-			$this->Session->setFlash(__('Invalid Event', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'events', 'action' => 'index'));
 		}
 
@@ -61,7 +61,7 @@ class RegistrationsController extends AppController {
 	function summary() {
 		$id = $this->_arg('event');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid event', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'events', 'action' => 'index'));
 		}
 
@@ -71,7 +71,7 @@ class RegistrationsController extends AppController {
 		));
 		$event = $this->Registration->Event->read(null, $id);
 		if ($event === false) {
-			$this->Session->setFlash(__('Invalid Event', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'events', 'action' => 'index'));
 		}
 
@@ -198,7 +198,7 @@ class RegistrationsController extends AppController {
 	function view() {
 		$id = $this->_arg('registration');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid registration', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('registration', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'events', 'action' => 'index'));
 		}
 		$this->Registration->contain (array(
@@ -212,7 +212,7 @@ class RegistrationsController extends AppController {
 		));
 		$registration = $this->Registration->read(null, $id);
 		if (!$registration) {
-			$this->Session->setFlash(__('Invalid registration', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('registration', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'events', 'action' => 'index'));
 		}
 
@@ -224,7 +224,7 @@ class RegistrationsController extends AppController {
 	function register() {
 		$id = $this->_arg('event');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid event', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
 
@@ -241,7 +241,7 @@ class RegistrationsController extends AppController {
 		));
 		$event = $this->Registration->Event->read(null, $id);
 		if ($event === false) {
-			$this->Session->setFlash(__('Invalid Event', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
 
@@ -253,7 +253,7 @@ class RegistrationsController extends AppController {
 					$test['messages'][$key] = $message['text'];
 				}
 			}
-			$this->Session->setFlash(implode ('<br>', $test['messages']));
+			$this->Session->setFlash(implode ('<br>', $test['messages']), 'default', array('class' => 'warning'));
 			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
 
@@ -284,7 +284,7 @@ class RegistrationsController extends AppController {
 			$this->Registration->Response->set ($data);
 
 			if (!$this->Registration->Response->validates()) {
-				$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('registration', true)), 'default', array('class' => 'warning'));
 				return;
 			}
 
@@ -303,7 +303,7 @@ class RegistrationsController extends AppController {
 			$data = array('Registration' => array(), 'Response' => array());
 
 			// Set the flash message that will be used, if there are no errors
-			$this->Session->setFlash(__('Your registration for this event has been confirmed.', true));
+			$this->Session->setFlash(__('Your registration for this event has been confirmed.', true), 'default', array('class' => 'success'));
 			$save = true;
 		}
 
@@ -313,7 +313,7 @@ class RegistrationsController extends AppController {
 			// Next, we do the event registration
 			$result = $event_obj->register($event, $data);
 			if ($result === false) {
-				$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
+				$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
 				return;
 			}
 			if (is_array ($result)) {
@@ -324,7 +324,7 @@ class RegistrationsController extends AppController {
 			if ($event['Event']['cost'] == 0) {
 				$result = $event_obj->paid($event, $data);
 				if ($result === false) {
-					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
+					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
 					return;
 				}
 				if (is_array ($result)) {
@@ -343,7 +343,7 @@ class RegistrationsController extends AppController {
 			}
 
 			if (!$this->Registration->saveAll($data, array('validate' => false))) {
-				$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('registration', true)), 'default', array('class' => 'warning'));
 				return;
 			}
 
@@ -356,7 +356,7 @@ class RegistrationsController extends AppController {
 				$this->Session->delete ('Zuluru.Unpaid');
 				$this->redirect(array('action' => 'checkout'));
 			} else {
-				$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('registration', true)), 'default', array('class' => 'warning'));
 			}
 		}
 	}
@@ -421,7 +421,7 @@ class RegistrationsController extends AppController {
 	function unregister() {
 		$id = $this->_arg('registration');
 		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(__('Invalid registration', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('registration', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'checkout'));
 		}
 		$this->Registration->contain (array(
@@ -431,16 +431,16 @@ class RegistrationsController extends AppController {
 		$registration = $this->Registration->read(null, $id);
 
 		if ($registration['Registration']['payment'] == 'Paid' && $registration['Event']['cost'] > 0) {
-			$this->Session->setFlash(__('You have already paid for this! Contact the office to arrange a refund.', true));
+			$this->Session->setFlash(__('You have already paid for this! Contact the office to arrange a refund.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'checkout'));
 		}
 		if ($registration['Registration']['payment'] == 'Refunded') {
-			$this->Session->setFlash(__('You have already received a refund for this. Refunded records are kept on file for accounting purposes.', true));
+			$this->Session->setFlash(__('You have already received a refund for this. Refunded records are kept on file for accounting purposes.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'checkout'));
 		}
 
 		if (!$this->is_admin && $registration['Registration']['person_id'] != $this->Auth->user('id')) {
-			$this->Session->setFlash(__('You may only unregister from events that you have registered for!', true));
+			$this->Session->setFlash(__('You may only unregister from events that you have registered for!', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'checkout'));
 		}
 
@@ -449,7 +449,7 @@ class RegistrationsController extends AppController {
 
 		if ($this->Registration->delete()) {
 			$success = true;
-			$this->Session->setFlash(__('Successfully unregistered from this event.', true));
+			$this->Session->setFlash(__('Successfully unregistered from this event.', true), 'default', array('class' => 'success'));
 
 			// Check if anything else must be removed as a result (e.g. team reg after removing membership)
 			while ($this->_unregisterDependencies()) {}
@@ -458,19 +458,19 @@ class RegistrationsController extends AppController {
 			if ($registration['Registration']['payment'] == 'Paid') {
 				if (!$event_obj->unpaid($registration, $registration)) {
 					$success = false;
-					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
+					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
 				}
 			}
 			if (!$event_obj->unregister($registration, $registration)) {
 				$success = false;
-				$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
+				$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
 			}
 
 			if ($success) {
 				$transaction->commit();
 			}
 		} else {
-			$this->Session->setFlash(__('Failed to unregister from this event!', true));
+			$this->Session->setFlash(__('Failed to unregister from this event!', true), 'default', array('class' => 'warning'));
 		}
 
 		$this->redirect(array('action' => 'checkout'));
@@ -560,11 +560,11 @@ class RegistrationsController extends AppController {
 						$success = $this->Registration->Response->saveAll($extra, array('atomic' => false, 'validate' => false));
 					}
 				} else if ($extra === false) {
-					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
+					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
 					$success = false;
 				}
 				if (!$success) {
-					$this->Session->setFlash(sprintf (__('There was an error updating the database. Contact the office to ensure that your information is updated, quoting order #<b>%s</b>, or you may not be allowed to be added to rosters, etc.', true), $registration['Registration']['id']));
+					$this->Session->setFlash(sprintf (__('There was an error updating the database. Contact the office to ensure that your information is updated, quoting order #<b>%s</b>, or you may not be allowed to be added to rosters, etc.', true), $registration['Registration']['id']), 'default', array('class' => 'error'));
 					break;
 				}
 			}
@@ -580,7 +580,7 @@ class RegistrationsController extends AppController {
 	function edit() {
 		$id = $this->_arg('registration');
 		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(__('Invalid registration', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('registration', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 		$this->Registration->contain (array(
@@ -600,7 +600,7 @@ class RegistrationsController extends AppController {
 		));
 		$registration = $this->Registration->read(null, $id);
 		if ($registration === false) {
-			$this->Session->setFlash(__('Invalid registration', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('registration', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -623,7 +623,7 @@ class RegistrationsController extends AppController {
 			$this->Registration->Response->set ($data);
 
 			if (!$this->Registration->Response->validates()) {
-				$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('registration', true)), 'default', array('class' => 'warning'));
 				return;
 			}
 
@@ -644,7 +644,7 @@ class RegistrationsController extends AppController {
 				// should use are the new ones just now submitted.
 				$result = $event_obj->paid($registration, $data);
 				if (!$result) {
-					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
+					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
 					return;
 				}
 				if (is_array ($result)) {
@@ -655,7 +655,7 @@ class RegistrationsController extends AppController {
 				// should use are the saved ones.
 				$result = $event_obj->unpaid($registration, $registration);
 				if (!$result) {
-					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
+					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
 					return;
 				}
 				if (is_array ($result)) {
@@ -667,7 +667,7 @@ class RegistrationsController extends AppController {
 			// how will this interact with the payment status change handling above?
 			$result = true; //$event_obj->reregister($registration, $data);
 			if (!$result) {
-				$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true));
+				$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
 				return;
 			}
 
@@ -679,7 +679,7 @@ class RegistrationsController extends AppController {
 			}
 
 			if (!$this->Registration->saveAll($data, array('validate' => false))) {
-				$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('registration', true)), 'default', array('class' => 'warning'));
 				return;
 			}
 
@@ -689,13 +689,13 @@ class RegistrationsController extends AppController {
 					'id' => $delete,
 					), false))
 				{
-					$this->Session->setFlash(__('The registration could not be saved. Please, try again.', true));
+					$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('registration', true)), 'default', array('class' => 'warning'));
 					return;
 				}
 			}
 
 			if ($transaction->commit() !== false) {
-				$this->Session->setFlash(__('The registration has been saved', true));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('registration', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('controller' => 'people', 'action' => 'registrations', 'person' => $registration['Person']['id']));
 			}
 		} else {

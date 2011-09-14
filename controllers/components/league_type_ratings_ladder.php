@@ -130,12 +130,12 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 		$num_teams = count($this->league['Team']);
 
 		if ($num_teams < 2) {
-			$this->_controller->Session->setFlash(__('Must have two teams', true));
+			$this->_controller->Session->setFlash(__('Must have two teams', true), 'default', array('class' => 'warning'));
 			return false;
 		}
 
 		if ($num_teams % 2) {
-			$this->_controller->Session->setFlash(__('Must have even number of teams', true));
+			$this->_controller->Session->setFlash(__('Must have even number of teams', true), 'default', array('class' => 'warning'));
 			return false;
 		}
 
@@ -219,7 +219,7 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 		}
 		$output .= "</table>\n";
 		$output .= "</div>\n";
-		$this->_controller->Session->setFlash($output);
+		$this->_controller->Session->setFlash($output, 'default', array('class' => 'success'));
 
 		return $ret;
 	}

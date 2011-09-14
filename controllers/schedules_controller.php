@@ -29,7 +29,7 @@ class SchedulesController extends AppController {
 
 	function _init($id) {
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
@@ -38,7 +38,7 @@ class SchedulesController extends AppController {
 		));
 		$this->league = $this->League->read(null, $id);
 		if ($this->league === false) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
@@ -53,7 +53,7 @@ class SchedulesController extends AppController {
 		$this->_init($id);
 
 		if($this->_numTeams() < 2) {
-			$this->Session->setFlash(__('Cannot schedule games in a league with less than two teams.', true));
+			$this->Session->setFlash(__('Cannot schedule games in a league with less than two teams.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'view', 'league' => $id));
 		}
 
@@ -62,7 +62,7 @@ class SchedulesController extends AppController {
 			// TODO: Embed a link to "edit your league" into this, in a way that doesn't break i18n
 			$this->Session->setFlash(__('Must currently have an even number of teams in your league. ' . 
 				'If you need a bye, please create a team named Bye and add it to your league. ' .
-				'Otherwise, edit your league and set the "exclude teams" flag.', true));
+				'Otherwise, edit your league and set the "exclude teams" flag.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'view', 'league' => $id));
 		}
 
@@ -82,7 +82,7 @@ class SchedulesController extends AppController {
 			if ($this->_numTeams() % 2) {
 				$this->Session->setFlash(sprintf (__('You marked %s teams to exclude, that leaves %s.' .
 						' Cannot schedule games for an un-even number of teams!', true),
-						count($this->data['ExcludeTeams']), $this->_numTeams()));
+						count($this->data['ExcludeTeams']), $this->_numTeams()), 'default', array('class' => 'info'));
 			} else {
 				return $this->_type($id);
 			}
@@ -96,7 +96,7 @@ class SchedulesController extends AppController {
 		// Validate any data posted to us
 		if ($this->data['Game']['step'] == 'type') {
 			if (!array_key_exists ($this->data['Game']['type'], $types)) {
-				$this->Session->setFlash(__('Select the type of game or games to add.', true));
+				$this->Session->setFlash(__('Select the type of game or games to add.', true), 'default', array('class' => 'info'));
 			} else {
 				return $this->_date($id);
 			}
@@ -118,7 +118,7 @@ class SchedulesController extends AppController {
 				'order' => 'GameSlot.game_date',
 		));
 		if (count($dates) == 0) {
-			$this->Session->setFlash(__('Sorry, there are no fields available for your league.  Check that fields have been allocated before attempting to proceed.', true));
+			$this->Session->setFlash(__('Sorry, there are no fields available for your league.  Check that fields have been allocated before attempting to proceed.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'view', 'league' => $id));
 		}
 		$dates = Set::extract ('/GameSlot/date', $dates);
@@ -181,7 +181,7 @@ class SchedulesController extends AppController {
 		));
 
 		if ($this->_numTeams() <= $games * 2 && !$this->data['Game']['double_header']) {
-			$this->Session->setFlash(__('This league is already fully scheduled on the selected date.', true));
+			$this->Session->setFlash(__('This league is already fully scheduled on the selected date.', true), 'default', array('class' => 'info'));
 			return false;
 		}
 
@@ -197,7 +197,7 @@ class SchedulesController extends AppController {
 		));
 
 		if ($num_fields > $fields) {
-			$this->Session->setFlash(sprintf (__('There are insufficient fields available on %s.', true), $this->data['Game']['start_date']));
+			$this->Session->setFlash(sprintf (__('There are insufficient fields available on %s.', true), $this->data['Game']['start_date']), 'default', array('class' => 'info'));
 			return false;
 		}
 
@@ -245,11 +245,11 @@ class SchedulesController extends AppController {
 					'Game.id' => $game_ids,
 				), false))
 			{
-				$this->Session->setFlash(__('Deleted games on the requested date.', true));
+				$this->Session->setFlash(__('Deleted games on the requested date.', true), 'default', array('class' => 'success'));
 				$transaction->commit();
 				$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $id));
 			} else {
-				$this->Session->setFlash(__('Failed to delete games on the requested date.', true));
+				$this->Session->setFlash(__('Failed to delete games on the requested date.', true), 'default', array('class' => 'warning'));
 			}
 		}
 
@@ -259,7 +259,7 @@ class SchedulesController extends AppController {
 	function reschedule() {
 		$id = $this->_arg('league');
 		if (!$id) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
@@ -286,7 +286,7 @@ class SchedulesController extends AppController {
 		));
 		$league = $this->League->read(null, $id);
 		if ($league === false) {
-			$this->Session->setFlash(__('Invalid league', true));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 		// TODO: The read will load a bunch of games with empty game slots because
@@ -303,11 +303,11 @@ class SchedulesController extends AppController {
 				if ($this->League->Game->_saveGames ($league_obj->games, $this->data['publish'])) {
 					$unused_slots = Set::extract ('/GameSlot/id', $league['Game']);
 					if ($this->League->Game->GameSlot->updateAll (array('game_id' => null), array('GameSlot.id' => $unused_slots))) {
-						$this->Session->setFlash(__('Games rescheduled', true));
+						$this->Session->setFlash(__('Games rescheduled', true), 'default', array('class' => 'success'));
 						$transaction->commit();
 						$this->redirect (array('controller' => 'leagues', 'action' => 'schedule', 'league' => $id));
 					} else {
-						$this->Session->setFlash(__('Problem! Games were rescheduled, but old game slots were not freed. Schedule will be unstable!', true));
+						$this->Session->setFlash(__('Problem! Games were rescheduled, but old game slots were not freed. Schedule will be unstable!', true), 'default', array('class' => 'error'));
 					}
 				}
 			}
@@ -325,7 +325,7 @@ class SchedulesController extends AppController {
 				'order' => 'GameSlot.game_date',
 		));
 		if (count($dates) == 0) {
-			$this->Session->setFlash(__('Sorry, there are no fields available for your league.  Check that fields have been allocated before attempting to proceed.', true));
+			$this->Session->setFlash(__('Sorry, there are no fields available for your league.  Check that fields have been allocated before attempting to proceed.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $id));
 		}
 		$dates = Set::extract ('/0/date', $dates);
@@ -354,9 +354,9 @@ class SchedulesController extends AppController {
 			array('Game.id' => $games)
 		))
 		{
-			$this->Session->setFlash(__('Published games on the requested date.', true));
+			$this->Session->setFlash(__('Published games on the requested date.', true), 'default', array('class' => 'success'));
 		} else {
-			$this->Session->setFlash(__('Failed to publish games on the requested date.', true));
+			$this->Session->setFlash(__('Failed to publish games on the requested date.', true), 'default', array('class' => 'warning'));
 		}
 
 		$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $id));
@@ -382,9 +382,9 @@ class SchedulesController extends AppController {
 			array('Game.id' => $games)
 		))
 		{
-			$this->Session->setFlash(__('Unpublished games on the requested date.', true));
+			$this->Session->setFlash(__('Unpublished games on the requested date.', true), 'default', array('class' => 'success'));
 		} else {
-			$this->Session->setFlash(__('Failed to unpublish games on the requested date.', true));
+			$this->Session->setFlash(__('Failed to unpublish games on the requested date.', true), 'default', array('class' => 'warning'));
 		}
 
 		$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $id));
