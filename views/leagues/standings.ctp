@@ -7,7 +7,7 @@ $this->Html->addCrumb (__('Standings', true));
 <div class="leagues standings">
 <h2><?php  echo __('League Standings', true) . ': ' . $league['League']['long_name'];?></h2>
 <?php if (!empty($league['Team'])):?>
-	<table>
+	<table class="list">
 	<?php
 	echo $this->element("league/standings/{$league_obj->render_element}/heading",
 			compact ('is_admin', 'is_coordinator', 'league'));

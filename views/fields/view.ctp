@@ -156,7 +156,7 @@ if ($field['Field']['length'] > 0) {
 <?php if (!empty ($field['SiteFields'])): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Other fields at this site'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<table>
+			<table class="list">
 			<tr>
 				<th>Fields</th>
 			</tr>

@@ -7,7 +7,7 @@ $this->Html->addCrumb (__('Statistics', true));
 <h2><?php __('Player Statistics');?></h2>
 
 <h3><?php __('Players by Account Status'); ?></h3>
-<table>
+<table class="list">
 	<thead>
 		<tr>
 			<th><?php __('Status'); ?></th>
@@ -34,7 +34,7 @@ foreach ($status_count as $status):
 </table>
 
 <h3><?php __('Players by Account Class'); ?></h3>
-<table>
+<table class="list">
 	<thead>
 		<tr>
 			<th><?php __('Class'); ?></th>
@@ -61,7 +61,7 @@ foreach ($group_count as $group):
 </table>
 
 <h3><?php __('Players by Gender'); ?></h3>
-<table>
+<table class="list">
 	<thead>
 		<tr>
 			<th><?php __('Gender'); ?></th>
@@ -88,7 +88,7 @@ foreach ($gender_count as $gender):
 </table>
 
 <h3><?php __('Players by Age'); ?></h3>
-<table>
+<table class="list">
 	<thead>
 		<tr>
 			<th><?php __('Age'); ?></th>
@@ -115,7 +115,7 @@ foreach ($age_count as $age):
 </table>
 
 <h3><?php __('Players by Year Started'); ?></h3>
-<table>
+<table class="list">
 	<thead>
 		<tr>
 			<th><?php __('Year'); ?></th>
@@ -142,7 +142,7 @@ foreach ($started_count as $started):
 </table>
 
 <h3><?php __('Players by Skill Level'); ?></h3>
-<table>
+<table class="list">
 	<thead>
 		<tr>
 			<th><?php __('Skill Level'); ?></th>
@@ -169,7 +169,7 @@ foreach ($skill_count as $skill):
 </table>
 
 <h3><?php __('Players by City'); ?></h3>
-<table>
+<table class="list">
 	<thead>
 		<tr>
 			<th><?php __('City'); ?></th>

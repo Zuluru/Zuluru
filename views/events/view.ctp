@@ -161,7 +161,7 @@ else:
 <?php if (!empty($event['Preregistration']) && $is_admin):?>
 <div class="related">
 	<h3><?php printf(__('Related %s', true), __('Preregistrations', true));?></h3>
-	<table cellpadding = "0" cellspacing = "0">
+	<table class="list">
 	<tr>
 		<th><?php __('Person Id'); ?></th>
 		<th><?php __('Event Id'); ?></th>

@@ -28,11 +28,11 @@
 }
 
 /** Tables **/
-#zuluru table
+#zuluru table.list
 {
 	border-color: #ccc;
 }
-#zuluru th
+#zuluru table.list th
 {
 	border-color:#555;
 }
@@ -42,11 +42,11 @@
 	color: #336699;
 }
 
-#zuluru table tr:nth-child(2n) td
+#zuluru table.list tr:nth-child(2n) td
 {
 	background: #f5f5f5;
 }
-#zuluru table .altrow td
+#zuluru table.list .altrow td
 {
 	background: #f5f5f5;
 }

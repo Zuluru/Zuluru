@@ -5,7 +5,7 @@ $this->Html->addCrumb (__('List', true));
 
 <div class="questions index">
 	<h2><?php __($active ? 'Questions List' : 'Deactivated Questions List');?></h2>
-	<table cellpadding="0" cellspacing="0">
+	<table class="list">
 	<tr>
 			<th><?php echo $this->Paginator->sort('question');?></th>
 			<th><?php echo $this->Paginator->sort('type');?></th>

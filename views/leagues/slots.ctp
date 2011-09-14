@@ -25,7 +25,7 @@ echo $this->Form->end();
 
 <?php if (isset ($slots)): ?>
 <p><?php echo $this->ZuluruTime->fulldate($date); ?></p>
-<table>
+<table class="list">
 	<tr>
 		<th>ID</th>
 		<th>Field</th>

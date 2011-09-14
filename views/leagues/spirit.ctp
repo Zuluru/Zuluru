@@ -132,7 +132,7 @@ foreach ($overall as $question => $col) {
 $rows[] = $average;
 $rows[] = $stddev;
 
-echo $this->Html->tag ('table', $this->Html->tableHeaders ($header) . $this->Html->tableCells ($rows, array(), array('class' => 'altrow')));
+echo $this->Html->tag ('table', $this->Html->tableHeaders ($header) . $this->Html->tableCells ($rows, array(), array('class' => 'altrow')), array('class' => 'list'));
 
 $bins = array_count_values (array_map ('intval', $overall['entered_sotg']));
 ?>
@@ -148,7 +148,7 @@ for ($i = $max-1; $i >= 0; --$i) {
 	$rows[] = array ($i . '-' . ($i + 1), @$bins[$i], floor (@$bins[$i] / $team_count * 100));
 }
 
-echo $this->Html->tag ('table', $this->Html->tableHeaders ($header) . $this->Html->tableCells ($rows, array(), array('class' => 'altrow')));
+echo $this->Html->tag ('table', $this->Html->tableHeaders ($header) . $this->Html->tableCells ($rows, array(), array('class' => 'altrow')), array('class' => 'list'));
 ?>
 
 <h2><?php __('Spirit reports per game'); ?></h2>
@@ -205,7 +205,7 @@ foreach ($league['Game'] as $game) {
 	}
 }
 
-echo $this->Html->tag ('table', $this->Html->tableHeaders ($header) . $this->Html->tableCells ($rows, array(), array('class' => 'altrow')));
+echo $this->Html->tag ('table', $this->Html->tableHeaders ($header) . $this->Html->tableCells ($rows, array(), array('class' => 'altrow')), array('class' => 'list'));
 ?>
 
 </div>

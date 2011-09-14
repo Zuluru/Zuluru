@@ -7,7 +7,7 @@ $this->Html->addCrumb (__('Approve Scores', true));
 <div class="leagues approve_scores">
 <h2><?php echo __('Approve Scores', true) . ': ' . $league['League']['long_name'];?></h2>
 
-<table>
+<table class="list">
 	<thead>
 		<tr>
 			<th>Game Date</th>

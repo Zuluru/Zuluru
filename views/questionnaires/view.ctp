@@ -24,7 +24,7 @@ $this->Html->addCrumb (__('View', true));
 <div class="related">
 	<h3><?php printf(__('Related %s', true), __('Events', true));?></h3>
 	<?php if (!empty($questionnaire['Event'])):?>
-	<table cellpadding = "0" cellspacing = "0">
+	<table class="list">
 	<tr>
 		<th><?php __('Name'); ?></th>
 		<th><?php __('Open'); ?></th>

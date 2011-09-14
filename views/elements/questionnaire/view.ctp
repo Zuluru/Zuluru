@@ -57,6 +57,6 @@ if (array_key_exists ('Question', $questionnaire)) {
 	}
 }
 
-echo $this->Html->tag('table', $this->Html->tableCells ($rows));
+echo $this->Html->tag('table', $this->Html->tableCells ($rows), array('class' => 'list'));
 
 ?>

@@ -18,7 +18,7 @@ foreach ($letters as $l) {
 }
 echo implode ('&nbsp;&nbsp;', $links);
 ?></p>
-<table cellpadding="0" cellspacing="0">
+<table class="list">
 <tr>
 	<th><?php __('Name');?></th>
 	<th><?php __('Owner');?></th>

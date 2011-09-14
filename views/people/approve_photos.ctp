@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('Approve Photos', true));
 <div class="people photos">
 <h2><?php __('Approve Photos'); ?></h2>
 
-<table>
+<table class="list">
 <?php foreach ($photos as $photo): ?>
 <?php $rand = 'row_' . mt_rand(); ?>
 <tr id="<?php echo $rand; ?>">

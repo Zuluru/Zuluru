@@ -19,7 +19,7 @@ if (!empty($unpaid)) {
 }
 ?>
 
-<table cellpadding="0" cellspacing="0">
+<table class="list">
 <tr>
 	<th colspan="2"><?php
 	__('My Teams');
@@ -77,7 +77,7 @@ foreach ($teams as $team):
 </div>
 
 <?php if (!empty ($leagues)) : ?>
-<table cellpadding="0" cellspacing="0">
+<table class="list">
 <tr>
 	<th colspan="2"><?php __('Leagues Coordinated');?></th>
 </tr>
@@ -122,7 +122,7 @@ foreach ($leagues as $league):
 </table>
 <?php endif; ?>
 
-<table cellpadding="0" cellspacing="0">
+<table class="list">
 <tr>
 	<th colspan="3"><?php
 	__('Recent and Upcoming Games');

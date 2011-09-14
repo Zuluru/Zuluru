@@ -100,7 +100,7 @@ if (!empty ($duplicates)) {
 
 echo '<br>';
 
-echo $this->Html->tag ('table', $this->Html->tableCells (array_transpose ($cols), array(), array('class' => 'altrow')));
+echo $this->Html->tag ('table', $this->Html->tableCells (array_transpose ($cols), array(), array('class' => 'altrow')), array('class' => 'list'));
 
 echo $this->Form->create();
 echo $this->Form->input ('id', array(

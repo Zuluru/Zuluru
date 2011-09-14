@@ -6,7 +6,7 @@ $this->Html->addCrumb ($team['Team']['name']);
 
 <div class="teams">
 <h2><?php  __('Season Attendance'); ?></h2>
-<table>
+<table class="list">
 	<thead>
 	<tr>
 		<th></th>

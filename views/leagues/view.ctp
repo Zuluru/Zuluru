@@ -229,7 +229,7 @@ $this->Html->addCrumb (__('View', true));
 
 <div class="related">
 	<?php if (!empty($league['Team'])):?>
-	<table>
+	<table class="list">
 	<?php
 	echo $this->element("league/view/{$league_obj->render_element}/heading",
 			compact ('is_admin', 'is_coordinator'));

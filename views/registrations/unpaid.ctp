@@ -37,8 +37,8 @@ foreach ($total as $key => $value) {
 	$total_rows[] = array ($key, $value);
 }
 
-echo $this->Html->tag ('table', $this->Html->tableCells ($rows));
-echo $this->Html->tag ('table', $this->Html->tableCells ($total_rows));
+echo $this->Html->tag ('table', $this->Html->tableCells ($rows), array('class' => 'list'));
+echo $this->Html->tag ('table', $this->Html->tableCells ($total_rows), array('class' => 'list'));
 ?>
 
 </div>

@@ -19,7 +19,7 @@ if (isset ($published)) {
 	);
 }
 ?>
-<table>
+<table class="list">
 <thead>
 <?php // TODO: Use a league element ?>
 <tr>

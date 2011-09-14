@@ -18,7 +18,7 @@ foreach ($events as $event) {
 		$event[0]['count']);
 }
 
-echo $this->Html->tag('table', $this->Html->tableCells ($rows, array(), array('class' => 'altrow')));
+echo $this->Html->tag('table', $this->Html->tableCells ($rows, array(), array('class' => 'altrow')), array('class' => 'list'));
 ?>
 
 </div>

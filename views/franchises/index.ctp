@@ -20,7 +20,7 @@ echo $this->Paginator->counter(array(
 'format' => __('Page %page% of %pages%, showing %current% records out of %count% total, starting on record %start%, ending on %end%', true)
 ));
 ?></p>
-<table cellpadding="0" cellspacing="0">
+<table class="list">
 <tr>
 	<th><?php echo $this->Paginator->sort('name');?></th>
 	<th><?php echo $this->Paginator->sort(__('Owner', true), 'person_id');?></th>

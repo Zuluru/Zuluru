@@ -5,7 +5,7 @@ $this->Html->addCrumb (__('Summary', true));
 
 <div class="leagues index">
 <h2><?php __('League Summary');?></h2>
-<table cellpadding="0" cellspacing="0">
+<table class="list">
 <tr>
 	<th><?php echo __('Name');?></th>
 	<th><?php echo __('Schedule Type');?></th>

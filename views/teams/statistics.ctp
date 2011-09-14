@@ -7,7 +7,7 @@ $this->Html->addCrumb (__('Statistics', true));
 <h2><?php __('Team Statistics');?></h2>
 
 <h3><?php __('Teams by League'); ?></h3>
-<table>
+<table class="list">
 	<thead>
 		<tr>
 			<th><?php __('League'); ?></th>
@@ -36,7 +36,7 @@ foreach ($counts as $league):
 </table>
 
 <h3><?php __('Teams with too few players'); ?></h3>
-<table>
+<table class="list">
 	<thead>
 		<tr>
 			<th><?php __('Team'); ?></th>
@@ -62,7 +62,7 @@ foreach ($shorts as $team):
 </table>
 
 <h3><?php __('Top-rated Teams'); ?></h3>
-<table>
+<table class="list">
 	<thead>
 		<tr>
 			<th><?php __('Team'); ?></th>
@@ -83,7 +83,7 @@ foreach ($top_rating as $team):
 </table>
 
 <h3><?php __('Lowest-rated Teams'); ?></h3>
-<table>
+<table class="list">
 	<thead>
 		<tr>
 			<th><?php __('Team'); ?></th>
@@ -104,7 +104,7 @@ foreach ($lowest_rating as $team):
 </table>
 
 <h3><?php __('Top Defaulting Teams'); ?></h3>
-<table>
+<table class="list">
 	<thead>
 		<tr>
 			<th><?php __('Team'); ?></th>
@@ -126,7 +126,7 @@ foreach ($defaulting as $team):
 </table>
 
 <h3><?php __('Top Non-score-submitting Teams'); ?></h3>
-<table>
+<table class="list">
 	<thead>
 		<tr>
 			<th><?php __('Team'); ?></th>
@@ -148,7 +148,7 @@ foreach ($no_scores as $team):
 </table>
 
 <h3><?php __('Top Spirited Teams'); ?></h3>
-<table>
+<table class="list">
 	<thead>
 		<tr>
 			<th><?php __('Team'); ?></th>
@@ -169,7 +169,7 @@ foreach ($top_spirit as $team):
 </table>
 
 <h3><?php __('Lowest Spirited Teams'); ?></h3>
-<table>
+<table class="list">
 	<thead>
 		<tr>
 			<th><?php __('Team'); ?></th>

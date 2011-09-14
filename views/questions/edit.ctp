@@ -30,7 +30,7 @@ $this->Html->addCrumb (__('Edit', true));
 	$type = $this->data['Question']['type'];
 	if ($type == 'radio' || $type == 'select' || $type = 'checkbox'):
 	?>
-		<table id="Answers" class="sortable">
+		<table id="Answers" class="sortable list">
 		<thead>
 			<tr>
 				<th></th>

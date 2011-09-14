@@ -9,7 +9,7 @@ $this->Html->addCrumb (__('List', true));
 
 <!-- p>There is also a <?php echo $this->Html->link(__('map of all fields', true), array('controller' => 'maps')); ?> available.</p -->
 
-<table>
+<table class="list">
 <tr>
 	<th><?php __('Field'); ?></th>
 	<th><?php __('Actions'); ?></th>

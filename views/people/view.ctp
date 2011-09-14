@@ -178,7 +178,7 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 <div class="related">
 	<h3><?php __('Teams');?></h3>
 	<?php if (!empty($person['Team'])):?>
-	<table cellpadding = "0" cellspacing = "0">
+	<table class="list">
 	<?php
 		$i = 0;
 		foreach ($person['Team'] as $team):
@@ -210,7 +210,7 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 <?php if (!empty($person['League'])):?>
 <div class="related">
 	<h3><?php __('Leagues');?></h3>
-	<table cellpadding = "0" cellspacing = "0">
+	<table class="list">
 	<?php
 		$i = 0;
 		foreach ($person['League'] as $league):
@@ -232,7 +232,7 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 <div class="related">
 	<h3><?php __('Allstar Nominations');?></h3>
 	<?php if (!empty($person['Allstar'])):?>
-	<table cellpadding = "0" cellspacing = "0">
+	<table class="list">
 	<tr>
 		<th><?php __('Date'); ?></th>
 		<th><?php __('Home Team'); ?></th>
@@ -274,7 +274,7 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 <div class="related">
 	<h3><?php __('Preregistrations');?></h3>
 	<?php if (!empty($person['Preregistration'])):?>
-	<table cellpadding = "0" cellspacing = "0">
+	<table class="list">
 	<tr>
 		<th><?php __('Event'); ?></th>
 		<th class="actions"><?php __('Actions');?></th>
@@ -310,7 +310,7 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 <?php if (($is_admin || $is_me) && !empty($person['Registration'])):?>
 <div class="related">
 	<h3><?php __('Recent Registrations');?></h3>
-	<table cellpadding = "0" cellspacing = "0">
+	<table class="list">
 	<tr>
 		<th><?php __('Event'); ?></th>
 		<th><?php __('Date'); ?></th>

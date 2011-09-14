@@ -25,7 +25,7 @@ if (!empty ($edit_date)) {
 		echo $this->Html->para(null, $this->Html->link(__('Jump to upcoming games', true), "#$future"));
 	}
 ?>
-	<table>
+	<table class="list">
 	<?php
 	$dates = array_unique(Set::extract ('/Game/GameSlot/game_date', $league));
 	foreach ($dates as $date) {

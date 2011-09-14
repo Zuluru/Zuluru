@@ -21,7 +21,7 @@ foreach ($allstars as $allstar) {
 		$allstar[0]['count'],
 	);
 }
-echo $this->Html->tag ('table', $this->Html->tableCells ($rows));
+echo $this->Html->tag ('table', $this->Html->tableCells ($rows), array('class' => 'list'));
 ?>
 
 </div>

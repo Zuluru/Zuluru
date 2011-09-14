@@ -10,7 +10,7 @@ $display_spirit = $is_admin || $is_coordinator || $team['League']['display_sotg'
 <div class="teams schedule">
 <h2><?php  echo __('Team Schedule', true) . ': ' . $team['Team']['name'];?></h2>
 <?php if (!empty($team['Game'])):?>
-	<table>
+	<table class="list">
 		<tr>
 			<th><?php __('Date'); ?></th>
 			<th><?php __('Time'); ?></th>

@@ -18,7 +18,7 @@ foreach ($new as $player) {
 	// TODO: flag potential duplicates
 	$rows[] = array($player['Person']['full_name'], array(implode ('', $links), array('class' => 'actions')));
 }
-echo $this->Html->tag('table', $this->Html->tableCells ($rows, array(), array('class' => 'altrow')));
+echo $this->Html->tag('table', $this->Html->tableCells ($rows, array(), array('class' => 'altrow')), array('class' => 'list'));
 ?>
 
 </div>

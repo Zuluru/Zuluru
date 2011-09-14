@@ -53,7 +53,7 @@ $this->Html->addCrumb (__('View', true));
 	$cols = 5;
 	$warning = false;
 	?>
-	<table cellpadding = "0" cellspacing = "0">
+	<table class="list">
 	<tr>
 		<th><?php __('Team'); ?></th>
 		<th><?php __('League'); ?></th>

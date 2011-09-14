@@ -61,7 +61,7 @@ foreach ($team['Game'] as $game) {
 	}
 }
 
-echo $this->Html->tag ('table', $this->Html->tableHeaders ($header) . $this->Html->tableCells ($rows, array(), array('class' => 'altrow')));
+echo $this->Html->tag ('table', $this->Html->tableHeaders ($header) . $this->Html->tableCells ($rows, array(), array('class' => 'altrow')), array('class' => 'list'));
 ?>
 
 </div>

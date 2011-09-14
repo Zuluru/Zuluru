@@ -40,7 +40,7 @@ if (array_key_exists ($team_id, $game['ScoreEntry'])) {
 }
 ?>
 
-<table>
+<table class="list">
 <tr>
 	<th>Team Name</th>
 	<th>Defaulted?</th>

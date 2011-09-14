@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('Validate Ratings', true));
 
 <div class="leagues validate">
 <h2><?php  echo __('Validate Ratings', true) . ': ' . $league['League']['long_name'];?></h2>
-<table>
+<table class="list">
 	<tr>
 		<th colspan="3">Game</th>
 		<th colspan="2">Home Team</th>
@@ -53,7 +53,7 @@ $this->Html->addCrumb (__('Validate Ratings', true));
 
 </table>
 
-<table>
+<table class="list">
 	<tr>
 		<th>Team</th>
 		<th>Saved</th>

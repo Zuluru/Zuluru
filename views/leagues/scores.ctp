@@ -53,7 +53,7 @@ $header[] = null;
 
 ?>
 
-<table>
+<table class="list">
 <thead>
 <?php echo $this->Html->tableHeaders ($header); ?>
 </thead>

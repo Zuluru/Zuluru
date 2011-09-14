@@ -1,4 +1,4 @@
-<table id="Questions" class="sortable">
+<table id="Questions" class="sortable list">
 <thead>
 	<tr>
 		<th><?php __('Question'); ?></th>

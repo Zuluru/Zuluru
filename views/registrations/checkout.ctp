@@ -18,7 +18,7 @@ if (!empty($registrations)):
 	echo $this->element ('payment/offline');
 ?>
 
-<table>
+<table class="list">
 	<tr>
 		<th><?php __('Order ID'); ?></th>
 		<th><?php __('Event'); ?></th>
@@ -63,7 +63,7 @@ if (!empty($registrations)):
 if (!empty($full)):
 	echo $this->Html->para('error-message', 'You have registered for the following events, but cannot pay right now as they have filled up since you registered:');
 ?>
-<table>
+<table class="list">
 	<tr>
 		<th><?php __('Order ID'); ?></th>
 		<th><?php __('Event'); ?></th>

@@ -115,7 +115,7 @@ $this->Html->addCrumb (__('Edit', true));
 		$awayScoreEntry = $game['ScoreEntry'][$game['Game']['away_team']];
 	}
 	?>
-	<table>
+	<table class="list">
 	<tr>
 		<th></th>
 		<th><?php echo $this->Text->truncate ($game['HomeTeam']['name'], 23) . ' (' . __('home', true) . ')'; ?></th>

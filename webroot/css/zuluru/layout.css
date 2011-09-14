@@ -85,7 +85,7 @@ body
 }
 
 /** Tables **/
-#zuluru table
+#zuluru table.list
 {
 	border-collapse: collapse;
 	border: 1px solid;
@@ -107,7 +107,13 @@ body
 	padding-bottom: 2px;
 	margin-bottom: 0;
 }
-#zuluru th
+
+#zuluru table.container td
+{
+	padding:4px 0;
+}
+
+#zuluru table.list th
 {
 	border: 0;
 	border-bottom: 2px solid;
@@ -115,11 +121,11 @@ body
 	padding:4px;
 	font-size: 100%;
 }
-#zuluru th a
+#zuluru table.list th a
 {
 	padding: 2px 4px;
 }
-#zuluru td
+#zuluru table.list td
 {
 	text-align: left;
 	vertical-align: top;
@@ -372,8 +378,8 @@ body
 	text-decoration: none;
 	min-width: 0;
 }
-#zuluru th.splash_action,
-#zuluru td.splash_action
+#zuluru table.list th.splash_action,
+#zuluru table.list td.splash_action
 {
 	text-align: right;
 }

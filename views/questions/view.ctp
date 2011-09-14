@@ -10,7 +10,7 @@
 <div class="related">
 	<h3><?php printf(__('Related %s', true), __('Questionnaires', true));?></h3>
 	<?php if (!empty($question['Questionnaire'])):?>
-	<table cellpadding = "0" cellspacing = "0">
+	<table class="list">
 	<tr>
 		<th><?php __('Id'); ?></th>
 		<th><?php __('Name'); ?></th>

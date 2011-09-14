@@ -12,7 +12,7 @@ if (!$is_logged_in) {
 }
 ?>
 
-<table>
+<table class="list">
 <tr>
 	<th><?php __('Registration'); ?></th>
 	<th><?php __('Cost'); ?></th>

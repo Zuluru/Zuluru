@@ -56,7 +56,7 @@ $this->Html->addCrumb ($this->ZuluruTime->date($game['GameSlot']['game_date']));
 	</dl>
 
 <div class="related">
-	<table cellpadding = "0" cellspacing = "0">
+	<table class="list">
 	<thead>
 	<tr>
 		<th><?php __('Name'); ?></th>

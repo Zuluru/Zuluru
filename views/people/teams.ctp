@@ -23,7 +23,7 @@ foreach ($teams as $team) {
 			$this->Html->link ($team['League']['long_name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $team['League']['id'])),
 	);
 }
-echo $this->Html->tag ('table', $this->Html->tableCells ($rows));
+echo $this->Html->tag ('table', $this->Html->tableCells ($rows), array('class' => 'list'));
 ?>
 
 </div>

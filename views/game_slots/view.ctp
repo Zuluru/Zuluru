@@ -42,7 +42,7 @@ $this->Html->addCrumb (__('View', true));
 <?php if (!empty($gameSlot['LeagueGameslotAvailability'])):?>
 <div class="related">
 	<h3><?php __('Available to Leagues');?></h3>
-	<table cellpadding = "0" cellspacing = "0">
+	<table class="list">
 	<?php
 		$i = 0;
 		foreach ($gameSlot['LeagueGameslotAvailability'] as $league):

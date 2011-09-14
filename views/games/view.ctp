@@ -163,7 +163,7 @@ $this->Html->addCrumb (__('View', true));
 				$awayScoreEntry = $game['ScoreEntry'][$game['Game']['away_team']];
 			}
 			?>
-			<table>
+			<table class="list">
 			<tr>
 				<th></th>
 				<th><?php echo $this->Text->truncate ($game['HomeTeam']['name'], 23) . ' (' . __('home', true) . ')'; ?></th>
@@ -232,7 +232,7 @@ $this->Html->addCrumb (__('View', true));
 	<?php if (Configure::read('scoring.allstars') && $game['League']['allstars'] && !empty($game['Allstar'])):?>
 	<fieldset>
  		<legend><?php __('Allstars'); ?></legend>
-		<table cellpadding = "0" cellspacing = "0">
+		<table class="list">
 		<tr>
 			<th><?php __('Player'); ?></th>
 			<th class="actions"><?php __('Actions');?></th>
@@ -259,7 +259,7 @@ $this->Html->addCrumb (__('View', true));
 	<?php if (Configure::read('scoring.incident_reports') && !empty($game['Incident'])):?>
 	<fieldset>
  		<legend><?php __('Incident Reports'); ?></legend>
-		<table cellpadding = "0" cellspacing = "0">
+		<table class="list">
 		<tr>
 			<th><?php __('Reporting Team'); ?></th>
 			<th><?php __('Type'); ?></th>

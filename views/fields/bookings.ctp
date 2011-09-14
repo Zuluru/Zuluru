@@ -7,7 +7,7 @@ $this->Html->addCrumb ($field['Field']['long_name']);
 <div class="fields bookings">
 <h2><?php echo __('Availability and Bookings', true) . ': ' . $field['Field']['long_name'];?></h2>
 
-<table>
+<table class="list">
 	<thead>
 		<tr>
 			<th><?php __('Date'); ?></th>

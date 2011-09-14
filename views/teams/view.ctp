@@ -214,7 +214,7 @@ $this->Html->addCrumb (__('View', true));
 	$cols = 5;
 	$warning = false;
 	?>
-	<table cellpadding = "0" cellspacing = "0">
+	<table class="list">
 	<tr>
 		<th><?php __('Name'); ?></th>
 		<th><?php __('Position'); ?></th>

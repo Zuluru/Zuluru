@@ -62,7 +62,7 @@ for ($h = 0; $h <= $max_score; $h++) {
 }
 ?>
 
-<table>
+<table class="list">
 	<thead>
 <?php echo $this->Html->tableHeaders ($header); ?>
 	</thead>

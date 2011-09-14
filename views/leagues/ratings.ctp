@@ -13,7 +13,7 @@ $this->Html->addCrumb (__('Adjust Ratings', true));
 
 <?php echo $this->Form->create ('Team', array('url' => $this->here)); ?>
 
-<table>
+<table class="list">
 	<tr>
 		<th><?php __('Team Name'); ?></th>
 		<th><?php __('Avg. Skill'); ?></th>
