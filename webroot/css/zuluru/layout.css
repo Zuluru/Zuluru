@@ -85,6 +85,16 @@ body
 }
 
 /** Tables **/
+#zuluru table.container
+{
+	width: 100%;
+}
+#zuluru table.container td
+{
+	padding: 4px 0;
+	vertical-align: top;
+}
+
 #zuluru table.list
 {
 	border-collapse: collapse;
@@ -93,24 +103,12 @@ body
 	margin-bottom: 10px;
 	width: 100%;
 }
-#zuluru table.container,
 #zuluru div.splash table,
 #zuluru div.form table,
 #zuluru div.fields table,
 #zuluru div.events table
 {
 	border: 0;
-}
-#zuluru div.splash table li
-{
-	padding-top: 2px;
-	padding-bottom: 2px;
-	margin-bottom: 0;
-}
-
-#zuluru table.container td
-{
-	padding:4px 0;
 }
 
 #zuluru table.list th
