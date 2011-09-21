@@ -302,20 +302,38 @@ class LeagueTypeComponent extends Object
 		// rather than being created ahead of time and assigned to games).
 		// So, we replicate the important bits of saveAll here.
 		$transaction = new DatabaseTransaction($this->_controller->League->Game);
-		foreach ($this->games as $game) {
+
+		// It seems that for($x as $k => $v) works on a cached version of $x,
+		// so any changes to the games made in beforeSave or afterSave will
+		// show up in $this->games but not in the game variables as we iterate
+		// through. So, iterate over the array keys instead and use that to
+		// directly reference the array.
+		foreach (array_keys($this->games) as $key) {
 			$this->_controller->League->Game->create();
-			$success = $this->_controller->League->Game->save($game);
-			if ($success) {
-				$game['GameSlot']['game_id'] = $this->_controller->League->Game->id;
-				$success = $this->_controller->League->Game->GameSlot->save($game['GameSlot']);
+			if (!$this->beforeSave($key) ||
+				!$this->_controller->League->Game->save($this->games[$key]) ||
+				!$this->afterSave($key))
+			{
+				return false;
 			}
 
-			if (!$success) {
+			$this->games[$key]['GameSlot']['game_id'] = $this->_controller->League->Game->id;
+			if (!$this->_controller->League->Game->GameSlot->save($this->games[$key]['GameSlot'])) {
 				return false;
 			}
 		}
 
 		return ($transaction->commit() !== false);
+	}
+
+	function beforeSave($game) {
+		// Most league types have nothing that keeps games from being saved
+		return true;
+	}
+
+	function afterSave($game) {
+		// Most league types have nothing to do after games are saved
+		return true;
 	}
 
 	/**
