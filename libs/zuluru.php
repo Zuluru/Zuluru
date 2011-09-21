@@ -110,6 +110,13 @@ function clean($val, $func = 'is_numeric') {
 	return $ret;
 }
 
+function ordinal($val) {
+	$n1 = $val % 100; //first remove all but the last two digits
+	$n2 = ($n1 < 20 ? $val : $val % 10); //remove all but last digit unless the number is in the teens, which all should be 'th'
+	$ord = ($n2==1 ? 'st' : ( ($n2==2 ? 'nd' : ($n2==3 ? 'rd' : 'th') ) ) );
+	return $val . $ord;
+}
+
 /**
  * This class handles database transactions in a safe manner.
  * Just create an object of this type, passing the model object
