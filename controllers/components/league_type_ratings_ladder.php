@@ -195,30 +195,29 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 			return false;
 		}
 
-		// TODO: A better way to do this, it's crap...
-		$output = "<div class='schedule'>";
-		$output .= "<table align=center>";
-		$output .= "<tr><td class='column-heading'>Team 1</td><td class='column-heading'>Team 2</td>";
-		$output .= "<td class='column-heading'>Seed Diff<br>(". array_sum($seed_closeness) .")</td><td class='column-heading'>Played each other<br>X games ago...</td></tr>";
+		// TODO: A better way to do this, it's crap. Maybe use an element?
+		$output = '<div class="schedule">';
+		$output .= '<table width="100%">';
+		$output .= '<tr><td>Team 1</td><td>Team 2</td><td>Seed Diff<br>(total ' . array_sum($seed_closeness) . ')</td><td>Played each other<br>X games ago...</td></tr>';
 		$team_idx = 0;
 		for ($i = 0; $i < count($gbr_diff); $i++)  {
-			$font = "black";
+			$class = '';
 			$played = $gbr_diff[$i];
 			if ($played != 0) {
-				$font = "red";
-				$played = $games_before_repeat - $gbr_diff[$i] + 1;
+				$class = ' class="warning"';
+				$played = $gbr_diff[$i];
 			} else {
-				$played = "&nbsp;";
+				$played = '&nbsp;';
 			}
-			$output .= "<tr>";
-			$output .= "<td><font color=$font>" . $versus_teams[$team_idx++]['name'] . "</font></td>";
-			$output .= "<td><font color=$font>" . $versus_teams[$team_idx++]['name'] . "</font></td>";
-			$output .= "<td><font color=$font>" . $seed_closeness[$i] . "</font></td>";
-			$output .= "<td align=center><font color=$font>" . $played . "</font></td>";
-			$output .= "</tr>\n";
+			$output .= '<tr>';
+			$output .= "<td$class>{$versus_teams[$team_idx++]['name']}</font></td>";
+			$output .= "<td$class>{$versus_teams[$team_idx++]['name']}</font></td>";
+			$output .= "<td$class>{$seed_closeness[$i]}</font></td>";
+			$output .= "<td$class>$played</font></td>";
+			$output .= '</tr>';
 		}
-		$output .= "</table>\n";
-		$output .= "</div>\n";
+		$output .= '</table>';
+		$output .= '</div>';
 		$this->_controller->Session->setFlash($output, 'default', array('class' => 'success'));
 
 		return $ret;
@@ -298,8 +297,6 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 
 				// but, if games before repeat goes negative, you're screwed!
 				if ($gbr < 0) {
-					// TODO: Return error message
-					print "<br><b>FAILURE: scheduler cannot find valid opponents for " . $current_team['id'] . "</b></br>";
 					return false;
 				}
 
@@ -334,7 +331,15 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 			// Create the matchup
 			$versus_teams[] = $current_team;
 			$versus_teams[] = $opponent;
-			$gbr_diff[] = $games_before_repeat - $gbr;
+			$recent_opponents = array_reverse($this->getRecentOpponents($current_team['id']));
+			$ago = 0;
+			foreach ($recent_opponents as $key => $id) {
+				if ($opponent['id'] == $id) {
+					$ago = $key + 1;
+					break;
+				}
+			}
+			$gbr_diff[] = $ago;
 
 			$counter = 0;
 			$seed1 = 0;
@@ -360,23 +365,23 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 		return array(true, $versus_teams, $gbr_diff, $seed_closeness, $ratings_closeness);
 	}
 
-	function getRecentOpponents($teamid, $gbr) {
-		// Find all of the recent games where this team participated
-		$games = array_merge (
-			Set::extract ("/Game[home_team=$teamid]/.", $this->league),
-			Set::extract ("/Game[away_team=$teamid]/.", $this->league));
+	function getRecentOpponents($teamid, $gbr = null) {
+		$recent_opponents = array();
+		foreach ($this->league['Game'] as $game) {
+			if ($game['home_team'] == $teamid) {
+				$recent_opponents[] = $game['away_team'];
+			}
+			if ($game['away_team'] == $teamid) {
+				$recent_opponents[] = $game['home_team'];
+			}
+		}
 
-		// Extract the last few
-		usort ($games, array($this, 'cmpGameDate'));
-		$recent_games = array_slice ($games, -$gbr);
+		// Perhaps extract the last few
+		if ($gbr !== null) {
+			$recent_opponents = array_slice ($recent_opponents, -$gbr);
+		}
 
-		// Pull out the list of teams that participated in these games, less this team
-		$recent_opponents = array_flip (array_unique (array_merge (
-			Set::extract ("/home_team/.", $recent_games),
-			Set::extract ("/away_team/.", $recent_games))));
-		unset ($recent_opponents[$teamid]);
-
-		return array_keys ($recent_opponents);
+		return $recent_opponents;
 	}
 
 	/**
