@@ -123,10 +123,17 @@ class SchedulesController extends AppController {
 		}
 		$dates = Set::extract ('/GameSlot/date', $dates);
 
-		list($num_dates, $num_fields) = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams());
+		// Validate any data posted to us
+		if ($this->data['Game']['step'] == 'date') {
+			if ($this->_canSchedule($id)) {
+				return $this->_confirm($id);
+			}
+		}
+
+		$num_fields = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams());
 		$desc = $this->league_obj->scheduleDescription ($this->data['Game']['type'], $this->_numTeams());
 
-		$this->set(compact('dates', 'num_dates', 'num_fields', 'desc'));
+		$this->set(compact('dates', 'num_fields', 'desc'));
 		$this->render('date');
 	}
 
@@ -185,20 +192,42 @@ class SchedulesController extends AppController {
 			return false;
 		}
 
-		list($num_dates, $num_fields) = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams());
+		// The requirements may come back from this as an array for each schedule block.
+		// For our check here, we want them as a single array, ordered by round number.
+		$num_fields = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams());
+		if (is_array(current($num_fields))) {
+			$temp = array();
+			while (!empty($num_fields)) {
+				foreach (array_keys($num_fields) as $key) {
+					$temp[] = array_shift($num_fields[$key]);
+					if (empty($num_fields[$key])) {
+						unset($num_fields[$key]);
+					}
+				}
+			}
+			$num_fields = $temp;
+		}
 
-		// TODO: Calculate this for each date in the range; not important right now as the ladder schedules one week at a time
-		$fields = $this->League->LeagueGameslotAvailability->find('count', array(
+		$field_counts = $this->League->LeagueGameslotAvailability->find('all', array(
+				'fields' => array('count(GameSlot.id) AS count'),
 				'conditions' => array(
 					'GameSlot.game_id' => null,
-					'GameSlot.game_date' => $this->data['Game']['start_date'],
+					'GameSlot.game_date >=' => $this->data['Game']['start_date'],
 					'LeagueGameslotAvailability.league_id' => $id,
 				),
+				'group' => array('GameSlot.game_date', 'GameSlot.game_start'),
+				'order' => array('GameSlot.game_date', 'GameSlot.game_start'),
 		));
 
-		if ($num_fields > $fields) {
-			$this->Session->setFlash(sprintf (__('There are insufficient fields available on %s.', true), $this->data['Game']['start_date']), 'default', array('class' => 'info'));
-			return false;
+		foreach ($num_fields as $required) {
+			while ($required > 0) {
+				if (empty($field_counts)) {
+					$this->Session->setFlash(__('There are insufficient fields available to support the requested schedule.', true), 'default', array('class' => 'info'));
+					return false;
+				}
+				$field_count = array_shift($field_counts);
+				$required -= $field_count[0]['count'];
+			}
 		}
 
 		return true;

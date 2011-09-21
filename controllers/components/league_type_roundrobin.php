@@ -112,26 +112,17 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 	function scheduleRequirements($type, $num_teams) {
 		switch($type) {
 			case 'single':
-				$num_dates = 1;
-				$num_fields = 1;
-				break;
+				return array(1);
 			case 'blankset':
 			case 'oneset':
-				$num_dates = 1;
-				$num_fields = ($num_teams / 2);
-				break;
+				return array($num_teams / 2);
 			case 'fullround':
-				$num_dates = ($num_teams - 1);
-				$num_fields = ($num_teams / 2);
-				break;
+				return array_fill(0, $num_teams - 1, $num_teams / 2);
 			case 'halfroundstandings':
 			case 'halfroundrating':
 			case 'halfroundmix':
-				$num_dates = (($num_teams / 2) - 1);
-				$num_fields = ($num_teams / 2);
-				break;
+				return array_fill(0, ($num_teams / 2) - 1, $num_teams / 2);
 		}
-		return array($num_dates, $num_fields);
 	}
 
 	function createSchedule($league_id, $exclude_teams, $type, $start_date, $publish) {

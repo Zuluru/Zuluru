@@ -213,11 +213,11 @@ class LeagueTypeComponent extends Object
 	 *
 	 * @param mixed $num_teams The number of teams to schedule for
 	 * @param mixed $type The schedule type
-	 * @return mixed An array with the number of days and number of fields needed each day
+	 * @return mixed An array with the number of fields needed each day
 	 *
 	 */
 	function scheduleRequirements($type, $num_teams) {
-		return array(0, 0);
+		return array();
 	}
 
 	/**

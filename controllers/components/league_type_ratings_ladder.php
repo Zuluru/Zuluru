@@ -93,13 +93,10 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 	function scheduleRequirements($type, $num_teams) {
 		switch($type) {
 			case 'single':
-				$num_fields = 1;
-				break;
+				return array(1);
 			case 'oneset_ratings_ladder':
-				$num_fields = ($num_teams / 2);
-				break;
+				return array($num_teams / 2);
 		}
-		return array(1, $num_fields);
 	}
 
 	function createSchedule($league_id, $exclude_teams, $type, $start_date, $publish) {

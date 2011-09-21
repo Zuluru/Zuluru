@@ -10,24 +10,37 @@ $this->Html->addCrumb (__('Select Date', true));
 
 <?php
 echo $this->Form->create ('Game', array('url' => array('controller' => 'schedules', 'action' => 'add', 'league' => $id)));
-
-// We won't bother validating the start date.  There's no way to select
-// "no date" on the form, so any submission would be valid, and we trust
-// our limited number of coordinators not to be hacking the system to
-// try to schedule games on dates that aren't available.  Besides, the
-// algorithm won't run if game slots aren't available, so there's no real
-// harm that can be done even if they did hack it.  As a result, we don't
-// direct this form's data back to the 'date' step, we go straight to
-// confirmation.
-$this->data['Game']['step'] = 'confirm';
+$this->data['Game']['step'] = 'date';
 echo $this->element('hidden', array('fields' => $this->data));
 ?>
 
 <fieldset>
 <legend>Select desired start date</legend>
 
-<p>Scheduling a <?php __($desc); ?> will require <?php echo $num_fields * $num_dates; ?> fields:
-<?php echo $num_fields; ?> per day on <?php echo $num_dates; ?> dates.</p>
+<p><?php
+printf (__('Scheduling a %s will create a total of ', true), __($desc, true));
+if (is_array(current($num_fields))) {
+	// num_fields will be a multi-dimensional array if we're scheduling multiple blocks of games.
+	$total_fields = array_sum(array_map('array_sum', $num_fields));
+	$min_slots = max(array_map('count', $num_fields));
+	printf (__('%d games across a minimum of %d time slots.', true), $total_fields, $min_slots);
+	$slots = array();
+	foreach ($this->data['Game']['name'] as $key => $name) {
+		$slots[] = $name . ': ' . implode(', ', $num_fields[$key]);
+	}
+	__(' Games per time slot for each pool are as follows:');
+	echo $this->Html->nestedList($slots);
+} else if (count($num_fields) > 1) {
+	// A simple array with multiple elements means that multiple time slots are required.
+	$total_fields = array_sum($num_fields);
+	$min_slots = count($num_fields);
+	printf (__('%d games across a minimum of %d time slots.', true), $total_fields, $min_slots);
+} else {
+	// A simple array with one element means games may happen in a single time slot.
+	$total_fields = array_sum($num_fields);
+	printf (__('%d games.', true), $total_fields);
+}
+?></p>
 
 <?php
 // We have an array like 0 => timestamp, and need timestamp => readable
