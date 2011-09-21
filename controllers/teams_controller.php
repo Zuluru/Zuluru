@@ -399,7 +399,7 @@ class TeamsController extends AppController {
 			if ($person['TeamsPerson']['status'] == ROSTER_APPROVED) {
 				$team['Person'][$key]['can_add'] = true;
 			} else {
-				$team['Person'][$key]['can_add'] = $this->_canAdd ($full_person, $team, $person['TeamsPerson']['position']);
+				$team['Person'][$key]['can_add'] = $this->_canAdd ($full_person, $team, $person['TeamsPerson']['position'], $person['TeamsPerson']['status']);
 			}
 
 			// Check if the player is a member, so we can highlight any that aren't
@@ -1250,7 +1250,7 @@ class TeamsController extends AppController {
 		}
 
 		// Check if this person can even be added
-		$can_add = $this->_canAdd ($person, $team, $person['Person']['TeamsPerson']['position']);
+		$can_add = $this->_canAdd ($person, $team, $person['Person']['TeamsPerson']['position'], $person['Person']['TeamsPerson']['status']);
 		if ($can_add !== true) {
 			$this->Session->setFlash($can_add, 'default', array('class' => 'warning'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
@@ -1465,7 +1465,7 @@ class TeamsController extends AppController {
 			return false;
 		}
 
-		$can_add = $this->_canAdd ($person, $team, $position);
+		$can_add = $this->_canAdd ($person, $team, $position, $status);
 		if ($can_add === true) {
 			// Under certain circumstances, an invite is changed to an add
 			if ($status === ROSTER_INVITED &&
@@ -1534,7 +1534,7 @@ class TeamsController extends AppController {
 		}
 	}
 
-	function _canAdd ($person, $team, $position = null) {
+	function _canAdd ($person, $team, $position = null, $status = null) {
 		if ($person['Person']['status'] != 'active') {
 			return __('New players must be approved by an administrator before they can be added to a team; this normally happens within one business day.', true);
 		}
@@ -1588,7 +1588,7 @@ class TeamsController extends AppController {
 			}
 		}
 
-		if ($position !== null) {
+		if ($position !== null && $status != ROSTER_INVITED) {
 			$roster_options = $this->_rosterOptions (null, $team);
 			if (!array_key_exists ($position, $roster_options)) {
 				return __('You are not allowed to invite someone to that position.', true);
