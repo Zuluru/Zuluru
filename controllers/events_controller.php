@@ -142,7 +142,7 @@ class EventsController extends AppController {
 			$this->data = array_merge ($this->data, $type);
 
 			if ($this->Event->save($this->data)) {
-				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('event', true)), 'default', array('class' => 'succcess'));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('event', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('event', true)), 'default', array('class' => 'warning'));
