@@ -69,7 +69,7 @@ class ZuluruSchema extends CakeSchema {
 	);
 	var $events = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
-		'name' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100, 'key' => 'unique'),
+		'name' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 128, 'key' => 'unique'),
 		'description' => array('type' => 'text', 'null' => true, 'default' => NULL),
 		'event_type_id' => array('type' => 'integer', 'null' => false, 'default' => NULL),
 		'waiver_type' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 16),
@@ -190,7 +190,7 @@ class ZuluruSchema extends CakeSchema {
 	var $leagues = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'name' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
-		'season' => array('type' => 'string', 'null' => false, 'default' => 'none', 'length' => 16),
+		'season' => array('type' => 'string', 'null' => false, 'default' => 'None', 'length' => 16),
 		'open' => array('type' => 'date', 'null' => false, 'default' => NULL),
 		'close' => array('type' => 'date', 'null' => false, 'default' => NULL),
 		'tier' => array('type' => 'integer', 'null' => true, 'default' => NULL),
@@ -228,7 +228,7 @@ class ZuluruSchema extends CakeSchema {
 		'league_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
 		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
 		'position' => array('type' => 'string', 'null' => true, 'default' => 'coordinator', 'length' => 64),
-		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'leaguemembers_league' => array('column' => 'league_id', 'unique' => 0), 'full' => array('column' => array('league_id', 'person_id'), 'unique' => 0)),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'league' => array('column' => 'league_id', 'unique' => 0), 'full' => array('column' => array('league_id', 'person_id'), 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $locks = array(
