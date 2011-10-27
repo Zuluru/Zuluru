@@ -49,7 +49,7 @@ foreach ($franchises as $franchise):
 				echo $this->ZuluruHtml->iconLink('edit_24.png',
 					array('action' => 'edit', 'franchise' => $franchise['Franchise']['id']),
 					array('alt' => __('Edit Franchise', true), 'title' => __('Edit Franchise', true)));
-				echo $this->ZuluruHtml->iconLink('roster_add_24.png',
+				echo $this->ZuluruHtml->iconLink('team_add_24.png',
 					array('action' => 'add_team', 'franchise' => $franchise['Franchise']['id']),
 					array('alt' => __('Add Team', true), 'title' => __('Add Team', true)));
 				echo $this->ZuluruHtml->iconLink('move_24.png',

@@ -30,7 +30,7 @@ $this->Html->addCrumb (__('View', true));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('edit_32.png',
 				array('action' => 'edit', 'franchise' => $franchise['Franchise']['id']),
 				array('alt' => __('Edit Franchise', true), 'title' => __('Edit Franchise', true))));
-			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('roster_add_32.png',
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('team_add_32.png',
 				array('action' => 'add_team', 'franchise' => $franchise['Franchise']['id']),
 				array('alt' => __('Add Team', true), 'title' => __('Add Team', true))));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('move_32.png',
