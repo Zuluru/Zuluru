@@ -128,7 +128,7 @@ echo $this->ZuluruHtml->imageLink ('http://www.google.com/calendar/images/ext/gc
 				array('action' => 'emails', 'team' => $team['Team']['id']),
 				array('alt' => __('Player Emails', true), 'title' => __('Player Emails', true))));
 		}
-		if ($is_admin || ($is_captain && $team['League']['roster_deadline'] >= date('Y-m-d'))) {
+		if ($is_admin || (($is_captain || $is_coordinator) && $team['League']['roster_deadline'] >= date('Y-m-d'))) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('roster_add_32.png',
 				array('action' => 'add_player', 'team' => $team['Team']['id']),
 				array('alt' => __('Add Player', true), 'title' => __('Add Player', true))));

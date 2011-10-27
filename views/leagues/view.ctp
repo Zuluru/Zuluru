@@ -99,7 +99,7 @@ $this->Html->addCrumb (__('View', true));
 
 			</dd>
 		<?php endif; ?>
-		<?php if ($is_admin || $is_coordinator): ?>
+		<?php if ($is_admin): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Roster Rule'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php echo $this->Html->tag('pre', $league['League']['roster_rule']); ?>

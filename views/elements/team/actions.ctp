@@ -28,7 +28,7 @@ if ($is_admin || $is_captain) {
 		array('controller' => 'teams', 'action' => 'emails', 'team' => $team['id']),
 		array('alt' => __('Player Emails', true), 'title' => __('Player Emails', true)));
 }
-if ($is_admin || ($is_captain && $league['League']['roster_deadline'] >= date('Y-m-d'))) {
+if ($is_admin || (($is_captain || $is_coordinator) && $league['League']['roster_deadline'] >= date('Y-m-d'))) {
 	echo $this->ZuluruHtml->iconLink('roster_add_24.png',
 		array('controller' => 'teams', 'action' => 'add_player', 'team' => $team['id']),
 		array('alt' => __('Add Player', true), 'title' => __('Add Player', true)));
