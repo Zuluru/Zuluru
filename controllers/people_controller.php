@@ -607,6 +607,11 @@ class PeopleController extends AppController {
 			),
 			'order' => array('last_name' => 'DESC', 'first_name' => 'DESC'),
 		));
+		foreach ($new as $key => $person) {
+			$duplicates = $this->Person->findDuplicates($person);
+			$new[$key]['Person']['duplicate'] = !empty($duplicates);
+		}
+
 		$this->set(compact('new'));
 	}
 

@@ -15,8 +15,11 @@ foreach ($new as $player) {
 		$this->Html->link (__('Delete', true), array('action' => 'delete', 'person' => $player['Person']['id'])),
 		$this->Html->link (__('Edit', true), array('action' => 'edit', 'person' => $player['Person']['id'])),
 	);
-	// TODO: flag potential duplicates
-	$rows[] = array($player['Person']['full_name'], array(implode ('', $links), array('class' => 'actions')));
+	$class = ($player['Person']['duplicate'] ? 'warning-message' : '');
+	$rows[] = array(
+		array($player['Person']['full_name'], array('class' => $class)),
+		array(implode ('', $links), array('class' => 'actions'))
+	);
 }
 echo $this->Html->tag('table', $this->Html->tableCells ($rows, array(), array('class' => 'altrow')), array('class' => 'list'));
 ?>
