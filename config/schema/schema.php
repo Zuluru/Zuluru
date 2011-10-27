@@ -239,6 +239,26 @@ class ZuluruSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'key' => array('column' => 'key', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
+	var $notices = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'display_to' => array('type' => 'string', 'null' => false, 'default' => 'player', 'length' => 16),
+		'repeat' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 16),
+		'notice' => array('type' => 'text', 'null' => true, 'default' => NULL),
+		'active' => array('type' => 'boolean', 'null' => false, 'default' => '1'),
+		'effective_date' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
+		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
+	var $notices_people = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'notice_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
+		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'remind' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'notice' => array('column' => 'notice_id', 'unique' => 0), 'full' => array('column' => array('notice_id', 'person_id'), 'unique' => 0)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
 	var $people = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'user_name' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100, 'key' => 'unique'),

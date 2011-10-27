@@ -111,4 +111,7 @@ if (!defined('TEAM_NAME')) {
 	define('FRANCHISE_ID', -6);
 }
 
+// Percent likelihood that a notice will be shown, if there is one to show
+define('NOTICE_FREQUENCY', 100);
+
 ?>

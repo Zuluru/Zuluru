@@ -65,6 +65,7 @@
 				echo $this->Session->flash('auth');
 				echo $this->Session->flash('email');
 				echo $this->Session->flash();
+				echo $this->element('notice');
 				echo $content_for_layout;
 			?>
 

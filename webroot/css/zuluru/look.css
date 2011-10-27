@@ -162,7 +162,7 @@ dl .altrow
 	margin: 10px 0px;
 	padding:15px 10px;
 }
-#zuluru #authMessage, #zuluru div.info, #zuluru div.success, #zuluru div.warning, #zuluru div.error {
+#zuluru #authMessage, #zuluru #SystemNotice, #zuluru div.info, #zuluru div.success, #zuluru div.warning, #zuluru div.error {
 	border: 1px solid;
 	margin: 10px 0px;
 	padding:15px 10px 15px 50px;
@@ -170,7 +170,7 @@ dl .altrow
 	background-position: 10px center;
 	font-size: 125%;
 }
-#zuluru #authMessage, #zuluru div.info {
+#zuluru #authMessage, #zuluru #SystemNotice, #zuluru div.info {
 	border-color: #00529B;
 	background-color: #BDE5F8;
 	background-image: url('images/message/info.png');
