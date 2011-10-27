@@ -13,11 +13,11 @@ $finalized = Set::extract ('/Game[home_score>-1]', $games);
 ?>
 
 <p>You have requested to delete games on <?php echo $this->ZuluruTime->date($date); ?>.</p>
-<p>This will remove <?php echo count($games); ?> games
-<?php if (!empty ($published)): ?>
-, of which <?php echo count($published); ?> are published
-<?php if (!empty ($finalized)): ?>
-and <?php echo count($finalized); ?> have been finalized
+<p>This will remove <?php echo count($games); ?> games<?php
+if (!empty ($published)): ?>
+, of which <?php echo count($published); ?> are published<?php
+if (!empty ($finalized)): ?>
+ and <?php echo count($finalized); ?> have been finalized
 <?php endif; ?>
 <?php endif; ?>
 .</p>
