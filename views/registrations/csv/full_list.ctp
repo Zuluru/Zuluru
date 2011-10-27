@@ -69,7 +69,7 @@ foreach($registrations as $registration) {
 		$registration['Registration']['notes'],
 	);
 	foreach ($event['Questionnaire']['Question'] as $question) {
-		if (!$question['anonymous']) {
+		if (!array_key_exists('anonymous', $question) || !$question['anonymous']) {
 			if (in_array ($question['type'], array('text', 'textbox', 'radio', 'select'))) {
 				$answer = array_shift (Set::extract ("/Response[question_id={$question['id']}]/.", $registration));
 				if (!empty ($answer['answer_id'])) {
