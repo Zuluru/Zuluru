@@ -1,4 +1,7 @@
 <?php
+if(!$is_logged_in) {
+	return;
+}
 $notice = $this->requestAction ('notices/random');
 if (!empty($notice)):
 ?>
