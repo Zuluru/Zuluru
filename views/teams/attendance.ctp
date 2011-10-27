@@ -62,6 +62,8 @@ $this->Html->addCrumb ($team['Team']['name']);
 					'person_id' => $person['id'],
 					'position' => $person['TeamsPerson']['position'],
 					'status' => $status,
+					'comment' => $record[0]['comment'],
+					'dedicated' => true,
 				));
 			}
 		?>
@@ -88,7 +90,7 @@ $this->Html->addCrumb ($team['Team']['name']);
 			}
 
 			$low = Inflector::slug(low($description));
-			$icon = $this->ZuluruHtml->icon("attendance_{$low}_24.png");
+			$icon = $this->ZuluruHtml->icon("attendance_{$low}_dedicated_24.png");
 	?>
 	<tr<?php echo $class;?>>
 		<td><?php echo $icon . '&nbsp;' . __($description, true); ?></td>

@@ -41,6 +41,7 @@ class ZuluruSchema extends CakeSchema {
 		'game_id' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'key' => 'index'),
 		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
 		'status' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'comment' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 128),
 		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
 		'updated' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'game_id' => array('column' => 'game_id', 'unique' => 0), 'team_id' => array('column' => 'team_id', 'unique' => 0), 'person_id' => array('column' => 'person_id', 'unique' => 0)),

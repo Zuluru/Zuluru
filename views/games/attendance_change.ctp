@@ -49,8 +49,34 @@ echo $this->Form->create('Person', array('url' => $this->here));
 echo $this->Form->input('status', array(
 		'legend' => false,
 		'type' => 'radio',
+		'name' => 'status',
 		'options' => $attendance_options,
 		'default' => $attendance['status'],
 ));
+echo $this->Form->input('comment', array(
+		'label' => __('You may optionally add a comment', true),
+		'size' => 80,
+		'default' => $attendance['comment'],
+));
+if ($is_captain && array_key_exists(ATTENDANCE_INVITED, $attendance_options)) {
+	echo $this->Form->input('note', array(
+			'label' => __('You may optionally add a personal note which will be included in the invitation email to the player', true),
+			'size' => 80,
+	));
+}
 echo $this->Form->end(__('Submit', true));
+
+$invited = ATTENDANCE_INVITED;
+echo $this->Html->scriptBlock("
+function statusChanged() {
+	if ($('input:radio[name=status]:checked').val() == $invited) {
+		$('#PersonNote').closest('div').show();
+	} else {
+		$('#PersonNote').closest('div').hide();
+	}
+}
+");
+$this->Js->get('input:radio[name=status]')->event('click', 'statusChanged()', array('stop' => false));
+$this->Js->buffer('statusChanged();');
+
 ?>

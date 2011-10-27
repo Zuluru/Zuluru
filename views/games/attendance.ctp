@@ -45,7 +45,7 @@ $this->Html->addCrumb ($this->ZuluruTime->date($game['GameSlot']['game_date']));
 			}
 			if (!empty ($counts)) {
 				$low = low($statuses[$status]);
-				$short = $this->ZuluruHtml->icon("attendance_{$low}_24.png", array(
+				$short = $this->ZuluruHtml->icon("attendance_{$low}_dedicated_24.png", array(
 						'title' => sprintf (__('Attendance: %s', true), __($statuses[$status], true)),
 						'alt' => $alt[$status],
 				));
@@ -94,6 +94,8 @@ $this->Html->addCrumb ($this->ZuluruTime->date($game['GameSlot']['game_date']));
 				'person_id' => $person['id'],
 				'position' => $person['TeamsPerson']['position'],
 				'status' => $status,
+				'comment' => $record['comment'],
+				'dedicated' => true,
 			));
 		?></td>
 		<td><?php

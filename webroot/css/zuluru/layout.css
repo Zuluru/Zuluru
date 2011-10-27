@@ -411,9 +411,8 @@ div.related
 {
 	cursor: pointer;
 	position: absolute;
-	width: 6em;
 	background: white;
-	padding: 1px;
+	padding: 0 1px;
 	border: 1px solid black;
 }
 #attendance_options div:hover

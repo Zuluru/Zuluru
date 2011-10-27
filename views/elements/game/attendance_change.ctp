@@ -3,8 +3,22 @@ if ($team['track_attendance']) {
 	$long = Configure::read("attendance.$status");
 	$low = Inflector::slug(low($long));
 
+	if (isset($dedicated) && $dedicated) {
+		$low .= '_dedicated';
+	} else {
+		$dedicated = 0;
+	}
+
+	$title = sprintf (__('Current attendance: %s', true), __($long, true));
+	if (!empty($comment)) {
+		if ($dedicated) {
+			$low .= '_comment';
+		}
+		$title .= " ($comment)";
+	}
+
 	$short = $this->ZuluruHtml->icon("attendance_{$low}_24.png", array(
-			'title' => sprintf (__('Current attendance: %s', true), __($long, true)),
+			'title' => $title,
 			'alt' => Configure::read("attendance_alt.$status"),
 	));
 
@@ -16,7 +30,7 @@ if ($team['track_attendance']) {
 	}
 
 	$recent = ($game_date >= date('Y-m-d', time() - 14 * 24 * 60 * 60));
-	$future = ("$game_date $game_time" >= date('Y-m-d H:i:s'));
+	$future = ("$game_date $game_time" >= date('Y-m-d H:i:s') ? 1 : 0);
 	$is_me = (!isset($person_id) || $person_id == $my_id);
 	if (($future || (!$future_only && $recent)) && ($is_me || $is_captain)) {
 		$url = array('controller' => 'games', 'action' => 'attendance_change', 'team' => $team['id']);
@@ -37,9 +51,10 @@ if ($team['track_attendance']) {
 		}
 		$option_string = '{' . implode(', ', $option_strings) . '}';
 		$url_string = Router::url($url);
+		$comment = addslashes($comment);
 		echo $this->Html->link($short, $url, array(
 			'escape' => false,
-			'onClick' => "return attendance_status('$url_string', $status, $option_string, $(this));",
+			'onClick' => "return attendance_status('$url_string', $option_string, $(this), $dedicated, $future, '$comment');",
 		));
 	} else if (!$future_only) {
 		echo $short;

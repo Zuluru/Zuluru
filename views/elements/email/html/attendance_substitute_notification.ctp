@@ -15,7 +15,11 @@ if (isset($game)) {
 }
 ?> on <?php
 echo $this->ZuluruTime->date($date);
-?>. <b>If this correctly reflects your current status, you do not need to take any action at this time.</b> To update your status, use one of the links below, or visit the web site at any time.</p>
+?>.</p>
+<?php if (isset($note)): ?>
+<p><?php echo $note; ?></p>
+<?php endif; ?>
+<p><b>If this correctly reflects your current status, you do not need to take any action at this time.</b> To update your status, use one of the links below, or visit the web site at any time.</p>
 <?php if ($status == ATTENDANCE_INVITED): ?>
 <p>Keep in mind that when teams are short, captains will often invite a number of people to fill in, so it's possible that even if you confirm attendance now, you might be uninvited later if others responded first. You will receive another email from the system in this case, but you may want to double-check with your captain that you are needed before the game.</p>
 <?php elseif ($status == ATTENDANCE_AVAILABLE): ?>

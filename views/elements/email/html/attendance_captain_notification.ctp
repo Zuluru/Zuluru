@@ -17,6 +17,9 @@ if (isset($game)) {
 ?> on <?php
 echo $this->ZuluruTime->date($date);
 ?>.</p>
+<?php if (isset($comment)): ?>
+<p><?php echo $comment; ?></p>
+<?php endif; ?>
 <?php if ($status == ATTENDANCE_AVAILABLE): ?>
 <p>If you need <?php echo $person['first_name']; ?> for this game:
 <?php

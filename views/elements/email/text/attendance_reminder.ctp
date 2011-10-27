@@ -1,6 +1,9 @@
 Dear <?php echo $person['first_name']; ?>,
 
-You have not yet indicated your attendance for the <?php
+<?php if ($status == ATTENDANCE_UNKNOWN || $status == ATTENDANCE_INVITED): ?>
+You have not yet indicated your attendance<?php else: ?>
+You are currently listed as <?php echo Configure::read("attendance.$status"); ?>
+<?php endif; ?> for the <?php
 echo $team['name']; ?> game against <?php echo $opponent['name']; ?> at <?php
 $url = Router::url(array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id']), true);
 echo "{$game['GameSlot']['Field']['name']} {$game['GameSlot']['Field']['num']} ($url)";
@@ -9,7 +12,7 @@ echo $this->ZuluruTime->time($game['GameSlot']['game_start']); ?> on <?php
 echo $this->ZuluruTime->date($game['GameSlot']['game_date']);
 ?>.
 
-<?php if (!in_array($person['TeamsPerson']['position'], Configure::read('playing_roster_positions'))): ?>
+<?php if ($status == ATTENDANCE_INVITED): ?>
 The captain has invited you to play in this game. However, when teams are short, captains will often invite a number of people to fill in, so it's possible that even if you confirm now, you might be uninvited later if others responded first. You will receive another email from the system in this case, but you may want to double-check with your captain that you are needed before the game.
 
 <?php endif; ?>

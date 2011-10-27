@@ -170,6 +170,7 @@ foreach ($games as $game):
 				'game_time' => $game['GameSlot']['game_start'],
 				'position' => $position[0],
 				'status' => (array_key_exists (0, $game['Attendance']) ? $game['Attendance'][0]['status'] : ATTENDANCE_UNKNOWN),
+				'comment' => (array_key_exists (0, $game['Attendance']) ? $game['Attendance'][0]['comment'] : null),
 				'future_only' => true,
 			));
 			if ($game['GameSlot']['game_date'] >= date('Y-m-d')) {

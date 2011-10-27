@@ -365,6 +365,9 @@ class Game extends AppModel {
 				'Attendance' => array(
 					'conditions' => array_merge (array('team_id' => $team_id), $conditions),
 				),
+				'Setting' => array(
+					'conditions' => array('category' => 'personal', 'name' => 'attendance_emails'),
+				),
 				'conditions' => array('TeamsPerson.status' => ROSTER_APPROVED),
 				'fields' => array(
 					'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.gender', 'Person.skill_level',

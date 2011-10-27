@@ -532,85 +532,169 @@ class GamesController extends AppController {
 
 		$position = $person['Team'][0]['TeamsPerson']['position'];
 		$attendance_options = $this->Game->_attendanceOptions ($team_id, $position, $attendance['status'], $past, $is_captain);
+		$this->set(compact('game', 'date', 'team', 'opponent', 'person', 'status', 'attendance', 'attendance_options', 'is_captain', 'is_me'));
 
 		if (!empty ($this->data)) {
-			$status = $this->data['Person']['status'];
-			if (!array_key_exists ($status, $attendance_options)) {
-				$this->Session->setFlash(__('That is not currently a valid attendance status for this player for this game.', true), 'default', array('class' => 'info'));
+			$this->Game->Attendance->id = $attendance['id'];
+
+			// This "days" calculation isn't precise, as it doesn't handle leap years.
+			// However, it's close enough since we're never looking at periods that span
+			// from a year end to a leap day.
+			$days = date('Y') * 365 + date('z');
+			$days_to_game = date('Y', strtotime($date)) * 365 + date('z', strtotime($date)) - $days;
+
+			if (array_key_exists('status', $this->data['Person'])) {
+				$this->set('status', $this->data['Person']['status']);
+				$this->set('comment', $attendance['comment']);
+				$result = $this->_updateAttendanceStatus($team, $person, $date, $is_captain, $is_me, $attendance, $days_to_game, $past, $attendance_options);
+			} else {
+				$this->set('status', $attendance['status']);
+				$this->set('comment', $this->data['Person']['comment']);
+				$result = $this->_updateAttendanceComment($team, $person, $date, $is_captain, $is_me, $attendance, $days_to_game, $past);
+			}
+
+			// Where do we go from here? It depends...
+			if (!$result) {
 				if ($code) {
 					$this->redirect('/');
 				}
 			} else {
-				$this->Game->Attendance->id = $attendance['id'];
-				if ($this->Game->Attendance->saveField ('status', $status)) {
-					$this->Session->setFlash(sprintf (__('Attendance has been updated to %s.', true), $attendance_options[$status]), 'default', array('class' => 'success'));
-
-					// Maybe send some emails, only if the game is in the future and the status changed
-					if (!$past && $status != $attendance['status']) {
-						$this->set(compact('game', 'date', 'team', 'opponent', 'person', 'status'));
-
-						// Send email from the player to the captain if it's within the configured date range
-						// This "days" calculation isn't precise, as it doesn't handle leap years.
-						// However, it's close enough since we're never looking at periods that span
-						// from a year end to a leap day.
-						$days = date('Y') * 365 + date('z');
-						$days_to_game = date('Y', strtotime($date)) * 365 + date('z', strtotime($date)) - $days;
-						if ($is_me && $team['attendance_notification'] >= $days_to_game) {
-							// Make sure the current player isn't in the list of captains to send to
-							$captains = Set::extract ("/Person[id!={$person['id']}]", $team);
-							if (!empty ($captains)) {
-								$this->set('captains', implode (', ', Set::extract ('/Person/first_name', $captains)));
-								$this->set('code', $this->_hash(array_merge ($attendance, array('captain' => true))));
-								$this->_sendMail (array (
-										'to' => $captains,
-										'replyTo' => $person,
-										'subject' => "{$team['name']} attendance change",
-										'template' => 'attendance_captain_notification',
-										'sendAs' => 'both',
-								));
-							}
-						}
-						// Always send an email from the captain to substitute players. It will likely
-						// be an invitation to play or a response to a request or cancelling attendance
-						// if another player is available. Regardless, we need to communicate this.
-						else if ($is_captain && !in_array($position, Configure::read('playing_roster_positions'))) {
-							$captain = $this->Session->read('Zuluru.Person.full_name');
-							if (!$captain) {
-								$captain = __('A captain', true);
-							}
-							$this->set(compact('captain'));
-							$this->set('player_options',
-								$this->Game->_attendanceOptions ($team_id, $position, $status, $past, false));
-							$this->set('code', $this->_hash ($attendance));
-
-							$this->_sendMail (array (
-									'to' => $person,
-									'replyTo' => $this->Session->read('Zuluru.Person'),
-									'subject' => "{$team['name']} attendance change for game on $date",
-									'template' => 'attendance_substitute_notification',
-									'sendAs' => 'both',
-							));
-						}
-					}
-
-					// Where do we go from here? It depends...
-					if ($this->RequestHandler->isAjax()) {
-						$this->action = 'attendance_change_ajax';
-						$this->set(compact('is_captain', 'status'));
-					} else if (!$this->is_logged_in) {
-						$this->redirect(array('controller' => 'teams', 'action' => 'view', 'team' => $team_id));
-					} else if ($id) {
-						$this->redirect(array('action' => 'attendance', 'team' => $team_id, 'game' => $id));
-					} else {
-						$this->redirect(array('controller' => 'teams', 'action' => 'attendance', 'team' => $team_id));
-					}
+				if ($this->RequestHandler->isAjax()) {
+					$this->action = 'attendance_change_ajax';
+					$this->set('dedicated', $this->data['dedicated']);
+				} else if (!$this->is_logged_in) {
+					$this->redirect(array('controller' => 'teams', 'action' => 'view', 'team' => $team_id));
+				} else if ($id) {
+					$this->redirect(array('action' => 'attendance', 'team' => $team_id, 'game' => $id));
 				} else {
-					$this->Session->setFlash(__('Failed to update the attendance status!', true), 'default', array('class' => 'warning'));
+					$this->redirect(array('controller' => 'teams', 'action' => 'attendance', 'team' => $team_id));
+				}
+			}
+		}
+	}
+
+	function _updateAttendanceStatus($team, $person, $date, $is_captain, $is_me, $attendance, $days_to_game, $past, $attendance_options) {
+		$status = $this->data['Person']['status'];
+		if (!array_key_exists ($status, $attendance_options)) {
+			$this->Session->setFlash(__('That is not currently a valid attendance status for this player for this game.', true), 'default', array('class' => 'info'));
+			return false;
+		}
+
+		if ($status == $attendance['status'] &&
+			// Non-JavaScript submissions might include a comment
+			(!array_key_exists('comment', $this->data['Person']) || empty($this->data['Person']['comment'])) &&
+			// Invitations might include a note from the captain
+			(!array_key_exists('note', $this->data['Person']) || empty($this->data['Person']['note'])))
+		{
+			return true;
+		}
+
+		if (!$this->Game->Attendance->saveField ('status', $status)) {
+			$this->Session->setFlash(__('Failed to update the attendance status!', true), 'default', array('class' => 'warning'));
+			return false;
+		}
+		if (array_key_exists('comment', $this->data['Person'])) {
+			$comment = $this->data['Person']['comment'];
+			if ($comment != $attendance['comment']) {
+				if (!$this->Game->Attendance->saveField ('comment', $comment)) {
+					$this->Session->setFlash(__('Failed to update the attendance comment!', true), 'default', array('class' => 'warning'));
+					return false;
 				}
 			}
 		}
 
-		$this->set(compact('game', 'date', 'team', 'opponent', 'person', 'attendance', 'attendance_options'));
+		if (!$this->RequestHandler->isAjax()) {
+			$this->Session->setFlash(sprintf (__('Attendance has been updated to %s.', true), $attendance_options[$status]), 'default', array('class' => 'success'));
+		}
+
+		// Maybe send some emails, only if the game is in the future
+		if (!$past) {
+			$position = $person['Team'][0]['TeamsPerson']['position'];
+
+			// Send email from the player to the captain if it's within the configured date range
+			if ($is_me && $team['attendance_notification'] >= $days_to_game) {
+				// Make sure the current player isn't in the list of captains to send to
+				$captains = Set::extract ("/Person[id!={$person['id']}]", $team);
+				if (!empty ($captains)) {
+					if (array_key_exists('comment', $this->data['Person']) && !empty($this->data['Person']['comment'])) {
+						$this->set('comment', $this->data['Person']['comment']);
+					}
+
+					$this->set('captains', implode (', ', Set::extract ('/Person/first_name', $captains)));
+					$this->set('code', $this->_hash(array_merge ($attendance, array('captain' => true))));
+					$this->_sendMail (array (
+							'to' => $captains,
+							'replyTo' => $person,
+							'subject' => "{$team['name']} attendance change",
+							'template' => 'attendance_captain_notification',
+							'sendAs' => 'both',
+					));
+				}
+			}
+			// Always send an email from the captain to substitute players. It will likely
+			// be an invitation to play or a response to a request or cancelling attendance
+			// if another player is available. Regardless, we need to communicate this.
+			else if ($is_captain && !in_array($position, Configure::read('playing_roster_positions'))) {
+				$captain = $this->Session->read('Zuluru.Person.full_name');
+				if (!$captain) {
+					$captain = __('A captain', true);
+				}
+				$this->set(compact('captain'));
+				$this->set('player_options',
+					$this->Game->_attendanceOptions ($team['id'], $position, $status, $past, false));
+				$this->set('code', $this->_hash ($attendance));
+				if (array_key_exists('note', $this->data['Person']) && !empty($this->data['Person']['note'])) {
+					$this->set('note', $this->data['Person']['note']);
+				}
+
+				$this->_sendMail (array (
+						'to' => $person,
+						'replyTo' => $this->Session->read('Zuluru.Person'),
+						'subject' => "{$team['name']} attendance change for game on $date",
+						'template' => 'attendance_substitute_notification',
+						'sendAs' => 'both',
+				));
+			}
+		}
+
+		return true;
+	}
+
+	function _updateAttendanceComment($team, $person, $date, $is_captain, $is_me, $attendance, $days_to_game, $past) {
+		$comment = $this->data['Person']['comment'];
+		if ($comment == $attendance['comment']) {
+			return true;
+		}
+
+		if (!$this->Game->Attendance->saveField ('comment', $comment)) {
+			$this->Session->setFlash(__('Failed to update the attendance comment!', true), 'default', array('class' => 'warning'));
+			return false;
+		}
+
+		if (!$this->RequestHandler->isAjax()) {
+			$this->Session->setFlash(sprintf (__('Attendance has been updated to %s.', true), $attendance_options[$status]), 'default', array('class' => 'success'));
+		}
+
+		// Maybe send some emails, only if the game is in the future
+		if (!$past) {
+			// Send email from the player to the captain if it's within the configured date range
+			if ($is_me && $team['attendance_notification'] >= $days_to_game) {
+				// Make sure the current player isn't in the list of captains to send to
+				$captains = Set::extract ("/Person[id!={$person['id']}]", $team);
+				if (!empty ($captains)) {
+					$this->set('captains', implode (', ', Set::extract ('/Person/first_name', $captains)));
+					$this->_sendMail (array (
+							'to' => $captains,
+							'replyTo' => $person,
+							'subject' => "{$team['name']} attendance comment",
+							'template' => 'attendance_comment_captain_notification',
+							'sendAs' => 'both',
+					));
+				}
+			}
+		}
+
+		return true;
 	}
 
 	function submit_score() {
@@ -1361,11 +1445,14 @@ class GamesController extends AppController {
 		foreach ($attendance['Person'] as $person) {
 			$regular = in_array($person['TeamsPerson']['position'], Configure::read('playing_roster_positions'));
 			$sub = (!$regular && in_array($person['TeamsPerson']['position'], Configure::read('extended_playing_roster_positions')));
+			$always = (!empty($person['Setting']) && $person['Setting'][0]['value'] != false);
 			if (!is_array($reminded) || !in_array($person['id'], $reminded)) {
 				if (($regular && $person['Attendance'][0]['status'] == ATTENDANCE_UNKNOWN) ||
-					($sub && $person['Attendance'][0]['status'] == ATTENDANCE_INVITED))
+					($sub && $person['Attendance'][0]['status'] == ATTENDANCE_INVITED) ||
+					$always)
 				{
 					$this->set(compact ('person'));
+					$this->set('status', $person['Attendance'][0]['status']);
 					$this->set('code', $this->_hash ($person['Attendance'][0]));
 
 					if ($this->_sendMail (array (

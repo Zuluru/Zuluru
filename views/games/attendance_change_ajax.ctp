@@ -4,6 +4,7 @@ $args = array(
 	'person_id' => $person['id'],
 	'position' => $person['Team'][0]['TeamsPerson']['position'],
 	'status' => $status,
+	'comment' => $comment,
 );
 if (isset ($game)) {
 	$args['game_id'] = $game['Game']['id'];
