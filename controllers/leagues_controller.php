@@ -176,16 +176,14 @@ class LeaguesController extends AppController {
 			if (!empty ($person['League'])) {
 				$this->Session->setFlash(__("{$person['Person']['full_name']} is already a coordinator of this league", true), 'default', array('class' => 'info'));
 			} else {
-				$people = Set::extract ('/Person/id', $league);
-				$people[] = $person['Person']['id'];
+				$league['Person'] = Set::extract ('/Person/id', $league);
+				$league['Person'][] = $person['Person']['id'];
 				// TODO: If we add more coordinator types, we need to save the position here
-				if ($this->League->saveAll (array(
-						'League' => array('id' => $id),
-						'Person' => $people,
-				)))
-				{
+				if ($this->League->saveAll ($league)) {
 					$this->Session->setFlash(__("Added {$person['Person']['full_name']} as coordinator", true), 'default', array('class' => 'success'));
 					$this->redirect(array('action' => 'view', 'league' => $id));
+				} else {
+					$this->Session->setFlash(__("Failed to add {$person['Person']['full_name']} as coordinator", true), 'default', array('class' => 'warning'));
 				}
 			}
 		}
