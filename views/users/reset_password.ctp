@@ -14,7 +14,7 @@ $this->Html->addCrumb (__('Reset Password', true));
 		echo $this->Form->input('user_name');
 		echo $this->Form->input('email');
 	?>
-	<p class="error-message">Only one of these is typically required.</p>
+	<p class="highlight-message">Only one of these is typically required.</p>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>

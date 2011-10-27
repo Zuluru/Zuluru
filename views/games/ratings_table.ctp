@@ -48,11 +48,11 @@ for ($h = 0; $h <= $max_score; $h++) {
 		if ($h > $a) {
 			// home win
 			$change = $league_obj->calculateRatingsChange($h, $a, $expected_home);
-			$row[] = array($change, array('title'=>"{$game['HomeTeam']['name']} wins $h to $a, takes $change rating points from {$game['AwayTeam']['name']}", 'class'=>"highlight"));
+			$row[] = array($change, array('title'=>"{$game['HomeTeam']['name']} wins $h to $a, takes $change rating points from {$game['AwayTeam']['name']}", 'class'=>"highlight-message"));
 		} else if ($h == $a) {
 			// treat as a home win
 			$change = $league_obj->calculateRatingsChange($h, $a, $expected_home);
-			$row[] = array($change, array('title'=>"Tie $h to $a, {$game['HomeTeam']['name']} takes $change rating points from {$game['AwayTeam']['name']}", 'class'=>"highlight"));
+			$row[] = array($change, array('title'=>"Tie $h to $a, {$game['HomeTeam']['name']} takes $change rating points from {$game['AwayTeam']['name']}", 'class'=>"highlight-message"));
 		} else {
 			$change = $league_obj->calculateRatingsChange($h, $a, $expected_away);
 			$row[] = array($change, array('title'=>"{$game['AwayTeam']['name']} wins $a to $h, takes $change rating points from {$game['HomeTeam']['name']}"));

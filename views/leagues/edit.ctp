@@ -122,7 +122,7 @@ if (isset ($add)) {
 	<fieldset>
  		<legend><?php __('Scoring'); ?></legend>
 	<?php
-		echo $this->Html->para('error-message', __('NOTE: If you set the questionnaire to "' . Configure::read('options.spirit_questions.none') . '" and disable numeric entry, spirit will not be tracked for this league.', true));
+		echo $this->Html->para('warning-message', __('NOTE: If you set the questionnaire to "' . Configure::read('options.spirit_questions.none') . '" and disable numeric entry, spirit will not be tracked for this league.', true));
 		echo $this->ZuluruForm->input('sotg_questions', array(
 			'options' => Configure::read('options.spirit_questions'),
 			'empty' => '---',

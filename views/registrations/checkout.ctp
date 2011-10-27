@@ -11,7 +11,7 @@ $order_id_format = Configure::read('registration.order_id_format');
 
 if (!empty($registrations)):
 	echo $this->Html->para(null, __('These are your current unpaid registrations. To remove one, click the "Unregister" button; note that this will delete all of your preferences and you may lose the spot that is currently tentatively reserved for you.', true));
-	echo $this->Html->para(null, __('<span class="highlight">Payment completes your registration and confirms your booking/purchase.</span> If you want to pay online with Visa, MasterCard or INTERAC&reg; Online, click the "Pay" button below.', true));
+	echo $this->Html->para(null, __('<span class="highlight-message">Payment completes your registration and confirms your booking/purchase.</span> If you want to pay online with Visa, MasterCard or INTERAC&reg; Online, click the "Pay" button below.', true));
 	echo $this->Html->para(null, sprintf (__('You may also %s and register for something else before paying.', true),
 		$this->Html->link(__('view the event list', true), array('controller' => 'events', 'action' => 'wizard'))
 	));

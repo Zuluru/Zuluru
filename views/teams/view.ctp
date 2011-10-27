@@ -235,9 +235,9 @@ $this->Html->addCrumb (__('View', true));
 			// Maybe add a warning
 			if ($person['can_add'] !== true && !$warning):
 				$warning = true;
-				$class = ' class="error-message"';
+				$class = ' class="warning-message"';
 				if ($i++ % 2 == 0) {
-					$class = ' class="altrow error-message"';
+					$class = ' class="altrow warning-message"';
 				}
 	?>
 	<tr<?php echo $class;?>>
@@ -280,10 +280,10 @@ $this->Html->addCrumb (__('View', true));
 		if (!empty ($conflicts)) {
 			echo $this->Html->tag('div',
 				'(' . implode (', ', $conflicts) . ')',
-				array('class' => 'error-message'));
+				array('class' => 'warning-message'));
 		}
 		?></td>
-		<td<?php if ($warning) echo ' class="error-message"';?>><?php
+		<td<?php if ($warning) echo ' class="warning-message"';?>><?php
 		echo $this->element('people/roster', array('roster' => $person['TeamsPerson'], 'league' => $team['League']));
 		if ($person['can_add'] !== true) {
 			echo ' ' . $this->ZuluruHtml->icon('help_16.png', array('title' => $person['can_add'], 'alt' => '?'));
@@ -316,7 +316,7 @@ $this->Html->addCrumb (__('View', true));
 	</table>
 
 	<?php if (($is_admin || $is_coordinator || $is_captain) && $roster_count < $roster_required && $team['League']['roster_deadline'] != '0000-00-00' && $team['League']['roster_deadline'] >= date('Y-m-d')):?>
-	<p class="error-message">This team currently has only <?php echo $roster_count ?> full-time players listed. Your team roster must have a minimum of <?php echo $roster_required ?> rostered 'regular' players by the start of your league. For playoffs, your roster must be finalized by the team roster deadline (<?php
+	<p class="warning-message">This team currently has only <?php echo $roster_count ?> full-time players listed. Your team roster must have a minimum of <?php echo $roster_required ?> rostered 'regular' players by the start of your league. For playoffs, your roster must be finalized by the team roster deadline (<?php
 	echo $this->ZuluruTime->date($team['League']['roster_deadline']); ?>), and all team members must be listed as a 'regular player'.  If an individual has not replied promptly to your request to join, we suggest that you contact them to remind them to respond.</p>
 	<?php endif; ?>
 

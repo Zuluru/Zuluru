@@ -129,6 +129,14 @@ dl .altrow
 {
 	color: red;
 }
+#zuluru .warning-message, #zuluru .highlight-message
+{
+	color: #AA0000;
+}
+#zuluru .error-message, #zuluru .warning-message, #zuluru .highlight-message
+{
+	font-weight: bold;
+}
 #zuluru p.error
 {
 	background-color: #e32;

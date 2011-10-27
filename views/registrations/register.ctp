@@ -11,7 +11,7 @@ $this->Html->addCrumb (__('Preferences', true));
 echo $this->element ('registration/notice');
 
 if ($waivered) {
-	echo $this->Html->para ('error-message', sprintf (__('You have already accepted the %s for this membership year.', true),
+	echo $this->Html->para ('highlight-message', sprintf (__('You have already accepted the %s for this membership year.', true),
 		$this->Html->link (__($event['Event']['waiver_type'], true) . ' ' . __('waiver', true),
 				array('controller' => 'people', 'action' => 'view_waiver', 'type' => $event['Event']['waiver_type'], 'year' => $waivered),
 				array('target' => 'new')

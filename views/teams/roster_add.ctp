@@ -25,7 +25,7 @@ if ($adding) {
 		__('The player will have to accept your invitation before they are considered an active member of the team.', true));
 }
 if ($can_add !== true) {
-	echo $this->Html->para('error-message', $can_add . ' ' .
+	echo $this->Html->para('warning-message', $can_add . ' ' .
 		__('This player can still be invited to join, but will not be allowed to accept the invitation or play with your team until this is resolved.', true));
 }
 

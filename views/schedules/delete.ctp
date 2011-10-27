@@ -27,7 +27,7 @@ echo $this->Html->link (__('contact all captains', true), array('controller' => 
 ?> to inform them of this.</p>
 <?php endif; ?>
 <?php if (!empty ($finalized)): ?>
-<p class="error-message">Deleting finalized games will have effects on standings <strong>which cannot be undone</strong>. Please be <strong>very sure</strong> that you want to do this before proceeding.</p>
+<p class="warning-message">Deleting finalized games will have effects on standings <strong>which cannot be undone</strong>. Please be <strong>very sure</strong> that you want to do this before proceeding.</p>
 <?php endif; ?>
 
 <div class="actions">

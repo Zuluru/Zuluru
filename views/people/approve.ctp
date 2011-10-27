@@ -61,7 +61,7 @@ foreach ($rows as $key => $data) {
 }
 
 if (!empty ($duplicates)) {
-	echo $this->Html->para('warning', __('The following users may be duplicates of this account (click to compare):', true));
+	echo $this->Html->para('warning-message', __('The following users may be duplicates of this account (click to compare):', true));
 
 	$compare = array();
 	foreach ($duplicates as $duplicate) {
@@ -85,7 +85,7 @@ if (!empty ($duplicates)) {
 			}
 			$class = "player_id_{$duplicate['Person']['id']}";
 			if (low($val) == low($user_val)) {
-				$class .= ' error-message';
+				$class .= ' warning-message';
 			}
 			$cols[$duplicate['Person']['id']][] = array($val, array('class' => $class));
 		}
@@ -94,7 +94,7 @@ if (!empty ($duplicates)) {
 
 	// TODO: Make this generic, via function in the Auth model
 	if (array_key_exists ('UserZikula', $auth) && !$auth['UserZikula']['pn_activated']) {
-		echo $this->Html->para('error-message', 'This user has not yet activated their account. Activation codes DO NOT work if the user record is merged backwards.');
+		echo $this->Html->para('warning-message', 'This user has not yet activated their account. If the user record is merged backwards, they WILL NOT be able to activate their account.');
 	}
 }
 

@@ -16,7 +16,7 @@ $this->Html->addCrumb ("{$person['Person']['first_name']} {$person['Person']['la
 			'label' => 'Enable Personal iCal Feed',
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
-			'after' => '<span class="error-message">NOTE: By enabling this, you agree to make your personal schedule in iCal format available as public information (required for Google Calendar, etc. to be able to access the data)</span>',
+			'after' => '<span class="highlight-message">NOTE: By enabling this, you agree to make your personal schedule in iCal format available as public information (required for Google Calendar, etc. to be able to access the data)</span>',
 		),
 	));
 

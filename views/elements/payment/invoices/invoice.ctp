@@ -2,8 +2,8 @@
 $reg_id_format = Configure::read('payment.reg_id_format');
 ?>
 <table border=0 width=700>
-	<tr><td colspan="4" class="center"><span class="highlight">Your Transaction has been Approved</span></td></tr>
-	<tr><td colspan="4" class="center"><span class="highlight">Print this receipt for your records</span></td></tr>
+	<tr><td colspan="4" class="center"><span class="warning-message">Your Transaction has been Approved</span></td></tr>
+	<tr><td colspan="4" class="center"><span class="warning-message">Print this receipt for your records</span></td></tr>
 	<tr><td colspan="4" bgcolor="#EEEEEE">&nbsp;</td></tr>
 	<tr><td align="center" colspan="4"><h2 class="center"><?php echo Configure::read('organization.name'); ?></h2></td></tr>
 	<tr><td align="center" colspan="4"><?php echo Configure::read('organization.address'); ?></td></tr>

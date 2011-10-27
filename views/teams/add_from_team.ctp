@@ -34,10 +34,10 @@ if (empty ($old_team['Person'])) {
 	}
 
 	if (!empty ($cannot)) {
-		echo $this->Html->para('error-message',
+		echo $this->Html->para('warning-message',
 				sprintf(__('Notice: The following players are currently INELIGIBLE to participate on this roster. This is typically because they do not have a current membership. They are not allowed to play with this team until this is corrected. Hover your mouse over the %s to see the specific reason why.', true),
 				$this->ZuluruHtml->icon('help_16.png', array('alt' => '?'))));
-		echo $this->Html->para('error-message', __('They can still be invited to join, but will not be able to accept the invitation until this is resolved.', true));
+		echo $this->Html->para('warning-message', __('They can still be invited to join, but will not be allowed to accept the invitation or play with your team until this is resolved.', true));
 		echo implode ('', $cannot);
 	}
 

@@ -37,15 +37,15 @@ $this->Html->addCrumb (__('Validate Ratings', true));
 		<td><?php echo Inflector::humanize ($game['Game']['status']); ?></td>
 		<td><?php echo $this->Html->link ($game['HomeTeam']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $game['HomeTeam']['id'])); ?></td>
 		<td><?php echo $game['Game']['home_score']; ?></td>
-		<?php $class = ($game['Game']['rating_home'] == null || $game['Game']['rating_home'] == $game['Game']['calc_rating_home'] ? '' : ' class="error-message"'); ?>
+		<?php $class = ($game['Game']['rating_home'] == null || $game['Game']['rating_home'] == $game['Game']['calc_rating_home'] ? '' : ' class="warning-message"'); ?>
 		<td<?php echo $class; ?>><?php echo $game['Game']['rating_home']; ?></td>
 		<td<?php echo $class; ?>><?php echo $game['Game']['calc_rating_home']; ?></td>
 		<td><?php echo $this->Html->link ($game['AwayTeam']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $game['AwayTeam']['id'])); ?></td>
 		<td><?php echo $game['Game']['away_score']; ?></td>
-		<?php $class = ($game['Game']['rating_away'] == null || $game['Game']['rating_away'] == $game['Game']['calc_rating_away'] ? '' : ' class="error-message"'); ?>
+		<?php $class = ($game['Game']['rating_away'] == null || $game['Game']['rating_away'] == $game['Game']['calc_rating_away'] ? '' : ' class="warning-message"'); ?>
 		<td<?php echo $class; ?>><?php echo $game['Game']['rating_away']; ?></td>
 		<td<?php echo $class; ?>><?php echo $game['Game']['calc_rating_away']; ?></td>
-		<?php $class = ($game['Game']['rating_points'] == $game['Game']['calc_rating_points'] ? '' : ' class="error-message"'); ?>
+		<?php $class = ($game['Game']['rating_points'] == $game['Game']['calc_rating_points'] ? '' : ' class="warning-message"'); ?>
 		<td<?php echo $class; ?>><?php echo $game['Game']['rating_points']; ?></td>
 		<td<?php echo $class; ?>><?php echo $game['Game']['calc_rating_points']; ?></td>
 	</tr>
@@ -64,10 +64,10 @@ $this->Html->addCrumb (__('Validate Ratings', true));
 <?php foreach ($league['Team'] as $key => $team): ?>
 	<tr>
 		<td><?php echo $this->Html->link ($team['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['id'])); ?></td>
-		<?php $class = ($team['rating'] == $team['current_rating'] ? '' : ' class="error-message"'); ?>
+		<?php $class = ($team['rating'] == $team['current_rating'] ? '' : ' class="warning-message"'); ?>
 		<td<?php echo $class; ?>><?php echo $team['rating']; ?></td>
 		<td<?php echo $class; ?>><?php echo $team['current_rating']; ?></td>
-		<?php $class = ($team['rank'] == $key + 1 ? '' : ' class="error-message"'); ?>
+		<?php $class = ($team['rank'] == $key + 1 ? '' : ' class="warning-message"'); ?>
 		<td<?php echo $class; ?>><?php echo $key + 1; ?></td>
 		<td<?php echo $class; ?>><?php echo $team['rank']; ?></td>
 	</tr>
