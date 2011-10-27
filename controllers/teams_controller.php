@@ -1004,12 +1004,9 @@ class TeamsController extends AppController {
 			'Registration' => array(
 				'Person' => array(
 					'fields' => array(
-						'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.status',
+						'Person.id', 'Person.gender', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.status',
 						'Person.home_phone', 'Person.work_phone', 'Person.work_ext', 'Person.mobile_phone',
 						'Person.publish_email', 'Person.publish_home_phone', 'Person.publish_work_phone', 'Person.publish_mobile_phone',
-					),
-					'order' => array(
-						'Person.gender DESC', 'Person.last_name', 'Person.first_name',
 					),
 					'conditions' => $conditions,
 				),
@@ -1021,6 +1018,7 @@ class TeamsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		usort ($event['Registration'], array('Person', 'comparePerson'));
 
 		// If this is a form submission, set the position to 'player' for each player
 		if (array_key_exists ('player', $this->data)) {

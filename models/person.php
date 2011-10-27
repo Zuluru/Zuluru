@@ -279,5 +279,26 @@ class Person extends User {
 				),
 		));
 	}
+
+	static function comparePerson($a, $b) {
+		if (array_key_exists('Person', $a)) {
+			$a = $a['Person'];
+			$b = $b['Person'];
+		}
+
+		if ($a['gender'] < $b['gender']) {
+			return 1;
+		} else if ($a['gender'] > $b['gender']) {
+			return -1;
+		} else if ($a['last_name'] > $b['last_name']) {
+			return 1;
+		} else if ($a['last_name'] < $b['last_name']) {
+			return -1;
+		} else if ($a['first_name'] > $b['first_name']) {
+			return 1;
+		} else {
+			return -1;
+		}
+	}
 }
 ?>
