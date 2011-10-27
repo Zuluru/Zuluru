@@ -88,7 +88,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 
 				// Teams added to playoff leagues must be in pre-existing franchises
 				if ($league['League']['schedule_type'] == 'playoff') {
-					$extra = '<span class="highlight">' . __('This MUST be the same franchise that the regular-season team belongs to, or you will NOT be able to correctly set up your roster.', true) . '</span>';
+					$extra = '<span class="warning-message">' . __('This MUST be the same franchise that the regular-season team belongs to, or you will NOT be able to correctly set up your roster.', true) . '</span>';
 				} else {
 					$franchises[-1] = __('Create a new franchise', true);
 					$extra = __('You may also choose to start a new franchise.', true);

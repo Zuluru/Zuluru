@@ -83,7 +83,7 @@ class CanRegisterComponent extends Object
 			if ($registrations[0]['payment'] == 'Paid' ) {
 				$messages[] = array('text' => __('You have already registered and paid for this event.', true), 'class' => 'open');
 			} else {
-				$messages[] = array('text' => __('You have already registered for this event, but not yet paid.', true), 'class' => 'error-message');
+				$messages[] = array('text' => __('You have already registered for this event, but not yet paid.', true), 'class' => 'warning-message');
 
 				// An unpaid registration might have been pre-empted by someone who paid.
 				if ($registrations[0]['payment'] == 'Unpaid' && $cap > 0 && $paid >= $cap ) {
@@ -122,7 +122,7 @@ class CanRegisterComponent extends Object
 		}
 
 		if ($continue && !$is_active) {
-			$messages[] = array('text' => __('You may not register for this event until your account has been approved by an administrator. This normally happens in less than one business day, and often in just a few minutes.', true), 'class' => 'error-message');
+			$messages[] = array('text' => __('You may not register for this event until your account has been approved by an administrator. This normally happens in less than one business day, and often in just a few minutes.', true), 'class' => 'warning-message');
 			$continue = false;
 		}
 
@@ -139,7 +139,7 @@ class CanRegisterComponent extends Object
 					$admin_name = Configure::read('email.admin_name');
 					$admin_addr = Configure::read('email.admin_email');
 					$messages[] = array('text' => sprintf (__('This event is already full.  You may email the %s or phone the head office to be put on a waiting list in case others drop out.', true),
-							$this->Html->link ($admin_name, "mailto:$admin_addr")), 'class' => 'error-message');
+							$this->Html->link ($admin_name, "mailto:$admin_addr")), 'class' => 'highlight-message');
 					$continue = false;
 				}
 			}
