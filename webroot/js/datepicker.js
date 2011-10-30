@@ -1,8 +1,10 @@
 $(document).ready(function() {
-	// TODO: Change these appends to put it after the final select in the div, instead
-	// of at the very end, so that it comes before any "after" text.
-	$('div.date').append('<input class="datepicker" type="hidden"/>');
-	$('div.datetime').append('<input class="datepicker" type="hidden"/>');
+	$('div.date').each(function() {
+		$(this).children('select').last().after('<input class="datepicker" type="hidden"/>');
+	});
+	$('div.datetime').each(function() {
+		$(this).children('select').last().after('<input class="datepicker" type="hidden"/>');
+	});
 	$('.datepicker').datepicker({
 		dateFormat: 'yy-mm-dd',
 		buttonImage: '/img/calendar.png',
