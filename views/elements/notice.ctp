@@ -13,13 +13,14 @@ if (!empty($notice)):
 	echo $notice['Notice']['notice'];
 ?></div>
 <?php
-	// TODO: Make all links in the Notice div do an Ajax call to mark the notice as viewed, and then hide the div
+	// Make all links in the Notice div do an Ajax call to mark the notice as viewed, and then hide the div
+	$url = $this->Html->url(array('controller' => 'notices', 'action' => 'viewed', $notice['Notice']['id']));
 	$this->Js->buffer('$("#SystemNotice a").not("#Remind").each(function() { $(this).click(function() { notice_click(false); return false; }); });');
 	$this->Js->buffer('$("#Remind").click(function() { notice_click(true); return false; });');
 	echo $this->Html->scriptBlock("
 function notice_click(remind) {
 	$('#SystemNotice').hide('slow');
-	var url = '/Zuluru/notices/viewed/{$notice['Notice']['id']}';
+	var url = '$url';
 	if (remind) { url = url + '/1'; }
 	$.ajax({
 		dataType:'html',
