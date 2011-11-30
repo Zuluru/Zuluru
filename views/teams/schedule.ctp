@@ -38,7 +38,7 @@ $display_spirit = $is_admin || $is_coordinator || $team['League']['display_sotg'
 			$classes[] = 'unpublished';
 		}
 		Game::_adjustEntryIndices ($game);
-		if (array_key_exists ($team['Team']['id'], $game['SpiritEntry'])) {
+		if (Game::_is_finalized($game) && array_key_exists ($team['Team']['id'], $game['SpiritEntry'])) {
 			$value = $game['SpiritEntry'][$team['Team']['id']]['entered_sotg'];
 		} else {
 			$value = null;
