@@ -6,12 +6,14 @@ will be added here later.
 INSTALL CAKEPHP CODE
 
 Acquire and install the CakePHP framework from http://cakephp.org/
-Zuluru is known to work with version 1.3.6 of CakePHP.
+Zuluru is known to work with version 1.3.6 of CakePHP. It will
+probably work with later 1.3 releases, but will require modifications
+to run under CakePHP 2.0 and later.
 
 From the command line, you might use something like
 $ cd /path/to/cake
 $ git init
-$ git pull git://github.com/cakephp/cakephp.git
+$ git pull git://github.com/cakephp/cakephp.git 1.3
 
 More instructions for downloading and installing various configurations
 are at http://book.cakephp.org/view/909/Installation-Preparation and
