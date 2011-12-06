@@ -49,7 +49,6 @@ echo $this->Form->create('Person', array('url' => $this->here));
 echo $this->Form->input('status', array(
 		'legend' => false,
 		'type' => 'radio',
-		'name' => 'status',
 		'options' => $attendance_options,
 		'default' => $attendance['status'],
 ));
@@ -69,14 +68,14 @@ echo $this->Form->end(__('Submit', true));
 $invited = ATTENDANCE_INVITED;
 echo $this->Html->scriptBlock("
 function statusChanged() {
-	if ($('input:radio[name=status]:checked').val() == $invited) {
+	if ($('#PersonStatus$invited').attr('checked')) {
 		$('#PersonNote').closest('div').show();
 	} else {
 		$('#PersonNote').closest('div').hide();
 	}
 }
 ");
-$this->Js->get('input:radio[name=status]')->event('click', 'statusChanged()', array('stop' => false));
+$this->Js->get('input:radio')->event('click', 'statusChanged()', array('stop' => false));
 $this->Js->buffer('statusChanged();');
 
 ?>
