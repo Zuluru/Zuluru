@@ -8,6 +8,7 @@ echo $this->element('help/topics', array(
 			'member_type' => 'MEMBER_TYPE',
 			'format_date' => 'FORMAT_DATE',
 			'team_count' => 'TEAM_COUNT',
+			'league_team_count' => 'LEAGUE_TEAM_COUNT',
 			'registered' => 'REGISTERED',
 			'compare' => 'COMPARE',
 			'and' => 'AND',
