@@ -684,6 +684,10 @@ class AppController extends Controller {
 	 *					  the component class includes both $type and $specific. Leave
 	 *					  empty to get the base component.
 	 * @param mixed $controller The controller to initialize the component with.
+	 * @param bool  $unique An indication of whether to try to used cached objects, so
+	 *					  multiple objects are not created unnecessarily.
+	 * @param mixed $config Optional configuration data to be used to initially configure
+	 *					  the object.
 	 * @return mixed An object of the specified type. This will be cached, so multiple
 	 *					  objects are not created unnecessarily.
 	 *
@@ -702,13 +706,15 @@ class AppController extends Controller {
 			App::import ('Component', $class);
 		}
 		if (!class_exists ($full_class)) {
-			echo("cannot find the class $full_class");
-			exit;
+			trigger_error("cannot find the class $full_class", E_USER_ERROR);
 		}
 
 		if ($unique) {
 			$obj = new $full_class($controller);
 			$obj->name = $full_class;
+			if ($config) {
+				$obj->configure ($config);
+			}
 			return $obj;
 		}
 
