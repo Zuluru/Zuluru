@@ -736,12 +736,16 @@ class TeamsController extends AppController {
 			$this->redirect('/');
 		}
 
+		// Find the list of holidays to avoid
+		$holiday = ClassRegistry::init('Holiday');
+		$holidays = $holiday->find('list', array('fields' => array('Holiday.date', 'Holiday.name')));
+		$this->set(compact('holidays'));
+
 		$dates = array();
 		$days = Set::extract('/League/Day/id', $team);
-		$ds = 24*60*60;
-		for ($date = strtotime ($team['League']['open']); $date <= strtotime ($team['League']['close']) + $ds - 1; $date += $ds) {
+		for ($date = strtotime ($team['League']['open']); $date <= strtotime ($team['League']['close']) + DAY - 1; $date += DAY) {
 			$day = date('w', $date) + 1;
-			if (in_array ($day, $days)) {
+			if (in_array ($day, $days) && !array_key_exists(date('Y-m-d', $date), $holidays)) {
 				$dates[] = date('Y-m-d', $date);
 			}
 		}
@@ -1931,9 +1935,9 @@ class TeamsController extends AppController {
 			$activity = array();
 
 			// Second reminder for people that have had reminders sent more than 5.5 days ago
-			$second = 5.5 * 24 * 60 * 60;
+			$second = 5.5 * DAY;
 			// Expire invites that have had reminders sent more than 7.5 days ago
-			$expire = 7.5 * 24 * 60 * 60;
+			$expire = 7.5 * DAY;
 
 			foreach ($people as $person) {
 				$conditions = array(

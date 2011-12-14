@@ -419,6 +419,7 @@ class AppController extends Controller {
 					$this->_addMenuItem ('Payment', array('controller' => 'settings', 'action' => 'payment'), 'Settings');
 				}
 			}
+			$this->_addMenuItem ('Holidays', array('controller' => 'holidays', 'action' => 'index'), 'Settings');
 
 			$this->_addMenuItem ('Statistics');
 			$this->_addMenuItem ('Player', array('controller' => 'people', 'action' => 'statistics'), 'Statistics');

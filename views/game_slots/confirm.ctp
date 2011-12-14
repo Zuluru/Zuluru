@@ -2,8 +2,6 @@
 <?php echo $this->Form->create('GameSlot', array('url' => $this->here));?>
 	<fieldset>
  		<legend><?php printf(__('Confirm %s', true), __('Game Slots', true)); ?></legend>
-		<p>Click a field name below to edit the list of game slots that will be created for that field.</p>
-		<ul>
 		<?php
 		// Some of the last form's fields need to be carried through as hidden fields
 		$hidden = $this->data;
@@ -13,12 +11,26 @@
 		echo $this->element('hidden', array('fields' => $hidden));
 
 		// Build the list of dates to re-use
-		$weeks = array();
-		$start = strtotime ($this->data['GameSlot']['game_date']);
-		for ($week = 0; $week < $this->data['GameSlot']['weeks']; ++ $week) {
-			$weeks[] = $this->ZuluruTime->date ($start + $week * 7 * 24 * 60 * 60);
+		$weeks = $skipped = array();
+		$date = strtotime ($this->data['GameSlot']['game_date']);
+		while (count($weeks) < $this->data['GameSlot']['weeks']) {
+			$key = date ('Y-m-d', $date);
+			if (!array_key_exists($key, $holidays)) {
+				$weeks[] = $this->ZuluruTime->date ($date);
+			} else {
+				$skipped[] = $this->ZuluruTime->date ($date) . ': ' . $holidays[$key];
+			}
+			$date += WEEK;
 		}
 
+		if (!empty($skipped)) {
+			echo $this->Html->para(null, __('Game slots will not be created on the following holidays:', true) . $this->Html->nestedList ($skipped));
+		}
+		?>
+
+		<p>Click a field name below to edit the list of game slots that will be created for that field.</p>
+		<ul>
+		<?php
 		foreach ($fields as $field) {
 			if (array_key_exists ($field['Field']['id'], $this->data['Field'])) {
 				echo $this->element ('game_slots/confirm', array('field' => $field['Field'], 'weeks' => $weeks));

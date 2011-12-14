@@ -23,6 +23,11 @@ class GameSlotsController extends AppController {
 
 	function add() {
 		if (!empty($this->data)) {
+			// Find the list of holidays to avoid
+			$holiday = ClassRegistry::init('Holiday');
+			$holidays = $holiday->find('list', array('fields' => array('Holiday.date', 'Holiday.name')));
+			$this->set(compact('holidays'));
+
 			if (array_key_exists ('confirm', $this->data['GameSlot'])) {
 				if (!array_key_exists ('Create', $this->data['GameSlot'])) {
 					$this->Session->setFlash(__('You must select at least one game slot!', true), 'default', array('class' => 'info'));
@@ -30,9 +35,12 @@ class GameSlotsController extends AppController {
 				} else {
 					// Build the list of dates to re-use
 					$weeks = array();
-					$start = strtotime ($this->data['GameSlot']['game_date']);
-					for ($week = 0; $week < $this->data['GameSlot']['weeks']; ++ $week) {
-						$weeks[] = date ('Y-m-d', $start + $week * 7 * 24 * 60 * 60);
+					$date = strtotime ($this->data['GameSlot']['game_date']);
+					while (count($weeks) < $this->data['GameSlot']['weeks']) {
+						if (!array_key_exists(date ('Y-m-d', $date), $holidays)) {
+							$weeks[] = date ('Y-m-d', $date);
+						}
+						$date += WEEK;
 					}
 
 					// saveAll handles hasMany relations OR multiple records, but not both,
