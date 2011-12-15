@@ -6,7 +6,8 @@
 class PaymentChaseComponent extends PaymentComponent
 {
 	function process($data) {
-		$order_num_len = strlen(sprintf(Configure::read('registration.order_id_format'), 0));
+		// Chase posts data back to us as if we're a form
+		$data = $data['form'];
 
 		// Retrieve the parameters sent from the server
 		$audit = array(

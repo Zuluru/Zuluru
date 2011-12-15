@@ -40,17 +40,31 @@ $reg_id_format = Configure::read('payment.reg_id_format');
 	<tr><td>Order ID:</td><td><?php echo $audit['order_id']; ?></td></tr>
 	<tr>
 		<td>Date / Time:</td><td><?php echo "{$audit['date']}  {$audit['time']}"; ?></td>
+		<?php if (array_key_exists('approval_code', $audit)): ?>
 		<td>Approval Code:</td><td><?php echo $audit['approval_code']; ?></td>
+		<?php else: ?>
+		<td></td><td></td>
+		<?php endif; ?>
 	</tr>
 	<tr>
 		<td nowrap>Sequence Number:</td><td><?php echo $audit['transaction_id']; ?></td>
+		<?php if (array_key_exists('iso_code', $audit)): ?>
 		<td>Response&nbsp;/&nbsp;ISO Code:</td><td nowrap><?php echo "{$audit['response_code']}/{$audit['iso_code']}"; ?></td>
+		<?php else: ?>
+		<td>Response Code:</td><td><?php echo $audit['response_code']; ?></td>
+		<?php endif; ?>
 	</tr>
 	<tr>
 		<td>Amount (CAD):</td><td>$<?php echo $audit['charge_total']; ?></td>
+		<?php if (array_key_exists('f4l4', $audit)): ?>
 		<td>Card #:</td><td><?php echo $audit['f4l4']; ?></td>
+		<?php else: ?>
+		<td></td><td></td>
+		<?php endif; ?>
 	</tr>
+	<?php if (array_key_exists('message', $audit)): ?>
 	<tr><td colspan="4" nowrap>Message: <?php echo $audit['message']; ?></td></tr>
+	<?php endif; ?>
 	<tr><td>&nbsp;</td></tr>
 
 	<?php if ($audit['transaction_name'] == 'idebit_purchase'): ?>

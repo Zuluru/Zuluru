@@ -311,6 +311,10 @@ body
 	display: inline;
 	width: auto;
 }
+#zuluru input[type=image]
+{
+	border: 0;
+}
 
 /** Notices and Errors **/
 #zuluru div.error-message

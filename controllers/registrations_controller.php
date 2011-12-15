@@ -415,7 +415,9 @@ class RegistrationsController extends AppController {
 		// Reset the array to 0-indexed keys
 		$registrations = array_values ($registrations);
 
-		$this->set(compact ('registrations', 'full', 'person'));
+		$payment_obj = $this->_getComponent ('payment', Configure::read('payment.payment_implementation'), $this);
+
+		$this->set(compact ('registrations', 'full', 'person', 'payment_obj'));
 
 		if ($op == 'payment') {
 			$this->render ('payment');
@@ -516,8 +518,8 @@ class RegistrationsController extends AppController {
 
 	function payment() {
 		$this->layout = 'bare';
-		$payment = $this->_getComponent ('payment', Configure::read('payment.payment_implementation'), $this);
-		list ($result, $audit, $registration_ids) = $payment->process ($this->params['form']);
+		$payment_obj = $this->_getComponent ('payment', Configure::read('payment.payment_implementation'), $this);
+		list ($result, $audit, $registration_ids) = $payment_obj->process ($this->params);
 		if ($result) {
 			$errors = array();
 

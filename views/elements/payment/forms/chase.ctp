@@ -28,22 +28,6 @@ if (function_exists ('mhash'))
 
 }
 
-$test_config = Configure::read('payment.test_payments');
-switch ($test_config)
-{
-	case 1:
-		$test = 'TRUE';
-		break;
-
-	case 2:
-		$test = ($is_admin ? 'TRUE' : 'FALSE');
-		break;
-
-	default:
-		$test = 'FALSE';
-		break;
-}
-
 // JavaScript for no address bar
 $this->Html->scriptBlock ('
 function open_payment_window()
@@ -71,7 +55,7 @@ function quick_hidden (&$ths, $name, $value) {
 }
 
 echo quick_hidden($this, 'x_login', $login);
-echo quick_hidden($this, 'x_test_request', $test);
+echo quick_hidden($this, 'x_test_request', $payment_obj->isTest() ? 'TRUE' : 'FALSE');
 echo quick_hidden($this, 'x_fp_sequence', $unique_order_num);
 echo quick_hidden($this, 'x_fp_timestamp', $time);
 echo quick_hidden($this, 'x_show_form', 'PAYMENT_FORM');
