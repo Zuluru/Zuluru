@@ -1,5 +1,5 @@
 <div class="gameSlots form">
-<?php echo $this->Form->create('GameSlot', array('url' => $this->here));?>
+<?php echo $this->Form->create('GameSlot', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
  		<legend><?php printf(__('Confirm %s', true), __('Game Slots', true)); ?></legend>
 		<?php

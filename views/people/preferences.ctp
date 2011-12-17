@@ -4,7 +4,7 @@ $this->Html->addCrumb ("{$person['Person']['first_name']} {$person['Person']['la
 ?>
 
 <div class="settings form">
-<?php echo $this->Form->create('People', array('url' => $this->here));?>
+<?php echo $this->Form->create('People', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
  		<legend><?php __('Preferences'); ?></legend>
 	<?php

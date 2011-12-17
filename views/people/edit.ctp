@@ -11,7 +11,7 @@ $short = Configure::read('organization.short_name');
 <p>If you have concerns about the data <?php echo $short; ?> collects, please see our <strong><a href="<?php echo Configure::read('urls.privacy_policy'); ?>" target="_new">Privacy Policy</a>.</strong></p>
 
 <div class="people form">
-<?php echo $this->Form->create('Person', array('url' => $this->here));?>
+<?php echo $this->Form->create('Person', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
  		<legend><?php __('Identity'); ?></legend>
 	<?php

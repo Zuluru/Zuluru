@@ -18,7 +18,7 @@ if ($waivered) {
 	)));
 }
 
-echo $this->Form->create('Response', array('url' => $this->here));
+echo $this->Form->create('Response', array('url' => Router::normalize($this->here)));
 
 echo $this->element ('questionnaire/input', array('questionnaire' => $event['Questionnaire']));
 ?>

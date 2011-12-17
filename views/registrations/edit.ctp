@@ -1,6 +1,6 @@
 <div class="registrations form">
 <h2><?php printf(__('Edit %s', true), __('Registration', true)); ?></h2>
-<?php echo $this->Form->create('Registration', array('url' => $this->here));?>
+<?php echo $this->Form->create('Registration', array('url' => Router::normalize($this->here)));?>
 
 	<fieldset>
  		<legend><?php __('Registration Details'); ?></legend>

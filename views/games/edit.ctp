@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('Edit', true));
 
 <div class="games form">
 <h2><?php  __('Edit Game'); ?></h2>
-<?php echo $this->Form->create('Game', array('url' => $this->here));?>
+<?php echo $this->Form->create('Game', array('url' => Router::normalize($this->here)));?>
 <?php
 	echo $this->Form->input('id');
 ?>

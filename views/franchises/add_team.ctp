@@ -14,7 +14,7 @@ $options = array();
 foreach ($teams['Team'] as $team) {
 	$options[$team['id']] = "{$team['name']} ({$team['League']['long_name']})";
 }
-echo $this->Form->create(false, array('url' => $this->here));
+echo $this->Form->create(false, array('url' => Router::normalize($this->here)));
 echo $this->Form->input ('team_id', array(
 		'label' => false,
 		'options' => $options,

@@ -10,7 +10,7 @@ if (isset ($add)) {
 ?>
 
 <div class="leagues form">
-<?php echo $this->Form->create('League', array('url' => $this->here));?>
+<?php echo $this->Form->create('League', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
  		<legend><?php __('League Information'); ?></legend>
 	<?php

@@ -11,7 +11,7 @@ $this->Html->addCrumb (__('Adjust Ratings', true));
 <p>For the rating values, a <strong>HIGHER</strong> numbered rating is <strong>BETTER</strong>, and a <strong>LOWER</strong> numbered rating is <strong>WORSE</strong>.</p>
 <p class="warning-message"><strong>WARNING:</strong> Adjusting ratings while the league is already under way is possible, but you'd better know what you are doing!!!</p>
 
-<?php echo $this->Form->create ('Team', array('url' => $this->here)); ?>
+<?php echo $this->Form->create ('Team', array('url' => Router::normalize($this->here))); ?>
 
 <table class="list">
 	<tr>

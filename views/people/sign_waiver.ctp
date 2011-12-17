@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('Sign Waiver', true));
 
 <?php
 echo $this->element ("people/waiver/$type");
-echo $this->Form->create('Person', array('url' => $this->here));
+echo $this->Form->create('Person', array('url' => Router::normalize($this->here)));
 echo $this->Html->para(null,
 	$this->Form->input('signed', array(
 			'options' => array(

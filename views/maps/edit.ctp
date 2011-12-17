@@ -29,7 +29,7 @@ full_address = "$full_address";
 
 END_OF_VARIABLES;
 
-echo $this->Form->create(false, array('url' => $this->here, 'name' => 'layout'));
+echo $this->Form->create(false, array('url' => Router::normalize($this->here), 'name' => 'layout'));
 
 foreach ($map_vars as $var) {
 	if (!empty ($field['Field'][$var])) {

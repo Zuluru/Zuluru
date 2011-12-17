@@ -11,7 +11,7 @@ $this->Html->addCrumb (__('Reschedule Day', true));
 	count($league['Game']), $this->ZuluruTime->fulldate ($date)); ?></p>
 
 <?php
-echo $this->Form->create (false, array('url' => $this->here));
+echo $this->Form->create (false, array('url' => Router::normalize($this->here)));
 
 // We have an array like 0 => timestamp, and need timestamp => readable
 $dates = array_combine(array_values($dates), array_values($dates));

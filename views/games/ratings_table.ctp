@@ -73,7 +73,7 @@ for ($h = 0; $h <= $max_score; $h++) {
 
 <p>What if the teams had different ratings?  Check it here:</p>
 <?php
-echo $this->Form->create('Game', array('url' => $this->here));
+echo $this->Form->create('Game', array('url' => Router::normalize($this->here)));
 echo $this->Form->input('rating_home', array(
 		'label' => $game['HomeTeam']['name'],
 		'size' => 5,

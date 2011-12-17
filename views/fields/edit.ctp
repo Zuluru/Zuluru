@@ -1,5 +1,5 @@
 <div class="fields form">
-<?php echo $this->Form->create('Field', array('url' => $this->here));?>
+<?php echo $this->Form->create('Field', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
  		<legend><?php printf(__('Edit %s', true), __('Field', true)); ?></legend>
 		<?php

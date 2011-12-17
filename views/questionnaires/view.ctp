@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('View', true));
 
 <div class="questionnaires view">
 <h2><?php  echo __('View Questionnaire', true) . ': ' . $questionnaire['Questionnaire']['name'];?></h2>
-<?php echo $this->Form->create (false, array('url' => $this->here)); ?>
+<?php echo $this->Form->create (false, array('url' => Router::normalize($this->here))); ?>
 	<fieldset><legend><?php __('Questionnaire Preview'); ?></legend>
 <?php echo $this->element('/questionnaire/input', array('questionnaire' => $questionnaire)); ?>
 	</fieldset>

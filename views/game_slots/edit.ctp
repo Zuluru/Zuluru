@@ -4,7 +4,7 @@ $this->Html->addCrumb (__('Edit', true));
 ?>
 
 <div class="gameSlots form">
-<?php echo $this->Form->create('GameSlot', array('url' => $this->here));?>
+<?php echo $this->Form->create('GameSlot', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
  		<legend><?php printf(__('Edit %s', true), __('Game Slot', true)); ?></legend>
 	<?php

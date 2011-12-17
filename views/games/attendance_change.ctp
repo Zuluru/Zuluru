@@ -45,7 +45,7 @@ echo $this->Html->para(null, __('Current status:', true) . ' ' .
 	$this->Html->tag('strong', __($status_descriptions[$attendance['status']], true)));
 
 echo $this->Html->para(null, __('Possible attendance options are:', true));
-echo $this->Form->create('Person', array('url' => $this->here));
+echo $this->Form->create('Person', array('url' => Router::normalize($this->here)));
 echo $this->Form->input('status', array(
 		'legend' => false,
 		'type' => 'radio',

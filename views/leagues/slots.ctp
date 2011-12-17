@@ -11,12 +11,12 @@ $this->Html->addCrumb ($league['League']['long_name']);
 
 <p>Select a date below on which to view all available gameslots:</p>
 <?php
-echo $this->Form->create(false, array('url' => $this->here));
+echo $this->Form->create(false, array('url' => Router::normalize($this->here)));
 echo $this->Form->input('date', array(
 		'label' => false,
 		'options' => $dates,
 ));
-echo $this->Js->submit(__('View', true), array('url'=> $this->here, 'update' => '#SlotResults'));
+echo $this->Js->submit(__('View', true), array('url' => Router::normalize($this->here), 'update' => '#SlotResults'));
 echo $this->Form->end();
 ?>
 

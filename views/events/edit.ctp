@@ -9,7 +9,7 @@ if (isset ($add)) {
 ?>
 
 <div class="events form">
-<?php echo $this->Form->create('Event', array('url' => $this->here));?>
+<?php echo $this->Form->create('Event', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
  		<legend><?php printf(__('Edit %s', true), __('Event', true)); ?></legend>
 	<?php

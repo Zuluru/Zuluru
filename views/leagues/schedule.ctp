@@ -8,7 +8,7 @@ $this->Html->addCrumb (__('Schedule', true));
 <h2><?php echo __('League Schedule', true) . ': ' . $league['League']['long_name'];?></h2>
 <?php
 if (!empty ($edit_date)) {
-	echo $this->Form->create ('Game', array('url' => $this->here));
+	echo $this->Form->create ('Game', array('url' => Router::normalize($this->here)));
 
 	// Put the slots into a more useful form for us
 	$slots = array();

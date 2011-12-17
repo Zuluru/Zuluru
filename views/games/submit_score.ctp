@@ -32,7 +32,7 @@ echo $opponent['name'];
 <p>If your opponent has already entered a score, it will be displayed below.  If the score you enter does not agree with this score, posting of the score will be delayed until your coordinator can confirm the correct score.</p>
 
 <?php
-echo $this->Form->create(false, array('url' => $this->here));
+echo $this->Form->create(false, array('url' => Router::normalize($this->here)));
 echo $this->Form->hidden("ScoreEntry.$team_id.defaulted", array('value' => 'no'));
 
 if (array_key_exists ($team_id, $game['ScoreEntry'])) {
