@@ -3,6 +3,15 @@
 class ZuluruHtmlHelper extends HtmlHelper {
 	var $helpers = array('Text');
 
+/**
+ * HTML that is queued for output
+ *
+ * @var array
+ * @see HtmlPlusHelper::buffer()
+ * @access private
+ */
+    var $__bufferedHtml = array();
+
 	/**
 	 * Extend the default link function by allowing for shortening link titles.
 	 */
@@ -172,6 +181,25 @@ function show_help(id, link) {
 
 		return $help;
 	}
+
+    function buffer($html) {
+        $this->__bufferedHtml[] = $html;
+    }
+
+/**
+ * Get all the buffered HTML
+ *
+ * @param boolean $clear Whether or not to clear the HTML caches (default true)
+ * @return array Array of HTMLs added to the request.
+ * @access public
+ */
+    function getBuffer($clear = true) {
+        $buffer = $this->__bufferedHtml;
+        if ($clear) {
+            $this->__bufferedHtml = array();
+        }
+        return $buffer;
+    }
 }
 
 ?>

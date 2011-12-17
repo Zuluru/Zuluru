@@ -67,6 +67,7 @@
 				echo $this->Session->flash();
 				echo $this->element('notice');
 				echo $content_for_layout;
+				echo implode("\n", $this->ZuluruHtml->getBuffer());
 			?>
 
 		</div>
