@@ -35,9 +35,13 @@ class LeagueTypeComponent extends Object
 	 * @param mixed $league League to sort (teams are in ['Team'] key)
 	 *
 	 */
-	function sort(&$league) {
+	function sort(&$league, $include_tournament = true) {
 		$this->presort ($league);
-		usort ($league['Team'], array($this, 'compareTeams'));
+		if ($include_tournament) {
+			usort ($league['Team'], array($this, 'compareTeamsTournament'));
+		} else {
+			usort ($league['Team'], array($this, 'compareTeams'));
+		}
 	}
 
 	/**
@@ -49,34 +53,45 @@ class LeagueTypeComponent extends Object
 	 */
 	function presort(&$league) {
 		if (array_key_exists ('Game', $league)) {
-			$results = array();
+			$season = $tournament = array();
 			foreach ($league['Game'] as $game) {
-				if (Game::_is_finalized($game)) {
-					// Different read methods create arrays in different formats
-					if (array_key_exists ('Game', $game)) {
-						$result = $game['Game'];
-					} else {
-						$result = $game;
-					}
+				// Different read methods create arrays in different formats
+				if (array_key_exists ('Game', $game)) {
+					$result = $game['Game'];
+				} else {
+					$result = $game;
+				}
 
-					$this->addGameResult ($results, $result['home_team'], $result['away_team'],
-							$result['round'], $result['home_score'], $result['away_score'],
-							Game::_get_spirit_entry ($game, $result['home_team']),
-							$result['status'] == 'home_default');
-					$this->addGameResult ($results, $result['away_team'], $result['home_team'],
-							$result['round'], $result['away_score'], $result['home_score'],
-							Game::_get_spirit_entry ($game, $result['away_team']),
-							$result['status'] == 'away_default');
+				if ($result['tournament']) {
+					$this->addTournamentResult ($tournament, $result['home_team'], $result['away_team'],
+						$result['round'], $result['home_score'], $result['away_score']);
+				} else {
+					if (Game::_is_finalized($game)) {
+						$this->addGameResult ($season, $result['home_team'], $result['away_team'],
+								$result['round'], $result['home_score'], $result['away_score'],
+								Game::_get_spirit_entry ($game, $result['home_team']),
+								$result['status'] == 'home_default');
+						$this->addGameResult ($season, $result['away_team'], $result['home_team'],
+								$result['round'], $result['away_score'], $result['home_score'],
+								Game::_get_spirit_entry ($game, $result['away_team']),
+								$result['status'] == 'away_default');
+					}
 				}
 			}
 
 			foreach ($league['Team'] as $key => $team) {
-				if (array_key_exists ($team['id'], $results)) {
-					$league['Team'][$key]['results'] = $results[$team['id']];
+				if (array_key_exists ($team['id'], $season)) {
+					$league['Team'][$key]['results'] = $season[$team['id']];
 				} else {
 					$league['Team'][$key]['results'] = array('W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'games' => 0,
 							'gf' => 0, 'ga' => 0, 'str' => 0, 'str_type' => '', 'spirit' => 0,
 							'rounds' => array(), 'vs' => array(), 'vspm' => array());
+				}
+
+				if (array_key_exists ($team['id'], $tournament)) {
+					$league['Team'][$key]['tournament'] = $tournament[$team['id']];
+				} else {
+					$league['Team'][$key]['tournament'] = array();
 				}
 			}
 		}
@@ -146,11 +161,68 @@ class LeagueTypeComponent extends Object
 		}
 	}
 
+	function addTournamentResult (&$results, $team, $opp, $round, $score_for, $score_against) {
+		// Make sure the team records exist in the results
+		if (! array_key_exists ($team, $results)) {
+			$results[$team] = array();
+		}
+		if (! array_key_exists ($opp, $results)) {
+			$results[$opp] = array();
+		}
+
+		// What type of result was this?
+		if ($score_for > $score_against) {
+			$results[$team][$round] = 1;
+			$results[$opp][$round] = -1;
+		} else if ($score_for < $score_against) {
+			$results[$team][$round] = -1;
+			$results[$opp][$round] = 1;
+		} else {
+			$results[$team][$round] = $results[$opp][$round] = 0;
+		}
+	}
+
 	/**
 	 * By default, we just sort by name.
 	 */
-	static function compareTeams($a, $b) {
+	function compareTeams($a, $b) {
 		return (strtolower ($a['name']) > strtolower ($b['name']));
+	}
+
+	/**
+	 * Various league types might have tournaments.
+	 */
+	function compareTeamsTournament($a, $b) {
+		if (!array_key_exists('tournament', $a) || !array_key_exists('tournament', $b)) {
+			return $this->compareTeams($a, $b);
+		}
+
+		// Go through each tournament round and compare the two teams' results in that round
+		$rounds = array_unique(array_merge(array_keys($a['tournament']), array_keys($b['tournament'])));
+		sort($rounds);
+		foreach ($rounds as $round) {
+			// If the first team had a bye in this round and the second team lost,
+			// put the first team ahead
+			if (!array_key_exists($round, $a['tournament']) && $b['tournament'][$round] < 0) {
+				return -1;
+			}
+
+			// If the second team had a bye in this round and the first team lost,
+			// put the second team ahead
+			if (!array_key_exists($round, $a['tournament']) && $b['tournament'][$round] < 0) {
+				return 1;
+			}
+
+			// If both teams played in this round and had different results,
+			// use that result to determine who is ahead
+			if (array_key_exists($round, $a['tournament']) && array_key_exists($round, $b['tournament']) &&
+				$a['tournament'][$round] != $b['tournament'][$round])
+			{
+				return ($a['tournament'][$round] > $b['tournament'][$round] ? -1 : 1);
+			}
+		}
+
+		return $this->compareTeams($a, $b);
 	}
 
 	/**

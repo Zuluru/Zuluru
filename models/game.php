@@ -170,6 +170,86 @@ class Game extends AppModel {
 		),
 	);
 
+	static function _readDependencies (&$record) {
+		if (array_key_exists('home_dependency_type', $record) && !empty($record['home_dependency_type'])) {
+			Game::_readDependency ($record, 'home');
+			Game::_readDependency ($record, 'away');
+		}
+	}
+
+	static function _readDependency (&$record, $type) {
+		$ths = ClassRegistry::init ('Game');
+		$id = $record["{$type}_dependency_id"];
+		switch ($record["{$type}_dependency_type"]) {
+			case 'game_winner':
+				$game = $ths->field('name', array('id' => $id));
+				$record["{$type}_dependency"] = sprintf (__('Winner of game %s', true), $game);
+				break;
+
+			case 'game_loser':
+				$game = $ths->field('name', array('id' => $id));
+				$record["{$type}_dependency"] = sprintf (__('Loser of game %s', true), $game);
+				break;
+
+			case 'seed':
+				$record["{$type}_dependency"] = sprintf (__('%s seed', true), ordinal($id));
+				break;
+		}
+	}
+
+	/**
+	 * We know that when we create tournament schedules, we create the most
+	 * important games first. So, when generating the bracket, we start with
+	 * the lowest-id game in the last round and work backwards, finding all
+	 * games that it depends on. As we place games in the bracket, we remove
+	 * them from the list. Repeat until there are no games left in that round,
+	 * and repeat that whole process until there are no rounds left.
+	 * This assumes that $games is indexed by game id.
+	 */
+	static function _extractBracket(&$games) {
+		$bracket = array();
+
+		// Find the "most important" remaining game to start the bracket
+		// TODO: Add some kind of "bracket sort" field and use that instead
+		$name = min(array_unique(Set::extract('/Game/name', $games)));
+		$final = array_shift(Set::extract("/Game[name=$name]/..", $games));
+		$bracket[$final['Game']['round']] = array($final);
+		unset ($games[$final['Game']['id']]);
+		$round = $final['Game']['round'];
+
+		// Work backwards through previous rounds
+		while ($round > 1) {
+			$round_games = array();
+
+			foreach ($bracket[$round] as $game) {
+				if (!empty($game) && in_array($game['Game']['home_dependency_type'], array('game_winner', 'game_loser'))) {
+					if (array_key_exists($game['Game']['home_dependency_id'], $games)) {
+						$round_games[] = $games[$game['Game']['home_dependency_id']];
+						unset ($games[$game['Game']['home_dependency_id']]);
+					}
+				} else {
+					$round_games[] = array();
+				}
+
+				if (!empty($game) && in_array($game['Game']['away_dependency_type'], array('game_winner', 'game_loser'))) {
+					if (array_key_exists($game['Game']['away_dependency_id'], $games)) {
+						$round_games[] = $games[$game['Game']['away_dependency_id']];
+						unset ($games[$game['Game']['away_dependency_id']]);
+					}
+				} else {
+					$round_games[] = array();
+				}
+			}
+
+			if (empty($round_games)) {
+				break;
+			}
+			$bracket[--$round] = $round_games;
+		}
+
+		return $bracket;
+	}
+
 	function _validateForScheduleEdit() {
 		foreach (array('home_score', 'away_score', 'status') as $field) {
 			unset ($this->validate[$field]);
@@ -224,26 +304,8 @@ class Game extends AppModel {
 	 *
 	 */
 	static function _adjustEntryIndices(&$game) {
-		if (empty ($game)) {
-			return;
-		}
-		if (Set::numeric (array_keys ($game))) {
-			foreach (array_keys ($game) as $i) {
-				Game::_adjustEntryIndices($game[$i]);
-			}
-			return;
-		}
-
 		foreach (array('ScoreEntry' => 'team_id', 'SpiritEntry' => 'team_id', 'ScoreReminderEmail' => 'secondary_id') as $model => $field) {
-			if (array_key_exists ($model, $game)) {
-				$keys = array_keys ($game[$model]);
-				$new = array();
-				foreach ($keys as $key) {
-					$team = $game[$model][$key][$field];
-					$new[$team] = $game[$model][$key];
-				}
-				$game[$model] = $new;
-			}
+			self::_reindexInner($game, $model, $field);
 		}
 	}
 

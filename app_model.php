@@ -76,6 +76,50 @@ class AppModel extends Model {
 		return $results;
 	}
 
+	/**
+	 * Adjust the indices of the provided array, so that the
+	 * array is indexed by a specified id instead of from zero.
+	 *
+	 */
+	static function _reindexInner(&$data, $model, $field) {
+		if (empty ($data)) {
+			return;
+		}
+		if (Set::numeric (array_keys ($data))) {
+			foreach (array_keys ($data) as $i) {
+				self::_reindexInner($data[$i], $model, $field);
+			}
+			return;
+		}
+		if (array_key_exists ($model, $data)) {
+			$new = array();
+			foreach (array_keys ($data[$model]) as $key) {
+				$id = $data[$model][$key][$field];
+				$new[$id] = $data[$model][$key];
+			}
+			$data[$model] = $new;
+		}
+	}
+
+	static function _reindexOuter(&$data, $model, $field) {
+		if (empty ($data)) {
+			return;
+		}
+		if (!Set::numeric (array_keys ($data))) {
+			return;
+		}
+		$new = array();
+		foreach (array_keys ($data) as $key) {
+			if (array_key_exists($model, $data[$key])) {
+				$id = $data[$key][$model][$field];
+			} else {
+				$id = $data[$key][$field];
+			}
+			$new[$id] = $data[$key];
+		}
+		$data = $new;
+	}
+
 	//
 	// Validation helpers
 	//

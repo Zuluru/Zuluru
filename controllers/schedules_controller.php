@@ -42,7 +42,12 @@ class SchedulesController extends AppController {
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$this->league_obj = $this->_getComponent ('LeagueType', $this->league['League']['schedule_type'], $this);
+		if ($this->_arg('playoff')) {
+			$this->league_obj = $this->_getComponent ('LeagueType', 'tournament', $this);
+			$this->set('playoff', true);
+		} else {
+			$this->league_obj = $this->_getComponent ('LeagueType', $this->league['League']['schedule_type'], $this);
+		}
 
 		$this->set(array('id' => $id, 'league' => $this->league));
 		$this->_addLeagueMenuItems ($this->league);
@@ -57,8 +62,10 @@ class SchedulesController extends AppController {
 			$this->redirect(array('controller' => 'leagues', 'action' => 'view', 'league' => $id));
 		}
 
-		// Must currently have even # of teams for scheduling unless the exclude_teams flag is set
-		if ($this->_numTeams() % 2 && !$this->league['League']['exclude_teams']) {
+		// Non-tournament leagues must currently have even # of teams for scheduling unless the exclude_teams flag is set
+		if ($this->_numTeams() % 2 && !$this->league['League']['exclude_teams'] &&
+			$this->league['League']['schedule_type'] != 'tournament' && !$this->_arg('playoff'))
+		{
 			// TODO: Embed a link to "edit your league" into this, in a way that doesn't break i18n
 			$this->Session->setFlash(__('Must currently have an even number of teams in your league. ' . 
 				'If you need a bye, please create a team named Bye and add it to your league. ' .
@@ -98,12 +105,68 @@ class SchedulesController extends AppController {
 			if (!array_key_exists ($this->data['Game']['type'], $types)) {
 				$this->Session->setFlash(__('Select the type of game or games to add.', true), 'default', array('class' => 'info'));
 			} else {
-				return $this->_date($id);
+				return $this->_overflow_type($id);
 			}
 		}
 
 		$this->set(compact('types'));
 		$this->render('type');
+	}
+
+	function _overflow_type($id) {
+		// Large tournaments might have an additional bracket to sort out,
+		// but small ones won't.
+		if (substr($this->data['Game']['type'], 0, 12) != 'brackets_of_') {
+			return $this->_date($id);
+		}
+
+		$size = substr($this->data['Game']['type'], 12);
+		list ($x, $r) = $this->league_obj->splitBrackets($this->_numTeams(), $size);
+		if (!$r) {
+			return $this->_names($id);
+		}
+		$types = $this->league_obj->scheduleOptions($r);
+
+		// Validate any data posted to us
+		if ($this->data['Game']['step'] == 'overflow_type') {
+			if (!array_key_exists ($this->data['Game']['overflow_type'], $types)) {
+				$this->Session->setFlash(__('Select the type of game or games to add.', true), 'default', array('class' => 'info'));
+			} else {
+				return $this->_names($id);
+			}
+		}
+
+		$this->set(compact('types'));
+		$this->render('overflow_type');
+	}
+
+	function _names($id) {
+		$size = substr($this->data['Game']['type'], 12);
+		list ($x, $r) = $this->league_obj->splitBrackets($this->_numTeams(), $size);
+		if ($x == 1 && $r == 0) {
+			return $this->_date($id);
+		}
+
+		// Validate any data posted to us
+		if ($this->data['Game']['step'] == 'names') {
+			$pools = $x + ($r > 0);
+			$proceed = true;
+			for ($i = 1; $i <= $pools; ++ $i) {
+				if (empty($this->data['Game']['name'][$i])) {
+					$proceed = false;
+					$this->Session->setFlash(__('Pool names cannot be empty.', true), 'default', array('class' => 'info'));
+				}
+			}
+			if ($proceed) {
+				return $this->_date($id);
+			}
+		}
+
+		if ($r > 0) {
+			$types = $this->league_obj->scheduleOptions($r);
+		}
+		$this->set(compact('size', 'x', 'r', 'types'));
+		$this->render('names');
 	}
 
 	function _date($id) {
@@ -130,7 +193,7 @@ class SchedulesController extends AppController {
 			}
 		}
 
-		$num_fields = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams());
+		$num_fields = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams(), $this->data['Game']['overflow_type']);
 		$desc = $this->league_obj->scheduleDescription ($this->data['Game']['type'], $this->_numTeams());
 
 		$this->set(compact('dates', 'num_fields', 'desc'));
@@ -162,8 +225,13 @@ class SchedulesController extends AppController {
 		if (array_key_exists ('ExcludeTeams', $this->data)) {
 			$exclude_teams = array_keys($this->data['ExcludeTeams']);
 		}
+		if (array_key_exists ('name', $this->data['Game'])) {
+			$names = $this->data['Game']['name'];
+		} else {
+			$names = null;
+		}
 		if ($this->league_obj->createSchedule ($id, $exclude_teams, $this->data['Game']['type'],
-				$this->data['Game']['start_date'], $this->data['Game']['publish']))
+				$this->data['Game']['start_date'], $this->data['Game']['publish'], $this->data['Game']['overflow_type'], $names))
 		{
 			$this->Lock->unlock ();
 			$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $id));
@@ -179,6 +247,9 @@ class SchedulesController extends AppController {
 	}
 
 	function _canSchedule($id) {
+		$this->League->contain();
+		$league = $this->League->read(null, $id);
+
 		$this->League->Game->contain ('GameSlot');
 		$games = $this->League->Game->find ('count', array(
 				'conditions' => array(
@@ -187,14 +258,16 @@ class SchedulesController extends AppController {
 				),
 		));
 
-		if ($this->_numTeams() <= $games * 2 && !$this->data['Game']['double_header']) {
+		if ($this->_numTeams() <= $games * 2 && !$this->data['Game']['double_header'] &&
+			$league['League']['schedule_type'] != 'tournament' && !$this->_arg('playoff'))
+		{
 			$this->Session->setFlash(__('This league is already fully scheduled on the selected date.', true), 'default', array('class' => 'info'));
 			return false;
 		}
 
 		// The requirements may come back from this as an array for each schedule block.
 		// For our check here, we want them as a single array, ordered by round number.
-		$num_fields = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams());
+		$num_fields = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams(), $this->data['Game']['overflow_type']);
 		if (is_array(current($num_fields))) {
 			$temp = array();
 			while (!empty($num_fields)) {

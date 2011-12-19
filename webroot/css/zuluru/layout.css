@@ -439,3 +439,167 @@ div.help_dialog p
 {
 	margin: 1em 0;
 }
+
+/* Tournament bracket styling. */
+#zuluru div.bracket
+{
+	width: 100%;
+	clear: left;
+}
+
+#zuluru .rounds1
+{
+	height: 150px;
+}
+
+#zuluru .rounds2
+{
+	height: 300px;
+}
+
+#zuluru .rounds3
+{
+	height: 600px;
+}
+
+#zuluru .rounds4
+{
+	height: 1200px;
+}
+
+#zuluru .rounds5
+{
+	height: 600px;
+}
+
+#zuluru .round
+{
+	float: left;
+	width: 25%;
+}
+
+#zuluru .rounds4 .round
+{
+	width: 20%;
+}
+
+#zuluru .rounds5 .round
+{
+	width: 16.6%;
+}
+
+#zuluru .round0
+{
+	height: 50%;
+	border-bottom: 1px solid black;
+	position: relative;
+}
+
+#zuluru .round0 .winner
+{
+	position: absolute;
+	bottom: 0;
+	left: 5px;
+}
+
+#zuluru .round1
+{
+	height: 75%;
+}
+
+#zuluru .round1 .game
+{
+	height: 100%;
+}
+
+#zuluru .round2
+{
+	height: 87.5%;
+}
+
+#zuluru .round2 .game
+{
+	height: 50%;
+}
+
+#zuluru .round3
+{
+	height: 93.75%;
+}
+
+#zuluru .round3 .game
+{
+	height: 25%;
+}
+
+#zuluru .round4
+{
+	height: 96.875%;
+}
+
+#zuluru .round4 .game
+{
+	height: 12.5%;
+}
+
+#zuluru .round5
+{
+	height: 98.4375%;
+}
+
+#zuluru .round5 .game
+{
+	height: 6.25%;
+}
+
+#zuluru .round .home
+{
+	height: 40%;
+	position: relative;
+}
+
+#zuluru .round .details
+{
+	height: 30%;
+	position: relative;
+	border-top: 1px solid black;
+	border-right: 1px solid black;
+}
+
+#zuluru .round .away
+{
+	height: 30%;
+	position: relative;
+	border-bottom: 1px solid black;
+	border-right: 1px solid black;
+}
+
+#zuluru .round .team
+{
+	width: 80%;
+	position: absolute;
+	bottom: 0;
+	left: 5px;
+}
+
+#zuluru .round .score
+{
+	position: absolute;
+	bottom: 0;
+	right: 5px;
+}
+
+#zuluru .round .details .name
+{
+	position: absolute;
+	bottom: 0;
+	left: 25px;
+}
+
+#zuluru .round .details .date
+{
+	position: absolute;
+	bottom: 0;
+	right: 5px;
+	font-size: 80%;
+}

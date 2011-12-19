@@ -6,7 +6,9 @@ $this->Html->addCrumb (__('Standings', true));
 
 <div class="leagues standings">
 <h2><?php  echo __('League Standings', true) . ': ' . $league['League']['long_name'];?></h2>
-<?php if (!empty($league['Team'])):?>
+<?php
+$season = Set::extract('/Game[tournament=0]/..', $league['Game']);
+if (!empty($league['Team']) && !empty($season)):?>
 	<table class="list">
 	<?php
 	echo $this->element("league/standings/{$league_obj->render_element}/heading",
@@ -52,6 +54,15 @@ $this->Html->addCrumb (__('Standings', true));
 	}
 	?>
 	</table>
+<?php endif; ?>
+<?php
+$tournament = Set::extract('/Game[tournament=1]/..', $league['Game']);
+if (!empty($tournament)):
+?>
+<h3><?php __('Playoff brackets'); ?></h3>
+<?php
+echo $this->element('league/standings/tournament/bracket', array('games' => $tournament, 'teams' => $league['Team']));
+?>
 <?php endif; ?>
 </div>
 <div class="actions">

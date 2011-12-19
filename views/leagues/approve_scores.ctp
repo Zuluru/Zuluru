@@ -19,30 +19,43 @@ $this->Html->addCrumb (__('Approve Scores', true));
 	<tbody>
 <?php
 foreach ($games as $game):
+	Game::_readDependencies($game['Game']);
 
-if (array_key_exists ($game['Game']['home_team'], $game['ScoreEntry'])) {
-	$home = $game['ScoreEntry'][$game['Game']['home_team']];
-} else {
-	$home = array(
-		'score_for' => __('not entered', true),
-		'score_against' => __('not entered', true),
-	);
-}
+	if (array_key_exists ($game['Game']['home_team'], $game['ScoreEntry'])) {
+		$home = $game['ScoreEntry'][$game['Game']['home_team']];
+	} else {
+		$home = array(
+			'score_for' => __('not entered', true),
+			'score_against' => __('not entered', true),
+		);
+	}
 
-if (array_key_exists ($game['Game']['away_team'], $game['ScoreEntry'])) {
-	$away = $game['ScoreEntry'][$game['Game']['away_team']];
-} else {
-	$away = array(
-		'score_for' => __('not entered', true),
-		'score_against' => __('not entered', true),
-	);
-}
+	if (array_key_exists ($game['Game']['away_team'], $game['ScoreEntry'])) {
+		$away = $game['ScoreEntry'][$game['Game']['away_team']];
+	} else {
+		$away = array(
+			'score_for' => __('not entered', true),
+			'score_against' => __('not entered', true),
+		);
+	}
 ?>
 		<tr>
 			<td rowspan="3"><?php echo $this->ZuluruTime->day($game['GameSlot']['game_date']) . ', ' .
 					$this->ZuluruTime->time($game['GameSlot']['game_start']); ?></td>
-			<td colspan="2"><?php echo $game['HomeTeam']['name']; ?></td>
-			<td colspan="2"><?php echo $game['AwayTeam']['name']; ?></td>
+			<td colspan="2"><?php
+			if ($game['Game']['home_team'] === null) {
+				echo $game['Game']['home_dependency'];
+			} else {
+				echo $game['HomeTeam']['name'];
+			}
+			?></td>
+			<td colspan="2"><?php
+			if ($game['Game']['away_team'] === null) {
+				echo $game['Game']['away_dependency'];
+			} else {
+				echo $game['AwayTeam']['name'];
+			}
+			?></td>
 			<td><?php echo $this->Html->link(__('approve score', true),
 					array('controller' => 'games', 'action' => 'edit', 'game' => $game['Game']['id'])); ?></td>
 		</tr>
@@ -52,9 +65,18 @@ if (array_key_exists ($game['Game']['away_team'], $game['ScoreEntry'])) {
 			<td><?php __('Home score'); ?>:</td>
 			<td><?php echo $away['score_against']; ?></td>
 			<td><?php
+			// Tournament games may not have teams filled in
+			if (!array_key_exists('Person', $game['HomeTeam'])) {
+				$game['HomeTeam']['Person'] = array();
+			}
+			if (!array_key_exists('Person', $game['AwayTeam'])) {
+				$game['AwayTeam']['Person'] = array();
+			}
 			$captains = Set::extract ('/email_formatted', array_merge ($game['HomeTeam']['Person'], $game['AwayTeam']['Person']));
-			echo $this->Html->link(__('email captains', true),
-					'mailto:' . implode (';', $captains));
+			if (!empty($captains)) {
+				echo $this->Html->link(__('email captains', true),
+						'mailto:' . implode (';', $captains));
+			}
 			?></td>
 		</tr>
 		<tr>

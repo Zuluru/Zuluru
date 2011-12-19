@@ -69,30 +69,12 @@ class EventTypeTeamComponent extends EventTypeComponent
 				$league = $this->_controller->Team->League->read(null, $event['Event']['team_league']);
 				$conditions = array('Franchise.person_id' => $user_id);
 
-				// Possibly narrow the list of possible franchises to those that are represented
-				// in the configured leagues
-				if ($league['League']['schedule_type'] == 'playoff') {
-					if (!empty($league['League']['season_leagues_array'])) {
-						$this->_controller->Team->contain('Franchise');
-						$teams = $this->_controller->Team->find('all', array(
-								'conditions' => array('Team.league_id' => $league['League']['season_leagues_array']),
-						));
-						$franchise_ids = Set::extract ('/Franchise/id', $teams);
-						$conditions['Franchise.id'] = $franchise_ids;
-					}
-				}
-
 				$franchises = $this->_controller->Team->Franchise->find('list', array(
 						'conditions' => $conditions,
 				));
 
-				// Teams added to playoff leagues must be in pre-existing franchises
-				if ($league['League']['schedule_type'] == 'playoff') {
-					$extra = '<span class="warning-message">' . __('This MUST be the same franchise that the regular-season team belongs to, or you will NOT be able to correctly set up your roster.', true) . '</span>';
-				} else {
-					$franchises[-1] = __('Create a new franchise', true);
-					$extra = __('You may also choose to start a new franchise.', true);
-				}
+				$franchises[-1] = __('Create a new franchise', true);
+				$extra = __('You may also choose to start a new franchise.', true);
 
 				$fields[] = array(
 					'id' => FRANCHISE_ID,

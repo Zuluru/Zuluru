@@ -38,6 +38,7 @@ $display_spirit = $is_admin || $is_coordinator || $team['League']['display_sotg'
 			$classes[] = 'unpublished';
 		}
 		Game::_adjustEntryIndices ($game);
+		Game::_readDependencies($game['Game']);
 		if (Game::_is_finalized($game) && array_key_exists ($team['Team']['id'], $game['SpiritEntry'])) {
 			$value = $game['SpiritEntry'][$team['Team']['id']]['entered_sotg'];
 		} else {
@@ -55,9 +56,17 @@ $display_spirit = $is_admin || $is_coordinator || $team['League']['display_sotg'
 					array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id']), array('title' => "{$game['GameSlot']['Field']['name']} {$game['GameSlot']['Field']['num']}")); ?></td>
 			<td><?php
 			if ($team['Team']['id'] == $game['Game']['home_team']) {
-				echo $this->element('team/block', array('team' => $game['AwayTeam']));
+				if ($game['Game']['away_team'] === null) {
+					echo $game['Game']['away_dependency'];
+				} else {
+					echo $this->element('team/block', array('team' => $game['AwayTeam']));
+				}
 			} else {
-				echo $this->element('team/block', array('team' => $game['HomeTeam']));
+				if ($game['Game']['home_team'] === null) {
+					echo $game['Game']['home_dependency'];
+				} else {
+					echo $this->element('team/block', array('team' => $game['HomeTeam']));
+				}
 			}
 			?></td>
 			<td class="actions"><?php echo $this->ZuluruGame->displayScore ($game, $team['Team']['id']); ?></td>

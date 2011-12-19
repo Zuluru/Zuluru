@@ -222,7 +222,7 @@ dl .altrow
 {
 	background-color: #cfffcf !important;
 }
-#zuluru tr.unpublished td
+#zuluru tr.unpublished td, #zuluru div.unpublished
 {
 	background-color: yellow;
 }
@@ -278,4 +278,15 @@ dl .altrow
 	float: right;
 	border: 0;
 	margin: -4px -4px 0 0;
+}
+
+/* Tournament bracket styling. */
+#zuluru .round .winner a
+{
+	color: green;
+}
+
+#zuluru .round .loser a
+{
+	color: red;
 }

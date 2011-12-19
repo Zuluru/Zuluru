@@ -29,6 +29,7 @@ class LeaguesController extends AppController {
 				'spirit',
 				'ratings',
 				'validate_ratings',
+				'initialize_dependencies',
 		)))
 		{
 			// If a league id is specified, check if we're a coordinator of that league
@@ -90,6 +91,24 @@ class LeaguesController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+
+		// Find all games played by teams that are currently in this league,
+		// or tournament games for this league
+		$teams = Set::extract ('/Team/id', $league);
+		$this->League->Game->contain (array('GameSlot', 'SpiritEntry'));
+		$league['Game'] = $this->League->Game->find('all', array(
+				'conditions' => array(
+					'OR' => array(
+						'Game.home_team' => $teams,
+						'Game.away_team' => $teams,
+						'AND' => array(
+							'Game.league_id' => $id,
+							'Game.tournament' => true,
+						),
+					),
+				),
+		));
+
 		$league_obj = $this->_getComponent ('LeagueType', $league['League']['schedule_type'], $this);
 		$league_obj->sort($league);
 
@@ -623,14 +642,19 @@ class LeaguesController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 
-		// Find all games played by teams that are currently in this league
+		// Find all games played by teams that are currently in this league,
+		// or tournament games for this league
 		$teams = Set::extract ('/Team/id', $league);
 		$this->League->Game->contain (array('GameSlot', 'SpiritEntry'));
 		$league['Game'] = $this->League->Game->find('all', array(
 				'conditions' => array(
 					'OR' => array(
-						'home_team' => $teams,
-						'away_team' => $teams,
+						'Game.home_team' => $teams,
+						'Game.away_team' => $teams,
+						'AND' => array(
+							'Game.league_id' => $id,
+							'Game.tournament' => true,
+						),
 					),
 				),
 		));
@@ -642,10 +666,10 @@ class LeaguesController extends AppController {
 
 		// Sort games by date, time and field
 		usort ($league['Game'], array ('League', 'compareDateAndField'));
-		$this->League->Game->_adjustEntryIndices($league['Game']);
-		$league_obj = $this->_getComponent ('LeagueType', $league['League']['schedule_type'], $this);
-		$league_obj->sort($league);
+		Game::_adjustEntryIndices($league['Game']);
 
+		$league_obj = $this->_getComponent ('LeagueType', $league['League']['schedule_type'], $this);
+		$league_obj->sort($league, false);
 		$spirit_obj = $this->_getComponent ('Spirit', $league['League']['sotg_questions'], $this);
 
 		// If we're asking for "team" standings, only show the 5 teams above and 5 teams below this team.
@@ -696,7 +720,8 @@ class LeaguesController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 
-		// Find all games played by teams that are currently in this league
+		// Find all games played by teams that are currently in this league,
+		// or tournament games for this league
 		$teams = Set::extract ('/Team/id', $league);
 		$this->League->Game->contain (array(
 				'HomeTeam',
@@ -706,8 +731,12 @@ class LeaguesController extends AppController {
 		$league['Game'] = $this->League->Game->find('all', array(
 				'conditions' => array(
 					'OR' => array(
-						'home_team' => $teams,
-						'away_team' => $teams,
+						'Game.home_team' => $teams,
+						'Game.away_team' => $teams,
+						'AND' => array(
+							'Game.league_id' => $id,
+							'Game.tournament' => true,
+						),
 					),
 				),
 		));
@@ -718,7 +747,7 @@ class LeaguesController extends AppController {
 
 		// Sort games by date, time and field
 		usort ($league['Game'], array ('League', 'compareDateAndField'));
-		$this->League->Game->_adjustEntryIndices($league['Game']);
+		Game::_adjustEntryIndices($league['Game']);
 		$league_obj = $this->_getComponent ('LeagueType', $league['League']['schedule_type'], $this);
 		$league_obj->sort($league);
 
@@ -1071,13 +1100,85 @@ class LeaguesController extends AppController {
 			$this->Session->setFlash(__('There are currently no games to approve in this league.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
-		$this->League->Game->_adjustEntryIndices($games);
+		Game::_adjustEntryIndices($games);
 
 		$this->set(compact ('league', 'games'));
 		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.LeagueIDs')));
 
 		// TODO: Add this type of links everywhere. Maybe do it in beforeRender?
 		$this->_addLeagueMenuItems ($this->League->data);
+	}
+
+	function initialize_dependencies() {
+		$id = $this->_arg('league');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+
+		$this->League->contain (array(
+			'Team' => array(
+				'Franchise',
+			),
+			// We may need all of the games, as some league types use game results
+			// to determine sort order.
+			'Game',
+		));
+		$league = $this->League->read(null, $id);
+		if ($league === false) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+
+		$count = $this->League->Game->find('count', array('conditions' => array(
+				'Game.league_id' => $id,
+				'Game.tournament' => true,
+				'Game.approved_by' => null,
+				'OR' => array(
+					'Game.home_dependency_type' => 'seed',
+					'Game.away_dependency_type' => 'seed',
+				),
+		)));
+		if ($count == 0) {
+			$this->Session->setFlash(__('There are currently no dependencies to initialize in this league.', true), 'default', array('class' => 'warning'));
+			$this->redirect(array('action' => 'schedule', 'league' => $id));
+		}
+
+		$league_obj = $this->_getComponent ('LeagueType', $league['League']['schedule_type'], $this);
+		$league_obj->sort($league, false);
+		$reset = $this->_arg('reset');
+
+		// Wrap the whole thing in a transaction, for safety.
+		$transaction = new DatabaseTransaction($this->League);
+
+		// Go through all games, updating seed dependencies
+		foreach ($league['Game'] as $game) {
+			$this->League->Game->id = $game['id'];
+			foreach (array('home', 'away') as $type) {
+				if ($game["{$type}_dependency_type"] == 'seed') {
+					if ($reset) {
+						if (!$this->League->Game->saveField("{$type}_team", null)) {
+							$this->Session->setFlash(sprintf(__('Failed to %s game dependency', true), __('reset', true)), 'default', array('class' => 'warning'));
+							$this->redirect(array('action' => 'schedule', 'league' => $id));
+						}
+					} else {
+						$seed = $game["{$type}_dependency_id"];
+						if ($seed > count($league['Team'])) {
+							$this->Session->setFlash(__('Not enough teams in the league to fulfill all scheduled seeds', true), 'default', array('class' => 'warning'));
+							$this->redirect(array('action' => 'schedule', 'league' => $id));
+						}
+						if (!$this->League->Game->saveField("{$type}_team", $league['Team'][$seed - 1]['id'])) {
+							$this->Session->setFlash(sprintf(__('Failed to %s game dependency', true), __('update', true)), 'default', array('class' => 'warning'));
+							$this->redirect(array('action' => 'schedule', 'league' => $id));
+						}
+					}
+				}
+			}
+		}
+		$this->Session->setFlash(sprintf(__('Seed dependencies have been %s.', true), __($reset ? 'reset' : 'resolved', true)),
+				'default', array('class' => 'success'));
+		$transaction->commit();
+		$this->redirect(array('action' => 'schedule', 'league' => $id));
 	}
 
 	/**

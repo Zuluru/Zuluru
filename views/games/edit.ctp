@@ -3,6 +3,9 @@ $this->Html->addCrumb (__('Games', true));
 $this->Html->addCrumb (__('Game', true) . ' ' . $game['Game']['id']);
 $this->Html->addCrumb (__('Edit', true));
 ?>
+<?php
+$preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'] === null);
+?>
 
 <div class="games form">
 <h2><?php  __('Edit Game'); ?></h2>
@@ -19,24 +22,41 @@ $this->Html->addCrumb (__('Edit', true));
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Home Team'); ?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php
-		$rating = $game['Game']['rating_home'];
-		if ($rating === null) {
-			$rating = $game['HomeTeam']['rating'];
+		if ($game['Game']['home_team'] === null) {
+			echo $game['Game']['home_dependency'];
+			$game['HomeTeam']['Person'] = array();
+		} else {
+			$rating = $game['Game']['rating_home'];
+			if ($rating === null) {
+				$rating = $game['HomeTeam']['rating'];
+			}
+			echo $this->element('team/block', array('team' => $game['HomeTeam']));
+			if (array_key_exists ('home_dependency', $game['Game'])) {
+				echo " ({$game['Game']['home_dependency']})";
+			}
+			echo ' (' . __('rated', true) . ": $rating)";
 		}
-		echo $this->Html->link($game['HomeTeam']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $game['HomeTeam']['id'])) .
-				' (' . __('rated', true) . ": $rating)";
 		?>
 
 	</dd>
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Away Team'); ?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php
-		$rating = $game['Game']['rating_away'];
-		if ($rating === null) {
-			$rating = $game['AwayTeam']['rating'];
+		if ($game['Game']['away_team'] === null) {
+			echo $game['Game']['away_dependency'];
+			$game['AwayTeam']['Person'] = array();
+		} else {
+			$rating = $game['Game']['rating_away'];
+			if ($rating === null) {
+				$rating = $game['AwayTeam']['rating'];
+			}
+			echo $this->element('team/block', array('team' => $game['AwayTeam']));
+			if (array_key_exists ('away_dependency', $game['Game'])) {
+				echo " ({$game['Game']['away_dependency']})";
+			}
+			echo ' (' . __('rated', true) . ": $rating)";
 		}
-		echo $this->Html->link($game['AwayTeam']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $game['AwayTeam']['id'])) .
-				' (' . __('rated', true) . ": $rating)"; ?>
+		?>
 
 	</dd>
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Date and Time');?></dt>
@@ -73,14 +93,16 @@ $this->Html->addCrumb (__('Edit', true));
 	</dd>
 	<?php endif; ?>
 
+	<?php
+	$captains = array_merge ($game['HomeTeam']['Person'], $game['AwayTeam']['Person']);
+	if (!empty ($captains)):
+	?>
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Captain Emails'); ?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-		<?php
-		$captains = array_merge ($captains['HomeTeam']['Person'], $captains['AwayTeam']['Person']);
-		echo $this->Html->link(__('Email all captains', true), 'mailto:' . implode (';', Set::extract ('/email_formatted', $captains)));
-		?>
+		<?php echo $this->Html->link(__('Email all captains', true), 'mailto:' . implode (';', Set::extract ('/email_formatted', $captains))); ?>
 
 	</dd>
+	<?php endif; ?>
 </dl>
 
 <fieldset class="wide_labels">
@@ -179,6 +201,7 @@ $this->Html->addCrumb (__('Edit', true));
 
 	<?php endif; ?>
 
+	<?php if (!$preliminary): ?>
 	<dl>
 		<dt><?php echo $this->Text->truncate ($game['HomeTeam']['name'], 28); ?></dt>
 		<dd>
@@ -191,6 +214,7 @@ $this->Html->addCrumb (__('Edit', true));
 
 		</dd>
 	</dl>
+	<?php endif; ?>
 </fieldset>
 
 <?php

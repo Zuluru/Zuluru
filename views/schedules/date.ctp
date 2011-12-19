@@ -9,7 +9,7 @@ $this->Html->addCrumb (__('Select Date', true));
 <?php echo $this->element('schedule/exclude'); ?>
 
 <?php
-echo $this->Form->create ('Game', array('url' => array('controller' => 'schedules', 'action' => 'add', 'league' => $id)));
+echo $this->Form->create ('Game', array('url' => Router::normalize($this->here)));
 $this->data['Game']['step'] = 'date';
 echo $this->element('hidden', array('fields' => $this->data));
 ?>

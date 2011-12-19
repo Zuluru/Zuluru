@@ -36,6 +36,7 @@ class AllController extends AppController {
 				),
 				'fields' => array(
 					'Game.id', 'Game.home_team', 'Game.home_score', 'Game.away_team', 'Game.away_score', 'Game.status', 'Game.league_id',
+					'Game.home_dependency_type', 'Game.home_dependency_id', 'Game.away_dependency_type', 'Game.away_dependency_id',
 					'GameSlot.game_date', 'GameSlot.game_start', 'GameSlot.game_end',
 					'HomeTeam.id', 'HomeTeam.name',
 					'AwayTeam.id', 'AwayTeam.name',

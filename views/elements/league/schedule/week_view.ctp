@@ -13,13 +13,28 @@ foreach ($league['Game'] as $game) {
 		$finalized &= Game::_is_finalized($game);
 	}
 }
+$tournament_games = Set::extract ("/Game[tournament=1]/GameSlot[game_date=$date]", $league);
+$is_tournament = !empty($tournament_games);
+$home_seed_games = Set::extract ("/Game[home_dependency_type=seed]/GameSlot[game_date=$date]", $league);
+$away_seed_games = Set::extract ("/Game[away_dependency_type=seed]/GameSlot[game_date=$date]", $league);
+$has_seed_games = !empty($home_seed_games) || !empty($away_seed_games);
 ?>
 
 <tr>
-	<th colspan="2"><a name="<?php echo $date; ?>"><?php echo $this->ZuluruTime->fulldate($date); ?></a></th>
+	<th colspan="3"><a name="<?php echo $date; ?>"><?php echo $this->ZuluruTime->fulldate($date); ?></a></th>
 	<th colspan="3" class="actions splash_action"><?php
 	if (!$finalized && ($is_admin || $is_coordinator)):
 	?>
+		<?php
+		if ($has_seed_games) {
+			echo $this->ZuluruHtml->iconLink('initialize_24.png',
+				array('action' => 'initialize_dependencies', 'league' => $league['League']['id']),
+				array('alt' => __('Initialize', true), 'title' => __('Initialize schedule dependencies', true)));
+			echo $this->ZuluruHtml->iconLink('reset_24.png',
+				array('action' => 'initialize_dependencies', 'league' => $league['League']['id'], 'reset' => true),
+				array('alt' => __('Reset', true), 'title' => __('Reset schedule dependencies', true)));
+		}
+		?>
 		<?php echo $this->ZuluruHtml->iconLink('field_24.png',
 				array('action' => 'slots', 'league' => $league['League']['id'], 'date' => $date),
 				array('alt' => __('Fields', true), 'title' => __('Available Fields', true))); ?>
@@ -50,6 +65,7 @@ foreach ($league['Game'] as $game) {
 	?></th>
 </tr>
 <tr>
+	<th><?php if ($is_tournament): ?><?php __('Game'); ?><?php endif; ?></th>
 	<th><?php __('Time'); ?></th>
 	<th><?php __('Field'); ?></th>
 	<th><?php __('Home'); ?></th>
@@ -65,9 +81,11 @@ foreach ($league['Game'] as $game):
 	if ($date != $game['GameSlot']['game_date']) {
 		continue;
 	}
+	Game::_readDependencies($game);
 ?>
 
 <tr<?php if (!$game['published']) echo ' class="unpublished"'; ?>>
+	<td><?php if ($is_tournament): ?><?php echo $game['name']; ?><?php endif; ?></td>
 	<td><?php
 	$time = $this->ZuluruTime->time($game['GameSlot']['game_start']) . '-' .
 			$this->ZuluruTime->time($game['GameSlot']['display_game_end']);
@@ -78,14 +96,22 @@ foreach ($league['Game'] as $game):
 			array('title' => "{$game['GameSlot']['Field']['name']} {$game['GameSlot']['Field']['num']}")); ?></td>
 	<td><?php
 	if (empty ($game['HomeTeam'])) {
-		__('Unassigned');
+		if (array_key_exists ('home_dependency', $game)) {
+			echo $game['home_dependency'];
+		} else {
+			__('Unassigned');
+		}
 	} else {
 		echo $this->element('team/block', array('team' => $game['HomeTeam'], 'options' => array('max_length' => 16)));
 	}
 	?></td>
 	<td><?php
 	if (empty ($game['AwayTeam'])) {
-		__('Unassigned');
+		if (array_key_exists ('away_dependency', $game)) {
+			echo $game['away_dependency'];
+		} else {
+			__('Unassigned');
+		}
 	} else {
 		echo $this->element('team/block', array('team' => $game['AwayTeam'], 'options' => array('max_length' => 16)));
 	}

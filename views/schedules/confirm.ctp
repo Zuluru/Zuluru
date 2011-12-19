@@ -8,14 +8,22 @@ $this->Html->addCrumb (__('Confirm Selections', true));
 <div class="schedules add">
 <p>The following information will be used to create your games:</p>
 <h3>What:</h3>
-<p><?php echo $desc; ?></p>
+<p><?php
+echo $desc;
+if (array_key_exists('name', $this->data['Game'])) {
+	printf(__(' (pool names are %s)', true), implode(', ', $this->data['Game']['name']));
+}
+?></p>
 <h3>Start date:</h3>
 <p><?php echo $this->ZuluruTime->fulldate($start_date); ?></p>
 
 <?php echo $this->element('schedule/exclude'); ?>
 
+<h3>Publication:</h3>
+<p>Games will <?php echo ($this->data['Game']['publish'] ? '' : 'NOT '); ?>be published.</p>
+
 <?php
-echo $this->Form->create ('Game', array('url' => array('controller' => 'schedules', 'action' => 'add', 'league' => $id)));
+echo $this->Form->create ('Game', array('url' => Router::normalize($this->here)));
 $this->data['Game']['step'] = 'finalize';
 echo $this->element('hidden', array('fields' => $this->data));
 ?>

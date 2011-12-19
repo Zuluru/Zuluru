@@ -16,7 +16,7 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 	 * 6: +/-
 	 * 7: Finally, check losses.  This ensures that teams with no record appear above teams who have losses.
 	 */
-	static function compareTeams($a, $b) {
+	function compareTeams($a, $b) {
 		if (array_key_exists ('results', $a))
 		{
 			if ($a['results']['pts'] < $b['results']['pts'])
@@ -93,10 +93,6 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 			'halfroundstandings' => "half-tier round-robin ($num_teams teams, " . ((($num_teams / 2 ) - 1) * ($num_teams / 2)) . " games over " .($num_teams/2 - 1) . " weeks).  2 pools (top, bottom) divided by team standings.",
 			'halfroundrating' => "half-tier round-robin ($num_teams teams, " . ((($num_teams / 2 ) - 1) * ($num_teams / 2)) . " games over " .($num_teams/2 - 1) . " weeks).  2 pools (top/bottom) divided by rating.",
 			'halfroundmix' => "half-tier round-robin ($num_teams teams, " . ((($num_teams / 2 ) - 1) * ($num_teams / 2)) . " games over " .($num_teams/2 - 1) . " weeks).  2 even (interleaved) pools divided by team standings.",
-			/* TODO:
-			'qplayoff' => 'playoff ladder with quarter, semi and final games, and a consolation round',
-			'splayoff' => 'playoff ladder with semi and final games, and a consolation round',
-			*/
 		);
 		if($num_teams % 4) {
 			// Can't do a half-round without an even number of teams in

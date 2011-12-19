@@ -98,6 +98,8 @@ class GamesController extends AppController {
 			$this->redirect('/');
 		}
 		$this->Game->_adjustEntryIndices($game);
+		$this->Game->_readDependencies($game['Game']);
+
 		$this->set('game', $game);
 		$this->set('spirit_obj', $this->_getComponent ('Spirit', $this->Game->data['League']['sotg_questions'], $this));
 		$this->set('league_obj', $this->_getComponent ('LeagueType', $this->Game->data['League']['schedule_type'], $this));
@@ -185,6 +187,7 @@ class GamesController extends AppController {
 		));
 		$game = $this->Game->read(null, $id);
 		$this->Game->_adjustEntryIndices($game);
+		$this->Game->_readDependencies($game['Game']);
 
 		if (!$this->is_admin && !in_array ($game['League']['id'], $this->Session->read('Zuluru.LeagueIDs'))) {
 			$this->Session->setFlash(__('You do not have permission to edit that game.', true), 'default', array('class' => 'info'));
@@ -267,6 +270,7 @@ class GamesController extends AppController {
 			if ($this->Game->Allstar->deleteAll(array('game_id' => $id))) {
 				if ($this->Game->saveAll($this->data, array('validate' => 'first'))) {
 					$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('game', true)), 'default', array('class' => 'success'));
+					$this->_updateDependencies ($game, $this->data['Game']['home_score'] > $this->data['Game']['away_score']);
 
 					// Delete score entries
 					$this->Game->ScoreEntry->deleteAll(array('game_id' => $id));
@@ -1118,7 +1122,39 @@ class GamesController extends AppController {
 		// Delete score entries
 		$this->Game->ScoreEntry->deleteAll(array('game_id' => $game['Game']['id']));
 
+		$this->_updateDependencies ($game, $data['Game']['home_score'] > $data['Game']['away_score']);
+
 		return true;
+	}
+
+	function _updateDependencies($game, $home_win) {
+		if ($home_win) {
+			$winner = $game['HomeTeam']['id'];
+			$loser = $game['AwayTeam']['id'];
+		} else {
+			$winner = $game['AwayTeam']['id'];
+			$loser = $game['HomeTeam']['id'];
+		}
+
+		// Look for games with this as a game dependency
+		foreach (array('home', 'away') as $type) {
+			$games = $this->Game->find ('all', array(
+					'conditions' => array(
+						"{$type}_dependency_type LIKE" => 'game_%',
+						"{$type}_dependency_id" => $game['Game']['id'],
+					),
+					'contain' => array(),
+			));
+			foreach ($games as $dependency) {
+				$this->Game->id = $dependency['Game']['id'];
+				if ($dependency['Game']["{$type}_dependency_type"] == 'game_winner') {
+					$this->Game->saveField("{$type}_team", $winner);
+				}
+				if ($dependency['Game']["{$type}_dependency_type"] == 'game_loser') {
+					$this->Game->saveField("{$type}_team", $loser);
+				}
+			}
+		}
 	}
 
 	function _adjustScoreAndRatings($game, &$data) {

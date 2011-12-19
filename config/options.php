@@ -208,6 +208,7 @@ $config['options'] = array(
 		'roundrobin' => 'Round Robin',
 		'ratings_ladder' => 'Ratings Ladder',
 		'ratings_wager_ladder' => 'Ratings Wager Ladder',
+		'tournament' => 'Tournament',
 	),
 
 	// List of available spirit questionnaires

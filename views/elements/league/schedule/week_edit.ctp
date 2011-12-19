@@ -8,10 +8,12 @@ if (count ($published) != 1 || $published[0] == 0) {
 
 $teams = Set::combine ($league['Team'], '{n}.id', '{n}.name');
 natcasesort ($teams);
+$tournament_games = Set::extract ("/Game[tournament=1]/GameSlot[game_date=$date]", $league);
+$is_tournament = !empty($tournament_games);
 ?>
 
 <tr>
-	<th colspan="3"><a name="<?php echo $date; ?>"><?php echo $this->ZuluruTime->fulldate($date); ?></a></th>
+	<th colspan="4"><a name="<?php echo $date; ?>"><?php echo $this->ZuluruTime->fulldate($date); ?></a></th>
 	<th colspan="2" class="actions splash_action">
 	<?php echo $this->ZuluruHtml->iconLink('field_24.png',
 			array('action' => 'slots', 'league' => $league['League']['id'], 'date' => $date),
@@ -19,6 +21,7 @@ natcasesort ($teams);
 	</th>
 </tr>
 <tr>
+	<th><?php if ($is_tournament): ?><?php __('Game'); ?><?php endif; ?></th>
 	<th colspan="2"><?php __('Time/Field'); ?></th>
 	<th><?php __('Home'); ?></th>
 	<th><?php __('Away'); ?></th>
@@ -30,6 +33,7 @@ foreach ($league['Game'] as $game):
 	if ($date != $game['GameSlot']['game_date']) {
 		continue;
 	}
+	Game::_readDependencies($game);
 
 	if (empty ($this->data)) {
 		$data = $game;
@@ -39,6 +43,9 @@ foreach ($league['Game'] as $game):
 ?>
 
 <tr<?php if (!$game['published']) echo ' class="unpublished"'; ?>>
+	<td><?php if ($is_tournament): ?><?php
+	echo $data['name'];
+	?><?php endif; ?></td>
 	<td colspan="2"><?php
 	echo $this->Form->hidden ("Game.{$game['id']}.id", array('value' => $game['id']));
 	echo $this->Form->hidden ("Game.{$game['id']}.GameSlot.game_id", array('value' => $game['id']));
@@ -51,22 +58,30 @@ foreach ($league['Game'] as $game):
 	));
 	?></td>
 	<td><?php
-	echo $this->Form->input ("Game.{$game['id']}.home_team", array(
-			'div' => false,
-			'label' => false,
-			'options' => $teams,
-			'empty' => '---',
-			'selected' => $data['home_team'],
-	));
+	if ($is_tournament) {
+		echo $game['home_dependency'];
+	} else {
+		echo $this->Form->input ("Game.{$game['id']}.home_team", array(
+				'div' => false,
+				'label' => false,
+				'options' => $teams,
+				'empty' => '---',
+				'selected' => $data['home_team'],
+		));
+	}
 	?></td>
 	<td><?php
-	echo $this->Form->input ("Game.{$game['id']}.away_team", array(
-			'div' => false,
-			'label' => false,
-			'options' => $teams,
-			'empty' => '---',
-			'selected' => $data['away_team'],
-	));
+	if ($is_tournament) {
+		echo $game['away_dependency'];
+	} else {
+		echo $this->Form->input ("Game.{$game['id']}.away_team", array(
+				'div' => false,
+				'label' => false,
+				'options' => $teams,
+				'empty' => '---',
+				'selected' => $data['away_team'],
+		));
+	}
 	?></td>
 	<td></td>
 </tr>
@@ -76,17 +91,19 @@ endforeach;
 ?>
 
 <tr>
-	<td colspan="3"><?php
+	<td colspan="4"><?php
 	echo $this->Form->input ('publish', array(
 			'label' => __('Set as published for player viewing?', true),
 			'type' => 'checkbox',
 			'checked' => $published,
 	));
-	echo $this->Form->input ('double_header', array(
-			'label' => __('Allow double-headers?', true),
-			'type' => 'checkbox',
-			'checked' => false,
-	));
+	if (!$is_tournament) {
+		echo $this->Form->input ('double_header', array(
+				'label' => __('Allow double-headers?', true),
+				'type' => 'checkbox',
+				'checked' => false,
+		));
+	}
 	?></td>
 	<td class="actions splash_action">
 		<?php echo $this->Form->hidden ('edit_date', array('value' => $date)); ?>

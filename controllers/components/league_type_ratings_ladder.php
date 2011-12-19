@@ -25,7 +25,7 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 	 * 4: +/-
 	 * 5: Goals for
 	 */
-	static function compareTeams($a, $b) {
+	function compareTeams($a, $b) {
 		if ($a['rating'] < $b['rating'])
 			return 1;
 		if ($a['rating'] > $b['rating'])

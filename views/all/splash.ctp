@@ -145,13 +145,22 @@ foreach ($games as $game):
 			echo $this->Html->link($time, array('controller' => 'games', 'action' => 'view', 'game' => $game['Game']['id']));
 		?></td>
 		<td class="splash_item"><?php
-			echo $this->element('team/block', array('team' => $game['HomeTeam'], 'options' => array('max_length' => 16))) .
-				' (' . __('home', true) . ') ' .
-				__('vs.', true) . ' ' .
-				$this->element('team/block', array('team' => $game['AwayTeam'], 'options' => array('max_length' => 16))) .
-				' (' . __('away', true) . ') ' .
-				__('at', true) . ' ' .
-				$this->Html->link("{$game['GameSlot']['Field']['code']} {$game['GameSlot']['Field']['num']}",
+			Game::_readDependencies($game['Game']);
+			if ($game['Game']['home_team'] === null) {
+				echo $game['Game']['home_dependency'];
+			} else {
+				echo $this->element('team/block', array('team' => $game['HomeTeam'], 'options' => array('max_length' => 16))) .
+					' (' . __('home', true) . ')';
+			}
+			__(' vs. ');
+			if ($game['Game']['away_team'] === null) {
+				echo $game['Game']['away_dependency'];
+			} else {
+				echo $this->element('team/block', array('team' => $game['AwayTeam'], 'options' => array('max_length' => 16))) .
+					' (' . __('away', true) . ')';
+			}
+			__(' at ');
+			echo $this->Html->link("{$game['GameSlot']['Field']['code']} {$game['GameSlot']['Field']['num']}",
 					array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id']),
 					array('title' => "{$game['GameSlot']['Field']['name']} {$game['GameSlot']['Field']['num']}"));
 		?></td>

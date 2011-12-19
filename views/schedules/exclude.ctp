@@ -9,7 +9,7 @@ $this->Html->addCrumb (__('Select Exclusions', true));
 <p>The 'exclude teams' option is set for this league. <?php echo $this->ZuluruHtml->help(array('action' => 'leagues', 'edit', 'exclude_teams')); ?></p>
 <p>Please select the teams you wish to <b>EXCLUDE</b> from scheduling. You must ensure that you leave an even number of teams.</p>
 <?php
-echo $this->Form->create ('Game', array('url' => array('controller' => 'schedules', 'action' => 'add', 'league' => $id)));
+echo $this->Form->create ('Game', array('url' => Router::normalize($this->here)));
 echo $this->Form->hidden('step', array('value' => 'exclude'));
 
 foreach ($league['Team'] as $team) {
