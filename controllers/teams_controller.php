@@ -977,6 +977,14 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 
+		// Read the event
+		$this->Team->Person->Registration->Event->recursive = -1;
+		$event = $this->Team->Person->Registration->Event->read(null, $this->data['event']);
+		if ($event === false) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+
 		// Read the current team roster, just need the ids
 		$this->Team->contain (array (
 			'Person' => array(
@@ -995,33 +1003,60 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->_limitOverride($id);
+		$current = Set::extract('/Person/id', $team);
+
+		// Find "similar" leagues
+		$this->Team->League->contain(array(
+				'Day' => array(
+					'conditions' => array('Day.id' => Set::extract('/League/Day/id', $team)),
+				),
+		));
+		$leagues = $this->Team->League->find('all', array(
+				'conditions' => array(
+					'League.year' => $team['League']['year'],
+					'League.season' => $team['League']['season'],
+				),
+		));
+		foreach ($leagues as $key => $league) {
+			if (empty($league['Day'])) {
+				unset($leagues[$key]);
+			}
+		}
+
+		if (!empty($leagues)) {
+			$this->Team->contain(array(
+					'Person' => array(
+						'fields' => array(
+							'Person.id',
+						),
+					),
+			));
+			$teams = $this->Team->find('all', array('conditions' => array('Team.league_id' => Set::extract('/League/id', $leagues))));
+			$current = array_merge ($current, Set::extract('/Person/id', $teams));
+		}
 
 		// Only include people that aren't yet on the new roster
-		$current = Set::extract('/Person/id', $team);
-		if (count ($current) == 1) {
-			$conditions = array('Person.id !=' => array_shift ($current));
-		} else {
-			$conditions = array('Person.id NOT' => $current);
-		}
+		// or the roster of a team in a similar league
+		$conditions = array(
+			'Registration.event_id' => $this->data['event'],
+			'Registration.payment' => 'Paid',
+			'NOT' => array('Person.id' => $current),
+		);
+
 		// Read the list of registrations
-		$this->Team->Person->Registration->Event->contain (array (
-			'Registration' => array(
-				'Person' => array(
-					'fields' => array(
-						'Person.id', 'Person.gender', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.status',
-						'Person.home_phone', 'Person.work_phone', 'Person.work_ext', 'Person.mobile_phone',
-						'Person.publish_email', 'Person.publish_home_phone', 'Person.publish_work_phone', 'Person.publish_mobile_phone',
-					),
-					'conditions' => $conditions,
+		$this->Team->Person->Registration->contain (array (
+			'Person' => array(
+				'fields' => array(
+					'Person.id', 'Person.gender', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.status',
+					'Person.home_phone', 'Person.work_phone', 'Person.work_ext', 'Person.mobile_phone',
+					'Person.publish_email', 'Person.publish_home_phone', 'Person.publish_work_phone', 'Person.publish_mobile_phone',
 				),
-				'conditions' => array('Payment' => 'Paid'),
+				'conditions' => $conditions,
 			),
 		));
-		$event = $this->Team->Person->Registration->Event->read(null, $this->data['event']);
-		if ($event === false) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
-		}
+		$event['Registration'] = $this->Team->Person->Registration->find('all', array(
+				'conditions' => $conditions,
+		));
 		usort ($event['Registration'], array('Person', 'comparePerson'));
 
 		// If this is a form submission, set the position to 'player' for each player
