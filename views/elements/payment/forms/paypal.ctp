@@ -13,7 +13,7 @@ $fields = array(
 		'CANCELURL' => $this->Html->url(array('controller' => 'registrations', 'action' => 'checkout'), true),
 		'REQCONFIRMSHIPPING' => 0,
 		'NOSHIPPING' => 1,
-		'EMAIL' => 'admin_1323921752_per@zuluru.org', //$person['Person']['email'],
+		'EMAIL' => $person['Person']['email'],
 		'PAYMENTREQUEST_0_PAYMENTACTION' => 'Sale',
 		'PAYMENTREQUEST_0_SHIPTONAME' => "{$person['Person']['first_name']} {$person['Person']['last_name']}",
 		'PAYMENTREQUEST_0_SHIPTOSTREET' => $person['Person']['addr_street'],
