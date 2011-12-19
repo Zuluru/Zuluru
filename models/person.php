@@ -290,11 +290,11 @@ class Person extends User {
 			return 1;
 		} else if ($a['gender'] > $b['gender']) {
 			return -1;
-		} else if ($a['last_name'] > $b['last_name']) {
+		} else if (low($a['last_name']) > low($b['last_name'])) {
 			return 1;
-		} else if ($a['last_name'] < $b['last_name']) {
+		} else if (low($a['last_name']) < low($b['last_name'])) {
 			return -1;
-		} else if ($a['first_name'] > $b['first_name']) {
+		} else if (low($a['first_name']) > low($b['first_name'])) {
 			return 1;
 		} else {
 			return -1;
