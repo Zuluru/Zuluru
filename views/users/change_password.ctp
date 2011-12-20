@@ -13,7 +13,7 @@ $this->Html->addCrumb (__('Change Password', true));
 		if (!$is_admin || $is_me)
 			echo $this->Form->input('passold', array('type' => 'password', 'label' => 'Existing Password', 'value' => ''));
 		echo $this->Form->input('passwd', array('type' => 'password', 'label' => 'New Password'));
-		echo $this->Form->input('confirm_passwd', array('type' => 'password', 'label' => 'Conform Password'));
+		echo $this->Form->input('confirm_passwd', array('type' => 'password', 'label' => 'Confirm Password'));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>

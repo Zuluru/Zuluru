@@ -133,7 +133,7 @@ class AppModel extends Model {
 		$value = array_values($check);
 		$value = $value[0];
 		if (Configure::read ('security.salted_hash')) {
-			$compare = Security::hash($value);
+			$compare = Security::hash($value, null, true);
 		} else {
 			$compare = Security::hash($value, null, '');
 		}
