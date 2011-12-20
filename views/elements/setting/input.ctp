@@ -51,6 +51,16 @@ if (!array_key_exists ('type', $options)) {
 if ($options['type'] == 'radio') {
 	$options['legend'] = false;
 }
+
+$help_file = VIEWS . 'elements' . DS . 'help' . DS . 'settings' . DS . $category . DS . $name . '.ctp';
+if (file_exists($help_file)) {
+	$help = ' ' . $this->ZuluruHtml->help(array('action' => 'settings', $category, $name));
+	if (array_key_exists ('after', $options)) {
+		$options['after'] = $options['after'] . $help;
+	} else {
+		$options['after'] = $help;
+	}
+}
 if (array_key_exists ('after', $options)) {
 	$options['after'] = $this->Html->para(null, __($options['after'], true));
 }
