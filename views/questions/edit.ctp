@@ -16,6 +16,7 @@ $this->Html->addCrumb (__('Edit', true));
 		echo $this->ZuluruForm->input('question', array(
 			'cols' => 60,
 			'after' => $this->Html->para (null, __('The full text of the question, to be shown to users.', true)),
+			'class' => 'mceAdvanced',
 		));
 		echo $this->ZuluruForm->input('type', array(
 			'options' => Configure::read('options.question_types'),
@@ -80,3 +81,4 @@ echo $this->Html->scriptBlock("
 	}
 ");
 ?>
+<?php if (Configure::read('feature.tiny_mce')) $this->TinyMce->editor('advanced'); ?>

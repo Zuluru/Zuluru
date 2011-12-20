@@ -28,14 +28,14 @@
 					'empty' => '---',
 			));
 			echo $this->ZuluruForm->input('region_id');
-			echo $this->ZuluruForm->input('driving_directions', array('cols' => 70));
-			echo $this->ZuluruForm->input('parking_details', array('cols' => 70));
-			echo $this->ZuluruForm->input('transit_directions', array('cols' => 70));
-			echo $this->ZuluruForm->input('biking_directions', array('cols' => 70));
-			echo $this->ZuluruForm->input('washrooms', array('cols' => 70));
-			echo $this->ZuluruForm->input('public_instructions', array('cols' => 70));
-			echo $this->ZuluruForm->input('site_instructions', array('cols' => 70));
-			echo $this->ZuluruForm->input('sponsor', array('cols' => 70));
+			echo $this->ZuluruForm->input('driving_directions', array('cols' => 70, 'class' => 'mceSimple'));
+			echo $this->ZuluruForm->input('parking_details', array('cols' => 70, 'class' => 'mceSimple'));
+			echo $this->ZuluruForm->input('transit_directions', array('cols' => 70, 'class' => 'mceSimple'));
+			echo $this->ZuluruForm->input('biking_directions', array('cols' => 70, 'class' => 'mceSimple'));
+			echo $this->ZuluruForm->input('washrooms', array('cols' => 70, 'class' => 'mceSimple'));
+			echo $this->ZuluruForm->input('public_instructions', array('cols' => 70, 'class' => 'mceSimple'));
+			echo $this->ZuluruForm->input('site_instructions', array('cols' => 70, 'class' => 'mceSimple'));
+			echo $this->ZuluruForm->input('sponsor', array('cols' => 70, 'class' => 'mceAdvanced'));
 			echo $this->ZuluruForm->input('location_url');
 			echo $this->ZuluruForm->input('layout_url');
 		}
@@ -51,3 +51,9 @@
 		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Layout', true)), array('controller' => 'maps', 'action' => 'edit', 'field' => $this->data['Field']['id']));?></li>
 	</ul>
 </div>
+<?php
+if (Configure::read('feature.tiny_mce')) {
+	$this->TinyMce->editor('simple');
+	$this->TinyMce->editor('advanced');
+}
+?>

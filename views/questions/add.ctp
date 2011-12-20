@@ -10,6 +10,7 @@
 		echo $this->Form->input('question', array(
 			'cols' => 60,
 			'after' => $this->Html->para (null, __('The full text of the question, to be shown to users.', true)),
+			'class' => 'mceAdvanced',
 		));
 		echo $this->Form->input('type', array(
 			'options' => Configure::read('options.question_types'),
@@ -28,3 +29,4 @@
 		<li><?php echo $this->Html->link(sprintf(__('List %s', true), __('Questions', true)), array('action' => 'index'));?></li>
 	</ul>
 </div>
+<?php if (Configure::read('feature.tiny_mce')) $this->TinyMce->editor('advanced'); ?>

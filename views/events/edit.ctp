@@ -20,11 +20,11 @@ if (isset ($add)) {
 			'size' => 70,
 			'after' => $this->Html->para (null, __('Full name of this registration event.', true)),
 		));
-		// TODO: Add JS HTML editor here
 		echo $this->Form->input('description', array(
 			'cols' => 70,
 			'rows' => 5,
 			'after' => $this->Html->para (null, __('Complete description of the event, HTML is allowed.', true)),
+			'class' => 'mceAdvanced',
 		));
 		echo $this->ZuluruForm->input('event_type_id', array(
 			'empty' => '---',
@@ -97,4 +97,5 @@ if (isset ($add)) {
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
 
-<?php echo $this->ZuluruHtml->script ('datepicker', array('inline' => false));
+<?php echo $this->ZuluruHtml->script ('datepicker', array('inline' => false)); ?>
+<?php if (Configure::read('feature.tiny_mce')) $this->TinyMce->editor('advanced'); ?>

@@ -86,6 +86,16 @@ $this->Html->addCrumb (__('Feature', true));
 			'after' => 'If enabled, emails will be sent to players invited to join rosters, and captains who have players request to join their teams. It is recommended to use either this or Force Roster Request Responses, not both.',
 		),
 	));
+	echo $this->element ('setting/input', array(
+		'category' => 'feature',
+		'name' => 'tiny_mce',
+		'options' => array(
+			'type' => 'radio',
+			'label' => 'Use TinyMCE WYSIWYG editor',
+			'options' => Configure::read('options.enable'),
+			'after' => 'To use this, you need to separately install the TinyMCE plugin.',
+		),
+	));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>

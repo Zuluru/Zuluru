@@ -3,6 +3,7 @@ class EventsController extends AppController {
 
 	var $name = 'Events';
 	var $components = array('CanRegister');
+	var $helpers = array('TinyMce.TinyMce');
 
 	function index() {
 		if ($this->is_admin) {

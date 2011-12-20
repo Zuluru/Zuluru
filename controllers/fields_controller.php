@@ -2,6 +2,7 @@
 class FieldsController extends AppController {
 
 	var $name = 'Fields';
+	var $helpers = array('TinyMce.TinyMce');
 
 	function isAuthorized() {
 		// Anyone that's logged in can perform these operations

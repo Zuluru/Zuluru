@@ -2,6 +2,7 @@
 class QuestionsController extends AppController {
 
 	var $name = 'Questions';
+	var $helpers = array('TinyMce.TinyMce');
 
 	function index() {
 		$this->Question->recursive = 0;
