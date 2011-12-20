@@ -22,7 +22,6 @@ $fields = array(
 		'PAYMENTREQUEST_0_SHIPTOZIP' => $person['Person']['addr_postalcode'],
 		'PAYMENTREQUEST_0_SHIPTOCOUNTRYCODE' => $person['Person']['addr_country'],
 		'PAYMENTREQUEST_0_SHIPTOPHONENUM' => $person['Person']['home_phone'],
-		'PAYMENTREQUEST_0_CUSTOM' => $person['Person']['id'],
 		'PAYMENTREQUEST_0_INVNUM' => sprintf(Configure::read('registration.order_id_format'), $registrations[0]['Registration']['id']),
 		'PAYMENTREQUEST_0_CURRENCYCODE' => Configure::read('payment.currency'),
 );
@@ -41,8 +40,9 @@ foreach ($registrations as $registration) {
 	$amount += $registration['Event']['cost'] + $registration['Event']['tax1'] + $registration['Event']['tax2'];
 	$tax += $registration['Event']['tax1'] + $registration['Event']['tax2'];
 	$ids[] = $registration['Registration']['id'];
+	++ $m;
 }
-$fields['PAYMENTREQUEST_0_DESC'] = implode (',', $ids);
+$fields['PAYMENTREQUEST_0_CUSTOM'] = $person['Person']['id'] . ':' . implode (',', $ids);
 $fields['PAYMENTREQUEST_0_AMT'] = sprintf('%.2f', $amount);
 $fields['PAYMENTREQUEST_0_ITEMAMT'] = sprintf('%.2f', $amount - $tax);
 if ($tax > 0) {

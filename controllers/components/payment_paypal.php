@@ -99,7 +99,8 @@ class PaymentPaypalComponent extends PaymentComponent
 		// Validate the response code
 		if ($response['PAYMENTINFO_0_ERRORCODE'] == 0)
 		{
-			$registration_ids = explode (',', $details['PAYMENTREQUEST_0_DESC']);
+			list ($user_id, $registration_ids) = explode (':', $details['PAYMENTREQUEST_0_CUSTOM']);
+			$registration_ids = explode (',', $registration_ids);
 			return array(true, $audit, $registration_ids);
 		}
 
