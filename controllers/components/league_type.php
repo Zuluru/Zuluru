@@ -298,13 +298,19 @@ class LeagueTypeComponent extends Object
 	function startSchedule($league_id, $exclude_teams, $start_date) {
 		$this->games = array();
 
+		$regions = Configure::read('feature.region_preference');
+		if ($regions) {
+			$field_contain = array('Field' => 'ParentField');
+		} else {
+			$field_contain = array();
+		}
 		$this->_controller->League->contain (array (
 			'Team' => array(
 				'order' => 'Team.name',
 				'conditions' => array('NOT' => array('id' => $exclude_teams)),
 			),
 			'Game' => array(
-				'GameSlot',
+				'GameSlot' => $field_contain,
 			),
 			'LeagueGameslotAvailability' => array(
 				'GameSlot' => array(
@@ -324,8 +330,9 @@ class LeagueTypeComponent extends Object
 			return false;
 		}
 
-		// Go through all the games and count the number of home and away games for each team
-		$this->home_games = $this->away_games = array();
+		// Go through all the games and count the number of home and away games
+		// and games within preferred region for each team
+		$this->home_games = $this->away_games = $this->preferred_games = array();
 		foreach ($this->league['Game'] as $game) {
 			if (!array_key_exists ($game['home_team'], $this->home_games)) {
 				$this->home_games[$game['home_team']] = 1;
@@ -337,6 +344,26 @@ class LeagueTypeComponent extends Object
 				$this->away_games[$game['away_team']] = 1;
 			} else {
 				++ $this->away_games[$game['away_team']];
+			}
+
+			if ($regions) {
+				$team = array_pop (Set::extract ("/Team[id={$game['home_team']}]/.", $this->league));
+				if ($team['region_preference'] && $team['region_preference'] == $game['GameSlot']['Field']['region_id']) {
+					if (!array_key_exists ($game['home_team'], $this->preferred_games)) {
+						$this->preferred_games[$game['home_team']] = 1;
+					} else {
+						++ $this->preferred_games[$game['home_team']];
+					}
+				}
+
+				$team = array_pop (Set::extract ("/Team[id={$game['away_team']}]/.", $this->league));
+				if ($team['region_preference'] && $team['region_preference'] == $game['GameSlot']['Field']['region_id']) {
+					if (!array_key_exists ($game['away_team'], $this->preferred_games)) {
+						$this->preferred_games[$game['away_team']] = 1;
+					} else {
+						++ $this->preferred_games[$game['away_team']];
+					}
+				}
 			}
 		}
 
@@ -375,11 +402,11 @@ class LeagueTypeComponent extends Object
 		// So, we replicate the important bits of saveAll here.
 		$transaction = new DatabaseTransaction($this->_controller->League->Game);
 
-		// It seems that for($x as $k => $v) works on a cached version of $x,
-		// so any changes to the games made in beforeSave or afterSave will
-		// show up in $this->games but not in the game variables as we iterate
-		// through. So, iterate over the array keys instead and use that to
-		// directly reference the array.
+		// for($x as $k => $v) works on a cached version of $x, so any changes
+		// to the games made in beforeSave or afterSave will show up in
+		// $this->games but not in the game variables as we iterate through.
+		// So, iterate over the array keys instead and use that to directly
+		// reference the array.
 		foreach (array_keys($this->games) as $key) {
 			$this->_controller->League->Game->create();
 			if (!$this->beforeSave($key) ||
@@ -549,19 +576,10 @@ class LeagueTypeComponent extends Object
 		 * highest, so that teams who received their field preference least
 		 * will have a better chance of it.
 		 */
-		try {
-			usort($games, array($this, 'cmpHometeamPreferredFieldRatio'));
-		} catch (Exception $e) {
-			if (is_numeric ($date)) {
-				$date = date('Y-m-d', $date);
-			}
-			$message = __('Failed to assign gameslots for requested games on ', true) . $date . ': ' .
-				__($e->getMessage(), true);
-			$this->_controller->Session->setFlash($message, 'default', array('class' => 'warning'));
-			return false;
-		}
+		AppModel::_reindexInner($this->league, 'Team', 'id');
+		usort($games, array($this, 'comparePreferredFieldRatio'));
 
-		while($game = array_pop($games)) {
+		while($game = array_shift($games)) {
 			$slot_id = $this->selectWeightedGameslot($game, $date);
 			if (!$slot_id) {
 				return false;
@@ -576,79 +594,68 @@ class LeagueTypeComponent extends Object
 		return true;
 	}
 
-	function cmpHometeamPreferredFieldRatio($a, $b) {
-		$a_ratio = $this->preferredFieldRatio($a['home_team']);
-		$b_ratio = $this->preferredFieldRatio($b['home_team']);
-		if( $a_ratio == $b_ratio ) {
+	function comparePreferredFieldRatio($a, $b) {
+		// Put all those teams with a home field at the top of the list
+		$a_home = $this->hasHomeField($a);
+		$b_home = $this->hasHomeField($b);
+		if ($a_home && !$b_home) {
+			return -1;
+		} else if (!$a_home && $b_home) {
+			return 1;
+		}
+
+		$a_ratio = $this->preferredFieldRatio($a);
+		$b_ratio = $this->preferredFieldRatio($b);
+		if ($a_ratio == $b_ratio) {
 			return 0;
 		}
 
 		return ($a_ratio > $b_ratio) ? 1 : -1;
 	}
 
-	function preferredFieldRatio($id) {
-		// Put all those teams with a home field at the top of the list
-		$team = array_pop (Set::extract ("/Team[id=$id]/.", $this->league));
-		if (! $team) {
-			throw new Exception ('Weird error: Cached home team wasn\'t there!');
-		}
-		// TODO: Is this the right return value? Test with teams that have home fields.
-		if ($team['home_field']) {
-			return -1;
-		}
+	function hasHomeField($game) {
+		return ($this->league['Team'][$game['home_team']]['home_field'] ||
+			$this->league['Team'][$game['home_team']]['home_field']);
+	}
 
-		return 0;
-/* TODO This whole thing, using arrays built in startSchedule
-		if( $this->preferred_ratio >= 0 ) {
-			return $this->preferred_ratio;
+	function preferredFieldRatio($game) {
+		// If we're not using region preferences, that's like everyone
+		// has 100% of their games in a preferred region.
+		if (!Configure::read('feature.region_preference')) {
+			return 1;
 		}
 
-		if( ! $this->region_preference
-			|| $this->region_preference == '---' ) {
-			// No preference means they're always happy.  We set
-			// this to over 100% to force them to sort last when
-			// ordering by ratio, so that teams with a preference
-			// always appear before them.
-			$this->preferred_ratio = 2;
-			return ($this->preferred_ratio);
+		// We've already dealt with teams that have home fields. If we're
+		// calling this function, then either both games being compared
+		// involve a team with a home field, or neither does. So, if this
+		// game has one, the other must also, in which case we want to look
+		// to their opponents to break that tie. This tie-breaker will
+		// only matter if multiple teams share a home field, but it doesn't
+		// do any harm to include it in other situations.
+		if ($this->league['Team'][$game['home_team']]['home_field']) {
+			$id = $game['away_team'];
+		} else {
+			$id = $game['home_team'];
 		}
 
-		// It's not the most evil SQL hack in Leaguerunner, but it's
-		// probably a runner-up.  The idea is to get a count of the
-		// games played in the preferred region or on a home field, and
-		// a count played outside.
-		$sth = $dbh->prepare(
-			'SELECT
-				IF(g.fid = t.home_field, 1, COALESCE(f.region,p.region) = t.region_preference) AS is_preferred,
-				COUNT(*) AS num_games
-				FROM schedule s
-				LEFT JOIN gameslot g USING (game_id)
-				LEFT JOIN field f USING (fid)
-				LEFT JOIN field p ON (f.parent_fid = p.fid),
-				team t
-				WHERE (s.home_team = t.team_id OR s.away_team = t.team_id)
-				AND t.team_id = ? GROUP BY is_preferred');
-		$sth->execute( array( $this->team_id) );
+		// No preference means they're always happy.  We return over 100% to
+		// force them to sort last when ordering by ratio, so that teams with
+		// a preference always appear before them.
+		if (empty($this->league['Team'][$id]['region_preference'])) {
+			return 2;
+		}
 
-		$preferred = 0;
-		$not_preferred = 0;
-		while($row = $sth->fetch( PDO::FETCH_ASSOC ) ) {
-			if($row['is_preferred']) {
-				$preferred = $row['num_games'];
+		if (!array_key_exists('preferred_ratio', $this->league['Team'][$id])) {
+			if (!array_key_exists($id, $this->preferred_games)) {
+				$this->league['Team'][$id]['preferred_ratio'] = 0;
 			} else {
-				$not_preferred = $row['num_games'];
+				$this->league['Team'][$id]['preferred_ratio'] = $this->preferred_games[$id] /
+					// We've already incremented these counters with the new game
+					// before arriving here, so we subtract 1 to get the true count
+					($this->home_games[$id] + $this->away_games[$id] - 1);
 			}
 		}
-
-		if( $preferred + $not_preferred < 1 ) {
-			# Avoid divide-by-zero
-			return 0;
-		}
-
-
-		$this->preferred_ratio = $preferred / ($preferred + $not_preferred);
-		return ($this->preferred_ratio);
-*/
+		return $this->league['Team'][$id]['preferred_ratio'];
 	}
 	
 	/**
@@ -679,14 +686,6 @@ class LeagueTypeComponent extends Object
 	 * field quality, home field designation, and field preferences into account.
 	 * Gameslot is to be selected from those available for the league in which
 	 * this game exists.
-	 * Single argument is to be the timestamp representing the date of the
-	 * game.
-	 * Changes are made directly in the database (no need to ->save() the
-	 * game) however this means that you should probably call this only
-	 * within a transaction if you want to roll back changes easily on
-	 * error.
-	 * Returns success or fail, depending on whether or not we could get a
-	 * gameslot.
 	 *
 	 * TODO: Take field quality into account when assigning.  Easiest way
 	 * to do this would be to order by field quality instead of RAND(),
@@ -704,25 +703,31 @@ class LeagueTypeComponent extends Object
 		}
 		$slots = array();
 
-		// try to adhere to the home team's HOME FIELD DESIGNATION
-		$team = array_pop (Set::extract ("/Team[id={$game['home_team']}]/.", $this->league));
-		if (! $team) {
-			throw new Exception ('Weird error: Cached home team wasn\'t there!');
-		}
-		if ($team['home_field']) {
-			$slots = Set::extract("/LeagueGameslotAvailability/GameSlot[game_date=$date][field_id={$team['home_field']}]/.", $this->league);
+		$home = $this->league['Team'][$game['home_team']];
+		$away = $this->league['Team'][$game['away_team']];
+
+		// Try to adhere to the home team's home field
+		if ($home['home_field']) {
+			$slots = Set::extract("/LeagueGameslotAvailability/GameSlot[game_date=$date][field_id={$home['home_field']}]/id", $this->league);
 		}
 
-		if (empty ($slots) && $team['region_preference']) {
-			// TODO: Test this once fields are fixed
-			$slots = Set::extract("/LeagueGameslotAvailability/GameSlot[game_date=$date]/Field[region={$team['region_preference']}]/.", $this->league);
+		// If not available, try the away team's home field
+		if (empty ($slots) && $away['home_field']) {
+			$slots = Set::extract("/LeagueGameslotAvailability/GameSlot[game_date=$date][field_id={$away['home_field']}]/id", $this->league);
 		}
 
-		if (empty ($slots)) {
-			$team = array_pop (Set::extract ("/Team[id={$game['away_team']}]/.", $this->league));
-			if ($team['region_preference']) {
+		// Maybe try region preferences
+		if (Configure::read('feature.region_preference')) {
+			if (empty ($slots) && $home['region_preference']) {
 				// TODO: Test this once fields are fixed
-				$slots = Set::extract("/LeagueGameslotAvailability/GameSlot[game_date=$date]/Field[region={$team['region_preference']}]/.", $this->league);
+				$slots = Set::extract("/LeagueGameslotAvailability/GameSlot[game_date=$date]/Field[region_id={$home['region_preference']}]/..", $this->league);
+				$slots = Set::extract('/GameSlot/id', $slots);
+			}
+
+			if (empty ($slots) && $away['region_preference']) {
+				// TODO: Test this once fields are fixed
+				$slots = Set::extract("/LeagueGameslotAvailability/GameSlot[game_date=$date]/Field[region_id={$away['region_preference']}]/..", $this->league);
+				$slots = Set::extract('/GameSlot/id', $slots);
 			}
 		}
 
