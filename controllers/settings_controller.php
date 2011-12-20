@@ -38,6 +38,9 @@ class SettingsController extends AppController {
 	function payment_provider_fields() {
 		Configure::write ('debug', 0);
 		$this->layout = 'ajax';
+		$this->data = $this->Setting->find('all', array(
+				'conditions' => array('person_id' => null),
+		));
 		$provider = $this->params['url']['data']['Setting'];
 		$provider = array_shift($provider);
 		$provider = $provider['value'];
