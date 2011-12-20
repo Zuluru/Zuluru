@@ -6,7 +6,7 @@ class NoticesController extends AppController {
 	function isAuthorized() {
 		// Anyone that's logged in can perform these operations
 		if (in_array ($this->params['action'], array(
-				'random',
+				'next',
 				'viewed',
 		)))
 		{
@@ -14,7 +14,7 @@ class NoticesController extends AppController {
 		}
 	}
 
-	function random() {
+	function next() {
 		// Guests get no notices
 		if (!$this->is_logged_in || mt_rand(0, 100) > NOTICE_FREQUENCY) {
 			return array();
@@ -66,7 +66,7 @@ class NoticesController extends AppController {
 					'display_to' => $display_to,
 					'NOT' => array('id' => $notice_ids),
 				),
-				'order' => 'RAND()',
+				'order' => 'id',
 		));
 
 		// See if we can find one with annual repetition, and the user hasn't seen it in the past year
@@ -89,8 +89,20 @@ class NoticesController extends AppController {
 						'NoticesPerson.person_id' => $this->Auth->user('id'),
 						'NoticesPerson.created < DATE_SUB(NOW(), INTERVAL 1 YEAR)',
 					),
-					'order' => 'RAND()',
+					'order' => 'id',
 			));
+		}
+
+		// Use current user record to do replacements in notice text
+		if (!empty($notice)) {
+			while (preg_match('#(.*)<%person (.*?) %>(.*)#', $notice['Notice']['notice'], $matches)) {
+				if (!isset($person)) {
+					$this->Person = ClassRegistry::init('Person');
+					$this->Person->contain();
+					$person = $this->Person->read (null, $this->Auth->user('id'));
+				}
+				$notice['Notice']['notice'] = $matches[1] . $person['Person'][$matches[2]] . $matches[3];
+			}
 		}
 
 		return $notice;
