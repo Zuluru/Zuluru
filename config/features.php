@@ -114,4 +114,12 @@ if (!defined('TEAM_NAME')) {
 // Percent likelihood that a notice will be shown, if there is one to show
 define('NOTICE_FREQUENCY', 100);
 
+// If you have any local customizations, put them in a file called
+// features_custom.php. Note that this cannot be used to change
+// defined values, only adjust the $config array by adding, altering
+// or unsetting values.
+if (file_exists(CONFIGS . 'features_custom.php')) {
+	include(CONFIGS . 'features_custom.php');
+}
+
 ?>

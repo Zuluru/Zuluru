@@ -243,4 +243,12 @@ $config['options']['year'] = array(
 	'gameslot' => array('min' => $year, 'max' => $year + 1),
 );
 
+// If you have any local customizations, put them in a file called
+// features_custom.php. Note that this cannot be used to change
+// defined values, only adjust the $config array by adding, altering
+// or unsetting values.
+if (file_exists(CONFIGS . 'options_custom.php')) {
+	include(CONFIGS . 'options_custom.php');
+}
+
 ?>
