@@ -2,7 +2,6 @@
 class FieldsController extends AppController {
 
 	var $name = 'Fields';
-	var $helpers = array('TinyMce.TinyMce');
 
 	function isAuthorized() {
 		// Anyone that's logged in can perform these operations
@@ -124,6 +123,10 @@ class FieldsController extends AppController {
 		$this->_loadAddressOptions();
 
 		$this->_addFieldMenuItems ($this->Field->data);
+
+		if (Configure::read('feature.tiny_mce')) {
+			$this->helpers[] = 'TinyMce.TinyMce';
+		}
 	}
 
 	function open() {

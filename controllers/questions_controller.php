@@ -2,7 +2,6 @@
 class QuestionsController extends AppController {
 
 	var $name = 'Questions';
-	var $helpers = array('TinyMce.TinyMce');
 
 	function index() {
 		$this->Question->recursive = 0;
@@ -36,6 +35,10 @@ class QuestionsController extends AppController {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('question', true)), 'default', array('class' => 'warning'));
 			}
 		}
+
+		if (Configure::read('feature.tiny_mce')) {
+			$this->helpers[] = 'TinyMce.TinyMce';
+		}
 	}
 
 	function edit() {
@@ -55,6 +58,10 @@ class QuestionsController extends AppController {
 		if (empty($this->data)) {
 			$this->Question->contain(array('Answer' => array('order' => 'Answer.sort')));
 			$this->data = $this->Question->read(null, $id);
+		}
+
+		if (Configure::read('feature.tiny_mce')) {
+			$this->helpers[] = 'TinyMce.TinyMce';
 		}
 	}
 

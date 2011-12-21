@@ -3,7 +3,6 @@ class EventsController extends AppController {
 
 	var $name = 'Events';
 	var $components = array('CanRegister');
-	var $helpers = array('TinyMce.TinyMce');
 
 	function index() {
 		if ($this->is_admin) {
@@ -124,6 +123,11 @@ class EventsController extends AppController {
 		$this->set('questionnaires', $this->Event->Questionnaire->find('list'));
 		$this->set('event_obj', $this->_getComponent ('EventType', $this->data['Event']['EventType']['type'], $this));
 		$this->set('add', true);
+
+		if (Configure::read('feature.tiny_mce')) {
+			$this->helpers[] = 'TinyMce.TinyMce';
+		}
+
 		$this->render ('edit');
 	}
 
@@ -161,6 +165,10 @@ class EventsController extends AppController {
 				'Questionnaire.active' => true,
 		))));
 		$this->set('event_obj', $this->_getComponent ('EventType', $this->data['EventType']['type'], $this));
+
+		if (Configure::read('feature.tiny_mce')) {
+			$this->helpers[] = 'TinyMce.TinyMce';
+		}
 	}
 
 	function event_type_fields() {
