@@ -2030,6 +2030,7 @@ class TeamsController extends AppController {
 					'subject' => "Reminder of invitation to join {$team['name']}",
 					'template' => 'roster_invite_reminder',
 					'sendAs' => 'both',
+					'ignore_empty_address' => true,
 			)))
 			{
 				return false;
@@ -2043,6 +2044,7 @@ class TeamsController extends AppController {
 						'subject' => "Unanswered invitation to join {$team['name']}",
 						'template' => 'roster_invite_captain_reminder',
 						'sendAs' => 'both',
+						'ignore_empty_address' => true,
 				)))
 				{
 					return false;
@@ -2055,6 +2057,7 @@ class TeamsController extends AppController {
 					'subject' => "Reminder of request to join {$team['name']}",
 					'template' => 'roster_request_reminder',
 					'sendAs' => 'both',
+					'ignore_empty_address' => true,
 			)))
 			{
 				return false;
@@ -2068,6 +2071,7 @@ class TeamsController extends AppController {
 						'subject' => "Unanswered request to join {$team['name']}",
 						'template' => 'roster_request_player_reminder',
 						'sendAs' => 'both',
+						'ignore_empty_address' => true,
 				)))
 				{
 					return false;
@@ -2095,6 +2099,7 @@ class TeamsController extends AppController {
 					'subject' => "Expired invitation to join {$team['name']}",
 					'template' => 'roster_invite_expire',
 					'sendAs' => 'both',
+					'ignore_empty_address' => true,
 			)))
 			{
 				return false;
@@ -2107,6 +2112,7 @@ class TeamsController extends AppController {
 					'subject' => "Expired request to join {$team['name']}",
 					'template' => 'roster_request_expire',
 					'sendAs' => 'both',
+					'ignore_empty_address' => true,
 			)))
 			{
 				return false;
