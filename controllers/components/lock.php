@@ -8,7 +8,7 @@ class LockComponent extends Object
 		$this->controller =& $controller;
 	}
 
-	function lock($key) {
+	function lock($key, $text = null) {
 		$this->locked = false;
 		$this->Lock = ClassRegistry::init ('Lock');
 		$locks = $this->Lock->find ('all', array('conditions' => array('key' => $key)));
@@ -17,7 +17,10 @@ class LockComponent extends Object
 			if ($age > 15) {
 				$this->Lock->delete ($locks[0]['Lock']['id']);
 			} else {
-				$this->controller->Session->setFlash(__('There is currently a schedule creation or edit in progress. If unsuccessful, it will expire in 15 minutes.', true), 'default', array('class' => 'info'));
+				if ($text === null) {
+					$text = $key;
+				}
+				$this->controller->Session->setFlash(sprintf(__('There is currently a %s in progress. If unsuccessful, it will expire in 15 minutes.', true), __($text, true)), 'default', array('class' => 'info'));
 				return false;
 			}
 		}

@@ -213,7 +213,7 @@ class SchedulesController extends AppController {
 	}
 
 	function _finalize($id) {
-		if (!$this->Lock->lock ('scheduling')) {
+		if (!$this->Lock->lock ('scheduling', 'schedule creation or edit')) {
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 

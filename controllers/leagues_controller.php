@@ -458,7 +458,7 @@ class LeaguesController extends AppController {
 			}
 		}
 
-		if (!$this->Lock->lock ('scheduling')) {
+		if (!$this->Lock->lock ('scheduling', 'schedule creation or edit')) {
 			return false;
 		}
 		if (!$this->League->Game->_saveGames($this->data['Game'], $publish)) {
