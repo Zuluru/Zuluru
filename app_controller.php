@@ -123,6 +123,12 @@ class AppController extends Controller {
 		// Set the theme, if any
 		$this->theme = Configure::read('theme');
 
+		// Seems that beforeFilter is not called for error pages
+		if (!isset ($this->is_logged_in)) {
+			$this->is_logged_in = false;
+			$this->set('is_logged_in', $this->is_logged_in);
+		}
+
 		// Set view variables for the menu
 		// TODO: Get the menu element name from some configuration, maybe per-user?
 		$this->set('menu_element', 'flyout');
