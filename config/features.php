@@ -122,8 +122,8 @@ $config['attendance_verb'] = array(
 // Percent likelihood that a notice will be shown, if there is one to show
 $config['notice_frequency'] = 100;
 
-if (file_exists(CONFIGS . DOMAIN . DS . 'features_custom.php')) {
-	include(CONFIGS . DOMAIN . DS . 'features_custom.php');
+if (file_exists(CONFIGS . 'features_custom.php')) {
+	include(CONFIGS . 'features_custom.php');
 }
 
 ?>

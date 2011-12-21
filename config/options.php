@@ -248,8 +248,8 @@ $config['options']['year'] = array(
 	'gameslot' => array('min' => $year, 'max' => $year + 1),
 );
 
-if (file_exists(CONFIGS . DOMAIN . DS . 'options_custom.php')) {
-	include(CONFIGS . DOMAIN . DS . 'options_custom.php');
+if (file_exists(CONFIGS . 'options_custom.php')) {
+	include(CONFIGS . 'options_custom.php');
 }
 
 ?>
