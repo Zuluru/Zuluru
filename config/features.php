@@ -1,20 +1,16 @@
 <?php
-
 /**
- * Set up some mappings and other static global configuration.
- * These items generally won't change for different installations.
+ * This file has two sections.
+ *
+ * First, we set up some mappings to pre-defined database values and
+ * a few other constants. These items should not ever be changed.
+ *
+ * Second, we set up some static global configuration. These items
+ * generally won't change for different installations. If you have
+ * any local configuration customizations, adjust the $config array
+ * by adding, altering or unsetting values through a file called
+ * features_custom.php (which you must create).
  */
-
-$config['roster_requirements'] = array(
-	'4/3'	=> 12,
-	'5/2'	=> 12,
-	'3/3'	=> 10,
-	'4/2'	=> 10,
-	'3/2'	=> 8,
-	'womens'=> 12,
-	'mens'	=> 12,
-	'open'	=> 12,
-);
 
 if (!defined('APPROVAL_AUTOMATIC')) {
 	define('APPROVAL_AUTOMATIC', -1);		// approval, scores agree
@@ -23,11 +19,48 @@ if (!defined('APPROVAL_AUTOMATIC')) {
 	define('APPROVAL_AUTOMATIC_FORFEIT', -4); // approval, no score entered
 }
 
-$config['approved_by'] = array(
-	APPROVAL_AUTOMATIC			=> 'automatic approval',
-	APPROVAL_AUTOMATIC_HOME		=> 'automatic approval using home submission',
-	APPROVAL_AUTOMATIC_AWAY		=> 'automatic approval using away submission',
-	APPROVAL_AUTOMATIC_FORFEIT	=> 'game automatically forfeited due to lack of score submission',
+if (!defined('ROSTER_APPROVED')) {
+	define('ROSTER_APPROVED', 1);
+	define('ROSTER_INVITED', 2);
+	define('ROSTER_REQUESTED', 3);
+}
+
+if (!defined('REASON_TYPE_PLAYER_ACTIVE')) {
+	define('REASON_TYPE_PLAYER_ACTIVE', 1);
+	define('REASON_TYPE_PLAYER_PASSIVE', 2);
+	define('REASON_TYPE_TEAM', 3);
+}
+
+if (!defined('ATTENDANCE_UNKNOWN')) {
+	define('ATTENDANCE_UNKNOWN', 0);	// status is unknown
+	define('ATTENDANCE_ATTENDING', 1);	// attendance has been confirmed by player (and captain, if a substitute)
+	define('ATTENDANCE_ABSENT', 2);		// absence has been confirmed by player
+	define('ATTENDANCE_INVITED', 3);	// substitute has been invited by the captain
+	define('ATTENDANCE_AVAILABLE', 4);	// substitute has indicated they are available
+	define('ATTENDANCE_NO_SHOW', 5);	// player said they were coming, but didn't show
+}
+
+// Constants for IDs of automatic questions
+// Must all be negative to avoid conflicts with user-created questions
+if (!defined('TEAM_NAME')) {
+	define('TEAM_NAME', -1);
+	define('SHIRT_COLOUR', -2);
+	define('REGION_PREFERENCE', -3);
+	define('OPEN_ROSTER', -4);
+	define('TEAM_ID', -5);
+	define('FRANCHISE_ID', -6);
+}
+
+$config['roster_requirements'] = array(
+	'4/3'	=> 12,
+	'5/2'	=> 12,
+	'3/3'	=> 10,
+	'4/2'	=> 10,
+	'3/2'	=> 8,
+	'2/2'	=> 7,
+	'womens'=> 12,
+	'mens'	=> 12,
+	'open'	=> 12,
 );
 
 // List of roster positions which denote player status on a roster.
@@ -52,26 +85,12 @@ $config['privileged_roster_positions'] = array(
 	'assistant',
 );
 
-if (!defined('ROSTER_APPROVED')) {
-	define('ROSTER_APPROVED', 1);
-	define('ROSTER_INVITED', 2);
-	define('ROSTER_REQUESTED', 3);
-}
-
-if (!defined('REASON_TYPE_PLAYER_ACTIVE')) {
-	define('REASON_TYPE_PLAYER_ACTIVE', 1);
-	define('REASON_TYPE_PLAYER_PASSIVE', 2);
-	define('REASON_TYPE_TEAM', 3);
-}
-
-if (!defined('ATTENDANCE_UNKNOWN')) {
-	define('ATTENDANCE_UNKNOWN', 0);	// status is unknown
-	define('ATTENDANCE_ATTENDING', 1);	// attendance has been confirmed by player (and captain, if a substitute)
-	define('ATTENDANCE_ABSENT', 2);		// absence has been confirmed by player
-	define('ATTENDANCE_INVITED', 3);	// substitute has been invited by the captain
-	define('ATTENDANCE_AVAILABLE', 4);	// substitute has indicated they are available
-	define('ATTENDANCE_NO_SHOW', 5);	// player said they were coming, but didn't show
-}
+$config['approved_by'] = array(
+	APPROVAL_AUTOMATIC			=> 'automatic approval',
+	APPROVAL_AUTOMATIC_HOME		=> 'automatic approval using home submission',
+	APPROVAL_AUTOMATIC_AWAY		=> 'automatic approval using away submission',
+	APPROVAL_AUTOMATIC_FORFEIT	=> 'game automatically forfeited due to lack of score submission',
+);
 
 $config['attendance'] = array(
 	ATTENDANCE_ATTENDING	=> 'Attending',
@@ -100,26 +119,11 @@ $config['attendance_verb'] = array(
 	ATTENDANCE_NO_SHOW		=> 'a no-show for',
 );
 
-// Constants for IDs of automatic questions
-// Must all be negative to avoid conflicts with user-created questions
-if (!defined('TEAM_NAME')) {
-	define('TEAM_NAME', -1);
-	define('SHIRT_COLOUR', -2);
-	define('REGION_PREFERENCE', -3);
-	define('OPEN_ROSTER', -4);
-	define('TEAM_ID', -5);
-	define('FRANCHISE_ID', -6);
-}
-
 // Percent likelihood that a notice will be shown, if there is one to show
-define('NOTICE_FREQUENCY', 100);
+$config['notice_frequency'] = 100;
 
-// If you have any local customizations, put them in a file called
-// features_custom.php. Note that this cannot be used to change
-// defined values, only adjust the $config array by adding, altering
-// or unsetting values.
-if (file_exists(CONFIGS . 'features_custom.php')) {
-	include(CONFIGS . 'features_custom.php');
+if (file_exists(CONFIGS . DOMAIN . DS . 'features_custom.php')) {
+	include(CONFIGS . DOMAIN . DS . 'features_custom.php');
 }
 
 ?>

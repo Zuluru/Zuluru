@@ -74,7 +74,7 @@
 		</td>
 		</tr></table>
 		<hr noshade="noshade" />
-		<p><i>Powered by <a href="http://zuluru.org/">Zuluru</a>, version 1.2 | <?php
+		<p><i>Powered by <a href="http://zuluru.org/">Zuluru</a>, version <?php echo ZULURU_MAJOR . '.' . ZULURU_MINOR; ?> | <?php
 		$body = htmlspecialchars ("I found a bug in http://{$_SERVER['HTTP_HOST']}{$this->here}");
 		echo $this->Html->link('Report a bug', "mailto:admin@zuluru.org?subject=Zuluru%20Bug&body=$body") . ' on this page.';
 		?></i></p>

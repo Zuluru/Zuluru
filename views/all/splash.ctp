@@ -17,6 +17,10 @@ if (!empty($unpaid)) {
 			$this->Html->link (__('Click here', true), array('controller' => 'registrations', 'action' => 'checkout'))
 	));
 }
+
+if ($is_admin) {
+	echo $this->element('version_check');
+}
 ?>
 
 <table class="list">

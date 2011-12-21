@@ -16,7 +16,7 @@ class NoticesController extends AppController {
 
 	function next() {
 		// Guests get no notices
-		if (!$this->is_logged_in || mt_rand(0, 100) > NOTICE_FREQUENCY) {
+		if (!$this->is_logged_in || mt_rand(0, 100) > Configure::read('notice_frequency')) {
 			return array();
 		}
 

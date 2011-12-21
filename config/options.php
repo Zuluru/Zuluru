@@ -7,6 +7,10 @@
  * Changing the language of any of these should be done through the
  * internationalization methods at output, leaving English in the
  * database. This way, a single site can support multiple languages.
+ *
+ * If you have any local configuration customizations, adjust the $config
+ * array by adding, altering or unsetting values through a file called
+ * options_custom.php (which you must create).
  */
 
 function make_options($values)
@@ -53,6 +57,7 @@ $config['options'] = array(
 		'3/3',
 		'4/2',
 		'3/2',
+		'2/2',
 		'womens',
 		'mens',
 		'open',
@@ -243,11 +248,8 @@ $config['options']['year'] = array(
 	'gameslot' => array('min' => $year, 'max' => $year + 1),
 );
 
-// If you have any local customizations, put them in a file called
-// options_custom.php. Adjust the $config array by adding, altering
-// or unsetting values.
-if (file_exists(CONFIGS . 'options_custom.php')) {
-	include(CONFIGS . 'options_custom.php');
+if (file_exists(CONFIGS . DOMAIN . DS . 'options_custom.php')) {
+	include(CONFIGS . DOMAIN . DS . 'options_custom.php');
 }
 
 ?>

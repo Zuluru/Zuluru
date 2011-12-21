@@ -70,14 +70,16 @@ class InstallController extends InstallAppController {
 	function _writeInstalled() {
 		$file = new File(CONFIGS . 'installed.php', true);
 		$date = date('r');
+		$version = ZULURU_MAJOR . '.' . ZULURU_MINOR . '.' . ZULURU_REVISION;
+		$schema = SCHEMA_VERSION;
 
 		$installed = <<<CONFIG
 <?php
 \$config['installed'] = array(
 	'date' => '$date',
 	'ip' => '{$_SERVER['REMOTE_ADDR']}',
-	'version' => '1.2.1',
-	'schema_version' => 8,
+	'version' => '$version',
+	'schema_version' => $schema,
 );
 ?>
 CONFIG;
@@ -322,8 +324,15 @@ CONFIG;
 			}
 		}
 
+		Configure::load('installed');
 		if (empty($contents)) {
-			$this->Session->setFlash(__('Database is already up to date.', true), 'default', array('class' => 'error'));
+			$this->Session->setFlash(__('Database is already up to date.', true), 'default', array('class' => 'info'));
+			if (ZULURU_MAJOR . '.' . ZULURU_MINOR . '.' . ZULURU_REVISION != Configure::read('installed.version') ||
+				SCHEMA_VERSION != Configure::read('installed.schema_version'))
+			{
+				$this->_writeInstalled();
+			}
+			$this->render('finish');
 			return;
 		}
 

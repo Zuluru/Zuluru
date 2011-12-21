@@ -52,6 +52,7 @@
 /**
  * Load any additional configuration files.
  */
+require_once(CONFIGS . 'version.php');
 Configure::Load('install');
 Configure::Load('features');
 Configure::Load('options');

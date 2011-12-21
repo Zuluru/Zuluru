@@ -369,7 +369,7 @@ class ZuluruSchema extends CakeSchema {
 		'expiry' => array('type' => 'text', 'null' => false, 'default' => NULL),
 		'f4l4' => array('type' => 'text', 'null' => false, 'default' => NULL),
 		'card' => array('type' => 'text', 'null' => false, 'default' => NULL),
-		'message' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 255),
+		'message' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 256),
 		'issuer' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 30),
 		'issuer_invoice' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 20),
 		'issuer_confirmation' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 15),
