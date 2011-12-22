@@ -3,7 +3,7 @@
  * Rule helper for returning how many teams a user is on in the specified leagues.
  */
 
-class RuleTeamCountComponent extends RuleComponent
+class RuleLeagueTeamCountComponent extends RuleComponent
 {
 	function parse($config) {
 		$config = trim ($config, '"\'');
