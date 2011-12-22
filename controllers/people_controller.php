@@ -133,6 +133,246 @@ class PeopleController extends AppController {
 				'age_count', 'started_count', 'skill_count', 'city_count'));
 	}
 
+	function participation() {
+		$min = min(
+			date('Y', strtotime($this->Person->Registration->Event->field('open', array(), 'open'))),
+			$this->Person->League->field('year', array('year IS NOT NULL'), 'year')
+		);
+		$this->set(compact('min'));
+
+		// Check form data
+		if (empty ($this->data)) {
+			$this->data = array('download' => true);
+			return;
+		}
+		if ($this->data['start'] > $this->data['end']) {
+			$this->Session->setFlash(__('End date cannot precede start date', true), 'default', array('class' => 'info'));
+			return;
+		}
+
+		// Initialize the data structures
+		$participation = array();
+		$pos = array('captain' => 0, 'player' => 0);
+		$seasons = array_fill_keys(Configure::read('options.season'), array(
+				'season' => $pos,
+				'tournament' => $pos,
+		));
+		$years = array_fill_keys(range($this->data['start'], $this->data['end']), $seasons);
+
+		$seasons_found = array_fill_keys(Configure::read('options.season'), array(
+				'season' => 0,
+				'tournament' => 0,
+		));
+
+		$captains = Configure::read('privileged_roster_positions');
+
+		$membership_event_list = $this->Person->Registration->Event->find('all', array(
+			// TODO: Fix or remove these hard-coded values
+			'conditions' => array('event_type_id' => array(1)),
+			'contain' => array(),
+		));
+		$event_names = array();
+
+		for ($year = $this->data['start']; $year <= $this->data['end']; ++ $year) {
+			// This report covers membership years, not calendar years
+			$start = date('Y-m-d', strtotime('tomorrow', strtotime($this->membershipEnd($year-1))));
+			$end = $this->membershipEnd($year);
+
+			// We are interested in teams in leagues that operated this year
+			$leagues = $this->Person->Team->League->find('all', array(
+				'conditions' => array(
+					'open >=' => $start,
+					'open <=' => $end,
+				),
+				'contain' => array(
+					'Team' => array(
+						'Person' => array('conditions' => array(
+							'TeamsPerson.position' => Configure::read('playing_roster_positions'),
+							'TeamsPerson.status' => 1,
+						)),
+					),
+				),
+			));
+
+			// Consolidate the team data into the person-based array
+			foreach ($leagues as $league) {
+				foreach ($league['Team'] as $team) {
+					foreach ($team['Person'] as $person) {
+						if (!array_key_exists($person['id'], $participation)) {
+							$participation[$person['id']] = array(
+								'Person' => $person,
+								'Event' => array(),
+								'League' => $years,
+							);
+						}
+
+						if ($league['League']['schedule_type'] == 'tournament') {
+							$key = 'tournament';
+						} else {
+							$key = 'season';
+						}
+						if (in_array($person['TeamsPerson']['position'], $captains)) {
+							$pos = 'captain';
+						} else {
+							$pos = 'player';
+						}
+						++ $participation[$person['id']]['League'][$year][$league['League']['season']][$key][$pos];
+						$seasons_found[$league['League']['season']][$key] = true;
+					}
+				}
+			}
+
+			// These arrays get big, and we don't need team data any more
+			unset ($leagues);
+
+			// We are interested in memberships that covered this year
+			$membership_event_ids = array();
+			foreach ($membership_event_list as $event) {
+				if ($event['Event']['membership_begins'] >= $start &&
+					$event['Event']['membership_ends'] <= $end)
+				{
+					$event_names[$event['Event']['id']] = $event['Event']['name'];
+					$membership_event_ids[] = $event['Event']['id'];
+				}
+			}
+
+			// We are interested in some other registration events that closed this year
+			$events = $this->Person->Registration->Event->find('all', array(
+				'conditions' => array(
+					'OR' => array(
+						'id' => $membership_event_ids,
+						'AND' => array(
+							'close >' => $this->membershipEnd($year-1),
+							'close <' => $this->membershipEnd($year),
+							// TODO: Fix or remove these hard-coded values
+							'event_type_id' => array(5,6,7),
+						),
+					),
+				),
+				'contain' => array(
+					'Registration' => array(
+						'Person',
+						'conditions' => array('payment' => 'Paid'),
+					),
+				),
+				'order' => array('Event.event_type_id', 'Event.open', 'Event.close', 'Event.id'),
+			));
+
+			// Consolidate the registrations into the person-based array
+			foreach ($events as $event) {
+				$event_names[$event['Event']['id']] = $event['Event']['name'];
+				foreach ($event['Registration'] as $registration) {
+					if (!array_key_exists($registration['person_id'], $participation)) {
+						$participation[$registration['person_id']] = array(
+							'Person' => $registration['Person'],
+							'Event' => array(),
+							'League' => $years,
+						);
+					}
+					$participation[$registration['person_id']]['Event'][$event['Event']['id']] = true;
+				}
+			}
+
+			// These arrays get big, and we don't need event data any more
+			unset ($events);
+		}
+
+		usort ($participation, array('Person', 'comparePerson'));
+
+		if ($this->data['download']) {
+			$this->RequestHandler->renderAs($this, 'csv');
+			$this->set('download_file_name', 'Participation');
+			Configure::write ('debug', 0);
+		}
+
+		$this->set(compact('event_names', 'seasons_found', 'participation'));
+	}
+
+	function retention() {
+		$min = min(
+			date('Y', strtotime($this->Person->Registration->Event->field('open', array(), 'open'))),
+			$this->Person->League->field('year', array('year IS NOT NULL'), 'year')
+		);
+		$this->set(compact('min'));
+
+		// Check form data
+		if (empty ($this->data)) {
+			$this->data = array('download' => true);
+			return;
+		}
+		if ($this->data['start'] > $this->data['end']) {
+			$this->Session->setFlash(__('End date cannot precede start date', true), 'default', array('class' => 'info'));
+			return;
+		}
+
+		// We are interested in memberships
+		$event_list = $this->Person->Registration->Event->find('all', array(
+			// TODO: Fix or remove these hard-coded values
+			'conditions' => array('event_type_id' => array(1)),
+			'contain' => array(),
+			'order' => array('Event.open', 'Event.close', 'Event.id'),
+		));
+
+		$start = date('Y-m-d', strtotime('tomorrow', strtotime($this->membershipEnd($this->data['start'] - 1))));
+		$end = $this->membershipEnd($this->data['end']);
+
+		$past_events = array();
+		foreach ($event_list as $key => $event) {
+			if ($event['Event']['membership_begins'] < $start ||
+				$event['Event']['membership_ends'] > $end)
+			{
+				unset($event_list[$key]);
+				continue;
+			}
+
+			foreach (array_keys($past_events) as $past) {
+				$this->Person->Registration->unbindModel(array('belongsTo' => array('Person', 'Event'), 'hasOne' => array('RegistrationAudit')));
+				$people = $this->Person->Registration->find('count', array(
+						'conditions' => array(
+							'Registration.event_id' => $event['Event']['id'],
+							'Registration.payment' => 'Paid',
+							"Registration.person_id IN (SELECT person_id FROM registrations WHERE event_id = $past)",
+						),
+				));
+				$past_events[$past][$event['Event']['id']] = $people;
+			}
+
+			if (!empty($past_events)) {
+				$this->Person->Registration->unbindModel(array('belongsTo' => array('Person', 'Event'), 'hasOne' => array('RegistrationAudit')));
+				$event_list[$key]['total'] = $this->Person->Registration->find('count', array(
+						'conditions' => array(
+							'Registration.event_id' => $event['Event']['id'],
+							'Registration.payment' => 'Paid',
+							'Registration.person_id IN (SELECT DISTINCT person_id FROM registrations WHERE event_id IN (' . implode(',', array_keys($past_events)) . '))',
+						),
+				));
+			} else {
+				$event_list[$key]['total'] = 0;
+			}
+
+			$this->Person->Registration->unbindModel(array('belongsTo' => array('Person', 'Event'), 'hasOne' => array('RegistrationAudit')));
+			$event_list[$key]['count'] = $this->Person->Registration->find('count', array(
+					'conditions' => array(
+						'Registration.event_id' => $event['Event']['id'],
+						'Registration.payment' => 'Paid',
+					),
+			));
+
+			$past_events[$event['Event']['id']] = array();
+		}
+
+		// The last past events row will be empty
+		array_pop($past_events);
+
+		if ($this->data['download']) {
+			$this->RequestHandler->renderAs($this, 'csv');
+			$this->set('download_file_name', 'Retention');
+			Configure::write ('debug', 0);
+		}
+
+		$this->set(compact('event_list', 'past_events'));
+	}
+
 	function view() {
 		$id = $this->_arg('person');
 		$my_id = $this->Auth->user('id');
