@@ -261,7 +261,7 @@ class LeaguesController extends AppController {
 
 		if (!empty($this->data)) {
 			if ($this->League->Team->saveAll($this->data['Team'])) {
-				$this->Session->setFlash(__sprintf(__('The %s has been saved', true), __('league', true)), 'default', array('class' => 'success'));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('league', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'view', 'league' => $id));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('league', true)), 'default', array('class' => 'warning'));
