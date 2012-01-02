@@ -30,9 +30,9 @@ if (!empty ($edit_date)) {
 	$dates = array_unique(Set::extract ('/Game/GameSlot/game_date', $league));
 	foreach ($dates as $date) {
 		if ($date == $edit_date) {
-			echo $this->element ('league/schedule/week_edit', compact ('date', 'slots'));
+			echo $this->element('leagues/schedule/week_edit', compact ('date', 'slots'));
 		} else {
-			echo $this->element ('league/schedule/week_view', compact ('date'));
+			echo $this->element('leagues/schedule/week_view', compact ('date'));
 		}
 	}
 	?>

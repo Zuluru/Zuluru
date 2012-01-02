@@ -1,1 +1,1 @@
-<?php echo $this->element('questionnaire/edit_question', compact('question', 'i')); ?>
+<?php echo $this->element('questionnaires/edit_question', compact('question', 'i')); ?>

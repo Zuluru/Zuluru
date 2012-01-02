@@ -1,6 +1,6 @@
 <div class="questions view">
 <h2><?php  __('Question');?></h2>
-<?php echo $this->element('question/input', compact('question')); ?>
+<?php echo $this->element('questions/input', compact('question')); ?>
 </div>
 <div class="actions">
 	<ul>

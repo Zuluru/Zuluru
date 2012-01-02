@@ -4,7 +4,7 @@ if (isset($games) && !empty($games)) {
 	$uid_prefix = '';
 	foreach ($games as $game) {
 		$game_id = $game['Game']['id'];
-		echo $this->element('game/ical', compact('game_id', 'team_id', 'game', 'timezone', 'uid_prefix'));
+		echo $this->element('games/ical', compact('game_id', 'team_id', 'game', 'timezone', 'uid_prefix'));
 	}
 }
 ?>

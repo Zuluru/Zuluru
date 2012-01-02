@@ -44,7 +44,7 @@ $this->Html->addCrumb (__('Edit', true));
 		<?php
 		foreach ($this->data['Answer'] as $answer) {
 			++$i;
-			echo $this->element('question/edit_answer', compact('answer', 'i'));
+			echo $this->element('questions/edit_answer', compact('answer', 'i'));
 		}
 		?>
 

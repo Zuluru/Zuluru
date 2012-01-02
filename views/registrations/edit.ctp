@@ -36,7 +36,7 @@
 <?php if (!empty($registration['Event']['Questionnaire'])):?>
 	<fieldset><legend><?php __('Registration Answers'); ?></legend>
 		<div class="related">
-<?php echo $this->element ('questionnaire/input', array('questionnaire' => $registration['Event']['Questionnaire'], 'response' => $registration, 'edit' => true)); ?>
+<?php echo $this->element ('questionnaires/input', array('questionnaire' => $registration['Event']['Questionnaire'], 'response' => $registration, 'edit' => true)); ?>
 
 		</div>
 	</fieldset>

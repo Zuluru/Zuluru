@@ -8,7 +8,7 @@ $this->Html->addCrumb (__('Scoring', true));
 	<fieldset>
  		<legend><?php __('Defaulted Games'); ?></legend>
 	<?php
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'scoring',
 		'name' => 'default_winning_score',
 		'options' => array(
@@ -16,7 +16,7 @@ $this->Html->addCrumb (__('Scoring', true));
 			'size' => 6,
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'scoring',
 		'name' => 'default_losing_score',
 		'options' => array(
@@ -24,7 +24,7 @@ $this->Html->addCrumb (__('Scoring', true));
 			'size' => 6,
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'scoring',
 		'name' => 'default_transfer_ratings',
 		'options' => array(
@@ -39,7 +39,7 @@ $this->Html->addCrumb (__('Scoring', true));
 	<fieldset>
  		<legend><?php __('Spirit Scores'); ?></legend>
 	<?php
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'scoring',
 		'name' => 'spirit_questions',
 		'options' => array(
@@ -48,7 +48,7 @@ $this->Html->addCrumb (__('Scoring', true));
 			'after' => 'Default type of spirit questions to use when creating a new league.',
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'scoring',
 		'name' => 'spirit_numeric',
 		'options' => array(
@@ -61,7 +61,7 @@ $this->Html->addCrumb (__('Scoring', true));
 	echo $this->Html->para(null, __('By using various combinations of questions and numeric entry above, you can have just the questionnaire, just the numeric entry, both or neither.', true));
 	echo $this->Html->para(null, __('The values set above will be the default value for leagues, but can be overridden on a per-league basis.', true));
 
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'scoring',
 		'name' => 'spirit_max',
 		'options' => array(
@@ -70,7 +70,7 @@ $this->Html->addCrumb (__('Scoring', true));
 		),
 	));
 
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'scoring',
 		'name' => 'missing_score_spirit_penalty',
 		'options' => array(
@@ -84,7 +84,7 @@ $this->Html->addCrumb (__('Scoring', true));
 	<fieldset>
  		<legend><?php __('Score Entry Features'); ?></legend>
 	<?php
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'scoring',
 		'name' => 'allstars',
 		'options' => array(
@@ -93,7 +93,7 @@ $this->Html->addCrumb (__('Scoring', true));
 			'after' => 'If enabled, all-star submissions will be a per-league option; otherwise, they will be disabled entirely.',
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'scoring',
 		'name' => 'incident_reports',
 		'options' => array(

@@ -104,7 +104,7 @@ if (isset ($add)) {
 	?>
 		<div id="SchedulingFields">
 		<?php
-		echo $this->element('league/scheduling_fields', array('fields' => $league_obj->schedulingFields($is_admin, $is_coordinator)));
+		echo $this->element('leagues/scheduling_fields', array('fields' => $league_obj->schedulingFields($is_admin, $is_coordinator)));
 		$this->Js->get('#LeagueScheduleType')->event('change', $this->Js->request(
 				array('action' => 'scheduling_fields'),
 				array('update' => '#SchedulingFields', 'dataExpression' => true, 'data' => '$("#LeagueScheduleType").get()')

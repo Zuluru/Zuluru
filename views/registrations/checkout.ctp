@@ -15,7 +15,7 @@ if (!empty($registrations)):
 	echo $this->Html->para(null, sprintf (__('You may also %s and register for something else before paying.', true),
 		$this->Html->link(__('view the event list', true), array('controller' => 'events', 'action' => 'wizard'))
 	));
-	echo $this->element ('payment/offline');
+	echo $this->element('payments/offline');
 ?>
 
 <table class="list">
@@ -52,7 +52,7 @@ if (!empty($registrations)):
 		<th><?php echo $this->Number->currency ($total); ?></th>
 		<th class="actions"><?php
 		if (Configure::read ('registration.online_payments')) {
-			echo $this->element ('payment/forms/' . Configure::read('payment.payment_implementation'));
+			echo $this->element('payments/forms/' . Configure::read('payment.payment_implementation'));
 		}
 		?></th>
 	</tr>
@@ -94,6 +94,6 @@ if (!empty($full)):
 <?php endif; ?>
 
 <?php
-echo $this->element ('payment/refund');
+echo $this->element('payments/refund');
 echo $this->Html->para('small', __('&reg; Trade-mark of Interac Inc. Used under licence. <a href="http://www.interaconline.com/learn/" target="_blank">Learn more</a> about INTERAC Online.', true));
 ?>

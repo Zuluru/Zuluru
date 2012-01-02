@@ -68,7 +68,7 @@ $this->Html->addCrumb (__('View', true));
 			}
 	?>
 	<tr<?php echo $class;?>>
-		<td><?php echo $this->element('team/block', compact('team'));?></td>
+		<td><?php echo $this->element('teams/block', compact('team'));?></td>
 		<td><?php
 		if (array_key_exists('id', $team['League'])) {
 			echo $this->Html->link($team['League']['long_name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $team['League']['id']));
@@ -85,7 +85,7 @@ $this->Html->addCrumb (__('View', true));
 				array(),
 				sprintf(__('Are you sure you want to remove this %s?', true), __('team', true)));
 		}
-		echo $this->element('team/actions', array('team' => $team, 'league' => $team));
+		echo $this->element('teams/actions', array('team' => $team, 'league' => $team));
 		?>
 		</td>
 	</tr>

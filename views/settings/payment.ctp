@@ -8,7 +8,7 @@ $this->Html->addCrumb (__('Online Payments', true));
 	<fieldset>
  		<legend><?php __('Common Options'); ?></legend>
 	<?php
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'payment',
 		'name' => 'payment_implementation',
 		'options' => array(
@@ -18,7 +18,7 @@ $this->Html->addCrumb (__('Online Payments', true));
 			'hide_single' => true,
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'payment',
 		'name' => 'invoice_implementation',
 		'options' => array(
@@ -27,7 +27,7 @@ $this->Html->addCrumb (__('Online Payments', true));
 			'hide_single' => true,
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'payment',
 		'name' => 'reg_id_format',
 		'options' => array(
@@ -35,7 +35,7 @@ $this->Html->addCrumb (__('Online Payments', true));
 			'after' => 'sprintf format string for the event ID, sent to the payment processor as the item number.',
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'payment',
 		'name' => 'test_payments',
 		'options' => array(
@@ -44,7 +44,7 @@ $this->Html->addCrumb (__('Online Payments', true));
 			'after' => 'Who should get test instead of live payments?',
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'payment',
 		'name' => 'currency',
 		'options' => array(
@@ -52,7 +52,7 @@ $this->Html->addCrumb (__('Online Payments', true));
 			'options' => Configure::read('options.currency'),
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'payment',
 		'name' => 'tax1_enable',
 		'options' => array(
@@ -61,14 +61,14 @@ $this->Html->addCrumb (__('Online Payments', true));
 			'after' => 'Enable first tax',
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'payment',
 		'name' => 'tax1_name',
 		'options' => array(
 			'label' => 'First tax name',
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'payment',
 		'name' => 'tax2_enable',
 		'options' => array(
@@ -77,7 +77,7 @@ $this->Html->addCrumb (__('Online Payments', true));
 			'after' => 'Enable second tax',
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'payment',
 		'name' => 'tax2_name',
 		'options' => array(
@@ -88,7 +88,7 @@ $this->Html->addCrumb (__('Online Payments', true));
 	</fieldset>
 	<div id="PaymentProviderFields">
 	<?php
-	echo $this->element ('payment/settings/' . Configure::read('payment.payment_implementation'));
+	echo $this->element('payments/settings/' . Configure::read('payment.payment_implementation'));
 	$this->Js->get('#PaymentProvider')->event('change', $this->Js->request(
 			array('action' => 'payment_provider_fields'),
 			array('update' => '#PaymentProviderFields', 'dataExpression' => true, 'data' => '$("#PaymentProvider").get()')

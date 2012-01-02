@@ -191,7 +191,7 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 			<td><?php
 			echo $this->element('people/roster', array('roster' => $team['TeamsPerson'], 'league' => $team['League'])) .
 				' ' . __('on', true) . ' ' .
-				$this->element('team/block', array('team' => $team['Team'])) .
+				$this->element('teams/block', array('team' => $team['Team'])) .
 				' (' . $this->Html->link($team['League']['name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $team['League']['id'])) . ')';
 			?></td>
 		</tr>

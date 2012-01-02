@@ -31,7 +31,7 @@ foreach ($payment as $value) {
 }
 
 echo $this->Html->tag ('table', $this->Html->tableCells ($rows, array(), array('class' => 'altrow')), array('class' => 'list'));
-echo $this->element('questionnaire/summary');
+echo $this->element('questionnaires/summary');
 ?>
 </div>
 <div class="actions">

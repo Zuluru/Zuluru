@@ -8,7 +8,7 @@ $this->Html->addCrumb (__('Preferences', true));
 <h2><?php echo __('Registration Preferences', true) . ': ' . $event['Event']['name']; ?></h2>
 
 <?php
-echo $this->element ('registration/notice');
+echo $this->element ('registrations/notice');
 
 if ($waivered) {
 	echo $this->Html->para ('highlight-message', sprintf (__('You have already accepted the %s for this membership year.', true),
@@ -20,7 +20,7 @@ if ($waivered) {
 
 echo $this->Form->create('Response', array('url' => Router::normalize($this->here)));
 
-echo $this->element ('questionnaire/input', array('questionnaire' => $event['Questionnaire']));
+echo $this->element ('questionnaires/input', array('questionnaire' => $event['Questionnaire']));
 ?>
 
 <div class="submit">

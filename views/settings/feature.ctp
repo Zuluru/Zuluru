@@ -8,7 +8,7 @@ $this->Html->addCrumb (__('Feature', true));
 	<fieldset>
  		<legend><?php __('Primary Options'); ?></legend>
 	<?php
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'site',
 		'name' => 'name',
 		'options' => array(
@@ -16,7 +16,7 @@ $this->Html->addCrumb (__('Feature', true));
 			'after' => 'The name this application will be known as to your users.',
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'feature',
 		'name' => 'items_per_page',
 		'options' => array(
@@ -29,7 +29,7 @@ $this->Html->addCrumb (__('Feature', true));
 	<fieldset>
  		<legend><?php __('Boolean Options'); ?></legend>
 	<?php
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'feature',
 		'name' => 'registration',
 		'options' => array(
@@ -39,7 +39,7 @@ $this->Html->addCrumb (__('Feature', true));
 			'after' => 'Enable or disable processing of registrations.',
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'feature',
 		'name' => 'franchises',
 		'options' => array(
@@ -49,7 +49,7 @@ $this->Html->addCrumb (__('Feature', true));
 			'after' => 'Enable or disable linking of teams through franchises.',
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'feature',
 		'name' => 'dog_questions',
 		'options' => array(
@@ -58,7 +58,7 @@ $this->Html->addCrumb (__('Feature', true));
 			'after' => 'Enable or disable questions and options about dogs.',
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'feature',
 		'name' => 'region_preference',
 		'options' => array(
@@ -67,7 +67,7 @@ $this->Html->addCrumb (__('Feature', true));
 			'after' => 'If enabled, teams will be allowed to set a regional preference for scheduling.',
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'feature',
 		'name' => 'force_roster_request',
 		'options' => array(
@@ -77,7 +77,7 @@ $this->Html->addCrumb (__('Feature', true));
 			'after' => 'If enabled, players will be forced to respond to roster requests the next time they sign on. It is recommended to use either this or Generate Roster Emails, not both.',
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'feature',
 		'name' => 'generate_roster_email',
 		'options' => array(
@@ -86,7 +86,7 @@ $this->Html->addCrumb (__('Feature', true));
 			'after' => 'If enabled, emails will be sent to players invited to join rosters, and captains who have players request to join their teams. It is recommended to use either this or Force Roster Request Responses, not both.',
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'feature',
 		'name' => 'tiny_mce',
 		'options' => array(

@@ -1,3 +1,3 @@
 <?php
-echo $this->element('registration/configuration/' . $event_obj->configurationFieldsElement());
+echo $this->element('registrations/configuration/' . $event_obj->configurationFieldsElement());
 ?>

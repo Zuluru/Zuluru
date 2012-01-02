@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('Select Date', true));
 ?>
 
 <div class="schedules add">
-<?php echo $this->element('schedule/exclude'); ?>
+<?php echo $this->element('schedules/exclude'); ?>
 
 <?php
 echo $this->Form->create ('Game', array('url' => Router::normalize($this->here)));

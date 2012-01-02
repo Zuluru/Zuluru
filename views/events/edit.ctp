@@ -79,7 +79,7 @@ if (isset ($add)) {
 	?>
 		<div id="EventTypeFields">
 		<?php
-		echo $this->element('registration/configuration/' . $event_obj->configurationFieldsElement());
+		echo $this->element('registrations/configuration/' . $event_obj->configurationFieldsElement());
 		$this->Js->get('#EventEventTypeId')->event('change', $this->Js->request(
 				array('action' => 'event_type_fields'),
 				array('update' => '#EventTypeFields', 'dataExpression' => true, 'data' => '$("#EventEventTypeId").get()')

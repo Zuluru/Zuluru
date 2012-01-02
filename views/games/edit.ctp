@@ -30,7 +30,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 			if ($rating === null) {
 				$rating = $game['HomeTeam']['rating'];
 			}
-			echo $this->element('team/block', array('team' => $game['HomeTeam']));
+			echo $this->element('teams/block', array('team' => $game['HomeTeam']));
 			if (array_key_exists ('home_dependency', $game['Game'])) {
 				echo " ({$game['Game']['home_dependency']})";
 			}
@@ -50,7 +50,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 			if ($rating === null) {
 				$rating = $game['AwayTeam']['rating'];
 			}
-			echo $this->element('team/block', array('team' => $game['AwayTeam']));
+			echo $this->element('teams/block', array('team' => $game['AwayTeam']));
 			if (array_key_exists ('away_dependency', $game['Game'])) {
 				echo " ({$game['Game']['away_dependency']})";
 			}
@@ -109,7 +109,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 	<legend><?php __('Scoring'); ?></legend>
 	<?php if (Game::_is_finalized($game)): ?>
 
-	<?php echo $this->element("league/game/{$league_obj->render_element}/score", compact('game')); ?>
+	<?php echo $this->element("leagues/game/{$league_obj->render_element}/score", compact('game')); ?>
 	<dl>
 		<dt><?php __('Score Approved By'); ?></dt>
 		<dd>

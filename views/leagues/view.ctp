@@ -231,7 +231,7 @@ $this->Html->addCrumb (__('View', true));
 	<?php if (!empty($league['Team'])):?>
 	<table class="list">
 	<?php
-	echo $this->element("league/view/{$league_obj->render_element}/heading",
+	echo $this->element("leagues/view/{$league_obj->render_element}/heading",
 			compact ('is_admin', 'is_coordinator'));
 	$seed = $i = 0;
 	foreach ($league['Team'] as $team) {
@@ -249,7 +249,7 @@ $this->Html->addCrumb (__('View', true));
 			}
 		}
 		Team::consolidateRoster ($team);
-		echo $this->element("league/view/{$league_obj->render_element}/team",
+		echo $this->element("leagues/view/{$league_obj->render_element}/team",
 				compact ('is_admin', 'is_coordinator', 'is_captain', 'league', 'team', 'seed', 'classes'));
 	}
 	?>

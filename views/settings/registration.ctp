@@ -8,7 +8,7 @@ $this->Html->addCrumb (__('Registration', true));
 	<fieldset>
  		<legend><?php __('Registration Configuration'); ?></legend>
 	<?php
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'registration',
 		'name' => 'order_id_format',
 		'options' => array(
@@ -16,7 +16,7 @@ $this->Html->addCrumb (__('Registration', true));
 			'after' => 'sprintf format string for the unique order ID.',
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'registration',
 		'name' => 'allow_tentative',
 		'options' => array(
@@ -26,7 +26,7 @@ $this->Html->addCrumb (__('Registration', true));
 			'after' => 'Tentative members include those whose accounts have not yet been approved but don\'t appear to be duplicates of existing accounts, and those who have registered for membership and called to arrange an offline payment which has not yet been received.',
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'registration',
 		'name' => 'online_payments',
 		'options' => array(
@@ -35,7 +35,7 @@ $this->Html->addCrumb (__('Registration', true));
 			'after' => 'Do we handle online payments?',
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'registration',
 		'name' => 'refund_policy_text',
 		'options' => array(
@@ -44,7 +44,7 @@ $this->Html->addCrumb (__('Registration', true));
 			'after' => 'Customize the text of your refund policy, to be shown on registration pages and invoices.',
 		),
 	));
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'category' => 'registration',
 		'name' => 'offline_payment_text',
 		'options' => array(

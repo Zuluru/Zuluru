@@ -8,7 +8,7 @@ $this->Html->addCrumb ($team['name']);
 <h2><?php  __('Attendance Change'); ?></h2>
 	<dl>
 		<dt><?php __('Team'); ?></dt>
-		<dd><?php echo $this->element('team/block', array('team' => $team)); ?></dd>
+		<dd><?php echo $this->element('teams/block', array('team' => $team)); ?></dd>
 		<dt><?php __('Game Date'); ?></dt>
 		<dd><?php
 		if (isset ($game)) {
@@ -28,7 +28,7 @@ $this->Html->addCrumb ($team['name']);
 		<dt><?php __('Opponent'); ?></dt>
 		<dd><?php
 		if (isset ($opponent)) {
-			echo $this->element('team/block', array('team' => $opponent));
+			echo $this->element('teams/block', array('team' => $opponent));
 		} else {
 			__('TBD');
 		}

@@ -137,7 +137,7 @@
 <?php if (!empty($registration['Response'])):?>
 <fieldset><legend><?php __('Registration Answers'); ?></legend>
 	<div class="related">
-<?php echo $this->element ('questionnaire/view', array('questionnaire' => $registration['Event']['Questionnaire'], 'response' => $registration)); ?>
+<?php echo $this->element ('questionnaires/view', array('questionnaire' => $registration['Event']['Questionnaire'], 'response' => $registration)); ?>
 
 	</div>
 </fieldset>

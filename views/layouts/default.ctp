@@ -56,7 +56,7 @@
 		</div>
 		<table class="container"><tr>
 		<td class="sidebar-left">
-			<?php echo $this->element("menu/$menu_element", array('menu_items' => $menu_items)); ?>
+			<?php echo $this->element("menus/$menu_element", array('menu_items' => $menu_items)); ?>
 
 		</td>
 		<td>

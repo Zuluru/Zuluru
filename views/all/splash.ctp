@@ -41,7 +41,7 @@ foreach ($teams as $team):
 ?>
 	<tr<?php echo $class;?>>
 		<td class="splash_item"><?php
-			echo $this->element('team/block', array('team' => $team['Team'])) .
+			echo $this->element('teams/block', array('team' => $team['Team'])) .
 				' (' . $this->element('people/roster', array('roster' => $team['TeamsPerson'], 'league' => $team['League'])) . ')';
 		?></td>
 		<td class="actions splash_action">
@@ -153,14 +153,14 @@ foreach ($games as $game):
 			if ($game['Game']['home_team'] === null) {
 				echo $game['Game']['home_dependency'];
 			} else {
-				echo $this->element('team/block', array('team' => $game['HomeTeam'], 'options' => array('max_length' => 16))) .
+				echo $this->element('teams/block', array('team' => $game['HomeTeam'], 'options' => array('max_length' => 16))) .
 					' (' . __('home', true) . ')';
 			}
 			__(' vs. ');
 			if ($game['Game']['away_team'] === null) {
 				echo $game['Game']['away_dependency'];
 			} else {
-				echo $this->element('team/block', array('team' => $game['AwayTeam'], 'options' => array('max_length' => 16))) .
+				echo $this->element('teams/block', array('team' => $game['AwayTeam'], 'options' => array('max_length' => 16))) .
 					' (' . __('away', true) . ')';
 			}
 			__(' at ');
@@ -176,7 +176,7 @@ foreach ($games as $game):
 		}
 		if ($team['track_attendance']) {
 			$position = Set::extract("/TeamsPerson[team_id={$team['id']}]/position", $teams);
-			echo $this->element('game/attendance_change', array(
+			echo $this->element('games/attendance_change', array(
 				'team' => $team,
 				'game_id' => $game['Game']['id'],
 				'game_date' => $game['GameSlot']['game_date'],
@@ -229,4 +229,4 @@ if ($empty) {
 
 </div>
 
-<?php echo $this->element('game/attendance_div'); ?>
+<?php echo $this->element('games/attendance_div'); ?>

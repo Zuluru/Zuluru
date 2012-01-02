@@ -13,5 +13,5 @@ if (isset ($game)) {
 } else {
 	$args['game_date'] = $date;
 }
-echo $this->element('game/attendance_change', $args);
+echo $this->element('games/attendance_change', $args);
 ?>

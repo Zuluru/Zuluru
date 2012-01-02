@@ -16,7 +16,7 @@ $this->Html->addCrumb ($team['Team']['name']);
 			$games_on_date = Set::extract("/GameSlot[game_date=$date]/..", $games);
 			if (!empty($games_on_date)) {
 				foreach ($games_on_date as $game) {
-					echo $this->Html->tag('th', $this->element('game/block', array('game' => $game)));
+					echo $this->Html->tag('th', $this->element('games/block', array('game' => $game)));
 					$all_games[] = array('date' => $date, 'time' => $game['GameSlot']['game_start'], 'condition' => "game_id={$game['Game']['id']}");
 				}
 			} else {
@@ -54,7 +54,7 @@ $this->Html->addCrumb ($team['Team']['name']);
 					++$total;
 				}
 				++$count[$status][$key][$person['gender']];
-				$out = $this->element('game/attendance_change', array(
+				$out = $this->element('games/attendance_change', array(
 					'team' => $team['Team'],
 					'game_id' => $record[0]['game_id'],
 					'game_date' => $details['date'],
@@ -111,4 +111,4 @@ $this->Html->addCrumb ($team['Team']['name']);
 
 </table>
 
-<?php echo $this->element('game/attendance_div'); ?>
+<?php echo $this->element('games/attendance_div'); ?>

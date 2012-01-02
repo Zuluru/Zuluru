@@ -11,7 +11,7 @@ $season = Set::extract('/Game[tournament=0]/..', $league['Game']);
 if (!empty($league['Team']) && !empty($season)):?>
 	<table class="list">
 	<?php
-	echo $this->element("league/standings/{$league_obj->render_element}/heading",
+	echo $this->element("leagues/standings/{$league_obj->render_element}/heading",
 			compact ('is_admin', 'is_coordinator', 'league'));
 	$i = 0;
 	if (isset ($more_before)) {
@@ -20,7 +20,7 @@ if (!empty($league['Team']) && !empty($season)):?>
 		if (++$i % 2 == 0) {
 			$classes[] = 'altrow';
 		}
-		echo $this->element("league/standings/{$league_obj->render_element}/more",
+		echo $this->element("leagues/standings/{$league_obj->render_element}/more",
 				compact ('league', 'teamid', 'classes'));
 	} else {
 		$seed = 0;
@@ -41,7 +41,7 @@ if (!empty($league['Team']) && !empty($season)):?>
 		if ($teamid == $team['id']) {
 			$classes[] = 'team_highlight';
 		}
-		echo $this->element("league/standings/{$league_obj->render_element}/team",
+		echo $this->element("leagues/standings/{$league_obj->render_element}/team",
 				compact ('is_admin', 'is_coordinator', 'league', 'team', 'seed', 'classes'));
 	}
 	if (isset ($more_after)) {
@@ -49,7 +49,7 @@ if (!empty($league['Team']) && !empty($season)):?>
 		if (++$i % 2 == 0) {
 			$classes[] = 'altrow';
 		}
-		echo $this->element("league/standings/{$league_obj->render_element}/more",
+		echo $this->element("leagues/standings/{$league_obj->render_element}/more",
 			compact ('league', 'teamid', 'classes'));
 	}
 	?>
@@ -61,7 +61,7 @@ if (!empty($tournament)):
 ?>
 <h3><?php __('Playoff brackets'); ?></h3>
 <?php
-echo $this->element('league/standings/tournament/bracket', array('games' => $tournament, 'teams' => $league['Team']));
+echo $this->element('leagues/standings/tournament/bracket', array('games' => $tournament, 'teams' => $league['Team']));
 ?>
 <?php endif; ?>
 </div>

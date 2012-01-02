@@ -17,7 +17,7 @@ if (array_key_exists('name', $this->data['Game'])) {
 <h3>Start date:</h3>
 <p><?php echo $this->ZuluruTime->fulldate($start_date); ?></p>
 
-<?php echo $this->element('schedule/exclude'); ?>
+<?php echo $this->element('schedules/exclude'); ?>
 
 <h3>Publication:</h3>
 <p>Games will <?php echo ($this->data['Game']['publish'] ? '' : 'NOT '); ?>be published.</p>

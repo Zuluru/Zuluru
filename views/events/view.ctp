@@ -120,7 +120,7 @@ $this->Html->addCrumb (__('View', true));
 
 <?php
 if (!$is_logged_in):
-	echo $this->element('event/not_logged_in');
+	echo $this->element('events/not_logged_in');
 else:
 	foreach ($messages as $message) {
 		$class = null;

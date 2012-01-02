@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('Select Type', true));
 ?>
 
 <div class="schedules add">
-<?php echo $this->element('schedule/exclude'); ?>
+<?php echo $this->element('schedules/exclude'); ?>
 
 <?php
 $is_tournament = isset($playoff) || $league['League']['schedule_type'] == 'tournament';

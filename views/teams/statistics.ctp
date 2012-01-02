@@ -48,7 +48,7 @@ foreach ($counts as $league):
 foreach ($shorts as $team):
 ?>
 		<tr>
-			<td><?php echo $this->element ('team/block', compact('team')); ?></td>
+			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
 			<td><?php
 			echo $team[0]['size'];
 			if ($team[0]['subs'] > 0) {
@@ -74,7 +74,7 @@ foreach ($shorts as $team):
 foreach ($top_rating as $team):
 ?>
 		<tr>
-			<td><?php echo $this->element ('team/block', compact('team')); ?></td>
+			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
 			<td><?php echo $team['Team']['rating']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -95,7 +95,7 @@ foreach ($top_rating as $team):
 foreach ($lowest_rating as $team):
 ?>
 		<tr>
-			<td><?php echo $this->element ('team/block', compact('team')); ?></td>
+			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
 			<td><?php echo $team['Team']['rating']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -117,7 +117,7 @@ foreach ($defaulting as $team):
 	$team['Team'] = $team[0];
 ?>
 		<tr>
-			<td><?php echo $this->element ('team/block', compact('team')); ?></td>
+			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
 			<td><?php echo $team['Team']['count']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -139,7 +139,7 @@ foreach ($no_scores as $team):
 	$team['Team'] = $team[0];
 ?>
 		<tr>
-			<td><?php echo $this->element ('team/block', compact('team')); ?></td>
+			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
 			<td><?php echo $team[0]['count']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -160,7 +160,7 @@ foreach ($no_scores as $team):
 foreach ($top_spirit as $team):
 ?>
 		<tr>
-			<td><?php echo $this->element ('team/block', compact('team')); ?></td>
+			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
 			<td><?php echo $team[0]['avgspirit']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -181,7 +181,7 @@ foreach ($top_spirit as $team):
 foreach ($lowest_spirit as $team):
 ?>
 		<tr>
-			<td><?php echo $this->element ('team/block', compact('team')); ?></td>
+			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
 			<td><?php echo $team[0]['avgspirit']; ?></td>
 		</tr>
 <?php endforeach; ?>

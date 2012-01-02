@@ -8,7 +8,7 @@ $this->Html->addCrumb ("{$person['Person']['first_name']} {$person['Person']['la
 	<fieldset>
  		<legend><?php __('Preferences'); ?></legend>
 	<?php
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'person_id' => $id,
 		'category' => 'personal',
 		'name' => 'enable_ical',
@@ -20,7 +20,7 @@ $this->Html->addCrumb ("{$person['Person']['first_name']} {$person['Person']['la
 		),
 	));
 
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'person_id' => $id,
 		'category' => 'personal',
 		'name' => 'attendance_emails',
@@ -36,7 +36,7 @@ $this->Html->addCrumb ("{$person['Person']['first_name']} {$person['Person']['la
 	foreach (Configure::read('options.date_formats') as $format) {
 		$options[$format] = date($format);
 	}
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'person_id' => $id,
 		'category' => 'personal',
 		'name' => 'date_format',
@@ -51,7 +51,7 @@ $this->Html->addCrumb ("{$person['Person']['first_name']} {$person['Person']['la
 	foreach (Configure::read('options.day_formats') as $format) {
 		$options[$format] = date($format);
 	}
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'person_id' => $id,
 		'category' => 'personal',
 		'name' => 'day_format',
@@ -66,7 +66,7 @@ $this->Html->addCrumb ("{$person['Person']['first_name']} {$person['Person']['la
 	foreach (Configure::read('options.time_formats') as $format) {
 		$options[$format] = date($format);
 	}
-	echo $this->element ('setting/input', array(
+	echo $this->element('settings/input', array(
 		'person_id' => $id,
 		'category' => 'personal',
 		'name' => 'time_format',

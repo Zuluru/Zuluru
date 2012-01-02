@@ -34,7 +34,7 @@ foreach ($teams as $team):
 ?>
 	<tr<?php echo $class;?>>
 		<td>
-			<?php echo $this->element('team/block', array('team' => $team['Team'])); ?>
+			<?php echo $this->element('teams/block', array('team' => $team['Team'])); ?>
 		</td>
 		<td>
 			<?php echo $this->Html->link($team['League']['long_name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $team['League']['id'])); ?>

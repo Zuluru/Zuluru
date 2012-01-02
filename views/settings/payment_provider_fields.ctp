@@ -1,1 +1,1 @@
-<?php echo $this->element ('payment/settings/' . $provider); ?>
+<?php echo $this->element('payments/settings/' . $provider); ?>

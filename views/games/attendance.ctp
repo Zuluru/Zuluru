@@ -13,9 +13,9 @@ $this->Html->addCrumb ($this->ZuluruTime->date($game['GameSlot']['game_date']));
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Game Time'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>><?php echo $this->ZuluruTime->time($game['GameSlot']['game_start']); ?> - <?php echo $this->ZuluruTime->time($game['GameSlot']['display_game_end']); ?></dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Team'); ?></dt>
-		<dd<?php if ($i++ % 2 == 0) echo $class;?>><?php echo $this->element('team/block', array('team' => $team)); ?></dd>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>><?php echo $this->element('teams/block', array('team' => $team)); ?></dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Opponent'); ?></dt>
-		<dd<?php if ($i++ % 2 == 0) echo $class;?>><?php echo $this->element('team/block', array('team' => $opponent)); ?></dd>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>><?php echo $this->element('teams/block', array('team' => $opponent)); ?></dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Location');?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $this->Html->link("{$game['GameSlot']['Field']['code']} {$game['GameSlot']['Field']['num']}",
@@ -86,7 +86,7 @@ $this->Html->addCrumb ($this->ZuluruTime->date($game['GameSlot']['game_date']));
 		<td><?php __($person['gender']);?></td>
 		<td><?php echo $person['skill_level'];?></td>
 		<td class="<?php echo low($statuses[$status]);?>"><?php
-			echo $this->element('game/attendance_change', array(
+			echo $this->element('games/attendance_change', array(
 				'team' => $team,
 				'game_id' => $game['Game']['id'],
 				'game_date' => $game['GameSlot']['game_date'],
@@ -110,4 +110,4 @@ $this->Html->addCrumb ($this->ZuluruTime->date($game['GameSlot']['game_date']));
 	</table>
 </div>
 
-<?php echo $this->element('game/attendance_div'); ?>
+<?php echo $this->element('games/attendance_div'); ?>
