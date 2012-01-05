@@ -11,14 +11,14 @@ $this->Html->addCrumb (__('Select Additional Bracket Type', true));
 
 <?php
 echo $this->Form->create ('Game', array('url' => Router::normalize($this->here)));
-$this->data['Game']['step'] = 'subtype';
+$this->data['Game']['step'] = 'overflow_type';
 echo $this->element('hidden', array('fields' => $this->data));
 ?>
 
 <fieldset>
 <legend>Create a ...</legend>
 <?php
-echo $this->Form->input('subtype', array(
+echo $this->Form->input('overflow_type', array(
 		'legend' => false,
 		'type' => 'radio',
 		'options' => $types,
