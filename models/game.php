@@ -211,7 +211,9 @@ class Game extends AppModel {
 
 		// Find the "most important" remaining game to start the bracket
 		// TODO: Add some kind of "bracket sort" field and use that instead
-		$name = min(array_unique(Set::extract('/Game/name', $games)));
+		$names = array_unique(Set::extract('/Game/name', $games));
+		usort($names, array('Game', 'compare_game_name'));
+		$name = array_shift($names);
 		$final = array_shift(Set::extract("/Game[name=$name]/..", $games));
 		$bracket[$final['Game']['round']] = array($final);
 		unset ($games[$final['Game']['id']]);
@@ -248,6 +250,37 @@ class Game extends AppModel {
 		}
 
 		return $bracket;
+	}
+
+	static function compare_game_name($a, $b) {
+		// First, check pool names, if they exist
+		if (strpos($a, '-') !== false) {
+			list ($a_pool, $a) = explode('-', $a);
+			list ($b_pool, $b) = explode('-', $b);
+			if ($a_pool < $b_pool) {
+				return -1;
+			} else if ($a_pool > $b_pool) {
+				return 1;
+			}
+		}
+
+		// Strip off any "st" or "nd" or "rd" or "th".
+		// Don't change names that don't start with numbers.
+		// Change back to strings, so that later comparisons work.
+		if (intval($a) > 0) {
+			$a = strval(intval($a));
+		}
+		if (intval($b) > 0) {
+			$b = strval(intval($b));
+		}
+
+		if ($a < $b) {
+			return -1;
+		} else if ($a > $b) {
+			return 1;
+		}
+
+		return 0;
 	}
 
 	function _validateForScheduleEdit() {

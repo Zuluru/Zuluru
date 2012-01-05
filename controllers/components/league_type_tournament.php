@@ -300,9 +300,9 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		$success &= $this->createTournamentGame (2, 1, 'B', 'seed', 2, 'seed', 3);
 
 		// Round 2: winners vs winners, optional losers vs losers
-		$success &= $this->createTournamentGame (3, 2, '1st', 'game_winner', 1, 'game_winner', 2);
+		$success &= $this->createTournamentGame (3, 2, ordinal($this->first_team + 1), 'game_winner', 1, 'game_winner', 2);
 		if ($consolation) {
-			$success &= $this->createTournamentGame (4, 2, '3rd', 'game_loser', 1, 'game_loser', 2);
+			$success &= $this->createTournamentGame (4, 2, ordinal($this->first_team + 3), 'game_loser', 1, 'game_loser', 2);
 		}
 
 		return $success;
@@ -317,12 +317,13 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		$success &= $this->createTournamentGame (3, 2, 'C', 'seed', 2, 'seed', 3);
 
 		// Round 3: Winner B vs Winner C 1st/2nd Place, optional Loser A vs Loser C - Loser 5th Place
-		$success &= $this->createTournamentGame (4, 3, '1st', 'game_winner', 2, 'game_winner', 3);
+		$success &= $this->createTournamentGame (4, 3, ordinal($this->first_team + 1), 'game_winner', 2, 'game_winner', 3);
 		if ($consolation) {
 			$success &= $this->createTournamentGame (5, 3, 'D', 'game_loser', 1, 'game_loser', 3);
 
 			// Round 4: Winner D vs Loser B 3rd/4th Place
-			$success &= $this->createTournamentGame (6, 4, '3rd', 'game_winner', 5, 'game_loser', 2);
+			$success &= $this->createTournamentGame (6, 4, ordinal($this->first_team + 3), 'game_winner', 5, 'game_loser', 2);
+
 		}
 
 		return $success;
@@ -337,13 +338,13 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		$success &= $this->createTournamentGame (3, 2, 'C', 'seed', 1, 'game_winner', 1);
 		$success &= $this->createTournamentGame (4, 2, 'D', 'seed', 2, 'game_winner', 2);
 		if ($consolation) {
-			$success &= $this->createTournamentGame (5, 2, '5th', 'game_loser', 1, 'game_loser', 2);
+			$success &= $this->createTournamentGame (5, 2, ordinal($this->first_team + 5), 'game_loser', 1, 'game_loser', 2);
 		}
 
 		// Round 3: Winner C vs Winner D 1st/2nd Place, optional Loser C vs Loser D 3rd/4th Place
-		$success &= $this->createTournamentGame (6, 3, '1st', 'game_winner', 3, 'game_winner', 4);
+		$success &= $this->createTournamentGame (6, 3, ordinal($this->first_team + 1), 'game_winner', 3, 'game_winner', 4);
 		if ($consolation) {
-			$success &= $this->createTournamentGame (7, 3, '3rd', 'game_loser', 3, 'game_loser', 4);
+			$success &= $this->createTournamentGame (7, 3, ordinal($this->first_team + 3), 'game_loser', 3, 'game_loser', 4);
 		}
 
 		return $success;
@@ -356,10 +357,10 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		$success &= $this->createTournamentGame (3, 1, 'C', 'seed', 5, 'seed', 6);
 
 		// Round 2: Winner A vs Winner B, optional Loser B vs Winner C, Loser A vs Loser C
-		$success &= $this->createTournamentGame (4, 2, '1st', 'game_winner', 1, 'game_winner', 2);
+		$success &= $this->createTournamentGame (4, 2, ordinal($this->first_team + 1), 'game_winner', 1, 'game_winner', 2);
 		if ($consolation) {
-			$success &= $this->createTournamentGame (5, 2, '3rd', 'game_loser', 2, 'game_winner', 3);
-			$success &= $this->createTournamentGame (6, 2, '5th', 'game_loser', 1, 'game_loser', 3);
+			$success &= $this->createTournamentGame (5, 2, ordinal($this->first_team + 3), 'game_loser', 2, 'game_winner', 3);
+			$success &= $this->createTournamentGame (6, 2, ordinal($this->first_team + 5), 'game_loser', 1, 'game_loser', 3);
 		}
 
 		return $success;
@@ -379,9 +380,9 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		}
 
 		// Round 3: Winner D vs Winner E 1st/2nd Place, optional Loser D vs Loser E 3rd/4th Place, optional Loser A vs Loser C - game 2 of round robin for 5th/6th/7th
-		$success &= $this->createTournamentGame (7, 3, '1st', 'game_winner', 4, 'game_winner', 5);
+		$success &= $this->createTournamentGame (7, 3, ordinal($this->first_team + 1), 'game_winner', 4, 'game_winner', 5);
 		if ($bronze) {
-			$success &= $this->createTournamentGame (8, 3, '3rd', 'game_loser', 4, 'game_loser', 5);
+			$success &= $this->createTournamentGame (8, 3, ordinal($this->first_team + 3), 'game_loser', 4, 'game_loser', 5);
 		}
 		if ($consolation) {
 			$success &= $this->createTournamentGame (9, 3, 'G', 'game_loser', 3, 'game_loser', 1);
@@ -409,13 +410,13 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		}
 
 		// Round 3: more winners vs winners, optional losers vs losers
-		$success &= $this->createTournamentGame (9, 3, '1st', 'game_winner', 5, 'game_winner', 6);
+		$success &= $this->createTournamentGame (9, 3, ordinal($this->first_team + 1), 'game_winner', 5, 'game_winner', 6);
 		if ($bronze) {
-			$success &= $this->createTournamentGame (10, 3, '3rd', 'game_loser', 5, 'game_loser', 6);
+			$success &= $this->createTournamentGame (10, 3, ordinal($this->first_team + 3), 'game_loser', 5, 'game_loser', 6);
 		}
 		if ($consolation) {
-			$success &= $this->createTournamentGame (11, 3, '5th', 'game_winner', 7, 'game_winner', 8);
-			$success &= $this->createTournamentGame (12, 3, '7th', 'game_loser', 7, 'game_loser', 8);
+			$success &= $this->createTournamentGame (11, 3, ordinal($this->first_team + 5), 'game_winner', 7, 'game_winner', 8);
+			$success &= $this->createTournamentGame (12, 3, ordinal($this->first_team + 7), 'game_loser', 7, 'game_loser', 8);
 		}
 
 		return $success;
@@ -440,16 +441,16 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		}
 
 		// Round 4: more winners vs winners, optional losers vs losers
-		$success &= $this->createTournamentGame (10, 4, '1st', 'game_winner', 6, 'game_winner', 7);
+		$success &= $this->createTournamentGame (10, 4, ordinal($this->first_team + 1), 'game_winner', 6, 'game_winner', 7);
 		if ($bronze) {
-			$success &= $this->createTournamentGame (11, 4, '3rd', 'game_loser', 6, 'game_loser', 7);
+			$success &= $this->createTournamentGame (11, 4, ordinal($this->first_team + 3), 'game_loser', 6, 'game_loser', 7);
 		}
 		if ($consolation) {
 			$success &= $this->createTournamentGame (12, 4, 'J', 'game_winner', 8, 'game_loser', 3);
-			$success &= $this->createTournamentGame (13, 4, '8th', 'game_loser', 8, 'game_loser', 9);
+			$success &= $this->createTournamentGame (13, 4, ordinal($this->first_team + 8), 'game_loser', 8, 'game_loser', 9);
 
 			// Round 5: optional Winner J vs Winner I - 5th/6th Place
-			$success &= $this->createTournamentGame (14, 5, '5th', 'game_winner', 12, 'game_winner', 9);
+			$success &= $this->createTournamentGame (14, 5, ordinal($this->first_team + 5), 'game_winner', 12, 'game_winner', 9);
 		}
 
 		return $success;
@@ -478,13 +479,13 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		}
 
 		// Round 4: more winners vs winners, optional losers vs losers
-		$success &= $this->createTournamentGame (12, 4, '1st', 'game_winner', 8, 'game_winner', 9);
+		$success &= $this->createTournamentGame (12, 4, ordinal($this->first_team + 1), 'game_winner', 8, 'game_winner', 9);
 		if ($bronze) {
-			$success &= $this->createTournamentGame (13, 4, '3rd', 'game_loser', 8, 'game_loser', 9);
+			$success &= $this->createTournamentGame (13, 4, ordinal($this->first_team + 3), 'game_loser', 8, 'game_loser', 9);
 		}
 		if ($consolation) {
-			$success &= $this->createTournamentGame (14, 4, '5th', 'game_winner', 10, 'game_winner', 11);
-			$success &= $this->createTournamentGame (15, 4, '7th', 'game_loser', 10, 'game_loser', 11);
+			$success &= $this->createTournamentGame (14, 4, ordinal($this->first_team + 5), 'game_winner', 10, 'game_winner', 11);
+			$success &= $this->createTournamentGame (15, 4, ordinal($this->first_team + 7), 'game_loser', 10, 'game_loser', 11);
 		}
 
 		return $success;
@@ -515,13 +516,13 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		}
 
 		// Round 4: more winners vs winners, optional losers vs losers, optional Loser C vs Loser B - game 3 of round robin for 9th/10th/11th Place
-		$success &= $this->createTournamentGame (14, 4, '1st', 'game_winner', 9, 'game_winner', 10);
+		$success &= $this->createTournamentGame (14, 4, ordinal($this->first_team + 1), 'game_winner', 9, 'game_winner', 10);
 		if ($bronze) {
-			$success &= $this->createTournamentGame (15, 4, '3rd', 'game_loser', 9, 'game_loser', 10);
+			$success &= $this->createTournamentGame (15, 4, ordinal($this->first_team + 3), 'game_loser', 9, 'game_loser', 10);
 		}
 		if ($consolation) {
-			$success &= $this->createTournamentGame (16, 4, '5th', 'game_winner', 11, 'game_loser', 12);
-			$success &= $this->createTournamentGame (17, 4, '7th', 'game_loser', 11, 'game_loser', 12);
+			$success &= $this->createTournamentGame (16, 4, ordinal($this->first_team + 5), 'game_winner', 11, 'game_loser', 12);
+			$success &= $this->createTournamentGame (17, 4, ordinal($this->first_team + 7), 'game_loser', 11, 'game_loser', 12);
 			$success &= $this->createTournamentGame (18, 4, 'N', 'game_loser', 3, 'game_loser', 2);
 		}
 
