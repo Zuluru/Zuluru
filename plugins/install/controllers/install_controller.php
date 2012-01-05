@@ -330,13 +330,15 @@ CONFIG;
 				return;
 			}
 
-			// This must be done at the very end, after all schema changes are completed,
-			// as the data will be formatted for the current schema.
-			foreach ($this->dataObjects as $data) {
-				$this->_importData($data);
-			}
+			if (isset($this->params['named']['execute'])) {
+				// This must be done at the very end, after all schema changes are completed,
+				// as the data will be formatted for the current schema.
+				foreach ($this->dataObjects as $data) {
+					$this->_importData($data);
+				}
 
-			$this->_writeInstalled();
+				$this->_writeInstalled();
+			}
 		}
 
 		$this->set(array('results' => $this->results, 'success' => $success));
