@@ -475,12 +475,12 @@ div.help_dialog p
 #zuluru .round
 {
 	float: left;
-	width: 25%;
+	width: 24.5%;
 }
 
 #zuluru .rounds4 .round
 {
-	width: 20%;
+	width: 19.5%;
 }
 
 #zuluru .rounds5 .round
@@ -490,7 +490,7 @@ div.help_dialog p
 
 #zuluru .round0
 {
-	height: 50%;
+	height: 49%;
 	border-bottom: 1px solid black;
 	position: relative;
 }
