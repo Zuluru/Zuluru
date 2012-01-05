@@ -94,6 +94,33 @@ CONFIG;
 	}
 
 /**
+ * Import default data from the specified file
+ *
+ * @return void
+ */
+	function _importData($data) {
+		if (!App::import('class', $data, false, CONFIGS . 'schema' . DS . 'data' . DS)) {
+			return;
+		}
+		$classVars = get_class_vars($data);
+		$modelAlias = substr($data, 0, -4);
+		$table = $classVars['table'];
+		$records = $classVars['records'];
+		App::import('Model', 'Model', false);
+		$modelObject =& new Model(array(
+			'name' => $modelAlias,
+			'table' => $table,
+			'ds' => 'default',
+		));
+		if (is_array($records) && count($records) > 0) {
+			foreach($records as $record) {
+				$modelObject->create($record);
+				$modelObject->save();
+			}
+		}
+	}
+
+/**
  * Step 0: welcome
  *
  * A simple welcome message for the installer.
@@ -214,23 +241,7 @@ CONFIG;
 
 				$dataObjects = App::objects('class', CONFIGS . 'schema' . DS . 'data' . DS);
 				foreach ($dataObjects as $data) {
-					App::import('class', $data, false, CONFIGS . 'schema' . DS . 'data' . DS);
-					$classVars = get_class_vars($data);
-					$modelAlias = substr($data, 0, -4);
-					$table = $classVars['table'];
-					$records = $classVars['records'];
-					App::import('Model', 'Model', false);
-					$modelObject =& new Model(array(
-						'name' => $modelAlias,
-						'table' => $table,
-						'ds' => 'default',
-					));
-					if (is_array($records) && count($records) > 0) {
-						foreach($records as $record) {
-							$modelObject->create($record);
-							$modelObject->save();
-						}
-					}
+					$this->_importData($data);
 				}
 
 				$this->redirect(array('action' => 'finish'));
@@ -302,70 +313,110 @@ CONFIG;
 		}
 
 		App::import('Model', 'CakeSchema', false);
-
-		$schema =& new CakeSchema();
-		$schema = $schema->load();
-		$db =& ConnectionManager::getDataSource($schema->connection);
-		if(!$db->isConnected()) {
-			$this->Session->setFlash(__('Could not connect to database.', true), 'default', array('class' => 'error'));
-			return;
-		}
-
-		// Not all of our tables have real models
-		$old = $schema->read(array('models' => false));
-		$compare = $schema->compare($old, $schema);
-
-		$contents = array();
-		foreach ($compare as $table => $changes) {
-			if (array_key_exists ($table, $old['tables'])) {
-				$contents[$table] = $db->alterSchema(array($table => $changes), $table);
-			} else {
-				$contents[$table] = $create = $db->createSchema($schema, $table);
-			}
-		}
+		$this->schema =& new CakeSchema();
 
 		Configure::load('installed');
-		if (empty($contents)) {
-			$this->Session->setFlash(__('Database is already up to date.', true), 'default', array('class' => 'info'));
-			if (ZULURU_MAJOR . '.' . ZULURU_MINOR . '.' . ZULURU_REVISION != Configure::read('installed.version') ||
-				SCHEMA_VERSION != Configure::read('installed.schema_version'))
-			{
-				$this->_writeInstalled();
+		$this->results = $this->dataObjects = array();
+		$success = $this->_update();
+		if ($success) {
+			if (empty($this->results)) {
+				$this->Session->setFlash(__('Database is already up to date.', true), 'default', array('class' => 'info'));
+				if (ZULURU_MAJOR . '.' . ZULURU_MINOR . '.' . ZULURU_REVISION != Configure::read('installed.version') ||
+					SCHEMA_VERSION != Configure::read('installed.schema_version'))
+				{
+					$this->_writeInstalled();
+				}
+				$this->render('finish');
+				return;
 			}
-			$this->render('finish');
-			return;
+
+			// This must be done at the very end, after all schema changes are completed,
+			// as the data will be formatted for the current schema.
+			foreach ($this->dataObjects as $data) {
+				$this->_importData($data);
+			}
+
+			$this->_writeInstalled();
 		}
 
-		if (isset($this->params['named']['execute'])) {
-			$results = array();
-			$failed = false;
-			foreach ($contents as $table => $sql) {
-				if (!$schema->before(array('update' => $table))) {
-					$this->Session->setFlash(__('Failed to perform pre-processing on table ', true) . $table, 'default', array('class' => 'error'));
-					break;
+		$this->set(array('results' => $this->results, 'success' => $success));
+	}
+
+	function _update() {
+		for ($ver = Configure::read('installed.schema_version') + 1; $ver <= SCHEMA_VERSION; ++ $ver) {
+			if (file_exists(CONFIGS . 'schema' . DS . 'migrations' . DS . 'schema' . $ver . '.php')) {
+				if (!$this->_updateOne(array('name' => 'Zuluru' . $ver, 'path' => CONFIGS . 'schema' . DS . 'migrations', 'file' => 'schema' . $ver . '.php'))) {
+					return false;
 				}
+			}
+		}
+		if (!$this->_updateOne(array('name' => 'Zuluru', 'path' => CONFIGS . 'schema', 'file' => 'schema.php'))) {
+			return false;
+		}
+
+		return true;
+	}
+
+	function _updateOne($options) {
+		$schema = $this->schema->load($options);
+		$db =& ConnectionManager::getDataSource($schema->connection);
+		if (!$db->isConnected()) {
+			$this->Session->setFlash(__('Could not connect to database.', true), 'default', array('class' => 'error'));
+			return false;
+		}
+
+		$execute = isset($this->params['named']['execute']);
+
+		// There may be pre-processing to complete before we analyze the existing schema
+		$pre_result = $schema->before(array('update' => 'schema', 'execute' => $execute));
+		if (!$pre_result) {
+			$this->Session->setFlash(__('Failed to perform pre-processing on database', true), 'default', array('class' => 'error'));
+			return false;
+		} else if (is_array($pre_result)) {
+			$this->results += $pre_result;
+		}
+
+		if (!isset($this->old)) {
+			// Not all of our tables have real models
+			$this->old = $schema->read(array('models' => false));
+		}
+		$compare = $schema->compare($this->old, $schema);
+
+		$commands = array();
+		foreach ($compare as $table => $changes) {
+			if (array_key_exists ($table, $this->old['tables'])) {
+				$commands[$table] = $db->alterSchema(array($table => $changes), $table);
+			} else {
+				$commands[$table] = $db->createSchema($schema, $table);
+				if (file_exists(CONFIGS . 'schema' . DS . 'data' . DS . $table . '.php')) {
+					$this->dataObjects[$table] = Inflector::camelize($table) . 'Data';
+				}
+			}
+		}
+
+		$this->old = array('tables' => $schema->tables);
+
+		if ($execute) {
+			foreach ($commands as $table => $sql) {
 				$error = null;
 				if (!$db->execute($sql)) {
-					$error = $table . ': '  . $db->lastError();
+					$error = $db->lastError();
 				}
 
-				$schema->after(array('update' => $table, 'errors' => $error));
+				$schema->after(array('update' => $table, 'execute' => $execute, 'errors' => $error));
 
 				if (!empty($error)) {
-					$results[$table] = $error;
-					$failed = true;
-					break;
+					$this->results[$table] = $error;
+					return false;
 				} else {
-					$results[$table] = __('updated.', true);
+					$this->results[$table] = __('updated.', true);
 				}
 			}
-
-			if (!$failed) {
-				$this->_writeInstalled();
-			}
+		} else {
+			$this->results += $commands;
 		}
 
-		$this->set(compact('contents', 'results', 'failed'));
+		return true;
 	}
 }
 ?>

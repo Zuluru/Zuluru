@@ -12,7 +12,7 @@ if (isset($this->params['named']['execute'])) {
 		echo '</ul>';
 	}
 
-	if ($failed) {
+	if (!$success) {
 		echo $this->Html->para('error', __('Failed to complete the update!', true));
 	} else {
 		if (isset($config_file)) {
@@ -30,11 +30,11 @@ if (isset($this->params['named']['execute'])) {
 				'delete' => 1,
 		));
 	}
-} else if (isset($contents)) {
+} else if ($success) {
 	echo $this->Html->para(null, sprintf(__('This is Zuluru version %d.%d.%d, database schema version %d.', true), ZULURU_MAJOR, ZULURU_MINOR, ZULURU_REVISION, SCHEMA_VERSION));
 	echo $this->Html->para(null, sprintf(__('Your installation of version %s, database schema version %d, is dated %s.', true), Configure::read('installed.version'), Configure::read('installed.schema_version'), Configure::read('installed.date')));
-	echo $this->Html->para(null, sprintf(__('Found %d table(s) to update.', true), count($contents)));
-	echo $this->Html->para(null, __('Ensure that the configured database user has CREATE and ALTER permissions on the database.', true));
+	echo $this->Html->para(null, sprintf(__('Found %d table(s) to update.', true), count($results)));
+	echo $this->Html->para(null, __('Ensure that the configured database user has CREATE, ALTER and DROP permissions on the database.', true));
 	echo $this->Html->para(null, __('WARNING: You should perform a backup before proceeding. These updates are not typically reversible, and if anything goes wrong you will want a backup to restore from.', true));
 	echo $this->Html->link(__('Click here to proceed with database updates.', true), array(
 		'plugin' => 'install',
