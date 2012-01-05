@@ -88,6 +88,13 @@ way to fit your requirements.
   color:#efa;
   background:#3a93d2;
 }
+.cssplay_fly li.sub > a {
+  background:#b9d3fb url(images/cssplay_flyout/sub.gif) no-repeat right center;
+}
+.cssplay_fly li:hover.sub > a {
+  color:#efa;
+  background:#3a93d2 url(images/cssplay_flyout/sub.gif) no-repeat right center;
+}
 .cssplay_fly li.sub.selected > a {
   color:#efa;
   background:#3a93d2 url(images/cssplay_flyout/sub.gif) no-repeat right center;
@@ -99,7 +106,7 @@ way to fit your requirements.
   position:absolute;
   top:-30px;
   /* set up the overlap (minus the overrun) */
-  left:100px;
+  left:149px;
   /* set up the overrun area */
   padding:30px;
   /* this is for IE to make it interpret the overrrun padding */
