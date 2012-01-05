@@ -7,7 +7,7 @@ class NoticesData {
 		array(
 			'display_to' => 'player',
 			'repeat' => null,
-			'notice' => '<h2>Zuluru now has system notices!</h2><p>These notices will tell you about new or lesser-known features of the system, to help you get the most out of the web site.</p><p>To dismiss a notice and not see it again, click the \"X\" in the upper right corner. To have it show you this notice again some time in the future, click \"Remind me later\".</p>',
+			'notice' => '<h2>Zuluru now has system notices!</h2><p>This is the first in a series of notices telling you about new or lesser-known features of the system, to help you get the most out of the web site.</p><p>To dismiss this notice and not see it again, click the <%icon close_24.png %> in the upper right corner. To have it show you this notice again some time in the future, click \"Remind me later\".</p>',
 			'active' => 1,
 			'effective_date' => '2011-10-27 00:00:00',
 			'created' => '2011-10-27 00:00:00',
