@@ -2,7 +2,7 @@
 <?php
 $types = Configure::read('options.schedule_type');
 echo $this->element('help/topics', array(
-		'section' => 'leagues/edit/schedule_type',
+		'section' => 'divisions/edit/schedule_type',
 		'topics' => $types,
 ));
 ?>
