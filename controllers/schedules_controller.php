@@ -2,13 +2,13 @@
 class SchedulesController extends AppController {
 
 	var $name = 'Schedules';
-	var $uses = array('League');
+	var $uses = array('Division');
 	var $components = array('Lock');
 
 	var $numTeams = null;
 
 	function isAuthorized() {
-		// People can perform these operations on leagues they coordinate
+		// People can perform these operations on divisions they coordinate
 		if (in_array ($this->params['action'], array(
 				'add',
 				'delete',
@@ -17,9 +17,9 @@ class SchedulesController extends AppController {
 				'unpublish',
 		)))
 		{
-			// If a league id is specified, check if we're a coordinator of that league
-			$league = $this->_arg('league');
-			if ($league && in_array ($league, $this->Session->read('Zuluru.LeagueIDs'))) {
+			// If a division id is specified, check if we're a coordinator of that division
+			$division = $this->_arg('division');
+			if ($division && in_array ($division, $this->Session->read('Zuluru.DivisionIDs'))) {
 				return true;
 			}
 		}
@@ -29,16 +29,17 @@ class SchedulesController extends AppController {
 
 	function _init($id) {
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$this->League->contain (array (
+		$this->Division->contain (array (
 			'Team' => array('order' => 'Team.name'),
+			'League',
 		));
-		$this->league = $this->League->read(null, $id);
-		if ($this->league === false) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
+		$this->division = $this->Division->read(null, $id);
+		if ($this->division === false) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
@@ -46,35 +47,35 @@ class SchedulesController extends AppController {
 			$this->league_obj = $this->_getComponent ('LeagueType', 'tournament', $this);
 			$this->set('playoff', true);
 		} else {
-			$this->league_obj = $this->_getComponent ('LeagueType', $this->league['League']['schedule_type'], $this);
+			$this->league_obj = $this->_getComponent ('LeagueType', $this->division['Division']['schedule_type'], $this);
 		}
 
-		$this->set(array('id' => $id, 'league' => $this->league));
-		$this->_addLeagueMenuItems ($this->league);
+		$this->set(array('id' => $id, 'division' => $this->division));
+		$this->_addDivisionMenuItems ($this->division['Division'], $this->division['League']);
 	}
 
 	function add() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		$this->_init($id);
 
 		if($this->_numTeams() < 2) {
-			$this->Session->setFlash(__('Cannot schedule games in a league with less than two teams.', true), 'default', array('class' => 'info'));
-			$this->redirect(array('controller' => 'leagues', 'action' => 'view', 'league' => $id));
+			$this->Session->setFlash(__('Cannot schedule games in a division with less than two teams.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'divisions', 'action' => 'view', 'division' => $id));
 		}
 
-		// Non-tournament leagues must currently have even # of teams for scheduling unless the exclude_teams flag is set
-		if ($this->_numTeams() % 2 && !$this->league['League']['exclude_teams'] &&
-			$this->league['League']['schedule_type'] != 'tournament' && !$this->_arg('playoff'))
+		// Non-tournament divisions must currently have even # of teams for scheduling unless the exclude_teams flag is set
+		if ($this->_numTeams() % 2 && !$this->division['Division']['exclude_teams'] &&
+			$this->division['Division']['schedule_type'] != 'tournament' && !$this->_arg('playoff'))
 		{
-			// TODO: Embed a link to "edit your league" into this, in a way that doesn't break i18n
-			$this->Session->setFlash(__('Must currently have an even number of teams in your league. ' . 
-				'If you need a bye, please create a team named Bye and add it to your league. ' .
-				'Otherwise, edit your league and set the "exclude teams" flag.', true), 'default', array('class' => 'info'));
-			$this->redirect(array('controller' => 'leagues', 'action' => 'view', 'league' => $id));
+			// TODO: Embed a link to "edit your division" into this, in a way that doesn't break i18n
+			$this->Session->setFlash(__('Must currently have an even number of teams in your division. ' . 
+				'If you need a bye, please create a team named Bye and add it to your division. ' .
+				'Otherwise, edit your division and set the "exclude teams" flag.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'divisions', 'action' => 'view', 'division' => $id));
 		}
 
 		// What's the default first step?
-		$step = ($this->league['League']['exclude_teams'] ? 'exclude' : 'type');
+		$step = ($this->division['Division']['exclude_teams'] ? 'exclude' : 'type');
 		if (!empty ($this->data)) {
 			$step = $this->data['Game']['step'];
 		}
@@ -170,19 +171,19 @@ class SchedulesController extends AppController {
 	}
 
 	function _date($id) {
-		// Find the list of available dates for scheduling this league
-		$dates = $this->League->LeagueGameslotAvailability->find('all', array(
+		// Find the list of available dates for scheduling this division
+		$dates = $this->Division->DivisionGameslotAvailability->find('all', array(
 				'conditions' => array(
 					'GameSlot.game_id' => null,
-					'LeagueGameslotAvailability.league_id' => $id,
+					'DivisionGameslotAvailability.division_id' => $id,
 					'GameSlot.game_date >= CURDATE()',
 				),
 				'fields' => 'DISTINCT GameSlot.game_date AS date',
 				'order' => 'GameSlot.game_date',
 		));
 		if (count($dates) == 0) {
-			$this->Session->setFlash(__('Sorry, there are no fields available for your league.  Check that fields have been allocated before attempting to proceed.', true), 'default', array('class' => 'info'));
-			$this->redirect(array('controller' => 'leagues', 'action' => 'view', 'league' => $id));
+			$this->Session->setFlash(__('Sorry, there are no fields available for your division.  Check that fields have been allocated before attempting to proceed.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'divisions', 'action' => 'view', 'division' => $id));
 		}
 		$dates = Set::extract ('/GameSlot/date', $dates);
 
@@ -202,7 +203,7 @@ class SchedulesController extends AppController {
 
 	function _confirm($id) {
 		if (!$this->_canSchedule($id)) {
-			$this->redirect(array('controller' => 'leagues', 'action' => 'view', 'league' => $id));
+			$this->redirect(array('controller' => 'divisions', 'action' => 'view', 'division' => $id));
 		}
 
 		$this->set(array(
@@ -214,11 +215,11 @@ class SchedulesController extends AppController {
 
 	function _finalize($id) {
 		if (!$this->Lock->lock ('scheduling', 'schedule creation or edit')) {
-			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+			$this->redirect(array('controller' => 'divisions', 'action' => 'view', 'division' => $id));
 		}
 
 		if (!$this->_canSchedule($id)) {
-			$this->redirect(array('controller' => 'leagues', 'action' => 'view', 'league' => $id));
+			$this->redirect(array('controller' => 'divisions', 'action' => 'view', 'division' => $id));
 		}
 
 		$exclude_teams = array();
@@ -234,7 +235,7 @@ class SchedulesController extends AppController {
 				$this->data['Game']['start_date'], $this->data['Game']['publish'], $this->data['Game']['overflow_type'], $names))
 		{
 			$this->Lock->unlock ();
-			$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $id));
+			$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
 		}
 		$this->Lock->unlock ();
 
@@ -247,21 +248,21 @@ class SchedulesController extends AppController {
 	}
 
 	function _canSchedule($id) {
-		$this->League->contain();
-		$league = $this->League->read(null, $id);
+		$this->Division->contain('League');
+		$division = $this->Division->read(null, $id);
 
-		$this->League->Game->contain ('GameSlot');
-		$games = $this->League->Game->find ('count', array(
+		$this->Division->Game->contain ('GameSlot');
+		$games = $this->Division->Game->find ('count', array(
 				'conditions' => array(
-					'Game.league_id' => $id,
+					'Game.division_id' => $id,
 					'GameSlot.game_date' => $this->data['Game']['start_date'],
 				),
 		));
 
 		if ($this->_numTeams() <= $games * 2 && !$this->data['Game']['double_header'] &&
-			$league['League']['schedule_type'] != 'tournament' && !$this->_arg('playoff'))
+			$division['Division']['schedule_type'] != 'tournament' && !$this->_arg('playoff'))
 		{
-			$this->Session->setFlash(__('This league is already fully scheduled on the selected date.', true), 'default', array('class' => 'info'));
+			$this->Session->setFlash(__('This division is already fully scheduled on the selected date.', true), 'default', array('class' => 'info'));
 			return false;
 		}
 
@@ -281,12 +282,12 @@ class SchedulesController extends AppController {
 			$num_fields = $temp;
 		}
 
-		$field_counts = $this->League->LeagueGameslotAvailability->find('all', array(
+		$field_counts = $this->Division->DivisionGameslotAvailability->find('all', array(
 				'fields' => array('count(GameSlot.id) AS count'),
 				'conditions' => array(
 					'GameSlot.game_id' => null,
 					'GameSlot.game_date >=' => $this->data['Game']['start_date'],
-					'LeagueGameslotAvailability.league_id' => $id,
+					'DivisionGameslotAvailability.division_id' => $id,
 				),
 				'group' => array('GameSlot.game_date', 'GameSlot.game_start'),
 				'order' => array('GameSlot.game_date', 'GameSlot.game_start'),
@@ -308,7 +309,7 @@ class SchedulesController extends AppController {
 
 	function _numTeams() {
 		if ($this->numTeams === null) {
-			$this->numTeams = count($this->league['Team']);
+			$this->numTeams = count($this->division['Team']);
 			if (is_array($this->data) && array_key_exists ('ExcludeTeams', $this->data)){
 				$this->numTeams -= count($this->data['ExcludeTeams']);
 			}
@@ -318,17 +319,17 @@ class SchedulesController extends AppController {
 	}
 
 	function delete() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		$this->_init($id);
 		$date = $this->_arg('date');
 
-		$this->League->Game->contain (array (
+		$this->Division->Game->contain (array (
 			'GameSlot',
 		));
 
-		$games = $this->League->Game->find ('all', array(
+		$games = $this->Division->Game->find ('all', array(
 				'conditions' => array(
-					'Game.league_id' => $id,
+					'Game.division_id' => $id,
 					'GameSlot.game_date' => $date,
 				),
 				'fields' => array('Game.id', 'Game.published', 'Game.home_score'),
@@ -336,20 +337,20 @@ class SchedulesController extends AppController {
 
 		if ($this->_arg('confirm')) {
 			// Wrap the whole thing in a transaction, for safety.
-			$transaction = new DatabaseTransaction($this->League->Game);
+			$transaction = new DatabaseTransaction($this->Division->Game);
 
 			// Clear game_id from game_slots, and delete the games.
 			$game_ids = Set::extract ('/Game/id', $games);
-			if ($this->League->Game->GameSlot->updateAll (array('game_id' => null), array(
+			if ($this->Division->Game->GameSlot->updateAll (array('game_id' => null), array(
 					'GameSlot.game_id' => $game_ids,
 				)) &&
-				$this->League->Game->deleteAll(array(
+				$this->Division->Game->deleteAll(array(
 					'Game.id' => $game_ids,
 				), false))
 			{
 				$this->Session->setFlash(__('Deleted games on the requested date.', true), 'default', array('class' => 'success'));
 				$transaction->commit();
-				$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $id));
+				$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
 			} else {
 				$this->Session->setFlash(__('Failed to delete games on the requested date.', true), 'default', array('class' => 'warning'));
 			}
@@ -359,15 +360,16 @@ class SchedulesController extends AppController {
 	}
 
 	function reschedule() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
 		$date = $this->_arg('date');
 
-		$this->League->contain (array (
+		$this->Division->contain (array (
+			'League',
 			'Team',
 			'Day' => array('order' => 'day_id'),
 			'Game' => array(
@@ -375,7 +377,7 @@ class SchedulesController extends AppController {
 					'conditions' => array('game_date' => $date),
 				),
 			),
-			'LeagueGameslotAvailability' => array(
+			'DivisionGameslotAvailability' => array(
 				'GameSlot' => array(
 					// This will still return all of the Availability records, but many will have
 					// empty GameSlot arrays, so Set::Extract calls won't match and they're ignored
@@ -386,28 +388,28 @@ class SchedulesController extends AppController {
 				),
 			),
 		));
-		$league = $this->League->read(null, $id);
-		if ($league === false) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
+		$division = $this->Division->read(null, $id);
+		if ($division === false) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 		// TODO: The read will load a bunch of games with empty game slots because
 		// they don't match the provided date; need a custom join?
-		$league['Game'] = Set::extract ("/GameSlot[game_date=$date]/..", $league['Game']);
-		$league_obj = $this->_getComponent ('LeagueType', $league['League']['schedule_type'], $this);
-		$league_obj->league = $league;
+		$division['Game'] = Set::extract ("/GameSlot[game_date=$date]/..", $division['Game']);
+		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
+		$league_obj->division = $division;
 		if (!empty ($this->data)) {
 			// Wrap the whole thing in a transaction, for safety.
-			$transaction = new DatabaseTransaction($this->League->Game);
+			$transaction = new DatabaseTransaction($this->Division->Game);
 
-			if ($league_obj->assignFieldsByPreferences($this->data['new_date'], $league['Game'])) {
+			if ($league_obj->assignFieldsByPreferences($this->data['new_date'], $division['Game'])) {
 
-				if ($this->League->Game->_saveGames ($league_obj->games, $this->data['publish'])) {
-					$unused_slots = Set::extract ('/GameSlot/id', $league['Game']);
-					if ($this->League->Game->GameSlot->updateAll (array('game_id' => null), array('GameSlot.id' => $unused_slots))) {
+				if ($this->Division->Game->_saveGames ($league_obj->games, $this->data['publish'])) {
+					$unused_slots = Set::extract ('/GameSlot/id', $division['Game']);
+					if ($this->Division->Game->GameSlot->updateAll (array('game_id' => null), array('GameSlot.id' => $unused_slots))) {
 						$this->Session->setFlash(__('Games rescheduled', true), 'default', array('class' => 'success'));
 						$transaction->commit();
-						$this->redirect (array('controller' => 'leagues', 'action' => 'schedule', 'league' => $id));
+						$this->redirect (array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
 					} else {
 						$this->Session->setFlash(__('Problem! Games were rescheduled, but old game slots were not freed. Schedule will be unstable!', true), 'default', array('class' => 'error'));
 					}
@@ -416,42 +418,42 @@ class SchedulesController extends AppController {
 			// Failure flash message will have been set by whatever failed
 		}
 
-		// Find the list of available dates for scheduling this league
-		$dates = $this->League->LeagueGameslotAvailability->find('all', array(
+		// Find the list of available dates for scheduling this division
+		$dates = $this->Division->DivisionGameslotAvailability->find('all', array(
 				'conditions' => array(
 					'GameSlot.game_date >' => $date,
 					'GameSlot.game_id' => null,
-					'LeagueGameslotAvailability.league_id' => $id,
+					'DivisionGameslotAvailability.division_id' => $id,
 				),
 				'fields' => 'DISTINCT UNIX_TIMESTAMP(GameSlot.game_date) AS date',
 				'order' => 'GameSlot.game_date',
 		));
 		if (count($dates) == 0) {
-			$this->Session->setFlash(__('Sorry, there are no fields available for your league.  Check that fields have been allocated before attempting to proceed.', true), 'default', array('class' => 'info'));
-			$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $id));
+			$this->Session->setFlash(__('Sorry, there are no fields available for your division. Check that fields have been allocated before attempting to proceed.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
 		}
 		$dates = Set::extract ('/0/date', $dates);
 
-		$this->set(compact('id', 'league', 'date', 'dates'));
-		$this->_addLeagueMenuItems ($league);
+		$this->set(compact('id', 'division', 'date', 'dates'));
+		$this->_addDivisionMenuItems ($division['Division'], $division['League']);
 	}
 
 	function publish() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		$date = $this->_arg('date');
 
-		$this->League->Game->contain (array (
+		$this->Division->Game->contain (array (
 			'GameSlot',
 		));
-		$games = Set::extract ('/Game/id', $this->League->Game->find ('all', array(
+		$games = Set::extract ('/Game/id', $this->Division->Game->find ('all', array(
 				'conditions' => array(
-					'Game.league_id' => $id,
+					'Game.division_id' => $id,
 					'GameSlot.game_date' => $date,
 				),
 				'fields' => 'Game.id',
 		)));
 
-		if ($this->League->Game->updateAll (
+		if ($this->Division->Game->updateAll (
 			array('published' => 1),
 			array('Game.id' => $games)
 		))
@@ -461,25 +463,25 @@ class SchedulesController extends AppController {
 			$this->Session->setFlash(__('Failed to publish games on the requested date.', true), 'default', array('class' => 'warning'));
 		}
 
-		$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $id));
+		$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
 	}
 
 	function unpublish() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		$date = $this->_arg('date');
 
-		$this->League->Game->contain (array (
+		$this->Division->Game->contain (array (
 			'GameSlot',
 		));
-		$games = Set::extract ('/Game/id', $this->League->Game->find ('all', array(
+		$games = Set::extract ('/Game/id', $this->Division->Game->find ('all', array(
 				'conditions' => array(
-					'Game.league_id' => $id,
+					'Game.division_id' => $id,
 					'GameSlot.game_date' => $date,
 				),
 				'fields' => 'Game.id',
 		)));
 
-		if ($this->League->Game->updateAll (
+		if ($this->Division->Game->updateAll (
 			array('published' => 0),
 			array('Game.id' => $games)
 		))
@@ -489,7 +491,7 @@ class SchedulesController extends AppController {
 			$this->Session->setFlash(__('Failed to unpublish games on the requested date.', true), 'default', array('class' => 'warning'));
 		}
 
-		$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $id));
+		$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
 	}
 }
 ?>

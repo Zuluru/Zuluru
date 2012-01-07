@@ -305,6 +305,34 @@ class AppModel extends Model {
 		return false;
 	}
 
+
+	/**
+	 * Enforce unique team names within leagues instead of divisions,
+	 * but not in a way that messes with playoff divisions.
+	 */
+	function team_unique($check, $team_id, $division_id) {
+		$value = array_values($check);
+		$value = $value[0];
+
+		// Find the list of divisions in the same league
+		$division_obj = ClassRegistry::init('Division');
+		$division_obj->contain(false);
+		$division = $division_obj->read(null, $division_id);
+		$division_obj->addPlayoffs($division);
+
+		$team_obj = ClassRegistry::init('Team');
+		$duplicate = $team_obj->find('count', array(
+			'conditions' => array(
+				'division_id' => $division['Division']['sister_divisions'],
+				'id !=' => $team_id,
+				'name' => $value,
+			),
+			'contain' => false,
+		));
+
+		return ($duplicate == 0);
+	}
+
 	function franchise_owner($check, $owner, $is_admin) {
 		if ($is_admin) {
 			return true;

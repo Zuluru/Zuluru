@@ -11,14 +11,14 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 	 */
 	var $render_element = 'ladder';
 
-	function addMenuItems ($league, $is_coordinator = false) {
+	function addMenuItems ($division, $path, $is_coordinator = false) {
 		if ($this->_controller->is_admin || $is_coordinator) {
-			$this->_controller->_addMenuItem ('Adjust ratings', array('controller' => 'leagues', 'action' => 'ratings', 'league' => $league['League']['id']), array('Leagues', $league['League']['name']));
+			$this->_controller->_addMenuItem ('Adjust ratings', array('controller' => 'divisions', 'action' => 'ratings', 'division' => $division['id']), $path);
 		}
 	}
 
 	/**
-	 * Sort a ladder league by:
+	 * Sort a ladder division by:
 	 * 1: Rating
 	 * 2: Spirit
 	 * 3: Wins/ties
@@ -99,8 +99,8 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 		}
 	}
 
-	function createSchedule($league_id, $exclude_teams, $type, $start_date, $publish) {
-		if (!$this->startSchedule($league_id, $exclude_teams, $start_date))
+	function createSchedule($division_id, $exclude_teams, $type, $start_date, $publish) {
+		if (!$this->startSchedule($division_id, $exclude_teams, $start_date))
 			return false;
 
 		switch($type) {
@@ -109,7 +109,7 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 				$ret = $this->createEmptyGame($start_date);
 				break;
 			case 'oneset_ratings_ladder':
-				// Create game for all teams in league
+				// Create game for all teams in division
 				$ret = $this->createScheduledSet($start_date);
 				break;
 		}
@@ -117,14 +117,14 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 		if (!$ret) {
 			return false;
 		}
-		return $this->finishSchedule($league_id, $publish);
+		return $this->finishSchedule($division_id, $publish);
 	}
 
 	/*
-	 * Create a scheduled set of games for this league
+	 * Create a scheduled set of games for this division
 	 */
 	function createScheduledSet($date) {
-		$num_teams = count($this->league['Team']);
+		$num_teams = count($this->division['Team']);
 
 		if ($num_teams < 2) {
 			$this->_controller->Session->setFlash(__('Must have two teams', true), 'default', array('class' => 'warning'));
@@ -137,18 +137,18 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 		}
 
 		// Sort teams so ratings scheduling works properly
-		$this->sort($this->league);
+		$this->sort($this->division);
 
-		return $this->scheduleOneSet($date, $this->league['Team']);
+		return $this->scheduleOneSet($date, $this->division['Team']);
 	}
 
 	/**
 	 * Schedule one set of games using the ratings_ladder scheme!
 	 */
 	function scheduleOneSet($date, $teams) {
-		$games_before_repeat = $this->league['League']['games_before_repeat'];
+		$games_before_repeat = $this->division['Division']['games_before_repeat'];
 		$min_games_before_repeat = 0;
-		$max_retries = $this->league['League']['schedule_attempts'];
+		$max_retries = $this->division['League']['schedule_attempts'];
 		$ret = false;
 
 		$versus_teams = array();
@@ -229,7 +229,7 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 	 *
 	 * The algorithm is as follows...
 	 * - start at either top or bottom of ordered ladder
-	 * - grab a "group" of teams, starting with a group size of 1 (and increasing to a per-league-defined MAX)
+	 * - grab a "group" of teams, starting with a group size of 1 (and increasing to a per-division-defined MAX)
 	 * - take the first team in the group, and find a random opponent within the group that meets the GBR criteria
 	 * - remove those 2 teams from the ordered ladder and repeat
 	 *
@@ -240,7 +240,7 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 		$gbr_diff = array();
 		$versus_teams = array();
 
-		// TODO: make this maximum a per-league variable, and enforce it in the caller function?
+		// TODO: make this maximum a per-division variable, and enforce it in the caller function?
 		// maximum standings difference of matched teams:
 		$MAX_STANDINGS_DIFF = 8;
 		// NOTE: that's not REALLY the max standings diff...
@@ -364,7 +364,7 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 
 	function getRecentOpponents($teamid, $gbr = null) {
 		$recent_opponents = array();
-		foreach ($this->league['Game'] as $game) {
+		foreach ($this->division['Game'] as $game) {
 			if ($game['home_team'] == $teamid) {
 				$recent_opponents[] = $game['away_team'];
 			}

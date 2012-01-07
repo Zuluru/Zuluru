@@ -7,7 +7,7 @@
 class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 {
 	/**
-	 * Sort a round robin league by:
+	 * Sort a round robin division by:
 	 * 1: Wins/ties
 	 * 2: Wins
 	 * 3: Head to head record
@@ -121,8 +121,8 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 		}
 	}
 
-	function createSchedule($league_id, $exclude_teams, $type, $start_date, $publish) {
-		if (!$this->startSchedule($league_id, $exclude_teams, $start_date))
+	function createSchedule($division_id, $exclude_teams, $type, $start_date, $publish) {
+		if (!$this->startSchedule($division_id, $exclude_teams, $start_date))
 			return false;
 
 		switch($type) {
@@ -156,14 +156,14 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 		if (!$ret) {
 			return false;
 		}
-		return $this->finishSchedule($league_id, $publish);
+		return $this->finishSchedule($division_id, $publish);
 	}
 
 	/*
-	 * Create an empty set of games for this league
+	 * Create an empty set of games for this division
 	 */
 	function createEmptySet($date) {
-		$num_teams = count($this->league['Team']);
+		$num_teams = count($this->division['Team']);
 
 		if ($num_teams < 2) {
 			$this->_controller->Session->setFlash(__('Must have two teams', true), 'default', array('class' => 'warning'));
@@ -186,10 +186,10 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 	}
 
 	/*
-	 * Create a scheduled set of games for this league
+	 * Create a scheduled set of games for this division
 	 */
 	function createScheduledSet($date) {
-		$num_teams = count($this->league['Team']);
+		$num_teams = count($this->division['Team']);
 
 		if ($num_teams < 2) {
 			$this->_controller->Session->setFlash(__('Must have two teams', true), 'default', array('class' => 'warning'));
@@ -202,16 +202,16 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 		}
 
 		// randomize team IDs
-		shuffle($this->league['Team']);
+		shuffle($this->division['Team']);
 
-		return $this->assignFields($date, $this->league['Team']);
+		return $this->assignFields($date, $this->division['Team']);
 	}
 
 	/*
-	 * Create a half round-robin for this league.
+	 * Create a half round-robin for this division.
 	 */
 	function createHalfRoundrobin($date, $how_split = 'standings') {
-		$num_teams = count($this->league['Team']);
+		$num_teams = count($this->division['Team']);
 
 		if ($num_teams < 2) {
 			$this->_controller->Session->setFlash(__('Must have two teams', true), 'default', array('class' => 'warning'));
@@ -223,27 +223,27 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 			return false;
 		}
 
-		// Split league teams into two groups
+		// Split division teams into two groups
 		switch($how_split) {
 			case 'rating':
-				uasort($this->league['Team'], array($this, 'teams_sort_rating'));
-				$top_half = array_slice($this->league['Team'], 0, ($num_teams / 2));
-				$bottom_half = array_slice($this->league['Team'], ($num_teams / 2));
+				uasort($this->division['Team'], array($this, 'teams_sort_rating'));
+				$top_half = array_slice($this->division['Team'], 0, ($num_teams / 2));
+				$bottom_half = array_slice($this->division['Team'], ($num_teams / 2));
 				break;
 
 			case 'standings':
-				$this->sort($this->league);
-				$top_half = array_slice($this->league['Team'], 0, ($num_teams / 2));
-				$bottom_half = array_slice($this->league['Team'], ($num_teams / 2));
+				$this->sort($this->division);
+				$top_half = array_slice($this->division['Team'], 0, ($num_teams / 2));
+				$bottom_half = array_slice($this->division['Team'], ($num_teams / 2));
 				break;
 
 			// Sort by standings, then do a "snake" to split into two groups
 			// $i will be 1,2,...,n, so $i%4 will be 1,2,3,0,...
 			case 'mix':
-				$this->sort($this->league);
+				$this->sort($this->division);
 				$top_half = $bottom_half = array();
 				$i = 0;
-				foreach ($this->league['Team'] as $team) {
+				foreach ($this->division['Team'] as $team) {
 					if (++$i % 4 < 2) {
 						$top_half[] = $team;
 					} else {
@@ -259,11 +259,11 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 	}
 
 	/*
-	 * Create a full round-robin for this league.
+	 * Create a full round-robin for this division.
 	 */
 	function createFullRoundrobin($date, $teams = null) {
 		if (is_null($teams)) {
-			$teams = $this->league['Team'];
+			$teams = $this->division['Team'];
 		}
 
 		$num_teams = count($teams);

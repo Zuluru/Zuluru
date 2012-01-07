@@ -10,7 +10,7 @@ if ($is_admin) {
 }
 
 $permission = ($effective_admin ||
-	($league['roster_deadline'] >= date('Y-m-d') && (
+	($division['roster_deadline'] >= date('Y-m-d') && (
 		(isset ($is_coordinator) && $is_coordinator) ||
 		(isset ($my_id) && $roster['person_id'] == $my_id) ||
 		(in_array ($roster['team_id'], $this->Session->read('Zuluru.OwnedTeamIDs')))

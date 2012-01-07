@@ -1,11 +1,11 @@
 <?php
-$this->Html->addCrumb (__('Leagues', true));
-$this->Html->addCrumb ($league['League']['long_name']);
+$this->Html->addCrumb (__('Divisions', true));
+$this->Html->addCrumb ($division['Division']['full_league_name']);
 $this->Html->addCrumb (__('Validate Ratings', true));
 ?>
 
-<div class="leagues validate">
-<h2><?php  echo __('Validate Ratings', true) . ': ' . $league['League']['long_name'];?></h2>
+<div class="divisions validate">
+<h2><?php  echo __('Validate Ratings', true) . ': ' . $division['Division']['full_league_name'];?></h2>
 <table class="list">
 	<tr>
 		<th colspan="3">Game</th>
@@ -30,7 +30,7 @@ $this->Html->addCrumb (__('Validate Ratings', true));
 		<th>Saved</th>
 		<th>Calc</th>
 	</tr>
-<?php foreach ($league['Game'] as $game): ?>
+<?php foreach ($division['Game'] as $game): ?>
 	<tr>
 		<td><?php echo $this->Html->link ($game['Game']['id'], array('controller' => 'games', 'action' => 'view', 'game' => $game['Game']['id'])); ?></td>
 		<td><?php echo $this->ZuluruTime->date ($game['GameSlot']['game_date']); ?></td>
@@ -61,7 +61,7 @@ $this->Html->addCrumb (__('Validate Ratings', true));
 		<th>Old Rank</th>
 		<th>New Rank</th>
 	</tr>
-<?php foreach ($league['Team'] as $key => $team): ?>
+<?php foreach ($division['Team'] as $key => $team): ?>
 	<tr>
 		<td><?php echo $this->Html->link ($team['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['id'])); ?></td>
 		<?php $class = ($team['rating'] == $team['current_rating'] ? '' : ' class="warning-message"'); ?>
@@ -80,7 +80,7 @@ $this->Html->addCrumb (__('Validate Ratings', true));
 <div class="actions">
 	<ul>
 		<?php
-		echo $this->Html->tag ('li', $this->Html->link(__('Make Noted Corrections', true), array('action' => 'validate_ratings', 'league' => $league['League']['id'], 'correct' => true)));
+		echo $this->Html->tag ('li', $this->Html->link(__('Make Noted Corrections', true), array('action' => 'validate_ratings', 'division' => $division['Division']['id'], 'correct' => true)));
 		?>
 	</ul>
 </div>

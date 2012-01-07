@@ -100,7 +100,7 @@ class AppController extends Controller {
 				$response_required = array();
 				foreach ($teams as $team) {
 					// Only force responses to leagues that have started play, but the roster deadline hasn't passed
-					if ($team['League']['open'] < date('Y-m-d') && $team['League']['roster_deadline'] >= date('Y-m-d')) {
+					if ($team['Division']['open'] < date('Y-m-d') && $team['Division']['roster_deadline'] >= date('Y-m-d')) {
 						$response_required[] = $team['Team']['id'];
 					}
 				}
@@ -197,7 +197,7 @@ class AppController extends Controller {
 		// the Auth user information may be updated by this process
 		$login = $this->_getComponent ('Login', $auth->loginComponent, $this);
 		if ($login->expire() || !$user) {
-			$this->Session->delete ('Zuluru');
+			$this->Session->delete('Zuluru');
 			$login->login();
 			$user = $this->Auth->user();
 
@@ -301,15 +301,15 @@ class AppController extends Controller {
 		$this->effective_admin = ($this->is_admin && !$on_team);
 		$this->set('is_effective_admin', $this->effective_admin);
 
-		$leagues = $this->Session->read('Zuluru.Leagues');
-		$teams = Set::extract ('/Team/id', $leagues);
+		$divisions = $this->Session->read('Zuluru.Divisions');
+		$teams = Set::extract ('/Team/id', $divisions);
 		$this->effective_coordinator = (in_array ($team_id, $teams) && !$on_team);
 		$this->set('is_effective_coordinator', $this->effective_coordinator);
 	}
 
 	/**
 	 * Put basic items on the menu, some based on configuration settings.
-	 * Other items like specific teams and leagues are added elsewhere.
+	 * Other items like specific teams and divisions are added elsewhere.
 	 */
 	function _initMenu()
 	{
@@ -344,7 +344,7 @@ class AppController extends Controller {
 			}
 		}
 
-		// Add the personal menu items next, so that specific teams and leagues
+		// Add the personal menu items next, so that specific teams and divisions
 		// are the first sub-menus in the Teams and Leagues menus, rather than
 		// the generic operations.
 		if ($this->is_logged_in) {
@@ -461,7 +461,7 @@ class AppController extends Controller {
 
 	function _initSessionData($my_id) {
 		if (!$my_id) {
-			foreach (array('Unpaid', 'Teams', 'TeamIDs', 'OwnedTeams', 'OwnedTeamIDs', 'Leagues', 'LeagueIDs') as $key) {
+			foreach (array('Unpaid', 'Teams', 'TeamIDs', 'OwnedTeams', 'OwnedTeamIDs', 'Divisions', 'DivisionIDs') as $key) {
 				$this->Session->write("Zuluru.$key", array());
 			}
 			return;
@@ -522,18 +522,15 @@ class AppController extends Controller {
 			$this->Session->write ('Zuluru.FranchiseIDs', Set::extract ('/Franchise/id', $franchises));
 		}
 
-		$leagues = $this->Session->read('Zuluru.Leagues');
-		if (empty($leagues)) {
-			if (!isset ($this->League)) {
-				if (!class_exists ('League')) {
-					App::import ('Model', 'League');
-				}
-				$this->League = new League();
+		$divisions = $this->Session->read('Zuluru.Divisions');
+		if (empty($divisions)) {
+			if (!isset ($this->Division)) {
+				$this->Division = ClassRegistry::init('Division');
 			}
-			$leagues = $this->League->readByPlayerId ($my_id, true, true);
+			$divisions = $this->Division->readByPlayerId ($my_id, true, true);
 
-			$this->Session->write ('Zuluru.Leagues', $leagues);
-			$this->Session->write ('Zuluru.LeagueIDs', Set::extract ('/League/id', $leagues));
+			$this->Session->write ('Zuluru.Divisions', $divisions);
+			$this->Session->write ('Zuluru.DivisionIDs', Set::extract ('/Division/id', $divisions));
 		}
 	}
 
@@ -556,7 +553,7 @@ class AppController extends Controller {
 	}
 
 	/**
-	 * Put personalized items like specific teams and leagues on the menu.
+	 * Put personalized items like specific teams and divisions on the menu.
 	 */
 	function _initPersonalMenu() {
 		if (Configure::read('feature.registration')) {
@@ -578,9 +575,9 @@ class AppController extends Controller {
 			}
 		}
 
-		$leagues = $this->Session->read('Zuluru.Leagues');
-		foreach ($leagues as $league) {
-			$this->_addLeagueMenuItems ($league);
+		$divisions = $this->Session->read('Zuluru.Divisions');
+		foreach ($divisions as $division) {
+			$this->_addDivisionMenuItems ($division['Division'], $division['League']);
 		}
 	}
 
@@ -590,33 +587,38 @@ class AppController extends Controller {
 	function _addTeamMenuItems($team) {
 		$is_captain = in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs'));
 		$this->_limitOverride($team['Team']['id']);
+		$key = "{$team['Team']['name']}::{$team['Team']['id']}";
 
-		$this->_addMenuItem ($team['Team']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']), 'Teams', "{$team['Team']['name']}::{$team['Team']['id']}");
-		$this->_addMenuItem ('Schedule', array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
-		$this->_addMenuItem ('Standings', array('controller' => 'leagues', 'action' => 'standings', 'league' => $team['League']['id'], 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
+		$this->_addMenuItem ("{$team['Team']['name']} ({$team['Division']['long_league_name']})", array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']), 'Teams', $key);
+		$this->_addMenuItem ('Schedule', array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['Team']['id']), array('Teams', $key));
+		$this->_addMenuItem ('Standings', array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Division']['id'], 'team' => $team['Team']['id']), array('Teams', $key));
 		if ($team['Team']['track_attendance'] &&
 			in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
 		{
-			$this->_addMenuItem ('Attendance', array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
+			$this->_addMenuItem ('Attendance', array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['Team']['id']), array('Teams', $key));
 		}
-		if ($this->is_logged_in && $team['Team']['open_roster'] && $team['League']['roster_deadline'] >= date('Y-m-d') &&
+		if ($this->is_logged_in && $team['Team']['open_roster'] && $team['Division']['roster_deadline'] >= date('Y-m-d') &&
 			!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
 		{
-			$this->_addMenuItem ('Join team', array('controller' => 'teams', 'action' => 'roster_request', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
+			$this->_addMenuItem ('Join team', array('controller' => 'teams', 'action' => 'roster_request', 'team' => $team['Team']['id']), array('Teams', $key));
 		}
 		if ($this->is_admin || $is_captain) {
-			$this->_addMenuItem ('Edit', array('controller' => 'teams', 'action' => 'edit', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
-			$this->_addMenuItem ('Player emails', array('controller' => 'teams', 'action' => 'emails', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
-			$this->_addMenuItem ('Delete', array('controller' => 'teams', 'action' => 'delete', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
+			$this->_addMenuItem ('Edit', array('controller' => 'teams', 'action' => 'edit', 'team' => $team['Team']['id']), array('Teams', $key));
+			$this->_addMenuItem ('Player emails', array('controller' => 'teams', 'action' => 'emails', 'team' => $team['Team']['id']), array('Teams', $key));
+			$this->_addMenuItem ('Delete', array('controller' => 'teams', 'action' => 'delete', 'team' => $team['Team']['id']), array('Teams', $key));
 		}
 		if ($this->effective_admin ||
-			(($is_captain || $this->effective_coordinator) && $team['League']['roster_deadline'] >= date('Y-m-d')))
+			(($is_captain || $this->effective_coordinator) && $team['Division']['roster_deadline'] >= date('Y-m-d')))
 		{
-			$this->_addMenuItem ('Add player', array('controller' => 'teams', 'action' => 'add_player', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
+			$this->_addMenuItem ('Add player', array('controller' => 'teams', 'action' => 'add_player', 'team' => $team['Team']['id']), array('Teams', $key));
 		}
 		if ($this->effective_admin) {
-			$this->_addMenuItem ('Move', array('controller' => 'teams', 'action' => 'move', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
-			$this->_addMenuItem ('Spirit', array('controller' => 'teams', 'action' => 'spirit', 'team' => $team['Team']['id']), array('Teams', "{$team['Team']['name']}::{$team['Team']['id']}"));
+			$this->_addMenuItem ('Move', array('controller' => 'teams', 'action' => 'move', 'team' => $team['Team']['id']), array('Teams', $key));
+			$this->_addMenuItem ('Spirit', array('controller' => 'teams', 'action' => 'spirit', 'team' => $team['Team']['id']), array('Teams', $key));
+		}
+
+		if (array_key_exists('Division', $team)) {
+			$this->_addDivisionMenuItems($team['Division'], $team['Division']['League']);
 		}
 	}
 
@@ -638,33 +640,49 @@ class AppController extends Controller {
 	 * Add all the links for a league to the menu.
 	 */
 	function _addLeagueMenuItems($league) {
-		$is_coordinator = in_array($league['League']['id'], $this->Session->read('Zuluru.LeagueIDs'));
+		foreach ($league['Division'] as $division) {
+			$this->_addDivisionMenuItems($division, $league['League']);
+		}
+	}
 
-		$this->_addMenuItem ($league['League']['name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $league['League']['id']), 'Leagues');
-		$this->_addMenuItem ('Schedule', array('controller' => 'leagues', 'action' => 'schedule', 'league' => $league['League']['id']), array('Leagues', $league['League']['name']));
-		$this->_addMenuItem ('Standings', array('controller' => 'leagues', 'action' => 'standings', 'league' => $league['League']['id']), array('Leagues', $league['League']['name']));
-		$this->_addMenuItem ('Scores', array('controller' => 'leagues', 'action' => 'scores', 'league' => $league['League']['id']), array('Leagues', $league['League']['name']));
+	/**
+	 * Add all the links for a division to the menu.
+	 */
+	function _addDivisionMenuItems($division, $league) {
+		$is_coordinator = in_array($division['id'], $this->Session->read('Zuluru.DivisionIDs'));
+
+		$this->_addMenuItem ($league['name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $league['id']), 'Leagues');
+		$path = array('Leagues', $league['name']);
+		if (!empty($division['name'])) {
+			$this->_addMenuItem ($division['name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $division['id']), $path);
+			$path[] = $division['name'];
+		}
+		$this->_addMenuItem ('Schedule', array('controller' => 'divisions', 'action' => 'schedule', 'division' => $division['id']), $path);
+		$this->_addMenuItem ('Standings', array('controller' => 'divisions', 'action' => 'standings', 'division' => $division['id']), $path);
+		$this->_addMenuItem ('Scores', array('controller' => 'divisions', 'action' => 'scores', 'division' => $division['id']), $path);
 		if ($this->is_admin || $is_coordinator) {
-			$this->_addMenuItem ('Add Games', array('controller' => 'schedules', 'action' => 'add', 'league' => $league['League']['id']), array('Leagues', $league['League']['name'], 'Schedule'));
-			$this->_addMenuItem ('Approve scores', array('controller' => 'leagues', 'action' => 'approve_scores', 'league' => $league['League']['id']), array('Leagues', $league['League']['name']));
-			$this->_addMenuItem ('Edit', array('controller' => 'leagues', 'action' => 'edit', 'league' => $league['League']['id']), array('Leagues', $league['League']['name']));
-			$this->_addMenuItem ('Field distribution', array('controller' => 'leagues', 'action' => 'fields', 'league' => $league['League']['id']), array('Leagues', $league['League']['name']));
-			$this->_addMenuItem ('Available fields', array('controller' => 'leagues', 'action' => 'slots', 'league' => $league['League']['id']), array('Leagues', $league['League']['name']));
-			$this->_addMenuItem ('Status report', array('controller' => 'leagues', 'action' => 'status', 'league' => $league['League']['id']), array('Leagues', $league['League']['name']));
-			$this->_addMenuItem ('Validate ratings', array('controller' => 'leagues', 'action' => 'validate_ratings', 'league' => $league['League']['id']), array('Leagues', $league['League']['name']));
-			$this->_addMenuItem ('All stars', array('controller' => 'leagues', 'action' => 'allstars', 'league' => $league['League']['id']), array('Leagues', $league['League']['name']));
-			$this->_addMenuItem ('Captain emails', array('controller' => 'leagues', 'action' => 'emails', 'league' => $league['League']['id']), array('Leagues', $league['League']['name']));
-			$this->_addMenuItem ('Spirit Report', array('controller' => 'leagues', 'action' => 'spirit', 'league' => $league['League']['id']), array('Leagues', $league['League']['name']));
-			$this->_addMenuItem ('Download', array('controller' => 'leagues', 'action' => 'spirit', 'league' => $league['League']['id'], 'ext' => 'csv'), array('Leagues', $league['League']['name'], 'Spirit Report'));
+			$this->_addMenuItem ('Add Games', array('controller' => 'schedules', 'action' => 'add', 'division' => $division['id']), array_merge($path, array('Schedule')));
+			$this->_addMenuItem ('Approve scores', array('controller' => 'divisions', 'action' => 'approve_scores', 'division' => $division['id']), $path);
+			$this->_addMenuItem ('Edit', array('controller' => 'divisions', 'action' => 'edit', 'division' => $division['id']), $path);
+			$this->_addMenuItem ('Field distribution', array('controller' => 'divisions', 'action' => 'fields', 'division' => $division['id']), $path);
+			$this->_addMenuItem ('Available fields', array('controller' => 'divisions', 'action' => 'slots', 'division' => $division['id']), $path);
+			$this->_addMenuItem ('Status report', array('controller' => 'divisions', 'action' => 'status', 'division' => $division['id']), $path);
+			$this->_addMenuItem ('Validate ratings', array('controller' => 'divisions', 'action' => 'validate_ratings', 'division' => $division['id']), $path);
+			if (Configure::read('scoring.allstars') && $division['allstars'] != 'never') {
+				$this->_addMenuItem ('All stars', array('controller' => 'divisions', 'action' => 'allstars', 'division' => $division['id']), $path);
+			}
+			$this->_addMenuItem ('Captain emails', array('controller' => 'divisions', 'action' => 'emails', 'division' => $division['id']), $path);
+			$this->_addMenuItem ('Spirit Report', array('controller' => 'divisions', 'action' => 'spirit', 'division' => $division['id']), $path);
+			$this->_addMenuItem ('Download', array('controller' => 'divisions', 'action' => 'spirit', 'division' => $division['id'], 'ext' => 'csv'), array_merge($path, array('Spirit Report')));
 		}
 		if ($this->is_admin) {
-			$this->_addMenuItem ('Add coordinator', array('controller' => 'leagues', 'action' => 'add_coordinator', 'league' => $league['League']['id']), array('Leagues', $league['League']['name']));
+			$this->_addMenuItem ('Add coordinator', array('controller' => 'divisions', 'action' => 'add_coordinator', 'division' => $division['id']), $path);
 		}
 
 		// Some items are only applicable depending on league configuration
-		if (!empty ($league['League']['schedule_type'])) {
-			$league_obj = $this->_getComponent ('LeagueType', $league['League']['schedule_type'], $this);
-			$league_obj->addMenuItems ($league, $is_coordinator);
+		if (!empty ($division['schedule_type'])) {
+			$league_obj = $this->_getComponent ('LeagueType', $division['schedule_type'], $this);
+			$league_obj->addMenuItems ($division, $path, $is_coordinator);
 		}
 	}
 
@@ -1023,6 +1041,40 @@ class AppController extends Controller {
 
 	function membershipYearEndDay() {
 		return '31';
+	}
+
+	// TODO: Move this to a component? Leagues and Teams need it, but nothing else
+	function _getAffiliateId ($division, $team) {
+		if (!isset ($this->Team)) {
+			$this->Team = ClassRegistry::init ('Team');
+		}
+
+		// Find the affiliated league team
+		$franchises = Set::extract ('/Franchise/id', $team);
+		$this->Team->Franchise->contain(array(
+			'Team' => array('conditions' => array('Team.division_id' => $division['season_divisions'])),
+		));
+		$affiliates = $this->Team->Franchise->find('all', array('conditions' => array(
+			'Franchise.id' => $franchises,
+		)));
+		$affiliate_id = null;
+		foreach ($affiliates as $affiliate) {
+			switch (count($affiliate['Team'])) {
+				case 0:
+					break;
+
+				case 1:
+					if ($affiliate_id !== null) {
+						return null;
+					}
+					$affiliate_id = $affiliate['Team'][0]['id'];
+					break;
+
+				default:
+					return null;
+			}
+		}
+		return $affiliate_id;
 	}
 }
 ?>

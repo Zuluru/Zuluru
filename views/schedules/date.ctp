@@ -1,6 +1,6 @@
 <?php
-$this->Html->addCrumb (__('League', true));
-$this->Html->addCrumb ($league['League']['long_name']);
+$this->Html->addCrumb (__('Division', true));
+$this->Html->addCrumb ($division['Division']['full_league_name']);
 $this->Html->addCrumb (__('Add Games', true));
 $this->Html->addCrumb (__('Select Date', true));
 ?>

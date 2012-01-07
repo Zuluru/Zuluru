@@ -19,8 +19,8 @@ class RuleTeamCountComponent extends RuleComponent
 		foreach ($params['Team'] as $team) {
 			if (in_array($team['TeamsPerson']['position'], $positions) &&
 				$team['TeamsPerson']['status'] == ROSTER_APPROVED &&
-				strtotime ($team['League']['open']) <= $date &&
-				$date <= strtotime ($team['League']['close']))
+				strtotime ($team['Division']['open']) <= $date &&
+				$date <= strtotime ($team['Division']['close']))
 			{
 				++ $count;
 			}

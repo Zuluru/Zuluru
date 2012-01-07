@@ -1,11 +1,11 @@
 <?php
-$this->Html->addCrumb (__('Leagues', true));
-$this->Html->addCrumb ($league['League']['long_name']);
+$this->Html->addCrumb (__('Divisions', true));
+$this->Html->addCrumb ($division['Division']['full_league_name']);
 $this->Html->addCrumb (__('Adjust Ratings', true));
 ?>
 
-<div class="leagues ratings">
-<h2><?php __('Adjust Ratings');?></h2>
+<div class="divisions ratings">
+<h2><?php  echo __('Adjust Ratings', true) . ': ' . $division['Division']['full_league_name'];?></h2>
 
 <p>Use the links below to adjust a team's ratings for 'better' or for 'worse'. Alternatively, you can enter a new rating into the box beside each team then click 'Save Changes' below. Multiple teams can have the same ratings, and likely will at the start of the season.</p>
 <p>For the rating values, a <strong>HIGHER</strong> numbered rating is <strong>BETTER</strong>, and a <strong>LOWER</strong> numbered rating is <strong>WORSE</strong>.</p>
@@ -20,7 +20,7 @@ $this->Html->addCrumb (__('Adjust Ratings', true));
 		<th><?php __('Rating'); ?></th>
 		<th colspan="2"><?php __('New Rating'); ?></th>
 	</tr>
-<?php foreach ($league['Team'] as $key => $team): ?>
+<?php foreach ($division['Team'] as $key => $team): ?>
 	<tr>
 		<td><?php echo $this->ZuluruHtml->link ($team['name'],
 				array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']),

@@ -45,12 +45,12 @@ class GamesController extends AppController {
 		{
 			$game = $this->_arg('game');
 			if ($game) {
-				$leagues = $this->Session->read('Zuluru.LeagueIDs');
-				if (!empty ($leagues)) {
+				$divisions = $this->Session->read('Zuluru.DivisionIDs');
+				if (!empty ($divisions)) {
 					$coord = $this->Game->find ('count', array(
 							'conditions' => array(
 								'Game.id'			=> $game,
-								'Game.league_id'	=> $leagues,
+								'Game.division_id'	=> $divisions,
 							)
 					));
 					if ($coord > 0) {
@@ -71,7 +71,10 @@ class GamesController extends AppController {
 		}
 
 		$this->Game->contain (array (
-			'League' => array('Person' => array('fields' => array('id', 'first_name', 'last_name', 'email'))),
+			'Division' => array(
+				'Person' => array('fields' => array('id', 'first_name', 'last_name', 'email')),
+				'League',
+			),
 			'GameSlot' => array('Field' => array('ParentField')),
 			// Get the list of captains for each team, we may need to email them
 			'HomeTeam' => array(
@@ -101,9 +104,9 @@ class GamesController extends AppController {
 		$this->Game->_readDependencies($game['Game']);
 
 		$this->set('game', $game);
-		$this->set('spirit_obj', $this->_getComponent ('Spirit', $this->Game->data['League']['sotg_questions'], $this));
-		$this->set('league_obj', $this->_getComponent ('LeagueType', $this->Game->data['League']['schedule_type'], $this));
-		$this->set('is_coordinator', in_array ($this->Game->data['League']['id'], $this->Session->read('Zuluru.LeagueIDs')));
+		$this->set('spirit_obj', $this->_getComponent ('Spirit', $this->Game->data['Division']['League']['sotg_questions'], $this));
+		$this->set('league_obj', $this->_getComponent ('LeagueType', $this->Game->data['Division']['schedule_type'], $this));
+		$this->set('is_coordinator', in_array ($this->Game->data['Division']['id'], $this->Session->read('Zuluru.DivisionIDs')));
 	}
 
 	function ratings_table() {
@@ -119,13 +122,13 @@ class GamesController extends AppController {
 		}
 
 		$this->Game->contain (array (
-			'League',
+			'Division' => array('League'),
 			'HomeTeam',
 			'AwayTeam',
 		));
 		$this->set('game', $this->Game->read(null, $id));
-		$this->set('league_obj', $this->_getComponent ('LeagueType', $this->Game->data['League']['schedule_type'], $this));
-		$this->set('max_score', $this->Game->data['League']['expected_max_score']);
+		$this->set('league_obj', $this->_getComponent ('LeagueType', $this->Game->data['Division']['schedule_type'], $this));
+		$this->set('max_score', $this->Game->data['Division']['League']['expected_max_score']);
 	}
 
 	// This function takes the parameters the old-fashioned way, to try to be more third-party friendly
@@ -165,7 +168,10 @@ class GamesController extends AppController {
 		// data we display here doesn't come from the form, so we have
 		// to read the whole thing.
 		$this->Game->contain (array (
-			'League' => array('Person' => array('fields' => array('id', 'first_name', 'last_name', 'email'))),
+			'Division' => array(
+				'Person' => array('fields' => array('id', 'first_name', 'last_name', 'email')),
+				'League',
+			),
 			'GameSlot' => array('Field' => array('ParentField')),
 			'HomeTeam' => array(
 				'Person' => array(
@@ -189,7 +195,7 @@ class GamesController extends AppController {
 		$this->Game->_adjustEntryIndices($game);
 		$this->Game->_readDependencies($game['Game']);
 
-		if (!$this->is_admin && !in_array ($game['League']['id'], $this->Session->read('Zuluru.LeagueIDs'))) {
+		if (!$this->is_admin && !in_array ($game['Division']['id'], $this->Session->read('Zuluru.DivisionIDs'))) {
 			$this->Session->setFlash(__('You do not have permission to edit that game.', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
@@ -212,9 +218,9 @@ class GamesController extends AppController {
 		$captains = $this->Game->read(null, $id);
 
 		// Spirit score entry validation comes from the spirit component
-		$spirit_obj = $this->_getComponent ('Spirit', $game['League']['sotg_questions'], $this);
-		$league_obj = $this->_getComponent ('LeagueType', $game['League']['schedule_type'], $this);
-		$this->Game->SpiritEntry->validate = $spirit_obj->getValidate($game['League']);
+		$spirit_obj = $this->_getComponent ('Spirit', $game['Division']['League']['sotg_questions'], $this);
+		$league_obj = $this->_getComponent ('LeagueType', $game['Division']['schedule_type'], $this);
+		$this->Game->SpiritEntry->validate = $spirit_obj->getValidate($game['Division']['League']);
 
 		if (!empty($this->data)) {
 			// We could put these as hidden fields in the form, but we'd need to
@@ -294,7 +300,7 @@ class GamesController extends AppController {
 		// To maximize shared code between the edit and view templates, we'll
 		// set it in the 'game' variable here too.
 		$this->set(compact (array ('game', 'captains', 'spirit_obj', 'league_obj')));
-		$this->set('is_coordinator', in_array ($game['League']['id'], $this->Session->read('Zuluru.LeagueIDs')));
+		$this->set('is_coordinator', in_array ($game['Division']['id'], $this->Session->read('Zuluru.DivisionIDs')));
 	}
 
 	function delete() {
@@ -305,7 +311,7 @@ class GamesController extends AppController {
 		}
 
 		$this->Game->contain (array (
-			'League' => array('Person' => array('fields' => array('id', 'first_name', 'last_name', 'email'))),
+			'Division' => array('Person' => array('fields' => array('id', 'first_name', 'last_name', 'email'))),
 			'GameSlot' => array('Field' => array('ParentField')),
 			'HomeTeam',
 			'AwayTeam',
@@ -338,14 +344,14 @@ class GamesController extends AppController {
 			if ($this->Game->GameSlot->updateAll (array('game_id' => null), array('GameSlot.id' => $game['GameSlot']['id']))) {
 				$this->Session->setFlash(sprintf(__('%s deleted', true), __('Game', true)), 'default', array('class' => 'success'));
 				$transaction->commit();
-				$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $game['League']['id']));
+				$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $game['Division']['id']));
 			} else {
 				$this->Session->setFlash(__('Game was deleted, but game slot was not cleared', true), 'default', array('class' => 'warning'));
 			}
 		} else {
 			$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Game', true)), 'default', array('class' => 'warning'));
 		}
-		$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $game['League']['id']));
+		$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $game['Division']['id']));
 	}
 
 	function attendance() {
@@ -715,7 +721,10 @@ class GamesController extends AppController {
 		}
 
 		$contain = array (
-			'League' => array('Person' => array('fields' => array('id', 'first_name', 'last_name', 'email'))),
+			'Division' => array(
+				'Person' => array('fields' => array('id', 'first_name', 'last_name', 'email')),
+				'League',
+			),
 			'GameSlot' => array('Field' => array('ParentField')),
 			'ScoreEntry' => array('Person' => array('fields' => array('id', 'first_name', 'last_name'))),
 			'SpiritEntry',
@@ -780,7 +789,7 @@ class GamesController extends AppController {
 		}
 
 		// We need this in a couple of places
-		$spirit_obj = $this->_getComponent ('Spirit', $game['League']['sotg_questions'], $this);
+		$spirit_obj = $this->_getComponent ('Spirit', $game['Division']['League']['sotg_questions'], $this);
 
 		if (!empty ($this->data)) {
 			// We could put these as hidden fields in the form, but we'd need to
@@ -831,7 +840,7 @@ class GamesController extends AppController {
 
 			// Remove blank all-star fields, as they will cause insertion errors
 			if (Configure::read('scoring.allstars') &&
-				$game['League']['allstars'] != 'never' &&
+				$game['Division']['allstars'] != 'never' &&
 				array_key_exists ('Allstar', $this->data))
 			{
 				foreach ($this->data['Allstar'] as $key => $data) {
@@ -873,7 +882,7 @@ class GamesController extends AppController {
 			}
 
 			// Spirit score entry validation comes from the spirit component
-			$this->Game->SpiritEntry->validate = $spirit_obj->getValidate($game['League']);
+			$this->Game->SpiritEntry->validate = $spirit_obj->getValidate($game['Division']['League']);
 
 			if ($this->Game->saveAll($this->data, array('validate' => 'first'))) {
 				// Check if the opponent has an entry
@@ -925,7 +934,7 @@ class GamesController extends AppController {
 		}
 
 		$this->set(compact ('game', 'team_id', 'spirit_obj'));
-		$this->set('is_coordinator', in_array ($game['League']['id'], $this->Session->read('Zuluru.LeagueIDs')));
+		$this->set('is_coordinator', in_array ($game['Division']['id'], $this->Session->read('Zuluru.DivisionIDs')));
 	}
 
 	function _spiritTeams($to, $from, &$data) {
@@ -940,7 +949,10 @@ class GamesController extends AppController {
 	function _finalize($id) {
 		$this->Game->contain (array (
 			'GameSlot',
-			'League' => array('Person' => array('fields' => array('id', 'first_name', 'last_name', 'email'))),
+			'Division' => array(
+				'Person' => array('fields' => array('id', 'first_name', 'last_name', 'email')),
+				'League',
+			),
 			'ScoreEntry',
 			'SpiritEntry',
 			// Get the list of captains for each team, we may need to email them
@@ -993,7 +1005,7 @@ class GamesController extends AppController {
 	function _finalizeGame($game) {
 		// Initialize data to be saved
 		$data = array('Game' => array('id' => $game['Game']['id'], 'status' => 'normal'));
-		$spirit_obj = $this->_getComponent ('Spirit', $game['League']['sotg_questions'], $this);
+		$spirit_obj = $this->_getComponent ('Spirit', $game['Division']['League']['sotg_questions'], $this);
 
 		$home_entry = $this->Game->_get_score_entry($game, $game['Game']['home_team']);
 		$away_entry = $this->Game->_get_score_entry($game, $game['Game']['away_team']);
@@ -1023,7 +1035,7 @@ class GamesController extends AppController {
 				if (empty ($game['ScoreMismatchEmail'])) {
 					$this->set(compact ('game'));
 					if ($this->_sendMail (array (
-							'to' => $game['League'],
+							'to' => $game['Division'],
 							'subject' => 'Score entry mismatch',
 							'template' => 'score_entry_mismatch',
 							'sendAs' => 'both',
@@ -1143,7 +1155,7 @@ class GamesController extends AppController {
 						"{$type}_dependency_type LIKE" => 'game_%',
 						"{$type}_dependency_id" => $game['Game']['id'],
 					),
-					'contain' => array(),
+					'contain' => false,
 			));
 			foreach ($games as $dependency) {
 				$this->Game->id = $dependency['Game']['id'];
@@ -1239,7 +1251,7 @@ class GamesController extends AppController {
 		}
 
 		$change = 0;
-		$league_obj = $this->_getComponent ('LeagueType', $game['League']['schedule_type'], $this);
+		$league_obj = $this->_getComponent ('LeagueType', $game['Division']['schedule_type'], $this);
 
 		// For a tie, we assume the home team wins
 		if ($data['Game']['home_score'] >= $data['Game']['away_score']) {
@@ -1274,14 +1286,14 @@ class GamesController extends AppController {
 			'%fullname' => implode(', ', Set::extract('/Person/full_name', $team)),
 			'%team' => $team['name'],
 			'%opponent' => $opponent['name'],
-			'%league' => $game['League']['name'],
+			'%league' => $game['Division']['full_league_name'],
 			'%gamedate' => $game['GameSlot']['game_date'],
 			'%scoreurl' => Router::url(array('controller' => 'games', 'action' => 'submit_score', 'game' => $game['Game']['id'], 'team' => $team['id']), true),
 		);
 
 		if (!$this->_sendMail (array (
 				'to' => $team,
-				'replyTo' => $game['League']['Person'],
+				'replyTo' => $game['Division']['Person'],
 				'config_subject' => "{$reason}_subject",
 				'config_body' => "{$reason}_body",
 				'variables' => $variables,
@@ -1310,7 +1322,10 @@ class GamesController extends AppController {
 
 		$this->Game->contain (array (
 			'GameSlot',
-			'League' => array('Person' => array('fields' => array('id', 'first_name', 'last_name', 'email'))),
+			'Division' => array(
+				'Person' => array('fields' => array('id', 'first_name', 'last_name', 'email')),
+				'League',
+			),
 			'ScoreEntry',
 			'SpiritEntry',
 			// Get the list of captains for each team, we may need to email them
@@ -1332,27 +1347,27 @@ class GamesController extends AppController {
 		$offset = Configure::read('timezone.adjust') * 60;
 		$games = $this->Game->find ('all', array(
 				'conditions' => array(
-					'League.is_open' => true,
+					'Division.is_open' => true,
 					'Game.published' => true,
-					"UNIX_TIMESTAMP(CONCAT_WS(' ', GameSlot.game_date, GameSlot.game_start)) + $offset + League.email_after * 60 * 60 < UNIX_TIMESTAMP(NOW())",
+					"UNIX_TIMESTAMP(CONCAT_WS(' ', GameSlot.game_date, GameSlot.game_start)) + $offset + Division.email_after * 60 * 60 < UNIX_TIMESTAMP(NOW())",
 					array('OR' => array(
 						'Game.home_score' => null,
 						'Game.away_score' => null,
 					)),
 					array('OR' => array(
-						'League.email_after >' => 0,
-						'League.finalize_after >' => 0,
+						'Division.email_after >' => 0,
+						'Division.finalize_after >' => 0,
 					)),
 				),
-				'order' => array('League.id', 'GameSlot.game_date', 'GameSlot.game_start', 'Game.id'),
+				'order' => array('League.id', 'Division.id', 'GameSlot.game_date', 'GameSlot.game_start', 'Game.id'),
 		));
 
 		$this->Game->_adjustEntryIndices($games);
 		$now = time();
 		foreach ($games as $key => $game) {
 			$game_time = strtotime ("{$game['GameSlot']['game_date']} {$game['GameSlot']['game_start']}");
-			$email_time = $game_time + $game['League']['email_after'] * 60 * 60;
-			$finalize_time = $game_time + $game['League']['finalize_after'] * 60 * 60;
+			$email_time = $game_time + $game['Division']['email_after'] * 60 * 60;
+			$finalize_time = $game_time + $game['Division']['finalize_after'] * 60 * 60;
 			$games[$key]['finalized'] = $games[$key]['emailed'] = false;
 			if ($now > $finalize_time) {
 				$games[$key]['finalized'] = true;

@@ -26,7 +26,7 @@ $this->Html->addCrumb ($field['Field']['long_name']);
 			<td><?php echo $this->ZuluruTime->time ($slot['display_game_end']); ?></td>
 			<td><?php
 			if (!empty ($slot['Game'])) {
-				echo $this->Html->link ($slot['Game']['League']['long_name'],
+				echo $this->Html->link ($slot['Game']['Division']['league_name'],
 						array('controller' => 'games', 'action' => 'view', 'game' => $slot['Game']['id']));
 			}
 			?></td>

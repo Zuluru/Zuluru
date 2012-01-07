@@ -1,10 +1,10 @@
 <?php
-if (empty ($leagues)) {
-	echo 'No leagues operate on the selected night.';
+if (empty ($divisions)) {
+	echo 'No divisions operate on the selected night.';
 } else {
-	foreach ($leagues as $league) {
-		echo $this->Form->input ("League.{$league['League']['id']}", array(
-				'label' => $league['League']['long_name'],
+	foreach ($divisions as $division) {
+		echo $this->Form->input ("Division.{$division['Division']['id']}", array(
+				'label' => $division['Division']['full_league_name'],
 				'type' => 'checkbox',
 				'hiddenField' => false,
 		));

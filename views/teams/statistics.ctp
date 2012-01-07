@@ -6,30 +6,46 @@ $this->Html->addCrumb (__('Statistics', true));
 <div class="teams statistics">
 <h2><?php __('Team Statistics');?></h2>
 
-<h3><?php __('Teams by League'); ?></h3>
+<h3><?php __('Teams by Division'); ?></h3>
 <table class="list">
 	<thead>
 		<tr>
-			<th><?php __('League'); ?></th>
+			<th><?php __('Season');?></th>
+			<th><?php __('League');?></th>
+			<th><?php __('Division'); ?></th>
 			<th><?php __('Teams'); ?></th>
 		</tr>
 	</thead>
 	<tbody>
 <?php
 $total = 0;
-foreach ($counts as $league):
-	$total += $league[0]['count'];
+$league = $season = null;
+foreach ($counts as $division):
+	$total += $division[0]['count'];
 ?>
 		<tr>
-			<td><?php echo $this->Html->link ($league['League']['long_name'],
-					array('controller' => 'leagues', 'action' => 'view', 'league' => $league['League']['id']));
+			<td><?php
+			if ($division['League']['season'] != $season) {
+				__($division['League']['season']);
+				$season = $division['League']['season'];
+			}
 			?></td>
-			<td><?php echo $league[0]['count']; ?></td>
+			<td><?php
+			if ($division['League']['id'] != $league) {
+				echo $this->Html->link($division['League']['name'], array('action' => 'edit', 'league' => $division['League']['id']));
+				$league = $division['League']['id'];
+			}
+			?>
+			</td>
+			<td><?php echo $this->Html->link ($division['Division']['name'],
+					array('controller' => 'divisions', 'action' => 'view', 'division' => $division['Division']['id']));
+			?></td>
+			<td><?php echo $division[0]['count']; ?></td>
 		</tr>
 <?php endforeach; ?>
 
 		<tr>
-			<td><?php __('Total'); ?></td>
+			<td colspan="3"><?php __('Total'); ?></td>
 			<td><?php echo $total; ?></td>
 		</tr>
 	</tbody>
@@ -40,6 +56,7 @@ foreach ($counts as $league):
 	<thead>
 		<tr>
 			<th><?php __('Team'); ?></th>
+			<th><?php __('Division'); ?></th>
 			<th><?php __('Players'); ?></th>
 		</tr>
 	</thead>
@@ -49,6 +66,8 @@ foreach ($shorts as $team):
 ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
+			<td><?php echo $this->Html->link($team['Division']['full_league_name'],
+					array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])); ?></td>
 			<td><?php
 			echo $team[0]['size'];
 			if ($team[0]['subs'] > 0) {
@@ -66,6 +85,7 @@ foreach ($shorts as $team):
 	<thead>
 		<tr>
 			<th><?php __('Team'); ?></th>
+			<th><?php __('Division'); ?></th>
 			<th><?php __('Rating'); ?></th>
 		</tr>
 	</thead>
@@ -75,6 +95,8 @@ foreach ($top_rating as $team):
 ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
+			<td><?php echo $this->Html->link($team['Division']['full_league_name'],
+					array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])); ?></td>
 			<td><?php echo $team['Team']['rating']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -87,6 +109,7 @@ foreach ($top_rating as $team):
 	<thead>
 		<tr>
 			<th><?php __('Team'); ?></th>
+			<th><?php __('Division'); ?></th>
 			<th><?php __('Rating'); ?></th>
 		</tr>
 	</thead>
@@ -96,6 +119,8 @@ foreach ($lowest_rating as $team):
 ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
+			<td><?php echo $this->Html->link($team['Division']['full_league_name'],
+					array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])); ?></td>
 			<td><?php echo $team['Team']['rating']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -108,6 +133,7 @@ foreach ($lowest_rating as $team):
 	<thead>
 		<tr>
 			<th><?php __('Team'); ?></th>
+			<th><?php __('Division'); ?></th>
 			<th><?php __('Defaults'); ?></th>
 		</tr>
 	</thead>
@@ -118,6 +144,8 @@ foreach ($defaulting as $team):
 ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
+			<td><?php echo $this->Html->link($team['Division']['full_league_name'],
+					array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])); ?></td>
 			<td><?php echo $team['Team']['count']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -130,6 +158,7 @@ foreach ($defaulting as $team):
 	<thead>
 		<tr>
 			<th><?php __('Team'); ?></th>
+			<th><?php __('Division'); ?></th>
 			<th><?php __('Games'); ?></th>
 		</tr>
 	</thead>
@@ -140,6 +169,8 @@ foreach ($no_scores as $team):
 ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
+			<td><?php echo $this->Html->link($team['Division']['full_league_name'],
+					array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])); ?></td>
 			<td><?php echo $team[0]['count']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -152,6 +183,7 @@ foreach ($no_scores as $team):
 	<thead>
 		<tr>
 			<th><?php __('Team'); ?></th>
+			<th><?php __('Division'); ?></th>
 			<th><?php __('Average Spirit'); ?></th>
 		</tr>
 	</thead>
@@ -161,6 +193,8 @@ foreach ($top_spirit as $team):
 ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
+			<td><?php echo $this->Html->link($team['Division']['full_league_name'],
+					array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])); ?></td>
 			<td><?php echo $team[0]['avgspirit']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -173,6 +207,7 @@ foreach ($top_spirit as $team):
 	<thead>
 		<tr>
 			<th><?php __('Team'); ?></th>
+			<th><?php __('Division'); ?></th>
 			<th><?php __('Average Spirit'); ?></th>
 		</tr>
 	</thead>
@@ -182,6 +217,8 @@ foreach ($lowest_spirit as $team):
 ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
+			<td><?php echo $this->Html->link($team['Division']['full_league_name'],
+					array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])); ?></td>
 			<td><?php echo $team[0]['avgspirit']; ?></td>
 		</tr>
 <?php endforeach; ?>

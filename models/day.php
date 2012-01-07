@@ -4,11 +4,11 @@ class Day extends AppModel {
 	var $displayField = 'name';
 
 	var $hasAndBelongsToMany = array(
-		'League' => array(
-			'className' => 'League',
-			'joinTable' => 'leagues_days',
+		'Division' => array(
+			'className' => 'Division',
+			'joinTable' => 'divisions_days',
 			'foreignKey' => 'day_id',
-			'associationForeignKey' => 'league_id',
+			'associationForeignKey' => 'division_id',
 			'unique' => true,
 			'conditions' => '',
 			'fields' => '',

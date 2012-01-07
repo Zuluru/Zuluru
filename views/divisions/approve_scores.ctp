@@ -1,11 +1,11 @@
 <?php
-$this->Html->addCrumb (__('Leagues', true));
-$this->Html->addCrumb ($league['League']['long_name']);
+$this->Html->addCrumb (__('Divisions', true));
+$this->Html->addCrumb ($division['Division']['full_league_name']);
 $this->Html->addCrumb (__('Approve Scores', true));
 ?>
 
-<div class="leagues approve_scores">
-<h2><?php echo __('Approve Scores', true) . ': ' . $league['League']['long_name'];?></h2>
+<div class="divisions approve_scores">
+<h2><?php echo __('Approve Scores', true) . ': ' . $division['Division']['full_league_name'];?></h2>
 
 <table class="list">
 	<thead>

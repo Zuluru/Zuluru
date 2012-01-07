@@ -1,21 +1,21 @@
 <?php
-$this->Html->addCrumb (__('Leagues', true));
-$this->Html->addCrumb ($league['League']['long_name']);
+$this->Html->addCrumb (__('Divisions', true));
+$this->Html->addCrumb ($division['Division']['full_league_name']);
 $this->Html->addCrumb (__('Field Distribution Report', true));
 ?>
 
-<div class="leagues field_distribution">
-<h2><?php  echo __('Field Distribution Report', true) . ': ' . $league['League']['long_name'];?></h2>
+<div class="divisions field_distribution">
+<h2><?php  echo __('Field Distribution Report', true) . ': ' . $division['Division']['full_league_name'];?></h2>
 <?php
 if (isset ($published)) {
 	echo $this->Html->para(null,
 			sprintf(__('This report includes only games that are published. You may also see it %s.', true),
-				$this->Html->link(__('including all games', true), array('action' => 'fields', 'league' => $league['League']['id'])))
+				$this->Html->link(__('including all games', true), array('action' => 'fields', 'division' => $division['Division']['id'])))
 	);
 } else {
 	echo $this->Html->para(null,
 		sprintf(__('This report includes all games. You may also see it %s.', true),
-				$this->Html->link(__('including only games that are published', true), array('action' => 'fields', 'league' => $league['League']['id'], 'published' => true)))
+				$this->Html->link(__('including only games that are published', true), array('action' => 'fields', 'division' => $division['Division']['id'], 'published' => true)))
 	);
 }
 ?>
@@ -75,7 +75,7 @@ if ($count) {
 // Count number of games per field for each team
 $team_count = array();
 $field_count = array();
-foreach ($league['Game'] as $game) {
+foreach ($division['Game'] as $game) {
 	foreach (array('home_team', 'away_team') as $team) {
 		if (!array_key_exists ($game[$team], $team_count)) {
 			$team_count[$game[$team]] = array();
@@ -99,7 +99,7 @@ foreach ($league['Game'] as $game) {
 $numteams = count ($team_count);
 
 $rows = array();
-foreach ($league['Team'] as $team) {
+foreach ($division['Team'] as $team) {
 	$id = $team['id'];
 	$row = array ($this->Html->link ($team['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['id'])),
 					$team['rating']);

@@ -2,7 +2,7 @@
 class PeopleController extends AppController {
 
 	var $name = 'People';
-	var $uses = array('Person', 'Team', 'League', 'Group', 'Province', 'Country');
+	var $uses = array('Person', 'Team', 'Division', 'Group', 'Province', 'Country');
 	var $helpers = array('CropImage');
 	var $components = array('ImageCrop', 'Lock');
 	var $paginate = array(
@@ -136,7 +136,7 @@ class PeopleController extends AppController {
 	function participation() {
 		$min = min(
 			date('Y', strtotime($this->Person->Registration->Event->field('open', array(), 'open'))),
-			$this->Person->League->field('year', array('year IS NOT NULL'), 'year')
+			$this->Division->League->field('YEAR(open) AS year', array(), 'year')
 		);
 		$this->set(compact('min'));
 
@@ -169,7 +169,7 @@ class PeopleController extends AppController {
 		$membership_event_list = $this->Person->Registration->Event->find('all', array(
 			// TODO: Fix or remove these hard-coded values
 			'conditions' => array('event_type_id' => array(1)),
-			'contain' => array(),
+			'contain' => false,
 		));
 		$event_names = array();
 
@@ -178,8 +178,8 @@ class PeopleController extends AppController {
 			$start = date('Y-m-d', strtotime('tomorrow', strtotime($this->membershipEnd($year-1))));
 			$end = $this->membershipEnd($year);
 
-			// We are interested in teams in leagues that operated this year
-			$leagues = $this->Person->Team->League->find('all', array(
+			// We are interested in teams in divisions that operated this year
+			$divisions = $this->Division->find('all', array(
 				'conditions' => array(
 					'open >=' => $start,
 					'open <=' => $end,
@@ -191,22 +191,23 @@ class PeopleController extends AppController {
 							'TeamsPerson.status' => 1,
 						)),
 					),
+					'League',
 				),
 			));
 
 			// Consolidate the team data into the person-based array
-			foreach ($leagues as $league) {
-				foreach ($league['Team'] as $team) {
+			foreach ($divisions as $division) {
+				foreach ($division['Team'] as $team) {
 					foreach ($team['Person'] as $person) {
 						if (!array_key_exists($person['id'], $participation)) {
 							$participation[$person['id']] = array(
 								'Person' => $person,
 								'Event' => array(),
-								'League' => $years,
+								'Division' => $years,
 							);
 						}
 
-						if ($league['League']['schedule_type'] == 'tournament') {
+						if ($division['Division']['schedule_type'] == 'tournament') {
 							$key = 'tournament';
 						} else {
 							$key = 'season';
@@ -216,14 +217,14 @@ class PeopleController extends AppController {
 						} else {
 							$pos = 'player';
 						}
-						++ $participation[$person['id']]['League'][$year][$league['League']['season']][$key][$pos];
-						$seasons_found[$league['League']['season']][$key] = true;
+						++ $participation[$person['id']]['Division'][$year][$division['League']['season']][$key][$pos];
+						$seasons_found[$division['League']['season']][$key] = true;
 					}
 				}
 			}
 
 			// These arrays get big, and we don't need team data any more
-			unset ($leagues);
+			unset ($divisions);
 
 			// We are interested in memberships that covered this year
 			$membership_event_ids = array();
@@ -266,7 +267,7 @@ class PeopleController extends AppController {
 						$participation[$registration['person_id']] = array(
 							'Person' => $registration['Person'],
 							'Event' => array(),
-							'League' => $years,
+							'Division' => $years,
 						);
 					}
 					$participation[$registration['person_id']]['Event'][$event['Event']['id']] = true;
@@ -291,7 +292,7 @@ class PeopleController extends AppController {
 	function retention() {
 		$min = min(
 			date('Y', strtotime($this->Person->Registration->Event->field('open', array(), 'open'))),
-			$this->Person->League->field('year', array('year IS NOT NULL'), 'year')
+			$this->Division->League->field('YEAR(open) AS year', array(), 'year')
 		);
 		$this->set(compact('min'));
 
@@ -309,7 +310,7 @@ class PeopleController extends AppController {
 		$event_list = $this->Person->Registration->Event->find('all', array(
 			// TODO: Fix or remove these hard-coded values
 			'conditions' => array('event_type_id' => array(1)),
-			'contain' => array(),
+			'contain' => false,
 			'order' => array('Event.open', 'Event.close', 'Event.id'),
 		));
 
@@ -399,28 +400,28 @@ class PeopleController extends AppController {
 		$on_my_teams = array_intersect ($my_team_ids, $team_ids);
 		$this->set('is_captain', !empty ($on_my_teams));
 
-		// Check if the current user is a coordinator of a league the viewed player is a captain in
+		// Check if the current user is a coordinator of a division the viewed player is a captain in
 		$positions = Configure::read('privileged_roster_positions');
-		$my_league_ids = $this->Session->read('Zuluru.LeagueIDs');
-		$league_ids = array();
+		$my_division_ids = $this->Session->read('Zuluru.DivisionIDs');
+		$division_ids = array();
 		foreach ($positions as $position) {
-			$league_ids = array_merge ($league_ids,
-				Set::extract ("/Team/TeamsPerson[position=$position]/../Team/league_id", $person)
+			$division_ids = array_merge ($division_ids,
+				Set::extract ("/Team/TeamsPerson[position=$position]/../Team/division_id", $person)
 			);
 		}
-		$in_my_leagues = array_intersect ($my_league_ids, $league_ids);
-		$this->set('is_coordinator', !empty ($in_my_leagues));
+		$in_my_divisions = array_intersect ($my_division_ids, $division_ids);
+		$this->set('is_coordinator', !empty ($in_my_divisions));
 
-		// Check if the current user is a captain in a league the viewed player is a captain in
-		$captain_in_league_ids = Set::extract ('/Team/league_id', $this->Session->read('Zuluru.OwnedTeams'));
-		$opponent_captain_in_league_ids = array();
+		// Check if the current user is a captain in a division the viewed player is a captain in
+		$captain_in_division_ids = Set::extract ('/Team/division_id', $this->Session->read('Zuluru.OwnedTeams'));
+		$opponent_captain_in_division_ids = array();
 		foreach ($person['Team'] as $team) {
 			if (in_array ($team['TeamsPerson']['position'], $positions)) {
-				$opponent_captain_in_league_ids[] = $team['Team']['league_id'];
+				$opponent_captain_in_division_ids[] = $team['Team']['division_id'];
 			}
 		}
-		$captains_in_same_league = array_intersect ($captain_in_league_ids, $opponent_captain_in_league_ids);
-		$this->set('is_league_captain', !empty ($captains_in_same_league));
+		$captains_in_same_division = array_intersect ($captain_in_division_ids, $opponent_captain_in_division_ids);
+		$this->set('is_division_captain', !empty ($captains_in_same_division));
 
 		// Check if the current user is on a team the viewed player is a captain of
 		$this->set('is_my_captain', false);
@@ -520,7 +521,7 @@ class PeopleController extends AppController {
 	function photo() {
 		$file_dir = Configure::read('folders.uploads');
 		$photo = $this->Person->Upload->find('first', array(
-				'contain' => array(),
+				'contain' => false,
 				'conditions' => array(
 					'other_id' => $this->_arg('person'),
 					'type' => 'person',
@@ -602,7 +603,7 @@ class PeopleController extends AppController {
 			if ($image) {
 				// Check if we're overwriting an existing photo.
 				$photo = $this->Person->Upload->find('first', array(
-						'contain' => array(),
+						'contain' => false,
 						'conditions' => array(
 							'other_id' => $person['id'],
 							'type' => 'person',
@@ -806,7 +807,7 @@ class PeopleController extends AppController {
 			$this->redirect('/');
 		}
 
-		// TODO: Don't delete people that have paid registration history, are on team rosters, league coordinators, or the only admin
+		// TODO: Don't delete people that have paid registration history, are on team rosters, division coordinators, or the only admin
 
 		// TODO Handle deletions
 		$this->Session->setFlash(sprintf(__('Deleting %s is disabled', true), 'players'), 'default', array('class' => 'info'));
@@ -1091,7 +1092,7 @@ class PeopleController extends AppController {
 
 		$team_ids = Set::extract ('/Team/id', $person['Team']);
 		if (!empty ($team_ids)) {
-			$games = $this->League->Game->find ('all', array(
+			$games = $this->Division->Game->find ('all', array(
 				'conditions' => array(
 					'OR' => array(
 						'HomeTeam.id' => $team_ids,
@@ -1100,7 +1101,7 @@ class PeopleController extends AppController {
 					'Game.published' => true,
 				),
 				'fields' => array(
-					'Game.id', 'Game.home_team', 'Game.home_score', 'Game.away_team', 'Game.away_score', 'Game.status', 'Game.league_id', 'Game.created', 'Game.updated',
+					'Game.id', 'Game.home_team', 'Game.home_score', 'Game.away_team', 'Game.away_score', 'Game.status', 'Game.division_id', 'Game.created', 'Game.updated',
 					'GameSlot.game_date', 'GameSlot.game_start', 'GameSlot.game_end',
 					'HomeTeam.id', 'HomeTeam.name',
 					'AwayTeam.id', 'AwayTeam.name',
@@ -1156,7 +1157,7 @@ class PeopleController extends AppController {
 
 		$this->Person->recursive = -1;
 		$this->set('person', $this->Person->read(null, $id));
-		$this->set('teams', $this->Person->Team->readByPlayerId($id, false, false, array('League.open DESC', 'LeaguesDay.day_id')));
+		$this->set('teams', array_reverse($this->Person->Team->readByPlayerId($id, false)));
 	}
 
 	function cron() {

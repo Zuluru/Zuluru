@@ -1,6 +1,6 @@
 <?php
-$this->Html->addCrumb (__('League', true));
-$this->Html->addCrumb ($league['League']['long_name']);
+$this->Html->addCrumb (__('Division', true));
+$this->Html->addCrumb ($division['Division']['full_league_name']);
 $this->Html->addCrumb (__('Add Games', true));
 $this->Html->addCrumb (__('Select Type', true));
 ?>
@@ -9,7 +9,7 @@ $this->Html->addCrumb (__('Select Type', true));
 <?php echo $this->element('schedules/exclude'); ?>
 
 <?php
-$is_tournament = isset($playoff) || $league['League']['schedule_type'] == 'tournament';
+$is_tournament = isset($playoff) || $division['Division']['schedule_type'] == 'tournament';
 $create = ($is_tournament ? 'tournament' : 'game(s)');
 ?>
 <p>Please enter some information about the <?php echo $create; ?> to create.</p>
@@ -36,12 +36,12 @@ echo $this->Form->input('type', array(
 if ($is_tournament) {
 	echo $this->ZuluruHtml->help(array('action' => 'schedules', 'add', 'schedule_type', 'tournament'));
 } else {
-	echo $this->ZuluruHtml->help(array('action' => 'schedules', 'add', 'schedule_type', $league['League']['schedule_type']));
+	echo $this->ZuluruHtml->help(array('action' => 'schedules', 'add', 'schedule_type', $division['Division']['schedule_type']));
 }
 ?>
 </p>
 <?php if (!$is_tournament): ?>
-<p>Alternately, you can <?php echo $this->Html->link(__('create a playoff schedule', true), array('league' => $league['League']['id'], 'playoff' => true)); ?>.</p>
+<p>Alternately, you can <?php echo $this->Html->link(__('create a playoff schedule', true), array('division' => $division['Division']['id'], 'playoff' => true)); ?>.</p>
 <?php endif; ?>
 
 <?php

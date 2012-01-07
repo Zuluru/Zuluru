@@ -48,9 +48,9 @@ class Game extends AppModel {
 	);
 
 	var $belongsTo = array(
-		'League' => array(
-			'className' => 'League',
-			'foreignKey' => 'league_id',
+		'Division' => array(
+			'className' => 'Division',
+			'foreignKey' => 'division_id',
 			'conditions' => '',
 			'fields' => '',
 			'order' => ''
@@ -169,6 +169,33 @@ class Game extends AppModel {
 			'conditions' => array('type' => 'email_attendance_summary'),
 		),
 	);
+
+	static function compareDateAndField ($a, $b) {
+		if ($a['GameSlot']['game_date'] < $b['GameSlot']['game_date']) {
+			return -1;
+		} else if ($a['GameSlot']['game_date'] > $b['GameSlot']['game_date']) {
+			return 1;
+		}
+
+		if ($a['GameSlot']['game_start'] < $b['GameSlot']['game_start']) {
+			return -1;
+		} else if ($a['GameSlot']['game_start'] > $b['GameSlot']['game_start']) {
+			return 1;
+		}
+
+		if (array_key_exists ('name', $a) && !empty ($a['name'])) {
+			if ($a['name'] < $b['name']) {
+				return -1;
+			} else if ($a['name'] > $b['name']) {
+				return 1;
+			}
+		}
+
+		if ($a['GameSlot']['field_id'] < $b['GameSlot']['field_id']) {
+			return -1;
+		}
+		return 1;
+	}
 
 	static function _readDependencies (&$record) {
 		if (array_key_exists('home_dependency_type', $record) && !empty($record['home_dependency_type'])) {
@@ -531,7 +558,7 @@ class Game extends AppModel {
 
 			// Find all attendance records for this team for this game
 			$attendance = $this->Attendance->find('all', array(
-				'contain' => array(),
+				'contain' => false,
 				'conditions' => array(
 							'team_id' => $team_id,
 							'game_id' => $game_id,
@@ -542,7 +569,7 @@ class Game extends AppModel {
 				// There might be no attendance records because of a schedule change.
 				// Check for other attendance records for this team on the same date.
 				$attendance = $this->Attendance->find('all', array(
-					'contain' => array(),
+					'contain' => false,
 					'conditions' => array(
 								'team_id' => $team_id,
 								'game_date' => $date,
@@ -600,7 +627,7 @@ class Game extends AppModel {
 			if (empty($games)) {
 				// Find all attendance records for this team for this date
 				$attendance = $this->Attendance->find('all', array(
-					'contain' => array(),
+					'contain' => false,
 					'conditions' => array(
 						'team_id' => $team_id,
 						'game_date' => $date,

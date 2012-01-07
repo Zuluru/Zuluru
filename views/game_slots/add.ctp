@@ -110,7 +110,7 @@ echo $this->Form->input('weeks', array(
 ?>
 		<fieldset>
 			<legend><?php __('Make Gameslot Available To'); ?></legend>
-			<div id="league_list">
+			<div id="division_list">
 			</div>
 		</fieldset>
 	</fieldset>
@@ -119,14 +119,14 @@ echo $this->Form->input('weeks', array(
 
 <?php
 echo $this->ZuluruHtml->script ('datepicker', array('inline' => false));
-$url = $this->Html->url (array('controller' => 'leagues', 'action' => 'select'));
+$url = $this->Html->url (array('controller' => 'divisions', 'action' => 'select'));
 
-// Add JavaScript functions for "select all" buttons, hiding blocks of fields, and populating the league list
+// Add JavaScript functions for "select all" buttons, hiding blocks of fields, and populating the division list
 // TODO: Make hideFieldset and selectAll more generic and move to a .js file
 echo $this->Html->scriptBlock("
 $(document).ready(function() {
-	update_leagues();
-	$('select[id*=GameSlotGameDate]').change(function(){update_leagues();});
+	update_divisions();
+	$('select[id*=GameSlotGameDate]').change(function(){update_divisions();});
 	$('.hidden').hide();
 
 	// When the label for a parent field is clicked, toggle display of child fields.
@@ -143,14 +143,14 @@ $(document).ready(function() {
 	});
 });
 
-function update_leagues(){
+function update_divisions(){
 	var date = $('#GameSlotGameDateYear').val() + '-' + $('#GameSlotGameDateMonth').val() + '-' + $('#GameSlotGameDateDay').val();
 
 	$.ajax({
 		type: 'GET',
 		url: '$url/' + date,
-		success: function(leagues){
-			$('#league_list').html(leagues);
+		success: function(divisions){
+			$('#division_list').html(divisions);
 		},
 		error: function(message){
 			alert(message);

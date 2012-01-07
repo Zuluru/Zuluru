@@ -236,7 +236,6 @@ $config['options'] = array(
 	),
 );
 
-$config['options']['tier'] = range (0, 10);
 $config['options']['round'] = make_options (range (1, 5));
 $config['options']['games_before_repeat'] = range (0, 9);
 

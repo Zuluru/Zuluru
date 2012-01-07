@@ -16,7 +16,7 @@ $header = array(
 		__('Score', true),
 );
 
-// TODO: Move display details into an element to share between this, league spirit report, maybe others
+// TODO: Move display details into an element to share between this, division spirit report, maybe others
 foreach ($spirit_obj->questions as $detail) {
 	if ($detail['type'] != 'text') {
 		$header[] = __($detail['name'], true);
@@ -42,7 +42,7 @@ foreach ($team['Game'] as $game) {
 				if ($detail['type'] != 'text') {
 					$row[] = $this->element ('spirit/symbol', array(
 							'spirit_obj' => $spirit_obj,
-							'type' => $team['League']['display_sotg'],
+							'type' => $team['Division']['League']['display_sotg'],
 							'question' => $question,
 							'is_coordinator' => true,	// only ones allowed to even run this report
 							'value' => $entry[$question],

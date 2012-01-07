@@ -32,7 +32,7 @@ if (count ($classes)) {
 	}
 	echo $this->element ('spirit/symbol', array(
 			'spirit_obj' => $spirit_obj,
-			'type' => $league['League']['display_sotg'],
+			'type' => $division['League']['display_sotg'],
 			'is_coordinator' => $is_coordinator,
 			'value' => $spirit,
 	));

@@ -1,11 +1,11 @@
 <?php
-$this->Html->addCrumb (__('Leagues', true));
-$this->Html->addCrumb ($league['League']['long_name']);
+$this->Html->addCrumb (__('Divisions', true));
+$this->Html->addCrumb ($division['Division']['full_league_name']);
 $this->Html->addCrumb (__('Allstar Nominations Report', true));
 ?>
 
-<div class="leagues allstars">
-<h2><?php  echo __('Allstar Nominations Report', true) . ': ' . $league['League']['long_name'];?></h2>
+<div class="divisions allstars">
+<h2><?php  echo __('Allstar Nominations Report', true) . ': ' . $division['Division']['full_league_name'];?></h2>
 
 <?php
 $rows = array();
@@ -30,7 +30,7 @@ echo $this->Html->tag ('table', $this->Html->tableCells ($rows), array('class' =
 if ($min > 1) {
 	echo $this->Html->para(null, sprintf (__("This list shows only those with at least %d nominations. The %s is also available.", true),
 			$min,
-		$this->Html->link(__('complete list', true), array('action' => 'allstars', 'league' => $league['League']['id'], 'min' => 1))
+		$this->Html->link(__('complete list', true), array('action' => 'allstars', 'division' => $division['Division']['id'], 'min' => 1))
 	));
 }
 ?>

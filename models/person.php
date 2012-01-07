@@ -109,11 +109,11 @@ class Person extends User {
 	);
 
 	var $hasAndBelongsToMany = array(
-		'League' => array(
-			'className' => 'League',
-			'joinTable' => 'leagues_people',
+		'Division' => array(
+			'className' => 'Division',
+			'joinTable' => 'divisions_people',
 			'foreignKey' => 'person_id',
-			'associationForeignKey' => 'league_id',
+			'associationForeignKey' => 'division_id',
 			'unique' => true,
 			'conditions' => '',
 			'fields' => '',
@@ -142,14 +142,14 @@ class Person extends User {
 		)
 	);
 
-	// Return a person record including all details related to current leagues.
+	// Return a person record including all details related to current divisions.
 	function readCurrent($id) {
 		// Check for invalid users (not logged in, for example)
 		if ($id === null) {
 			return array();
 		}
 
-		// Get the main record.  We don't contain Allstar, Team and League
+		// Get the main record.  We don't contain Allstar, Team and Division
 		// records, because Person hasMany of them and by default this causes
 		// many queries to the database.
 		$this->recursive = -1;
@@ -182,7 +182,7 @@ class Person extends User {
 			$person['Allstar'] = $this->Allstar->find('all', array(
 					'conditions' => array(
 						'Allstar.person_id' => $id,
-						'League.is_open' => true,
+						'Division.is_open' => true,
 					),
 					'order' => 'GameSlot.game_date, GameSlot.game_start',
 					'fields' => array(
@@ -193,6 +193,7 @@ class Person extends User {
 						'HomeTeam.id', 'HomeTeam.name',
 						'AwayTeam.id', 'AwayTeam.name',
 						'League.id', 'League.name',
+						'Division.id', 'Division.name',
 					),
 					'joins' => array(
 						array(
@@ -232,18 +233,25 @@ class Person extends User {
 								'conditions' => 'AwayTeam.id = Game.away_team',
 								),
 							array(
+								'table' => "{$this->Allstar->tablePrefix}divisions",
+								'alias' => 'Division',
+								'type' => 'LEFT',
+								'foreignKey' => false,
+								'conditions' => 'Division.id = Game.division_id',
+							),
+							array(
 								'table' => "{$this->Allstar->tablePrefix}leagues",
 								'alias' => 'League',
 								'type' => 'LEFT',
 								'foreignKey' => false,
-								'conditions' => 'League.id = Game.league_id',
+								'conditions' => 'League.id = Division.league_id',
 							),
 					),
 			));
 		}
 
 		$person['Team'] = $this->Team->readByPlayerId($id);
-		$person['League'] = $this->League->readByPlayerId($id);
+		$person['Division'] = $this->Division->readByPlayerId($id);
 
 		return $person;
 	}

@@ -2,12 +2,7 @@
 <p><?php echo $captain; ?> has invited you to join the roster of the <?php
 echo Configure::read('organization.name'); ?> team <?php echo $team['name']; ?> as a <?php
 echo Configure::read("options.roster_position.$position"); ?>.</p>
-<p><?php echo $team['name']; ?> plays in the <?php echo $league['name']; ?> league<?php
-if (!empty ($league['Day'])):
-?>, which operates on <?php
-echo implode (' and ', Set::extract ('/Day/name', $league)); ?><?php
-endif;
-?>.</p>
+<p><?php echo $team['name']; ?> plays in the <?php echo $this->element('email/division'); ?>.</p>
 <p>More details about <?php echo $team['name']; ?> may be found at
 <?php
 $url = Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']), true);
@@ -34,9 +29,9 @@ echo $this->Html->link($url, $url);
 ?></p>
 <p>Please be advised that players are NOT considered a part of a team roster until they have accepted a captain's invitation to join. The <?php
 echo $team['name']; ?> roster must be completed (minimum of <?php
-echo Configure::read("roster_requirements.{$league['ratio']}"); ?> rostered players) by the team roster deadline (<?php
+echo Configure::read("roster_requirements.{$division['ratio']}"); ?> rostered players) by the team roster deadline (<?php
 $date_format = array_shift (Configure::read('options.date_formats'));
-echo $this->Time->format($date_format, $league['roster_deadline']);
+echo $this->Time->format($date_format, $division['roster_deadline']);
 ?>), and all team members must have accepted the captain's invitation.</p>
 <p>Thanks,
 <br /><?php echo Configure::read('email.admin_name'); ?>

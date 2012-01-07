@@ -1,11 +1,11 @@
 <?php
-$this->Html->addCrumb (__('Leagues', true));
-$this->Html->addCrumb ($league['League']['long_name']);
+$this->Html->addCrumb (__('Divisions', true));
+$this->Html->addCrumb ($division['Division']['full_league_name']);
 $this->Html->addCrumb (__('Schedule', true));
 ?>
 
-<div class="leagues schedule">
-<h2><?php echo __('League Schedule', true) . ': ' . $league['League']['long_name'];?></h2>
+<div class="divisions schedule">
+<h2><?php echo __('Division Schedule', true) . ': ' . $division['Division']['full_league_name'];?></h2>
 <?php
 if (!empty ($edit_date)) {
 	echo $this->Form->create ('Game', array('url' => Router::normalize($this->here)));
@@ -18,16 +18,16 @@ if (!empty ($edit_date)) {
 	asort ($slots);
 }
 ?>
-<?php if (!empty($league['Game'])):?>
+<?php if (!empty($division['Game'])):?>
 <?php
-	$future = array_shift (Set::extract('/Game/GameSlot[game_date>=' . date('Y-m-d') . ']/game_date', $league));
+	$future = array_shift (Set::extract('/Game/GameSlot[game_date>=' . date('Y-m-d') . ']/game_date', $division));
 	if ($future) {
 		echo $this->Html->para(null, $this->Html->link(__('Jump to upcoming games', true), "#$future"));
 	}
 ?>
 	<table class="list">
 	<?php
-	$dates = array_unique(Set::extract ('/Game/GameSlot/game_date', $league));
+	$dates = array_unique(Set::extract ('/Game/GameSlot/game_date', $division));
 	foreach ($dates as $date) {
 		if ($date == $edit_date) {
 			echo $this->element('leagues/schedule/week_edit', compact ('date', 'slots'));
@@ -51,40 +51,43 @@ if (!empty ($edit_date)) {
 	<ul>
 		<?php
 		echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('view_32.png',
-			array('action' => 'view', 'league' => $league['League']['id']),
-			array('alt' => __('Details', true), 'title' => __('View League Details', true))));
+			array('action' => 'view', 'division' => $division['Division']['id']),
+			array('alt' => __('Details', true), 'title' => __('View Division Details', true))));
 		echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('standings_32.png',
-			array('action' => 'standings', 'league' => $league['League']['id']),
+			array('action' => 'standings', 'division' => $division['Division']['id']),
 			array('alt' => __('Standings', true), 'title' => __('Standings', true))));
 		if ($is_admin || $is_coordinator) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('edit_32.png',
-				array('action' => 'edit', 'league' => $league['League']['id']),
-				array('alt' => __('Edit', true), 'title' => __('Edit League', true))));
+				array('action' => 'edit', 'division' => $division['Division']['id']),
+				array('alt' => __('Edit', true), 'title' => __('Edit Division', true))));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('email_32.png',
-				array('action' => 'emails', 'league' => $league['League']['id']),
+				array('action' => 'emails', 'division' => $division['Division']['id']),
 				array('alt' => __('Captain Emails', true), 'title' => __('Captain Emails', true))));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('score_approve_32.png',
-				array('action' => 'approve_scores', 'league' => $league['League']['id']),
+				array('action' => 'approve_scores', 'division' => $division['Division']['id']),
 				array('alt' => __('Approve scores', true), 'title' => __('Approve scores', true))));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('schedule_add_32.png',
-				array('controller' => 'schedules', 'action' => 'add', 'league' => $league['League']['id']),
+				array('controller' => 'schedules', 'action' => 'add', 'division' => $division['Division']['id']),
 				array('alt' => __('Add Games', true), 'title' => __('Add Games', true))));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('spirit_32.png',
-				array('action' => 'spirit', 'league' => $league['League']['id']),
-				array('alt' => __('Spirit', true), 'title' => __('See League Spirit Report', true))));
+				array('action' => 'spirit', 'division' => $division['Division']['id']),
+				array('alt' => __('Spirit', true), 'title' => __('See Division Spirit Report', true))));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('field_report_32.png',
-				array('action' => 'fields', 'league' => $league['League']['id']),
+				array('action' => 'fields', 'division' => $division['Division']['id']),
 				array('alt' => __('Field Distribution', true), 'title' => __('Field Distribution Report', true))));
 			// TODO: More links to reports, etc.
 		}
 		if ($is_admin) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('coordinator_add_32.png',
-				array('action' => 'add_coordinator', 'league' => $league['League']['id']),
+				array('action' => 'add_coordinator', 'division' => $division['Division']['id']),
 				array('alt' => __('Add Coordinator', true), 'title' => __('Add Coordinator', true))));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('division_clone_32.png',
+				array('action' => 'add', 'league' => $division['League']['id'], 'division' => $division['Division']['id']),
+				array('alt' => __('Clone Division', true), 'title' => __('Clone Division', true))));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('delete_32.png',
-				array('action' => 'delete', 'league' => $league['League']['id']),
-				array('alt' => __('Delete', true), 'title' => __('Delete League', true)),
-				array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $league['League']['id']))));
+				array('action' => 'delete', 'division' => $division['Division']['id']),
+				array('alt' => __('Delete', true), 'title' => __('Delete Division', true)),
+				array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $division['League']['id']))));
 		}
 		?>
 	</ul>

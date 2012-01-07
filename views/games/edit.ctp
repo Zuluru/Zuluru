@@ -16,7 +16,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 <dl><?php $i = 0; $class = ' class="altrow"';?>
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo __('League', true) . '/' . __('Division', true); ?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-		<?php echo $this->Html->link($game['League']['long_name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $game['League']['id'])); ?>
+		<?php echo $this->Html->link($game['Division']['League']['full_name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $game['Division']['League']['id'])); ?>
 
 	</dd>
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Home Team'); ?></dt>
@@ -182,7 +182,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 		}
 		?></td>
 	</tr>
-	<?php if ($game['League']['numeric_sotg'] || $game['League']['sotg_questions'] != 'none'): ?>
+	<?php if ($game['Division']['League']['numeric_sotg'] || $game['Division']['League']['sotg_questions'] != 'none'): ?>
 	<tr>
 		<td><?php __('Spirit Assigned'); ?></td>
 		<td><?php
@@ -227,7 +227,7 @@ echo $this->element ('spirit/input', array(
 ?>
 
 <?php
-if ($game['League']['allstars'] != 'never'):
+if ($game['Division']['allstars'] != 'never'):
 ?>
 <fieldset id="AllstarDetails">
 <legend>Allstar Nominations: <?php echo $game['HomeTeam']['name']; ?></legend>
@@ -261,7 +261,7 @@ echo $this->element ('spirit/input', array(
 ));
 ?>
 <?php
-if ($game['League']['allstars'] != 'never'):
+if ($game['Division']['allstars'] != 'never'):
 ?>
 <fieldset id="AllstarDetails">
 <legend>Allstar Nominations: <?php echo $game['AwayTeam']['name']; ?></legend>

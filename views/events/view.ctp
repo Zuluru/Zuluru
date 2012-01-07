@@ -25,7 +25,7 @@ $this->Html->addCrumb (__('View', true));
 		</dd>
 <?php endif; ?>
 		
-<?php if (array_key_exists ('League', $event)): ?>
+<?php if (array_key_exists ('Division', $event)): ?>
 <?php if (count($sites) > 0 && count($sites) < 4):
 		$site_links = array();
 		foreach ($sites as $site_id => $site_name) {
@@ -40,12 +40,12 @@ $this->Html->addCrumb (__('View', true));
 <?php endif; ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('First Game'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $this->ZuluruTime->Date ($event['League']['open']); ?>
+			<?php echo $this->ZuluruTime->Date ($event['Division']['open']); ?>
 
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Last Game'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $this->ZuluruTime->Date ($event['League']['close']); ?>
+			<?php echo $this->ZuluruTime->Date ($event['Division']['close']); ?>
 
 		</dd>
 <?php if (count($times) > 0 && count($times) < 5):
@@ -142,8 +142,8 @@ else:
 
 <div class="actions">
 	<ul>
-<?php if (array_key_exists ('League', $event)): ?>
-		<li><?php echo $this->Html->link(sprintf(__('View %s', true), __('League', true)), array('controller' => 'leagues', 'action' => 'view', 'league' => $event['League']['id'])); ?> </li>
+<?php if (array_key_exists ('Division', $event)): ?>
+		<li><?php echo $this->Html->link(sprintf(__('View %s', true), __('Division', true)), array('controller' => 'divisions', 'action' => 'view', 'Division' => $event['Division']['id'])); ?> </li>
 <?php endif; ?>
 <?php if ($is_admin): ?>
 		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Event', true)), array('action' => 'edit', 'event' => $event['Event']['id'])); ?> </li>

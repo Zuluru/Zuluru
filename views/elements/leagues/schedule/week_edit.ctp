@@ -1,14 +1,14 @@
 <?php
-$published = array_unique (Set::extract ("/GameSlot[game_date=$date]/../published", $league['Game']));
+$published = array_unique (Set::extract ("/GameSlot[game_date=$date]/../published", $division['Game']));
 if (count ($published) != 1 || $published[0] == 0) {
 	$published = false;
 } else {
 	$published = true;
 }
 
-$teams = Set::combine ($league['Team'], '{n}.id', '{n}.name');
+$teams = Set::combine ($division['Team'], '{n}.id', '{n}.name');
 natcasesort ($teams);
-$tournament_games = Set::extract ("/Game[tournament=1]/GameSlot[game_date=$date]", $league);
+$tournament_games = Set::extract ("/Game[tournament=1]/GameSlot[game_date=$date]", $division);
 $is_tournament = !empty($tournament_games);
 ?>
 
@@ -16,7 +16,7 @@ $is_tournament = !empty($tournament_games);
 	<th colspan="4"><a name="<?php echo $date; ?>"><?php echo $this->ZuluruTime->fulldate($date); ?></a></th>
 	<th colspan="2" class="actions splash_action">
 	<?php echo $this->ZuluruHtml->iconLink('field_24.png',
-			array('action' => 'slots', 'league' => $league['League']['id'], 'date' => $date),
+			array('action' => 'slots', 'division' => $division['Division']['id'], 'date' => $date),
 			array('alt' => __('Fields', true), 'title' => __('Available Fields', true))); ?>
 	</th>
 </tr>
@@ -29,7 +29,7 @@ $is_tournament = !empty($tournament_games);
 </tr>
 
 <?php
-foreach ($league['Game'] as $game):
+foreach ($division['Game'] as $game):
 	if ($date != $game['GameSlot']['game_date']) {
 		continue;
 	}

@@ -60,9 +60,9 @@ class Team extends AppModel {
 	);
 
 	var $belongsTo = array(
-		'League' => array(
-			'className' => 'League',
-			'foreignKey' => 'league_id',
+		'Division' => array(
+			'className' => 'Division',
+			'foreignKey' => 'division_id',
 			'conditions' => '',
 			'fields' => '',
 			'order' => ''
@@ -134,7 +134,7 @@ class Team extends AppModel {
 	);
 
 	function beforeValidate() {
-		$league_id = $team_id = null;
+		$division_id = $team_id = null;
 		if (array_key_exists ('Team', $this->data)) {
 			$team = $this->data['Team'];
 		} else {
@@ -144,59 +144,50 @@ class Team extends AppModel {
 		if (array_key_exists ('id', $team)) {
 			$team_id = $team['id'];
 			$Team = ClassRegistry::init('Team');
-			$league_id = $Team->field ('league_id', array('id' => $team_id));
+			$division_id = $Team->field ('division_id', array('id' => $team_id));
 		}
-		if (array_key_exists ('league_id', $team)) {
-			$league_id = $team['league_id'];
+		if (array_key_exists ('division_id', $team)) {
+			$division_id = $team['division_id'];
 		}
 
 		$this->validate['name']['unique'] = array(
-			'rule' => array('notinquery', 'Team', 'name', array(
-				'league_id' => $league_id,
-				'id !=' => $team_id,
-			)),
+			'rule' => array('team_unique', $team_id, $division_id),
 			'message' => 'There is already a team by that name in this league.',
 		);
 	}
 
-	function readByPlayerId($id, $roster_limits = false, $open = true, $order = null) {
+	function readByPlayerId($id, $open = true) {
 		// Check for invalid users
 		if ($id === null) {
 			return array();
 		}
 
-		$conditions = array(
-			'TeamsPerson.person_id' => $id,
-		);
 		if ($open) {
-			$conditions['OR'] = array(
-				'League.is_open' => true,
-				'League.open > CURDATE()',
+			$conditions = array(
+				'Division.schedule_type !=' => 'none',
+				'OR' => array(
+					'Division.is_open' => true,
+					'Division.open > CURDATE()',
+				),
 			);
 		} else {
-			$conditions['League.schedule_type !='] = 'none';
+			$conditions = array(
+				'Division.schedule_type !=' => 'none',
+			);
 		}
-		if ($roster_limits) {
-			$conditions['TeamsPerson.position'] = $roster_limits;
-		}
-		if ($order === null) {
-			$order = array('LeaguesDay.day_id', 'League.open');
-		}
+		$conditions['TeamsPerson.person_id'] = $id;
 
-		$this->recursive = -1;
 		$teams = $this->find('all', array(
 				'conditions' => $conditions,
-				// By grouping, we get only one record per team, regardless
-				// of how many days the league may operate on. Without this,
-				// a league that runs on two nights would generate two records
-				// here. Nothing that uses this function needs the full list
-				// of nights, so it's okay.
-				'group' => 'Team.id',
-				'order' => $order,
+				'contain' => array(
+					'Division' => array(
+						'League',
+						'Day',
+					),
+				),
 				'fields' => array(
 					'Team.*',
 					'TeamsPerson.person_id', 'TeamsPerson.team_id', 'TeamsPerson.position', 'TeamsPerson.status',
-					'League.id', 'League.name', 'League.roster_deadline', 'League.open', 'League.close',
 				),
 				'joins' => array(
 					array(
@@ -206,22 +197,9 @@ class Team extends AppModel {
 						'foreignKey' => false,
 						'conditions' => 'TeamsPerson.team_id = Team.id',
 					),
-					array(
-						'table' => "{$this->tablePrefix}leagues",
-						'alias' => 'League',
-						'type' => 'LEFT',
-						'foreignKey' => false,
-						'conditions' => 'League.id = Team.league_id',
-					),
-						array(
-							'table' => "{$this->tablePrefix}leagues_days",
-							'alias' => 'LeaguesDay',
-							'type' => 'LEFT',
-							'foreignKey' => false,
-							'conditions' => 'LeaguesDay.league_id = League.id',
-						),
 				),
 		));
+		usort ($teams, array('League', 'compareLeagueAndDivision'));
 
 		return $teams;
 	}

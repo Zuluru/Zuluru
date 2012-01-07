@@ -7,7 +7,7 @@
 class EventTypeTeamComponent extends EventTypeComponent
 {
 	function configurationFields() {
-		return array('team_league', 'level_of_play', 'ask_status', 'ask_region');
+		return array('team_division', 'level_of_play', 'ask_status', 'ask_region');
 	}
 
 	function configurationFieldsElement() {
@@ -16,10 +16,10 @@ class EventTypeTeamComponent extends EventTypeComponent
 
 	function configurationFieldsValidation() {
 		return array(
-			'team_league' => array(
+			'team_division' => array(
 				'numeric' => array(
-					'rule' => array('inquery', 'League', 'id'),
-					'message' => 'You must select a valid league.',
+					'rule' => array('inquery', 'Division', 'id'),
+					'message' => 'You must select a valid division.',
 					'allowEmpty' => true,
 				),
 			),
@@ -59,22 +59,39 @@ class EventTypeTeamComponent extends EventTypeComponent
 		}
 
 		// These questions are only meaningful when we are creating team records
-		if (array_key_exists('team_league', $event['Event']) && $event['Event']['team_league'] != null) {
+		if (array_key_exists('team_division', $event['Event']) && $event['Event']['team_division'] != null) {
 			if (Configure::read('feature.franchises')) {
 				if (!isset ($this->_controller->Team)) {
 					$this->_controller->Team = ClassRegistry::init ('Team');
 				}
 
-				$this->_controller->Team->League->contain();
-				$league = $this->_controller->Team->League->read(null, $event['Event']['team_league']);
+				$this->_controller->Team->Division->contain();
+				$division = $this->_controller->Team->Division->read(null, $event['Event']['team_division']);
+				$this->_controller->Team->Division->addPlayoffs($division);
 				$conditions = array('Franchise.person_id' => $user_id);
+
+				// Possibly narrow the list of possible franchises to those that are represented
+				// in the configured divisions
+				if ($division['Division']['is_playoff']) {
+					$this->_controller->Team->contain('Franchise');
+					$teams = $this->_controller->Team->find('all', array(
+							'conditions' => array('Team.division_id' => $division['Division']['season_divisions']),
+					));
+					$franchise_ids = Set::extract ('/Franchise/id', $teams);
+					$conditions['Franchise.id'] = $franchise_ids;
+				}
 
 				$franchises = $this->_controller->Team->Franchise->find('list', array(
 						'conditions' => $conditions,
 				));
 
-				$franchises[-1] = __('Create a new franchise', true);
-				$extra = __('You may also choose to start a new franchise.', true);
+				// Teams added to playoff divisions must be in pre-existing franchises
+				if ($division['Division']['is_playoff']) {
+					$extra = '<span class="warning-message">' . __('This MUST be the same franchise that the regular-season team belongs to, or you will NOT be able to correctly set up your roster.', true) . '</span>';
+				} else {
+					$franchises[-1] = __('Create a new franchise', true);
+					$extra = __('You may also choose to start a new franchise.', true);
+				}
 
 				$fields[] = array(
 					'id' => FRANCHISE_ID,
@@ -112,7 +129,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 		return $fields;
 	}
 
-	function registrationFieldsValidation($event) {
+	function registrationFieldsValidation($event, $for_edit = false) {
 		// 'message' must go into an array with key = 'q{answer}' because
 		// field names when we display this are like Response.q{id}.answer
 		$validation = array(
@@ -130,7 +147,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 			),
 		);
 
-		if (!array_key_exists('team_league', $event['Event']) || $event['Event']['team_league'] == null) {
+		if (!array_key_exists('team_division', $event['Event']) || $event['Event']['team_division'] == null) {
 			// TODO: Add region and open roster validation, if necessary
 		} else {
 			if (array_key_exists('Response', $event)) {
@@ -139,12 +156,9 @@ class EventTypeTeamComponent extends EventTypeComponent
 				$team_id = null;
 			}
 
-			// If we're creating team records in a league, make sure the name is unique in that league
+			// If we're creating team records in a division, make sure the name is unique in that entire league
 			$validation['q' . TEAM_NAME]['unique'] = array(
-				'rule' => array('notinquery', 'Team', 'name', array(
-						'league_id' => $event['Event']['team_league'],
-						'id !=' => $team_id,
-				)),
+				'rule' => array('team_unique', $team_id, $event['Event']['team_division']),
 				'message' => array('answer' => 'There is already a team by that name in this league.'),
 			);
 
@@ -153,10 +167,12 @@ class EventTypeTeamComponent extends EventTypeComponent
 					'rule' => array('franchise_owner', $this->_controller->Auth->user('id'), $this->_controller->is_admin),
 					'message' => array('answer_id' => 'That franchise does not belong to you.'),
 				);
-				$validation['q' . FRANCHISE_ID]['unique'] = array(
-					'rule' => array('franchise_unique'),
-					'message' => array('answer_id' => 'New franchises are created with the same name as the team, but there is already a franchise with this name. To add this team to that franchise, you must be the franchise owner, which may require that the current owner transfer ownership to you.'),
-				);
+				if (!$for_edit) {
+					$validation['q' . FRANCHISE_ID]['unique'] = array(
+						'rule' => array('franchise_unique'),
+						'message' => array('answer_id' => 'New franchises are created with the same name as the team, but there is already a franchise with this name. To add this team to that franchise, you must be the franchise owner, which may require that the current owner transfer ownership to you.'),
+					);
+				}
 			}
 		}
 
@@ -174,7 +190,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 	}
 
 	function _createTeam($event, $data) {
-		if (!array_key_exists('team_league', $event['Event']) || $event['Event']['team_league'] == null) {
+		if (!array_key_exists('team_division', $event['Event']) || $event['Event']['team_division'] == null) {
 			return true;
 		}
 
@@ -184,7 +200,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 
 		$team = array_merge(
 			array(
-				'league_id' => $event['Event']['team_league'],
+				'division_id' => $event['Event']['team_division'],
 			),
 			$this->_extractAnswers ($data, array(
 				'name' => TEAM_NAME,
@@ -219,6 +235,8 @@ class EventTypeTeamComponent extends EventTypeComponent
 				return false;
 			}
 
+			$responses = array();
+
 			if (Configure::read('feature.franchises')) {
 				$franchise = $this->_extractAnswer($data, FRANCHISE_ID);
 				// We may need to create a new franchise record
@@ -232,8 +250,11 @@ class EventTypeTeamComponent extends EventTypeComponent
 						// TODO: Some way to return the validation error, giving the user a better error message
 						return false;
 					}
-					// TODO: Return the franchise ID, so that the questionnaire response is updated?
 					$franchise = $this->_controller->Team->Franchise->id;
+					$responses[] = array(
+						'question_id' => FRANCHISE_ID_CREATED,
+						'answer' => $franchise,
+					);
 				}
 				$this->_controller->Team->FranchisesTeam->create();
 				if (!$this->_controller->Team->FranchisesTeam->save (array(
@@ -246,38 +267,53 @@ class EventTypeTeamComponent extends EventTypeComponent
 			}
 
 			// TODO: Return validation errors?
-			$response = array(
+			$responses[] = array(
 				'question_id' => TEAM_ID,
 				'answer' => $this->_controller->Team->id,
 			);
-			if (array_key_exists('Registration', $data) && array_key_exists('id', $data['Registration'])) {
-				$response['registration_id'] = $data['Registration']['id'];
-			}
 			$this->_controller->_deleteTeamSessionData();
 			$this->_controller->_deleteFranchiseSessionData();
 
-			// The caller is expecting an array of responses
-			return array($response);
+			if (array_key_exists('Registration', $data) && array_key_exists('id', $data['Registration'])) {
+				foreach (array_keys($responses) as $key) {
+					$responses[$key]['registration_id'] = $data['Registration']['id'];
+				}
+			}
+
+			return $responses;
 		}
 		return false;
 	}
 
 	function _deleteTeam($event, $data) {
-		if (!array_key_exists('team_league', $event['Event']) || $event['Event']['team_league'] == null) {
+		if (!array_key_exists('team_division', $event['Event']) || $event['Event']['team_division'] == null) {
 			return true;
 		}
 
-		$team = $this->_extractAnswer ($data, TEAM_ID);
-		if ($team) {
+		$team_id = $this->_extractAnswer ($data, TEAM_ID);
+		if ($team_id) {
 			$this->_controller->_deleteTeamSessionData();
 			if (!isset ($this->_controller->Team)) {
 				$this->_controller->Team = ClassRegistry::init ('Team');
 			}
-			// TODO: Make this delete the franchise record too, if it's empty now
-			if ($this->_controller->Team->delete ($team)) {
+			if ($this->_controller->Team->delete ($team_id)) {
+				$delete = array($this->_extractAnswerId ($data, TEAM_ID));
+				if (Configure::read('feature.franchises')) {
+					$franchise_id = $this->_extractAnswer($data, FRANCHISE_ID_CREATED);
+					if ($franchise_id) {
+						// Delete the franchise record too, if it's empty now
+						$this->_controller->Team->Franchise->contain('Team');
+						$franchise = $this->_controller->Team->Franchise->read(null, $franchise_id);
+						if (empty($franchise['Team'])) {
+							$this->_controller->Team->Franchise->delete ($franchise_id);
+							$delete[] = $this->_extractAnswerId ($data, FRANCHISE_ID_CREATED);
+						}
+					}
+				}
+
 				$this->_controller->_deleteTeamSessionData();
 				$this->_controller->_deleteFranchiseSessionData();
-				return array($this->_extractAnswerId ($data, TEAM_ID));
+				return $delete;
 			}
 			return false;
 		}

@@ -20,7 +20,7 @@ class AllController extends AppController {
 		$this->set('id', $this->Auth->user('id'));
 		$this->set('name', $this->Session->read('Zuluru.Person.full_name'));
 		$this->set('teams', $this->Session->read('Zuluru.Teams'));
-		$this->set('leagues', $this->Session->read('Zuluru.Leagues'));
+		$this->set('divisions', $this->Session->read('Zuluru.Divisions'));
 		$this->set('unpaid', $this->Session->read('Zuluru.Unpaid'));
 
 		$team_ids = $this->Session->read('Zuluru.TeamIDs');
@@ -35,7 +35,7 @@ class AllController extends AppController {
 					'Game.published' => true,
 				),
 				'fields' => array(
-					'Game.id', 'Game.home_team', 'Game.home_score', 'Game.away_team', 'Game.away_score', 'Game.status', 'Game.league_id',
+					'Game.id', 'Game.home_team', 'Game.home_score', 'Game.away_team', 'Game.away_score', 'Game.status', 'Game.division_id',
 					'Game.home_dependency_type', 'Game.home_dependency_id', 'Game.away_dependency_type', 'Game.away_dependency_id',
 					'GameSlot.game_date', 'GameSlot.game_start', 'GameSlot.game_end',
 					'HomeTeam.id', 'HomeTeam.name',

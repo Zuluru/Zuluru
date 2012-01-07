@@ -1,4 +1,4 @@
-League: <?php echo $game['League']['name']; ?>
+League: <?php echo $game['Division']['League']['name']; ?>
 
 Game: <?php echo $game['Game']['id']; ?>
 

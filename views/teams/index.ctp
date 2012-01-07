@@ -23,7 +23,7 @@ echo $this->Paginator->counter(array(
 <table class="list">
 <tr>
 	<th><?php echo $this->Paginator->sort('name');?></th>
-	<th><?php echo $this->Paginator->sort('league_id');?></th>
+	<th><?php echo $this->Paginator->sort('division_id');?></th>
 	<th class="actions"><?php __('Actions');?></th>
 </tr>
 <?php
@@ -39,7 +39,7 @@ foreach ($teams as $team):
 			<?php echo $this->element('teams/block', array('team' => $team['Team'])); ?>
 		</td>
 		<td>
-			<?php echo $this->Html->link($team['League']['long_name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $team['League']['id'])); ?>
+			<?php echo $this->Html->link($team['Division']['full_league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])); ?>
 		</td>
 		<td class="actions">
 			<?php
@@ -47,7 +47,7 @@ foreach ($teams as $team):
 				array('action' => 'schedule', 'team' => $team['Team']['id']),
 				array('alt' => __('Schedule', true), 'title' => __('Schedule', true)));
 			echo $this->ZuluruHtml->iconLink('standings_24.png',
-				array('controller' => 'leagues', 'action' => 'standings', 'league' => $team['League']['id'], 'team' => $team['Team']['id']),
+				array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Division']['id'], 'team' => $team['Team']['id']),
 				array('alt' => __('Standings', true), 'title' => __('Standings', true)));
 			if ($is_admin || in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs'))) {
 				echo $this->ZuluruHtml->iconLink('edit_24.png',
@@ -57,7 +57,7 @@ foreach ($teams as $team):
 					array('action' => 'emails', 'team' => $team['Team']['id']),
 					array('alt' => __('Player Emails', true), 'title' => __('Player Emails', true)));
 			}
-			if ($is_admin || (in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs')) && $team['League']['roster_deadline'] >= date('Y-m-d'))) {
+			if ($is_admin || (in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs')) && $team['Division']['roster_deadline'] >= date('Y-m-d'))) {
 				echo $this->ZuluruHtml->iconLink('roster_add_24.png',
 					array('action' => 'add_player', 'team' => $team['Team']['id']),
 					array('alt' => __('Add Player', true), 'title' => __('Add Player', true)));

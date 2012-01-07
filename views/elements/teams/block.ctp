@@ -5,12 +5,12 @@ if (array_key_exists ('Team', $team)) {
 	unset ($team['Team']);
 }
 $id = "team{$team['id']}";
-if (array_key_exists ('league_id', $team)) {
-	$league_id = $team['league_id'];
-} else if (array_key_exists ('League', $team) && array_key_exists ('id', $team['League'])) {
-	$league_id = $team['League']['id'];
+if (array_key_exists ('division_id', $team)) {
+	$division_id = $team['division_id'];
+} else if (array_key_exists ('Division', $team) && array_key_exists ('id', $team['Division'])) {
+	$division_id = $team['Division']['id'];
 } else {
-	$league_id = null;
+	$division_id = null;
 }
 
 if (isset ($options)) {
@@ -32,7 +32,7 @@ if (!isset($team_blocks_shown)) {
 }
 if (!in_array($team['id'], $team_blocks_shown)) {
 	$team_blocks_shown[] = $team['id'];
-	$this->ZuluruHtml->buffer($this->element('teams/tooltip', compact('team', 'id', 'league_id')));
+	$this->ZuluruHtml->buffer($this->element('teams/tooltip', compact('team', 'id', 'division_id')));
 	$this->Js->buffer("
 $('.$id').tooltip({
 	cancelDefault: false,

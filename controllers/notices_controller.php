@@ -50,7 +50,7 @@ class NoticesController extends AppController {
 		if (!empty($teams)) {
 			$display_to[] = 'captain';
 		}
-		$leagues = $this->Session->read('Zuluru.LeagueIDs');
+		$leagues = $this->Session->read('Zuluru.DivisionIDs');
 		if (!empty($leagues)) {
 			$display_to[] = 'coordinator';
 		}

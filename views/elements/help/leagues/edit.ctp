@@ -5,10 +5,7 @@ echo $this->element('help/topics', array(
 		'section' => 'leagues/edit',
 		'topics' => array(
 			'name',
-			'schedule_type',
-			'current_round',
 			'games_before_repeat',
-			'exclude_teams',
 		),
 ));
 ?>

@@ -10,8 +10,8 @@ $this->Html->addCrumb (__('Move', true));
 <?php
 echo $this->Form->create('Team', array('url' => Router::normalize($this->here)));
 echo $this->Form->input('to', array(
-		'label' => __('League to move this team to:', true),
-		'options' => Set::combine ($leagues, '{n}.id', '{n}.long_name'),
+		'label' => __('Division to move this team to:', true),
+		'options' => Set::combine ($divisions, '{n}.Division.id', '{n}.Division.full_league_name'),
 ));
 
 // TODO: Option for swapping this team with another, dynamically load team list into

@@ -92,7 +92,7 @@ class ZuluruGameHelper extends Helper {
 
 		// Give admins and coordinators the option to edit games
 		$view =& ClassRegistry::getObject('view');
-		if ($view->viewVars['is_admin'] || in_array ($details['league_id'], $this->Session->read('Zuluru.LeagueIDs'))) {
+		if ($view->viewVars['is_admin'] || in_array ($details['division_id'], $this->Session->read('Zuluru.DivisionIDs'))) {
 			echo $this->ZuluruHtml->iconLink('edit_24.png',
 				array('controller' => 'games', 'action' => 'edit', 'game' => $details['id']),
 				array('alt' => __('Edit', true), 'title' => __('Edit', true)));

@@ -119,6 +119,12 @@ body
 	padding:4px;
 	font-size: 100%;
 }
+#zuluru .leagues.index table.list th,
+#zuluru .divisions.schedule table.list th
+{
+	border: 0;
+	border-top: 2px solid;
+}
 #zuluru table.list th a
 {
 	padding: 2px 4px;
@@ -171,6 +177,10 @@ body
 #zuluru fieldset.wide_labels dd
 {
 	margin-left: 20em;
+}
+#zuluru dd p
+{
+	margin-top: 0;
 }
 
 /** Forms **/

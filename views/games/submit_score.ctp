@@ -133,7 +133,7 @@ echo $this->Form->input("Incident.$team_id.details", array(
 
 <div id="AllstarWrapper">
 <?php
-if ($game['League']['allstars'] == 'optional') {
+if ($game['Division']['allstars'] == 'optional') {
 	echo $this->Form->input('Game.allstar', array(
 			'type' => 'checkbox',
 			'value' => '1',
@@ -141,10 +141,10 @@ if ($game['League']['allstars'] == 'optional') {
 			'onclick' => 'allstarCheckboxChanged()',
 	));
 }
-if ($game['League']['allstars'] != 'never'):
-	if ($game['League']['ratio'] == 'womens') {
+if ($game['Division']['allstars'] != 'never'):
+	if ($game['Division']['ratio'] == 'womens') {
 		$genders = 'one female';
-	} else if ($game['League']['ratio'] == 'mens') {
+	} else if ($game['Division']['ratio'] == 'mens') {
 		$genders = 'one male';
 	} else {
 		$genders = 'one male and/or one female';
@@ -153,7 +153,7 @@ if ($game['League']['allstars'] != 'never'):
 <fieldset id="AllstarDetails">
 <legend>Allstar Nominations</legend>
 <p>You may select <?php echo $genders; ?> all-star from the list below<?php
-if ( $game['League']['allstars'] == 'always' ) {
+if ( $game['Division']['allstars'] == 'always' ) {
 	echo ', if you think they deserve to be nominated as an all-star.';
 }
 ?>.</p>
@@ -203,8 +203,8 @@ if (!empty ($players['Female'])) {
 }
 
 $coordinator = __('league coordinator', true);
-if (! empty ($game['League']['coord_list'])) {
-	$coordinator = $this->Html->link($coordinator, "mailto:{$game['League']['coord_list']}");
+if (! empty ($game['Division']['League']['coord_list'])) {
+	$coordinator = $this->Html->link($coordinator, "mailto:{$game['Division']['League']['coord_list']}");
 }
 ?>
 
@@ -295,7 +295,7 @@ function allstarCheckboxChanged() {
 // but maybe something in the future. Cost to do this is
 // extremely minimal.
 $this->Js->buffer('defaultCheckboxChanged(); incidentCheckboxChanged();');
-if ($game['League']['allstars'] == 'optional') {
+if ($game['Division']['allstars'] == 'optional') {
 	$this->Js->buffer('allstarCheckboxChanged();');
 }
 

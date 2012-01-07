@@ -617,7 +617,7 @@ class RegistrationsController extends AppController {
 		if (!empty($this->data)) {
 			$this->Registration->Response->validate = array_merge(
 				$this->Questionnaire->validation($registration['Event']['Questionnaire'], true),
-				$event_obj->registrationFieldsValidation ($registration)
+				$event_obj->registrationFieldsValidation ($registration, true)
 			);
 
 			// Remove any unchecked checkboxes; we only save the checked ones.

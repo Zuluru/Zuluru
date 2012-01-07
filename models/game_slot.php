@@ -21,8 +21,8 @@ class GameSlot extends AppModel {
 	);
 
 	var $hasMany = array(
-		'LeagueGameslotAvailability' => array(
-			'className' => 'LeagueGameslotAvailability',
+		'DivisionGameslotAvailability' => array(
+			'className' => 'DivisionGameslotAvailability',
 			'foreignKey' => 'game_slot_id',
 			'dependent' => false,
 			'conditions' => '',
@@ -47,14 +47,14 @@ class GameSlot extends AppModel {
 		return $record;
 	}
 
-	function getAvailable($league_id, $date) {
+	function getAvailable($division_id, $date) {
 		// Find available slots
 		$join = array( array(
-				'table' => "{$this->tablePrefix}league_gameslot_availabilities",
-				'alias' => 'LeagueGameslotAvailability',
+				'table' => "{$this->tablePrefix}division_gameslot_availabilities",
+				'alias' => 'DivisionGameslotAvailability',
 				'type' => 'LEFT',
 				'foreignKey' => false,
-				'conditions' => 'LeagueGameslotAvailability.game_slot_id = GameSlot.id',
+				'conditions' => 'DivisionGameslotAvailability.game_slot_id = GameSlot.id',
 		));
 
 		$this->contain (array (
@@ -64,12 +64,12 @@ class GameSlot extends AppModel {
 				),
 		));
 		$game_slots = $this->find('all', array(
-			'conditions' => array('LeagueGameslotAvailability.league_id' => $league_id, 'GameSlot.game_date' => $date),
+			'conditions' => array('DivisionGameslotAvailability.division_id' => $division_id, 'GameSlot.game_date' => $date),
 			'joins' => $join,
 		));
 
 		foreach ($game_slots as $key => $slot) {
-			if ($slot['Game']['league_id'] != $league_id && !empty ($slot['Game']['league_id'])) {
+			if ($slot['Game']['division_id'] != $division_id && !empty ($slot['Game']['division_id'])) {
 				unset ($game_slots[$key]);
 			}
 		}

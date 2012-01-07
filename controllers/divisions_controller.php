@@ -1,13 +1,12 @@
 <?php
-class LeaguesController extends AppController {
+class DivisionsController extends AppController {
 
-	var $name = 'Leagues';
+	var $name = 'Divisions';
 	var $helpers = array('ZuluruGame');
 	var $components = array('Lock');
 
 	function isAuthorized() {
 		if (in_array ($this->params['action'], array(
-				'index',
 				'view',
 				'schedule',
 				'standings',
@@ -17,7 +16,7 @@ class LeaguesController extends AppController {
 			return true;
 		}
 
-		// People can perform these operations on leagues they coordinate
+		// People can perform these operations on divisions they coordinate
 		if (in_array ($this->params['action'], array(
 				'edit',
 				'approve_scores',
@@ -29,12 +28,13 @@ class LeaguesController extends AppController {
 				'spirit',
 				'ratings',
 				'validate_ratings',
+				'initialize_ratings',
 				'initialize_dependencies',
 		)))
 		{
-			// If a league id is specified, check if we're a coordinator of that league
-			$league = $this->_arg('league');
-			if ($league && in_array ($league, $this->Session->read('Zuluru.LeagueIDs'))) {
+			// If a division id is specified, check if we're a coordinator of that division
+			$division = $this->_arg('division');
+			if ($division && in_array ($division, $this->Session->read('Zuluru.DivisionIDs'))) {
 				return true;
 			}
 		}
@@ -42,165 +42,183 @@ class LeaguesController extends AppController {
 		return false;
 	}
 
-	function index() {
-		$year = $this->_arg('year');
-		if ($year === null) {
-			$conditions = array('League.is_open' => true);
-		} else {
-			$conditions = array('YEAR(League.open)' => $year);
-		}
-		$this->set('leagues', $this->League->findSortByDay('all', array(
-			'conditions' => $conditions,
-		)));
-
-		$this->League->recursive = -1;
-		$this->set('years', $this->League->find('all', array(
-			'fields' => 'DISTINCT YEAR(open) AS year',
-			'conditions' => array('YEAR(open) !=' => 0),
-			'order' => 'open',
-		)));
-	}
-
-	function summary() {
-		$this->League->recursive = -1;
-		$this->set('leagues', $this->League->find('all', array(
-			'conditions' => array(
-				'OR' => array(
-					'League.is_open' => true,
-					'League.open > CURDATE()',
-				),
-			),
-			'order' => 'League.open',
-		)));
-	}
-
 	function view() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues'));
 		}
 
-		$this->League->contain (array (
+		$this->Division->contain(array (
 			'Person',
 			'Day' => array('order' => 'day_id'),
 			'Team' => array ('Person', 'Franchise'),
+			'League',
 		));
-		$league = $this->League->read(null, $id);
-		if ($league === false) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+		$division = $this->Division->read(null, $id);
+		if ($division === false) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$this->Division->addPlayoffs($division);
 
-		// Find all games played by teams that are currently in this league,
-		// or tournament games for this league
-		$teams = Set::extract ('/Team/id', $league);
-		$this->League->Game->contain (array('GameSlot', 'SpiritEntry'));
-		$league['Game'] = $this->League->Game->find('all', array(
+		// Find all games played by teams that are currently in this division,
+		// or tournament games for this division
+		$teams = Set::extract ('/Team/id', $division);
+		$this->Division->Game->contain (array('GameSlot', 'SpiritEntry'));
+		$division['Game'] = $this->Division->Game->find('all', array(
 				'conditions' => array(
 					'OR' => array(
 						'Game.home_team' => $teams,
 						'Game.away_team' => $teams,
 						'AND' => array(
-							'Game.league_id' => $id,
+							'Game.division_id' => $id,
 							'Game.tournament' => true,
 						),
 					),
 				),
 		));
 
-		$league_obj = $this->_getComponent ('LeagueType', $league['League']['schedule_type'], $this);
-		$league_obj->sort($league);
+		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
+		$league_obj->sort($division);
 
-		$this->set(compact ('league', 'league_obj'));
-		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.LeagueIDs')));
+		if ($division['Division']['is_playoff']) {
+			foreach ($division['Team'] as $key => $team) {
+				$affiliate_id = $this->_getAffiliateId($division['Division'], $team);
+				if ($affiliate_id !== null) {
+					$this->Division->Team->contain('Division');
+					$affiliate = $this->Division->Team->read(null, $affiliate_id);
+					$division['Team'][$key]['affiliate_division'] = $affiliate['Division']['name'];
+				}
+			}
+		}
 
-		$this->_addLeagueMenuItems ($this->League->data);
+		$this->set(compact ('division', 'league_obj'));
+		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.DivisionIDs')));
+
+		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 	}
 
 	function add() {
 		if (!empty($this->data)) {
-			$this->League->create();
-			if ($this->League->save($this->data)) {
-				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('league', true)), 'default', array('class' => 'success'));
-				$this->redirect(array('action' => 'index'));
+			$this->Division->create();
+			if ($this->Division->save($this->data)) {
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('division', true)), 'default', array('class' => 'success'));
+				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 			} else {
-				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('league', true)), 'default', array('class' => 'warning'));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('division', true)), 'default', array('class' => 'warning'));
 			}
+		} else if ($this->_arg('division')) {
+			// To clone a division, read the old one and remove the id
+			$this->Division->contain('Day');
+			$this->data = $this->Division->read(null, $this->_arg('division'));
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+			}
+			unset($this->data['Division']['id']);
 		}
 
-		$this->set('days', $this->League->Day->find('list'));
-		$this->set('league_obj', $this->_getComponent ('LeagueType', $this->data['League']['schedule_type'], $this));
+		if ($this->_arg('league')) {
+			$this->data['Division']['league_id'] = $this->_arg('league');
+		}
+
+		$leagues = $this->Division->League->find('all', array(
+				'conditions' => array('OR' => array(
+					'League.is_open' => true,
+					'League.open > NOW()',
+				)),
+				'contain' => false,
+		));
+		usort ($leagues, array('League', 'compareLeagueAndDivision'));
+		$this->set('leagues', Set::combine($leagues, '{n}.League.id', '{n}.League.full_name'));
+
+		$this->set('days', $this->Division->Day->find('list'));
+		if (isset($this->data['Division']['schedule_type'])) {
+			$this->set('league_obj', $this->_getComponent ('LeagueType', $this->data['Division']['schedule_type'], $this));
+		}
 		$this->set('is_coordinator', false);
 		$this->set('add', true);
 		$this->render ('edit');
 	}
 
 	function edit() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 		if (!empty($this->data)) {
-			if ($this->League->saveAll($this->data)) {
-				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('league', true)), 'default', array('class' => 'success'));
-				$this->redirect(array('action' => 'index'));
+			if ($this->Division->saveAll($this->data)) {
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('division', true)), 'default', array('class' => 'success'));
+				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 			} else {
-				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('league', true)), 'default', array('class' => 'warning'));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('division', true)), 'default', array('class' => 'warning'));
 			}
 		}
 		if (empty($this->data)) {
-			$this->League->contain (array (
+			$this->Division->contain(array (
 				'Day' => array('order' => 'day_id'),
+				'League',
 			));
-			$this->data = $this->League->read(null, $id);
+			$this->data = $this->Division->read(null, $id);
 		}
-		$this->set('days', $this->League->Day->find('list'));
-		$this->set('league_obj', $this->_getComponent ('LeagueType', $this->data['League']['schedule_type'], $this));
-		$this->set('is_coordinator',
-			array_key_exists ('LeaguesPerson', $this->data['League']) &&
-			array_key_exists ('position', $this->data['League']['LeaguesPerson']) &&
-			$this->data['League']['LeaguesPerson']['position'] == 'coordinator');
 
-		$this->_addLeagueMenuItems ($this->League->data);
+		$leagues = $this->Division->League->find('all', array(
+				'conditions' => array('OR' => array(
+					'League.is_open' => true,
+					'League.open > NOW()',
+				)),
+				'contain' => false,
+		));
+		usort ($leagues, array('League', 'compareLeagueAndDivision'));
+		$this->set('leagues', Set::combine($leagues, '{n}.League.id', '{n}.League.full_name'));
+
+		$this->set('days', $this->Division->Day->find('list'));
+		$this->set('league_obj', $this->_getComponent ('LeagueType', $this->data['Division']['schedule_type'], $this));
+		$this->set('is_coordinator',
+			array_key_exists ('DivisionsPerson', $this->data['Division']) &&
+			array_key_exists ('position', $this->data['Division']['DivisionsPerson']) &&
+			$this->data['Division']['DivisionsPerson']['position'] == 'coordinator');
+
+		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 	}
 
 	function scheduling_fields() {
 		Configure::write ('debug', 0);
 		$this->layout = 'ajax';
-		$this->set('league_obj', $this->_getComponent ('LeagueType', $this->params['url']['data']['League']['schedule_type'], $this));
+		$this->set('league_obj', $this->_getComponent ('LeagueType', $this->params['url']['data']['Division']['schedule_type'], $this));
 	}
 
 	function add_coordinator() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$this->League->contain('Person');
-		$league = $this->League->read(null, $id);
-		if ($league === false) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+		$this->Division->contain('Person', 'League');
+		$division = $this->Division->read(null, $id);
+		if ($division === false) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$this->set(compact('league'));
+		$this->set(compact('division'));
 
 		$person_id = $this->_arg('person');
 		if ($person_id != null) {
-			$this->League->Person->contain(array('League' => array('conditions' => array('League.id' => $id))));
-			$person = $this->League->Person->read(null, $person_id);
-			if (!empty ($person['League'])) {
-				$this->Session->setFlash(__("{$person['Person']['full_name']} is already a coordinator of this league", true), 'default', array('class' => 'info'));
+			$this->Division->Person->contain(array('Division' => array('conditions' => array('Division.id' => $id))));
+			$person = $this->Division->Person->read(null, $person_id);
+			if (!empty ($person['Division'])) {
+				$this->Session->setFlash(__("{$person['Person']['full_name']} is already a coordinator of this division", true), 'default', array('class' => 'info'));
 			} else {
-				$league['Person'] = Set::extract ('/Person/id', $league);
-				$league['Person'][] = $person['Person']['id'];
+				$division['Person'] = Set::extract ('/Person/id', $division);
+				$division['Person'][] = $person['Person']['id'];
 				// TODO: If we add more coordinator types, we need to save the position here
-				if ($this->League->saveAll ($league)) {
+				if ($this->Division->saveAll ($division)) {
 					$this->Session->setFlash(__("Added {$person['Person']['full_name']} as coordinator", true), 'default', array('class' => 'success'));
-					$this->redirect(array('action' => 'view', 'league' => $id));
+					$this->redirect(array('action' => 'view', 'division' => $id));
 				} else {
 					$this->Session->setFlash(__("Failed to add {$person['Person']['full_name']} as coordinator", true), 'default', array('class' => 'warning'));
 				}
@@ -208,7 +226,7 @@ class LeaguesController extends AppController {
 		}
 
 		$params = $url = $this->_extractSearchParams();
-		unset ($params['league']);
+		unset ($params['division']);
 		unset ($params['person']);
 		if (!empty($params)) {
 			$test = trim ($params['first_name'], ' *') . trim ($params['last_name'], ' *');
@@ -216,7 +234,7 @@ class LeaguesController extends AppController {
 				$this->set('short', true);
 			} else {
 				// This pagination needs the model at the top level
-				$this->Person = $this->League->Person;
+				$this->Person = $this->Division->Person;
 				$this->_mergePaginationParams();
 				$this->paginate['Person'] = array(
 					'conditions' => array_merge (
@@ -232,63 +250,64 @@ class LeaguesController extends AppController {
 	}
 
 	function remove_coordinator() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 		$person_id = $this->_arg('person');
 		if (!$person_id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'view', 'league' => $id));
+			$this->redirect(array('action' => 'view', 'division' => $id));
 		}
 
-		$join = ClassRegistry::init('LeaguesPerson');
-		if ($join->deleteAll (array('league_id' => $id, 'person_id' => $person_id))) {
+		$join = ClassRegistry::init('DivisionsPerson');
+		if ($join->deleteAll (array('division_id' => $id, 'person_id' => $person_id))) {
 			$this->Session->setFlash(__('Successfully removed coordinator', true), 'default', array('class' => 'success'));
 		} else {
 			$this->Session->setFlash(__('Failed to remove coordinator!', true), 'default', array('class' => 'warning'));
 		}
-		$this->redirect(array('action' => 'view', 'league' => $id));
+		$this->redirect(array('action' => 'view', 'division' => $id));
 	}
 
 	function ratings() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
 		if (!empty($this->data)) {
-			if ($this->League->Team->saveAll($this->data['Team'])) {
-				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('league', true)), 'default', array('class' => 'success'));
-				$this->redirect(array('action' => 'view', 'league' => $id));
+			if ($this->Division->Team->saveAll($this->data['Team'])) {
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('division', true)), 'default', array('class' => 'success'));
+				$this->redirect(array('action' => 'view', 'division' => $id));
 			} else {
-				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('league', true)), 'default', array('class' => 'warning'));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('division', true)), 'default', array('class' => 'warning'));
 			}
 		}
 
-		$this->League->contain (array (
+		$this->Division->contain(array (
 			'Day' => array('order' => 'day_id'),
 			'Team' => array(
 				'Person',
 				'order' => 'rating DESC',
 			),
+			'League',
 		));
-		$league = $this->League->read(null, $id);
-		if ($league === false) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+		$division = $this->Division->read(null, $id);
+		if ($division === false) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$this->set(compact ('league'));
-		$this->_addLeagueMenuItems ($this->League->data);
+		$this->set(compact ('division'));
+		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 	}
 
 	function delete() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action'=>'index'));
 		}
 
@@ -296,22 +315,22 @@ class LeaguesController extends AppController {
 		$this->Session->setFlash(__('Deletions are not currently supported', true), 'default', array('class' => 'info'));
 		$this->redirect('/');
 
-		if ($this->League->delete($id)) {
-			$this->Session->setFlash(sprintf(__('%s deleted', true), __('League', true)), 'default', array('class' => 'success'));
+		if ($this->Division->delete($id)) {
+			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Division', true)), 'default', array('class' => 'success'));
 			$this->redirect(array('action'=>'index'));
 		}
-		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('League', true)), 'default', array('class' => 'warning'));
-		$this->redirect(array('action' => 'index'));
+		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Division', true)), 'default', array('class' => 'warning'));
+		$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 	}
 
 	function schedule() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$is_coordinator = in_array($id, $this->Session->read('Zuluru.LeagueIDs'));
+		$is_coordinator = in_array($id, $this->Session->read('Zuluru.DivisionIDs'));
 		if ($this->is_admin || $is_coordinator) {
 			$edit_date = $this->_arg('edit_date');
 			if (!empty ($this->data)) {
@@ -323,19 +342,20 @@ class LeaguesController extends AppController {
 		}
 
 		if ($edit_date) {
-			$game_slots = $this->League->LeagueGameslotAvailability->GameSlot->getAvailable($id, $edit_date);
+			$game_slots = $this->Division->DivisionGameslotAvailability->GameSlot->getAvailable($id, $edit_date);
 		}
 
 		// Save posted data
 		if (!empty ($this->data) && ($this->is_admin || $is_coordinator)) {
 			if ($this->_validateAndSaveSchedule($game_slots)) {
-				$this->redirect (array('action' => 'schedule', 'league' => $id));
+				$this->redirect (array('action' => 'schedule', 'division' => $id));
 			}
 		}
 
-		$this->League->contain (array (
+		$this->Division->contain(array (
 			'Day' => array('order' => 'day_id'),
 			'Team',
+			'League',
 			'Game' => array(
 				'GameSlot' => array('Field' => array('ParentField')),
 				'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $this->Session->read('Zuluru.TeamIDs'))),
@@ -354,21 +374,21 @@ class LeaguesController extends AppController {
 				),
 			),
 		));
-		$league = $this->League->read(null, $id);
-		if ($league === false) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+		$division = $this->Division->read(null, $id);
+		if ($division === false) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
-		if (empty ($league['Game'])) {
-			$this->Session->setFlash(__('This league has no games scheduled yet.', true), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+		if (empty ($division['Game'])) {
+			$this->Session->setFlash(__('This division has no games scheduled yet.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 		// Sort games by date, time and field
-		usort ($league['Game'], array ('League', 'compareDateAndField'));
+		usort ($division['Game'], array ('Game', 'compareDateAndField'));
 
-		$this->set(compact ('id', 'league', 'edit_date', 'game_slots', 'is_coordinator'));
+		$this->set(compact ('id', 'division', 'edit_date', 'game_slots', 'is_coordinator'));
 
-		$this->_addLeagueMenuItems ($this->League->data);
+		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 	}
 
 	function _validateAndSaveSchedule($available_slots) {
@@ -389,10 +409,10 @@ class LeaguesController extends AppController {
 		$slot_counts = array_count_values ($slots);
 		foreach ($slot_counts as $slot_id => $count) {
 			if ($count > 1) {
-				$this->League->Game->GameSlot->contain(array(
+				$this->Division->Game->GameSlot->contain(array(
 						'Field' => 'ParentField',
 				));
-				$slot = $this->League->Game->GameSlot->read(null, $slot_id);
+				$slot = $this->Division->Game->GameSlot->read(null, $slot_id);
 				$slot_field = $slot['Field']['long_name'];
 				$slot_time = "{$slot['GameSlot']['game_date']} {$slot['GameSlot']['game_start']}";
 				$this->Session->setFlash(sprintf (__('Game slot at %s on %s was selected more than once!', true), $slot_field, $slot_time), 'default', array('class' => 'info'));
@@ -412,8 +432,8 @@ class LeaguesController extends AppController {
 		$team_counts = array_count_values ($teams);
 		foreach ($team_counts as $team_id => $count) {
 			if ($count > 1) {
-				$this->League->Team->recursive = -1;
-				$team = $this->League->Team->read(null, $team_id);
+				$this->Division->Team->recursive = -1;
+				$team = $this->Division->Team->read(null, $team_id);
 
 				if ($allow_double_header) {
 					// Check that the double-header doesn't cause conflicts; must be at the same site, but different times
@@ -426,10 +446,10 @@ class LeaguesController extends AppController {
 						return false;
 					}
 
-					$this->League->Game->GameSlot->contain(array(
+					$this->Division->Game->GameSlot->contain(array(
 							'Field' => 'ParentField',
 					));
-					$team_slots = $this->League->Game->GameSlot->find('all', array('conditions' => array(
+					$team_slots = $this->Division->Game->GameSlot->find('all', array('conditions' => array(
 							'GameSlot.id' => $team_slot_ids,
 					)));
 					foreach ($team_slots as $key1 => $slot1) {
@@ -461,14 +481,14 @@ class LeaguesController extends AppController {
 		if (!$this->Lock->lock ('scheduling', 'schedule creation or edit')) {
 			return false;
 		}
-		if (!$this->League->Game->_saveGames($this->data['Game'], $publish)) {
+		if (!$this->Division->Game->_saveGames($this->data['Game'], $publish)) {
 			$this->Lock->unlock();
 			return false;
 		}
 		$this->Lock->unlock();
 
 		$unused_slots = array_diff (Set::extract ('/GameSlot/id', $available_slots), $slots);
-		if ($this->League->Game->GameSlot->updateAll (array('game_id' => null), array('GameSlot.id' => $unused_slots))) {
+		if ($this->Division->Game->GameSlot->updateAll (array('game_id' => null), array('GameSlot.id' => $unused_slots))) {
 			$this->Session->setFlash(__('Schedule changes saved!', true), 'default', array('class' => 'success'));
 			return true;
 		} else {
@@ -479,26 +499,27 @@ class LeaguesController extends AppController {
 
 	// TODO: Remove this entire function once ratings calculations are 100%
 	function validate_ratings() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 		$correct = $this->_arg('correct');
 
-		$this->League->contain (array (
+		$this->Division->contain(array (
 			'Team',
+			'League',
 		));
-		$league = $this->League->read(null, $id);
-		if ($league === false) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+		$division = $this->Division->read(null, $id);
+		if ($division === false) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		// Find all games played by teams that are currently in this league
-		$teams = Set::extract ('/Team/id', $league);
-		$this->League->Game->contain (array('GameSlot', 'HomeTeam', 'AwayTeam'));
-		$league['Game'] = $this->League->Game->find('all', array(
+		// Find all games played by teams that are currently in this division
+		$teams = Set::extract ('/Team/id', $division);
+		$this->Division->Game->contain (array('GameSlot', 'HomeTeam', 'AwayTeam'));
+		$division['Game'] = $this->Division->Game->find('all', array(
 				'conditions' => array(
 					'OR' => array(
 						'home_team' => $teams,
@@ -507,126 +528,126 @@ class LeaguesController extends AppController {
 				),
 		));
 
-		if (empty ($league['Game'])) {
-			$this->Session->setFlash(__('This league has no games scheduled yet.', true), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+		if (empty ($division['Game'])) {
+			$this->Session->setFlash(__('This division has no games scheduled yet.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
-		$league_obj = $this->_getComponent ('LeagueType', $league['League']['schedule_type'], $this);
+		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
 
 		// Sort games by date, time and field
-		usort ($league['Game'], array ('League', 'compareDateAndField'));
+		usort ($division['Game'], array ('Game', 'compareDateAndField'));
 
 		$teams = array();
-		foreach ($league['Team'] as $team) {
+		foreach ($division['Team'] as $team) {
 			$teams[$team['id']] = $team;
 		}
-		$league['Team'] = $teams;
+		$division['Team'] = $teams;
 		$moved_teams = array();
 		$game_updates = array();
 
-		foreach ($league['Game'] as $key => $game) {
+		foreach ($division['Game'] as $key => $game) {
 			// Handle teams that have moved
-			if (!array_key_exists ($game['Game']['home_team'], $league['Team'])) {
+			if (!array_key_exists ($game['Game']['home_team'], $division['Team'])) {
 				$moved_teams[] = $game['Game']['home_team'];
-				$league['Team'][$game['Game']['home_team']] = $game['HomeTeam'];
+				$division['Team'][$game['Game']['home_team']] = $game['HomeTeam'];
 			}
-			if (!array_key_exists ($game['Game']['away_team'], $league['Team'])) {
+			if (!array_key_exists ($game['Game']['away_team'], $division['Team'])) {
 				$moved_teams[] = $game['Game']['away_team'];
-				$league['Team'][$game['Game']['away_team']] = $game['AwayTeam'];
+				$division['Team'][$game['Game']['away_team']] = $game['AwayTeam'];
 			}
 
-			if (!array_key_exists ('current_rating', $league['Team'][$game['Game']['home_team']])) {
-				$league['Team'][$game['Game']['home_team']]['current_rating'] = $game['Game']['rating_home'];
+			if (!array_key_exists ('current_rating', $division['Team'][$game['Game']['home_team']])) {
+				$division['Team'][$game['Game']['home_team']]['current_rating'] = $game['Game']['rating_home'];
 			}
-			if (!array_key_exists ('current_rating', $league['Team'][$game['Game']['away_team']])) {
-				$league['Team'][$game['Game']['away_team']]['current_rating'] = $game['Game']['rating_away'];
+			if (!array_key_exists ('current_rating', $division['Team'][$game['Game']['away_team']])) {
+				$division['Team'][$game['Game']['away_team']]['current_rating'] = $game['Game']['rating_away'];
 			}
 
-			$league['Game'][$key]['Game']['calc_rating_home'] = $league['Team'][$game['Game']['home_team']]['current_rating'];
-			$league['Game'][$key]['Game']['calc_rating_away'] = $league['Team'][$game['Game']['away_team']]['current_rating'];
+			$division['Game'][$key]['Game']['calc_rating_home'] = $division['Team'][$game['Game']['home_team']]['current_rating'];
+			$division['Game'][$key]['Game']['calc_rating_away'] = $division['Team'][$game['Game']['away_team']]['current_rating'];
 
 			// Note: We don't check config for whether rating points are transferred on defaults, but this
-			// is only being used in the interim for a league where they are, so it's not an issue.
-			if ($this->League->Game->_is_finalized ($game) && $game['Game']['status'] != 'rescheduled') {
+			// is only being used in the interim for a division where they are, so it's not an issue.
+			if ($this->Division->Game->_is_finalized ($game) && $game['Game']['status'] != 'rescheduled') {
 				if ($game['Game']['home_score'] >= $game['Game']['away_score']) {
-					$league['Game'][$key]['Game']['expected'] = $this->League->Game->_calculate_expected_win($league['Team'][$game['Game']['home_team']]['current_rating'], $league['Team'][$game['Game']['away_team']]['current_rating']);
-					$change = $league_obj->calculateRatingsChange($game['Game']['home_score'], $game['Game']['away_score'], $league['Game'][$key]['Game']['expected']);
-					$league['Team'][$game['Game']['home_team']]['current_rating'] += $change;
-					$league['Team'][$game['Game']['away_team']]['current_rating'] -= $change;
+					$division['Game'][$key]['Game']['expected'] = $this->Division->Game->_calculate_expected_win($division['Team'][$game['Game']['home_team']]['current_rating'], $division['Team'][$game['Game']['away_team']]['current_rating']);
+					$change = $league_obj->calculateRatingsChange($game['Game']['home_score'], $game['Game']['away_score'], $division['Game'][$key]['Game']['expected']);
+					$division['Team'][$game['Game']['home_team']]['current_rating'] += $change;
+					$division['Team'][$game['Game']['away_team']]['current_rating'] -= $change;
 				} else {
-					$league['Game'][$key]['Game']['expected'] = $this->League->Game->_calculate_expected_win($league['Team'][$game['Game']['away_team']]['current_rating'], $league['Team'][$game['Game']['home_team']]['current_rating']);
-					$change = $league_obj->calculateRatingsChange($game['Game']['home_score'], $game['Game']['away_score'], $league['Game'][$key]['Game']['expected']);
-					$league['Team'][$game['Game']['home_team']]['current_rating'] -= $change;
-					$league['Team'][$game['Game']['away_team']]['current_rating'] += $change;
+					$division['Game'][$key]['Game']['expected'] = $this->Division->Game->_calculate_expected_win($division['Team'][$game['Game']['away_team']]['current_rating'], $division['Team'][$game['Game']['home_team']]['current_rating']);
+					$change = $league_obj->calculateRatingsChange($game['Game']['home_score'], $game['Game']['away_score'], $division['Game'][$key]['Game']['expected']);
+					$division['Team'][$game['Game']['home_team']]['current_rating'] -= $change;
+					$division['Team'][$game['Game']['away_team']]['current_rating'] += $change;
 				}
-				$league['Game'][$key]['Game']['calc_rating_points'] = $change;
+				$division['Game'][$key]['Game']['calc_rating_points'] = $change;
 			} else {
-				$league['Game'][$key]['Game']['calc_rating_points'] = $league['Game'][$key]['Game']['expected'] = null;
+				$division['Game'][$key]['Game']['calc_rating_points'] = $division['Game'][$key]['Game']['expected'] = null;
 			}
 
 			// Only save updates for games that actually changed
 			$update = array('id' => $game['Game']['id']);
-			if ($league['Game'][$key]['Game']['calc_rating_home'] != $game['Game']['rating_home']) {
-				$update['rating_home'] = $league['Game'][$key]['Game']['calc_rating_home'];
+			if ($division['Game'][$key]['Game']['calc_rating_home'] != $game['Game']['rating_home']) {
+				$update['rating_home'] = $division['Game'][$key]['Game']['calc_rating_home'];
 			}
-			if ($league['Game'][$key]['Game']['calc_rating_away'] != $game['Game']['rating_away']) {
-				$update['rating_away'] = $league['Game'][$key]['Game']['calc_rating_away'];
+			if ($division['Game'][$key]['Game']['calc_rating_away'] != $game['Game']['rating_away']) {
+				$update['rating_away'] = $division['Game'][$key]['Game']['calc_rating_away'];
 			}
-			if ($league['Game'][$key]['Game']['calc_rating_points'] != $game['Game']['rating_points']) {
-				$update['rating_points'] = $league['Game'][$key]['Game']['calc_rating_points'];
+			if ($division['Game'][$key]['Game']['calc_rating_points'] != $game['Game']['rating_points']) {
+				$update['rating_points'] = $division['Game'][$key]['Game']['calc_rating_points'];
 			}
 			if (count($update) > 1) {
 				$game_updates[] = $update;
 			}
 		}
 
-		foreach ($league['Team'] as $key => $team) {
+		foreach ($division['Team'] as $key => $team) {
 			if (!array_key_exists('current_rating', $team)) {
-				$league['Team'][$key]['current_rating'] = $league['Team'][$key]['rating'];
+				$division['Team'][$key]['current_rating'] = $division['Team'][$key]['rating'];
 			}
 		}
 
 		if ($correct && !empty ($game_updates)) {
-			$this->League->Game->saveAll ($game_updates);
+			$this->Division->Game->saveAll ($game_updates);
 		}
 
 		// Remove moved teams, and update the rest
 		foreach ($moved_teams as $team) {
-			unset ($league['Team'][$team]);
+			unset ($division['Team'][$team]);
 		}
 		if ($correct && !empty ($game_updates)) {
 			$team_updates = array();
-			foreach ($league['Team'] as $key => $team) {
+			foreach ($division['Team'] as $key => $team) {
 				$team_updates[] = array(
 					'id' => $team['id'],
 					'rating' => $team['current_rating'],
 				);
 			}
-			$this->League->Team->saveAll ($team_updates);
+			$this->Division->Team->saveAll ($team_updates);
 		}
 
 		// Find new rankings for each team, and sort by old ranking
-		$new = Set::sort (array_values ($league['Team']), '/current_rating', 'DESC');
+		$new = Set::sort (array_values ($division['Team']), '/current_rating', 'DESC');
 		foreach ($new as $key => $team) {
-			$league['Team'][$team['id']]['rank'] = $key + 1;
+			$division['Team'][$team['id']]['rank'] = $key + 1;
 		}
-		$league['Team'] = Set::sort (array_values ($league['Team']), '/rating', 'DESC');
+		$division['Team'] = Set::sort (array_values ($division['Team']), '/rating', 'DESC');
 
-		$this->set(compact ('id', 'league', 'league_obj', 'correct'));
+		$this->set(compact ('id', 'division', 'league_obj', 'correct'));
 
-		$this->_addLeagueMenuItems ($this->League->data);
+		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 	}
 
 	function standings() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		$teamid = $this->_arg('team');
 		$showall = $this->_arg('full');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$this->League->contain (array (
+		$this->Division->contain(array (
 			'Day' => array('order' => 'day_id'),
 			// Get the list of captains for each team, for the popup
 			'Team' => array(
@@ -635,49 +656,50 @@ class LeaguesController extends AppController {
 					'fields' => array('id', 'first_name', 'last_name'),
 				),
 			),
+			'League',
 		));
-		$league = $this->League->read(null, $id);
-		if ($league === false) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+		$division = $this->Division->read(null, $id);
+		if ($division === false) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		// Find all games played by teams that are currently in this league,
-		// or tournament games for this league
-		$teams = Set::extract ('/Team/id', $league);
-		$this->League->Game->contain (array('GameSlot', 'SpiritEntry'));
-		$league['Game'] = $this->League->Game->find('all', array(
+		// Find all games played by teams that are currently in this division,
+		// or tournament games for this division
+		$teams = Set::extract ('/Team/id', $division);
+		$this->Division->Game->contain (array('GameSlot', 'SpiritEntry'));
+		$division['Game'] = $this->Division->Game->find('all', array(
 				'conditions' => array(
 					'OR' => array(
 						'Game.home_team' => $teams,
 						'Game.away_team' => $teams,
 						'AND' => array(
-							'Game.league_id' => $id,
+							'Game.division_id' => $id,
 							'Game.tournament' => true,
 						),
 					),
 				),
 		));
 
-		if (empty ($league['Game'])) {
-			$this->Session->setFlash(__('Cannot generate standings for a league with no schedule.', true), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+		if (empty ($division['Game'])) {
+			$this->Session->setFlash(__('Cannot generate standings for a division with no schedule.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
 		// Sort games by date, time and field
-		usort ($league['Game'], array ('League', 'compareDateAndField'));
-		Game::_adjustEntryIndices($league['Game']);
+		usort ($division['Game'], array ('Game', 'compareDateAndField'));
+		Game::_adjustEntryIndices($division['Game']);
 
-		$league_obj = $this->_getComponent ('LeagueType', $league['League']['schedule_type'], $this);
-		$league_obj->sort($league, false);
-		$spirit_obj = $this->_getComponent ('Spirit', $league['League']['sotg_questions'], $this);
+		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
+		$league_obj->sort($division, false);
+		$spirit_obj = $this->_getComponent ('Spirit', $division['League']['sotg_questions'], $this);
 
 		// If we're asking for "team" standings, only show the 5 teams above and 5 teams below this team.
-		// Don't bother if there are 24 teams or less (24 is probably the largest fall league size).
+		// Don't bother if there are 24 teams or less (24 is probably the largest fall division size).
 		// If $showall is set, don't remove teams.
-		if (!$showall && $teamid != null && count($league['Team']) > 24) {
+		if (!$showall && $teamid != null && count($division['Team']) > 24) {
 			$index_of_this_team = false;
-			foreach ($league['Team'] as $i => $team) {
+			foreach ($division['Team'] as $i => $team) {
 				if ($team['id'] == $teamid) {
 					$index_of_this_team = $i;
 					break;
@@ -691,84 +713,85 @@ class LeaguesController extends AppController {
 				$more_before = $first; // need to add this to the first seed
 			}
 			$last = $index_of_this_team + 5;
-			if ($last < count($league['Team']) - 1) {
+			if ($last < count($division['Team']) - 1) {
 				$more_after = true; // we never need to know how many after
 			}
 
-			$league['Team'] = array_slice ($league['Team'], $first, $last + 1 - $first);
+			$division['Team'] = array_slice ($division['Team'], $first, $last + 1 - $first);
 		}
-		$this->set(compact ('league', 'league_obj', 'spirit_obj', 'teamid', 'showall', 'more_before', 'more_after'));
-		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.LeagueIDs')));
+		$this->set(compact ('division', 'league_obj', 'spirit_obj', 'teamid', 'showall', 'more_before', 'more_after'));
+		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.DivisionIDs')));
 
-		$this->_addLeagueMenuItems ($this->League->data);
+		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 	}
 
 	function scores() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$this->League->contain (array (
+		$this->Division->contain(array (
 			'Day' => array('order' => 'day_id'),
 			'Team',
+			'League',
 		));
-		$league = $this->League->read(null, $id);
-		if ($league === false) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+		$division = $this->Division->read(null, $id);
+		if ($division === false) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		// Find all games played by teams that are currently in this league,
-		// or tournament games for this league
-		$teams = Set::extract ('/Team/id', $league);
-		$this->League->Game->contain (array(
+		// Find all games played by teams that are currently in this division,
+		// or tournament games for this division
+		$teams = Set::extract ('/Team/id', $division);
+		$this->Division->Game->contain (array(
 				'HomeTeam',
 				'AwayTeam',
 				'GameSlot' => array('Field' => array('ParentField')),
 		));
-		$league['Game'] = $this->League->Game->find('all', array(
+		$division['Game'] = $this->Division->Game->find('all', array(
 				'conditions' => array(
 					'OR' => array(
 						'Game.home_team' => $teams,
 						'Game.away_team' => $teams,
 						'AND' => array(
-							'Game.league_id' => $id,
+							'Game.division_id' => $id,
 							'Game.tournament' => true,
 						),
 					),
 				),
 		));
-		if (empty ($league['Game'])) {
-			$this->Session->setFlash(__('This league has no games scheduled yet.', true), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+		if (empty ($division['Game'])) {
+			$this->Session->setFlash(__('This division has no games scheduled yet.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
 		// Sort games by date, time and field
-		usort ($league['Game'], array ('League', 'compareDateAndField'));
-		Game::_adjustEntryIndices($league['Game']);
-		$league_obj = $this->_getComponent ('LeagueType', $league['League']['schedule_type'], $this);
-		$league_obj->sort($league);
+		usort ($division['Game'], array ('Game', 'compareDateAndField'));
+		Game::_adjustEntryIndices($division['Game']);
+		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
+		$league_obj->sort($division);
 
 		// Move the teams into an array indexed by team id, for easier use in the view
 		$teams = array();
-		foreach ($league['Team'] as $team) {
+		foreach ($division['Team'] as $team) {
 			$teams[$team['id']] = $team;
 		}
-		$league['Team'] = $teams;
+		$division['Team'] = $teams;
 
-		$this->set(compact ('league'));
-		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.LeagueIDs')));
+		$this->set(compact ('division'));
+		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.DivisionIDs')));
 
-		$this->_addLeagueMenuItems ($this->League->data);
+		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 	}
 
 	function fields() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
 		if ($this->_arg('published')) {
@@ -778,8 +801,9 @@ class LeaguesController extends AppController {
 			$conditions = array();
 		}
 
-		$this->League->contain (array (
+		$this->Division->contain(array (
 			'Team',
+			'League',
 			'Game' => array(
 				'conditions' => $conditions,
 				'GameSlot' => array('Field' => array('ParentField')),
@@ -787,63 +811,63 @@ class LeaguesController extends AppController {
 				'AwayTeam',
 			),
 		));
-		$league = $this->League->read(null, $id);
-		if ($league === false) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+		$division = $this->Division->read(null, $id);
+		if ($division === false) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
-		if (empty ($league['Game'])) {
-			$this->Session->setFlash(__('This league has no games scheduled yet.', true), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+		if (empty ($division['Game'])) {
+			$this->Session->setFlash(__('This division has no games scheduled yet.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
-		$league_obj = $this->_getComponent ('LeagueType', $league['League']['schedule_type'], $this);
-		$league_obj->sort($league);
+		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
+		$league_obj->sort($division);
 
-		// Gather all possible fields this league can use
+		// Gather all possible fields this division can use
 		$join = array(
 			array(
-				'table' => "{$this->League->tablePrefix}game_slots",
+				'table' => "{$this->Division->tablePrefix}game_slots",
 				'alias' => 'GameSlot',
 				'type' => 'INNER',
 				'foreignKey' => false,
-				'conditions' => 'LeagueGameslotAvailability.game_slot_id = GameSlot.id',
+				'conditions' => 'DivisionGameslotAvailability.game_slot_id = GameSlot.id',
 			),
 			array(
-				'table' => "{$this->League->tablePrefix}fields",
+				'table' => "{$this->Division->tablePrefix}fields",
 				'alias' => 'Field',
 				'type' => 'LEFT',
 				'foreignKey' => false,
 				'conditions' => 'Field.id = GameSlot.field_id',
 			),
 			array(
-				'table' => "{$this->League->tablePrefix}regions",
+				'table' => "{$this->Division->tablePrefix}regions",
 				'alias' => 'Region',
 				'type' => 'LEFT',
 				'foreignKey' => false,
 				'conditions' => 'Region.id = Field.region_id',
 			),
 			array(
-				'table' => "{$this->League->tablePrefix}fields",
+				'table' => "{$this->Division->tablePrefix}fields",
 				'alias' => 'ParentField',
 				'type' => 'LEFT',
 				'foreignKey' => false,
 				'conditions' => 'ParentField.id = Field.parent_id',
 			),
 			array(
-				'table' => "{$this->League->tablePrefix}regions",
+				'table' => "{$this->Division->tablePrefix}regions",
 				'alias' => 'ParentRegion',
 				'type' => 'LEFT',
 				'foreignKey' => false,
 				'conditions' => 'ParentRegion.id = ParentField.region_id',
 			),
 		);
-		$this->League->LeagueGameslotAvailability->contain (array ());
+		$this->Division->DivisionGameslotAvailability->contain (false);
 		// TODO: Fix this to use DISTINCT Field.code, once we've restructured the field model
-		$temp_fields = $this->League->LeagueGameslotAvailability->find('all', array(
+		$temp_fields = $this->Division->DivisionGameslotAvailability->find('all', array(
 			'fields' => array('DISTINCT Field.id', 'Field.code', 'Field.name', 'Region.name',
 					'ParentField.id', 'ParentField.code', 'ParentField.name', 'ParentRegion.name',
 					'GameSlot.game_start'),
-			'conditions' => array('LeagueGameslotAvailability.league_id' => $id),
+			'conditions' => array('DivisionGameslotAvailability.division_id' => $id),
 //			'order' => 'Region.name, Field.code, GameSlot.game_start',
 			'joins' => $join,
 		));
@@ -865,10 +889,10 @@ class LeaguesController extends AppController {
 		}
 		usort ($fields, array ($this, '_compareRegionAndCodeAndStart'));
 
-		$this->set(compact ('league', 'league_obj', 'fields'));
-		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.LeagueIDs')));
+		$this->set(compact ('division', 'league_obj', 'fields'));
+		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.DivisionIDs')));
 
-		$this->_addLeagueMenuItems ($this->League->data);
+		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 	}
 
 	function _compareRegionAndCodeAndStart($a, $b) {
@@ -889,30 +913,30 @@ class LeaguesController extends AppController {
 	}
 
 	function slots() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$this->League->recursive = -1;
-		$league = $this->League->read(null, $id);
-		if ($league === false) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+		$this->Division->contain('League');
+		$division = $this->Division->read(null, $id);
+		if ($division === false) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$this->League->LeagueGameslotAvailability->GameSlot->recursive = -1;
+		$this->Division->DivisionGameslotAvailability->GameSlot->recursive = -1;
 		$join = array( array(
-				'table' => "{$this->League->tablePrefix}league_gameslot_availabilities",
-				'alias' => 'LeagueGameslotAvailability',
+				'table' => "{$this->Division->tablePrefix}division_gameslot_availabilities",
+				'alias' => 'DivisionGameslotAvailability',
 				'type' => 'LEFT',
 				'foreignKey' => false,
-				'conditions' => 'LeagueGameslotAvailability.game_slot_id = GameSlot.id',
+				'conditions' => 'DivisionGameslotAvailability.game_slot_id = GameSlot.id',
 		));
-		$dates = $this->League->LeagueGameslotAvailability->GameSlot->find('all', array(
+		$dates = $this->Division->DivisionGameslotAvailability->GameSlot->find('all', array(
 			'fields' => array('DISTINCT GameSlot.game_date'),
-			'conditions' => array('LeagueGameslotAvailability.league_id' => $id),
+			'conditions' => array('DivisionGameslotAvailability.division_id' => $id),
 			'order' => 'GameSlot.game_date',
 			'joins' => $join,
 		));
@@ -924,7 +948,7 @@ class LeaguesController extends AppController {
 			$date = $this->data['date'];
 		}
 		if (!empty ($date)) {
-			$this->League->LeagueGameslotAvailability->GameSlot->contain (array (
+			$this->Division->DivisionGameslotAvailability->GameSlot->contain (array (
 					'Game' => array(
 						'HomeTeam',
 						'AwayTeam',
@@ -934,95 +958,96 @@ class LeaguesController extends AppController {
 						'Region',
 					),
 			));
-			$slots = $this->League->LeagueGameslotAvailability->GameSlot->find('all', array(
-				'conditions' => array('LeagueGameslotAvailability.league_id' => $id, 'GameSlot.game_date' => $date),
+			$slots = $this->Division->DivisionGameslotAvailability->GameSlot->find('all', array(
+				'conditions' => array('DivisionGameslotAvailability.division_id' => $id, 'GameSlot.game_date' => $date),
 				'joins' => $join,
 			));
 			$slots = Set::sort($slots, '{n}.Field.code', 'asc');
 		}
 
-		$this->set(compact('league', 'dates', 'date', 'slots'));
+		$this->set(compact('division', 'dates', 'date', 'slots'));
 
-		$this->_addLeagueMenuItems ($this->League->data);
+		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 	}
 
 	function status() { // TODO
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
 	}
 
 	function allstars() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 		$min = $this->_arg('min');
 		if (!$min) {
 			$min = 2;
 		}
 
-		$this->League->recursive = -1;
-		$league = $this->League->read(null, $id);
-		if ($league === false) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+		$this->Division->contain('League');
+		$division = $this->Division->read(null, $id);
+		if ($division === false) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$allstars = $this->League->Game->Allstar->find ('all', array(
+		$allstars = $this->Division->Game->Allstar->find ('all', array(
 				'fields' => array(
 					'Person.id', 'Person.first_name', 'Person.last_name', 'Person.gender', 'Person.email',
 					'COUNT(Allstar.game_id) AS count',
 				),
 				'conditions' => array(
-					'Game.league_id' => $id,
+					'Game.division_id' => $id,
 				),
 				'group' => "Allstar.person_id HAVING count >= $min",
 				'order' => array('Person.gender' => 'DESC', 'count' => 'DESC', 'Person.last_name', 'Person.first_name'),
 		));
 
-		$this->set(compact('league', 'allstars', 'min'));
+		$this->set(compact('division', 'allstars', 'min'));
 
-		$this->_addLeagueMenuItems ($this->League->data);
+		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 	}
 
 	function emails() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$this->League->contain (array (
+		$this->Division->contain(array (
 			'Team' => array (
 				'Person' => array(
 					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
+			'League',
 		));
-		$league = $this->League->read(null, $id);
-		if ($league === false) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+		$division = $this->Division->read(null, $id);
+		if ($division === false) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
-		$this->set(compact('league'));
+		$this->set(compact('division'));
 
-		$this->_addLeagueMenuItems ($this->League->data);
+		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 	}
 
 	function spirit() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$this->League->contain (array (
+		$this->Division->contain(array (
 			'Game' => array(
 				'GameSlot',
 				'SpiritEntry',
@@ -1030,42 +1055,43 @@ class LeaguesController extends AppController {
 				'AwayTeam',
 				'order' => 'Game.id',
 			),
+			'League',
 		));
-		$league = $this->League->read(null, $id);
-		if ($league === false) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+		$division = $this->Division->read(null, $id);
+		if ($division === false) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
-		if (empty ($league['Game'])) {
-			$this->Session->setFlash(__('This league has no games scheduled yet.', true), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+		if (empty ($division['Game'])) {
+			$this->Session->setFlash(__('This division has no games scheduled yet.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$spirit_obj = $this->_getComponent ('Spirit', $league['League']['sotg_questions'], $this);
+		$spirit_obj = $this->_getComponent ('Spirit', $division['League']['sotg_questions'], $this);
 
-		$this->set(compact('league', 'spirit_obj'));
+		$this->set(compact('division', 'spirit_obj'));
 
-		$this->_addLeagueMenuItems ($this->League->data);
+		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 
 		// This is in case we're doing CSV output
-		$this->set('download_file_name', "Spirit - {$league['League']['long_name']}");
+		$this->set('download_file_name', "Spirit - {$division['Division']['full_league_name']}");
 	}
 
 	function approve_scores() {
-		$id = $this->_arg('league');
+		$id = $this->_arg('division');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$this->League->recursive = -1;
-		$league = $this->League->read(null, $id);
-		if ($league === false) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+		$this->Division->contain('League');
+		$division = $this->Division->read(null, $id);
+		if ($division === false) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$this->League->Game->contain (array (
+		$this->Division->Game->contain (array (
 			// Get the list of captains for each team, for building the email link
 			'HomeTeam' => array(
 				'Person' => array(
@@ -1082,9 +1108,9 @@ class LeaguesController extends AppController {
 			'GameSlot',
 			'ScoreEntry',
 		));
-		$games = $this->League->Game->find ('all', array(
+		$games = $this->Division->Game->find ('all', array(
 				'conditions' => array(
-					'Game.league_id' => $id,
+					'Game.division_id' => $id,
 					'Game.approved_by' => null,
 					'OR' => array(
 						'GameSlot.game_date < CURDATE()',
@@ -1097,41 +1123,93 @@ class LeaguesController extends AppController {
 				'order' => array('GameSlot.game_date', 'GameSlot.game_start', 'Game.id'),
 		));
 		if (empty ($games)) {
-			$this->Session->setFlash(__('There are currently no games to approve in this league.', true), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+			$this->Session->setFlash(__('There are currently no games to approve in this division.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 		Game::_adjustEntryIndices($games);
 
-		$this->set(compact ('league', 'games'));
-		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.LeagueIDs')));
+		$this->set(compact ('division', 'games'));
+		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.DivisionIDs')));
 
 		// TODO: Add this type of links everywhere. Maybe do it in beforeRender?
-		$this->_addLeagueMenuItems ($this->League->data);
+		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 	}
 
-	function initialize_dependencies() {
-		$id = $this->_arg('league');
+	function initialize_ratings() {
+		$id = $this->_arg('division');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$this->League->contain (array(
+		$this->Division->contain (array(
 			'Team' => array(
 				'Franchise',
 			),
+			'League',
+		));
+		$division = $this->Division->read(null, $id);
+		if ($division === false) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+		}
+		$this->Division->addPlayoffs($division);
+
+		if (!$division['Division']['is_playoff']) {
+			$this->Session->setFlash(__('Only playoff divisions can be initialized', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'division' => $id));
+		}
+
+		// Wrap the whole thing in a transaction, for safety.
+		$transaction = new DatabaseTransaction($this->Division);
+
+		// Initialize all teams ratings with their regular season ratings
+		foreach ($division['Team'] as $key => $team) {
+			$affiliate_id = $this->_getAffiliateId($division['Division'], $team);
+			if ($affiliate_id === null) {
+				$this->Session->setFlash($team['name'] . ' ' . __('does not have a unique affiliated team in the correct division', true), 'default', array('class' => 'warning'));
+				$this->redirect(array('action' => 'view', 'division' => $id));
+			}
+			$this->Division->Team->contain(array('Division' => 'League'));
+			$affiliate = $this->Division->Team->read(null, $affiliate_id);
+			$division['Team'][$key]['rating'] = $affiliate['Team']['rating'];
+
+			$this->Division->Team->id = $team['id'];
+			if (!$this->Division->Team->saveField('rating', $affiliate['Team']['rating'])) {
+				$this->Session->setFlash(__('Failed to update team rating', true), 'default', array('class' => 'warning'));
+				$this->redirect(array('action' => 'view', 'division' => $id));
+			}
+		}
+
+		$this->Session->setFlash(__('Team ratings have been initialized.', true), 'default', array('class' => 'success'));
+		$transaction->commit();
+		$this->redirect(array('action' => 'view', 'division' => $id));
+	}
+
+	function initialize_dependencies() {
+		$id = $this->_arg('division');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+		}
+
+		$this->Division->contain(array(
+			'Team' => array(
+				'Franchise',
+			),
+			'League',
 			// We may need all of the games, as some league types use game results
 			// to determine sort order.
 			'Game',
 		));
-		$league = $this->League->read(null, $id);
-		if ($league === false) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+		$division = $this->Division->read(null, $id);
+		if ($division === false) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$count = $this->League->Game->find('count', array('conditions' => array(
-				'Game.league_id' => $id,
+		$count = $this->Division->Game->find('count', array('conditions' => array(
+				'Game.division_id' => $id,
 				'Game.tournament' => true,
 				'Game.approved_by' => null,
 				'OR' => array(
@@ -1140,36 +1218,36 @@ class LeaguesController extends AppController {
 				),
 		)));
 		if ($count == 0) {
-			$this->Session->setFlash(__('There are currently no dependencies to initialize in this league.', true), 'default', array('class' => 'warning'));
-			$this->redirect(array('action' => 'schedule', 'league' => $id));
+			$this->Session->setFlash(__('There are currently no dependencies to initialize in this division.', true), 'default', array('class' => 'warning'));
+			$this->redirect(array('action' => 'schedule', 'division' => $id));
 		}
 
-		$league_obj = $this->_getComponent ('LeagueType', $league['League']['schedule_type'], $this);
-		$league_obj->sort($league, false);
+		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
+		$league_obj->sort($division, false);
 		$reset = $this->_arg('reset');
 
 		// Wrap the whole thing in a transaction, for safety.
-		$transaction = new DatabaseTransaction($this->League);
+		$transaction = new DatabaseTransaction($this->Division);
 
 		// Go through all games, updating seed dependencies
-		foreach ($league['Game'] as $game) {
-			$this->League->Game->id = $game['id'];
+		foreach ($division['Game'] as $game) {
+			$this->Division->Game->id = $game['id'];
 			foreach (array('home', 'away') as $type) {
 				if ($game["{$type}_dependency_type"] == 'seed') {
 					if ($reset) {
-						if (!$this->League->Game->saveField("{$type}_team", null)) {
+						if (!$this->Division->Game->saveField("{$type}_team", null)) {
 							$this->Session->setFlash(sprintf(__('Failed to %s game dependency', true), __('reset', true)), 'default', array('class' => 'warning'));
-							$this->redirect(array('action' => 'schedule', 'league' => $id));
+							$this->redirect(array('action' => 'schedule', 'division' => $id));
 						}
 					} else {
 						$seed = $game["{$type}_dependency_id"];
-						if ($seed > count($league['Team'])) {
-							$this->Session->setFlash(__('Not enough teams in the league to fulfill all scheduled seeds', true), 'default', array('class' => 'warning'));
-							$this->redirect(array('action' => 'schedule', 'league' => $id));
+						if ($seed > count($division['Team'])) {
+							$this->Session->setFlash(__('Not enough teams in the division to fulfill all scheduled seeds', true), 'default', array('class' => 'warning'));
+							$this->redirect(array('action' => 'schedule', 'division' => $id));
 						}
-						if (!$this->League->Game->saveField("{$type}_team", $league['Team'][$seed - 1]['id'])) {
+						if (!$this->Division->Game->saveField("{$type}_team", $division['Team'][$seed - 1]['id'])) {
 							$this->Session->setFlash(sprintf(__('Failed to %s game dependency', true), __('update', true)), 'default', array('class' => 'warning'));
-							$this->redirect(array('action' => 'schedule', 'league' => $id));
+							$this->redirect(array('action' => 'schedule', 'division' => $id));
 						}
 					}
 				}
@@ -1178,7 +1256,7 @@ class LeaguesController extends AppController {
 		$this->Session->setFlash(sprintf(__('Seed dependencies have been %s.', true), __($reset ? 'reset' : 'resolved', true)),
 				'default', array('class' => 'success'));
 		$transaction->commit();
-		$this->redirect(array('action' => 'schedule', 'league' => $id));
+		$this->redirect(array('action' => 'schedule', 'division' => $id));
 	}
 
 	/**
@@ -1188,43 +1266,7 @@ class LeaguesController extends AppController {
 	function select($date) {
 		Configure::write ('debug', 0);
 		$this->layout = 'ajax';
-		$this->set('leagues', $this->League->readByDate($date));
-	}
-
-	function cron() {
-		$this->layout = 'bare';
-
-		if (!$this->Lock->lock ('cron')) {
-			return false;
-		}
-
-		$to_close = $this->League->find('all', array(
-				'conditions' => array(
-					'is_open' => true,
-					'OR' => array(
-						'open > DATE_ADD(NOW(), INTERVAL 14 DAY)',
-						'close < DATE_ADD(NOW(), INTERVAL -7 DAY)',
-					),
-				),
-				'contain' => array(),
-				'order' => 'open',
-		));
-		$to_open = $this->League->find('all', array(
-				'conditions' => array(
-					'is_open' => 0,
-					'open < DATE_ADD(NOW(), INTERVAL 14 DAY)',
-					'close > DATE_ADD(NOW(), INTERVAL -7 DAY)',
-				),
-				'contain' => array(),
-				'order' => 'open',
-		));
-
-		$this->set(compact('to_close', 'to_open'));
-
-		$this->League->updateAll (array('is_open' => 0), array('League.id' => Set::extract('/League/id', $to_close)));
-		$this->League->updateAll (array('is_open' => true), array('League.id' => Set::extract('/League/id', $to_open)));
-
-		$this->Lock->unlock();
+		$this->set('divisions', $this->Division->readByDate($date));
 	}
 }
 ?>

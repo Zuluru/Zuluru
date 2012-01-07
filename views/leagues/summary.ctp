@@ -3,55 +3,99 @@ $this->Html->addCrumb (__('Leagues', true));
 $this->Html->addCrumb (__('Summary', true));
 ?>
 
-<div class="leagues index">
+<div class="leagues summary">
 <h2><?php __('League Summary');?></h2>
 <table class="list">
 <tr>
-	<th><?php echo __('Name');?></th>
-	<th><?php echo __('Schedule Type');?></th>
-	<th><?php echo __('Games Before Repeat');?></th>
-	<th><?php echo __('Season');?></th>
-	<th><?php echo __('First Game');?></th>
-	<th><?php echo __('Last Game');?></th>
-	<th><?php echo __('Roster Deadline');?></th>
-	<th><?php echo __('Spirit Display');?></th>
-	<th><?php echo __('Spirit Questionnaire');?></th>
-	<th><?php echo __('Numeric Spirit?');?></th>
-	<th><?php echo __('Max Score');?></th>
-	<th><?php echo __('Allstars');?></th>
-	<th><?php echo __('Coordinator Email');?></th>
-	<th><?php echo __('Remind After');?></th>
-	<th><?php echo __('Finalize After');?></th>
-	<th><?php echo __('Roster Rule');?></th>
+	<th><?php __('Season');?></th>
+	<th><?php __('Name');?></th>
+	<th><?php __('Spirit Display');?></th>
+	<th><?php __('Spirit Questionnaire');?></th>
+	<th><?php __('Numeric Spirit?');?></th>
+	<th><?php __('Max Score');?></th>
 </tr>
 <?php
 $i = 0;
-foreach ($leagues as $league):
+$league = $season = null;
+foreach ($divisions as $division):
+	if ($division['League']['id'] == $league) {
+		continue;
+	}
+	$league = $division['League']['id'];
 	$class = null;
 	if ($i++ % 2 == 0) {
 		$class = ' class="altrow"';
 	}
 ?>
 	<tr<?php echo $class;?>>
-		<td>
-			<?php echo $this->Html->link($league['League']['long_name'], array('action' => 'edit', 'league' => $league['League']['id'])); ?>
-		</td>
-		<td><?php __(Inflector::humanize($league['League']['schedule_type'])); ?></td>
-		<td><?php echo $league['League']['games_before_repeat']; ?></td>
-		<td><?php __($league['League']['season']); ?></td>
-		<td><?php echo $this->ZuluruTime->date($league['League']['open']); ?></td>
-		<td><?php echo $this->ZuluruTime->date($league['League']['close']); ?></td>
-		<td><?php echo $this->ZuluruTime->date($league['League']['roster_deadline']); ?></td>
-		<td><?php __(Inflector::humanize($league['League']['display_sotg'])); ?></td>
-		<td><?php echo $league['League']['sotg_questions']; ?></td>
-		<td><?php __($league['League']['numeric_sotg'] ? 'Yes' : 'No'); ?></td>
-		<td><?php echo $league['League']['expected_max_score']; ?></td>
-		<td><?php __(Inflector::humanize($league['League']['allstars'])); ?></td>
-		<td><?php echo $league['League']['coord_list']; ?></td>
-		<td><?php echo $league['League']['email_after']; ?></td>
-		<td><?php echo $league['League']['finalize_after']; ?></td>
-		<td><?php echo $league['League']['roster_rule']; ?></td>
+		<td><?php
+		if ($division['League']['season'] != $season) {
+			__($division['League']['season']);
+			$season = $division['League']['season'];
+		}
+		?></td>
+		<td><?php
+		echo $this->Html->link($division['League']['name'], array('action' => 'edit', 'league' => $division['League']['id']));
+		?></td>
+		<td><?php __(Inflector::humanize($division['League']['display_sotg'])); ?></td>
+		<td><?php echo $division['League']['sotg_questions']; ?></td>
+		<td><?php __($division['League']['numeric_sotg'] ? 'Yes' : 'No'); ?></td>
+		<td><?php echo $division['League']['expected_max_score']; ?></td>
 	</tr>
 <?php endforeach; ?>
 </table>
+
+<h2><?php __('Division Summary');?></h2>
+<table class="list">
+<tr>
+	<th><?php __('Season');?></th>
+	<th><?php __('League');?></th>
+	<th><?php __('Division');?></th>
+	<th><?php __('Schedule Type');?></th>
+	<th><?php __('Games Before Repeat');?></th>
+	<th><?php __('First Game');?></th>
+	<th><?php __('Last Game');?></th>
+	<th><?php __('Roster Deadline');?></th>
+	<th><?php __('Allstars');?></th>
+	<th><?php __('Remind After');?></th>
+	<th><?php __('Finalize After');?></th>
+	<th><?php __('Roster Rule');?></th>
+</tr>
+<?php
+$i = 0;
+$league = $season = null;
+foreach ($divisions as $division):
+	$class = null;
+	if ($i++ % 2 == 0) {
+		$class = ' class="altrow"';
+	}
+?>
+	<tr<?php echo $class;?>>
+		<td><?php
+		if ($division['League']['season'] != $season) {
+			__($division['League']['season']);
+			$season = $division['League']['season'];
+		}
+		?></td>
+		<td><?php
+		if ($division['League']['id'] != $league) {
+			echo $this->Html->link($division['League']['name'], array('action' => 'edit', 'league' => $division['League']['id']));
+			$league = $division['League']['id'];
+		}
+		?>
+		</td>
+		<td><?php echo $this->Html->link($division['Division']['name'], array('controller' => 'divisions', 'action' => 'edit', 'division' => $division['Division']['id'])); ?></td>
+		<td><?php __(Inflector::humanize($division['Division']['schedule_type'])); ?></td>
+		<td><?php echo $division['Division']['games_before_repeat']; ?></td>
+		<td><?php echo $this->ZuluruTime->date($division['Division']['open']); ?></td>
+		<td><?php echo $this->ZuluruTime->date($division['Division']['close']); ?></td>
+		<td><?php echo $this->ZuluruTime->date($division['Division']['roster_deadline']); ?></td>
+		<td><?php __(Inflector::humanize($division['Division']['allstars'])); ?></td>
+		<td><?php echo $division['Division']['email_after']; ?></td>
+		<td><?php echo $division['Division']['finalize_after']; ?></td>
+		<td><?php echo $division['Division']['roster_rule']; ?></td>
+	</tr>
+<?php endforeach; ?>
+</table>
+
 </div>

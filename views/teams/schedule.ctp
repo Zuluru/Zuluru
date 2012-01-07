@@ -5,7 +5,7 @@ $this->Html->addCrumb (__('Schedule', true));
 ?>
 
 <?php
-$display_spirit = $is_admin || $is_coordinator || $team['League']['display_sotg'] != 'coordinator_only';
+$display_spirit = $is_admin || $is_coordinator || $team['Division']['League']['display_sotg'] != 'coordinator_only';
 ?>
 <div class="teams schedule">
 <h2><?php  echo __('Team Schedule', true) . ': ' . $team['Team']['name'];?></h2>
@@ -73,7 +73,7 @@ $display_spirit = $is_admin || $is_coordinator || $team['League']['display_sotg'
 			<?php if ($display_spirit): ?>
 			<td><?php echo $this->element ('spirit/symbol', array(
 					'spirit_obj' => $spirit_obj,
-					'type' => $team['League']['display_sotg'],
+					'type' => $team['Division']['League']['display_sotg'],
 					'is_coordinator' => $is_coordinator,
 					'value' => $value,
 			)); ?></td>
@@ -107,12 +107,12 @@ echo $this->ZuluruHtml->imageLink ('http://www.google.com/calendar/images/ext/gc
 <div class="actions">
 	<ul>
 		<?php
-		if ($team['League']['id']) {
+		if ($team['Division']['id']) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('view_32.png',
 				array('action' => 'view', 'team' => $team['Team']['id']),
 				array('alt' => __('View', true), 'title' => __('View Team Details and Roster', true))));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('standings_32.png',
-				array('controller' => 'leagues', 'action' => 'standings', 'league' => $team['League']['id'], 'team' => $team['Team']['id']),
+				array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Division']['id'], 'team' => $team['Team']['id']),
 				array('alt' => __('Standings', true), 'title' => __('View Team Standings', true))));
 		}
 		if ($team['Team']['track_attendance'] &&
@@ -122,7 +122,7 @@ echo $this->ZuluruHtml->imageLink ('http://www.google.com/calendar/images/ext/gc
 				array('action' => 'attendance', 'team' => $team['Team']['id']),
 				array('alt' => __('Attendance', true), 'title' => __('View Season Attendance Report', true))));
 		}
-		if ($is_logged_in && $team['Team']['open_roster'] && $team['League']['roster_deadline'] >= date('Y-m-d') &&
+		if ($is_logged_in && $team['Team']['open_roster'] && $team['Division']['roster_deadline'] >= date('Y-m-d') &&
 			!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
 		{
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('roster_add_32.png',
@@ -137,7 +137,7 @@ echo $this->ZuluruHtml->imageLink ('http://www.google.com/calendar/images/ext/gc
 				array('action' => 'emails', 'team' => $team['Team']['id']),
 				array('alt' => __('Player Emails', true), 'title' => __('Player Emails', true))));
 		}
-		if ($is_admin || (($is_captain || $is_coordinator) && $team['League']['roster_deadline'] >= date('Y-m-d'))) {
+		if ($is_admin || (($is_captain || $is_coordinator) && $team['Division']['roster_deadline'] >= date('Y-m-d'))) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('roster_add_32.png',
 				array('action' => 'add_player', 'team' => $team['Team']['id']),
 				array('alt' => __('Add Player', true), 'title' => __('Add Player', true))));

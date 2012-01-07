@@ -22,10 +22,10 @@ $this->Html->addCrumb (__('View', true));
 			?>
 			&nbsp;
 		</dd>
-		<?php if ($team['League']['id']): ?>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('League'); ?></dt>
+		<?php if ($team['Division']['id']): ?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Division'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $this->Html->link($team['League']['long_name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $team['League']['id'])); ?>
+			<?php echo $this->Html->link($team['Division']['full_league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])); ?>
 
 		</dd>
 		<?php endif; ?>
@@ -150,17 +150,29 @@ $this->Html->addCrumb (__('View', true));
 
 		</dd>
 		<?php endif; ?>
+		<?php if (isset ($affiliate)): ?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Affiliated Team'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php
+			echo $this->Html->link($affiliate['Team']['name'], array('action' => 'view', 'team' => $affiliate['Team']['id'])) .
+				' (' .
+				$this->Html->link($affiliate['Division']['full_league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $affiliate['Division']['id'])) .
+				')';
+			?>
+
+		</dd>
+		<?php endif; ?>
 	</dl>
 </div>
 <div class="actions">
 	<ul>
 		<?php
-		if ($team['League']['id']) {
+		if ($team['Division']['id']) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('schedule_32.png',
 				array('action' => 'schedule', 'team' => $team['Team']['id']),
 				array('alt' => __('Schedule', true), 'title' => __('View Team Schedule', true))));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('standings_32.png',
-				array('controller' => 'leagues', 'action' => 'standings', 'league' => $team['League']['id'], 'team' => $team['Team']['id']),
+				array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Division']['id'], 'team' => $team['Team']['id']),
 				array('alt' => __('Standings', true), 'title' => __('View Team Standings', true))));
 		}
 		if ($team['Team']['track_attendance'] &&
@@ -170,7 +182,7 @@ $this->Html->addCrumb (__('View', true));
 				array('action' => 'attendance', 'team' => $team['Team']['id']),
 				array('alt' => __('Attendance', true), 'title' => __('View Season Attendance Report', true))));
 		}
-		if ($is_logged_in && $team['Team']['open_roster'] && $team['League']['roster_deadline'] >= date('Y-m-d') &&
+		if ($is_logged_in && $team['Team']['open_roster'] && $team['Division']['roster_deadline'] >= date('Y-m-d') &&
 			!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
 		{
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('roster_add_32.png',
@@ -185,7 +197,7 @@ $this->Html->addCrumb (__('View', true));
 				array('action' => 'emails', 'team' => $team['Team']['id']),
 				array('alt' => __('Player Emails', true), 'title' => __('Player Emails', true))));
 		}
-		if ($is_admin || (($is_captain || $is_coordinator) && $team['League']['roster_deadline'] >= date('Y-m-d'))) {
+		if ($is_admin || (($is_captain || $is_coordinator) && $team['Division']['roster_deadline'] >= date('Y-m-d'))) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('roster_add_32.png',
 				array('action' => 'add_player', 'team' => $team['Team']['id']),
 				array('alt' => __('Add Player', true), 'title' => __('Add Player', true))));
@@ -230,7 +242,7 @@ $this->Html->addCrumb (__('View', true));
 	</tr>
 	<?php
 		$i = $roster_count = $skill_count = $skill_total = 0;
-		$roster_required = Configure::read("roster_requirements.{$team['League']['ratio']}");
+		$roster_required = Configure::read("roster_requirements.{$team['Division']['ratio']}");
 		foreach ($team['Person'] as $person):
 			// Maybe add a warning
 			if ($person['can_add'] !== true && !$warning):
@@ -242,7 +254,14 @@ $this->Html->addCrumb (__('View', true));
 	?>
 	<tr<?php echo $class;?>>
 		<td colspan="<?php echo $cols; ?>"><strong>
-			<?php echo sprintf(__('Notice: The following players are currently INELIGIBLE to participate on this roster. This is typically because they do not have a current membership. They are not allowed to play with this team until this is corrected. Hover your mouse over the %s to see the specific reason why.', true),
+			<?php
+			if ($team['Division']['is_playoff']) {
+				$typical_reason = 'the current roster does not meet the playoff roster rules';
+			} else {
+				$typical_reason = 'they do not have a current membership';
+			}
+			echo sprintf(__('Notice: The following players are currently INELIGIBLE to participate on this roster. This is typically because %s. They are not allowed to play with this team until this is corrected. Hover your mouse over the %s to see the specific reason why.', true),
+				__($typical_reason, true),
 				$this->ZuluruHtml->icon('help_16.png', array('alt' => '?'))); ?>
 		</strong></td>
 	</tr>
@@ -273,6 +292,9 @@ $this->Html->addCrumb (__('View', true));
 			if ($person['roster_conflict']) {
 				$conflicts[] = __('roster conflict', true);
 			}
+			if ($person['schedule_conflict']) {
+				$conflicts[] = __('schedule conflict', true);
+			}
 	?>
 	<tr<?php echo $class;?>>
 		<td><?php
@@ -284,7 +306,7 @@ $this->Html->addCrumb (__('View', true));
 		}
 		?></td>
 		<td<?php if ($warning) echo ' class="warning-message"';?>><?php
-		echo $this->element('people/roster', array('roster' => $person['TeamsPerson'], 'league' => $team['League']));
+		echo $this->element('people/roster', array('roster' => $person['TeamsPerson'], 'division' => $team['Division']));
 		if ($person['can_add'] !== true) {
 			echo ' ' . $this->ZuluruHtml->icon('help_16.png', array('title' => $person['can_add'], 'alt' => '?'));
 		}
@@ -313,11 +335,11 @@ $this->Html->addCrumb (__('View', true));
 		<td></td>
 	</tr>
 	<?php endif; ?>
-	</table>
+</table>
 
-	<?php if (($is_admin || $is_coordinator || $is_captain) && $roster_count < $roster_required && $team['League']['roster_deadline'] != '0000-00-00' && $team['League']['roster_deadline'] >= date('Y-m-d')):?>
-	<p class="warning-message">This team currently has only <?php echo $roster_count ?> full-time players listed. Your team roster must have a minimum of <?php echo $roster_required ?> rostered 'regular' players by the start of your league. For playoffs, your roster must be finalized by the team roster deadline (<?php
-	echo $this->ZuluruTime->date($team['League']['roster_deadline']); ?>), and all team members must be listed as a 'regular player'.  If an individual has not replied promptly to your request to join, we suggest that you contact them to remind them to respond.</p>
+	<?php if (($is_admin || $is_coordinator || $is_captain) && $roster_count < $roster_required && $team['Division']['roster_deadline'] != '0000-00-00' && $team['Division']['roster_deadline'] >= date('Y-m-d')):?>
+	<p class="warning-message">This team currently has only <?php echo $roster_count ?> full-time players listed. Your team roster must have a minimum of <?php echo $roster_required ?> rostered 'regular' players by the start of your division. For playoffs, your roster must be finalized by the team roster deadline (<?php
+	echo $this->ZuluruTime->date($team['Division']['roster_deadline']); ?>), and all team members must be listed as a 'regular player'.  If an individual has not replied promptly to your request to join, we suggest that you contact them to remind them to respond.</p>
 	<?php endif; ?>
 
 </div>

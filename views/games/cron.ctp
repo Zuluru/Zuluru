@@ -3,9 +3,9 @@ $league = null;
 
 foreach ($games as $game) {
 	// Check for a new league
-	if ($game['League']['id'] != $league) {
-		$league = $game['League']['id'];
-		echo $this->Html->tag('h2', $game['League']['name']);
+	if ($game['Division']['League']['id'] != $league) {
+		$league = $game['Division']['League']['id'];
+		echo $this->Html->tag('h2', $game['Division']['League']['name']);
 	}
 
 	$op = 'ignored';

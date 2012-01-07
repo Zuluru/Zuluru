@@ -1,7 +1,7 @@
 <?php
 /**
- * Base class for league-specific functionality.  This class defines default
- * no-op functions for all operations that leagues might need to do, as well
+ * Base class for division-specific functionality.  This class defines default
+ * no-op functions for all operations that divisions might need to do, as well
  * as providing some common utility functions that derived classes need.
  */
 
@@ -20,27 +20,27 @@ class LeagueTypeComponent extends Object
 	 * Add any league-type-specific options to the menu.
 	 * By default, there are no extra menu options.
 	 *
-	 * @param mixed $league Array containing the league data
-	 * @param mixed $is_coordinator Indication of whether the user is a coordinator of this league
+	 * @param mixed $division Array containing the division data
+	 * @param mixed $is_coordinator Indication of whether the user is a coordinator of this division
 	 *
 	 */
-	function addMenuItems($league, $is_coordinator = false)	{
+	function addMenuItems($division, $path, $is_coordinator = false) {
 	}
 
 	/**
-	 * Sort the provided teams according to league-specific criteria.
+	 * Sort the provided teams according to division-specific criteria.
 	 * This default function is usually going to be good enough, but we put it
 	 * here instead of having other code call usort directly, just in case.
 	 *
-	 * @param mixed $league League to sort (teams are in ['Team'] key)
+	 * @param mixed $division Division to sort (teams are in ['Team'] key)
 	 *
 	 */
-	function sort(&$league, $include_tournament = true) {
-		$this->presort ($league);
+	function sort(&$division, $include_tournament = true) {
+		$this->presort ($division);
 		if ($include_tournament) {
-			usort ($league['Team'], array($this, 'compareTeamsTournament'));
+			usort ($division['Team'], array($this, 'compareTeamsTournament'));
 		} else {
-			usort ($league['Team'], array($this, 'compareTeams'));
+			usort ($division['Team'], array($this, 'compareTeams'));
 		}
 	}
 
@@ -48,13 +48,13 @@ class LeagueTypeComponent extends Object
 	 * Do any calculations that will make the comparisons more efficient, such
 	 * as determining wins, losses, spirit, etc.
 	 * 
-	 * @param mixed $league League to perform calculations on
+	 * @param mixed $division Division to perform calculations on
 	 *
 	 */
-	function presort(&$league) {
-		if (array_key_exists ('Game', $league)) {
+	function presort(&$division) {
+		if (array_key_exists ('Game', $division)) {
 			$season = $tournament = array();
-			foreach ($league['Game'] as $game) {
+			foreach ($division['Game'] as $game) {
 				// Different read methods create arrays in different formats
 				if (array_key_exists ('Game', $game)) {
 					$result = $game['Game'];
@@ -79,19 +79,19 @@ class LeagueTypeComponent extends Object
 				}
 			}
 
-			foreach ($league['Team'] as $key => $team) {
+			foreach ($division['Team'] as $key => $team) {
 				if (array_key_exists ($team['id'], $season)) {
-					$league['Team'][$key]['results'] = $season[$team['id']];
+					$division['Team'][$key]['results'] = $season[$team['id']];
 				} else {
-					$league['Team'][$key]['results'] = array('W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'games' => 0,
+					$division['Team'][$key]['results'] = array('W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'games' => 0,
 							'gf' => 0, 'ga' => 0, 'str' => 0, 'str_type' => '', 'spirit' => 0,
 							'rounds' => array(), 'vs' => array(), 'vspm' => array());
 				}
 
 				if (array_key_exists ($team['id'], $tournament)) {
-					$league['Team'][$key]['tournament'] = $tournament[$team['id']];
+					$division['Team'][$key]['tournament'] = $tournament[$team['id']];
 				} else {
-					$league['Team'][$key]['tournament'] = array();
+					$division['Team'][$key]['tournament'] = array();
 				}
 			}
 		}
@@ -250,7 +250,7 @@ class LeagueTypeComponent extends Object
 	}
 
 	/**
-	 * Returns the list of options for scheduling games in this type of league.
+	 * Returns the list of options for scheduling games in this type of division.
 	 *
 	 * @return mixed An array containing the list of scheduling options.
 	 */
@@ -295,7 +295,7 @@ class LeagueTypeComponent extends Object
 	/**
 	 * Load everything required for scheduling.
 	 */
-	function startSchedule($league_id, $exclude_teams, $start_date) {
+	function startSchedule($division_id, $exclude_teams, $start_date) {
 		$this->games = array();
 
 		$regions = Configure::read('feature.region_preference');
@@ -304,15 +304,16 @@ class LeagueTypeComponent extends Object
 		} else {
 			$field_contain = array();
 		}
-		$this->_controller->League->contain (array (
+		$this->_controller->Division->contain (array (
 			'Team' => array(
 				'order' => 'Team.name',
 				'conditions' => array('NOT' => array('id' => $exclude_teams)),
 			),
+			'League',
 			'Game' => array(
 				'GameSlot' => $field_contain,
 			),
-			'LeagueGameslotAvailability' => array(
+			'DivisionGameslotAvailability' => array(
 				'GameSlot' => array(
 					// This will still return all of the Availability records, but many will have
 					// empty GameSlot arrays, so Set::Extract calls won't match and they're ignored
@@ -324,16 +325,16 @@ class LeagueTypeComponent extends Object
 				),
 			),
 		));
-		$this->league = $this->_controller->League->read(null, $league_id);
-		if ($this->league === false) {
-			$this->_controller->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'warning'));
+		$this->division = $this->_controller->Division->read(null, $division_id);
+		if ($this->division === false) {
+			$this->_controller->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'warning'));
 			return false;
 		}
 
 		// Go through all the games and count the number of home and away games
 		// and games within preferred region for each team
 		$this->home_games = $this->away_games = $this->preferred_games = array();
-		foreach ($this->league['Game'] as $game) {
+		foreach ($this->division['Game'] as $game) {
 			if (!array_key_exists ($game['home_team'], $this->home_games)) {
 				$this->home_games[$game['home_team']] = 1;
 			} else {
@@ -347,7 +348,7 @@ class LeagueTypeComponent extends Object
 			}
 
 			if ($regions) {
-				$team = array_pop (Set::extract ("/Team[id={$game['home_team']}]/.", $this->league));
+				$team = array_pop (Set::extract ("/Team[id={$game['home_team']}]/.", $this->division));
 				if ($team['region_preference'] && $team['region_preference'] == $game['GameSlot']['Field']['region_id']) {
 					if (!array_key_exists ($game['home_team'], $this->preferred_games)) {
 						$this->preferred_games[$game['home_team']] = 1;
@@ -356,7 +357,7 @@ class LeagueTypeComponent extends Object
 					}
 				}
 
-				$team = array_pop (Set::extract ("/Team[id={$game['away_team']}]/.", $this->league));
+				$team = array_pop (Set::extract ("/Team[id={$game['away_team']}]/.", $this->division));
 				if ($team['region_preference'] && $team['region_preference'] == $game['GameSlot']['Field']['region_id']) {
 					if (!array_key_exists ($game['away_team'], $this->preferred_games)) {
 						$this->preferred_games[$game['away_team']] = 1;
@@ -370,24 +371,24 @@ class LeagueTypeComponent extends Object
 		return true;
 	}
 
-	function finishSchedule($league_id, $publish) {
+	function finishSchedule($division_id, $publish) {
 		if (empty ($this->games)) {
 			return false;
 		}
 
-		// Add the publish flag and league id to every game
+		// Add the publish flag and division id to every game
 		foreach (array_keys($this->games) as $i) {
-			$this->games[$i]['league_id'] = $league_id;
+			$this->games[$i]['division_id'] = $division_id;
 			$this->games[$i]['published'] = $publish;
 			if (!array_key_exists ('round', $this->games[$i])) {
-				$this->games[$i]['round'] = $this->league['League']['current_round'];
+				$this->games[$i]['round'] = $this->division['Division']['current_round'];
 			}
 		}
 
 		// Check that chosen game slots didn't somehow get allocated elsewhere in the meantime
 		$slots = Set::extract ('/GameSlot/id', $this->games);
-		$this->_controller->League->Game->GameSlot->recursive = -1;
-		$taken = $this->_controller->League->Game->GameSlot->find('all', array('conditions' => array(
+		$this->_controller->Division->Game->GameSlot->recursive = -1;
+		$taken = $this->_controller->Division->Game->GameSlot->find('all', array('conditions' => array(
 				'id' => $slots,
 				'game_id !=' => null,
 		)));
@@ -400,7 +401,7 @@ class LeagueTypeComponent extends Object
 		// indicates to Cake that slots are supposed to be created for games,
 		// rather than being created ahead of time and assigned to games).
 		// So, we replicate the important bits of saveAll here.
-		$transaction = new DatabaseTransaction($this->_controller->League->Game);
+		$transaction = new DatabaseTransaction($this->_controller->Division->Game);
 
 		// for($x as $k => $v) works on a cached version of $x, so any changes
 		// to the games made in beforeSave or afterSave will show up in
@@ -408,16 +409,16 @@ class LeagueTypeComponent extends Object
 		// So, iterate over the array keys instead and use that to directly
 		// reference the array.
 		foreach (array_keys($this->games) as $key) {
-			$this->_controller->League->Game->create();
+			$this->_controller->Division->Game->create();
 			if (!$this->beforeSave($key) ||
-				!$this->_controller->League->Game->save($this->games[$key]) ||
+				!$this->_controller->Division->Game->save($this->games[$key]) ||
 				!$this->afterSave($key))
 			{
 				return false;
 			}
 
-			$this->games[$key]['GameSlot']['game_id'] = $this->_controller->League->Game->id;
-			if (!$this->_controller->League->Game->GameSlot->save($this->games[$key]['GameSlot'])) {
+			$this->games[$key]['GameSlot']['game_id'] = $this->_controller->Division->Game->id;
+			if (!$this->_controller->Division->Game->GameSlot->save($this->games[$key]['GameSlot'])) {
 				return false;
 			}
 		}
@@ -436,10 +437,10 @@ class LeagueTypeComponent extends Object
 	}
 
 	/**
-	 * Create a single game in this league
+	 * Create a single game in this division
 	 */
 	function createEmptyGame($date) {
-		$num_teams = count($this->league['Team']);
+		$num_teams = count($this->division['Team']);
 
 		if ($num_teams < 2) {
 			$this->_controller->Session->setFlash(__('Must have two teams', true), 'default', array('class' => 'warning'));
@@ -576,7 +577,7 @@ class LeagueTypeComponent extends Object
 		 * highest, so that teams who received their field preference least
 		 * will have a better chance of it.
 		 */
-		AppModel::_reindexInner($this->league, 'Team', 'id');
+		AppModel::_reindexInner($this->division, 'Team', 'id');
 		usort($games, array($this, 'comparePreferredFieldRatio'));
 
 		while($game = array_shift($games)) {
@@ -614,8 +615,8 @@ class LeagueTypeComponent extends Object
 	}
 
 	function hasHomeField($game) {
-		return ($this->league['Team'][$game['home_team']]['home_field'] ||
-			$this->league['Team'][$game['home_team']]['home_field']);
+		return ($this->division['Team'][$game['home_team']]['home_field'] ||
+			$this->division['Team'][$game['home_team']]['home_field']);
 	}
 
 	function preferredFieldRatio($game) {
@@ -632,7 +633,7 @@ class LeagueTypeComponent extends Object
 		// to their opponents to break that tie. This tie-breaker will
 		// only matter if multiple teams share a home field, but it doesn't
 		// do any harm to include it in other situations.
-		if ($this->league['Team'][$game['home_team']]['home_field']) {
+		if ($this->division['Team'][$game['home_team']]['home_field']) {
 			$id = $game['away_team'];
 		} else {
 			$id = $game['home_team'];
@@ -641,21 +642,21 @@ class LeagueTypeComponent extends Object
 		// No preference means they're always happy.  We return over 100% to
 		// force them to sort last when ordering by ratio, so that teams with
 		// a preference always appear before them.
-		if (empty($this->league['Team'][$id]['region_preference'])) {
+		if (empty($this->division['Team'][$id]['region_preference'])) {
 			return 2;
 		}
 
-		if (!array_key_exists('preferred_ratio', $this->league['Team'][$id])) {
+		if (!array_key_exists('preferred_ratio', $this->division['Team'][$id])) {
 			if (!array_key_exists($id, $this->preferred_games)) {
-				$this->league['Team'][$id]['preferred_ratio'] = 0;
+				$this->division['Team'][$id]['preferred_ratio'] = 0;
 			} else {
-				$this->league['Team'][$id]['preferred_ratio'] = $this->preferred_games[$id] /
+				$this->division['Team'][$id]['preferred_ratio'] = $this->preferred_games[$id] /
 					// We've already incremented these counters with the new game
 					// before arriving here, so we subtract 1 to get the true count
 					($this->home_games[$id] + $this->away_games[$id] - 1);
 			}
 		}
-		return $this->league['Team'][$id]['preferred_ratio'];
+		return $this->division['Team'][$id]['preferred_ratio'];
 	}
 	
 	/**
@@ -669,7 +670,7 @@ class LeagueTypeComponent extends Object
 		if (is_numeric ($date)) {
 			$date = date('Y-m-d', $date);
 		}
-		$slots = Set::extract("/LeagueGameslotAvailability/GameSlot[game_date=$date]/id", $this->league);
+		$slots = Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date]/id", $this->division);
 		if (empty ($slots)) {
 			$this->_controller->Session->setFlash(__('Couldn\'t get a slot ID', true), 'default', array('class' => 'warning'));
 			return false;
@@ -684,7 +685,7 @@ class LeagueTypeComponent extends Object
 	/**
 	 * Select an appropriate gameslot for this game.  "appropriate" takes
 	 * field quality, home field designation, and field preferences into account.
-	 * Gameslot is to be selected from those available for the league in which
+	 * Gameslot is to be selected from those available for the division in which
 	 * this game exists.
 	 *
 	 * TODO: Take field quality into account when assigning.  Easiest way
@@ -703,30 +704,30 @@ class LeagueTypeComponent extends Object
 		}
 		$slots = array();
 
-		$home = $this->league['Team'][$game['home_team']];
-		$away = $this->league['Team'][$game['away_team']];
+		$home = $this->division['Team'][$game['home_team']];
+		$away = $this->division['Team'][$game['away_team']];
 
 		// Try to adhere to the home team's home field
 		if ($home['home_field']) {
-			$slots = Set::extract("/LeagueGameslotAvailability/GameSlot[game_date=$date][field_id={$home['home_field']}]/id", $this->league);
+			$slots = Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date][field_id={$home['home_field']}]/id", $this->division);
 		}
 
 		// If not available, try the away team's home field
 		if (empty ($slots) && $away['home_field']) {
-			$slots = Set::extract("/LeagueGameslotAvailability/GameSlot[game_date=$date][field_id={$away['home_field']}]/id", $this->league);
+			$slots = Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date][field_id={$away['home_field']}]/id", $this->division);
 		}
 
 		// Maybe try region preferences
 		if (Configure::read('feature.region_preference')) {
 			if (empty ($slots) && $home['region_preference']) {
 				// TODO: Test this once fields are fixed
-				$slots = Set::extract("/LeagueGameslotAvailability/GameSlot[game_date=$date]/Field[region_id={$home['region_preference']}]/..", $this->league);
+				$slots = Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date]/Field[region_id={$home['region_preference']}]/..", $this->division);
 				$slots = Set::extract('/GameSlot/id', $slots);
 			}
 
 			if (empty ($slots) && $away['region_preference']) {
 				// TODO: Test this once fields are fixed
-				$slots = Set::extract("/LeagueGameslotAvailability/GameSlot[game_date=$date]/Field[region_id={$away['region_preference']}]/..", $this->league);
+				$slots = Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date]/Field[region_id={$away['region_preference']}]/..", $this->division);
 				$slots = Set::extract('/GameSlot/id', $slots);
 			}
 		}
@@ -749,9 +750,9 @@ class LeagueTypeComponent extends Object
 	 *
 	 */
 	function removeGameslot($slot_id) {
-		foreach ($this->league['LeagueGameslotAvailability'] as $key => $slot) {
+		foreach ($this->division['DivisionGameslotAvailability'] as $key => $slot) {
 			if ($slot['game_slot_id'] == $slot_id) {
-				unset ($this->league['LeagueGameslotAvailability'][$key]);
+				unset ($this->division['DivisionGameslotAvailability'][$key]);
 			}
 		}
 	}
@@ -764,7 +765,7 @@ class LeagueTypeComponent extends Object
 		if (is_numeric ($date)) {
 			$date = date('Y-m-d', $date);
 		}
-		$dates = array_unique (Set::extract("/LeagueGameslotAvailability/GameSlot[game_date>=$date]/game_date", $this->league));
+		$dates = array_unique (Set::extract("/DivisionGameslotAvailability/GameSlot[game_date>=$date]/game_date", $this->division));
 		return count($dates);
 	}
 
@@ -777,7 +778,7 @@ class LeagueTypeComponent extends Object
 		if (is_numeric ($date)) {
 			$date = date('Y-m-d', $date);
 		}
-		$dates = array_unique (Set::extract("/LeagueGameslotAvailability/GameSlot[game_date>$date]/game_date", $this->league));
+		$dates = array_unique (Set::extract("/DivisionGameslotAvailability/GameSlot[game_date>$date]/game_date", $this->division));
 		return min($dates);
 	}
 

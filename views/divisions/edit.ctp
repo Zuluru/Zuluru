@@ -1,46 +1,48 @@
 <?php
-$this->Html->addCrumb (__('Leagues', true));
+$this->Html->addCrumb (__('Divisions', true));
 if (isset ($add)) {
 	$this->Html->addCrumb (__('Create', true));
 } else {
-	// TODO: simulate the long_name virtual field
 	$this->Html->addCrumb ($this->data['League']['name']);
+	// TODO: simulate the full_name virtual field
+	if (!empty($this->data['Division']['name'])) {
+		$this->Html->addCrumb ($this->data['Division']['name']);
+	}
 	$this->Html->addCrumb (__('Edit', true));
 }
 ?>
 
-<div class="leagues form">
-<?php echo $this->Form->create('League', array('url' => Router::normalize($this->here)));?>
+<div class="divisions form">
+<?php echo $this->Form->create('Division', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
- 		<legend><?php __('League Information'); ?></legend>
+ 		<legend><?php __('Division Information'); ?></legend>
 	<?php
 		if (!isset ($add)) {
 			echo $this->Form->input('id');
+		} else {
+			echo $this->Form->input('league_id', array(
+					'empty' => true,
+			));
 		}
 		echo $this->ZuluruForm->input('name', array(
 			'size' => 70,
-			'after' => $this->Html->para (null, __('The full name of the league. Year and tier numbering will be automatically added.', true)),
+			'after' => $this->Html->para (null, __('The name of the division. Year and tier numbering will be automatically added.', true)),
 		));
 		echo $this->ZuluruForm->input('coord_list', array(
 			'label' => __('Coordinator Email List', true),
 			'size' => 70,
-			'after' => $this->Html->para (null, __('An email alias for all coordinators of this league (can be a comma separated list of individual email addresses).', true)),
+			'after' => $this->Html->para (null, __('An email alias for all coordinators of this division (can be a comma separated list of individual email addresses).', true)),
 		));
 		echo $this->ZuluruForm->input('capt_list', array(
 			'label' => __('Captain Email List', true),
 			'size' => 70,
-			'after' => $this->Html->para (null, __('An email alias for all captains of this league.', true)),
+			'after' => $this->Html->para (null, __('An email alias for all captains of this division.', true)),
 		));
 	?>
 	</fieldset>
 	<fieldset>
  		<legend><?php __('Dates'); ?></legend>
 	<?php
-		echo $this->ZuluruForm->input('season', array(
-			'options' => Configure::read('options.season'),
-			'empty' => '---',
-			'after' => $this->Html->para (null, __('Season during which this league\'s games take place.', true)),
-		));
 		echo $this->ZuluruForm->input('open', array(
 			'label' => 'First Game',
 			'empty' => '---',
@@ -53,7 +55,7 @@ if (isset ($add)) {
 		));
 		echo $this->ZuluruForm->input('roster_deadline', array(
 			'empty' => '---',
-			'after' => $this->Html->para (null, __('The date after which teams are no longer allowed to edit their rosters. Leave blank for no deadline (changes can be made until the league is closed).', true)),
+			'after' => $this->Html->para (null, __('The date after which teams are no longer allowed to edit their rosters. Leave blank for no deadline (changes can be made until the division is closed).', true)),
 		));
 	?>
 	</fieldset>
@@ -66,22 +68,17 @@ if (isset ($add)) {
 			'multiple' => true,
 			'size' => 8,
 			'empty' => '---',
-			'after' => $this->Html->para (null, __('Day, or days, on which this league will play.', true)),
-		));
-		echo $this->ZuluruForm->input('tier', array(
-			'options' => Configure::read('options.tier'),
-			'empty' => '---',
-			'after' => $this->Html->para (null, __('Tier number. Choose 0 to not have numbered tiers.', true)),
+			'after' => $this->Html->para (null, __('Day, or days, on which this division will play.', true)),
 		));
 		echo $this->ZuluruForm->input('ratio', array(
 			'label' => __('Gender Ratio', true),
 			'options' => Configure::read('options.ratio'),
 			'empty' => '---',
-			'after' => $this->Html->para (null, __('Gender format for the league.', true)),
+			'after' => $this->Html->para (null, __('Gender format for the division.', true)),
 		));
 		echo $this->Form->input('roster_rule', array(
 			'cols' => 70,
-			'after' => $this->Html->para (null, __('Rules that must be passed to allow a player to be added to the roster of a team in this league.', true) .
+			'after' => $this->Html->para (null, __('Rules that must be passed to allow a player to be added to the roster of a team in this division.', true) .
 				' ' . $this->ZuluruHtml->help(array('action' => 'rules', 'rules'))),
 		));
 		echo $this->ZuluruForm->input('roster_method', array(
@@ -104,10 +101,12 @@ if (isset ($add)) {
 	?>
 		<div id="SchedulingFields">
 		<?php
-		echo $this->element('leagues/scheduling_fields', array('fields' => $league_obj->schedulingFields($is_admin, $is_coordinator)));
-		$this->Js->get('#LeagueScheduleType')->event('change', $this->Js->request(
+		if (isset($league_obj)) {
+			echo $this->element('divisions/scheduling_fields', array('fields' => $league_obj->schedulingFields($is_admin, $is_coordinator)));
+		}
+		$this->Js->get('#DivisionScheduleType')->event('change', $this->Js->request(
 				array('action' => 'scheduling_fields'),
-				array('update' => '#SchedulingFields', 'dataExpression' => true, 'data' => '$("#LeagueScheduleType").get()')
+				array('update' => '#SchedulingFields', 'dataExpression' => true, 'data' => '$("#DivisionScheduleType").get()')
 		));
 		?>
 		</div>
@@ -122,32 +121,6 @@ if (isset ($add)) {
 	<fieldset>
  		<legend><?php __('Scoring'); ?></legend>
 	<?php
-		echo $this->Html->para('warning-message', __('NOTE: If you set the questionnaire to "' . Configure::read('options.spirit_questions.none') . '" and disable numeric entry, spirit will not be tracked for this league.', true));
-		echo $this->ZuluruForm->input('sotg_questions', array(
-			'options' => Configure::read('options.spirit_questions'),
-			'empty' => '---',
-			'label' => 'Spirit Questionnaire',
-			'default' => Configure::read('scoring.spirit_questions'),
-			'after' => $this->Html->para (null, __('Select which questionnaire to use for spirit scoring, or "' . Configure::read('options.spirit_questions.none') . '" to use numeric scoring only.', true)),
-		));
-		echo $this->ZuluruForm->input('numeric_sotg', array(
-			'options' => Configure::read('options.enable'),
-			'empty' => '---',
-			'label' => 'Spirit Numeric Entry',
-			'default' => Configure::read('scoring.spirit_numeric'),
-			'after' => $this->Html->para (null, __('Enable or disable the entry of a numeric spirit score, independent of the questionnaire selected above.', true)),
-		));
-		echo $this->ZuluruForm->input('display_sotg', array(
-			'options' => Configure::read('options.sotg_display'),
-			'empty' => '---',
-			'label' => 'Spirit Display',
-			'after' => $this->Html->para (null, __('Control spirit display. "All" shows numeric scores and survey answers (if applicable) to any player. "Numeric" shows game scores but not survey answers. "Symbols Only" shows only star, check, and X, with no numeric values attached. "Coordinator Only" restricts viewing of any per-game information to coordinators only.', true)),
-		));
-		echo $this->ZuluruForm->input('expected_max_score', array(
-			'size' => 5,
-			'default' => 17,
-			'after' => $this->Html->para (null, __('Used as the size of the ratings table.', true)),
-		));
 		echo $this->ZuluruForm->input('email_after', array(
 			'size' => 5,
 			'after' => $this->Html->para (null, __('Email captains who haven\'t scored games after this many hours, no reminder if 0.', true)),

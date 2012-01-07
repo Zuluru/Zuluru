@@ -1,14 +1,14 @@
 <?php
-$this->Html->addCrumb (__('Leagues', true));
+$this->Html->addCrumb (__('Divisions', true));
 $this->Html->addCrumb (__('Emails', true));
-$this->Html->addCrumb ($league['League']['long_name']);
+$this->Html->addCrumb ($division['Division']['full_league_name']);
 ?>
 
-<div class="leagues emails">
-<h2><?php echo __('Captain Emails', true) . ': ' . $league['League']['long_name'];?></h2>
+<div class="divisions emails">
+<h2><?php echo __('Captain Emails', true) . ': ' . $division['Division']['full_league_name'];?></h2>
 
 <?php
-$people = Set::extract('/Team/Person/.', $league);
+$people = Set::extract('/Team/Person/.', $division);
 $people = Set::sort($people, '{n}.last_name', 'asc');
 echo $this->element('emails', array('people' => $people));
 ?>

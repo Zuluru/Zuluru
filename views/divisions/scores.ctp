@@ -1,19 +1,19 @@
 <?php
-$this->Html->addCrumb (__('Leagues', true));
-$this->Html->addCrumb ($league['League']['long_name']);
+$this->Html->addCrumb (__('Divisions', true));
+$this->Html->addCrumb ($division['Division']['full_league_name']);
 $this->Html->addCrumb (__('Scores', true));
 ?>
 
-<div class="leagues scores">
-<h2><?php echo __('League Scores', true) . ': ' . $league['League']['long_name'];?></h2>
+<div class="divisions scores">
+<h2><?php echo __('Division Scores', true) . ': ' . $division['Division']['full_league_name'];?></h2>
 
 <?php
 // We need a list of all of the teams that have participated in games, as some may have moved
-$all_teams = $league['Team'];
+$all_teams = $division['Team'];
 
 // Rearrange game results into a nice array we can just dump out
 $games = array();
-foreach ($league['Game'] as $game) {
+foreach ($division['Game'] as $game) {
 	if (Game::_is_finalized ($game) && $game['Game']['status'] != 'rescheduled') {
 		$home = $game['Game']['home_team'];
 		$away = $game['Game']['away_team'];
@@ -60,8 +60,8 @@ $header[] = null;
 <tbody>
 <?php
 $rows = array();
-// Down the left side, we only list teams currently in the league
-foreach ($league['Team'] as $team_id => $team) {
+// Down the left side, we only list teams currently in the division
+foreach ($division['Team'] as $team_id => $team) {
 	$link = $this->Html->link ($team['name'], array('controller' => 'teams', 'action' => 'schedule', 'team' => $team_id));
 	$row = array($link);
 	// In each row, we want all teams included

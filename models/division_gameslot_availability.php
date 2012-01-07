@@ -1,12 +1,12 @@
 <?php
-class LeagueGameslotAvailability extends AppModel {
-	var $name = 'LeagueGameslotAvailability';
+class DivisionGameslotAvailability extends AppModel {
+	var $name = 'DivisionGameslotAvailability';
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
 
 	var $belongsTo = array(
-		'League' => array(
-			'className' => 'League',
-			'foreignKey' => 'league_id',
+		'Division' => array(
+			'className' => 'Division',
+			'foreignKey' => 'division_id',
 			'conditions' => '',
 			'fields' => '',
 			'order' => ''

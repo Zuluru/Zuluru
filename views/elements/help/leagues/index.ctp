@@ -6,10 +6,6 @@ if ($is_admin || $is_coordinator) {
 				'edit' => array(
 					'image' => 'edit_32.png',
 				),
-				'fields' => 'Field Distribution Report',
-				'approve_scores' => array(
-					'image' => 'score_approve_32.png',
-				),
 			),
 	));
 }

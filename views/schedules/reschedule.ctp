@@ -1,6 +1,6 @@
 <?php
-$this->Html->addCrumb (__('League', true));
-$this->Html->addCrumb ($league['League']['long_name']);
+$this->Html->addCrumb (__('Division', true));
+$this->Html->addCrumb ($division['Division']['full_league_name']);
 $this->Html->addCrumb (__('Reschedule Day', true));
 ?>
 
@@ -8,7 +8,7 @@ $this->Html->addCrumb (__('Reschedule Day', true));
 <h2><?php __('Schedule Reschedule');?></h2>
 
 <p><?php printf (__('You are about to reschedule %d games originally scheduled for %s.', true),
-	count($league['Game']), $this->ZuluruTime->fulldate ($date)); ?></p>
+	count($division['Game']), $this->ZuluruTime->fulldate ($date)); ?></p>
 
 <?php
 echo $this->Form->create (false, array('url' => Router::normalize($this->here)));

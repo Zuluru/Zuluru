@@ -1,13 +1,13 @@
 <?php if (!$this->params['isAjax']): ?>
 
 <?php
-$this->Html->addCrumb (__('Leagues', true));
-$this->Html->addCrumb (__('League Field Availability Report', true));
-$this->Html->addCrumb ($league['League']['long_name']);
+$this->Html->addCrumb (__('Divisions', true));
+$this->Html->addCrumb (__('Division Field Availability Report', true));
+$this->Html->addCrumb ($division['Division']['full_league_name']);
 ?>
 
-<div class="leagues slots">
-<h2><?php echo __('League Field Availability Report', true) . ': ' . $league['League']['long_name'];?></h2>
+<div class="divisions slots">
+<h2><?php echo __('Division Field Availability Report', true) . ': ' . $division['Division']['full_league_name'];?></h2>
 
 <p>Select a date below on which to view all available gameslots:</p>
 <?php

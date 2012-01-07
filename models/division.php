@@ -1,21 +1,9 @@
 <?php
-class League extends AppModel {
-	var $name = 'League';
+class Division extends AppModel {
+	var $name = 'Division';
 	var $displayField = 'name';
 
 	var $validate = array(
-		'name' => array(
-			'notempty' => array(
-				'rule' => array('notempty'),
-				'message' => 'A valid league name must be entered.',
-			),
-		),
-		'season' => array(
-			'inlist' => array(
-				'rule' => array('inconfig', 'options.season'),
-				'message' => 'You must select a valid season.',
-			),
-		),
 		'open' => array(
 			'date' => array(
 				'rule' => array('date'),
@@ -26,12 +14,6 @@ class League extends AppModel {
 			'date' => array(
 				'rule' => array('date'),
 				'message' => 'You must provide a valid date for the last game.',
-			),
-		),
-		'tier' => array(
-			'inlist' => array(
-				'rule' => array('inconfig', 'options.tier'),
-				'message' => 'You must select a valid tier.',
 			),
 		),
 		'ratio' => array(
@@ -61,24 +43,6 @@ class League extends AppModel {
 				'message' => 'You must select a valid schedule type.',
 			),
 		),
-		'display_sotg' => array(
-			'inlist' => array(
-				'rule' => array('inconfig', 'options.sotg_display'),
-				'message' => 'You must select a valid spirit display method.',
-			),
-		),
-		'sotg_questions' => array(
-			'inlist' => array(
-				'rule' => array('inconfig', 'options.spirit_questions'),
-				'message' => 'You must select a valid spirit questionnaire.',
-			),
-		),
-		'numeric_sotg' => array(
-			'inlist' => array(
-				'rule' => array('inconfig', 'options.enable'),
-				'message' => 'You must select whether or not numeric spirit entry is enabled.',
-			),
-		),
 		'allstars' => array(
 			'inlist' => array(
 				'rule' => array('inconfig', 'options.allstar'),
@@ -105,10 +69,20 @@ class League extends AppModel {
 		),
 	);
 
+	var $belongsTo = array(
+		'League' => array(
+			'className' => 'League',
+			'foreignKey' => 'league_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
+		)
+	);
+
 	var $hasMany = array(
 		'Game' => array(
 			'className' => 'Game',
-			'foreignKey' => 'league_id',
+			'foreignKey' => 'division_id',
 			'dependent' => false,
 			'conditions' => '',
 			'fields' => '',
@@ -119,9 +93,9 @@ class League extends AppModel {
 			'finderQuery' => '',
 			'counterQuery' => ''
 		),
-		'LeagueGameslotAvailability' => array(
-			'className' => 'LeagueGameslotAvailability',
-			'foreignKey' => 'league_id',
+		'DivisionGameslotAvailability' => array(
+			'className' => 'DivisionGameslotAvailability',
+			'foreignKey' => 'division_id',
 			'dependent' => false,
 			'conditions' => '',
 			'fields' => '',
@@ -134,7 +108,7 @@ class League extends AppModel {
 		),
 		'Team' => array(
 			'className' => 'Team',
-			'foreignKey' => 'league_id',
+			'foreignKey' => 'division_id',
 			'dependent' => false,
 			'conditions' => '',
 			'fields' => '',
@@ -150,8 +124,8 @@ class League extends AppModel {
 	var $hasAndBelongsToMany = array(
 		'Person' => array(
 			'className' => 'Person',
-			'joinTable' => 'leagues_people',
-			'foreignKey' => 'league_id',
+			'joinTable' => 'divisions_people',
+			'foreignKey' => 'division_id',
 			'associationForeignKey' => 'person_id',
 			'unique' => true,
 			'conditions' => '',
@@ -165,8 +139,8 @@ class League extends AppModel {
 		),
 		'Day' => array(
 			'className' => 'Day',
-			'joinTable' => 'leagues_days',
-			'foreignKey' => 'league_id',
+			'joinTable' => 'divisions_days',
+			'foreignKey' => 'division_id',
 			'associationForeignKey' => 'day_id',
 			'unique' => true,
 			'conditions' => '',
@@ -181,34 +155,27 @@ class League extends AppModel {
 	);
 
 	function _afterFind ($record) {
-		$long_name = '';
-		if (array_key_exists ('name', $record[$this->alias])) {
-			$long_name = $record[$this->alias]['name'];
-		}
-		if (array_key_exists ('tier', $record[$this->alias]) && $record[$this->alias]['tier'] != 0) {
-			$long_name .= __('Tier', true) . ' ' . $record[$this->alias]['tier'];
-		}
-
-		// Add the year, if it's not already part of the name
-		if (array_key_exists ('open', $record[$this->alias])) {
-			$year = date ('Y', strtotime ($record[$this->alias]['open']));
-			if (strpos ($long_name, $year) === false) {
-				// TODO: Add closing year, if different than opening
-				$long_name = "$year $long_name";
-			}
-			if (array_key_exists('season', $record[$this->alias])) {
-				$record[$this->alias]['long_season'] = "$year {$record[$this->alias]['season']}";
-			}
+		if (array_key_exists ('League', $record[$this->alias])) {
+			$league = $record[$this->alias]['League'];
+		} else if (array_key_exists ('League', $record)) {
+			$league = $record['League'];
+		} else {
+			$league = array();
 		}
 
-		$record[$this->alias]['long_name'] = $long_name;
+		if (array_key_exists ('name', $league)) {
+			$record[$this->alias]['league_name'] = trim ($league['name'] . ' ' . $record[$this->alias]['name']);
+			$record[$this->alias]['long_league_name'] = trim ($league['long_name'] . ' ' . $record[$this->alias]['name']);
+			$record[$this->alias]['full_league_name'] = trim ($league['full_name'] . ' ' . $record[$this->alias]['name']);
+		}
+
 		return $record;
 	}
 
 	// TODO: Add validation details before rendering, so required fields are properly highlighted
 	function beforeValidate() {
-		if (array_key_exists ('schedule_type', $this->data['League'])) {
-			$league_obj = AppController::_getComponent ('LeagueType', $this->data['League']['schedule_type']);
+		if (array_key_exists ('schedule_type', $this->data['Division'])) {
+			$league_obj = AppController::_getComponent ('LeagueType', $this->data['Division']['schedule_type']);
 			$this->validate = array_merge ($this->validate, $league_obj->schedulingFieldsValidation());
 		}
 		if (!Configure::read('scoring.allstars')) {
@@ -221,14 +188,14 @@ class League extends AppModel {
 		// Our database has Sunday as 1, but date('w') gives it as 0
 		$day = date('w', strtotime ($date)) + 1;
 
-		$this->contain('Day');
-		$leagues = $this->find('all', array(
+		$this->contain('League', 'Day');
+		$divisions = $this->find('all', array(
 				'conditions' => array('OR' => array(
-					'League.is_open' => true,
-					'League.open > CURDATE()',
+					'Division.is_open' => true,
+					'Division.open > CURDATE()',
 				)),
 		));
-		return Set::extract("/Day[id=$day]/..", $leagues);
+		return Set::extract("/Day[id=$day]/..", $divisions);
 	}
 
 	function readByPlayerId($id, $open = true, $teams = false) {
@@ -238,154 +205,101 @@ class League extends AppModel {
 		}
 
 		$conditions = array(
-			'LeaguesPerson.person_id' => $id,
-			'League.is_open' => $open,
+			'DivisionsPerson.person_id' => $id,
+			'Division.is_open' => $open,
 		);
 
-		$this->recursive = -1;
-		$leagues = $this->find('all', array(
+		$contain = array(
+			'League',
+		);
+		if ($teams) {
+			$contain[] = 'Team';
+		}
+
+		$divisions = $this->find('all', array(
 			'conditions' => $conditions,
-			// By grouping, we get only one record per team, regardless
-			// of how many days the league may operate on. Without this,
-			// a league that runs on two nights would generate two records
+			'contain' => $contain,
+			// By grouping, we get only one record per division, regardless
+			// of how many days the division may operate on. Without this,
+			// a division that runs on two nights would generate two records
 			// here. Nothing that uses this function needs the full list
 			// of nights, so it's okay.
-			'group' => 'League.id',
-			'order' => 'LeaguesDay.day_id, League.open',
+			'group' => 'Division.id',
+			'order' => 'DivisionsDay.day_id, Division.open',
 			'fields' => array(
+				'Division.*',
 				'League.*',
-				'LeaguesPerson.person_id', 'LeaguesPerson.position',
-				'LeaguesDay.day_id',
+				'DivisionsPerson.person_id', 'DivisionsPerson.position',
+				'DivisionsDay.day_id',
 			),
-			'contain' => ($teams ? 'Team' : null),
 			'joins' => array(
 				array(
-					'table' => "{$this->tablePrefix}leagues_people",
-					'alias' => 'LeaguesPerson',
+					'table' => "{$this->tablePrefix}divisions_people",
+					'alias' => 'DivisionsPerson',
 					'type' => 'LEFT',
 					'foreignKey' => false,
-					'conditions' => 'LeaguesPerson.league_id = League.id',
+					'conditions' => 'DivisionsPerson.division_id = Division.id',
 				),
 				array(
-					'table' => "{$this->tablePrefix}leagues_days",
-					'alias' => 'LeaguesDay',
+					'table' => "{$this->tablePrefix}divisions_days",
+					'alias' => 'DivisionsDay',
 					'type' => 'LEFT',
 					'foreignKey' => false,
-					'conditions' => 'LeaguesDay.league_id = League.id',
+					'conditions' => 'DivisionsDay.division_id = Division.id',
 				),
 			),
 		));
 
-		return $leagues;
+		$this->addPlayoffs($divisions);
+
+		return $divisions;
 	}
 
-	/**
-	 * Find all leagues according to the provided conditions, and sort them by
-	 * the day of the week they operate on. In the case of multiple days, use
-	 * the first day.
-	 *
-	 * Parameters are the same as the standard find function.
-	 */
-	function findSortByDay($conditions = null, $fields = array(), $order = null, $recursive = null) {
-		// 'find' has a bit of bipolar disorder, and behaves differently based
-		// on the types of the parameters. We need to simulate that here to
-		// correctly add the 'contain' condition.
-		if (is_array($conditions)) {
-			if (array_key_exists ('contain', $conditions)) {
-				$conditions['contain'][] = 'Day';
-			} else {
-				$conditions['contain'] = array('Day');
+	// This would be better placed in afterFind, to make sure that it always happens,
+	// but the required queries mess up containment and cause far too much data to
+	// be read. Revisit this limitation with a future version of Cake.
+	function addPlayoffs(&$data) {
+		if (array_key_exists('Division', $data)) {
+			if (array_key_exists ('current_round', $data['Division'])) {
+				$data['Division']['is_playoff'] = false;
+
+				$season_divisions = $this->find('all', array(
+						'conditions' => array(
+							'league_id' => $data['Division']['league_id'],
+							'current_round !=' => 'playoff',
+						),
+						'fields' => 'id',
+						'contain' => array('Day'),
+				));
+
+				$playoff_divisions = $this->find('all', array(
+						'conditions' => array(
+							'league_id' => $data['Division']['league_id'],
+							'current_round' => 'playoff',
+						),
+						'fields' => 'id',
+						'contain' => array('Day'),
+				));
+
+				if ($data['Division']['current_round'] == 'playoff') {
+					$data['Division']['sister_divisions'] = Set::extract('/Division/id', $playoff_divisions);
+					if (!empty($season_divisions)) {
+						$data['Division']['season_divisions'] = Set::extract('/Division/id', $season_divisions);
+						$data['Division']['season_days'] = array_unique(Set::extract('/Day/id', $season_divisions));
+						$data['Division']['is_playoff'] = true;
+					}
+				} else {
+					$data['Division']['sister_divisions'] = Set::extract('/Division/id', $season_divisions);
+					if (!empty($playoff_divisions)) {
+						$data['Division']['playoff_divisions'] = Set::extract('/Division/id', $playoff_divisions);
+					}
+				}
 			}
 		} else {
-			if (array_key_exists ('contain', $fields)) {
-				$fields['contain'][] = 'Day';
-			} else {
-				$fields['contain'] = array('Day');
+			foreach (array_keys($data) as $key) {
+				$this->addPlayoffs($data[$key]);
 			}
 		}
-
-		$leagues = $this->find ($conditions, $fields, $order, $recursive);
-
-		usort ($leagues, array('League', 'compareDay'));
-
-		return $leagues;
-	}
-
-	static function compareDay ($a, $b) {
-		// If they are in different seasons, we use that
-		$seasons = array_flip(array_values(Configure::read('options.season')));
-		$a_season = $seasons[$a['League']['season']];
-		$b_season = $seasons[$b['League']['season']];
-		if ($a_season > $b_season) {
-			return 1;
-		} else if ($a_season < $b_season) {
-			return -1;
-		}
-
-		// If the league open dates are far apart, we use that
-		$a_open = strtotime ($a['League']['open']);
-		$b_open = strtotime ($b['League']['open']);
-		if (abs ($a_open - $b_open) > 5 * 7 * 24 * 60 * 60) {
-			if ($a_open > $b_open) {
-				return 1;
-			} else if ($a_open < $b_open) {
-				return -1;
-			}
-		}
-
-		$a_days = Set::extract ('/Day/id', $a);
-		$b_days = Set::extract ('/Day/id', $b);
-		if (empty ($a_days)) {
-			$a_min = 0;
-		} else {
-			$a_min = min($a_days);
-			// Make Sunday the last day of the week instead of first, for playoff ordering
-			if ($a_min == 1)
-				$a_min = 8;
-		}
-		if (empty ($b_days)) {
-			$b_min = 0;
-		} else {
-			$b_min = min($b_days);
-			if ($b_min == 1)
-				$b_min = 8;
-		}
-
-		if ($a_min > $b_min) {
-			return 1;
-		} else if ($a_min < $b_min) {
-			return -1;
-		}
-		// Leagues on the same day use the id to sort. Assumption is that
-		// higher-level leagues are created first.
-		return $a['League']['id'] > $b['League']['id'];
-	}
-
-	static function compareDateAndField ($a, $b) {
-		if ($a['GameSlot']['game_date'] < $b['GameSlot']['game_date']) {
-			return -1;
-		} else if ($a['GameSlot']['game_date'] > $b['GameSlot']['game_date']) {
-			return 1;
-		}
-
-		if ($a['GameSlot']['game_start'] < $b['GameSlot']['game_start']) {
-			return -1;
-		} else if ($a['GameSlot']['game_start'] > $b['GameSlot']['game_start']) {
-			return 1;
-		}
-
-		if (array_key_exists ('name', $a) && !empty ($a['name'])) {
-			if ($a['name'] < $b['name']) {
-				return -1;
-			} else if ($a['name'] > $b['name']) {
-				return 1;
-			}
-		}
-
-		if ($a['GameSlot']['field_id'] < $b['GameSlot']['field_id']) {
-			return -1;
-		}
-		return 1;
 	}
 }
 ?>

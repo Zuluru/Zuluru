@@ -95,7 +95,7 @@ class FranchisesController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->Franchise->contain (array(
-			'Team' => 'League',
+			'Team' => array('Division' => 'League'),
 			'Person',
 		));
 
@@ -182,7 +182,7 @@ class FranchisesController extends AppController {
 
 		$this->Person->contain (array (
 			'Team' => array(
-				'League',
+				'Division' => 'League',
 				'conditions' => array(
 					'TeamsPerson.position' => Configure::read('privileged_roster_positions'),
 					'NOT' => array(

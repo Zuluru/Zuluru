@@ -12,7 +12,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 <dl><?php $i = 0; $class = ' class="altrow"';?>
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo __('League', true) . '/' . __('Division', true); ?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-		<?php echo $this->Html->link($game['League']['long_name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $game['League']['id'])); ?>
+		<?php echo $this->Html->link($game['Division']['full_league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $game['Division']['id'])); ?>
 
 	</dd>
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Home Team'); ?></dt>
@@ -136,13 +136,13 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 			<?php echo $game['Game']['away_score']; ?>
 
 		</dd>
-		<?php if ($is_admin || $is_coordinator || $game['League']['display_sotg'] != 'coordinator_only'): ?>
+		<?php if ($is_admin || $is_coordinator || $game['Division']['League']['display_sotg'] != 'coordinator_only'): ?>
 		<dt><?php echo __('Spirit for', true) . ' ' . $this->Text->truncate ($game['HomeTeam']['name'], 18); ?></dt>
 		<dd>
 			<?php
 			echo $this->element ('spirit/symbol', array(
 					'spirit_obj' => $spirit_obj,
-					'type' => $game['League']['display_sotg'],
+					'type' => $game['Division']['League']['display_sotg'],
 					'is_coordinator' => $is_coordinator,
 					'value' => $homeSpiritEntry['entered_sotg'],
 			));
@@ -154,7 +154,7 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 			<?php
 			echo $this->element ('spirit/symbol', array(
 					'spirit_obj' => $spirit_obj,
-					'type' => $game['League']['display_sotg'],
+					'type' => $game['Division']['League']['display_sotg'],
 					'is_coordinator' => $is_coordinator,
 					'value' => $awaySpiritEntry['entered_sotg'],
 			));
@@ -233,7 +233,7 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 			}
 			?></td>
 		</tr>
-		<?php if ($game['League']['numeric_sotg'] || $game['League']['sotg_questions'] != 'none'): ?>
+		<?php if ($game['Division']['League']['numeric_sotg'] || $game['Division']['League']['sotg_questions'] != 'none'): ?>
 		<tr>
 			<td><?php __('Spirit Assigned'); ?></td>
 			<td><?php if ($homeSpiritEntry != null) echo $homeSpiritEntry['entered_sotg']; ?></td>
@@ -248,13 +248,13 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 
 <?php
 echo $this->element ('spirit/view',
-		array('team' => $game['HomeTeam'], 'league' => $game['League'], 'spirit' => $homeSpiritEntry, 'spirit_obj' => $spirit_obj));
+		array('team' => $game['HomeTeam'], 'league' => $game['Division']['League'], 'spirit' => $homeSpiritEntry, 'spirit_obj' => $spirit_obj));
 echo $this->element ('spirit/view',
-		array('team' => $game['AwayTeam'], 'league' => $game['League'], 'spirit' => $awaySpiritEntry, 'spirit_obj' => $spirit_obj));
+		array('team' => $game['AwayTeam'], 'league' => $game['Division']['League'], 'spirit' => $awaySpiritEntry, 'spirit_obj' => $spirit_obj));
 ?>
 
 <?php if ($is_admin || $is_coordinator): ?>
-	<?php if (Configure::read('scoring.allstars') && $game['League']['allstars'] && !empty($game['Allstar'])):?>
+	<?php if (Configure::read('scoring.allstars') && $game['Division']['allstars'] && !empty($game['Allstar'])):?>
 	<fieldset>
  		<legend><?php __('Allstars'); ?></legend>
 		<table class="list">
@@ -314,7 +314,7 @@ echo $this->element ('spirit/view',
 	<ul>
 		<li><?php echo $this->Html->link(__('Edit Game', true), array('action' => 'edit', 'game' => $game['Game']['id'])); ?> </li>
 		<li><?php echo $this->Html->link(__('Delete Game', true), array('action' => 'delete', 'game' => $game['Game']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $game['Game']['id'])); ?> </li>
-		<?php if (Configure::read('scoring.allstars') && $game['League']['allstars']): ?>
+		<?php if (Configure::read('scoring.allstars') && $game['Division']['allstars']): ?>
 		<li><?php echo $this->Html->link(__('Add Allstar', true), array('controller' => 'allstars', 'action' => 'add', 'game' => $game['Game']['id']));?> </li>
 		<?php endif; ?>
 	</ul>

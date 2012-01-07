@@ -11,7 +11,7 @@ class GameSlotsController extends AppController {
 		}
 		$this->GameSlot->contain(array(
 				'Field' => array('ParentField'),
-				'LeagueGameslotAvailability' => array('League'),
+				'DivisionGameslotAvailability' => array('Division' => 'League'),
 		));
 		$gameSlot = $this->GameSlot->read(null, $id);
 		if (!$gameSlot) {
@@ -59,10 +59,10 @@ class GameSlotsController extends AppController {
 									'game_start' => $this->data['GameSlot']['game_start'],
 									'game_end' => $game_end,
 								),
-								'LeagueGameslotAvailability' => array(),
+								'DivisionGameslotAvailability' => array(),
 							);
-							foreach (array_keys ($this->data['League']) as $league_id) {
-								$slot['LeagueGameslotAvailability'][] = array('league_id' => $league_id);
+							foreach (array_keys ($this->data['Division']) as $division_id) {
+								$slot['DivisionGameslotAvailability'][] = array('division_id' => $division_id);
 							}
 							// Try to save; if it fails, we need to break out of two levels of foreach
 							if (!$this->GameSlot->saveAll($slot)) {
@@ -75,7 +75,7 @@ class GameSlotsController extends AppController {
 						$this->Session->setFlash(sprintf(__('The %s have been saved', true), __('game slots', true)), 'default', array('class' => 'success'));
 						// We intentionally don't redirect here, leaving the user back on the
 						// original "add" form, with the last game date/start/end/weeks options
-						// already selected. Fields and leagues are NOT selected, because those
+						// already selected. Fields and divisions are NOT selected, because those
 						// are no longer in $this->data, but that's more of a feature than a bug.
 					} else {
 						$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('game slots', true)), 'default', array('class' => 'warning'));
@@ -84,8 +84,8 @@ class GameSlotsController extends AppController {
 			// Validate the input
 			} else if (!array_key_exists('Field', $this->data)) {
 				$this->Session->setFlash(__('You must select at least one field!', true), 'default', array('class' => 'info'));
-			} else if (!array_key_exists('League', $this->data)) {
-				$this->Session->setFlash(__('You must select at least one league!', true), 'default', array('class' => 'info'));
+			} else if (!array_key_exists('Division', $this->data)) {
+				$this->Session->setFlash(__('You must select at least one division!', true), 'default', array('class' => 'info'));
 			} else {
 				// By calling 'set', we deconstruct the dates from arrays to more useful strings
 				$this->GameSlot->set ($this->data);
@@ -136,18 +136,18 @@ class GameSlotsController extends AppController {
 
 			// The availability table isn't a standard HABTM, so we need to massage the
 			// data into the correct form
-			$this->data['LeagueGameslotAvailability'] = array();
-			foreach ($this->data['GameSlot']['league_id'] as $league_id) {
-				$this->data['LeagueGameslotAvailability'][] = array(
+			$this->data['DivisionGameslotAvailability'] = array();
+			foreach ($this->data['GameSlot']['division_id'] as $division_id) {
+				$this->data['DivisionGameslotAvailability'][] = array(
 					'game_slot_id' => $id,
-					'league_id' => $league_id,
+					'division_id' => $division_id,
 				);
 			}
 
 			// Wrap the whole thing in a transaction, for safety.
 			$transaction = new DatabaseTransaction($this->GameSlot);
 
-			if ($this->GameSlot->LeagueGameslotAvailability->deleteAll(array('game_slot_id' => $id))) {
+			if ($this->GameSlot->DivisionGameslotAvailability->deleteAll(array('game_slot_id' => $id))) {
 				if ($this->GameSlot->saveAll($this->data)) {
 					$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('game slot', true)), 'default', array('class' => 'success'));
 					$transaction->commit();
@@ -159,14 +159,14 @@ class GameSlotsController extends AppController {
 
 		if (empty($this->data)) {
 			$this->GameSlot->contain(array(
-					'LeagueGameslotAvailability',
+					'DivisionGameslotAvailability',
 			));
 			$this->data = $this->GameSlot->read(null, $id);
 		}
-		$leagues = $this->GameSlot->Game->League->readByDate($this->data['GameSlot']['game_date']);
-		$leagues = Set::combine($leagues, '{n}.League.id', '{n}.League.long_name');
-		$this->data['GameSlot']['league_id'] = Set::extract ('/LeagueGameslotAvailability/league_id', $this->data);
-		$this->set(compact('leagues'));
+		$divisions = $this->GameSlot->Game->Division->readByDate($this->data['GameSlot']['game_date']);
+		$divisions = Set::combine($divisions, '{n}.Division.id', '{n}.Division.full_league_name');
+		$this->data['GameSlot']['division_id'] = Set::extract ('/DivisionGameslotAvailability/division_id', $this->data);
+		$this->set(compact('divisions'));
 	}
 
 	function delete() {
@@ -180,7 +180,7 @@ class GameSlotsController extends AppController {
 		$transaction = new DatabaseTransaction($this->GameSlot);
 
 		if ($this->GameSlot->delete($id)) {
-			if ($this->GameSlot->LeagueGameslotAvailability->deleteAll(array('game_slot_id' => $id))) {
+			if ($this->GameSlot->DivisionGameslotAvailability->deleteAll(array('game_slot_id' => $id))) {
 				$this->Session->setFlash(sprintf(__('%s deleted', true), __('Game slot', true)), 'default', array('class' => 'success'));
 				$transaction->commit();
 				$this->redirect('/');

@@ -1,2 +1,3 @@
-<p>The name of the league should be sufficient to uniquely identify it from all other leagues happening in the same year.</p>
-<p>Do not include the year or tier number (if applicable) in the name, as these will be added automatically for you in the various displays.</p>
+<p>The name of the division is used to differentiate it from other divisions within the same league. Common naming schemes include tier numbering or names based on the level of play.</p>
+<p>Do not include the league name in the division name, as it will be added automatically for you in the various displays.</p>
+<p>If there is only one division in a league, common practice is to leave the division name blank.</p>

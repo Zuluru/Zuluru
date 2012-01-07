@@ -1,5 +1,5 @@
-<p>League: <?php echo $this->Html->link ($game['League']['name'],
-	$this->Html->url (array('controller' => 'leagues', 'action' => 'view', 'league' => $game['League']['id']), true)); ?>
+<p>League: <?php echo $this->Html->link ($game['Division']['League']['name'],
+	$this->Html->url (array('controller' => 'leagues', 'action' => 'view', 'league' => $game['Division']['League']['id']), true)); ?>
 <br>Game: <?php echo $this->Html->link ($game['Game']['id'],
 	$this->Html->url (array('controller' => 'games', 'action' => 'view', 'game' => $game['Game']['id']), true)); ?>
 <br>Date: <?php echo $this->ZuluruTime->fulldate($game['GameSlot']['game_date']); ?>

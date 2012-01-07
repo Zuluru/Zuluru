@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Derived class for implementing functionality for leagues with tournament scheduling.
+ * Derived class for implementing functionality for divisions with tournament scheduling.
  */
 
 class LeagueTypeTournamentComponent extends LeagueTypeComponent
@@ -46,7 +46,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 	function scheduleOptions($num_teams) {
 		$types = array(
 			'single' => 'single blank, unscheduled game (2 teams, one field)',
-			'blankset' => "set of blank unscheduled games for all teams in the league ($num_teams teams, " . ($num_teams / 2) . " games)",
+			'blankset' => "set of blank unscheduled games for all teams in the division ($num_teams teams, " . ($num_teams / 2) . " games)",
 			);
 
 		// Add more types, depending on the number of teams
@@ -181,17 +181,17 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		}
 	}
 
-	function createSchedule($league_id, $exclude_teams, $type, $start_date, $publish, $overflow_type, $names) {
-		if (!$this->startSchedule($league_id, $exclude_teams, $start_date) ||
-			!$this->createScheduleBlock($league_id, $exclude_teams, $type, $start_date, $publish, $overflow_type, $names) ||
+	function createSchedule($division_id, $exclude_teams, $type, $start_date, $publish, $overflow_type, $names) {
+		if (!$this->startSchedule($division_id, $exclude_teams, $start_date) ||
+			!$this->createScheduleBlock($division_id, $exclude_teams, $type, $start_date, $publish, $overflow_type, $names) ||
 			!$this->assignFieldsByRound())
 		{
 			return false;
 		}
-		return $this->finishSchedule($league_id, $publish);
+		return $this->finishSchedule($division_id, $publish);
 	}
 
-	function createScheduleBlock($league_id, $exclude_teams, $type, $start_date, $publish, $overflow_type, $names, $first_team = 0) {
+	function createScheduleBlock($division_id, $exclude_teams, $type, $start_date, $publish, $overflow_type, $names, $first_team = 0) {
 		$this->startBlock($start_date, $names, $first_team);
 
 		switch($type) {
@@ -243,7 +243,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				$ret = $this->createQuartersEleven(true, true);
 				break;
 			case 'brackets_of_4':
-				$num_teams = count($this->league['Team']);
+				$num_teams = count($this->division['Team']);
 				list($x,$r) = $this->splitBrackets($num_teams, 4);
 				$ret = true;
 				for ($i = 0; $i < $x; ++$i) {
@@ -252,11 +252,11 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				}
 				// Also handle the overflow type, if any
 				if ($overflow_type) {
-					$ret &= $this->createScheduleBlock($league_id, $exclude_teams, $overflow_type, $start_date, $publish, null, $names[$i + 1], $i * 4);
+					$ret &= $this->createScheduleBlock($division_id, $exclude_teams, $overflow_type, $start_date, $publish, null, $names[$i + 1], $i * 4);
 				}
 				break;
 			case 'brackets_of_8':
-				$num_teams = count($this->league['Team']);
+				$num_teams = count($this->division['Team']);
 				list($x,$r) = $this->splitBrackets($num_teams, 8);
 				$ret = true;
 				for ($i = 0; $i < $x; ++$i) {
@@ -265,7 +265,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				}
 				// Also handle the overflow type, if any
 				if ($overflow_type) {
-					$ret &= $this->createScheduleBlock($league_id, $exclude_teams, $overflow_type, $start_date, $publish, null, $names[$i + 1], $i * 8);
+					$ret &= $this->createScheduleBlock($division_id, $exclude_teams, $overflow_type, $start_date, $publish, null, $names[$i + 1], $i * 8);
 				}
 				break;
 		}
@@ -274,10 +274,10 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 	}
 
 	/*
-	 * Create an empty set of games for this league
+	 * Create an empty set of games for this division
 	 */
 	function createEmptySet($date) {
-		$num_teams = count($this->league['Team']);
+		$num_teams = count($this->division['Team']);
 
 		if ($num_teams < 2) {
 			$this->_controller->Session->setFlash(__('Must have two teams', true), 'default', array('class' => 'warning'));
@@ -646,7 +646,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 
 		// Extract and sort the list of slots that are available
 		if ($this->slots === null) {
-			$this->slots = Set::extract("/LeagueGameslotAvailability/GameSlot[game_date>=$date]", $this->league);
+			$this->slots = Set::extract("/DivisionGameslotAvailability/GameSlot[game_date>=$date]", $this->division);
 			usort($this->slots, array($this, 'sortByDateAndTime'));
 		}
 
@@ -703,14 +703,14 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				$game['home_dependency_resolved'] === false &&
 				$game['home_dependency_id'] == $key)
 			{
-				$this->games[$id]['home_dependency_id'] = $this->_controller->League->Game->id;
+				$this->games[$id]['home_dependency_id'] = $this->_controller->Division->Game->id;
 				$this->games[$id]['home_dependency_resolved'] = true;
 			}
 			if (array_key_exists('away_dependency_resolved', $game) &&
 				$game['away_dependency_resolved'] === false &&
 				$game['away_dependency_id'] == $key)
 			{
-				$this->games[$id]['away_dependency_id'] = $this->_controller->League->Game->id;
+				$this->games[$id]['away_dependency_id'] = $this->_controller->Division->Game->id;
 				$this->games[$id]['away_dependency_resolved'] = true;
 			}
 		}

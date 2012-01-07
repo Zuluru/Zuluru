@@ -40,7 +40,7 @@ class Zuluru9Schema extends CakeSchema {
 
 			case 'leagues':
 				$commands = array(
-					'leagues' => 'INSERT INTO `leagues` (`id`, `name`, `season`, `schedule_attempts`, `display_sotg`, `sotg_questions`, `numeric_sotg`, `expected_max_score`) SELECT `id`, `name`, `season`, `schedule_attempts`, `display_sotg`, `sotg_questions`, `numeric_sotg`, `expected_max_score` FROM divisions ORDER BY id;',
+					'leagues' => 'INSERT INTO `leagues` (`id`, `name`, `season`, `schedule_attempts`, `display_sotg`, `sotg_questions`, `numeric_sotg`, `expected_max_score`) SELECT `id`, `name`, `season`, `schedule_attempts`, `display_sotg`, `sotg_questions`, `numeric_sotg`, `expected_max_score` FROM `divisions` ORDER BY `id`;',
 					// By default, we'll put the name on the league and blank the division name.
 					// Clubs with existing league structures that contain multiple divisions will
 					// need to do some manual processing of names and which divisions are in which

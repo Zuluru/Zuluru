@@ -1,11 +1,11 @@
 <?php
-$this->Html->addCrumb (__('Leagues', true));
-$this->Html->addCrumb ($league['League']['long_name']);
+$this->Html->addCrumb (__('Divisions', true));
+$this->Html->addCrumb ($division['Division']['full_league_name']);
 $this->Html->addCrumb (__('Spirit Report', true));
 ?>
 
-<div class="leagues spirit">
-<h3><?php  echo __('Spirit Report', true) . ': ' . $league['League']['long_name'];?></h3>
+<div class="divisions spirit">
+<h3><?php  echo __('Spirit Report', true) . ': ' . $division['Division']['full_league_name'];?></h3>
 
 <?php
 $rows = $team_records = array();
@@ -16,7 +16,7 @@ foreach ($spirit_obj->questions as $question => $detail) {
 	}
 }
 
-foreach ($league['Game'] as $game) {
+foreach ($division['Game'] as $game) {
 	foreach (array('HomeTeam', 'AwayTeam') as $team) {
 		$id = $game[$team]['id'];
 		if (!array_key_exists ($id, $team_records)) {
@@ -82,13 +82,13 @@ foreach ($team_records as $team) {
 		$this->element('teams/block', array('team' => $team['details'])),
 		$this->element ('spirit/symbol', array(
 				'spirit_obj' => $spirit_obj,
-				'type' => $league['League']['display_sotg'],
+				'type' => $division['League']['display_sotg'],
 				'is_coordinator' => true,	// only ones allowed to even run this report
 				'value' => $team['summary']['entered_sotg'],
 		)),
 		$this->element ('spirit/symbol', array(
 				'spirit_obj' => $spirit_obj,
-				'type' => $league['League']['display_sotg'],
+				'type' => $division['League']['display_sotg'],
 				'is_coordinator' => true,
 				'value' => $team['summary']['assigned_sotg'],
 		)),
@@ -106,7 +106,7 @@ foreach ($team_records as $team) {
 		if ($detail['type'] != 'text') {
 			$row[] = $this->element ('spirit/symbol', array(
 					'spirit_obj' => $spirit_obj,
-					'type' => $league['League']['display_sotg'],
+					'type' => $division['League']['display_sotg'],
 					'question' => $question,
 					'is_coordinator' => true,	// only ones allowed to even run this report
 					'value' => $team['summary'][$question] / $team['games'],
@@ -117,12 +117,12 @@ foreach ($team_records as $team) {
 	$rows[] = $row;
 }
 
-$average = array(array(__('League average', true), array('class' => 'summary')));
-$stddev = array(array(__('League std dev', true), array('class' => 'summary')));
+$average = array(array(__('Division average', true), array('class' => 'summary')));
+$stddev = array(array(__('Division std dev', true), array('class' => 'summary')));
 foreach ($overall as $question => $col) {
 	$average[] = array($this->element ('spirit/symbol', array(
 			'spirit_obj' => $spirit_obj,
-			'type' => $league['League']['display_sotg'],
+			'type' => $division['League']['display_sotg'],
 			'question' => $question,
 			'is_coordinator' => true,	// only ones allowed to even run this report
 			'value' => array_sum ($col) / $team_count,
@@ -140,7 +140,7 @@ $bins = array_count_values (array_map ('intval', $overall['entered_sotg']));
 <h2><?php __('Distribution of team average spirit scores'); ?></h2>
 
 <?php
-$header = array(__('Spirit score', true), __('Number of teams', true), __('Percentage of league', true));
+$header = array(__('Spirit score', true), __('Number of teams', true), __('Percentage of division', true));
 
 $max = $spirit_obj->max();
 $rows = array(array ($max, @$bins[$max], floor (@$bins[$max] / $team_count * 100)));
@@ -170,7 +170,7 @@ foreach ($spirit_obj->questions as $detail) {
 }
 
 $rows = array();
-foreach ($league['Game'] as $game) {
+foreach ($division['Game'] as $game) {
 	foreach (array('HomeTeam' => 'AwayTeam', 'AwayTeam' => 'HomeTeam') as $team => $opp) {
 		foreach ($game['SpiritEntry'] as $entry) {
 			if ($entry['created_team_id'] == $game[$team]['id']) {
@@ -185,7 +185,7 @@ foreach ($league['Game'] as $game) {
 					if ($detail['type'] != 'text') {
 						$row[] = $this->element ('spirit/symbol', array(
 								'spirit_obj' => $spirit_obj,
-								'type' => $league['League']['display_sotg'],
+								'type' => $division['League']['display_sotg'],
 								'question' => $question,
 								'is_coordinator' => true,	// only ones allowed to even run this report
 								'value' => $entry[$question],

@@ -12,7 +12,7 @@ echo $this->Html->para(null, __('Select a team from your history below to add to
 echo $this->Html->para('highlight-message', __('Note that you can only add teams that you are a captain, assistant captain or coach of. This may necessitate temporarily transferring this franchise to someone else.', true));
 $options = array();
 foreach ($teams['Team'] as $team) {
-	$options[$team['id']] = "{$team['name']} ({$team['League']['long_name']})";
+	$options[$team['id']] = "{$team['name']} ({$team['Division']['full_league_name']})";
 }
 echo $this->Form->create(false, array('url' => Router::normalize($this->here)));
 echo $this->Form->input ('team_id', array(

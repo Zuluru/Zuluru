@@ -11,7 +11,7 @@ $this->Html->addCrumb (__('Team History', true));
 $rows = array();
 $last_year = null;
 foreach ($teams as $team) {
-	$year = date ('Y', strtotime ($team['League']['open']));
+	$year = date ('Y', strtotime ($team['Division']['open']));
 	if ($last_year != $year) {
 		$last_year = $year;
 	} else {
@@ -20,7 +20,7 @@ foreach ($teams as $team) {
 	$rows[] = array($year,
 			$this->Html->link ($team['Team']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id'])),
 			$team['TeamsPerson']['position'],
-			$this->Html->link ($team['League']['long_name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $team['League']['id'])),
+			$this->Html->link ($team['Division']['full_league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])),
 	);
 }
 echo $this->Html->tag ('table', $this->Html->tableCells ($rows), array('class' => 'list'));

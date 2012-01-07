@@ -184,13 +184,13 @@ class FieldsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('field', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action'=>'index'));
 		}
-		// TODO: Is there a better condition to use? Some leagues wrap around a year boundary.
+		// TODO: Is there a better condition to use? Some divisions wrap around a year boundary.
 		// Maybe get the Availability table involved?
 		$this->Field->contain (array (
 			'ParentField',
 			'GameSlot' => array(
 				'Game' => array(
-					'League',
+					'Division' => 'League',
 				),
 				'order' => 'GameSlot.game_date, GameSlot.game_start',
 				'conditions' => 'YEAR(GameSlot.game_date) >= YEAR(NOW())',

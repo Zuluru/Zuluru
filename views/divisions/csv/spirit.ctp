@@ -32,7 +32,7 @@ foreach ($spirit_obj->questions as $question => $detail) {
 }
 
 $team_results = array();
-foreach ($league['Game'] as $game) {
+foreach ($division['Game'] as $game) {
 	foreach (array('HomeTeam' => 'AwayTeam', 'AwayTeam' => 'HomeTeam') as $team => $opp) {
 		$id = $game[$team]['id'];
 		if (!array_key_exists ($id, $team_results)) {

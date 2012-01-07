@@ -13,7 +13,7 @@ if ($team['track_attendance'] &&
 		array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['id']),
 		array('alt' => __('Attendance', true), 'title' => __('View Season Attendance Report', true)));
 }
-if ($is_logged_in && $team['open_roster'] && $league['League']['roster_deadline'] >= date('Y-m-d') &&
+if ($is_logged_in && $team['open_roster'] && $division['Division']['roster_deadline'] >= date('Y-m-d') &&
 	!in_array($team['id'], $this->Session->read('Zuluru.TeamIDs')))
 {
 	echo $this->ZuluruHtml->iconLink('roster_add_24.png',
@@ -28,7 +28,7 @@ if ($is_admin || $is_captain) {
 		array('controller' => 'teams', 'action' => 'emails', 'team' => $team['id']),
 		array('alt' => __('Player Emails', true), 'title' => __('Player Emails', true)));
 }
-if ($is_admin || (($is_captain || $is_coordinator) && $league['League']['roster_deadline'] >= date('Y-m-d'))) {
+if ($is_admin || (($is_captain || $is_coordinator) && $division['Division']['roster_deadline'] >= date('Y-m-d'))) {
 	echo $this->ZuluruHtml->iconLink('roster_add_24.png',
 		array('controller' => 'teams', 'action' => 'add_player', 'team' => $team['id']),
 		array('alt' => __('Add Player', true), 'title' => __('Add Player', true)));

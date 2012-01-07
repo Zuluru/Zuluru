@@ -42,11 +42,11 @@ foreach ($teams as $team):
 	<tr<?php echo $class;?>>
 		<td class="splash_item"><?php
 			echo $this->element('teams/block', array('team' => $team['Team'])) .
-				' (' . $this->element('people/roster', array('roster' => $team['TeamsPerson'], 'league' => $team['League'])) . ')';
+				' (' . $this->element('people/roster', array('roster' => $team['TeamsPerson'], 'division' => $team['Division'])) . ')';
 		?></td>
 		<td class="actions splash_action">
 			<?php
-			if ($team['League']['roster_deadline'] >= date('Y-m-d') &&
+			if ($team['Division']['roster_deadline'] >= date('Y-m-d') &&
 				in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs')))
 			{
 				echo $this->ZuluruHtml->iconLink('roster_add_24.png',
@@ -62,7 +62,7 @@ foreach ($teams as $team):
 				array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['Team']['id']),
 				array('alt' => __('Schedule', true), 'title' => __('View Team Schedule', true)));
 			echo $this->ZuluruHtml->iconLink('standings_24.png',
-				array('controller' => 'leagues', 'action' => 'standings', 'league' => $team['League']['id'], 'team' => $team['Team']['id']),
+				array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Division']['id'], 'team' => $team['Team']['id']),
 				array('alt' => __('Standings', true), 'title' => __('View Team Standings', true)));
 			if ($is_admin || in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs'))) {
 				echo $this->ZuluruHtml->iconLink('edit_24.png',
@@ -80,15 +80,15 @@ foreach ($teams as $team):
 	</ul>
 </div>
 
-<?php if (!empty ($leagues)) : ?>
+<?php if (!empty ($divisions)) : ?>
 <table class="list">
 <tr>
-	<th colspan="2"><?php __('Leagues Coordinated');?></th>
+	<th colspan="2"><?php __('Divisions Coordinated');?></th>
 </tr>
 <?php
 $empty = false;
 $i = 0;
-foreach ($leagues as $league):
+foreach ($divisions as $division):
 	$class = null;
 	if ($i++ % 2 == 0) {
 		$class = ' class="altrow"';
@@ -96,29 +96,29 @@ foreach ($leagues as $league):
 ?>
 	<tr<?php echo $class;?>>
 		<td class="splash_item"><?php
-			echo $this->ZuluruHtml->link($league['League']['name'],
-					array('controller' => 'leagues', 'action' => 'view', 'league' => $league['League']['id']),
+			echo $this->ZuluruHtml->link($division['Division']['name'],
+					array('controller' => 'divisions', 'action' => 'view', 'division' => $division['Division']['id']),
 					array('max_length' => 32));
 		?></td>
 		<td class="actions splash_action">
 			<?php
-			if ($league['League']['schedule_type'] != 'none') {
+			if ($division['Division']['schedule_type'] != 'none') {
 				echo $this->ZuluruHtml->iconLink('schedule_24.png',
-					array('controller' => 'leagues', 'action' => 'schedule', 'league' => $league['League']['id']),
-					array('alt' => __('Schedule', true), 'title' => __('View League Schedule', true)));
+					array('controller' => 'divisions', 'action' => 'schedule', 'division' => $division['Division']['id']),
+					array('alt' => __('Schedule', true), 'title' => __('View Division Schedule', true)));
 				echo $this->ZuluruHtml->iconLink('standings_24.png',
-					array('controller' => 'leagues', 'action' => 'standings', 'league' => $league['League']['id']),
-					array('alt' => __('Standings', true), 'title' => __('View League Standings', true)));
+					array('controller' => 'divisions', 'action' => 'standings', 'division' => $division['Division']['id']),
+					array('alt' => __('Standings', true), 'title' => __('View Division Standings', true)));
 				echo $this->ZuluruHtml->iconLink('score_approve_24.png',
-					array('controller' => 'leagues', 'action' => 'approve_scores', 'league' => $league['League']['id']),
+					array('controller' => 'divisions', 'action' => 'approve_scores', 'division' => $division['Division']['id']),
 					array('alt' => __('Approve scores', true), 'title' => __('Approve scores', true)));
 				echo $this->ZuluruHtml->iconLink('schedule_add_24.png',
-					array('controller' => 'schedules', 'action' => 'add', 'league' => $league['League']['id']),
+					array('controller' => 'schedules', 'action' => 'add', 'division' => $division['Division']['id']),
 					array('alt' => __('Add games', true), 'title' => __('Add games', true)));
 			}
 			echo $this->ZuluruHtml->iconLink('edit_24.png',
-				array('controller' => 'leagues', 'action' => 'edit', 'league' => $league['League']['id']),
-				array('alt' => __('Edit', true), 'title' => __('Edit League', true)));
+				array('controller' => 'divisions', 'action' => 'edit', 'division' => $division['Division']['id']),
+				array('alt' => __('Edit', true), 'title' => __('Edit Division', true)));
 			?>
 		</td>
 	</tr>

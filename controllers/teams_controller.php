@@ -49,7 +49,7 @@ class TeamsController extends AppController {
 			}
 		}
 
-		// People can perform these operations on leagues they coordinate
+		// People can perform these operations on divisions they coordinate
 		if (in_array ($this->params['action'], array(
 				'add_player',
 				'add_from_event',
@@ -57,7 +57,7 @@ class TeamsController extends AppController {
 				'roster_position',
 		)))
 		{
-			// If a team id is specified, check if we're a coordinator of that team's league
+			// If a team id is specified, check if we're a coordinator of that team's division
 			$team = $this->_arg('team');
 			if ($team) {
 				$this->_limitOverride($team);
@@ -69,13 +69,16 @@ class TeamsController extends AppController {
 	}
 
 	function index() {
-		$this->Team->recursive = 0;
-		$this->set('teams', $this->paginate(array('League.is_open' => true)));
+		$this->paginate = array('Team' => array(
+				'conditions' => array('Division.is_open' => true),
+				'contain' => array('Division' => 'League'),
+		));
+		$this->set('teams', $this->paginate('Team'));
 		$this->set('letters', $this->Team->find('all', array(
-				'contain' => 'League',
+				'contain' => array('Division' => 'League'),
 				'fields' => array('DISTINCT SUBSTR(Team.name, 1, 1) AS letter'),
 				'order' => 'letter',
-				'conditions' => array('League.is_open' => true),
+				'conditions' => array('Division.is_open' => true),
 				// Grouping necessary because Cake adds Team.id to the query, so we get
 				// "DISTINCT letter, id", which is more results than just "DISTINCT letter"
 				'group' => 'letter',
@@ -91,18 +94,18 @@ class TeamsController extends AppController {
 
 		$this->set(compact('letter'));
 		$this->set('teams', $this->Team->find('all', array(
-				'contain' => 'League',
+				'contain' => array('Division' => 'League'),
 				'conditions' => array(
-					'League.is_open' => true,
+					'Division.is_open' => true,
 					'Team.name LIKE' => "$letter%",
 				),
-				'order' => array('Team.name', 'League.open'),
+				'order' => array('Team.name', 'Division.open'),
 		)));
 		$this->set('letters', $this->Team->find('all', array(
-				'contain' => 'League',
+				'contain' => array('Division' => 'League'),
 				'fields' => array('DISTINCT SUBSTR(Team.name, 1, 1) AS letter'),
 				'order' => 'letter',
-				'conditions' => array('League.is_open' => true),
+				'conditions' => array('Division.is_open' => true),
 				// Grouping necessary because Cake adds Team.id to the query, so we get
 				// "DISTINCT letter, id", which is more results than just "DISTINCT letter"
 				'group' => 'letter',
@@ -111,55 +114,50 @@ class TeamsController extends AppController {
 
 	function unassigned() {
 		$this->Team->recursive = -1;
-		$this->set('teams', $this->paginate(array('Team.league_id' => null)));
+		$this->set('teams', $this->paginate(array('Team.division_id' => null)));
 	}
 
 	function statistics() {
+		// Division conditions take precedence over year conditions
+		$division = $this->_arg('division');
 		$year = $this->_arg('year');
-		if ($year === null) {
-			$conditions = array('League.is_open' => true);
+		if ($division !== null) {
+			$conditions = array('Division.id' => $division);
+		} else if ($year === null) {
+			$conditions = array('Division.is_open' => true);
 		} else {
-			$conditions = array('YEAR(League.open)' => $year);
-			$leagues = $this->Team->League->findSortByDay('all', array(
-					'conditions' => array(
-						'YEAR(League.open)' => $year,
-						'League.schedule_type !=' => 'none',
-					),
-			));
-			$leagues = Set::combine($leagues, '{n}.League.id', '{n}.League.long_name');
+			$conditions = array('YEAR(Division.open)' => $year);
 		}
 
-		// League conditions take precedence over year conditions
-		$league = $this->_arg('league');
-		if ($league !== null) {
-			$conditions = array('League.id' => $league);
-		}
-
-		// Get the list of open leagues and how many teams each has
-		$this->Team->contain (array(
-			'League' => array('Day'),
+		$divisions = $this->Team->Division->find('all', array(
+				'conditions' => $conditions,
+				'contain' => array('League', 'Day'),
 		));
+		$this->Team->Division->addPlayoffs($divisions);
+		AppModel::_reindexOuter($divisions, 'Division', 'id');
+
+		// Get the list of how many teams each division has
 		$counts = $this->Team->find('all', array(
 				'fields' => array(
-					'League.id', 'League.name', 'League.open',
-					'COUNT(Team.league_id) AS count',
+					'Team.division_id',
+					'COUNT(Team.division_id) AS count',
 				),
-				'conditions' => array_merge ($conditions, array(
-					'League.schedule_type !=' => 'none',
-				)),
-				'group' => 'Team.league_id',
-				'order' => 'League.open',
+				'conditions' => array('division_id' => array_keys($divisions)),
+				'contain' => false,
+				'group' => 'Team.division_id',
+				'order' => 'Team.division_id DESC',
 		));
 
+		// Add division info
+		foreach ($counts as $key => $division) {
+			$counts[$key] += $divisions[$division['Team']['division_id']];
+		}
+		usort($counts, array('League', 'compareLeagueAndDivision'));
+
 		// Get the list of teams that are short on players
-		$this->Team->contain (array(
-				'League',
-				'TeamsPerson',
-		));
 		$shorts = $this->Team->find('all', array(
 				'fields' => array(
-					'Team.id', 'Team.name',
-					'League.id', 'League.name', 'League.open',
+					'Team.id', 'Team.name', 'Team.division_id',
 					'COUNT(TeamsPerson.person_id) AS size',
 				),
 				'joins' => array(
@@ -171,10 +169,11 @@ class TeamsController extends AppController {
 						'conditions' => 'Team.id = TeamsPerson.team_id',
 					),
 				),
-				'conditions' => array_merge ($conditions, array(
-					'League.schedule_type !=' => 'none',
+				'conditions' => array(
+					'Team.division_id' => array_keys($divisions),
 					'TeamsPerson.position' => Configure::read('playing_roster_positions'),
-				)),
+				),
+				'contain' => false,
 				'group' => 'Team.id HAVING size < 12',
 				'order' => array('size DESC', 'Team.name'),
 		));
@@ -185,47 +184,45 @@ class TeamsController extends AppController {
 						'TeamsPerson.position' => 'substitute',
 					),
 			));
+			$shorts[$key] += $divisions[$short['Team']['division_id']];
 		}
 
 		// Get the list of top-rated teams
-		$this->Team->contain (array(
-			'League' => array('Day'),
-		));
 		$top_rating = $this->Team->find('all', array(
 				'fields' => array(
-					'League.id', 'League.name', 'League.open',
-					'Team.id', 'Team.name', 'Team.rating',
+					'Team.id', 'Team.name', 'Team.division_id', 'Team.rating',
 				),
-				'conditions' => array_merge ($conditions, array(
-					'League.schedule_type !=' => 'none',
-				)),
+				'conditions' => array('division_id' => array_keys($divisions)),
+				'contain' => false,
 				'order' => 'Team.rating DESC',
 				'limit' => 10,
 		));
 
+		// Add division info
+		foreach ($top_rating as $key => $team) {
+			$top_rating[$key] += $divisions[$team['Team']['division_id']];
+		}
+
 		// Get the list of lowest-rated teams
-		$this->Team->contain (array(
-			'League' => array('Day'),
-		));
 		$lowest_rating = $this->Team->find('all', array(
 				'fields' => array(
-					'League.id', 'League.name', 'League.open',
-					'Team.id', 'Team.name', 'Team.rating',
+					'Team.id', 'Team.name', 'Team.division_id', 'Team.rating',
 				),
-				'conditions' => array_merge ($conditions, array(
-					'League.schedule_type !=' => 'none',
-				)),
+				'conditions' => array('division_id' => array_keys($divisions)),
+				'contain' => false,
 				'order' => 'Team.rating ASC',
 				'limit' => 10,
 		));
 
+		// Add division info
+		foreach ($lowest_rating as $key => $team) {
+			$lowest_rating[$key] += $divisions[$team['Team']['division_id']];
+		}
+
 		// Get the list of defaulting teams
-		$this->Team->League->Game->contain (array(
-			'League' => array('Day'),
-		));
-		$defaulting = $this->Team->League->Game->find('all', array(
+		$defaulting = $this->Team->Division->Game->find('all', array(
 				'fields' => array(
-					'League.id', 'League.name', 'League.open',
+					'Game.division_id',
 					'IF(Game.status = "home_default",HomeTeam.id,AwayTeam.id) AS id',
 					'IF(Game.status = "home_default",HomeTeam.name,AwayTeam.name) AS name',
 					'COUNT(Game.id) AS count',
@@ -246,20 +243,24 @@ class TeamsController extends AppController {
 						'conditions' => 'AwayTeam.id = Game.away_team',
 					),
 				),
-				'conditions' => array_merge ($conditions, array(
+				'conditions' => array(
+					'Game.division_id' => array_keys($divisions),
 					'Game.status' => array('home_default', 'away_default'),
-				)),
+				),
+				'contain' => false,
 				'group' => 'id',
 				'order' => 'count DESC',
 		));
 
+		// Add division info
+		foreach ($defaulting as $key => $game) {
+			$defaulting[$key] += $divisions[$game['Game']['division_id']];
+		}
+
 		// Get the list of non-score-submitting teams
-		$this->Team->League->Game->contain (array(
-			'League' => array('Day'),
-		));
-		$no_scores = $this->Team->League->Game->find('all', array(
+		$no_scores = $this->Team->Division->Game->find('all', array(
 				'fields' => array(
-					'League.id', 'League.name', 'League.open',
+					'Game.division_id',
 					'IF(Game.approved_by = ' . APPROVAL_AUTOMATIC_HOME . ',HomeTeam.id,AwayTeam.id) AS id',
 					'IF(Game.approved_by = ' . APPROVAL_AUTOMATIC_AWAY . ',HomeTeam.name,AwayTeam.name) AS name',
 					'COUNT(Game.id) AS count',
@@ -280,21 +281,24 @@ class TeamsController extends AppController {
 						'conditions' => 'AwayTeam.id = Game.away_team',
 					),
 				),
-				'conditions' => array_merge ($conditions, array(
+				'conditions' => array(
+					'Game.division_id' => array_keys($divisions),
 					'Game.approved_by' => array(APPROVAL_AUTOMATIC_HOME,APPROVAL_AUTOMATIC_AWAY),
-				)),
+				),
+				'contain' => false,
 				'group' => 'id',
 				'order' => 'count DESC',
 		));
 
+		// Add division info
+		foreach ($no_scores as $key => $game) {
+			$no_scores[$key] += $divisions[$game['Game']['division_id']];
+		}
+
 		// Get the list of top spirited teams
-		$this->Team->contain (array(
-			'League' => array('Day'),
-		));
 		$top_spirit = $this->Team->find('all', array(
 				'fields' => array(
-					'League.id', 'League.name', 'League.open',
-					'Team.id', 'Team.name',
+					'Team.id', 'Team.name', 'Team.division_id',
 					'ROUND( AVG( COALESCE(
 						SpiritEntry.entered_sotg,
 						SpiritEntry.score_entry_penalty + SpiritEntry.q1 + SpiritEntry.q2 + SpiritEntry.q3 + SpiritEntry.q4 + SpiritEntry.q5 + SpiritEntry.q6 + SpiritEntry.q7 + SpiritEntry.q8 + SpiritEntry.q9 + SpiritEntry.q10 )
@@ -309,20 +313,22 @@ class TeamsController extends AppController {
 						'conditions' => 'SpiritEntry.team_id = Team.id',
 					),
 				),
-				'conditions' => $conditions,
+				'conditions' => array('division_id' => array_keys($divisions)),
+				'contain' => false,
 				'group' => 'Team.id HAVING avgspirit IS NOT NULL',
 				'order' => array('avgspirit DESC', 'Team.name'),
 				'limit' => 10,
 		));
 
+		// Add division info
+		foreach ($top_spirit as $key => $team) {
+			$top_spirit[$key] += $divisions[$team['Team']['division_id']];
+		}
+
 		// Get the list of lowest spirited teams
-		$this->Team->contain (array(
-			'League' => array('Day'),
-		));
 		$lowest_spirit = $this->Team->find('all', array(
 				'fields' => array(
-					'League.id', 'League.name', 'League.open',
-					'Team.id', 'Team.name',
+					'Team.id', 'Team.name', 'Team.division_id',
 					'ROUND( AVG( COALESCE(
 						SpiritEntry.entered_sotg,
 						SpiritEntry.score_entry_penalty + SpiritEntry.q1 + SpiritEntry.q2 + SpiritEntry.q3 + SpiritEntry.q4 + SpiritEntry.q5 + SpiritEntry.q6 + SpiritEntry.q7 + SpiritEntry.q8 + SpiritEntry.q9 + SpiritEntry.q10 )
@@ -337,22 +343,28 @@ class TeamsController extends AppController {
 						'conditions' => 'SpiritEntry.team_id = Team.id',
 					),
 				),
-				'conditions' => $conditions,
+				'conditions' => array('division_id' => array_keys($divisions)),
+				'contain' => false,
 				'group' => 'Team.id HAVING avgspirit IS NOT NULL',
 				'order' => array('avgspirit ASC', 'Team.name'),
 				'limit' => 10,
 		));
 
-		$this->Team->League->recursive = -1;
-		$years = $this->Team->League->find('all', array(
-			'fields' => 'DISTINCT YEAR(open) AS year',
-			'conditions' => array('YEAR(open) !=' => 0),
-			'order' => 'open',
+		// Add division info
+		foreach ($lowest_spirit as $key => $team) {
+			$lowest_spirit[$key] += $divisions[$team['Team']['division_id']];
+		}
+
+		$this->Team->Division->recursive = -1;
+		$years = $this->Team->Division->find('all', array(
+			'fields' => 'DISTINCT YEAR(Division.open) AS year',
+			'conditions' => array('YEAR(Division.open) !=' => 0),
+			'order' => 'Division.open',
 		));
 
 		$this->set(compact('counts', 'shorts', 'top_rating', 'lowest_rating',
 				'defaulting', 'no_scores', 'top_spirit', 'lowest_spirit',
-				'year', 'years', 'leagues'));
+				'year', 'years', 'divisions'));
 	}
 
 	function view() {
@@ -361,9 +373,9 @@ class TeamsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
-		$this->Team->contain (array(
+		$this->Team->contain(array(
 			'Person' => array('Upload'),
-			'League' => array('Day'),
+			'Division' => array('Day', 'League'),
 			'Franchise',
 		));
 
@@ -372,12 +384,15 @@ class TeamsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Team->Division->addPlayoffs($team);
 		$this->_limitOverride($id);
-		$team_days = Set::extract('/League/Day/id', $team);
+		$team_days = Set::extract('/Division/Day/id', $team);
 
-		if (!empty($team['Team']['league_id'])) {
-			$member_rule = "compare(member_type('{$team['League']['open']}') != 'none')";
+		if (!empty($team['Team']['division_id'])) {
+			$member_rule = "compare(member_type('{$team['Division']['open']}') != 'none')";
 		}
+
+		$playing_roster_positions = Configure::read('playing_roster_positions');
 
 		foreach ($team['Person'] as $key => $person) {
 			// Get everything from the user record that the rule might need
@@ -389,7 +404,7 @@ class TeamsController extends AppController {
 					'conditions' => array('Registration.payment' => 'paid'),
 				),
 				'Team' => array(
-					'League' => array('Day'),
+					'Division' => array('Day', 'League'),
 					'TeamsPerson',
 					'conditions' => array('Team.id !=' => $id),
 				),
@@ -415,21 +430,50 @@ class TeamsController extends AppController {
 			}
 
 			// Check for any roster conflicts
-			$team['Person'][$key]['roster_conflict'] = false;
-			if (!empty ($team_days)) {
-				foreach ($full_person['Team'] as $other_team) {
-					if (array_key_exists ('open', $other_team['League']) && array_key_exists ('open', $team['League'])) {
-						if (($other_team['League']['open'] <= $team['League']['open'] && $other_team['League']['close'] >= $team['League']['open']) ||
-							($team['League']['open'] <= $other_team['League']['open'] && $team['League']['close'] >= $other_team['League']['open']))
+			$team['Person'][$key]['roster_conflict'] = $team['Person'][$key]['schedule_conflict'] = false;
+			foreach ($full_person['Team'] as $other_team) {
+				if (in_array($person['TeamsPerson']['position'], $playing_roster_positions)) {
+					// If this player is on a roster of another team in the same league...
+					if ($team['Division']['league_id'] == $other_team['Division']['league_id'] &&
+						// and they're a regular player...
+						in_array($other_team['TeamsPerson']['position'], $playing_roster_positions))
+					{
+						$connected = false;
+						if (array_key_exists('season_divisions', $team['Division']) &&
+							in_array($other_team['Division']['id'], $team['Division']['season_divisions'])
+						)
 						{
-							$other_team_days = Set::extract('/League/Day/id', $other_team);
-							$overlap = array_intersect($team_days, $other_team_days);
-							if (!empty($overlap)) {
-								$team['Person'][$key]['roster_conflict'] = true;
-								break;
-							}
+							$connected = true;
+						}
+						if (array_key_exists('playoff_divisions', $team['Division']) &&
+							in_array($other_team['Division']['id'], $team['Division']['playoff_divisions'])
+						)
+						{
+							$connected = true;
+						}
+
+						// and that division doesn't have a regular season/playoff connection with this one...
+						if (!$connected) {
+							// ... then there's a roster conflict!
+							$team['Person'][$key]['roster_conflict'] = true;
 						}
 					}
+				}
+
+				// If this player is on a roster of a team in another league...
+				if (!empty ($team_days) && $team['Division']['league_id'] != $other_team['Division']['league_id']) {
+					// that has a schedule which at least partially overlaps with this division...
+					if (($other_team['Division']['open'] <= $team['Division']['open'] && $other_team['Division']['close'] >= $team['Division']['open']) ||
+						($team['Division']['open'] <= $other_team['Division']['open'] && $team['Division']['close'] >= $other_team['Division']['open']))
+					{
+						$other_team_days = Set::extract('/Division/Day/id', $other_team);
+						$overlap = array_intersect($team_days, $other_team_days);
+						// and they play on the same day of the week...
+						if (!empty($overlap)) {
+							// ... then there's a possible schedule conflict!
+							$team['Person'][$key]['schedule_conflict'] = true;
+						}
+					}   
 				}
 			}
 		}
@@ -438,13 +482,21 @@ class TeamsController extends AppController {
 
 		$this->set('team', $team);
 		$this->set('is_captain', in_array($id, $this->Session->read('Zuluru.OwnedTeamIDs')));
-		$this->set('is_coordinator', in_array($team['Team']['league_id'], $this->Session->read('Zuluru.LeagueIDs')));
+		$this->set('is_coordinator', in_array($team['Team']['division_id'], $this->Session->read('Zuluru.DivisionIDs')));
 		$this->_addTeamMenuItems ($team);
 
+		if ($team['Division']['is_playoff']) {
+			$affiliate_id = $this->_getAffiliateId($team['Division'], $team);
+			if ($affiliate_id !== null) {
+				$this->Team->contain(array('Division' => 'League'));
+				$affiliate = $this->Team->read(null, $affiliate_id);
+				$this->set(compact('affiliate'));
+			}
+		}
 
 		// Set up a couple more variables that the player popup block needs
-		$captain_in_league_ids = Set::extract ('/Team/league_id', $this->Session->read('Zuluru.OwnedTeams'));
-		$this->set('is_league_captain', in_array ($team['Team']['league_id'], $captain_in_league_ids));
+		$captain_in_division_ids = Set::extract ('/Team/division_id', $this->Session->read('Zuluru.OwnedTeams'));
+		$this->set('is_division_captain', in_array ($team['Team']['division_id'], $captain_in_division_ids));
 	}
 
 	function add() {
@@ -475,6 +527,9 @@ class TeamsController extends AppController {
 		}
 		if (!empty($this->data)) {
 			if ($this->Team->save($this->data)) {
+				if (in_array ($this->data['Team']['id'], $this->Session->read('Zuluru.TeamIDs'))) {
+					$this->_deleteTeamSessionData();
+				}
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('team', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
@@ -513,7 +568,7 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 
-		$this->Team->contain (array ('League' => array('Day')));
+		$this->Team->contain(array ('Division' => array('League')));
 		$team = $this->Team->read(null, $id);
 		if ($team === false) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
@@ -521,58 +576,50 @@ class TeamsController extends AppController {
 		}
 
 		if (!empty($this->data)) {
-			$this->Team->League->contain('Day');
-			$league = $this->Team->League->read(null, $this->data['Team']['to']);
-			// Don't do league comparisons when the team being moved is not in a league
-			if ($team['League']['id']) {
-				if ($league['Day'][0]['id'] != $team['League']['Day'][0]['id']) {
-					$this->Session->setFlash(__('Cannot move a team to a different day', true), 'default', array('class' => 'info'));
+			$this->Team->Division->contain('League');
+			$division = $this->Team->Division->read(null, $this->data['Team']['to']);
+			// Don't do division comparisons when the team being moved is not in a division
+			if ($team['Division']['id']) {
+				if ($team['Division']['league_id'] != $division['Division']['league_id']) {
+					$this->Session->setFlash(__('Cannot move a team to a different league', true), 'default', array('class' => 'info'));
 					$this->redirect(array('action' => 'view', 'team' => $id));
 				}
-				if ($league['League']['ratio'] != $team['League']['ratio']) {
-					$this->Session->setFlash(__('Destination league must have the same gender ratio', true), 'default', array('class' => 'info'));
+				if ($division['Division']['ratio'] != $team['Division']['ratio']) {
+					$this->Session->setFlash(__('Destination division must have the same gender ratio', true), 'default', array('class' => 'info'));
 					$this->redirect(array('action' => 'view', 'team' => $id));
 				}
 			}
-			if ($this->Team->saveField ('league_id', $this->data['Team']['to'])) {
-				$this->Session->setFlash(sprintf (__('Team has been moved to %s', true), $league['League']['long_name']), 'default', array('class' => 'success'));
+			if ($this->Team->saveField ('division_id', $this->data['Team']['to'])) {
+				$this->Session->setFlash(sprintf (__('Team has been moved to %s', true), $division['Division']['full_league_name']), 'default', array('class' => 'success'));
 			} else {
 				$this->Session->setFlash(__('Failed to move the team!', true), 'default', array('class' => 'warning'));
 			}
 			$this->redirect(array('action' => 'view', 'team' => $id));
 		}
 
-		if ($team['League']['id']) {
-			// TODO: How to handle leagues on multiple days?
-			$this->Team->League->Day->contain (array(
-					'League' => array(
-						'conditions' => array(
-							'League.id !=' => $team['League']['id'],
-							'League.is_open' => true,
-							'League.ratio' => $team['League']['ratio'],
-						),
-					),
-			));
-			$leagues = $this->Team->League->Day->read (null, $team['League']['Day'][0]['id']);
-			$leagues = $leagues['League'];
-		} else {
-			$this->Team->League->recursive = -1;
-			$leagues = $this->Team->League->find ('all', array(
-				'conditions' => array('OR' => array(
-					'League.is_open' => true,
-					'League.open > CURDATE()',
-				)),
-			));
-			$leagues = Set::extract ('/League/.', $leagues);
+		$conditions = array('OR' => array(
+			'Division.is_open' => true,
+			'Division.open > CURDATE()',
+		));
+		if ($team['Division']['id']) {
+			$conditions += array(
+					'Division.id !=' => $team['Division']['id'],
+					'Division.league_id' => $team['Division']['league_id'],
+					'Division.ratio' => $team['Division']['ratio'],
+			);
 		}
+		$divisions = $this->Team->Division->find ('all', array(
+			'conditions' => $conditions,
+			'contain' => 'League',
+		));
 
 		// Make sure there's somewhere to move it to
-		if (empty ($leagues)) {
-			$this->Session->setFlash(__('No similar league found to move this team to!', true), 'default', array('class' => 'info'));
+		if (empty ($divisions)) {
+			$this->Session->setFlash(__('No similar division found to move this team to!', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $id));
 		}
 
-		$this->set(compact('team', 'leagues'));
+		$this->set(compact('team', 'divisions'));
 	}
 
 	function schedule() {
@@ -582,13 +629,13 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 
-		$this->Team->contain (array ('League'));
+		$this->Team->contain(array('Division' => 'League'));
 		$team = $this->Team->read(null, $id);
 		if ($team === false) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
-		$this->Team->League->Game->contain (array(
+		$this->Team->Division->Game->contain(array(
 				'GameSlot' => array('Field' => array('ParentField')),
 				'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $this->Session->read('Zuluru.TeamIDs'))),
 				'SpiritEntry',
@@ -612,7 +659,7 @@ class TeamsController extends AppController {
 					'conditions' => array('Attendance.team_id' => $id, 'Attendance.status' => ATTENDANCE_ATTENDING),
 				),
 		));
-		$team['Game'] = $this->Team->League->Game->find('all', array(
+		$team['Game'] = $this->Team->Division->Game->find('all', array(
 				'conditions' => array('OR' => array(
 						'Game.home_team' => $id,
 						'Game.away_team' => $id,
@@ -624,12 +671,12 @@ class TeamsController extends AppController {
 		}
 
 		// Sort games by date, time and field
-		usort ($team['Game'], array ('League', 'compareDateAndField'));
+		usort ($team['Game'], array ('Game', 'compareDateAndField'));
 
 		$this->set(compact('team'));
-		$this->set('is_coordinator', in_array($team['Team']['league_id'], $this->Session->read('Zuluru.LeagueIDs')));
+		$this->set('is_coordinator', in_array($team['Team']['division_id'], $this->Session->read('Zuluru.DivisionIDs')));
 		$this->set('is_captain', in_array($id, $this->Session->read('Zuluru.OwnedTeamIDs')));
-		$this->set('spirit_obj', $this->_getComponent ('Spirit', $team['League']['sotg_questions'], $this));
+		$this->set('spirit_obj', $this->_getComponent ('Spirit', $team['Division']['League']['sotg_questions'], $this));
 		$this->set('display_attendance', $team['Team']['track_attendance'] && in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')));
 		$this->_addTeamMenuItems ($this->Team->data);
 	}
@@ -641,17 +688,17 @@ class TeamsController extends AppController {
 			return;
 		}
 
-		$this->Team->contain (array ('League'));
+		$this->Team->contain(array ('Division' => 'League'));
 		$team = $this->Team->read(null, $id);
 		if ($team === false) {
 			return;
 		}
-		$this->Team->League->Game->contain (array(
+		$this->Team->Division->Game->contain(array(
 				'GameSlot' => array('Field' => array('ParentField')),
 				'HomeTeam',
 				'AwayTeam',
 		));
-		$team['Game'] = $this->Team->League->Game->find('all', array(
+		$team['Game'] = $this->Team->Division->Game->find('all', array(
 				'conditions' => array(
 					'Game.published' => true,
 					'OR' => array(
@@ -662,7 +709,7 @@ class TeamsController extends AppController {
 		));
 
 		// Sort games by date, time and field
-		usort ($team['Game'], array ('League', 'compareDateAndField'));
+		usort ($team['Game'], array ('Game', 'compareDateAndField'));
 		// Outlook only accepts the first event in a file, so we put the last game first
 		$team['Game'] = array_reverse ($team['Game']);
 
@@ -681,19 +728,19 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 
-		$this->Team->contain (array ('League'));
+		$this->Team->contain(array ('Division' => 'League'));
 		$team = $this->Team->read(null, $id);
 		if ($team === false) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
-		$this->Team->League->Game->contain (array(
+		$this->Team->Division->Game->contain(array(
 				'GameSlot',
 				'HomeTeam',
 				'AwayTeam',
 				'SpiritEntry',
 		));
-		$team['Game'] = $this->Team->League->Game->find('all', array(
+		$team['Game'] = $this->Team->Division->Game->find('all', array(
 				'conditions' => array('OR' => array(
 						'Game.home_team' => $id,
 						'Game.away_team' => $id,
@@ -705,10 +752,10 @@ class TeamsController extends AppController {
 		}
 
 		// Sort games by date, time and field
-		usort ($team['Game'], array ('League', 'compareDateAndField'));
+		usort ($team['Game'], array ('Game', 'compareDateAndField'));
 
 		$this->set(compact('team'));
-		$this->set('spirit_obj', $this->_getComponent ('Spirit', $team['League']['sotg_questions'], $this));
+		$this->set('spirit_obj', $this->_getComponent ('Spirit', $team['Division']['League']['sotg_questions'], $this));
 		$this->_addTeamMenuItems ($this->Team->data);
 	}
 
@@ -720,7 +767,7 @@ class TeamsController extends AppController {
 		}
 
 		$this->Team->contain(array(
-			'League' => array('Day'),
+			'Division' => array('Day', 'League'),
 			'Person' => array(
 				'conditions' => array('TeamsPerson.status' => ROSTER_APPROVED),
 			),
@@ -742,21 +789,21 @@ class TeamsController extends AppController {
 		$this->set(compact('holidays'));
 
 		$dates = array();
-		$days = Set::extract('/League/Day/id', $team);
-		for ($date = strtotime ($team['League']['open']); $date <= strtotime ($team['League']['close']) + DAY - 1; $date += DAY) {
+		$days = Set::extract('/Division/Day/id', $team);
+		for ($date = strtotime ($team['Division']['open']); $date <= strtotime ($team['Division']['close']) + DAY - 1; $date += DAY) {
 			$day = date('w', $date) + 1;
 			if (in_array ($day, $days) && !array_key_exists(date('Y-m-d', $date), $holidays)) {
 				$dates[] = date('Y-m-d', $date);
 			}
 		}
-		$attendance = $this->Team->League->Game->_read_attendance($team, null, $dates);
+		$attendance = $this->Team->Division->Game->_read_attendance($team, null, $dates);
 
-		$this->Team->League->Game->contain (array(
+		$this->Team->Division->Game->contain(array(
 			'GameSlot' => array('Field' => array('ParentField')),
 			'HomeTeam',
 			'AwayTeam',
 		));
-		$games = $this->Team->League->Game->find('all', array(
+		$games = $this->Team->Division->Game->find('all', array(
 				'conditions' => array(
 					'OR' => array(
 						'Game.home_team' => $id,
@@ -778,7 +825,7 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 
-		$this->Team->contain (array (
+		$this->Team->contain(array (
 			'Person' => array(
 				'fields' => array(
 					'Person.first_name', 'Person.last_name', 'Person.email',
@@ -808,7 +855,7 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 
-		$this->Team->contain('League');
+		$this->Team->contain(array('Division' => 'League'));
 		$team = $this->Team->read(null, $id);
 		if ($team === false) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
@@ -820,8 +867,8 @@ class TeamsController extends AppController {
 		$this->_limitOverride($id);
 		$this->set('is_coordinator', $this->effective_coordinator);
 
-		if (!$this->effective_admin && $team['League']['roster_deadline'] < date('Y-m-d')) {
-			$this->Session->setFlash(__('The roster deadline for this league has already passed.', true), 'default', array('class' => 'info'));
+		if (!$this->effective_admin && $team['Division']['roster_deadline'] < date('Y-m-d')) {
+			$this->Session->setFlash(__('The roster deadline for this division has already passed.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $id));
 		}
 
@@ -846,16 +893,16 @@ class TeamsController extends AppController {
 		}
 		$this->set(compact('url'));
 
-		$this->Team->Person->contain (array (
+		$this->Team->Person->contain(array (
 			'Team' => array(
-				'League',
+				'Division' => 'League',
 				'order' => 'Team.id desc',
 			),
 		));
 		$teams = $this->Team->Person->read(null, $this->Auth->User('id'));
-		// Only show teams from leagues that have some schedule type
+		// Only show teams from divisions that have some schedule type
 		// TODO: May need to change this once we can schedule playoffs
-		$teams = Set::extract("/League[id!={$team['Team']['league_id']}][schedule_type!=none]/..", $teams['Team']);
+		$teams = Set::extract("/Division[id!={$team['Team']['division_id']}][schedule_type!=none]/..", $teams['Team']);
 		$this->set(compact('teams'));
 
 		// Admins and coordinators get to add people based on registration events
@@ -885,7 +932,7 @@ class TeamsController extends AppController {
 		}
 
 		// Read the current team roster, just need the ids
-		$this->Team->contain (array (
+		$this->Team->contain(array (
 			'Person' => array(
 				'fields' => array(
 					'Person.id',
@@ -894,8 +941,9 @@ class TeamsController extends AppController {
 			),
 			'Franchise',
 			// We need league information for sending out invites, may as well read it now
-			'League' => array(
+			'Division' => array(
 				'Day',
+				'League',
 			),
 		));
 		$team = $this->Team->read(null, $id);
@@ -903,6 +951,7 @@ class TeamsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Team->Division->addPlayoffs($team);
 		$this->_limitOverride($id);
 
 		// Only include people that aren't yet on the new roster
@@ -913,8 +962,8 @@ class TeamsController extends AppController {
 			$conditions = array('Person.id NOT' => $current);
 		}
 		// Read the old team roster
-		$this->Team->contain (array (
-			'League',
+		$this->Team->contain(array (
+			'Division' => 'League',
 			'Person' => array(
 				'fields' => array(
 					'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.status',
@@ -986,15 +1035,16 @@ class TeamsController extends AppController {
 		}
 
 		// Read the current team roster, just need the ids
-		$this->Team->contain (array (
+		$this->Team->contain(array (
 			'Person' => array(
 				'fields' => array(
 					'Person.id',
 				),
 			),
 			// We need league information for sending out invites, may as well read it now
-			'League' => array(
+			'Division' => array(
 				'Day',
+				'League',
 			),
 		));
 		$team = $this->Team->read(null, $id);
@@ -1002,28 +1052,20 @@ class TeamsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Team->Division->addPlayoffs($team);
 		$this->_limitOverride($id);
 		$current = Set::extract('/Person/id', $team);
 
-		// Find "similar" leagues
-		$this->Team->League->contain(array(
-				'Day' => array(
-					'conditions' => array('Day.id' => Set::extract('/League/Day/id', $team)),
-				),
-		));
-		$leagues = $this->Team->League->find('all', array(
+		// Find other divisions in the same league
+		$this->Team->Division->contain();
+		$divisions = $this->Team->Division->find('all', array(
 				'conditions' => array(
-					'League.year' => $team['League']['year'],
-					'League.season' => $team['League']['season'],
+					'Division.league_id' => $team['Division']['league_id'],
+					'Division.id !=' => $team['Division']['id'],
 				),
 		));
-		foreach ($leagues as $key => $league) {
-			if (empty($league['Day'])) {
-				unset($leagues[$key]);
-			}
-		}
 
-		if (!empty($leagues)) {
+		if (!empty($divisions)) {
 			$this->Team->contain(array(
 					'Person' => array(
 						'fields' => array(
@@ -1031,12 +1073,12 @@ class TeamsController extends AppController {
 						),
 					),
 			));
-			$teams = $this->Team->find('all', array('conditions' => array('Team.league_id' => Set::extract('/League/id', $leagues))));
+			$teams = $this->Team->find('all', array('conditions' => array('Team.division_id' => Set::extract('/Division/id', $divisions))));
 			$current = array_merge ($current, Set::extract('/Person/id', $teams));
 		}
 
 		// Only include people that aren't yet on the new roster
-		// or the roster of a team in a similar league
+		// or the roster of another team in the same league
 		$conditions = array(
 			'Registration.event_id' => $this->data['event'],
 			'Registration.payment' => 'Paid',
@@ -1044,7 +1086,7 @@ class TeamsController extends AppController {
 		);
 
 		// Read the list of registrations
-		$this->Team->Person->Registration->contain (array (
+		$this->Team->Person->Registration->contain(array (
 			'Person' => array(
 				'fields' => array(
 					'Person.id', 'Person.gender', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.status',
@@ -1131,7 +1173,7 @@ class TeamsController extends AppController {
 			}
 		}
 
-		$roster_options = $this->_rosterOptions ($position, $team);
+		$roster_options = $this->_rosterOptions ($position, $team, $person_id);
 
 		if (!empty($this->data)) {
 			if (!array_key_exists ($this->data['Person']['position'], $roster_options)) {
@@ -1188,9 +1230,9 @@ class TeamsController extends AppController {
 			}
 		}
 
-		$roster_options = $this->_rosterOptions ('none', $team);
+		$roster_options = $this->_rosterOptions ('none', $team, $person_id);
 		$adding = ($can_add === true &&
-			($team['League']['roster_method'] == 'add' || $this->effective_admin));
+			($team['Division']['roster_method'] == 'add' || $this->effective_admin));
 
 		$this->set(compact('person', 'team', 'roster_options', 'can_add', 'adding'));
 	}
@@ -1220,7 +1262,7 @@ class TeamsController extends AppController {
 		// We're not already on this team, so the "effective" calculations won't
 		// have blocked us, but we still don't want to give overrides for joining.
 		$this->effective_admin = $this->effective_coordinator = false;
-		$roster_options = $this->_rosterOptions ('none', $team);
+		$roster_options = $this->_rosterOptions ('none', $team, $my_id);
 
 		if (!empty($this->data)) {
 			if (!array_key_exists ($this->data['Person']['position'], $roster_options)) {
@@ -1398,7 +1440,7 @@ class TeamsController extends AppController {
 		}
 
 		// Read the team record
-		$this->Team->contain (array (
+		$this->Team->contain(array(
 			'Person' => array(
 				'fields' => array(
 					'Person.id',
@@ -1412,11 +1454,13 @@ class TeamsController extends AppController {
 			),
 			'Franchise',
 			// We need league information for sending out invites, may as well read it now
-			'League' => array(
+			'Division' => array(
 				'Day',
+				'League',
 			),
 		));
 		$team = $this->Team->read(null, $team_id);
+		$this->Team->Division->addPlayoffs($team);
 
 		// Pull out the player record from the team, and make
 		// it look as if we just read it
@@ -1429,16 +1473,21 @@ class TeamsController extends AppController {
 		// of admins when managing teams they are on.
 		$this->_limitOverride($team_id);
 
-		if (!$this->effective_admin && $team['League']['roster_deadline'] < date('Y-m-d')) {
-			$this->Session->setFlash(__('The roster deadline for this league has already passed.', true), 'default', array('class' => 'info'));
+		if (!$this->effective_admin && $team['Division']['roster_deadline'] < date('Y-m-d')) {
+			$this->Session->setFlash(__('The roster deadline for this division has already passed.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
 		return array($team, $person);
 	}
 
-	function _rosterOptions ($position, $team) {
-		$roster_options = Configure::read('options.roster_position');
+	function _rosterOptions ($position, $team, $person_id) {
+		// Some special handling for playoff teams
+		if ($team['Division']['is_playoff']) {
+			$roster_options = $this->_playoffRosterOptions ($position, $team, $person_id);
+		} else {
+			$roster_options = Configure::read('options.roster_position');
+		}
 
 		// People that aren't on the team can't be "changed to" not on the team
 		if ($position == 'none' || $position === null) {
@@ -1474,6 +1523,27 @@ class TeamsController extends AppController {
 		return $roster_options;
 	}
 
+	function _playoffRosterOptions ($position, $team, $person_id) {
+		$roster_options = Configure::read('options.roster_position');
+
+		$affiliate_id = $this->_getAffiliateId($team['Division'], $team);
+		if ($affiliate_id !== null) {
+			$this->Team->contain(array(
+					'Person' => array('conditions' => array('Person.id' => $person_id))
+			));
+			$affiliate = $this->Team->read(null, $affiliate_id);
+
+			// If the person wasn't on the affiliated team roster, then
+			// they cannot take a "normal" position on the playoff roster.
+			if (empty ($affiliate['Person'])) {
+				foreach (Configure::read('playing_roster_positions') as $position) {
+					unset ($roster_options[$position]);
+				}
+			}
+		}
+		return $roster_options;
+	}
+
 	function _setRosterPosition ($person, $team, $position, $status) {
 		if (!isset($this->Roster)) {
 			$this->Roster = ClassRegistry::init ('TeamsPerson');
@@ -1506,7 +1576,7 @@ class TeamsController extends AppController {
 		if ($can_add === true) {
 			// Under certain circumstances, an invite is changed to an add
 			if ($status === ROSTER_INVITED &&
-				($team['League']['roster_method'] == 'add' || $this->effective_admin) &&
+				($team['Division']['roster_method'] == 'add' || $this->effective_admin) &&
 				// TODO: Rather than this, maybe somehow check if they were on the affiliate roster
 				in_array($position, Configure::read('playing_roster_positions')))
 			{
@@ -1580,17 +1650,17 @@ class TeamsController extends AppController {
 		}
 
 		// Maybe use the rules engine to decide if this person can be added to this roster
-		if (array_key_exists ('roster_rule', $team['League']) && !empty ($team['League']['roster_rule'])) {
+		if (array_key_exists ('roster_rule', $team['Division']) && !empty ($team['Division']['roster_rule'])) {
 			if (!isset($this->can_add_rule_obj)) {
 				$this->can_add_rule_obj = AppController::_getComponent ('Rule', '', $this, true);
-				if (!$this->can_add_rule_obj->init ($team['League']['roster_rule'])) {
+				if (!$this->can_add_rule_obj->init ($team['Division']['roster_rule'])) {
 					return __('Failed to parse the rule', true);
 				}
 			}
 
 			if (!array_key_exists('Registration', $person['Person']) || !array_key_exists('Team', $person['Person'])) {
 				// Get everything from the user record that the rule might need
-				$this->Team->Person->contain (array (
+				$this->Team->Person->contain(array(
 					'Registration' => array(
 						'Event' => array(
 							'EventType',
@@ -1598,7 +1668,7 @@ class TeamsController extends AppController {
 						'conditions' => array('Registration.payment' => 'paid'),
 					),
 					'Team' => array(
-						'League',
+						'Division' => 'League',
 						'TeamsPerson',
 						'Franchise',
 						'conditions' => array('Team.id !=' => $team['Team']['id']),
@@ -1626,7 +1696,7 @@ class TeamsController extends AppController {
 		}
 
 		if ($position !== null && $status != ROSTER_INVITED) {
-			$roster_options = $this->_rosterOptions (null, $team);
+			$roster_options = $this->_rosterOptions (null, $team, $person['Person']['id']);
 			if (!array_key_exists ($position, $roster_options)) {
 				return __('You are not allowed to invite someone to that position.', true);
 			}
@@ -1639,7 +1709,7 @@ class TeamsController extends AppController {
 	// for example denying non-members the ability to be invited onto rosters
 	function _canInvite ($person, $team, $position = null) {
 		if ($position !== null) {
-			$roster_options = $this->_rosterOptions (null, $team);
+			$roster_options = $this->_rosterOptions (null, $team, $person['Person']['id']);
 			if (!array_key_exists ($position, $roster_options)) {
 				return __('You are not allowed to invite someone to that position.', true);
 			}
@@ -1909,14 +1979,15 @@ class TeamsController extends AppController {
 		$this->set (array(
 			'person' => $person['Person'],
 			'team' => $team['Team'],
-			'league' => $team['League'],
+			'division' => $team['Division'],
+			'league' => $team['Division']['League'],
 			'position' => $position,
 		));
 	}
 
 	function _initRosterCaptains ($team) {
 		// Find the list of captains and assistants for the team
-		$this->Team->contain (array(
+		$this->Team->contain(array(
 			'Person' => array(
 				'conditions' => array(
 					'TeamsPerson.position' => Configure::read('privileged_roster_positions'),
@@ -1948,9 +2019,13 @@ class TeamsController extends AppController {
 					),
 					'contain' => array(
 						'Team' => array(
-							'League' => array(
+							'Division' => array(
 								'Day',
-								'fields' => array('League.id', 'League.name', 'League.open', 'League.ratio', 'League.roster_deadline'),
+								'League',
+								'fields' => array(
+									'Division.id', 'Division.name', 'Division.open', 'Division.ratio', 'Division.roster_deadline',
+									'League.id', 'League.name',
+								),
 							),
 							'Person' => array(
 								'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),

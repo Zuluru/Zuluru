@@ -68,21 +68,21 @@ class EventsController extends AppController {
 			$this->redirect(array('action' => 'wizard'));
 		}
 
-		// Extract some more details, if it's a league registration
-		if (array_key_exists ('team_league', $event['Event']) && $event['Event']['team_league'] != null) {
-			$league = ClassRegistry::init ('League');
-			$league->contain (array(
-					'LeagueGameslotAvailability' => array(
+		// Extract some more details, if it's a division registration
+		if (array_key_exists ('team_division', $event['Event']) && $event['Event']['team_division'] != null) {
+			$division = ClassRegistry::init ('Division');
+			$division->contain (array(
+					'DivisionGameslotAvailability' => array(
 						'GameSlot' => array(
 							'Field' => 'ParentField',
 						),
 					),
 			));
-			$event += $league->read(null, $event['Event']['team_league']);
+			$event += $division->read(null, $event['Event']['team_division']);
 
 			// Find the list of sites and time slots
 			$sites = $times = array();
-			foreach ($event['LeagueGameslotAvailability'] as $avail) {
+			foreach ($event['DivisionGameslotAvailability'] as $avail) {
 				$slot = $avail['GameSlot'];
 				if ($slot['Field']['parent_id'] === null) {
 					$sites[$slot['Field']['id']] = $slot['Field']['name'];

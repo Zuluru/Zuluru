@@ -39,20 +39,20 @@ $this->Html->addCrumb (__('View', true));
 	</ul>
 </div>
 
-<?php if (!empty($gameSlot['LeagueGameslotAvailability'])):?>
+<?php if (!empty($gameSlot['DivisionGameslotAvailability'])):?>
 <div class="related">
-	<h3><?php __('Available to Leagues');?></h3>
+	<h3><?php __('Available to Divisions');?></h3>
 	<table class="list">
 	<?php
 		$i = 0;
-		foreach ($gameSlot['LeagueGameslotAvailability'] as $league):
+		foreach ($gameSlot['DivisionGameslotAvailability'] as $division):
 			$class = null;
 			if ($i++ % 2 == 0) {
 				$class = ' class="altrow"';
 			}
 		?>
 		<tr<?php echo $class;?>>
-			<td><?php echo $this->Html->link($league['League']['long_name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $league['League']['id']));?></td>
+			<td><?php echo $this->Html->link($division['Division']['full_league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $division['Division']['id']));?></td>
 		</tr>
 		<?php endforeach; ?>
 	</table>

@@ -3,7 +3,7 @@
 $spirit = $this->element ("spirit/input/{$spirit_obj->render_element}",
 	compact ('team_id', 'created_team_id', 'game', 'spirit_obj'));
 
-if ($game['League']['numeric_sotg']) {
+if ($game['Division']['League']['numeric_sotg']) {
 	if (!isset ($opts))
 		$opts = array();
 	else if (!is_array($opts))

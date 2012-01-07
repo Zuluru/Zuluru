@@ -189,10 +189,10 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 		?>
 		<tr<?php echo $class;?>>
 			<td><?php
-			echo $this->element('people/roster', array('roster' => $team['TeamsPerson'], 'league' => $team['League'])) .
+			echo $this->element('people/roster', array('roster' => $team['TeamsPerson'], 'division' => $team['Division'])) .
 				' ' . __('on', true) . ' ' .
 				$this->element('teams/block', array('team' => $team['Team'])) .
-				' (' . $this->Html->link($team['League']['name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $team['League']['id'])) . ')';
+				' (' . $this->Html->link($team['Division']['league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])) . ')';
 			?></td>
 		</tr>
 		<?php endforeach; ?>
