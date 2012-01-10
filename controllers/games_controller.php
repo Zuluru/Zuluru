@@ -1359,7 +1359,7 @@ class GamesController extends AppController {
 						'Division.finalize_after >' => 0,
 					)),
 				),
-				'order' => array('League.id', 'Division.id', 'GameSlot.game_date', 'GameSlot.game_start', 'Game.id'),
+				'order' => array('Division.id', 'GameSlot.game_date', 'GameSlot.game_start', 'Game.id'),
 		));
 
 		$this->Game->_adjustEntryIndices($games);

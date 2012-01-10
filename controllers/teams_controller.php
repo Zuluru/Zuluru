@@ -2059,13 +2059,13 @@ class TeamsController extends AppController {
 				if (!empty ($sent)) {
 					$age = time() - strtotime ($sent[0]['ActivityLog']['created']);
 					if ($age > $expire) {
-						$success = $this->_rosterExpire($person['Person'], $person['Team']['Person'], $person['Team'], $person['Team']['League'], $person['TeamsPerson']);
+						$success = $this->_rosterExpire($person['Person'], $person['Team']['Person'], $person['Team'], $person['Team']['Division'], $person['TeamsPerson']);
 						if ($success) {
 							$activity[] = $conditions;
 							++$expired;
 						}
 					} else if ($age > $second && count($sent) < 2) {
-						$success = $this->_rosterRemind($person['Person'], $person['Team']['Person'], $person['Team'], $person['Team']['League'], $person['TeamsPerson'], true);
+						$success = $this->_rosterRemind($person['Person'], $person['Team']['Person'], $person['Team'], $person['Team']['Division'], $person['TeamsPerson'], true);
 						if ($success) {
 							$activity[] = $conditions;
 							++$reminded;
@@ -2074,7 +2074,7 @@ class TeamsController extends AppController {
 						++$outstanding;
 					}
 				} else {
-					$success = $this->_rosterRemind($person['Person'], $person['Team']['Person'], $person['Team'], $person['Team']['League'], $person['TeamsPerson']);
+					$success = $this->_rosterRemind($person['Person'], $person['Team']['Person'], $person['Team'], $person['Team']['Division'], $person['TeamsPerson']);
 					if ($success) {
 						$activity[] = $conditions;
 						++$emailed;
@@ -2092,9 +2092,9 @@ class TeamsController extends AppController {
 		$this->Lock->unlock();
 	}
 
-	function _rosterRemind($person, $captains, $team, $league, $roster, $second = false) {
+	function _rosterRemind($person, $captains, $team, $division, $roster, $second = false) {
 		$code = $this->_hash($roster);
-		$this->set(compact('person', 'team', 'league', 'roster', 'code'));
+		$this->set(compact('person', 'team', 'division', 'roster', 'code'));
 		$this->set ('captains', implode (', ', Set::extract ('/first_name', $captains)));
 		$this->set ('days', ($second ? 2 : 7));
 
@@ -2157,13 +2157,13 @@ class TeamsController extends AppController {
 		return true;
 	}
 
-	function _rosterExpire($person, $captains, $team, $league, $roster) {
+	function _rosterExpire($person, $captains, $team, $division, $roster) {
 		// Delete the invite/request
 		if (!$this->Roster->delete($roster['id'], false)) {
 			return false;
 		}
 
-		$this->set(compact('person', 'team', 'league', 'roster'));
+		$this->set(compact('person', 'team', 'division', 'roster'));
 		$this->set ('captains', implode (', ', Set::extract ('/first_name', $captains)));
 
 		if ($roster['status'] == ROSTER_INVITED) {
