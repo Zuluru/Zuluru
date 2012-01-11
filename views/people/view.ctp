@@ -288,9 +288,9 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 			}
 		?>
 		<tr<?php echo $class;?>>
-			<td><?php echo $preregistration['event_id'];?></td>
+			<td><?php echo $this->Html->link($preregistration['Event']['name'], array('controller' => 'events', 'action' => 'view', 'event' => $preregistration['Event']['id']));?></td>
 			<td class="actions">
-				<?php echo $this->Html->link(__('Delete', true), array('controller' => 'preregistrations', 'action' => 'delete', 'prereg' => $preregistration['registration_id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $preregistration['registration_id'])); ?>
+				<?php echo $this->Html->link(__('Delete', true), array('controller' => 'preregistrations', 'action' => 'delete', 'prereg' => $preregistration['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $preregistration['id'])); ?>
 			</td>
 		</tr>
 		<?php endforeach; ?>

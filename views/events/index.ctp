@@ -64,6 +64,7 @@ foreach ($events as $event):
 			<?php echo $this->Html->link(__('Edit', true), array('action' => 'edit', 'event' => $event['Event']['id'])); ?>
 			<?php echo $this->Html->link(__('Delete', true), array('action' => 'delete', 'event' => $event['Event']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $event['Event']['id'])); ?>
 			<?php echo $this->Html->link(__('Summary', true), array('controller' => 'registrations', 'action' => 'summary', 'event' => $event['Event']['id'])); ?>
+			<?php echo $this->Html->link(__('Add Preregistration', true), array('controller' => 'preregistrations', 'action' => 'add', 'event' => $event['Event']['id'])); ?>
 		</td>
 <?php endif; ?>
 	</tr>

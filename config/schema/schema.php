@@ -317,9 +317,10 @@ class ZuluruSchema extends CakeSchema {
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $preregistrations = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
 		'event_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
-		'indexes' => array('user_id' => array('column' => array('person_id', 'event_id'), 'unique' => 0)),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'person' => array('column' => 'person_id', 'unique' => 0), 'event' => array('column' => 'event_id', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $provinces = array(

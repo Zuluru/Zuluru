@@ -168,7 +168,7 @@ class Person extends User {
 						'fields' => array('id', 'name'),
 					),
 				),
-				'Preregistration',
+				'Preregistration' => 'Event',
 			));
 		}
 		$this->contain($contain);

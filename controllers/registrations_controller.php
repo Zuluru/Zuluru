@@ -729,9 +729,6 @@ class RegistrationsController extends AppController {
 		}
 	}
 
-	function preregistrations() { // TODO
-	}
-
 	function unpaid() {
 		$this->Registration->contain (array(
 			'Event' => array('EventType'),

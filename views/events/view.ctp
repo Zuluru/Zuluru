@@ -149,8 +149,8 @@ else:
 		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Event', true)), array('action' => 'edit', 'event' => $event['Event']['id'])); ?> </li>
 		<li><?php echo $this->Html->link(sprintf(__('Delete %s', true), __('Event', true)), array('action' => 'delete', 'event' => $event['Event']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $event['Event']['id'])); ?> </li>
 		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Questionnaire', true)), array('controller' => 'questionnaires', 'action' => 'edit', 'questionnaire' => $event['Event']['questionnaire_id'])); ?> </li>
-		<li><?php echo $this->Html->link(sprintf(__('List %s', true), __('Preregistrations', true)), array('controller' => 'registrations', 'action' => 'preregistrations', 'event' => $event['Event']['id'])); ?> </li>
-		<li><?php echo $this->Html->link(sprintf(__('New %s', true), __('Preregistration', true)), array('controller' => 'registrations', 'action' => 'preregister', 'event' => $event['Event']['id'])); ?> </li>
+		<li><?php echo $this->Html->link(sprintf(__('List %s', true), __('Preregistrations', true)), array('controller' => 'preregistrations', 'action' => 'index', 'event' => $event['Event']['id'])); ?> </li>
+		<li><?php echo $this->Html->link(sprintf(__('New %s', true), __('Preregistration', true)), array('controller' => 'preregistrations', 'action' => 'add', 'event' => $event['Event']['id'])); ?> </li>
 		<li><?php echo $this->Html->link(sprintf(__('%s Summary', true), __('Registration', true)), array('controller' => 'registrations', 'action' => 'summary', 'event' => $event['Event']['id'])); ?> </li>
 		<li><?php echo $this->Html->link(sprintf(__('Detailed %s List', true), __('Registration', true)), array('controller' => 'registrations', 'action' => 'full_list', 'event' => $event['Event']['id'])); ?> </li>
 		<li><?php echo $this->Html->link(sprintf(__('Download %s List', true), __('Registration', true)), array('controller' => 'registrations', 'action' => 'full_list', 'event' => $event['Event']['id'], 'ext' => 'csv')); ?> </li>
@@ -179,7 +179,7 @@ else:
 			<td><?php echo $preregistration['person_id'];?></td>
 			<td><?php echo $preregistration['event_id'];?></td>
 			<td class="actions">
-				<?php echo $this->Html->link(__('Delete', true), array('controller' => 'preregistrations', 'action' => 'delete', $preregistration['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $preregistration['id'])); ?>
+				<?php echo $this->Html->link(__('Delete', true), array('controller' => 'preregistrations', 'action' => 'delete', 'prereg' => $preregistration['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $preregistration['id'])); ?>
 			</td>
 		</tr>
 	<?php endforeach; ?>

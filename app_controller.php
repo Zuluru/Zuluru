@@ -333,7 +333,8 @@ class AppController extends Controller {
 				$this->_addMenuItem ('My history', array('controller' => 'people', 'action' => 'registrations'), 'Registration');
 			}
 			if ($this->is_admin) {
-				$this->_addMenuItem ('Preregistrations', array('controller' => 'events', 'action' => 'preregistrations'), 'Registration');
+				$this->_addMenuItem ('Preregistrations', array('controller' => 'preregistrations', 'action' => 'index'), 'Registration');
+				$this->_addMenuItem ('Add', array('controller' => 'preregistrations', 'action' => 'add'), array('Registration', 'Preregistrations'));
 				$this->_addMenuItem ('Unpaid', array('controller' => 'registrations', 'action' => 'unpaid'), 'Registration');
 				$this->_addMenuItem ('Report', array('controller' => 'registrations', 'action' => 'report'), 'Registration');
 				$this->_addMenuItem ('Create event', array('controller' => 'events', 'action' => 'add'), 'Registration');
