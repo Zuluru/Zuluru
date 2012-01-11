@@ -10,7 +10,7 @@ endif;
 if (isset($game)) {
 	$url = Router::url(array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id']), true);
 	echo ' against ' . $opponent['name'] .
-		" at {$game['GameSlot']['Field']['name']} {$game['GameSlot']['Field']['num']} ($url)" .
+		" at {$game['GameSlot']['Field']['long_name']} ($url)" .
 		' starting at ' . $this->ZuluruTime->time($game['GameSlot']['game_start']);
 	$arg = 'game';
 	$val = $game['Game']['id'];
