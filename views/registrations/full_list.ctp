@@ -74,8 +74,6 @@ foreach ($registrations as $registration):
 
 </div>
 
-<?php endif; ?>
-
 <div class="actions">
 	<ul>
 		<li><?php echo $this->Html->link(sprintf(__('View %s', true), __('Event', true)), array('controller' => 'events', 'action' => 'view', 'event' => $event['Event']['id'])); ?> </li>
@@ -83,3 +81,5 @@ foreach ($registrations as $registration):
 		<li><?php echo $this->Html->link(sprintf(__('Download %s List', true), __('Registration', true)), array('action' => 'full_list', 'event' => $event['Event']['id'], 'ext' => 'csv')); ?> </li>
 	</ul>
 </div>
+
+<?php endif; ?>
