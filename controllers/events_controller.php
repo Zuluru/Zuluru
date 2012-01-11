@@ -26,13 +26,23 @@ class EventsController extends AppController {
 		}
 		$id = $this->Auth->user('id');
 
+		// Find any preregistrations
+		$prereg = $this->Event->Preregistration->find('list', array(
+			'conditions' => array('person_id' => $id),
+			'fields' => array('id', 'event_id'),
+		));
+
 		// Find all the events that are potentially available
-		// TODO: Include preregistrations in this query
 		// TODO: Eliminate the events that don't match the step, if any
 		$events = $this->Event->find('all', array(
 			'conditions' => array(
-				'Event.open < DATE_ADD(CURDATE(), INTERVAL 30 DAY)',
-				'Event.close > CURDATE()',
+				'OR' => array(
+					array(
+						'Event.open < DATE_ADD(CURDATE(), INTERVAL 30 DAY)',
+						'Event.close > CURDATE()',
+					),
+					'Event.id' => $prereg,
+				),
 			),
 			'order' => array('Event.event_type_id', 'Event.open', 'Event.close', 'Event.id'),
 			'contain' => array('EventType'),

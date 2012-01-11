@@ -27,7 +27,7 @@ class CanRegisterComponent extends Object
 					'conditions' => array('payment !=' => 'Refunded'),
 					'order' => 'payment DESC',	// This only works because Unpaid > Pending > Paid
 				),
-				'Preregistration' => array('conditions' => array('event_id' => $event['Event']['id'])),
+				'Preregistration',
 			));
 			$this->person = $this->controller->Person->read(null, $user_id);
 		}
@@ -107,7 +107,8 @@ class CanRegisterComponent extends Object
 		}
 
 		// If there is a preregistration record, we ignore open and close times.
-		if (empty ($this->person['Preregistration'])) {
+		$prereg = Set::extract ("/Preregistration[event_id={$event['Event']['id']}]", $this->person);
+		if (empty ($prereg)) {
 			// Admins can test registration before it opens...
 			if (!$this->controller->is_admin) {
 				if (strtotime ($event['Event']['open']) > time()) {
