@@ -80,6 +80,20 @@ class AppModel extends Model {
 	 * Adjust the indices of the provided array, so that the
 	 * array is indexed by a specified id instead of from zero.
 	 *
+	 * This version is for data like
+	 * array(
+	 *		0 => array(
+	 *			'ParentModel' => array(...),
+	 *			'Model' = array(
+	 *				0 => array(fields),
+	 *				1 => array(fields),
+	 *				2 => array(fields),
+	 *			),
+	 *		),
+	 *		1 => array(
+	 *			...
+	 *		),
+	 * );
 	 */
 	static function _reindexInner(&$data, $model, $field) {
 		if (empty ($data)) {
@@ -101,6 +115,17 @@ class AppModel extends Model {
 		}
 	}
 
+	/**
+	 * Adjust the indices of the provided array, so that the
+	 * array is indexed by a specified id instead of from zero.
+	 *
+	 * This version is for data like
+	 * array(
+	 *		0 => array('Model' = array(fields)),
+	 *		1 => array('Model' = array(fields)),
+	 *		2 => array('Model' = array(fields)),
+	 * );
+	 */
 	static function _reindexOuter(&$data, $model, $field) {
 		if (empty ($data)) {
 			return;
