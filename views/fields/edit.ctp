@@ -1,17 +1,24 @@
+<?php
+$this->Html->addCrumb (__('Fields', true));
+$this->Html->addCrumb ($this->data['Facility']['name']);
+if (isset ($add)) {
+	$this->Html->addCrumb (__('Create', true));
+} else {
+	$this->Html->addCrumb (__('Edit', true));
+}
+?>
+
 <div class="fields form">
 <?php echo $this->Form->create('Field', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
  		<legend><?php printf(__('Edit %s', true), __('Field', true)); ?></legend>
 		<?php
-		echo $this->Form->input('id');
-
-		if (empty ($this->data['Field']['parent_id'])) {
-			echo $this->ZuluruForm->input('name');
-			echo $this->ZuluruForm->input('code');
-			echo $this->Form->hidden('parent_id', array('value' => null));
-		} else {
-			echo $this->ZuluruForm->input('parent_id');
+		if (!isset ($add)) {
+			echo $this->Form->input('id');
 		}
+		echo $this->ZuluruForm->hidden('Facility.name');
+		echo $this->ZuluruForm->hidden('Field.facility_id');
+
 		echo $this->ZuluruForm->input('num', array('label' => 'Number'));
 		echo $this->ZuluruForm->input('is_open');
 		echo $this->ZuluruForm->input('indoor');
@@ -19,41 +26,16 @@
 				'options' => Configure::read('options.field_rating'),
 				'empty' => '---',
 		));
-		if (empty ($this->data['Field']['parent_id'])) {
-			echo $this->ZuluruForm->input('location_street', array('label' => 'Address'));
-			echo $this->ZuluruForm->input('location_city', array('label' => 'City'));
-			echo $this->ZuluruForm->input('location_province', array(
-					'label' => 'Province',
-					'options' => $provinces,
-					'empty' => '---',
-			));
-			echo $this->ZuluruForm->input('region_id');
-			echo $this->ZuluruForm->input('driving_directions', array('cols' => 70, 'class' => 'mceSimple'));
-			echo $this->ZuluruForm->input('parking_details', array('cols' => 70, 'class' => 'mceSimple'));
-			echo $this->ZuluruForm->input('transit_directions', array('cols' => 70, 'class' => 'mceSimple'));
-			echo $this->ZuluruForm->input('biking_directions', array('cols' => 70, 'class' => 'mceSimple'));
-			echo $this->ZuluruForm->input('washrooms', array('cols' => 70, 'class' => 'mceSimple'));
-			echo $this->ZuluruForm->input('public_instructions', array('cols' => 70, 'class' => 'mceSimple'));
-			echo $this->ZuluruForm->input('site_instructions', array('cols' => 70, 'class' => 'mceSimple'));
-			echo $this->ZuluruForm->input('sponsor', array('cols' => 70, 'class' => 'mceAdvanced'));
-			echo $this->ZuluruForm->input('location_url');
-			echo $this->ZuluruForm->input('layout_url');
-		}
+		echo $this->ZuluruForm->input('layout_url');
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
+<?php if (!isset ($add)): ?>
 <div class="actions">
 	<ul>
-<?php if (!empty ($this->data['Field']['parent_id'])): ?>
-		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Parent', true)), array('action' => 'edit', 'field' => $this->data['Field']['parent_id']));?></li>
-<?php endif; ?>
+		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Facility', true)), array('controller' => 'facilities', 'action' => 'edit', 'facility' => $this->data['Field']['facility_id']));?></li>
 		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Layout', true)), array('controller' => 'maps', 'action' => 'edit', 'field' => $this->data['Field']['id']));?></li>
 	</ul>
 </div>
-<?php
-if (Configure::read('feature.tiny_mce')) {
-	$this->TinyMce->editor('simple');
-	$this->TinyMce->editor('advanced');
-}
-?>
+<?php endif; ?>

@@ -34,11 +34,11 @@ if ($region_prefs) :
 <?php
 endif;
 
-$regions = count (array_unique (Set::extract ('/Region/name', $fields)));
+$regions = count (array_unique (Set::extract ('/Region/name', array_values($facilities))));
 $count = 0;
 $last_region = null;
-foreach ($fields as $field) {
-	if ($last_region == $field['Region']['name']) {
+foreach ($facilities as $facility) {
+	if ($last_region == $facility['Region']['name']) {
 		++ $count;
 	} else {
 		if ($count) {
@@ -48,13 +48,13 @@ foreach ($fields as $field) {
 			}
 			echo $this->Html->tag ('th', $last_region, array('colspan' => $count));
 		}
-		$last_region = $field['Region']['name'];
+		$last_region = $facility['Region']['name'];
 		$count = 1;
 	}
-	$heading[] = $this->Html->link ($field['Field']['code'],
-					array('controller' => 'fields', 'action' => 'view', 'field' => $field['Field']['id']),
-					array('title' => $field['Field']['name'])) .
-			' ' . $this->ZuluruTime->time ($field['GameSlot']['game_start']);
+	$heading[] = $this->Html->link ($facility['Facility']['code'],
+					array('controller' => 'facilities', 'action' => 'view', 'facility' => $facility['Facility']['id']),
+					array('title' => $facility['Facility']['name'])) .
+			' ' . $this->ZuluruTime->time ($facility['GameSlot']['game_start']);
 }
 if ($count) {
 	if ($regions > 1) {
@@ -72,29 +72,29 @@ if ($count) {
 <tbody>
 
 <?php
-// Count number of games per field for each team
+// Count number of games per facility for each team
 $team_count = array();
-$field_count = array();
+$facility_count = array();
 foreach ($division['Game'] as $game) {
 	foreach (array('home_team', 'away_team') as $team) {
 		if (!array_key_exists ($game[$team], $team_count)) {
 			$team_count[$game[$team]] = array();
 		}
-		if (!array_key_exists ($game['GameSlot']['Field']['code'], $team_count[$game[$team]])) {
-			$team_count[$game[$team]][$game['GameSlot']['Field']['code']] = array();
+		if (!array_key_exists ($game['GameSlot']['Field']['Facility']['code'], $team_count[$game[$team]])) {
+			$team_count[$game[$team]][$game['GameSlot']['Field']['Facility']['code']] = array();
 		}
-		if (!array_key_exists ($game['GameSlot']['game_start'], $team_count[$game[$team]][$game['GameSlot']['Field']['code']])) {
-			$team_count[$game[$team]][$game['GameSlot']['Field']['code']][$game['GameSlot']['game_start']] = 0;
+		if (!array_key_exists ($game['GameSlot']['game_start'], $team_count[$game[$team]][$game['GameSlot']['Field']['Facility']['code']])) {
+			$team_count[$game[$team]][$game['GameSlot']['Field']['Facility']['code']][$game['GameSlot']['game_start']] = 0;
 		}
-		++ $team_count[$game[$team]][$game['GameSlot']['Field']['code']][$game['GameSlot']['game_start']];
+		++ $team_count[$game[$team]][$game['GameSlot']['Field']['Facility']['code']][$game['GameSlot']['game_start']];
 	}
-	if (!array_key_exists ($game['GameSlot']['Field']['code'], $field_count)) {
-		$field_count[$game['GameSlot']['Field']['code']] = array();
+	if (!array_key_exists ($game['GameSlot']['Field']['Facility']['code'], $facility_count)) {
+		$facility_count[$game['GameSlot']['Field']['Facility']['code']] = array();
 	}
-	if (!array_key_exists ($game['GameSlot']['game_start'], $field_count[$game['GameSlot']['Field']['code']])) {
-		$field_count[$game['GameSlot']['Field']['code']][$game['GameSlot']['game_start']] = 0;
+	if (!array_key_exists ($game['GameSlot']['game_start'], $facility_count[$game['GameSlot']['Field']['Facility']['code']])) {
+		$facility_count[$game['GameSlot']['Field']['Facility']['code']][$game['GameSlot']['game_start']] = 0;
 	}
-	++ $field_count[$game['GameSlot']['Field']['code']][$game['GameSlot']['game_start']];
+	++ $facility_count[$game['GameSlot']['Field']['Facility']['code']][$game['GameSlot']['game_start']];
 }
 $numteams = count ($team_count);
 
@@ -109,20 +109,20 @@ foreach ($division['Team'] as $team) {
 
 	$last_region = null;
 	$total = 0;
-	foreach ($fields as $field) {
-		if ($regions > 1 && $last_region != $field['Region']['name']) {
+	foreach ($facilities as $facility) {
+		if ($regions > 1 && $last_region != $facility['Region']['name']) {
 			if ($last_region !== null) {
 				$row[] = array($region_total, array('class' => 'sub-total'));
 			}
 			$region_total = 0;
-			$last_region = $field['Region']['name'];
+			$last_region = $facility['Region']['name'];
 		}
 
 		if (array_key_exists ($id, $team_count) &&
-			array_key_exists ($field['Field']['code'], $team_count[$id]) &&
-			array_key_exists ($field['GameSlot']['game_start'], $team_count[$id][$field['Field']['code']]))
+			array_key_exists ($facility['Facility']['code'], $team_count[$id]) &&
+			array_key_exists ($facility['GameSlot']['game_start'], $team_count[$id][$facility['Facility']['code']]))
 		{
-			$games = $team_count[$id][$field['Field']['code']][$field['GameSlot']['game_start']];
+			$games = $team_count[$id][$facility['Facility']['code']][$facility['GameSlot']['game_start']];
 		} else {
 			$games = 0;
 		}
@@ -131,10 +131,10 @@ foreach ($division['Team'] as $team) {
 			$region_total += $games;
 		}
 
-		if (array_key_exists ($field['Field']['code'], $field_count) &&
-			array_key_exists ($field['GameSlot']['game_start'], $field_count[$field['Field']['code']]))
+		if (array_key_exists ($facility['Facility']['code'], $facility_count) &&
+			array_key_exists ($facility['GameSlot']['game_start'], $facility_count[$facility['Facility']['code']]))
 		{
-			$avg = $field_count[$field['Field']['code']][$field['GameSlot']['game_start']] / $numteams * 2;
+			$avg = $facility_count[$facility['Facility']['code']][$facility['GameSlot']['game_start']] / $numteams * 2;
 		} else {
 			$avg = 0;
 		}
@@ -159,20 +159,20 @@ $total_row = array(array(__('Total games', true), array('colspan' => 2)));
 $avg_row = array(array(__('Average', true), array('colspan' => 2)));
 $region_total = 0;
 $last_region = null;
-foreach ($fields as $field) {
-	if ($regions > 1 && $last_region != $field['Region']['name']) {
+foreach ($facilities as $facility) {
+	if ($regions > 1 && $last_region != $facility['Region']['name']) {
 		if ($last_region !== null) {
 			$total_row[] = array($region_total, array('class' => 'sub-total'));
 			$avg_row[] = array(sprintf ('%0.1f', $region_total / $numteams * 2), array('class' => 'sub-total'));	// Each game has 2 teams participating
 		}
 		$region_total = 0;
-		$last_region = $field['Region']['name'];
+		$last_region = $facility['Region']['name'];
 	}
 
-	if (array_key_exists ($field['Field']['code'], $field_count) &&
-		array_key_exists ($field['GameSlot']['game_start'], $field_count[$field['Field']['code']]))
+	if (array_key_exists ($facility['Facility']['code'], $facility_count) &&
+		array_key_exists ($facility['GameSlot']['game_start'], $facility_count[$facility['Facility']['code']]))
 	{
-		$total = $field_count[$field['Field']['code']][$field['GameSlot']['game_start']];
+		$total = $facility_count[$facility['Facility']['code']][$facility['GameSlot']['game_start']];
 	} else {
 		$total = 0;
 	}

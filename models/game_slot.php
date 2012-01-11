@@ -60,7 +60,7 @@ class GameSlot extends AppModel {
 		$this->contain (array (
 				'Game',
 				'Field' => array(
-					'ParentField',
+					'Facility',
 				),
 		));
 		$game_slots = $this->find('all', array(

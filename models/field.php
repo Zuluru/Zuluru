@@ -17,37 +17,6 @@ class Field extends AppModel {
 				'message' => 'Select a rating from the list',
 			),
 		),
-		'name' => array(
-			'notempty' => array(
-				'rule' => array('notempty'),
-				'required' => false,
-				'allowEmpty' => false,
-				'message' => 'Name cannot be empty',
-			),
-		),
-		'code' => array(
-			'notempty' => array(
-				'rule' => array('notempty'),
-				'required' => false,
-				'allowEmpty' => false,
-				'message' => 'Code cannot be empty',
-			),
-		),
-		'location_province' => array(
-			'inquery' => array(
-				'rule' => array('inquery', 'Province', 'name'),
-				'required' => false,
-				'message' => 'Select a province from the list',
-			),
-		),
-		'location_url' => array(
-			'url' => array(
-				'rule' => array('url'),
-				'required' => false,
-				'allowEmpty' => true,
-				'message' => 'Must be a valid URL, if specified',
-			),
-		),
 		'layout_url' => array(
 			'url' => array(
 				'rule' => array('url'),
@@ -59,16 +28,9 @@ class Field extends AppModel {
 	);
 
 	var $belongsTo = array(
-		'ParentField' => array(
-			'className' => 'Field',
-			'foreignKey' => 'parent_id',
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
-		),
-		'Region' => array(
-			'className' => 'Region',
-			'foreignKey' => 'region_id',
+		'Facility' => array(
+			'className' => 'Facility',
+			'foreignKey' => 'facility_id',
 			'conditions' => '',
 			'fields' => '',
 			'order' => ''
@@ -76,19 +38,6 @@ class Field extends AppModel {
 	);
 
 	var $hasMany = array(
-		'ChildField' => array(
-			'className' => 'Field',
-			'foreignKey' => 'parent_id',
-			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
-		),
 		'GameSlot' => array(
 			'className' => 'GameSlot',
 			'foreignKey' => 'field_id',
@@ -105,47 +54,45 @@ class Field extends AppModel {
 	);
 
 	function _afterFind ($record) {
-		if (array_key_exists ('ParentField', $record) && !empty ($record['ParentField'])) {
-			$parent = $record['ParentField'];
-		} else if (array_key_exists ($this->alias, $record) && array_key_exists ('ParentField', $record[$this->alias]) && !empty ($record[$this->alias]['ParentField'])) {
-			$parent = $record[$this->alias]['ParentField'];
-		} else {
-			$parent = array();
+		if (!empty ($record['Facility'])) {
+			$facility = $record['Facility'];
+		} else if (!empty ($record[$this->alias]['Facility'])) {
+			$facility = $record[$this->alias]['Facility'];
 		}
 
-		foreach ($parent as $key => $value) {
-			if (array_key_exists ($key, $record[$this->alias])) {
-				// For real fields, the array key will exist but the value might be empty
-				if (empty ($record[$this->alias][$key])) {
-					$record[$this->alias][$key] = $value;
+		if (isset($facility)) {
+			if (!empty ($record[$this->alias]['num'])) {
+				if (!empty ($facility['name'])) {
+					$record[$this->alias]['long_name'] = "{$facility['name']} {$record[$this->alias]['num']}";
+				}
+				if (!empty ($facility['code'])) {
+					$record[$this->alias]['long_code'] = "{$facility['code']} {$record[$this->alias]['num']}";
 				}
 			} else {
-				// If the array key doesn't exist, it's a related model and we want it moved up
-				$record[$key] = $value;
+				if (!empty ($facility['name'])) {
+					$record[$this->alias]['long_name'] = $facility['name'];
+				}
+				if (!empty ($facility['code'])) {
+					$record[$this->alias]['long_code'] = $facility['code'];
+				}
 			}
-		}
 
-		if (array_key_exists ('num', $record[$this->alias]) && !empty ($record[$this->alias]['num'])) {
-			$record[$this->alias]['long_name'] = "{$record[$this->alias]['name']} {$record[$this->alias]['num']}";
-		} else {
-			$record[$this->alias]['long_name'] = $record[$this->alias]['name'];
-		}
+			// If we haven't read the "indoor" field, we don't need any of the permit info either
+			if (array_key_exists('indoor', $record[$this->alias]) && !empty($facility['code'])) {
+				$season = Inflector::slug(low(season($record[$this->alias]['indoor'])));
+				$permit_dir = join(DS, array(
+						Configure::read('folders.league_base'),
+						$season, 'current', 'permits'));
 
-		// If we haven't read the "indoor" field, we don't need any of the permit info either
-		if (array_key_exists('indoor', $record[$this->alias])) {
-			$season = Inflector::slug(low(season($record[$this->alias]['indoor'])));
-			$permit_dir = join(DS, array(
-					Configure::read('folders.league_base'),
-					$season, 'current', 'permits'));
-
-			// Auto-detect the permit URLs
-			$record[$this->alias]['permit_url'] = '';
-			if (array_key_exists ('code', $record[$this->alias]) && !empty($record[$this->alias]['code']) && is_dir($permit_dir)) {
-				if ($dh = opendir($permit_dir)) {
-					while (($file = readdir($dh)) !== false) {
-						if (fnmatch ($record[$this->alias]['code'] . '*', $file) ) {
-							$record[$this->alias]['permit_name'] = $file;
-							$record[$this->alias]['permit_url'] = Configure::read('urls.league_base') . "/$season/current/permits/$file";
+				// Auto-detect the permit URLs
+				$record[$this->alias]['permit_url'] = '';
+				if (is_dir($permit_dir)) {
+					if ($dh = opendir($permit_dir)) {
+						while (($file = readdir($dh)) !== false) {
+							if (fnmatch ($facility['code'] . '*', $file) ) {
+								$record[$this->alias]['permit_name'] = $file;
+								$record[$this->alias]['permit_url'] = Configure::read('urls.league_base') . "/$season/current/permits/$file";
+							}
 						}
 					}
 				}
@@ -153,33 +100,6 @@ class Field extends AppModel {
 		}
 
 		return $record;
-	}
-
-	function readAtSite ($id, $parent = null, $conditions = array(), $open = true) {
-		$this->recursive = -1;
-		if ($parent != null) {
-			$conditions = array_merge (array(
-					'OR' => array(
-						'Field.parent_id' => $parent,
-						'Field.id' => $parent,
-					),
-					'Field.id !=' => $id,
-			), $conditions);
-		} else {
-			$conditions = array_merge (array(
-					'Field.parent_id' => $id,
-			), $conditions);
-		}
-		// Either true or false will be passed in, anything else (e.g. null) means
-		// don't include any condition on this, which will return all fields.
-		if ($open === true || $open === false) {
-			$conditions['Field.is_open'] = $open;
-		}
-
-		return $this->find('all', array(
-				'conditions' => $conditions,
-				'order' => 'Field.num',
-		));
 	}
 }
 ?>

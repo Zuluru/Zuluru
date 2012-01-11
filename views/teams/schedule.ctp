@@ -52,8 +52,8 @@ $display_spirit = $is_admin || $is_coordinator || $team['Division']['League']['d
 					$this->ZuluruTime->time($game['GameSlot']['display_game_end']);
 			echo $this->Html->link($time, array('controller' => 'games', 'action' => 'view', 'game' => $game['Game']['id']));
 			?></td>
-			<td><?php echo $this->Html->link("{$game['GameSlot']['Field']['code']} {$game['GameSlot']['Field']['num']}",
-					array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id']), array('title' => "{$game['GameSlot']['Field']['name']} {$game['GameSlot']['Field']['num']}")); ?></td>
+			<td><?php echo $this->Html->link($game['GameSlot']['Field']['long_code'],
+					array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id']), array('title' => $game['GameSlot']['Field']['long_name'])); ?></td>
 			<td><?php
 			if ($team['Team']['id'] == $game['Game']['home_team']) {
 				if ($game['Game']['away_team'] === null) {

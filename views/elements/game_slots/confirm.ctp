@@ -1,4 +1,4 @@
-<li><span class="name"><?php echo $field['name'] . ' ' . $field['num']; ?></span>
+<li><span class="name"><?php echo $facility['name'] . ' ' . $field['num']; ?></span>
 <div class="hidden">
 <?php
 foreach ($weeks as $key => $week) {

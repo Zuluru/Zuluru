@@ -1107,7 +1107,7 @@ class PeopleController extends AppController {
 					'AwayTeam.id', 'AwayTeam.name',
 				),
 				'contain' => array(
-					'GameSlot' => array('Field' => array('ParentField')),
+					'GameSlot' => array('Field' => 'Facility'),
 					'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $team_ids)),
 					'HomeTeam',
 					'AwayTeam',

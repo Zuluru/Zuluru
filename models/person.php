@@ -189,7 +189,7 @@ class Person extends User {
 						'Allstar.id',
 						'Game.id',
 						'GameSlot.game_date', 'GameSlot.game_start', 'GameSlot.game_end',
-						'Field.id', 'Field.name', 'Field.num', 'Field.code',
+						'Facility.id', 'Facility.name', 'Facility.code', 'Field.num',
 						'HomeTeam.id', 'HomeTeam.name',
 						'AwayTeam.id', 'AwayTeam.name',
 						'League.id', 'League.name',
@@ -218,6 +218,13 @@ class Person extends User {
 									'foreignKey' => false,
 									'conditions' => 'Field.id = GameSlot.field_id',
 								),
+									array(
+										'table' => "`{$this->Allstar->tablePrefix}facilities`",
+										'alias' => 'Facility',
+										'type' => 'LEFT',
+										'foreignKey' => false,
+										'conditions' => 'Facility.id = Field.facility_id',
+									),
 							array(
 								'table' => "{$this->Allstar->tablePrefix}teams",
 								'alias' => 'HomeTeam',

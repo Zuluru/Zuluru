@@ -22,41 +22,23 @@ if (isset ($field)) {
 ?>
 		<fieldset>
 			<legend><?php __('Field Selection'); ?></legend>
-			<p class="warning">NOTE: By default, checking a field here will create game slots for ALL open fields at that site.
-			If you want to create game slots for selected fields, click the main field name to see the list of other fields at that site.</p>
+			<p class="warning">NOTE: By default, checking a facility here will create game slots for ALL open fields at that facility.
+			If you want to create game slots for selected fields, click the facility name to see the list of fields at that facility.</p>
 			<div class="actions">
 				<ul>
 <?php
-	$regions = array();
-	foreach ($fields as $field) {
-		if (!array_key_exists ($field['Region']['id'], $regions)) {
-			$regions[$field['Region']['id']] = array('name' => $field['Region']['name'], 'fields' => '');
-			echo $this->Html->tag('li',
-				$this->Html->link('Hide ' . __($field['Region']['name'], true), '#', array(
-						'id' => "hide{$field['Region']['id']}",
-						'onclick' => "hideFieldset('{$field['Region']['id']}'); return false;",
-			)));
+	foreach ($regions as $key => $region){
+		$ids = Set::extract('/Facility/Field/id', $region);
+		if (empty($ids)) {
+			unset ($regions[$key]);
+			continue;
 		}
 
-		// Build the list of child fields to associate with the parent
-		$child_fields = '';
-		foreach ($field['ChildField'] as $child) {
-			$child_fields .= $this->Form->input("Field.{$child['id']}", array(
-					'label' => $child['num'],
-					'type' => 'checkbox',
-					'hiddenField' => false,
-			));
-		}
-
-		// Build the parent field input and add to the inputs for the region
-		$field_details = $this->Form->input("Field.{$field['Field']['id']}", array(
-				'div' => 'input checkbox field',
-				'label' => "{$field['Field']['name']} {$field['Field']['num']}",
-				'type' => 'checkbox',
-				'hiddenField' => false,
-				'after' => $this->Html->tag ('div', $child_fields, array('class' => 'hidden')),
-		));
-		$regions[$field['Region']['id']]['fields'] .= $field_details;
+		echo $this->Html->tag('li',
+			$this->Html->link('Hide ' . __($region['Region']['name'], true), '#', array(
+					'id' => "hide{$region['Region']['id']}",
+					'onclick' => "hideFieldset('{$region['Region']['id']}'); return false;",
+		)));
 	}
 ?>
 				</ul>
@@ -64,18 +46,38 @@ if (isset ($field)) {
 			<div></div>
 
 <?php
-	foreach ($regions as $id => $region):
+	foreach ($regions as $region):
 ?>
-			<fieldset id="region<?php echo $id; ?>">
-				<legend><?php __($region['name']); ?></legend>
+			<fieldset id="region<?php echo $region['Region']['id']; ?>">
+				<legend><?php __($region['Region']['name']); ?></legend>
 				<div class="actions">
 					<ul>
 						<li><?php
-						echo $this->Html->link('Select all', '#', array(
-											'id' => "select$id",
-											'onclick' => "selectAll('$id'); return false;",
-						));
-						echo $region['fields'];
+		echo $this->Html->link('Select all', '#', array(
+							'id' => "select{$region['Region']['id']}",
+							'onclick' => "selectAll('{$region['Region']['id']}'); return false;",
+		));
+
+		foreach ($region['Facility'] as $facility) {
+			// Build the list of fields to associate with the facility
+			$fields = '';
+			foreach ($facility['Field'] as $field) {
+				$fields .= $this->Form->input("Field.{$field['id']}", array(
+						'label' => $field['num'],
+						'type' => 'checkbox',
+						'hiddenField' => false,
+				));
+			}
+
+			// Build the facility input
+			echo $this->Form->input("Facility.{$facility['id']}", array(
+					'div' => 'input checkbox field',
+					'label' => $facility['name'],
+					'type' => 'checkbox',
+					'hiddenField' => false,
+					'after' => $this->Html->tag ('div', $fields, array('class' => 'hidden')),
+			));
+		}
 						?></li>
 					</ul>
 				</div>

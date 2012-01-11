@@ -74,19 +74,17 @@ class EventsController extends AppController {
 			$division->contain (array(
 					'DivisionGameslotAvailability' => array(
 						'GameSlot' => array(
-							'Field' => 'ParentField',
+							'Field' => 'Facility',
 						),
 					),
 			));
 			$event += $division->read(null, $event['Event']['team_division']);
 
-			// Find the list of sites and time slots
-			$sites = $times = array();
+			// Find the list of facilities and time slots
+			$facilities = $times = array();
 			foreach ($event['DivisionGameslotAvailability'] as $avail) {
 				$slot = $avail['GameSlot'];
-				if ($slot['Field']['parent_id'] === null) {
-					$sites[$slot['Field']['id']] = $slot['Field']['name'];
-				}
+				$facilities[$slot['Field']['Facility']['id']] = $slot['Field']['Facility']['name'];
 				$times[$slot['game_start']] = $slot['game_end'];
 			}
 			asort ($times);
@@ -96,7 +94,7 @@ class EventsController extends AppController {
 			$this->set ($this->CanRegister->test ($this->Auth->user('id'), $event));
 		}
 
-		$this->set(compact ('id', 'event', 'sites', 'times'));
+		$this->set(compact ('id', 'event', 'facilities', 'times'));
 	}
 
 	function add() {

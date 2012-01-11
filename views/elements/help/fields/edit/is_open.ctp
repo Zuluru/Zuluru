@@ -1,0 +1,1 @@
+<p>Typically, a field should be marked as "open" if it is in use by a current or upcoming league. By "closing" fields not currently in use, the field list will only display those facilities that players might need to travel to, making it easier for them to find relevant information.</p>

@@ -357,7 +357,7 @@ class DivisionsController extends AppController {
 			'Team',
 			'League',
 			'Game' => array(
-				'GameSlot' => array('Field' => array('ParentField')),
+				'GameSlot' => array('Field' => 'Facility'),
 				'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $this->Session->read('Zuluru.TeamIDs'))),
 				// Get the list of captains for each team, for the popup
 				'HomeTeam' => array(
@@ -410,7 +410,7 @@ class DivisionsController extends AppController {
 		foreach ($slot_counts as $slot_id => $count) {
 			if ($count > 1) {
 				$this->Division->Game->GameSlot->contain(array(
-						'Field' => 'ParentField',
+						'Field' => 'Facility',
 				));
 				$slot = $this->Division->Game->GameSlot->read(null, $slot_id);
 				$slot_field = $slot['Field']['long_name'];
@@ -447,7 +447,7 @@ class DivisionsController extends AppController {
 					}
 
 					$this->Division->Game->GameSlot->contain(array(
-							'Field' => 'ParentField',
+							'Field',
 					));
 					$team_slots = $this->Division->Game->GameSlot->find('all', array('conditions' => array(
 							'GameSlot.id' => $team_slot_ids,
@@ -462,10 +462,8 @@ class DivisionsController extends AppController {
 									$this->Session->setFlash(sprintf (__('Team %s was scheduled in overlapping time slots!', true), $team['Team']['name']), 'default', array('class' => 'info'));
 									return false;
 								}
-								$site1 = ($slot1['Field']['parent_id'] == null ? $slot1['Field']['Field']['id'] : $slot1['ParentField']['id']);
-								$site2 = ($slot2['Field']['parent_id'] == null ? $slot2['Field']['Field']['id'] : $slot2['ParentField']['id']);
-								if ($site1 != $site2) {
-									$this->Session->setFlash(sprintf (__('Team %s was scheduled on fields at different sites!', true), $team['Team']['name']), 'default', array('class' => 'info'));
+								if ($slot1['Field']['facility_id'] != $slot2['Field']['facility_id']) {
+									$this->Session->setFlash(sprintf (__('Team %s was scheduled on fields at different facilities!', true), $team['Team']['name']), 'default', array('class' => 'info'));
 									return false;
 								}
 							}
@@ -749,7 +747,7 @@ class DivisionsController extends AppController {
 		$this->Division->Game->contain (array(
 				'HomeTeam',
 				'AwayTeam',
-				'GameSlot' => array('Field' => array('ParentField')),
+				'GameSlot' => array('Field' => 'Facility'),
 		));
 		$division['Game'] = $this->Division->Game->find('all', array(
 				'conditions' => array(
@@ -806,7 +804,7 @@ class DivisionsController extends AppController {
 			'League',
 			'Game' => array(
 				'conditions' => $conditions,
-				'GameSlot' => array('Field' => array('ParentField')),
+				'GameSlot' => array('Field' => 'Facility'),
 				'HomeTeam',
 				'AwayTeam',
 			),
@@ -823,7 +821,7 @@ class DivisionsController extends AppController {
 		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
 		$league_obj->sort($division);
 
-		// Gather all possible fields this division can use
+		// Gather all possible facility/time slot combinations this division can use
 		$join = array(
 			array(
 				'table' => "{$this->Division->tablePrefix}game_slots",
@@ -840,56 +838,37 @@ class DivisionsController extends AppController {
 				'conditions' => 'Field.id = GameSlot.field_id',
 			),
 			array(
+				'table' => "{$this->Division->tablePrefix}facilities",
+				'alias' => 'Facility',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'Facility.id = Field.facility_id',
+			),
+			array(
 				'table' => "{$this->Division->tablePrefix}regions",
 				'alias' => 'Region',
 				'type' => 'LEFT',
 				'foreignKey' => false,
-				'conditions' => 'Region.id = Field.region_id',
-			),
-			array(
-				'table' => "{$this->Division->tablePrefix}fields",
-				'alias' => 'ParentField',
-				'type' => 'LEFT',
-				'foreignKey' => false,
-				'conditions' => 'ParentField.id = Field.parent_id',
-			),
-			array(
-				'table' => "{$this->Division->tablePrefix}regions",
-				'alias' => 'ParentRegion',
-				'type' => 'LEFT',
-				'foreignKey' => false,
-				'conditions' => 'ParentRegion.id = ParentField.region_id',
+				'conditions' => 'Region.id = Facility.region_id',
 			),
 		);
-		$this->Division->DivisionGameslotAvailability->contain (false);
-		// TODO: Fix this to use DISTINCT Field.code, once we've restructured the field model
-		$temp_fields = $this->Division->DivisionGameslotAvailability->find('all', array(
-			'fields' => array('DISTINCT Field.id', 'Field.code', 'Field.name', 'Region.name',
-					'ParentField.id', 'ParentField.code', 'ParentField.name', 'ParentRegion.name',
+		$facilities = $this->Division->DivisionGameslotAvailability->find('all', array(
+			'fields' => array('DISTINCT Facility.id', 'Facility.code', 'Facility.name', 'Region.name',
 					'GameSlot.game_start'),
 			'conditions' => array('DivisionGameslotAvailability.division_id' => $id),
-//			'order' => 'Region.name, Field.code, GameSlot.game_start',
+			'contain' => false,
+			'order' => 'Region.id, Facility.code, GameSlot.game_start',
 			'joins' => $join,
 		));
 
-		// Put the field information into a useful form
-		$fields = array();
-		foreach ($temp_fields as $field) {
-			if (empty ($field['Field']['code'])) {
-				$field['Field']['code'] = $field['ParentField']['code'];
-				$field['Field']['name'] = $field['ParentField']['name'];
-				$field['Region']['name'] = $field['ParentRegion']['name'];
-			}
-			$key = "{$field['Field']['code']} {$field['GameSlot']['game_start']}";
-			if (!array_key_exists ($key, $fields)) {
-				unset ($field['ParentField']);
-				unset ($field['ParentRegion']);
-				$fields[$key] = $field;
-			}
+		// Re-index the facilities array
+		foreach ($facilities as $key => $facility) {
+			$new_key = "{$facility['Facility']['code']} {$facility['GameSlot']['game_start']}";
+			$facilities[$new_key] = $facilities[$key];
+			unset($facilities[$key]);
 		}
-		usort ($fields, array ($this, '_compareRegionAndCodeAndStart'));
 
-		$this->set(compact ('division', 'league_obj', 'fields'));
+		$this->set(compact ('division', 'league_obj', 'facilities'));
 		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.DivisionIDs')));
 
 		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
@@ -900,9 +879,9 @@ class DivisionsController extends AppController {
 			return -1;
 		} else if ($a['Region']['name'] > $b['Region']['name']) {
 			return 1;
-		} else if ($a['Field']['code'] < $b['Field']['code']) {
+		} else if ($a['Facility']['code'] < $b['Facility']['code']) {
 			return -1;
-		} else if ($a['Field']['code'] > $b['Field']['code']) {
+		} else if ($a['Facility']['code'] > $b['Facility']['code']) {
 			return 1;
 		} else if ($a['GameSlot']['game_start'] < $b['GameSlot']['game_start']) {
 			return -1;
@@ -954,8 +933,7 @@ class DivisionsController extends AppController {
 						'AwayTeam',
 					),
 					'Field' => array(
-						'ParentField' => array('Region'),
-						'Region',
+						'Facility' => 'Region',
 					),
 			));
 			$slots = $this->Division->DivisionGameslotAvailability->GameSlot->find('all', array(

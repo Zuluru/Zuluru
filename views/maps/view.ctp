@@ -1,6 +1,6 @@
 <?php
 $this->Html->addCrumb (__('Field Layout', true));
-$this->Html->addCrumb ("{$field['Field']['name']} ({$field['Field']['code']}) {$field['Field']['num']}");
+$this->Html->addCrumb ("{$field['Facility']['name']} ({$field['Facility']['code']}) {$field['Field']['num']}");
 ?>
 
 <?php
@@ -8,8 +8,8 @@ $map_vars = array('id', 'latitude', 'longitude', 'angle', 'width', 'length', 'zo
 
 $zuluru_base = Configure::read('urls.zuluru_base');
 $gmaps_key = Configure::read('site.gmaps_key');
-$address = "{$field['Field']['location_street']}, {$field['Field']['location_city']}";
-$full_address = "{$field['Field']['location_street']}, {$field['Field']['location_city']}, {$field['Field']['location_province']}";
+$address = "{$field['Facility']['location_street']}, {$field['Facility']['location_city']}";
+$full_address = "{$field['Facility']['location_street']}, {$field['Facility']['location_city']}, {$field['Facility']['location_province']}";
 
 // Build the list of variables to set for the JS.
 // The blank line before END_OF_VARIABLES is required.
@@ -26,8 +26,8 @@ foreach ($map_vars as $var) {
 }
 
 // Handle parking
-if ($field['Field']['parking']) {
-	$parking = explode ('/', $field['Field']['parking']);
+if ($field['Facility']['parking']) {
+	$parking = explode ('/', $field['Facility']['parking']);
 	foreach ($parking as $i => $pt) {
 		list($lat,$lng) = explode(',', $pt);
 		$variables .= "parking[$i] = new GLatLng($lat, $lng);\n";
@@ -35,9 +35,9 @@ if ($field['Field']['parking']) {
 }
 
 // Handle other fields at this site
-foreach ($field['SiteFields'] as $related) {
+foreach ($field['Facility']['Field'] as $related) {
 	foreach ($map_vars as $var) {
-		$variables .= "other_{$var}[{$related['Field']['id']}] = {$related['Field'][$var]};\n";
+		$variables .= "other_{$var}[{$related['id']}] = {$related[$var]};\n";
 	}
 }
 

@@ -41,9 +41,9 @@ echo $this->Form->end();
 <?php foreach ($slots as $slot): ?>
 	<tr>
 		<td><?php __($slot['GameSlot']['id']); ?></td>
-		<td><?php echo $this->Html->link ("{$slot['Field']['code']} {$slot['Field']['num']}",
+		<td><?php echo $this->Html->link ($slot['Field']['long_code'],
 				array('controller' => 'fields', 'action' => 'view', 'field' => $slot['Field']['id']),
-				array('title' => "{$slot['Field']['name']} {$slot['Field']['num']}")); ?></td>
+				array('title' => $slot['Field']['long_name'])); ?></td>
 <?php if (!$slot['Game']['id']): ?>
 <?php ++$unused; ?>
 		<td colspan="3">---- <?php __('field open'); ?> ----</td>
@@ -57,7 +57,7 @@ echo $this->Form->end();
 				array('controller' => 'teams', 'action' => 'view', 'team' => $slot['Game']['AwayTeam']['id']),
 				array('max_length' => 16)); ?></td>
 <?php endif; ?>
-		<td><?php __($slot['Field']['Region']['name']); ?></td>
+		<td><?php __($slot['Field']['Facility']['Region']['name']); ?></td>
 <?php if (Configure::read('feature.region_preference')): ?>
 		<td><?php if ($slot['Game']['id']) __($slot['Game']['HomeTeam']['region_preference']); ?></td>
 <?php endif; ?>

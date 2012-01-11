@@ -10,7 +10,7 @@ class GameSlotsController extends AppController {
 			$this->redirect('/');
 		}
 		$this->GameSlot->contain(array(
-				'Field' => array('ParentField'),
+				'Field' => array('Facility'),
 				'DivisionGameslotAvailability' => array('Division' => 'League'),
 		));
 		$gameSlot = $this->GameSlot->read(null, $id);
@@ -96,29 +96,28 @@ class GameSlotsController extends AppController {
 
 		$id = $this->_arg('field');
 		if ($id) {
-			$this->GameSlot->Field->contain (array('ParentField'));
+			$this->GameSlot->Field->contain (array('Facility'));
 			$field = $this->GameSlot->Field->read(null, $id);
 			$this->set(compact('field'));
 		} else {
-			$this->GameSlot->Field->contain (array(
-					'Region',
-					'ChildField' => array(
-						'order' => 'ChildField.num',
-						'fields' => 'ChildField.id, ChildField.name, ChildField.num',
+			$regions = $this->GameSlot->Field->Facility->Region->find('all', array(
+				'contain' => array(
+					'Facility' => array(
 						'conditions' => array(
-							'ChildField.is_open' => true,
+							'Facility.is_open' => true,
+						),
+						'order' => 'Facility.name',
+						'Field' => array(
+							'conditions' => array(
+								'Field.is_open' => true,
+							),
+							'order' => 'Field.num',
 						),
 					),
+				),
+				'order' => 'Region.id',
 			));
-			$fields = $this->GameSlot->Field->find('all', array(
-					'order' => 'Region.id, Field.name',
-					'fields' => 'Field.id, Field.name, Field.num, Region.id, Region.name',
-					'conditions' => array(
-						'Field.parent_id' => null,
-						'Field.is_open' => true,
-					),
-			));
-			$this->set(compact('fields'));
+			$this->set(compact('regions'));
 		}
 	}
 

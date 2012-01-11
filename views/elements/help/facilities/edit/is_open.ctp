@@ -1,0 +1,1 @@
+<p>A facility should be marked as "open" as long as any field at the facility is potentially in use. Only close a facility when it is no longer available.</p>

@@ -636,7 +636,7 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->Team->Division->Game->contain(array(
-				'GameSlot' => array('Field' => array('ParentField')),
+				'GameSlot' => array('Field' => 'Facility'),
 				'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $this->Session->read('Zuluru.TeamIDs'))),
 				'SpiritEntry',
 				// Get the list of captains for each team, for the popup
@@ -694,7 +694,7 @@ class TeamsController extends AppController {
 			return;
 		}
 		$this->Team->Division->Game->contain(array(
-				'GameSlot' => array('Field' => array('ParentField')),
+				'GameSlot' => array('Field' => 'Facility'),
 				'HomeTeam',
 				'AwayTeam',
 		));
@@ -799,7 +799,7 @@ class TeamsController extends AppController {
 		$attendance = $this->Team->Division->Game->_read_attendance($team, null, $dates);
 
 		$this->Team->Division->Game->contain(array(
-			'GameSlot' => array('Field' => array('ParentField')),
+			'GameSlot' => array('Field' => 'Facility'),
 			'HomeTeam',
 			'AwayTeam',
 		));

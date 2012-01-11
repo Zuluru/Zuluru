@@ -300,7 +300,7 @@ class LeagueTypeComponent extends Object
 
 		$regions = Configure::read('feature.region_preference');
 		if ($regions) {
-			$field_contain = array('Field' => 'ParentField');
+			$field_contain = array('Field' => array('Facility' => 'Region'));
 		} else {
 			$field_contain = array();
 		}

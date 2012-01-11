@@ -26,15 +26,15 @@ $this->Html->addCrumb (__('View', true));
 <?php endif; ?>
 		
 <?php if (array_key_exists ('Division', $event)): ?>
-<?php if (count($sites) > 0 && count($sites) < 4):
-		$site_links = array();
-		foreach ($sites as $site_id => $site_name) {
-			$site_links[] = $this->Html->link ($site_name, array('controller' => 'fields', 'action' => 'view', 'field' => $site_id));
+<?php if (count($facilities) > 0 && count($facilities) < 4):
+		$facility_links = array();
+		foreach ($facilities as $facility_id => $facility_name) {
+			$facility_links[] = $this->Html->link ($facility_name, array('controller' => 'facilities', 'action' => 'view', 'facility' => $facility_id));
 		}
 ?>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __(count($sites) == 1 ? 'Location' : 'Locations'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __(count($facilities) == 1 ? 'Location' : 'Locations'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo implode (', ', $site_links); ?>
+			<?php echo implode (', ', $facility_links); ?>
 
 		</dd>
 <?php endif; ?>

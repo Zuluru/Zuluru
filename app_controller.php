@@ -374,10 +374,10 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Create league', array('controller' => 'leagues', 'action' => 'add'), 'Leagues');
 		}
 
-		$this->_addMenuItem ('Fields', array('controller' => 'fields', 'action' => 'index'));
+		$this->_addMenuItem ('Fields', array('controller' => 'facilities', 'action' => 'index'));
 		if ($this->is_admin) {
-			$this->_addMenuItem ('Closed fields', array('controller' => 'fields', 'action' => 'closed'), 'Fields');
-			$this->_addMenuItem ('Create field', array('controller' => 'fields', 'action' => 'add'), 'Fields');
+			$this->_addMenuItem ('Closed facilities', array('controller' => 'facilities', 'action' => 'closed'), 'Fields');
+			$this->_addMenuItem ('Create facility', array('controller' => 'facilities', 'action' => 'add'), 'Fields');
 			$this->_addMenuItem ('Add bulk gameslots', array('controller' => 'game_slots', 'action' => 'add'), 'Fields');
 		}
 
@@ -690,14 +690,12 @@ class AppController extends Controller {
 	 * Add all the links for a field to the menu.
 	 */
 	function _addFieldMenuItems($field) {
-		$this->_addMenuItem ($field['Field']['name'], array('controller' => 'fields', 'action' => 'view', 'field' => $field['Field']['id']), 'Fields');
-		$this->_addMenuItem ('View bookings', array('controller' => 'fields', 'action' => 'bookings', 'field' => $field['Field']['id']), array('Fields', $field['Field']['name']));
+		$this->_addMenuItem ($field['Field']['long_name'], array('controller' => 'fields', 'action' => 'view', 'field' => $field['Field']['id']), 'Fields');
+		$this->_addMenuItem ('View bookings', array('controller' => 'fields', 'action' => 'bookings', 'field' => $field['Field']['id']), array('Fields', $field['Field']['long_name']));
 		if ($this->is_admin) {
-			$this->_addMenuItem ('Add Game Slot', array('controller' => 'game_slots', 'action' => 'add', 'field' => $field['Field']['id']), array('Fields', $field['Field']['name']));
-		}
-		if ($this->is_admin || $this->is_volunteer) {
-			$this->_addMenuItem ('Edit Field', array('controller' => 'fields', 'action' => 'edit', 'field' => $field['Field']['id']), array('Fields', $field['Field']['name']));
-			$this->_addMenuItem ('Edit Layout', array('controller' => 'maps', 'action' => 'edit', 'field' => $field['Field']['id']), array('Fields', $field['Field']['name']));
+			$this->_addMenuItem ('Add Game Slot', array('controller' => 'game_slots', 'action' => 'add', 'field' => $field['Field']['id']), array('Fields', $field['Field']['long_name']));
+			$this->_addMenuItem ('Edit Field', array('controller' => 'fields', 'action' => 'edit', 'field' => $field['Field']['id']), array('Fields', $field['Field']['long_name']));
+			$this->_addMenuItem ('Edit Layout', array('controller' => 'maps', 'action' => 'edit', 'field' => $field['Field']['id']), array('Fields', $field['Field']['long_name']));
 		}
 	}
 

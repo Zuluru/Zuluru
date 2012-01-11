@@ -31,16 +31,12 @@
 		<p>Click a field name below to edit the list of game slots that will be created for that field.</p>
 		<ul>
 		<?php
-		foreach ($fields as $field) {
-			if (array_key_exists ($field['Field']['id'], $this->data['Field'])) {
-				echo $this->element ('game_slots/confirm', array('field' => $field['Field'], 'weeks' => $weeks));
-			}
-
-			// Add all of the child fields
-			foreach ($field['ChildField'] as $child) {
-				if (array_key_exists ($child['id'], $this->data['Field'])) {
-					$child['name'] = $field['Field']['name'];
-					echo $this->element ('game_slots/confirm', array('field' => $child, 'weeks' => $weeks));
+		foreach ($regions as $region) {
+			foreach ($region['Facility'] as $facility) {
+				foreach ($facility['Field'] as $field) {
+					if (array_key_exists ($field['id'], $this->data['Field'])) {
+						echo $this->element ('game_slots/confirm', array('facility' => $facility, 'field' => $field, 'weeks' => $weeks));
+					}
 				}
 			}
 		}

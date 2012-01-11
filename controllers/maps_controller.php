@@ -15,7 +15,12 @@ class MapsController extends AppController {
 		}
 
 		$this->Field->contain (array (
-			'ParentField',
+			'Facility' => array(
+				'Field' => array('conditions' => array(
+					'Field.id !=' => $id,
+					'Field.is_open' => true,
+				)),
+			),
 		));
 
 		$field = $this->Field->read(null, $id);
@@ -23,7 +28,6 @@ class MapsController extends AppController {
 			$this->Session->setFlash(__('That field has not yet been laid out.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'fields', 'action' => 'index'));
 		}
-		$field['SiteFields'] = $this->Field->readAtSite ($id, $field['Field']['parent_id'], array('Field.length >' => 0));
 
 		$home_addr = '';
 		if ($this->Auth->user()) {
@@ -53,7 +57,12 @@ class MapsController extends AppController {
 		}
 
 		$this->Field->contain (array (
-			'ParentField',
+			'Facility' => array(
+				'Field' => array('conditions' => array(
+					'Field.id !=' => $id,
+					'Field.is_open' => true,
+				)),
+			),
 		));
 
 		$field = $this->Field->read(null, $id);
@@ -61,7 +70,6 @@ class MapsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('field', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'fields', 'action' => 'index'));
 		}
-		$field['SiteFields'] = $this->Field->readAtSite ($id, $field['Field']['parent_id'], array('Field.length >' => 0));
 
 		$this->set(compact('field'));
 

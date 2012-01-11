@@ -111,7 +111,7 @@ foreach ($division['Team'] as $team_id => $team) {
 						$game_result .= " ({$game['Game']['rating_points']} rating points transferred)";
 				}
 
-				$popup = $this->ZuluruTime->date ($game['GameSlot']['game_date']) . " at {$game['GameSlot']['Field']['code']}: $game_result";
+				$popup = $this->ZuluruTime->date ($game['GameSlot']['game_date']) . " at {$game['GameSlot']['Field']['long_code']}: $game_result";
 
 				$results[] = $this->Html->link($game_score, array('controller' => 'games', 'action' => 'view', 'game' => $game['Game']['id']), array('title' => $popup));
 			}
