@@ -120,6 +120,15 @@ $config['attendance_verb'] = array(
 	ATTENDANCE_NO_SHOW		=> 'a no-show for',
 );
 
+$config['event_attendance_verb'] = array(
+	ATTENDANCE_ATTENDING	=> 'attending',
+	ATTENDANCE_ABSENT		=> 'absent for',
+	ATTENDANCE_UNKNOWN		=> 'unknown/undecided for',
+	ATTENDANCE_INVITED		=> 'invited to attend',
+	ATTENDANCE_AVAILABLE	=> 'available to attend',
+	ATTENDANCE_NO_SHOW		=> 'a no-show for',
+);
+
 // Percent likelihood that a notice will be shown, if there is one to show
 $config['notice_frequency'] = 100;
 

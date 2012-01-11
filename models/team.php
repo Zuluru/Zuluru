@@ -95,7 +95,20 @@ class Team extends AppModel {
 			'exclusive' => '',
 			'finderQuery' => '',
 			'counterQuery' => ''
-		)
+		),
+		'TeamEvent' => array(
+			'className' => 'TeamEvent',
+			'foreignKey' => 'team_id',
+			'dependent' => true,
+			'conditions' => '',
+			'fields' => '',
+			'order' => '',
+			'limit' => '',
+			'offset' => '',
+			'exclusive' => '',
+			'finderQuery' => '',
+			'counterQuery' => ''
+		),
 	);
 
 	var $hasAndBelongsToMany = array(

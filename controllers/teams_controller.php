@@ -670,6 +670,11 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'view', 'team' => $id));
 		}
 
+		// Find any non-game team events
+		if (in_array ($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs'))) {
+			$team['Game'] = array_merge ($team['Game'], $this->Team->TeamEvent->_read_attendance($team));
+		}
+
 		// Sort games by date, time and field
 		usort ($team['Game'], array ('Game', 'compareDateAndField'));
 
@@ -797,6 +802,7 @@ class TeamsController extends AppController {
 			}
 		}
 		$attendance = $this->Team->Division->Game->_read_attendance($team, null, $dates);
+		$event_attendance = $this->Team->TeamEvent->_read_attendance($team);
 
 		$this->Team->Division->Game->contain(array(
 			'GameSlot' => array('Field' => 'Facility'),
@@ -814,7 +820,7 @@ class TeamsController extends AppController {
 				'order' => array('GameSlot.game_date', 'GameSlot.game_start'),
 		));
 
-		$this->set(compact('team', 'attendance', 'dates', 'games'));
+		$this->set(compact('team', 'attendance', 'event_attendance', 'dates', 'games'));
 		$this->set('is_captain', in_array($id, $this->Session->read('Zuluru.OwnedTeamIDs')));
 	}
 

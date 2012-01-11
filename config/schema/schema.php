@@ -32,12 +32,13 @@ class ZuluruSchema extends CakeSchema {
 		'team_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
 		'game_date' => array('type' => 'date', 'null' => true, 'default' => NULL),
 		'game_id' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'key' => 'index'),
+		'team_event_id' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'key' => 'index'),
 		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
 		'status' => array('type' => 'integer', 'null' => false, 'default' => '0'),
 		'comment' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 128),
 		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
 		'updated' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
-		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'game_id' => array('column' => 'game_id', 'unique' => 0), 'team_id' => array('column' => 'team_id', 'unique' => 0), 'person_id' => array('column' => 'person_id', 'unique' => 0)),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'game_id' => array('column' => 'game_id', 'unique' => 0), 'team_id' => array('column' => 'team_id', 'unique' => 0), 'person_id' => array('column' => 'person_id', 'unique' => 0), 'team_event_id' => array('column' => 'team_event_id', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $countries = array(

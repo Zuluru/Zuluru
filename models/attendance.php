@@ -24,7 +24,14 @@ class Attendance extends AppModel {
 			'conditions' => '',
 			'fields' => '',
 			'order' => ''
-		)
+		),
+		'TeamEvent' => array(
+			'className' => 'TeamEvent',
+			'foreignKey' => 'team_event_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
+		),
 	);
 }
 ?>

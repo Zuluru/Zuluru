@@ -6,23 +6,62 @@ $this->Html->addCrumb ($team['Team']['name']);
 
 <div class="teams">
 <h2><?php  __('Season Attendance'); ?></h2>
+<?php
+$all_games = array();
+
+foreach ($dates as $date) {
+	$games_on_date = Set::extract("/GameSlot[game_date=$date]/..", $games);
+	if (!empty($games_on_date)) {
+		foreach ($games_on_date as $game) {
+			$all_games[] = array(
+				'date' => $date, 'time' => $game['GameSlot']['game_start'],
+				'condition' => "game_id={$game['Game']['id']}",
+				'header' => $this->element('games/block', array('game' => $game)),
+			);
+		}
+	} else {
+		$all_games[] = array(
+			'date' => $date, 'time' => '00:00:00',
+			'condition' => "game_date=$date",
+			'header' => $this->ZuluruTime->date($date),
+		);
+	}
+}
+
+foreach ($event_attendance as $event) {
+	$all_games[] = array(
+		'date' => $event['TeamEvent']['date'], 'time' => $event['TeamEvent']['start'],
+		'event' => $event,
+		'header' => $this->ZuluruHtml->link ($event['TeamEvent']['name'],
+				array('controller' => 'team_events', 'action' => 'view', 'event' => $event['TeamEvent']['id']),
+				array('title' => $this->ZuluruTime->date($event['TeamEvent']['date']))
+		),
+	);
+}
+
+function compareDateAndTime($a, $b) {
+	if ($a['date'] > $b['date']) {
+		return 1;
+	} else if ($a['date'] < $b['date']) {
+		return -1;
+	}
+	if ($a['time'] > $b['time']) {
+		return 1;
+	} else if ($a['time'] < $b['time']) {
+		return -1;
+	}
+	return 0;
+}
+usort ($all_games, 'compareDateAndTime');
+
+?>
 <table class="list">
 	<thead>
 	<tr>
 		<th></th>
 		<?php
-		$all_games = array();
-		foreach ($dates as $date) {
-			$games_on_date = Set::extract("/GameSlot[game_date=$date]/..", $games);
-			if (!empty($games_on_date)) {
-				foreach ($games_on_date as $game) {
-					echo $this->Html->tag('th', $this->element('games/block', array('game' => $game)));
-					$all_games[] = array('date' => $date, 'time' => $game['GameSlot']['game_start'], 'condition' => "game_id={$game['Game']['id']}");
-				}
-			} else {
-				echo $this->Html->tag('th', $this->ZuluruTime->date($date));
-				$all_games[] = array('date' => $date, 'time' => '00:00:00', 'condition' => "game_date=$date");
-			}
+		foreach ($all_games as $game) {
+			echo $this->Html->tag('th', $game['header']);
 		}
 		?>
 		<th><?php __('Total'); ?></th>
@@ -44,27 +83,49 @@ $this->Html->addCrumb ($team['Team']['name']);
 		<?php
 		$total = 0;
 		foreach ($all_games as $key => $details):
-			$record = Set::extract("/Attendance[{$details['condition']}]/.", $person);
-			if (empty ($record)) {
-				$out = __('N/A', true);
-				$status = ATTENDANCE_UNKNOWN;
-			} else {
-				$status = $record[0]['status'];
-				if ($status == ATTENDANCE_ATTENDING) {
-					++$total;
+			if (array_key_exists('event', $details)) {
+				$record = Set::extract("/Attendance[person_id={$person['id']}]/.", $details['event']);
+				if (empty ($record)) {
+					$out = __('N/A', true);
+					$status = ATTENDANCE_UNKNOWN;
+				} else {
+					$status = $record[0]['status'];
+					++$count[$status][$key][$person['gender']];
+					$out = $this->element('team_events/attendance_change', array(
+						'team' => $team['Team'],
+						'event_id' => $details['event']['TeamEvent']['id'],
+						'date' => $details['date'],
+						'time' => $details['time'],
+						'person_id' => $person['id'],
+						'position' => $person['TeamsPerson']['position'],
+						'status' => $status,
+						'comment' => $record[0]['comment'],
+						'dedicated' => true,
+					));
 				}
-				++$count[$status][$key][$person['gender']];
-				$out = $this->element('games/attendance_change', array(
-					'team' => $team['Team'],
-					'game_id' => $record[0]['game_id'],
-					'game_date' => $details['date'],
-					'game_time' => $details['time'],
-					'person_id' => $person['id'],
-					'position' => $person['TeamsPerson']['position'],
-					'status' => $status,
-					'comment' => $record[0]['comment'],
-					'dedicated' => true,
-				));
+			} else {
+				$record = Set::extract("/Attendance[{$details['condition']}]/.", $person);
+				if (empty ($record)) {
+					$out = __('N/A', true);
+					$status = ATTENDANCE_UNKNOWN;
+				} else {
+					$status = $record[0]['status'];
+					if ($status == ATTENDANCE_ATTENDING) {
+						++$total;
+					}
+					++$count[$status][$key][$person['gender']];
+					$out = $this->element('games/attendance_change', array(
+						'team' => $team['Team'],
+						'game_id' => $record[0]['game_id'],
+						'game_date' => $details['date'],
+						'game_time' => $details['time'],
+						'person_id' => $person['id'],
+						'position' => $person['TeamsPerson']['position'],
+						'status' => $status,
+						'comment' => $record[0]['comment'],
+						'dedicated' => true,
+					));
+				}
 			}
 		?>
 		<td class="<?php echo low($statuses[$status]);?>"><?php echo $out; ?></td>
@@ -110,5 +171,18 @@ $this->Html->addCrumb ($team['Team']['name']);
 	</tbody>
 
 </table>
+</div>
+
+<div class="actions">
+	<ul>
+		<?php
+		if ($is_captain) {
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('team_event_add_32.png',
+				array('controller' => 'team_events', 'action' => 'add', 'team' => $team['Team']['id']),
+				array('alt' => __('Team Event', true), 'title' => __('Add a Team Event', true))));
+		}
+		?>
+	</ul>
+</div>
 
 <?php echo $this->element('games/attendance_div'); ?>

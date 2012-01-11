@@ -96,7 +96,7 @@ class Game extends AppModel {
 			'className' => 'Attendance',
 			'foreignKey' => 'game_id',
 			'dependent' => true,
-			'conditions' => '',
+			'conditions' => array('team_event_id' => null),
 			'fields' => '',
 			'order' => '',
 			'limit' => '',
@@ -171,15 +171,32 @@ class Game extends AppModel {
 	);
 
 	static function compareDateAndField ($a, $b) {
-		if ($a['GameSlot']['game_date'] < $b['GameSlot']['game_date']) {
+		// Handle both game and team event records
+		if (array_key_exists('GameSlot', $a)) {
+			$a_date = $a['GameSlot']['game_date'];
+			$a_time = $a['GameSlot']['game_start'];
+		} else {
+			$a_date = $a['TeamEvent']['date'];
+			$a_time = $a['TeamEvent']['start'];
+		}
+
+		if (array_key_exists('GameSlot', $b)) {
+			$b_date = $b['GameSlot']['game_date'];
+			$b_time = $b['GameSlot']['game_start'];
+		} else {
+			$b_date = $b['TeamEvent']['date'];
+			$b_time = $b['TeamEvent']['start'];
+		}
+
+		if ($a_date < $b_date) {
 			return -1;
-		} else if ($a['GameSlot']['game_date'] > $b['GameSlot']['game_date']) {
+		} else if ($a_date > $b_date) {
 			return 1;
 		}
 
-		if ($a['GameSlot']['game_start'] < $b['GameSlot']['game_start']) {
+		if ($a_time < $b_time) {
 			return -1;
-		} else if ($a['GameSlot']['game_start'] > $b['GameSlot']['game_start']) {
+		} else if ($a_time > $b_time) {
 			return 1;
 		}
 
@@ -485,7 +502,7 @@ class Game extends AppModel {
 			'Person' => array(
 				'Upload',
 				'Attendance' => array(
-					'conditions' => array_merge (array('team_id' => $team_id), $conditions),
+					'conditions' => array_merge (array('team_id' => $team_id, 'team_event_id' => null), $conditions),
 				),
 				'Setting' => array(
 					'conditions' => array('category' => 'personal', 'name' => 'attendance_emails'),
@@ -514,6 +531,7 @@ class Game extends AppModel {
 		$extra = $this->Attendance->find('all', array(
 				'conditions' => array_merge($conditions, array(
 					'team_id' => $team_id,
+					'team_event_id' => null,
 					'person_id NOT' => Set::extract('/Person/id', $attendance),
 				)),
 		));
@@ -560,10 +578,10 @@ class Game extends AppModel {
 			$attendance = $this->Attendance->find('all', array(
 				'contain' => false,
 				'conditions' => array(
-							'team_id' => $team_id,
-							'game_id' => $game_id,
-							),
-						));
+						'team_id' => $team_id,
+						'game_id' => $game_id,
+				),
+			));
 
 			if (empty ($attendance)) {
 				// There might be no attendance records because of a schedule change.
@@ -571,10 +589,11 @@ class Game extends AppModel {
 				$attendance = $this->Attendance->find('all', array(
 					'contain' => false,
 					'conditions' => array(
-								'team_id' => $team_id,
-								'game_date' => $date,
-								),
-							));
+							'team_id' => $team_id,
+							'game_date' => $date,
+							'team_event_id' => null,
+					),
+				));
 				$attendance_game_ids = array_unique (Set::extract('/Attendance/game_id', $attendance));
 
 				// Check for other scheduled games including this team on the same date.
@@ -625,12 +644,13 @@ class Game extends AppModel {
 					'order' => 'GameSlot.game_start',
 			));
 			if (empty($games)) {
-				// Find all attendance records for this team for this date
+				// Find all game attendance records for this team for this date
 				$attendance = $this->Attendance->find('all', array(
 					'contain' => false,
 					'conditions' => array(
 						'team_id' => $team_id,
 						'game_date' => $date,
+						'team_event_id' => null,
 					),
 				));
 			} else {

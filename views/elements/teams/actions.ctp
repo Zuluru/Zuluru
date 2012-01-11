@@ -6,12 +6,19 @@ if (!isset($is_coordinator)) {
 	$is_coordinator = false;
 }
 
-if ($team['track_attendance'] &&
-	in_array($team['id'], $this->Session->read('Zuluru.TeamIDs')))
-{
-	echo $this->ZuluruHtml->iconLink('attendance_24.png',
-		array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['id']),
-		array('alt' => __('Attendance', true), 'title' => __('View Season Attendance Report', true)));
+if ($team['track_attendance']) {
+	if ($is_captain) {
+		echo $this->ZuluruHtml->iconLink('team_event_add_24.png',
+			array('controller' => 'team_events', 'action' => 'add', 'team' => $team['id']),
+			array('alt' => __('Team Event', true), 'title' => __('Add a Team Event', true)));
+	}
+
+	if (in_array($team['id'], $this->Session->read('Zuluru.TeamIDs')))
+	{
+		echo $this->ZuluruHtml->iconLink('attendance_24.png',
+			array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['id']),
+			array('alt' => __('Attendance', true), 'title' => __('View Season Attendance Report', true)));
+	}
 }
 if ($is_logged_in && $team['open_roster'] && $division['Division']['roster_deadline'] >= date('Y-m-d') &&
 	!in_array($team['id'], $this->Session->read('Zuluru.TeamIDs')))
