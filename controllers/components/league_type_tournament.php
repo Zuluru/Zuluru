@@ -52,7 +52,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		// Add more types, depending on the number of teams
 		switch ($num_teams) {
 			case 2:
-				// That's not a tournament, it's just a game...
+				$types['home_and_home'] = '"home and home" series';
 				break;
 
 			case 3:
@@ -138,6 +138,8 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				return array(1);
 			case 'blankset':
 				return array($num_teams / 2);
+			case 'home_and_home':
+				return array(1, 1);
 			case 'semis_consolation':
 				return array(2, 2);
 			case 'semis_elimination':
@@ -202,6 +204,9 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			case 'blankset':
 				// Create game for all teams in tier
 				$ret = $this->createEmptySet($start_date);
+				break;
+			case 'home_and_home':
+				$ret = $this->createHomeAndHome();
 				break;
 			case 'semis_consolation':
 				$ret = $this->createSemis(true);
@@ -296,6 +301,16 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		for ($i = 0; $i < $num_games; ++$i) {
 			$success &= $this->createEmptyGame($date);
 		}
+
+		return $success;
+	}
+
+	function createHomeAndHome() {
+		// Round 1: 1v2
+		$success = $this->createTournamentGame (1, 1, 'A', 'seed', 1, 'seed', 2);
+
+		// Round 2: 2v1
+		$success &= $this->createTournamentGame (2, 2, 'B', 'seed', 2, 'seed', 1);
 
 		return $success;
 	}
