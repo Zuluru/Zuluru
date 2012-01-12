@@ -405,6 +405,10 @@ CONFIG;
 		}
 
 		if ($execute) {
+			// Clear the model cache again, so any saves that might happen in "after" callbacks will work
+			Cache::clear(false, '_cake_model_');
+			$db->cacheSources = false;
+
 			foreach ($commands as $table => $sql) {
 				$error = null;
 				if (!$db->execute($sql)) {

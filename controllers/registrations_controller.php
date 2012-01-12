@@ -34,6 +34,7 @@ class RegistrationsController extends AppController {
 		$this->Registration->Event->contain (array(
 			'EventType',
 			'Questionnaire' => array('Question' => array('Answer')),
+			'Division' => 'League',
 		));
 		$event = $this->Registration->Event->read(null, $id);
 		if ($event === false) {
@@ -68,6 +69,7 @@ class RegistrationsController extends AppController {
 		$this->Registration->Event->contain (array(
 			'EventType',
 			'Questionnaire' => array('Question' => array('Answer')),
+			'Division' => 'League',
 		));
 		$event = $this->Registration->Event->read(null, $id);
 		if ($event === false) {
@@ -206,6 +208,7 @@ class RegistrationsController extends AppController {
 			'Event' => array(
 				'EventType',
 				'Questionnaire' => array('Question' => array('Answer')),
+				'Division' => 'League',
 			),
 			'Response',
 			'RegistrationAudit',
@@ -238,6 +241,7 @@ class RegistrationsController extends AppController {
 					'conditions' => array('active' => true),
 				),
 			),
+			'Division' => 'League',
 		));
 		$event = $this->Registration->Event->read(null, $id);
 		if ($event === false) {
@@ -601,6 +605,7 @@ class RegistrationsController extends AppController {
 						'conditions' => array('active' => true),
 					),
 				),
+				'Division' => 'League',
 			),
 			'Response',
 		));

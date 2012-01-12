@@ -7,23 +7,11 @@
 class EventTypeTeamComponent extends EventTypeComponent
 {
 	function configurationFields() {
-		return array('team_division', 'level_of_play', 'ask_status', 'ask_region');
+		return array('level_of_play', 'ask_status', 'ask_region');
 	}
 
 	function configurationFieldsElement() {
 		return 'team';
-	}
-
-	function configurationFieldsValidation() {
-		return array(
-			'team_division' => array(
-				'numeric' => array(
-					'rule' => array('inquery', 'Division', 'id'),
-					'message' => 'You must select a valid division.',
-					'allowEmpty' => true,
-				),
-			),
-		);
 	}
 
 	// ID numbers don't much matter, but they can't be duplicated between event types,
@@ -59,23 +47,21 @@ class EventTypeTeamComponent extends EventTypeComponent
 		}
 
 		// These questions are only meaningful when we are creating team records
-		if (array_key_exists('team_division', $event['Event']) && $event['Event']['team_division'] != null) {
+		if (!empty($event['Event']['division_id'])) {
 			if (Configure::read('feature.franchises')) {
 				if (!isset ($this->_controller->Team)) {
 					$this->_controller->Team = ClassRegistry::init ('Team');
 				}
 
-				$this->_controller->Team->Division->contain();
-				$division = $this->_controller->Team->Division->read(null, $event['Event']['team_division']);
-				$this->_controller->Team->Division->addPlayoffs($division);
+				$this->_controller->Team->Division->addPlayoffs($event);
 				$conditions = array('Franchise.person_id' => $user_id);
 
 				// Possibly narrow the list of possible franchises to those that are represented
 				// in the configured divisions
-				if ($division['Division']['is_playoff']) {
+				if ($event['Division']['is_playoff']) {
 					$this->_controller->Team->contain('Franchise');
 					$teams = $this->_controller->Team->find('all', array(
-							'conditions' => array('Team.division_id' => $division['Division']['season_divisions']),
+							'conditions' => array('Team.division_id' => $event['Division']['season_divisions']),
 					));
 					$franchise_ids = Set::extract ('/Franchise/id', $teams);
 					$conditions['Franchise.id'] = $franchise_ids;
@@ -86,7 +72,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 				));
 
 				// Teams added to playoff divisions must be in pre-existing franchises
-				if ($division['Division']['is_playoff']) {
+				if ($event['Division']['is_playoff']) {
 					$extra = '<span class="warning-message">' . __('This MUST be the same franchise that the regular-season team belongs to, or you will NOT be able to correctly set up your roster.', true) . '</span>';
 				} else {
 					$franchises[-1] = __('Create a new franchise', true);
@@ -147,9 +133,8 @@ class EventTypeTeamComponent extends EventTypeComponent
 			),
 		);
 
-		if (!array_key_exists('team_division', $event['Event']) || $event['Event']['team_division'] == null) {
-			// TODO: Add region and open roster validation, if necessary
-		} else {
+		// TODO: Add region and open roster validation, if necessary
+		if (!empty($event['Event']['division_id'])) {
 			if (array_key_exists('Response', $event)) {
 				$team_id = $this->_extractAnswer ($event, TEAM_ID);
 			} else {
@@ -158,7 +143,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 
 			// If we're creating team records in a division, make sure the name is unique in that entire league
 			$validation['q' . TEAM_NAME]['unique'] = array(
-				'rule' => array('team_unique', $team_id, $event['Event']['team_division']),
+				'rule' => array('team_unique', $team_id, $event['Event']['division_id']),
 				'message' => array('answer' => 'There is already a team by that name in this league.'),
 			);
 
@@ -190,7 +175,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 	}
 
 	function _createTeam($event, $data) {
-		if (!array_key_exists('team_division', $event['Event']) || $event['Event']['team_division'] == null) {
+		if (empty($event['Event']['division_id'])) {
 			return true;
 		}
 
@@ -200,7 +185,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 
 		$team = array_merge(
 			array(
-				'division_id' => $event['Event']['team_division'],
+				'division_id' => $event['Event']['division_id'],
 			),
 			$this->_extractAnswers ($data, array(
 				'name' => TEAM_NAME,
@@ -286,7 +271,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 	}
 
 	function _deleteTeam($event, $data) {
-		if (!array_key_exists('team_division', $event['Event']) || $event['Event']['team_division'] == null) {
+		if (empty($event['Event']['division_id'])) {
 			return true;
 		}
 

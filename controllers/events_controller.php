@@ -71,6 +71,18 @@ class EventsController extends AppController {
 		}
 		$this->Event->contain (array(
 			'EventType',
+			'Division' => array(
+				'DivisionGameslotAvailability' => array(
+					'GameSlot' => array(
+						'Field' => 'Facility',
+					),
+				),
+				'Day',
+				'Event' => array(
+					'EventType',
+					'conditions' => array('Event.id !=' => $id),
+				),
+			),
 		));
 		$event = $this->Event->read(null, $id);
 		if ($event === false) {
@@ -79,20 +91,10 @@ class EventsController extends AppController {
 		}
 
 		// Extract some more details, if it's a division registration
-		if (array_key_exists ('team_division', $event['Event']) && $event['Event']['team_division'] != null) {
-			$division = ClassRegistry::init ('Division');
-			$division->contain (array(
-					'DivisionGameslotAvailability' => array(
-						'GameSlot' => array(
-							'Field' => 'Facility',
-						),
-					),
-			));
-			$event += $division->read(null, $event['Event']['team_division']);
-
+		if (!empty($event['Event']['division_id'])) {
 			// Find the list of facilities and time slots
 			$facilities = $times = array();
-			foreach ($event['DivisionGameslotAvailability'] as $avail) {
+			foreach ($event['Division']['DivisionGameslotAvailability'] as $avail) {
 				$slot = $avail['GameSlot'];
 				$facilities[$slot['Field']['Facility']['id']] = $slot['Field']['Facility']['name'];
 				$times[$slot['game_start']] = $slot['game_end'];

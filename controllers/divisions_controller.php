@@ -3,7 +3,7 @@ class DivisionsController extends AppController {
 
 	var $name = 'Divisions';
 	var $helpers = array('ZuluruGame');
-	var $components = array('Lock');
+	var $components = array('Lock', 'CanRegister');
 
 	function isAuthorized() {
 		if (in_array ($this->params['action'], array(
@@ -54,6 +54,7 @@ class DivisionsController extends AppController {
 			'Day' => array('order' => 'day_id'),
 			'Team' => array ('Person', 'Franchise'),
 			'League',
+			'Event' => 'EventType',
 		));
 		$division = $this->Division->read(null, $id);
 		if ($division === false) {
@@ -89,6 +90,17 @@ class DivisionsController extends AppController {
 					$this->Division->Team->contain('Division');
 					$affiliate = $this->Division->Team->read(null, $affiliate_id);
 					$division['Team'][$key]['affiliate_division'] = $affiliate['Division']['name'];
+				}
+			}
+		}
+
+		// Eliminate any events that cannot be registered for
+		$my_id = $this->Auth->user('id');
+		if ($my_id) {
+			foreach ($division['Event'] as $key => $event) {
+				$test = $this->CanRegister->test ($my_id, array('Event' => $event));
+				if (!$test['allowed']) {
+					unset ($division['Event'][$key]);
 				}
 			}
 		}

@@ -91,6 +91,14 @@ class Event extends AppModel {
 				'message' => 'There is an error in the rule syntax.',
 			),
 		),
+		'division_id' => array(
+			'numeric' => array(
+				'rule' => array('inquery', 'Division', 'id'),
+				'required' => false,
+				'allowEmpty' => true,
+				'message' => 'You must select a valid division.',
+			),
+		),
 	);
 
 	var $belongsTo = array(
@@ -107,7 +115,14 @@ class Event extends AppModel {
 			'conditions' => '',
 			'fields' => '',
 			'order' => ''
-		)
+		),
+		'Division' => array(
+			'className' => 'Division',
+			'foreignKey' => 'division_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
+		),
 	);
 
 	var $hasMany = array(

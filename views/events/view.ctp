@@ -17,15 +17,15 @@ $this->Html->addCrumb (__('View', true));
 			<?php echo $event['Event']['description']; ?>
 			&nbsp;
 		</dd>
-<?php if (array_key_exists ('level_of_play', $event['Event']) && !empty ($event['Event']['level_of_play'])): ?>
+<?php if (!empty ($event['Event']['level_of_play'])): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Level of Play'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $event['Event']['level_of_play']; ?>
 
 		</dd>
 <?php endif; ?>
-		
-<?php if (array_key_exists ('Division', $event)): ?>
+
+<?php if (!empty($event['Event']['division_id'])): ?>
 <?php if (count($facilities) > 0 && count($facilities) < 4):
 		$facility_links = array();
 		foreach ($facilities as $facility_id => $facility_name) {
@@ -48,6 +48,19 @@ $this->Html->addCrumb (__('View', true));
 			<?php echo $this->ZuluruTime->Date ($event['Division']['close']); ?>
 
 		</dd>
+		<?php if (!empty ($event['Division']['Day'])): ?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __(count ($event['Division']['Day']) == 1 ? 'Day' : 'Days'); ?></dt>
+			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+				<?php
+				$days = array();
+				foreach ($event['Division']['Day'] as $day) {
+					$days[] = __($day['name'], true);
+				}
+				echo implode (', ', $days);
+				?>
+
+			</dd>
+		<?php endif; ?>
 <?php if (count($times) > 0 && count($times) < 5):
 		$time_list = array();
 		foreach ($times as $start => $end) {
@@ -60,6 +73,11 @@ $this->Html->addCrumb (__('View', true));
 
 		</dd>
 <?php endif; ?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Gender Ratio'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php __(Inflector::Humanize ($event['Division']['ratio'])); ?>
+
+		</dd>
 <?php endif; ?>
 
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Event Type'); ?></dt>
@@ -140,10 +158,35 @@ else:
 
 </div>
 
+<?php if (!empty($event['Division']['Event'])): ?>
+<div class="related">
+	<h3><?php __('You might alternately be interested in the following registrations:');?></h3>
+	<table class="list">
+	<tr>
+		<th><?php __('Registration'); ?></th>
+		<th><?php __('Type');?></th>
+	</tr>
+	<?php
+		$i = 0;
+		foreach ($event['Division']['Event'] as $related):
+			$class = null;
+			if ($i++ % 2 == 0) {
+				$class = ' class="altrow"';
+			}
+		?>
+		<tr<?php echo $class;?>>
+			<td><?php echo $this->Html->link($related['name'], array('controller' => 'events', 'action' => 'view', 'event' => $related['id']));?></td>
+			<td><?php __($related['EventType']['name']);?></td>
+		</tr>
+	<?php endforeach; ?>
+	</table>
+</div>
+<?php endif; ?>
+
 <div class="actions">
 	<ul>
-<?php if (array_key_exists ('Division', $event)): ?>
-		<li><?php echo $this->Html->link(sprintf(__('View %s', true), __('Division', true)), array('controller' => 'divisions', 'action' => 'view', 'Division' => $event['Division']['id'])); ?> </li>
+<?php if (!empty($event['Event']['division_id'])): ?>
+		<li><?php echo $this->Html->link(sprintf(__('View %s', true), __('Division', true)), array('controller' => 'divisions', 'action' => 'view', 'division' => $event['Division']['id'])); ?> </li>
 <?php endif; ?>
 <?php if ($is_admin): ?>
 		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Event', true)), array('action' => 'edit', 'event' => $event['Event']['id'])); ?> </li>

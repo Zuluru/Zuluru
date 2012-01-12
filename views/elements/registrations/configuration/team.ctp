@@ -2,19 +2,17 @@
 // Get the list of divisions
 $division = ClassRegistry::init ('Division');
 $divisions = $division->find('all', array(
-		'conditions' => array('OR' => array(
-				'Division.close > NOW()',
-				'Division.id' => 1,
-		)),
+		'conditions' => array(
+			'Division.close > NOW()',
+		),
 		'contain' => 'League',
 ));
 
-echo $this->Form->input('team_division', array(
+echo $this->Form->input('division_id', array(
 		'label' => 'Division',
-		'options' => Set::combine ($divisions, '{n}.Division.league_id', '{n}.Division.full_league_name'),
+		'options' => Set::combine ($divisions, '{n}.Division.id', '{n}.Division.full_league_name'),
 		'empty' => 'Create no team records',
 		'after' => $this->Html->para (null, __('Registrations performed through this event will create team records in this division.', true)),
-		'required' => true,	// Since this is not in the model validation list, we must force this
 ));
 echo $this->Form->input('level_of_play', array(
 		'size' => 70,
