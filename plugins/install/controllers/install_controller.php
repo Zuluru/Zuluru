@@ -338,6 +338,10 @@ CONFIG;
 				}
 
 				$this->_writeInstalled();
+
+				// Clear the model cache one last time, so it's refreshed
+				// with correct data for the next visitor
+				Cache::clear(false, '_cake_model_');
 			}
 		}
 
@@ -378,10 +382,14 @@ CONFIG;
 			$this->results += $pre_result;
 		}
 
-		if (!isset($this->old)) {
-			// Not all of our tables have real models
-			$this->old = $schema->read(array('models' => false));
+		if ($execute) {
+			// Clear the model cache, and make sure that what we read isn't pre-cached
+			Cache::clear(false, '_cake_model_');
+			$db->cacheSources = false;
 		}
+
+		// Not all of our tables have real models
+		$this->old = $schema->read(array('models' => false));
 		$compare = $schema->compare($this->old, $schema);
 
 		$commands = array();
@@ -395,8 +403,6 @@ CONFIG;
 				}
 			}
 		}
-
-		$this->old = array('tables' => $schema->tables);
 
 		if ($execute) {
 			foreach ($commands as $table => $sql) {
