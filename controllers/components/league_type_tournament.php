@@ -202,7 +202,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				$ret = $this->createEmptyGame($start_date);
 				break;
 			case 'blankset':
-				// Create game for all teams in tier
+				// Create game for all teams in division
 				$ret = $this->createEmptySet($start_date);
 				break;
 			case 'home_and_home':

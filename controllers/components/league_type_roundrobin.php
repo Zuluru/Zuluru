@@ -87,12 +87,12 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 	function scheduleOptions($num_teams) {
 		$types = array(
 			'single' => 'single blank, unscheduled game (2 teams, one field, one day)',
-			'blankset' => "set of blank unscheduled games for all teams in a tier ($num_teams teams, " . ($num_teams / 2) . " games, one day)",
-			'oneset' => "set of randomly scheduled games for all teams in a tier ($num_teams teams, " . ($num_teams / 2) . " games, one day)",
-			'fullround' => "full-tier round-robin ($num_teams teams, " . (($num_teams - 1) * ($num_teams / 2)) . " games over " .($num_teams - 1) . " weeks)",
-			'halfroundstandings' => "half-tier round-robin ($num_teams teams, " . ((($num_teams / 2 ) - 1) * ($num_teams / 2)) . " games over " .($num_teams/2 - 1) . " weeks).  2 pools (top, bottom) divided by team standings.",
-			'halfroundrating' => "half-tier round-robin ($num_teams teams, " . ((($num_teams / 2 ) - 1) * ($num_teams / 2)) . " games over " .($num_teams/2 - 1) . " weeks).  2 pools (top/bottom) divided by rating.",
-			'halfroundmix' => "half-tier round-robin ($num_teams teams, " . ((($num_teams / 2 ) - 1) * ($num_teams / 2)) . " games over " .($num_teams/2 - 1) . " weeks).  2 even (interleaved) pools divided by team standings.",
+			'blankset' => "set of blank unscheduled games for all teams in a division ($num_teams teams, " . ($num_teams / 2) . " games, one day)",
+			'oneset' => "set of randomly scheduled games for all teams in a division ($num_teams teams, " . ($num_teams / 2) . " games, one day)",
+			'fullround' => "full-division round-robin ($num_teams teams, " . (($num_teams - 1) * ($num_teams / 2)) . " games over " .($num_teams - 1) . " weeks)",
+			'halfroundstandings' => "half-division round-robin ($num_teams teams, " . ((($num_teams / 2 ) - 1) * ($num_teams / 2)) . " games over " .($num_teams/2 - 1) . " weeks).  2 pools (top, bottom) divided by team standings.",
+			'halfroundrating' => "half-division round-robin ($num_teams teams, " . ((($num_teams / 2 ) - 1) * ($num_teams / 2)) . " games over " .($num_teams/2 - 1) . " weeks).  2 pools (top/bottom) divided by rating.",
+			'halfroundmix' => "half-division round-robin ($num_teams teams, " . ((($num_teams / 2 ) - 1) * ($num_teams / 2)) . " games over " .($num_teams/2 - 1) . " weeks).  2 even (interleaved) pools divided by team standings.",
 		);
 		if($num_teams % 4) {
 			// Can't do a half-round without an even number of teams in
@@ -131,11 +131,11 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 				$ret = $this->createEmptyGame($start_date);
 				break;
 			case 'blankset':
-				// Create game for all teams in tier
+				// Create game for all teams in division
 				$ret = $this->createEmptySet($start_date);
 				break;
 			case 'oneset':
-				// Create game for all teams in tier
+				// Create game for all teams in division
 				$ret = $this->createScheduledSet($start_date);
 				break;
 			case 'fullround':

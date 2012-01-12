@@ -26,7 +26,7 @@ if (isset ($add)) {
 		}
 		echo $this->ZuluruForm->input('name', array(
 			'size' => 70,
-			'after' => $this->Html->para (null, __('The name of the division. Year and tier numbering will be automatically added.', true)),
+			'after' => $this->Html->para (null, __('The name of the division.', true)),
 		));
 		echo $this->ZuluruForm->input('coord_list', array(
 			'label' => __('Coordinator Email List', true),
