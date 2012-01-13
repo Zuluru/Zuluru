@@ -8,13 +8,24 @@ class TeamEventsController extends AppController {
 		// People can perform these operations on teams they run
 		if (in_array ($this->params['action'], array(
 				'add',
-				'edit',
 		)))
 		{
 			// If a team id is specified, check if we're a captain of that team
 			$team = $this->_arg('team');
 			if ($team && in_array ($team, $this->Session->read('Zuluru.OwnedTeamIDs'))) {
 				return true;
+			}
+		}
+		if (in_array ($this->params['action'], array(
+				'edit',
+		)))
+		{
+			$event = $this->_arg('event');
+			if ($event) {
+				$team = $this->TeamEvent->field('team_id', array('id' => $event));
+				if ($team && in_array ($team, $this->Session->read('Zuluru.OwnedTeamIDs'))) {
+					return true;
+				}
 			}
 		}
 
