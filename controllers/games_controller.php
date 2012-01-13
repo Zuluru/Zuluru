@@ -888,7 +888,14 @@ class GamesController extends AppController {
 				// Check if the opponent has an entry
 				if (!$this->Game->_get_score_entry($game, $opponent['id'])) {
 					// No, so we just mention that it's been saved and move on
-					$this->Session->setFlash(__('This score has been saved.  Once your opponent has entered their score, it will be officially posted.', true), 'default', array('class' => 'success'));
+					if ($this->data['ScoreEntry'][$team_id]['score_for'] > $this->data['ScoreEntry'][$team_id]['score_against']) {
+						$status = __('a win for your team', true);
+					} else if ($this->data['ScoreEntry'][$team_id]['score_for'] < $this->data['ScoreEntry'][$team_id]['score_against']) {
+						$status = __('a loss for your team', true);
+					} else {
+						$status = __('a tie', true);
+					}
+					$this->Session->setFlash(sprintf(__('This score has been saved. Once your opponent has entered their score, it will be officially posted.<br/><br/>The score you have submitted indicates that this game was %s. If this is incorrect, you can edit the score to correct it.', true), $status), 'default', array('class' => 'success'));
 				} else {
 					// Otherwise, both teams have an entry.  So, attempt to finalize using
 					// this information.
