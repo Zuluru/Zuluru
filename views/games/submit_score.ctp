@@ -22,7 +22,7 @@ $opponent_score = Game::_get_score_entry($game, $opponent['id']);
 echo $this->ZuluruTime->date ($game['GameSlot']['game_date']) . ' ' .
 	$this->ZuluruTime->time ($game['GameSlot']['game_start']);
 ?> at <?php
-echo "{$game['GameSlot']['Field']['code']} {$game['GameSlot']['Field']['num']}";
+echo $game['GameSlot']['Field']['long_name'];
 ?> between <?php
 echo $this_team['name'];
 ?> and <?php

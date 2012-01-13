@@ -10,7 +10,7 @@ Home Team: <?php echo $game['HomeTeam']['name']; ?>
 
 Away Team: <?php echo $game['AwayTeam']['name']; ?>
 
-Field: <?php echo "{$game['GameSlot']['Field']['code']} {$game['GameSlot']['Field']['num']}"; ?>
+Field: <?php echo $game['GameSlot']['Field']['long_name']; ?>
 
 
 <?php echo $incident['details']; ?>

@@ -8,5 +8,5 @@
 	$this->Html->url (array('controller' => 'teams', 'action' => 'view', 'team' => $game['HomeTeam']['id']), true)); ?>
 <br>Away Team: <?php echo $this->Html->link ($game['AwayTeam']['name'],
 	$this->Html->url (array('controller' => 'teams', 'action' => 'view', 'team' => $game['AwayTeam']['id']), true)); ?>
-<br>Field: <?php echo "{$game['GameSlot']['Field']['code']} {$game['GameSlot']['Field']['num']}"; ?></p>
+<br>Field: <?php echo $game['GameSlot']['Field']['long_name']; ?></p>
 <p><?php echo $incident['details']; ?></p>
