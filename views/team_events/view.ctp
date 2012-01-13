@@ -89,14 +89,14 @@
 	<ul>
 		<li><?php echo $this->ZuluruHtml->iconLink('edit_32.png',
 					array('action' => 'edit', 'event' => $event['TeamEvent']['id']),
-					array('alt' => __('Edit Event', true))); ?></li>
+					array('alt' => __('Edit Event', true), 'title' => __('Edit Event', true))); ?></li>
 		<li><?php echo $this->ZuluruHtml->iconLink('delete_32.png',
 					array('action' => 'delete', 'event' => $event['TeamEvent']['id']),
-					array('alt' => __('Delete Event', true)),
+					array('alt' => __('Delete Event', true), 'title' => __('Delete Event', true)),
 					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $event['TeamEvent']['id']))); ?></li>
 		<li><?php echo $this->ZuluruHtml->iconLink('team_event_add_32.png',
 					array('action' => 'add', 'team' => $event['TeamEvent']['team_id']),
-					array('alt' => __('New Event', true))); ?></li>
+					array('alt' => __('New Event', true), 'title' => __('Create a New Event', true))); ?></li>
 	</ul>
 </div>
 <div class="related">
