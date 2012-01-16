@@ -1561,9 +1561,9 @@ class TeamsController extends AppController {
 			if ($this->Roster->delete ($person['Person']['TeamsPerson']['id'])) {
 				// Delete any future attendance records
 				if ($this->Team->Attendance->deleteAll (array(
-						'team_id' => $team['Team']['id'],
-						'person_id' => $person['Person']['id'],
-						'game_date > CURDATE()',
+						'Attendance.team_id' => $team['Team']['id'],
+						'Attendance.person_id' => $person['Person']['id'],
+						'Attendance.game_date > CURDATE()',
 				)))
 				{
 					$transaction->commit();
