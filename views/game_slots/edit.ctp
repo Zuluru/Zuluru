@@ -12,7 +12,7 @@ $this->Html->addCrumb (__('Edit', true));
 		echo $this->ZuluruForm->input('game_date');
 		echo $this->ZuluruForm->input('game_start');
 		echo $this->ZuluruForm->input('game_end');
-		echo $this->ZuluruForm->input('league_id', array(
+		echo $this->ZuluruForm->input('division_id', array(
 				'multiple' => 'checkbox',
 		));
 	?>
