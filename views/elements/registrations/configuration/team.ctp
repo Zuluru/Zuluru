@@ -31,4 +31,10 @@ if (Configure::read('feature.region_preference')) {
 			'after' => $this->Html->para (null, __('Ask teams for their regional preference during registration?', true)),
 	));
 }
+
+echo $this->Form->input('ask_attendance', array(
+		'label' => 'Attendance tracking',
+		'type' => 'checkbox',
+		'after' => $this->Html->para (null, __('Ask teams whether they want to use attendance tracking during registration?', true)),
+));
 ?>

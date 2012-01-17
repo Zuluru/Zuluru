@@ -7,7 +7,7 @@
 class EventTypeTeamComponent extends EventTypeComponent
 {
 	function configurationFields() {
-		return array('level_of_play', 'ask_status', 'ask_region');
+		return array('level_of_play', 'ask_status', 'ask_region', 'ask_attendance');
 	}
 
 	function configurationFieldsElement() {
@@ -114,6 +114,15 @@ class EventTypeTeamComponent extends EventTypeComponent
 					'after' => __('If the team roster is open, others can request to join; otherwise, only the captain can add players.', true),
 				);
 			}
+
+			if (array_key_exists ('ask_attendance', $event['Event']) && $event['Event']['ask_status']) {
+				$fields[] = array(
+					'id' => TRACK_ATTENDANCE,
+					'type' => 'checkbox',
+					'question' => __('Attendance Tracking', true),
+					'after' => __('Would you like to enable attendance tracking for this team?', true),
+				);
+			}
 		}
 
 		$fields[] = array('type' => 'group_end');
@@ -198,8 +207,17 @@ class EventTypeTeamComponent extends EventTypeComponent
 				'shirt_colour' => SHIRT_COLOUR,
 				'region_id' => REGION_PREFERENCE,
 				'open_roster' => OPEN_ROSTER,
+				'track_attendance' => TRACK_ATTENDANCE,
 			))
 		);
+		if ($team['track_attendance']) {
+			// Add some default values, chosen based on averages found in the TUC database so far
+			$team += array(
+				'attendance_reminder' => 3,
+				'attendance_summary' => 1,
+				'attendance_notification' => 1,
+			);
+		}
 
 		$this->_controller->Team->create();
 		if ($this->_controller->Team->save ($team)) {

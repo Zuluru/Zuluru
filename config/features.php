@@ -50,6 +50,7 @@ if (!defined('TEAM_NAME')) {
 	define('TEAM_ID', -5);
 	define('FRANCHISE_ID', -6);
 	define('FRANCHISE_ID_CREATED', -7);
+	define('TRACK_ATTENDANCE', -10);
 }
 
 $config['roster_requirements'] = array(
