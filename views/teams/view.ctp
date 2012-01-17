@@ -32,15 +32,14 @@ $this->Html->addCrumb (__('View', true));
 		<?php if (!empty ($team['Team']['home_field'])):?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Home Field'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-		<?php // TODO: home field name ?>
-			<?php echo $this->Html->link($team['Team']['home_field'], array('controller' => 'fields', 'action' => 'view', 'field' => $team['Team']['home_field'])); ?>
+			<?php echo $this->Html->link($team['Field']['long_name'], array('controller' => 'fields', 'action' => 'view', 'field' => $team['Team']['home_field'])); ?>
 
 		</dd>
 		<?php endif; ?>
 		<?php if (Configure::read('feature.region_preference') && !empty ($team['Team']['region_preference'])):?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Region Preference'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php __($team['Team']['region_preference']); ?>
+			<?php __($team['Region']['name']); ?>
 
 		</dd>
 		<?php endif; ?>

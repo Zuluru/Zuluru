@@ -26,15 +26,17 @@ if (isset ($add)) {
 			'after' => $this->Html->para (null, __('Shirt colour of your team. If you don\'t have team shirts, pick \'light\' or \'dark\'.', true)),
 		));
 		if ($is_admin) {
-			// TODO: populate with possibilities from fields table
 			echo $this->ZuluruForm->input('home_field', array(
 				'after' => $this->Html->para (null, __('Home field, if applicable.', true)),
+				'options' => $fields,
+				'empty' => __('No home field', true),
 			));
 		}
 		if (Configure::read('feature.region_preference')) {
-			// TODO: populate with possibilities from regions table
 			echo $this->ZuluruForm->input('region_preference', array(
 				'after' => $this->Html->para (null, __('Area of city where you would prefer to play.', true)),
+				'options' => $regions,
+				'empty' => __('No preference', true),
 			));
 		}
 		echo $this->ZuluruForm->input('open_roster', array(

@@ -29,7 +29,7 @@ if (isset ($published)) {
 $region_prefs = Configure::read('feature.region_preference');
 if ($region_prefs) :
 ?>
-	<th rowspan="2"><?php __('Region Preference', true); ?></th>
+	<th rowspan="2"><?php __('Region Preference'); ?></th>
 
 <?php
 endif;
@@ -104,7 +104,11 @@ foreach ($division['Team'] as $team) {
 	$row = array ($this->Html->link ($team['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['id'])),
 					$team['rating']);
 	if ($region_prefs) {
-		$row[] = $team['region_preference'];
+		if (!empty($team['Region'])) {
+			$row[] = $team['Region']['name'];
+		} else {
+			$row[] = '';
+		}
 	}
 
 	$last_region = null;
@@ -155,8 +159,8 @@ foreach ($division['Team'] as $team) {
 }
 
 // Output totals line
-$total_row = array(array(__('Total games', true), array('colspan' => 2)));
-$avg_row = array(array(__('Average', true), array('colspan' => 2)));
+$total_row = array(array(__('Total games', true), array('colspan' => 2 + $region_prefs)));
+$avg_row = array(array(__('Average', true), array('colspan' => 2 + $region_prefs)));
 $region_total = 0;
 $last_region = null;
 foreach ($facilities as $facility) {
@@ -195,6 +199,9 @@ echo $this->Html->tableCells ($rows, array(), array('class' => 'altrow'));
 ?>
 </tbody>
 <?php
+if ($region_prefs) {
+	array_unshift ($heading, __('Region Preference', true));
+}
 array_unshift ($heading, __('Rating', true));
 array_unshift ($heading, __('Team', true));
 $heading[] = __('Total', true);

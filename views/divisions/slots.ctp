@@ -59,7 +59,11 @@ echo $this->Form->end();
 <?php endif; ?>
 		<td><?php __($slot['Field']['Facility']['Region']['name']); ?></td>
 <?php if (Configure::read('feature.region_preference')): ?>
-		<td><?php if ($slot['Game']['id']) __($slot['Game']['HomeTeam']['region_preference']); ?></td>
+		<td><?php
+		if ($slot['Game']['id'] && !empty($slot['Game']['HomeTeam']['Region'])) {
+			__($slot['Game']['HomeTeam']['Region']['name']);
+		}
+		?></td>
 <?php endif; ?>
 	</tr>
 <?php endforeach; ?>

@@ -377,6 +377,8 @@ class TeamsController extends AppController {
 			'Person' => array('Upload'),
 			'Division' => array('Day', 'League'),
 			'Franchise',
+			'Region',
+			'Field' => array('Facility'),
 		));
 
 		$team = $this->Team->read(null, $id);
@@ -539,6 +541,14 @@ class TeamsController extends AppController {
 		if (empty($this->data)) {
 			$this->data = $this->Team->read(null, $id);
 		}
+		$regions = $this->Team->Division->Game->GameSlot->Field->Facility->Region->find('list');
+		$fields = $this->Team->Division->Game->GameSlot->Field->find('all', array(
+				'contain' => 'Facility',
+				'conditions' => array('Facility.is_open', 'Field.is_open'),
+				'order' => array('Facility.name', 'Field.num'),
+		));
+		$fields = Set::combine($fields, '{n}.Field.id', '{n}.Field.long_name');
+		$this->set(compact('regions', 'fields'));
 	}
 
 	function delete() {

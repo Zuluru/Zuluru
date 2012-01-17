@@ -456,7 +456,7 @@ class ZuluruSchema extends CakeSchema {
 		'website' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
 		'shirt_colour' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
 		'home_field' => array('type' => 'integer', 'null' => true, 'default' => NULL),
-		'region_preference' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
+		'region_preference' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'open_roster' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'track_attendance' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'attendance_reminder' => array('type' => 'integer', 'null' => true, 'default' => '-1'),

@@ -812,7 +812,10 @@ class DivisionsController extends AppController {
 		}
 
 		$this->Division->contain(array (
-			'Team',
+			'Team' => array(
+				'Field' => 'Facility',
+				'Region',
+			),
 			'League',
 			'Game' => array(
 				'conditions' => $conditions,
@@ -941,8 +944,14 @@ class DivisionsController extends AppController {
 		if (!empty ($date)) {
 			$this->Division->DivisionGameslotAvailability->GameSlot->contain (array (
 					'Game' => array(
-						'HomeTeam',
-						'AwayTeam',
+						'HomeTeam' => array(
+							'Field' => 'Facility',
+							'Region',
+						),
+						'AwayTeam' => array(
+							'Field' => 'Facility',
+							'Region',
+						),
 					),
 					'Field' => array(
 						'Facility' => 'Region',

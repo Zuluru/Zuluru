@@ -95,13 +95,14 @@ class EventTypeTeamComponent extends EventTypeComponent
 			}
 
 			if (Configure::read('feature.region_preference') && array_key_exists ('ask_region', $event['Event']) && $event['Event']['ask_region']) {
+				// Could this model path be any more convoluted?
+				$regions = $this->_controller->Team->Division->Game->GameSlot->Field->Facility->Region->find('list');
 				$fields[] = array(
 					'id' => REGION_PREFERENCE,
 					'type' => 'select',
 					'question' => __('Region Preference', true),
 					'after' => __('Area of city where you would prefer to play.', true),
-					// TODO: Populate with possibilities from regions table
-					'options' => array(),
+					'options' => $regions,
 				);
 			}
 
@@ -195,7 +196,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 			$this->_extractAnswers ($data, array(
 				'name' => TEAM_NAME,
 				'shirt_colour' => SHIRT_COLOUR,
-				'region_preference' => REGION_PREFERENCE,
+				'region_id' => REGION_PREFERENCE,
 				'open_roster' => OPEN_ROSTER,
 			))
 		);

@@ -66,7 +66,21 @@ class Team extends AppModel {
 			'conditions' => '',
 			'fields' => '',
 			'order' => ''
-		)
+		),
+		'Field' => array(
+			'className' => 'Field',
+			'foreignKey' => 'home_field',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
+		),
+		'Region' => array(
+			'className' => 'Region',
+			'foreignKey' => 'region_preference',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
+		),
 	);
 
 	var $hasMany = array(
