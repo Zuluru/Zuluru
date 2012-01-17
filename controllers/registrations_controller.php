@@ -718,11 +718,16 @@ class RegistrationsController extends AppController {
 					$saved = Set::extract ("/Response[question_id={$question['id']}]", $registration);
 					if (!empty ($saved)) {
 						if ($question['type'] == 'checkbox') {
-							foreach ($question['Answer'] as $answer) {
-								$id = Set::extract ("/Response[answer_id={$answer['id']}]", $saved);
-								if (!empty ($id)) {
-									$responses[Question::_formName($question, $answer)] = $id[0]['Response'];
+							// Deal with both checkbox groups and single checkboxes
+							if (!empty($question['Answer'])) {
+								foreach ($question['Answer'] as $answer) {
+									$id = Set::extract ("/Response[answer_id={$answer['id']}]", $saved);
+									if (!empty ($id)) {
+										$responses[Question::_formName($question, $answer)] = $id[0]['Response'];
+									}
 								}
+							} else {
+								$responses[Question::_formName($question)] = $saved[0]['Response'];
 							}
 						} else {
 							$responses[Question::_formName($question)] = $saved[0]['Response'];

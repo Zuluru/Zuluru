@@ -54,16 +54,23 @@ switch ($details['type'])
 		break;
 
 	case 'checkbox':
-		$item = $this->Html->tag ('label', $details['question']);
-		foreach ($question['Answer'] as $index => $answer) {
-			$ckey = Question::_formName($details, $answer);
-			$options['label'] = $answer['answer'];
-			$options['value'] = $answer['id'];
-			$item .= $this->Form->hidden ("Response.$ckey.question_id", array('value' => $details['id'])) .
-				$this->Form->input ("Response.$ckey.{$field[$details['type']]}", $options);
-			if (array_key_exists ($ckey, $responses) && array_key_exists ('id', $responses[$ckey])) {
-				$item .= $this->Form->hidden ("Response.$ckey.id");
+		// Deal with both checkbox groups and single checkboxes
+		if (!empty($question['Answer'])) {
+			$item = $this->Html->tag ('label', $details['question']);
+			foreach ($question['Answer'] as $index => $answer) {
+				$ckey = Question::_formName($details, $answer);
+				$options['label'] = $answer['answer'];
+				$options['value'] = $answer['id'];
+				$item .= $this->Form->hidden ("Response.$ckey.question_id", array('value' => $details['id'])) .
+					$this->Form->input ("Response.$ckey.{$field[$details['type']]}", $options);
+				if (array_key_exists ($ckey, $responses) && array_key_exists ('id', $responses[$ckey])) {
+					$item .= $this->Form->hidden ("Response.$ckey.id");
+				}
 			}
+		} else {
+			$key = Question::_formName($details);
+			$item = $this->Form->hidden ("Response.$key.question_id", array('value' => $details['id'])) .
+				$this->Form->input ("Response.$key.{$field[$details['type']]}", $options);
 		}
 		break;
 

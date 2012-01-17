@@ -36,10 +36,15 @@ if (array_key_exists ('Question', $questionnaire)) {
 						$label = $question['name'];
 					}
 					$answers = Set::extract ("/Response[question_id={$question['id']}]/answer_id", $response);
-					foreach ($answers as $answer) {
-						$answer = array_shift (Set::extract ("/Answer[id={$answer}]/.", $question));
-						$rows[] = array($label, $answer['answer']);
-						$label = '';
+					// Deal with both checkbox groups and single checkboxes
+					if (!empty($question['Answer'])) {
+						foreach ($answers as $answer) {
+							$answer = array_shift (Set::extract ("/Answer[id={$answer}]/.", $question));
+							$rows[] = array($label, $answer['answer']);
+							$label = '';
+						}
+					} else {
+						$rows[] = array($label, __(empty($answers) ? 'N/A' : ($answers[0] ? 'Yes' : 'No'), true));
 					}
 					break;
 
