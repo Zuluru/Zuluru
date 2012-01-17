@@ -18,7 +18,6 @@
 				'ui-lightness/jquery-ui-1.8.1.custom',
 				'zuluru/layout',
 				'zuluru/look',
-				'jquery.autocomplete',
 				'cssplay_flyout_ltr',
 		));
 		if (Configure::read('debug')) {
