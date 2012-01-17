@@ -73,7 +73,7 @@ class ZuluruFormHelper extends FormHelper {
 				}
 			} else {
 				if (array_key_exists ('after', $options)) {
-					$options['after'] = $help . $options[$location];
+					$options['after'] = $help . $options['after'];
 				} else {
 					$options['after'] = $help;
 				}
