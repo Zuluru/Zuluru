@@ -17,7 +17,7 @@ $this->Html->addCrumb (__('Edit', true));
 	<fieldset>
  		<legend><?php __('Questions'); ?></legend>
 	<?php
-		echo $this->element('/questionnaire/edit', array('questionnaire' => $this->data));
+		echo $this->element('questionnaires/edit', array('questionnaire' => $this->data));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
