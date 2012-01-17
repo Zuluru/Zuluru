@@ -181,8 +181,8 @@ class PeopleController extends AppController {
 			// We are interested in teams in divisions that operated this year
 			$divisions = $this->Division->find('all', array(
 				'conditions' => array(
-					'open >=' => $start,
-					'open <=' => $end,
+					'Division.open >=' => $start,
+					'Division.open <=' => $end,
 				),
 				'contain' => array(
 					'Team' => array(
@@ -241,12 +241,12 @@ class PeopleController extends AppController {
 			$events = $this->Person->Registration->Event->find('all', array(
 				'conditions' => array(
 					'OR' => array(
-						'id' => $membership_event_ids,
+						'Event.id' => $membership_event_ids,
 						'AND' => array(
-							'close >' => $this->membershipEnd($year-1),
-							'close <' => $this->membershipEnd($year),
+							'Event.close >' => $this->membershipEnd($year-1),
+							'Event.close <' => $this->membershipEnd($year),
 							// TODO: Fix or remove these hard-coded values
-							'event_type_id' => array(5,6,7),
+							'Event.event_type_id' => array(5,6,7),
 						),
 					),
 				),
