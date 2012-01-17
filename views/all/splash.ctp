@@ -41,7 +41,8 @@ foreach ($teams as $team):
 ?>
 	<tr<?php echo $class;?>>
 		<td class="splash_item"><?php
-			echo $this->element('teams/block', array('team' => $team['Team'])) .
+		echo $this->element('teams/block', array('team' => $team['Team'])) .
+				' (' . $this->Html->link ($team['Division']['league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])) . ')' .
 				' (' . $this->element('people/roster', array('roster' => $team['TeamsPerson'], 'division' => $team['Division'])) . ')';
 		?></td>
 		<td class="actions splash_action">
@@ -100,9 +101,8 @@ foreach ($divisions as $division):
 ?>
 	<tr<?php echo $class;?>>
 		<td class="splash_item"><?php
-			echo $this->ZuluruHtml->link($division['Division']['name'],
-					array('controller' => 'divisions', 'action' => 'view', 'division' => $division['Division']['id']),
-					array('max_length' => 32));
+			echo $this->ZuluruHtml->link($division['Division']['long_league_name'],
+					array('controller' => 'divisions', 'action' => 'view', 'division' => $division['Division']['id']));
 		?></td>
 		<td class="actions splash_action">
 			<?php

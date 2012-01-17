@@ -192,7 +192,7 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 			echo $this->element('people/roster', array('roster' => $team['TeamsPerson'], 'division' => $team['Division'])) .
 				' ' . __('on', true) . ' ' .
 				$this->element('teams/block', array('team' => $team['Team'])) .
-				' (' . $this->Html->link($team['Division']['league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])) . ')';
+				' (' . $this->Html->link($team['Division']['long_league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])) . ')';
 			?></td>
 		</tr>
 		<?php endforeach; ?>
