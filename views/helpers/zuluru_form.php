@@ -20,6 +20,7 @@ class ZuluruFormHelper extends FormHelper {
 	function input($fieldName, $options = array()) {
 		$this->setEntity($fieldName);
 		$model = Inflector::tableize($this->model());
+		$fieldName = $this->field();
 
 		// If no options were provided, check if there's some configured
 		if (!array_key_exists ('type', $options) && !array_key_exists ('options', $options) &&
@@ -42,11 +43,13 @@ class ZuluruFormHelper extends FormHelper {
 		// Check if there's online help for this field
 		$help_file = VIEWS . 'elements' . DS . 'help' . DS . $model . DS . 'edit' . DS . low($fieldName) . '.ctp';
 		if (file_exists($help_file)) {
-			$help = ' ' . $this->ZuluruHtml->help(array('action' => $model, 'edit', $fieldName));
+			$help = ' ' . $this->ZuluruHtml->help(array('action' => $model, 'edit', low($fieldName)));
 
-			// For text boxes, the help icon should go at the end of the label
+			// For text boxes or multiple selects, the help icon should go at the end of the label
 			if (array_key_exists ('cols', $options) ||
-				(array_key_exists ('type', $options) && $options['type'] == 'textarea'))
+				(array_key_exists ('type', $options) && $options['type'] == 'textarea') ||
+				(array_key_exists ('multiple', $options) && ($options['multiple'] == 'checkbox' || $options['multiple'] === true))
+			)
 			{
 				// If we don't have a label specified, figure it out.
 				if (array_key_exists ('label', $options)) {
@@ -69,15 +72,10 @@ class ZuluruFormHelper extends FormHelper {
 					$options['label'] = $text . ' ' . $help;
 				}
 			} else {
-				if (array_key_exists ('multiple', $options) && $options['multiple'] == 'checkbox') {
-					$location = 'between';
+				if (array_key_exists ('after', $options)) {
+					$options['after'] = $help . $options[$location];
 				} else {
-					$location = 'after';
-				}
-				if (array_key_exists ($location, $options)) {
-					$options[$location] = $help . $options[$location];
-				} else {
-					$options[$location] = $help;
+					$options['after'] = $help;
 				}
 			}
 		}
