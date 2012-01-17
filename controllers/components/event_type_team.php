@@ -53,15 +53,20 @@ class EventTypeTeamComponent extends EventTypeComponent
 					$this->_controller->Team = ClassRegistry::init ('Team');
 				}
 
-				$this->_controller->Team->Division->addPlayoffs($event);
+				if (array_key_exists('Division', $event)) {
+					$division = $event;
+				} else {
+					$division = $event['Event'];
+				}
+				$this->_controller->Team->Division->addPlayoffs($division);
 				$conditions = array('Franchise.person_id' => $user_id);
 
 				// Possibly narrow the list of possible franchises to those that are represented
 				// in the configured divisions
-				if ($event['Division']['is_playoff']) {
+				if ($division['Division']['is_playoff']) {
 					$this->_controller->Team->contain('Franchise');
 					$teams = $this->_controller->Team->find('all', array(
-							'conditions' => array('Team.division_id' => $event['Division']['season_divisions']),
+							'conditions' => array('Team.division_id' => $division['Division']['season_divisions']),
 					));
 					$franchise_ids = Set::extract ('/Franchise/id', $teams);
 					$conditions['Franchise.id'] = $franchise_ids;
@@ -72,7 +77,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 				));
 
 				// Teams added to playoff divisions must be in pre-existing franchises
-				if ($event['Division']['is_playoff']) {
+				if ($division['Division']['is_playoff']) {
 					$extra = '<span class="warning-message">' . __('This MUST be the same franchise that the regular-season team belongs to, or you will NOT be able to correctly set up your roster.', true) . '</span>';
 				} else {
 					$franchises[-1] = __('Create a new franchise', true);
