@@ -166,16 +166,20 @@ class Event extends AppModel {
 
 	// TODO: Add validation details before rendering, so required fields are properly highlighted
 	function beforeValidate() {
-		$event_obj = AppController::_getComponent ('EventType', $this->data['EventType']['type']);
-		$this->validate = array_merge ($this->validate, $event_obj->configurationFieldsValidation($this->data));
+		if (array_key_exists('EventType', $this->data)) {
+			$event_obj = AppController::_getComponent ('EventType', $this->data['EventType']['type']);
+			$this->validate = array_merge ($this->validate, $event_obj->configurationFieldsValidation($this->data));
+		}
 		return true;
 	}
 
 	function beforeSave() {
-		$event_obj = AppController::_getComponent ('EventType', $this->data['EventType']['type']);
-		// Pull out the custom configuration fields
-		$custom = array_intersect_key($this->data['Event'], array_flip ($event_obj->configurationFields()));
-		$this->data['Event']['custom'] = serialize($custom);
+		if (array_key_exists('EventType', $this->data)) {
+			$event_obj = AppController::_getComponent ('EventType', $this->data['EventType']['type']);
+			// Pull out the custom configuration fields
+			$custom = array_intersect_key($this->data['Event'], array_flip ($event_obj->configurationFields()));
+			$this->data['Event']['custom'] = serialize($custom);
+		}
 		return true;
 	}
 
