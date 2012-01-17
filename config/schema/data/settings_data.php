@@ -107,6 +107,16 @@ class SettingsData {
 			'value' => '0',
 		),
 		array(
+			'category' => 'feature',
+			'name' => 'franchises',
+			'value' => '1',
+		),
+		array(
+			'category' => 'feature',
+			'name' => 'tiny_mce',
+			'value' => '0',
+		),
+		array(
 			'category' => 'scoring',
 			'name' => 'default_winning_score',
 			'value' => '6',
