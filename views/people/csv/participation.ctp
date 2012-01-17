@@ -41,12 +41,12 @@ foreach ($participation as $person) {
 	for ($year = $this->data['start']; $year <= $this->data['end']; ++ $year) {
 		foreach ($seasons_found as $name => $season) {
 			if ($season['season']) {
-				$data[] = $person['League'][$year][$name]['season']['captain'];
-				$data[] = $person['League'][$year][$name]['season']['player'];
+				$data[] = $person['Division'][$year][$name]['season']['captain'];
+				$data[] = $person['Division'][$year][$name]['season']['player'];
 			}
 			if ($season['tournament']) {
-				$data[] = $person['League'][$year][$name]['tournament']['captain'];
-				$data[] = $person['League'][$year][$name]['tournament']['player'];
+				$data[] = $person['Division'][$year][$name]['tournament']['captain'];
+				$data[] = $person['Division'][$year][$name]['tournament']['player'];
 			}
 		}
 	}

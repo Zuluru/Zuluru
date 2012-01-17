@@ -72,12 +72,12 @@ foreach ($participation as $person):
 		<?php for ($year = $this->data['start']; $year <= $this->data['end']; ++ $year): ?>
 		<?php foreach ($seasons_found as $name => $season): ?>
 		<?php if ($season['season']): ?>
-		<td><?php echo $person['League'][$year][$name]['season']['captain']; ?></td>
-		<td><?php echo $person['League'][$year][$name]['season']['player']; ?></td>
+		<td><?php echo $person['Division'][$year][$name]['season']['captain']; ?></td>
+		<td><?php echo $person['Division'][$year][$name]['season']['player']; ?></td>
 		<?php endif; ?>
 		<?php if ($season['tournament']): ?>
-		<td><?php echo $person['League'][$year][$name]['tournament']['captain']; ?></td>
-		<td><?php echo $person['League'][$year][$name]['tournament']['player']; ?></td>
+		<td><?php echo $person['Division'][$year][$name]['tournament']['captain']; ?></td>
+		<td><?php echo $person['Division'][$year][$name]['tournament']['player']; ?></td>
 		<?php endif; ?>
 		<?php endforeach; ?>
 		<?php endfor; ?>
