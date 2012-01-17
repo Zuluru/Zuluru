@@ -84,7 +84,7 @@ class AppModel extends Model {
 	 * array(
 	 *		0 => array(
 	 *			'ParentModel' => array(...),
-	 *			'Model' = array(
+	 *			'Model' => array(
 	 *				0 => array(fields),
 	 *				1 => array(fields),
 	 *				2 => array(fields),
@@ -121,9 +121,17 @@ class AppModel extends Model {
 	 *
 	 * This version is for data like
 	 * array(
-	 *		0 => array('Model' = array(fields)),
-	 *		1 => array('Model' = array(fields)),
-	 *		2 => array('Model' = array(fields)),
+	 *		0 => array('Model' => array(fields)),
+	 *		1 => array('Model' => array(fields)),
+	 *		2 => array('Model' => array(fields)),
+	 * );
+	 *
+	 * or
+	 *
+	 * array(
+	 *		0 => array(array(fields)),
+	 *		1 => array(array(fields)),
+	 *		2 => array(array(fields)),
 	 * );
 	 */
 	static function _reindexOuter(&$data, $model, $field) {
