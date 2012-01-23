@@ -871,7 +871,7 @@ class AppController extends Controller {
 				$model = Configure::read('security.auth_model');
 				$emails = array_filter (Set::extract ("/$model/email_formatted", $input));
 			}
-			if (count ($emails) == 1 && !$array) {
+			if (count ($emails) >= 1 && !$array) {
 				return array_shift ($emails);
 			}
 			return $emails;
