@@ -750,7 +750,7 @@ class AppController extends Controller {
 		} else {
 			// We might have initialized this without a controller (from a model), in
 			// which case we'll update the controller now to the current one.
-			if ($component_cache[$type][$specific]->_controller === null) {
+			if (empty($component_cache[$type][$specific]->_controller)) {
 				$component_cache[$type][$specific]->_controller =& $controller;
 			}
 		}
