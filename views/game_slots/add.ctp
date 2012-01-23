@@ -22,7 +22,7 @@ if (isset ($field)) {
 ?>
 		<fieldset>
 			<legend><?php __('Field Selection'); ?></legend>
-			<p class="warning">NOTE: By default, checking a facility here will create game slots for ALL open fields at that facility.
+			<p class="warning-message">NOTE: By default, checking a facility here will create game slots for ALL open fields at that facility.
 			If you want to create game slots for selected fields, click the facility name to see the list of fields at that facility.</p>
 			<div class="actions">
 				<ul>
