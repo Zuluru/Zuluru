@@ -106,6 +106,7 @@ class GamesController extends AppController {
 		$this->set('game', $game);
 		$this->set('spirit_obj', $this->_getComponent ('Spirit', $this->Game->data['Division']['League']['sotg_questions'], $this));
 		$this->set('league_obj', $this->_getComponent ('LeagueType', $this->Game->data['Division']['schedule_type'], $this));
+		$this->set('ratings_obj', $this->_getComponent ('Ratings', $this->Game->data['Division']['rating_calculator'], $this));
 		$this->set('is_coordinator', in_array ($this->Game->data['Division']['id'], $this->Session->read('Zuluru.DivisionIDs')));
 	}
 
@@ -127,7 +128,7 @@ class GamesController extends AppController {
 			'AwayTeam',
 		));
 		$this->set('game', $this->Game->read(null, $id));
-		$this->set('league_obj', $this->_getComponent ('LeagueType', $this->Game->data['Division']['schedule_type'], $this));
+		$this->set('ratings_obj', $this->_getComponent ('Ratings', $this->Game->data['Division']['rating_calculator'], $this));
 		$this->set('max_score', $this->Game->data['Division']['League']['expected_max_score']);
 	}
 
@@ -1258,17 +1259,17 @@ class GamesController extends AppController {
 		}
 
 		$change = 0;
-		$league_obj = $this->_getComponent ('LeagueType', $game['Division']['schedule_type'], $this);
+		$ratings_obj = $this->_getComponent ('Ratings', $game['Division']['rating_calculator'], $this);
 
 		// For a tie, we assume the home team wins
 		if ($data['Game']['home_score'] >= $data['Game']['away_score']) {
-			$change = $league_obj->calculateRatingsChange($data['Game']['home_score'], $data['Game']['away_score'],
-					$this->Game->_calculate_expected_win($data['HomeTeam']['rating'], $data['AwayTeam']['rating']));
+			$change = $ratings_obj->calculateRatingsChange($data['Game']['home_score'], $data['Game']['away_score'],
+					$ratings_obj->calculateExpectedWin($data['HomeTeam']['rating'], $data['AwayTeam']['rating']));
 			$data['HomeTeam']['rating'] += $change;
 			$data['AwayTeam']['rating'] -= $change;
 		} else {
-			$change = $league_obj->calculateRatingsChange($data['Game']['home_score'], $data['Game']['away_score'],
-					$this->Game->_calculate_expected_win($data['AwayTeam']['rating'], $data['HomeTeam']['rating']));
+			$change = $ratings_obj->calculateRatingsChange($data['Game']['home_score'], $data['Game']['away_score'],
+					$ratings_obj->calculateExpectedWin($data['AwayTeam']['rating'], $data['HomeTeam']['rating']));
 			$data['HomeTeam']['rating'] -= $change;
 			$data['AwayTeam']['rating'] += $change;
 		}

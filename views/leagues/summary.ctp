@@ -57,6 +57,7 @@ foreach ($divisions as $division):
 	<th><?php __('Last Game');?></th>
 	<th><?php __('Roster Deadline');?></th>
 	<th><?php __('Allstars');?></th>
+	<th><?php __('Rating Calculator');?></th>
 	<th><?php __('Remind After');?></th>
 	<th><?php __('Finalize After');?></th>
 	<th><?php __('Roster Rule');?></th>
@@ -91,6 +92,7 @@ foreach ($divisions as $division):
 		<td><?php echo $this->ZuluruTime->date($division['Division']['close']); ?></td>
 		<td><?php echo $this->ZuluruTime->date($division['Division']['roster_deadline']); ?></td>
 		<td><?php __(Inflector::humanize($division['Division']['allstars'])); ?></td>
+		<td><?php __(Inflector::humanize($division['Division']['rating_calculator'])); ?></td>
 		<td><?php echo $division['Division']['email_after']; ?></td>
 		<td><?php echo $division['Division']['finalize_after']; ?></td>
 		<td><?php echo $division['Division']['roster_rule']; ?></td>

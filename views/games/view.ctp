@@ -32,7 +32,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 			}
 			echo ' (' . __('rated', true) . ': ' . $rating . ')';
 			if (!$preliminary && !Game::_is_finalized($game)) {
-				printf (' (%0.1f%% %s)', Game::_calculate_expected_win($game['HomeTeam']['rating'], $game['AwayTeam']['rating']) * 100, __('chance to win', true));
+				printf (' (%0.1f%% %s)', $ratings_obj->calculateExpectedWin($game['HomeTeam']['rating'], $game['AwayTeam']['rating']) * 100, __('chance to win', true));
 			}
 		}
 		?>
@@ -55,7 +55,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 			}
 			echo ' (' . __('rated', true) . ': ' . $rating . ')';
 			if (!$preliminary && !Game::_is_finalized($game)) {
-				printf (' (%0.1f%% %s)', Game::_calculate_expected_win($game['AwayTeam']['rating'], $game['HomeTeam']['rating']) * 100, __('chance to win', true));
+				printf (' (%0.1f%% %s)', $ratings_obj->calculateExpectedWin($game['AwayTeam']['rating'], $game['HomeTeam']['rating']) * 100, __('chance to win', true));
 			}
 		}
 		?>
@@ -102,7 +102,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 	endif;
 	?>
 
-	<?php if (!$preliminary && !Game::_is_finalized($game) && $is_logged_in): ?>
+	<?php if (!$preliminary && $ratings_obj->per_game_ratings && !Game::_is_finalized($game) && $is_logged_in): ?>
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Ratings Table'); ?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php echo $this->Html->link(__('Click to view', true), array('action' => 'ratings_table', 'game' => $game['Game']['id'])); ?>

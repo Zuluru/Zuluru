@@ -212,8 +212,14 @@ $config['options'] = array(
 		'none' => 'None',
 		'roundrobin' => 'Round Robin',
 		'ratings_ladder' => 'Ratings Ladder',
-		'ratings_wager_ladder' => 'Ratings Wager Ladder',
 		'tournament' => 'Tournament',
+	),
+
+	// List of available rating calculators
+	'rating_calculator' => array(
+		'none' => 'None',
+		'wager' => 'Wager System',
+		'modified_elo' => 'Modified Elo',
 	),
 
 	// List of available spirit questionnaires

@@ -6,6 +6,7 @@ echo $this->element('help/topics', array(
 		'topics' => array(
 			'name',
 			'schedule_type',
+			'rating_calculator',
 			'current_round',
 			'exclude_teams',
 		),

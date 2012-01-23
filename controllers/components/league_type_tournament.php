@@ -33,16 +33,6 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 	 */
 	var $slots = null;
 
-	/**
-	 * We don't want to change ratings for playoff games. Leave the
-	 * initial rating alone to give a way to recover initial seeding,
-	 * and use game results to sort teams. For stand-alone tournament,
-	 * ratings are entirely meaningless.
-	 */
-	function calculateRatingsChange($home_score, $away_score, $expected_win) {
-		return 0;
-	}
-
 	function scheduleOptions($num_teams) {
 		$types = array(
 			'single' => 'single blank, unscheduled game (2 teams, one field)',

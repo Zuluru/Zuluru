@@ -1,1 +1,3 @@
-<p>This is an older variant of the ratings wager ladder, retained primarily for backward compatibility. It is not recommended for use in new divisions.</p>
+<p>This is the recommended choice for large divisions (16 teams or more), divisions where there is a large variation in team skill levels, or divisions where there are not enough games in the season for every team to play every other team.</p>
+<p>Division standings are based on team ratings, with rating points typically transferred from the loser of a game to the winner.</p>
+<p class="warning-message">NOTE: If you use this schedule type, be sure not to select the "none" rating calculator.</p>

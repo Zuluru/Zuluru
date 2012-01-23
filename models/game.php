@@ -438,16 +438,6 @@ class Game extends AppModel {
 		return false;
 	}
 
-	/**
-	 * Calculate the expected win ratio.  Answer
-	 * is always 0 <= x <= 1
-	 */
-	static function _calculate_expected_win ($rating1, $rating2) {
-		$difference = $rating1 - $rating2;
-		$power = pow(10, (0 - $difference) / 400);
-		return ( 1 / ($power + 1) );
-	}
-
 	static function _is_finalized($game) {
 		if (array_key_exists ('Game', $game)) {
 			return (isset($game['Game']['home_score']) && isset($game['Game']['away_score']));

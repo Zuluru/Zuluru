@@ -31,8 +31,8 @@ if (!isset ($rating_home)) {
 } else {
 	$type = __('"what if"', true);
 }
-$expected_home = Game::_calculate_expected_win($rating_home, $rating_away);
-$expected_away = Game::_calculate_expected_win($rating_away, $rating_home);
+$expected_home = $ratings_obj->calculateExpectedWin($rating_home, $rating_away);
+$expected_away = $ratings_obj->calculateExpectedWin($rating_away, $rating_home);
 ?>
 
 <p><?php __('Home'); ?>: <strong><?php echo $game['HomeTeam']['name']; ?></strong>, <?php echo $type; ?> <?php __('rating of'); ?> <strong><?php echo $rating_home; ?></strong>, <?php printf ('(%0.1f%% %s)', $expected_home * 100, __('chance to win', true)); ?>
@@ -47,14 +47,14 @@ for ($h = 0; $h <= $max_score; $h++) {
 	for ($a = 0; $a <= $max_score; $a++) {
 		if ($h > $a) {
 			// home win
-			$change = $league_obj->calculateRatingsChange($h, $a, $expected_home);
+			$change = $ratings_obj->calculateRatingsChange($h, $a, $expected_home);
 			$row[] = array($change, array('title'=>"{$game['HomeTeam']['name']} wins $h to $a, takes $change rating points from {$game['AwayTeam']['name']}", 'class'=>"highlight-message"));
 		} else if ($h == $a) {
 			// treat as a home win
-			$change = $league_obj->calculateRatingsChange($h, $a, $expected_home);
+			$change = $ratings_obj->calculateRatingsChange($h, $a, $expected_home);
 			$row[] = array($change, array('title'=>"Tie $h to $a, {$game['HomeTeam']['name']} takes $change rating points from {$game['AwayTeam']['name']}", 'class'=>"highlight-message"));
 		} else {
-			$change = $league_obj->calculateRatingsChange($h, $a, $expected_away);
+			$change = $ratings_obj->calculateRatingsChange($h, $a, $expected_away);
 			$row[] = array($change, array('title'=>"{$game['AwayTeam']['name']} wins $a to $h, takes $change rating points from {$game['HomeTeam']['name']}"));
 		}
 	}

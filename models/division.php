@@ -43,6 +43,12 @@ class Division extends AppModel {
 				'message' => 'You must select a valid schedule type.',
 			),
 		),
+		'rating_calculator' => array(
+			'inlist' => array(
+				'rule' => array('inconfig', 'options.rating_calculator'),
+				'message' => 'You must select a valid rating calculator.',
+			),
+		),
 		'allstars' => array(
 			'inlist' => array(
 				'rule' => array('inconfig', 'options.allstar'),
@@ -266,6 +272,27 @@ class Division extends AppModel {
 		$this->addPlayoffs($divisions);
 
 		return $divisions;
+	}
+
+	function readGames($division) {
+		$teams = Set::extract ('/Team/id', $division);
+		if (empty($teams)) {
+			return array();
+		}
+
+		$this->Game->contain (array('GameSlot', 'HomeTeam', 'AwayTeam'));
+		$games = $this->Game->find('all', array(
+				'conditions' => array(
+					'OR' => array(
+						'home_team' => $teams,
+						'away_team' => $teams,
+					),
+				),
+		));
+
+		// Sort games by date, time and field
+		usort ($games, array ('Game', 'compareDateAndField'));
+		return $games;
 	}
 
 	// This would be better placed in afterFind, to make sure that it always happens,

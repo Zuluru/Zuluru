@@ -6,6 +6,7 @@ $this->Html->addCrumb (__('Validate Ratings', true));
 
 <div class="divisions validate">
 <h2><?php  echo __('Validate Ratings', true) . ': ' . $division['Division']['full_league_name'];?></h2>
+<?php if ($ratings_obj->per_game_ratings): ?>
 <table class="list">
 	<tr>
 		<th colspan="3">Game</th>
@@ -52,6 +53,7 @@ $this->Html->addCrumb (__('Validate Ratings', true));
 <?php endforeach; ?>
 
 </table>
+<?php endif; ?>
 
 <table class="list">
 	<tr>

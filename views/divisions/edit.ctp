@@ -121,6 +121,13 @@ if (isset ($add)) {
 	<fieldset>
  		<legend><?php __('Scoring'); ?></legend>
 	<?php
+		echo $this->ZuluruForm->input('rating_calculator', array(
+			'options' => Configure::read('options.rating_calculator'),
+			'hide_single' => true,
+			'empty' => '---',
+			'default' => 'none',
+			'after' => $this->Html->para (null, __('What type of ratings calculation to use.', true)),
+		));
 		echo $this->ZuluruForm->input('email_after', array(
 			'size' => 5,
 			'after' => $this->Html->para (null, __('Email captains who haven\'t scored games after this many hours, no reminder if 0.', true)),

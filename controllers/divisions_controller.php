@@ -507,7 +507,6 @@ class DivisionsController extends AppController {
 		}
 	}
 
-	// TODO: Remove this entire function once ratings calculations are 100%
 	function validate_ratings() {
 		$id = $this->_arg('division');
 		if (!$id) {
@@ -525,116 +524,18 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		AppModel::_reindexOuter($division['Team'], 'Team', 'id');
 
 		// Find all games played by teams that are currently in this division
-		$teams = Set::extract ('/Team/id', $division);
-		$this->Division->Game->contain (array('GameSlot', 'HomeTeam', 'AwayTeam'));
-		$division['Game'] = $this->Division->Game->find('all', array(
-				'conditions' => array(
-					'OR' => array(
-						'home_team' => $teams,
-						'away_team' => $teams,
-					),
-				),
-		));
-
+		$division['Game'] = $this->Division->readGames($division);
 		if (empty ($division['Game'])) {
 			$this->Session->setFlash(__('This division has no games scheduled yet.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
-		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
 
-		// Sort games by date, time and field
-		usort ($division['Game'], array ('Game', 'compareDateAndField'));
+		$ratings_obj = $this->_getComponent ('Ratings', $division['Division']['rating_calculator'], $this);
 
-		$teams = array();
-		foreach ($division['Team'] as $team) {
-			$teams[$team['id']] = $team;
-		}
-		$division['Team'] = $teams;
-		$moved_teams = array();
-		$game_updates = array();
-
-		foreach ($division['Game'] as $key => $game) {
-			// Handle teams that have moved
-			if (!array_key_exists ($game['Game']['home_team'], $division['Team'])) {
-				$moved_teams[] = $game['Game']['home_team'];
-				$division['Team'][$game['Game']['home_team']] = $game['HomeTeam'];
-			}
-			if (!array_key_exists ($game['Game']['away_team'], $division['Team'])) {
-				$moved_teams[] = $game['Game']['away_team'];
-				$division['Team'][$game['Game']['away_team']] = $game['AwayTeam'];
-			}
-
-			if (!array_key_exists ('current_rating', $division['Team'][$game['Game']['home_team']])) {
-				$division['Team'][$game['Game']['home_team']]['current_rating'] = $game['Game']['rating_home'];
-			}
-			if (!array_key_exists ('current_rating', $division['Team'][$game['Game']['away_team']])) {
-				$division['Team'][$game['Game']['away_team']]['current_rating'] = $game['Game']['rating_away'];
-			}
-
-			$division['Game'][$key]['Game']['calc_rating_home'] = $division['Team'][$game['Game']['home_team']]['current_rating'];
-			$division['Game'][$key]['Game']['calc_rating_away'] = $division['Team'][$game['Game']['away_team']]['current_rating'];
-
-			// Note: We don't check config for whether rating points are transferred on defaults, but this
-			// is only being used in the interim for a division where they are, so it's not an issue.
-			if ($this->Division->Game->_is_finalized ($game) && $game['Game']['status'] != 'rescheduled') {
-				if ($game['Game']['home_score'] >= $game['Game']['away_score']) {
-					$division['Game'][$key]['Game']['expected'] = $this->Division->Game->_calculate_expected_win($division['Team'][$game['Game']['home_team']]['current_rating'], $division['Team'][$game['Game']['away_team']]['current_rating']);
-					$change = $league_obj->calculateRatingsChange($game['Game']['home_score'], $game['Game']['away_score'], $division['Game'][$key]['Game']['expected']);
-					$division['Team'][$game['Game']['home_team']]['current_rating'] += $change;
-					$division['Team'][$game['Game']['away_team']]['current_rating'] -= $change;
-				} else {
-					$division['Game'][$key]['Game']['expected'] = $this->Division->Game->_calculate_expected_win($division['Team'][$game['Game']['away_team']]['current_rating'], $division['Team'][$game['Game']['home_team']]['current_rating']);
-					$change = $league_obj->calculateRatingsChange($game['Game']['home_score'], $game['Game']['away_score'], $division['Game'][$key]['Game']['expected']);
-					$division['Team'][$game['Game']['home_team']]['current_rating'] -= $change;
-					$division['Team'][$game['Game']['away_team']]['current_rating'] += $change;
-				}
-				$division['Game'][$key]['Game']['calc_rating_points'] = $change;
-			} else {
-				$division['Game'][$key]['Game']['calc_rating_points'] = $division['Game'][$key]['Game']['expected'] = null;
-			}
-
-			// Only save updates for games that actually changed
-			$update = array('id' => $game['Game']['id']);
-			if ($division['Game'][$key]['Game']['calc_rating_home'] != $game['Game']['rating_home']) {
-				$update['rating_home'] = $division['Game'][$key]['Game']['calc_rating_home'];
-			}
-			if ($division['Game'][$key]['Game']['calc_rating_away'] != $game['Game']['rating_away']) {
-				$update['rating_away'] = $division['Game'][$key]['Game']['calc_rating_away'];
-			}
-			if ($division['Game'][$key]['Game']['calc_rating_points'] != $game['Game']['rating_points']) {
-				$update['rating_points'] = $division['Game'][$key]['Game']['calc_rating_points'];
-			}
-			if (count($update) > 1) {
-				$game_updates[] = $update;
-			}
-		}
-
-		foreach ($division['Team'] as $key => $team) {
-			if (!array_key_exists('current_rating', $team)) {
-				$division['Team'][$key]['current_rating'] = $division['Team'][$key]['rating'];
-			}
-		}
-
-		if ($correct && !empty ($game_updates)) {
-			$this->Division->Game->saveAll ($game_updates);
-		}
-
-		// Remove moved teams, and update the rest
-		foreach ($moved_teams as $team) {
-			unset ($division['Team'][$team]);
-		}
-		if ($correct && !empty ($game_updates)) {
-			$team_updates = array();
-			foreach ($division['Team'] as $key => $team) {
-				$team_updates[] = array(
-					'id' => $team['id'],
-					'rating' => $team['current_rating'],
-				);
-			}
-			$this->Division->Team->saveAll ($team_updates);
-		}
+		$ratings_obj->recalculateRatings($division, $correct);
 
 		// Find new rankings for each team, and sort by old ranking
 		$new = Set::sort (array_values ($division['Team']), '/current_rating', 'DESC');
@@ -643,7 +544,7 @@ class DivisionsController extends AppController {
 		}
 		$division['Team'] = Set::sort (array_values ($division['Team']), '/rating', 'DESC');
 
-		$this->set(compact ('id', 'division', 'league_obj', 'correct'));
+		$this->set(compact ('id', 'division', 'ratings_obj', 'correct'));
 
 		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 	}
@@ -1256,6 +1157,41 @@ class DivisionsController extends AppController {
 				'default', array('class' => 'success'));
 		$transaction->commit();
 		$this->redirect(array('action' => 'schedule', 'division' => $id));
+	}
+
+	function cron() {
+		$this->layout = 'bare';
+
+		if (!$this->Lock->lock ('cron')) {
+			return false;
+		}
+
+		// Find any divisions that are open, and possibly recalculate ratings
+		$divisions = $this->Division->find('all', array(
+				'conditions' => array(
+					'Division.is_open' => true,
+				),
+				'contain' => array(
+					'Team',
+					'League',
+				),
+				'order' => 'Division.open',
+		));
+
+		foreach ($divisions as $key => $division) {
+			$ratings_obj = $this->_getComponent ('Ratings', $division['Division']['rating_calculator'], $this);
+			AppModel::_reindexOuter($division['Team'], 'Team', 'id');
+
+			// Find all games played by teams that are currently in this division
+			$division['Game'] = $this->Division->readGames($division);
+			if (!empty ($division['Game'])) {
+				$divisions[$key]['updates'] = $ratings_obj->recalculateRatings($division, true);
+			}
+		}
+
+		$this->set(compact('divisions'));
+
+		$this->Lock->unlock();
 	}
 
 	/**

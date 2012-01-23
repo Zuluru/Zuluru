@@ -162,6 +162,14 @@ $this->Html->addCrumb (__('View', true));
 
 			</dd>
 		<?php endforeach; ?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Rating Calculator'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php
+			__(Inflector::Humanize ($division['Division']['rating_calculator']));
+			echo '&nbsp;' . $this->ZuluruHtml->help(array('action' => 'divisions', 'edit', 'rating_calculator', $division['Division']['rating_calculator']));
+			?>
+
+		</dd>
 		<?php if ($is_admin || $is_coordinator): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Exclude Teams'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>

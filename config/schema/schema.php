@@ -67,6 +67,7 @@ class ZuluruSchema extends CakeSchema {
 		'roster_rule' => array('type' => 'text', 'null' => true, 'default' => NULL),
 		'is_open' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'schedule_type' => array('type' => 'string', 'null' => false, 'default' => 'none', 'length' => 32),
+		'rating_calculator' => array('type' => 'string', 'null' => false, 'default' => 'none', 'length' => 32),
 		'games_before_repeat' => array('type' => 'integer', 'null' => true, 'default' => '4'),
 		'allstars' => array('type' => 'string', 'null' => false, 'default' => 'never', 'length' => 32),
 		'exclude_teams' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
