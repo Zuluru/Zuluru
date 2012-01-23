@@ -10,7 +10,7 @@ class RuleNotComponent extends RuleComponent
 			return null;
 		$success = $this->rule->evaluate ($params, $team);
 		$this->reason = $this->rule->reason;
-		$this->reason_type = $rule->reason_type;
+		$this->reason_type = $this->rule->reason_type;
 		return (! $success);
 	}
 }
