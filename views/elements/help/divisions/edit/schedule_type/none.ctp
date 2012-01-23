@@ -1,1 +1,1 @@
-<p>Use this setting for leagues that will have no games scheduled, or for placeholders where you're not sure yet what type the league will be.</p>
+<p>Use this setting for divisions that will have no games scheduled, or for placeholders where you're not sure yet what type the division will be.</p>
