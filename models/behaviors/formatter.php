@@ -86,6 +86,12 @@ class FormatterBehavior extends ModelBehavior
 	// Reformat a name to Proper Case
 	function proper_case_format ($name)
 	{
+		// If the input already has both upper and lower case letters,
+		// we'll assume that the user entered it correctly.
+		if (preg_match('/[A-Z]/', $name) && preg_match('/[a-z]/', $name)) {
+			return $name;
+		}
+
 		$name = ucwords(strtolower($name));
 
 		// Not perfect
