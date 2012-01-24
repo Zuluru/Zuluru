@@ -62,6 +62,11 @@ class AppController extends Controller {
 			$this->Configuration->load($this->Auth->user('id'));
 		}
 
+		// Requests made through requestAction don't need any of the rest of this
+		if (array_key_exists('requested', $this->params) && $this->params['requested']) {
+			return;
+		}
+
 		// Set up various URLs to use
 		// TODO: Read these from site configuration
 		if (! $this->Session->read('Zuluru.external_login')) {
@@ -82,7 +87,7 @@ class AppController extends Controller {
 		$this->_initSessionData($this->Auth->user('id'));
 
 		// Check if we need to redirect logged-in users for some required step first
-		if ($this->is_member && $this->action != 'logout' && (!array_key_exists('requested', $this->params) || !$this->params['requested'])) {
+		if ($this->is_member && $this->action != 'logout') {
 			$email = $this->Session->read('Zuluru.Person.email');
 			if (($this->name != 'People' || $this->action != 'edit') && empty ($email)) {
 				$this->Session->setFlash(__('Last time we tried to contact you, your email bounced. We require a valid email address as part of your profile. You must update it before proceeding.', true), 'default', array('class' => 'warning'));
@@ -461,20 +466,27 @@ class AppController extends Controller {
 	}
 
 	function _initSessionData($my_id) {
+		$session_keys = array('Unpaid', 'Teams', 'TeamIDs', 'OwnedTeams', 'OwnedTeamIDs', 'Divisions', 'DivisionIDs');
 		if (!$my_id) {
-			foreach (array('Unpaid', 'Teams', 'TeamIDs', 'OwnedTeams', 'OwnedTeamIDs', 'Divisions', 'DivisionIDs') as $key) {
+			foreach ($session_keys as $key) {
 				$this->Session->write("Zuluru.$key", array());
 			}
 			return;
 		}
 
+		// Schema changes often break cached session information
+		$schema = $this->Session->read('Zuluru.Schema');
+		if ($schema != SCHEMA_VERSION) {
+			foreach ($session_keys as $key) {
+				$this->Session->delete("Zuluru.$key");
+			}
+			$this->Session->write('Zuluru.Schema', SCHEMA_VERSION);
+		}
+
 		$unpaid = $this->Session->read('Zuluru.Unpaid');
 		if (empty($unpaid)) {
 			if (!isset ($this->Registration)) {
-				if (!class_exists ('Registration')) {
-					App::import ('Model', 'Registration');
-				}
-				$this->Registration = new Registration();
+				$this->Registration = ClassRegistry::init ('Registration');
 			}
 			$this->_findSessionData('Unpaid', $this->Registration, array(
 					'recursive' => -1,
