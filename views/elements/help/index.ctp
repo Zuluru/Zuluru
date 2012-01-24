@@ -2,6 +2,9 @@
 <ul>
 	<li><?php echo $this->Html->link (__('People', true), array('controller' => 'help', 'action' => 'people')); ?></li>
 <?php if (Configure::read('feature.registration')): ?>
+<?php if ($is_admin): ?>
+	<li><?php echo $this->Html->link (__('Events', true), array('controller' => 'help', 'action' => 'events')); ?></li>
+<?php endif; ?>
 	<li><?php echo $this->Html->link (__('Registration', true), array('controller' => 'help', 'action' => 'registration')); ?></li>
 <?php endif; ?>
 	<li><?php echo $this->Html->link (__('Teams', true), array('controller' => 'help', 'action' => 'teams')); ?></li>

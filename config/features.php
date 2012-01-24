@@ -53,6 +53,13 @@ if (!defined('TEAM_NAME')) {
 	define('TRACK_ATTENDANCE', -10);
 }
 
+// Event connection types
+if (!defined('EVENT_PREDECESSOR')) {
+	define('EVENT_PREDECESSOR', 1);
+	define('EVENT_SUCCESSOR', 2);
+	define('EVENT_ALTERNATE', 3);
+}
+
 $config['roster_requirements'] = array(
 	'4/3'	=> 12,
 	'5/2'	=> 12,
@@ -128,6 +135,12 @@ $config['event_attendance_verb'] = array(
 	ATTENDANCE_INVITED		=> 'invited to attend',
 	ATTENDANCE_AVAILABLE	=> 'available to attend',
 	ATTENDANCE_NO_SHOW		=> 'a no-show for',
+);
+
+$config['event_connection'] = array(
+	EVENT_PREDECESSOR => 'Predecessor',
+	EVENT_SUCCESSOR => 'Successor',
+	EVENT_ALTERNATE => 'Alternate',
 );
 
 // Percent likelihood that a notice will be shown, if there is one to show

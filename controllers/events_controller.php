@@ -83,6 +83,9 @@ class EventsController extends AppController {
 					'conditions' => array('Event.id !=' => $id),
 				),
 			),
+			'Alternate' => array(
+				'EventType',
+			),
 		));
 		$event = $this->Event->read(null, $id);
 		if ($event === false) {
@@ -195,14 +198,98 @@ class EventsController extends AppController {
 		$id = $this->_arg('event');
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action'=>'index'));
+			$this->redirect(array('action' => 'index'));
 		}
 		if ($this->Event->delete($id)) {
 			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Event', true)), 'default', array('class' => 'success'));
-			$this->redirect(array('action'=>'index'));
+			$this->redirect(array('action' => 'index'));
 		}
 		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Event', true)), 'default', array('class' => 'warning'));
 		$this->redirect(array('action' => 'index'));
+	}
+
+	function connections() {
+		$id = $this->_arg('event');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+
+		if (!empty($this->data)) {
+			$transaction = new DatabaseTransaction($this->Event->EventsConnection);
+			$success = true;
+
+			// Alternates always go both ways
+			$this->data['Event']['AlternateTo'] = $this->data['Event']['Alternate'];
+
+			foreach (Configure::read('event_connection') as $type => $name) {
+				$save = array();
+				$success &= $this->Event->EventsConnection->deleteAll(array(
+						'event_id' => $id,
+						'connection' => $type,
+				));
+				$success &= $this->Event->EventsConnection->deleteAll(array(
+						'connected_event_id' => $id,
+						'connection' => $type,
+				));
+
+				foreach ($this->data['Event'][$name] as $connection) {
+					$save[] = array(
+						'event_id' => $id,
+						'connection' => $type,
+						'connected_event_id' => $connection,
+					);
+				}
+
+				foreach ($this->data['Event'][$name . 'To'] as $connection) {
+					$save[] = array(
+						'event_id' => $connection,
+						'connection' => $type,
+						'connected_event_id' => $id,
+					);
+				}
+
+				$success &= $this->Event->EventsConnection->saveAll($save);
+			}
+			if ($success) {
+				$transaction->commit();
+				$this->Session->setFlash(sprintf(__('The %s have been saved', true), __('connections', true)), 'default', array('class' => 'success'));
+				$this->redirect(array('action' => 'view', 'event' => $id));
+			} else {
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('connections', true)), 'default', array('class' => 'warning'));
+			}
+		}
+
+		if (empty($this->data)) {
+			$this->Event->contain (array(
+				'Predecessor',
+				'Successor',
+				'Alternate',
+				'PredecessorTo',
+				'SuccessorTo',
+			));
+			$this->data = $this->Event->read(null, $id);
+			if ($this->data === false) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'index'));
+			}
+		}
+
+		$events = $this->Event->find('all', array(
+			'conditions' => array(
+				'Event.id !=' => $id,
+				"Event.open > DATE_ADD('{$this->data['Event']['open']}', INTERVAL -18 MONTH)",
+				"Event.open < DATE_ADD('{$this->data['Event']['open']}', INTERVAL 18 MONTH)",
+				"Event.close > DATE_ADD('{$this->data['Event']['close']}', INTERVAL -18 MONTH)",
+				"Event.close < DATE_ADD('{$this->data['Event']['close']}', INTERVAL 18 MONTH)",
+			),
+			'order' => array('Event.event_type_id', 'Event.open', 'Event.close', 'Event.id'),
+			'fields' => array('Event.id', 'Event.name', 'Event.open', 'Event.close', 'Event.event_type_id'),
+			'contain' => array('EventType'),
+		));
+		$event_types = $this->Event->EventType->find('list');
+
+		$this->set(compact('events', 'event_types'));
 	}
 }
 ?>

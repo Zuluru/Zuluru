@@ -96,6 +96,13 @@ if (isset ($add)) {
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
+<?php if (!isset ($add)): ?>
+	<div class="actions">
+	<ul>
+		<li><?php echo $this->Html->link(sprintf(__('Manage %s', true), __('Connections', true)), array('action' => 'connections', 'event' => $this->data['Event']['id'])); ?> </li>
+	</ul>
+</div>
+<?php endif; ?>
 
 <?php echo $this->ZuluruHtml->script ('datepicker', array('inline' => false)); ?>
 <?php if (Configure::read('feature.tiny_mce')) $this->TinyMce->editor('advanced'); ?>

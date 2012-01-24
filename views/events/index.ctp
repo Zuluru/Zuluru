@@ -61,10 +61,26 @@ foreach ($events as $event):
 		</td>
 <?php if ($is_admin): ?>
 		<td class="actions">
-			<?php echo $this->Html->link(__('Edit', true), array('action' => 'edit', 'event' => $event['Event']['id'])); ?>
-			<?php echo $this->Html->link(__('Delete', true), array('action' => 'delete', 'event' => $event['Event']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $event['Event']['id'])); ?>
-			<?php echo $this->Html->link(__('Summary', true), array('controller' => 'registrations', 'action' => 'summary', 'event' => $event['Event']['id'])); ?>
-			<?php echo $this->Html->link(__('Add Preregistration', true), array('controller' => 'preregistrations', 'action' => 'add', 'event' => $event['Event']['id'])); ?>
+			<?php
+			echo $this->ZuluruHtml->iconLink('edit_24.png',
+				array('action' => 'edit', 'event' => $event['Event']['id']),
+				array('alt' => __('Edit', true), 'title' => __('Edit', true)));
+			$alt = sprintf(__('Manage %s', true), __('Connections', true));
+			echo $this->ZuluruHtml->iconLink('connections_24.png',
+				array('action' => 'connections', 'event' => $event['Event']['id']),
+				array('alt' => $alt, 'title' => $alt));
+			echo $this->ZuluruHtml->iconLink('delete_24.png',
+				array('action' => 'delete', 'event' => $event['Event']['id']),
+				array('alt' => __('Delete', true), 'title' => __('Delete', true)),
+				array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $event['Event']['id'])));
+			echo $this->ZuluruHtml->iconLink('summary_24.png',
+				array('controller' => 'registrations', 'action' => 'summary', 'event' => $event['Event']['id']),
+				array('alt' => __('Summary', true), 'title' => __('Summary', true)));
+			$alt = sprintf(__('Add %s', true), __('Preregistration', true));
+			echo $this->ZuluruHtml->iconLink('preregistration_add_24.png',
+				array('controller' => 'preregistrations', 'action' => 'add', 'event' => $event['Event']['id']),
+				array('alt' => $alt, 'title' => $alt));
+			?>
 		</td>
 <?php endif; ?>
 	</tr>

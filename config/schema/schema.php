@@ -127,6 +127,14 @@ class ZuluruSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'name' => array('column' => 'name', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
+	var $events_connections = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'event_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
+		'connection' => array('type' => 'integer', 'null' => false),
+		'connected_event_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'event' => array('column' => 'event_id', 'unique' => 0)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
 	var $facilities = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'is_open' => array('type' => 'boolean', 'null' => false, 'default' => '0'),

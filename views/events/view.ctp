@@ -15,7 +15,6 @@ $this->Html->addCrumb (__('View', true));
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Description'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $event['Event']['description']; ?>
-			&nbsp;
 		</dd>
 <?php if (!empty ($event['Event']['level_of_play'])): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Level of Play'); ?></dt>
@@ -158,7 +157,7 @@ else:
 
 </div>
 
-<?php if (!empty($event['Division']['Event'])): ?>
+<?php if (!empty($event['Division']['Event']) || !empty($event['Alternate'])): ?>
 <div class="related">
 	<h3><?php __('You might alternately be interested in the following registrations:');?></h3>
 	<table class="list">
@@ -168,7 +167,21 @@ else:
 	</tr>
 	<?php
 		$i = 0;
-		foreach ($event['Division']['Event'] as $related):
+		if (!empty($event['Division']['Event'])) :
+			foreach ($event['Division']['Event'] as $related):
+				$class = null;
+				if ($i++ % 2 == 0) {
+					$class = ' class="altrow"';
+				}
+		?>
+		<tr<?php echo $class;?>>
+			<td><?php echo $this->Html->link($related['name'], array('controller' => 'events', 'action' => 'view', 'event' => $related['id']));?></td>
+			<td><?php __($related['EventType']['name']);?></td>
+		</tr>
+	<?php endforeach; ?>
+	<?php endif; ?>
+	<?php
+		foreach ($event['Alternate'] as $related):
 			$class = null;
 			if ($i++ % 2 == 0) {
 				$class = ' class="altrow"';
@@ -185,19 +198,40 @@ else:
 
 <div class="actions">
 	<ul>
-<?php if (!empty($event['Event']['division_id'])): ?>
-		<li><?php echo $this->Html->link(sprintf(__('View %s', true), __('Division', true)), array('controller' => 'divisions', 'action' => 'view', 'division' => $event['Division']['id'])); ?> </li>
-<?php endif; ?>
-<?php if ($is_admin): ?>
-		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Event', true)), array('action' => 'edit', 'event' => $event['Event']['id'])); ?> </li>
-		<li><?php echo $this->Html->link(sprintf(__('Delete %s', true), __('Event', true)), array('action' => 'delete', 'event' => $event['Event']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $event['Event']['id'])); ?> </li>
-		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Questionnaire', true)), array('controller' => 'questionnaires', 'action' => 'edit', 'questionnaire' => $event['Event']['questionnaire_id'])); ?> </li>
-		<li><?php echo $this->Html->link(sprintf(__('List %s', true), __('Preregistrations', true)), array('controller' => 'preregistrations', 'action' => 'index', 'event' => $event['Event']['id'])); ?> </li>
-		<li><?php echo $this->Html->link(sprintf(__('New %s', true), __('Preregistration', true)), array('controller' => 'preregistrations', 'action' => 'add', 'event' => $event['Event']['id'])); ?> </li>
-		<li><?php echo $this->Html->link(sprintf(__('%s Summary', true), __('Registration', true)), array('controller' => 'registrations', 'action' => 'summary', 'event' => $event['Event']['id'])); ?> </li>
-		<li><?php echo $this->Html->link(sprintf(__('Detailed %s List', true), __('Registration', true)), array('controller' => 'registrations', 'action' => 'full_list', 'event' => $event['Event']['id'])); ?> </li>
-		<li><?php echo $this->Html->link(sprintf(__('Download %s List', true), __('Registration', true)), array('controller' => 'registrations', 'action' => 'full_list', 'event' => $event['Event']['id'], 'ext' => 'csv')); ?> </li>
-<?php endif; ?>
+	<?php
+		if (!empty($event['Event']['division_id'])) {
+			echo $this->Html->tag ('li', $this->Html->link(sprintf(__('View %s', true), __('Division', true)),
+					array('controller' => 'divisions', 'action' => 'view', 'division' => $event['Division']['id'])));
+		}
+		if ($is_admin) {
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('edit_32.png',
+				array('action' => 'edit', 'event' => $event['Event']['id']),
+				array('alt' => __('Edit', true), 'title' => __('Edit', true))));
+			$alt = sprintf(__('Manage %s', true), __('Connections', true));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('connections_32.png',
+				array('action' => 'connections', 'event' => $event['Event']['id']),
+				array('alt' => $alt, 'title' => $alt)));
+			echo $this->Html->tag ('li', $this->Html->link(sprintf(__('Edit %s', true), __('Questionnaire', true)),
+				array('controller' => 'questionnaires', 'action' => 'edit', 'questionnaire' => $event['Event']['questionnaire_id'])));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('delete_32.png',
+				array('action' => 'delete', 'event' => $event['Event']['id']),
+				array('alt' => __('Delete', true), 'title' => __('Delete', true)),
+				array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $event['Event']['id']))));
+			$alt = sprintf(__('%s Summary', true), __('Registration', true));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('summary_32.png',
+				array('controller' => 'registrations', 'action' => 'summary', 'event' => $event['Event']['id']),
+				array('alt' => $alt, 'title' => $alt)));
+			echo $this->Html->tag ('li', $this->Html->link(sprintf(__('Detailed %s List', true), __('Registration', true)),
+				array('controller' => 'registrations', 'action' => 'full_list', 'event' => $event['Event']['id'])));
+			echo $this->Html->tag ('li', $this->Html->link(sprintf(__('Download %s List', true), __('Registration', true)),
+				array('controller' => 'registrations', 'action' => 'full_list', 'event' => $event['Event']['id'], 'ext' => 'csv')));
+			$alt = sprintf(__('Add %s', true), __('Preregistration', true));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('preregistration_add_32.png',
+				array('controller' => 'preregistrations', 'action' => 'add', 'event' => $event['Event']['id']),
+				array('alt' => $alt, 'title' => $alt)));
+			echo $this->Html->tag ('li', $this->Html->link(sprintf(__('List %s', true), __('Preregistrations', true)), array('controller' => 'preregistrations', 'action' => 'index', 'event' => $event['Event']['id'])));
+		}
+	?>
 	</ul>
 </div>
 

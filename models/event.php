@@ -151,7 +151,100 @@ class Event extends AppModel {
 			'exclusive' => '',
 			'finderQuery' => '',
 			'counterQuery' => ''
-		)
+		),
+	);
+
+	var $hasAndBelongsToMany = array(
+		'Predecessor' => array(
+			'className' => 'Event',
+			'joinTable' => 'events_connections',
+			'foreignKey' => 'event_id',
+			'associationForeignKey' => 'connected_event_id',
+			'unique' => true,
+			'conditions' => array('connection' => EVENT_PREDECESSOR),
+			'fields' => '',
+			'order' => array('Predecessor.event_type_id', 'Predecessor.open', 'Predecessor.close', 'Predecessor.id'),
+			'limit' => '',
+			'offset' => '',
+			'finderQuery' => '',
+			'deleteQuery' => '',
+			'insertQuery' => ''
+		),
+		'Successor' => array(
+			'className' => 'Event',
+			'joinTable' => 'events_connections',
+			'foreignKey' => 'event_id',
+			'associationForeignKey' => 'connected_event_id',
+			'unique' => true,
+			'conditions' => array('connection' => EVENT_SUCCESSOR),
+			'fields' => '',
+			'order' => array('Successor.event_type_id', 'Successor.open', 'Successor.close', 'Successor.id'),
+			'limit' => '',
+			'offset' => '',
+			'finderQuery' => '',
+			'deleteQuery' => '',
+			'insertQuery' => ''
+		),
+		'Alternate' => array(
+			'className' => 'Event',
+			'joinTable' => 'events_connections',
+			'foreignKey' => 'event_id',
+			'associationForeignKey' => 'connected_event_id',
+			'unique' => true,
+			'conditions' => array('connection' => EVENT_ALTERNATE),
+			'fields' => '',
+			'order' => array('Alternate.event_type_id', 'Alternate.open', 'Alternate.close', 'Alternate.id'),
+			'limit' => '',
+			'offset' => '',
+			'finderQuery' => '',
+			'deleteQuery' => '',
+			'insertQuery' => ''
+		),
+		'PredecessorTo' => array(
+			'className' => 'Event',
+			'joinTable' => 'events_connections',
+			'foreignKey' => 'connected_event_id',
+			'associationForeignKey' => 'event_id',
+			'unique' => true,
+			'conditions' => array('connection' => EVENT_PREDECESSOR),
+			'fields' => '',
+			'order' => array('PredecessorTo.event_type_id', 'PredecessorTo.open', 'PredecessorTo.close', 'PredecessorTo.id'),
+			'limit' => '',
+			'offset' => '',
+			'finderQuery' => '',
+			'deleteQuery' => '',
+			'insertQuery' => ''
+		),
+		'SuccessorTo' => array(
+			'className' => 'Event',
+			'joinTable' => 'events_connections',
+			'foreignKey' => 'connected_event_id',
+			'associationForeignKey' => 'event_id',
+			'unique' => true,
+			'conditions' => array('connection' => EVENT_SUCCESSOR),
+			'fields' => '',
+			'order' => array('SuccessorTo.event_type_id', 'SuccessorTo.open', 'SuccessorTo.close', 'SuccessorTo.id'),
+			'limit' => '',
+			'offset' => '',
+			'finderQuery' => '',
+			'deleteQuery' => '',
+			'insertQuery' => ''
+		),
+		'AlternateTo' => array(
+			'className' => 'Event',
+			'joinTable' => 'events_connections',
+			'foreignKey' => 'connected_event_id',
+			'associationForeignKey' => 'event_id',
+			'unique' => true,
+			'conditions' => array('connection' => EVENT_ALTERNATE),
+			'fields' => '',
+			'order' => array('AlternateTo.event_type_id', 'AlternateTo.open', 'AlternateTo.close', 'AlternateTo.id'),
+			'limit' => '',
+			'offset' => '',
+			'finderQuery' => '',
+			'deleteQuery' => '',
+			'insertQuery' => ''
+		),
 	);
 
 	// Determine the applicable cap
