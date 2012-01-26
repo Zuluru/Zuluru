@@ -60,9 +60,9 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				break;
 
 			case 6:
-				$types['semis_complete_six'] = 'semi-finals and finals, plus 5th and 6th place play-ins, everyone gets 3 games';
 				$types['semis_consolation_six'] = 'semi-finals and finals, plus 5th and 6th place play-ins';
-				$types['semis_minimal_six'] = 'semi-finals and finals, 5th and 6th have consolation games';
+				$types['semis_complete_six'] = 'semi-finals and finals, plus 5th and 6th place play-ins, everyone gets 3 games';
+				$types['semis_minimal_six'] = 'semi-finals and finals, 5th and 6th have consolation games, everyone gets 2 games';
 				// Two 3-team round-robins plus finals?
 				// Two 3-team round-robins plus quarters?
 				break;
@@ -85,6 +85,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 
 			case 10:
 				$types['quarters_consolation_ten'] = 'quarter-finals, semi-finals and finals, plus 9th and 10th place play-ins';
+				$types['presemis_consolation_ten'] = 'pre-semi-finals, semi-finals and finals, everyone gets 3 games';
 				// Two 5-team round-robins plus quarters?
 				// 3+3+4-team round-robins plus quarters?
 				break;
@@ -154,6 +155,8 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				return array(1, 4, 4, 4, 1);
 			case 'quarters_consolation_ten':
 				return array(2, 5, 4, 4);
+			case 'presemis_consolation_ten':
+				return array(5, 5, 5);
 			case 'quarters_consolation_eleven':
 				return array(3, 5, 5, 5);
 			case 'brackets_of_4':
@@ -233,6 +236,9 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				break;
 			case 'quarters_consolation_ten':
 				$ret = $this->createQuartersTen(true, true);
+				break;
+			case 'presemis_consolation_ten':
+				$ret = $this->createPresemisTen(true, true);
 				break;
 			case 'quarters_consolation_eleven':
 				$ret = $this->createQuartersEleven(true, true);
@@ -517,6 +523,37 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		if ($consolation) {
 			$success &= $this->createTournamentGame (14, 4, ordinal($this->first_team + 5), 'game_winner', 10, 'game_winner', 11);
 			$success &= $this->createTournamentGame (15, 4, ordinal($this->first_team + 7), 'game_loser', 10, 'game_loser', 11);
+		}
+
+		return $success;
+	}
+
+	function createPresemisTen($bronze, $consolation) {
+		// Round 1: 1v2, 3v6, 4v5, 7v10, 8v9
+		$success = $this->createTournamentGame (1, 1, 'A', 'seed', 1, 'seed', 2);
+		$success &= $this->createTournamentGame (2, 1, 'B', 'seed', 3, 'seed', 6);
+		$success &= $this->createTournamentGame (3, 1, 'C', 'seed', 4, 'seed', 5);
+		$success &= $this->createTournamentGame (4, 1, 'D', 'seed', 7, 'seed', 10);
+		$success &= $this->createTournamentGame (5, 1, 'E', 'seed', 8, 'seed', 9);
+
+		// Round 2: winner A vs winner C, loser A vs winner B, optional loser B vs winner D, loser C vs winner E, optional Loser D vs Loser E - 9th/10th Place game 1
+		$success &= $this->createTournamentGame (6, 2, 'F', 'game_winner', 1, 'game_winner', 3);
+		$success &= $this->createTournamentGame (7, 2, 'G', 'game_loser', 1, 'game_winner', 2);
+		if ($consolation) {
+			$success &= $this->createTournamentGame (8, 2, 'H', 'game_loser', 2, 'game_winner', 4);
+			$success &= $this->createTournamentGame (9, 2, 'I', 'game_loser', 3, 'game_winner', 5);
+			$success &= $this->createTournamentGame (10, 2, 'J', 'game_loser', 4, 'game_loser', 5);
+		}
+
+		// Round 3: winners vs winners, optional losers vs losers
+		$success &= $this->createTournamentGame (11, 3, ordinal($this->first_team + 1), 'game_winner', 6, 'game_winner', 7);
+		if ($bronze) {
+			$success &= $this->createTournamentGame (12, 3, ordinal($this->first_team + 3), 'game_loser', 6, 'game_loser', 7);
+		}
+		if ($consolation) {
+			$success &= $this->createTournamentGame (13, 3, ordinal($this->first_team + 5), 'game_winner', 8, 'game_winner', 9);
+			$success &= $this->createTournamentGame (14, 3, ordinal($this->first_team + 7), 'game_loser', 8, 'game_loser', 9);
+			$success &= $this->createTournamentGame (15, 3, 'K', 'game_loser', 4, 'game_loser', 5);
 		}
 
 		return $success;
