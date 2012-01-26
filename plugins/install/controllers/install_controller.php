@@ -232,7 +232,7 @@ CONFIG;
 			if(!$db->isConnected()) {
 				$this->Session->setFlash(__('Could not connect to database.', true), 'default', array('class' => 'error'));
 			} else {
-				$schema =& new CakeSchema();
+				$schema =& new CakeSchema(array('name' => 'zuluru'));
 				$schema = $schema->load();
 				foreach($schema->tables as $table => $fields) {
 					$create = $db->createSchema($schema, $table);

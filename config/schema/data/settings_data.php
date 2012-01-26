@@ -9,12 +9,12 @@ class SettingsData {
 		array(
 			'category' => 'organization',
 			'name' => 'name',
-			'value' => '',
+			'value' => 'Club',
 		),
 		array(
 			'category' => 'organization',
 			'name' => 'short_name',
-			'value' => '',
+			'value' => 'Club',
 		),
 		array(
 			'category' => 'organization',

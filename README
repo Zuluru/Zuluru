@@ -58,7 +58,8 @@ As described above, the base URL for Zuluru may vary. Whatever it is
 will refer to that as <ZULURU> below.
 
 The following directories under /path/to/cake/zuluru must be writeable
-by the web server at all times:
+by the web server at all times (some of these can be modified in the
+'folders' section of the config/install.php file):
 /tmp
 	/cache
 		/models
@@ -66,6 +67,8 @@ by the web server at all times:
 		/views
 	/logs
 	/sessions
+/upload
+/webroot/files/temp
 
 The following directories and files under /path/to/cake/zuluru must be
 writeable by the web server during the install process, but can (and

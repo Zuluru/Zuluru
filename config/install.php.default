@@ -47,6 +47,9 @@ $config['folders'] = array(
 	// The filesystem location where files for permits, etc, shall live.
 	'league_base'		=> '{webroot}/files',
 
+	// The filesystem location where uploaded files go
+	'uploads'			=> '{webroot}/../upload',
+
 	// The filesystem location where icon packs live.
 	'icon_base'		=> '{webroot}/img',
 );
@@ -93,6 +96,11 @@ $config['security'] = array(
 	// is a new system, false if you have pre-existing Zuluru member data or if
 	// you are using a third-party user database which doesn't use this.
 	'salted_hash'		=> true,
+);
+
+// Set up callback components
+$config['callbacks'] = array(
+	'user'				=> array(),
 );
 
 // Set up time zone options
