@@ -274,7 +274,7 @@ class Division extends AppModel {
 		return $divisions;
 	}
 
-	function readGames($division) {
+	function readFinalizedGames($division) {
 		$teams = Set::extract ('/Team/id', $division);
 		if (empty($teams)) {
 			return array();
@@ -287,6 +287,8 @@ class Division extends AppModel {
 						'home_team' => $teams,
 						'away_team' => $teams,
 					),
+					'home_score !=' => null,
+					'away_score !=' => null,
 				),
 		));
 

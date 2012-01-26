@@ -526,10 +526,10 @@ class DivisionsController extends AppController {
 		}
 		AppModel::_reindexOuter($division['Team'], 'Team', 'id');
 
-		// Find all games played by teams that are currently in this division
-		$division['Game'] = $this->Division->readGames($division);
+		// Find all finalized games played by teams that are currently in this division
+		$division['Game'] = $this->Division->readFinalizedGames($division);
 		if (empty ($division['Game'])) {
-			$this->Session->setFlash(__('This division has no games scheduled yet.', true), 'default', array('class' => 'info'));
+			$this->Session->setFlash(__('This division has no games finalized yet.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
@@ -1183,7 +1183,7 @@ class DivisionsController extends AppController {
 			AppModel::_reindexOuter($division['Team'], 'Team', 'id');
 
 			// Find all games played by teams that are currently in this division
-			$division['Game'] = $this->Division->readGames($division);
+			$division['Game'] = $this->Division->readFinalizedGames($division);
 			if (!empty ($division['Game'])) {
 				$divisions[$key]['updates'] = $ratings_obj->recalculateRatings($division, true);
 			}

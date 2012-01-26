@@ -34,19 +34,17 @@ class RatingsComponent extends Object
 		$game_update_count = $this->_recalculateRatings($division, $correct);
 
 		// Perhaps save any changes
-		if ($correct) {
-			$team_updates = array();
-			foreach ($division['Team'] as $key => $team) {
-				if ($team['rating'] != $team['current_rating']) {
-					$team_updates[] = array(
-						'id' => $team['id'],
-						'rating' => $team['current_rating'],
-					);
-				}
+		$team_updates = array();
+		foreach ($division['Team'] as $key => $team) {
+			if ($team['rating'] != $team['current_rating']) {
+				$team_updates[] = array(
+					'id' => $team['id'],
+					'rating' => $team['current_rating'],
+				);
 			}
-			if (!empty($team_updates)) {
-				$this->team_obj->saveAll ($team_updates);
-			}
+		}
+		if ($correct && !empty($team_updates)) {
+			$this->team_obj->saveAll ($team_updates);
 		}
 
 		return array(count($team_updates), $game_update_count);

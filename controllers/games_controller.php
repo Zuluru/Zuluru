@@ -1252,6 +1252,9 @@ class GamesController extends AppController {
 		{
 			$change_rating = true;
 		}
+		if ($data['Game']['tournament']) {
+			$change_rating = false;
+		}
 
 		if (! $change_rating) {
 			$data['Game']['rating_points'] = 0;
