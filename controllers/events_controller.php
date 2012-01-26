@@ -233,23 +233,29 @@ class EventsController extends AppController {
 						'connection' => $type,
 				));
 
-				foreach ($this->data['Event'][$name] as $connection) {
-					$save[] = array(
-						'event_id' => $id,
-						'connection' => $type,
-						'connected_event_id' => $connection,
-					);
+				if (!empty($this->data['Event'][$name])) {
+					foreach ($this->data['Event'][$name] as $connection) {
+						$save[] = array(
+							'event_id' => $id,
+							'connection' => $type,
+							'connected_event_id' => $connection,
+						);
+					}
 				}
 
-				foreach ($this->data['Event'][$name . 'To'] as $connection) {
-					$save[] = array(
-						'event_id' => $connection,
-						'connection' => $type,
-						'connected_event_id' => $id,
-					);
+				if (!empty($this->data['Event'][$name . 'To'])) {
+					foreach ($this->data['Event'][$name . 'To'] as $connection) {
+						$save[] = array(
+							'event_id' => $connection,
+							'connection' => $type,
+							'connected_event_id' => $id,
+						);
+					}
 				}
 
-				$success &= $this->Event->EventsConnection->saveAll($save);
+				if (!empty($save)) {
+					$success &= $this->Event->EventsConnection->saveAll($save);
+				}
 			}
 			if ($success) {
 				$transaction->commit();
