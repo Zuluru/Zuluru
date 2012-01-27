@@ -88,6 +88,7 @@ $config['options'] = array(
 		'Other',
 	)),
 
+	// If additions are made to this, they must also be reflected in features.php
 	'season'				=> make_options(array(
 		'None',
 		'Winter',

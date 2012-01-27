@@ -60,6 +60,18 @@ if (!defined('EVENT_PREDECESSOR')) {
 	define('EVENT_ALTERNATE', 3);
 }
 
+$config['season_is_indoor'] = array(
+	'None'			=> false,
+	'Winter'		=> false,
+	'Winter Indoor'	=> true,
+	'Spring'		=> false,
+	'Spring Indoor'	=> true,
+	'Summer'		=> false,
+	'Summer Indoor'	=> true,
+	'Fall'			=> false,
+	'Fall Indoor'	=> true,
+);
+
 $config['roster_requirements'] = array(
 	'4/3'	=> 12,
 	'5/2'	=> 12,
