@@ -653,8 +653,10 @@ class AppController extends Controller {
 	 * Add all the links for a league to the menu.
 	 */
 	function _addLeagueMenuItems($league) {
-		foreach ($league['Division'] as $division) {
-			$this->_addDivisionMenuItems($division, $league['League']);
+		if (!empty($league['Division'])) {
+			foreach ($league['Division'] as $division) {
+				$this->_addDivisionMenuItems($division, $league['League']);
+			}
 		}
 	}
 
