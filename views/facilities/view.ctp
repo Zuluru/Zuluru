@@ -159,4 +159,3 @@ $this->Html->addCrumb (__('View', true));
 <?php endif; ?>
 	</ul>
 </div>
-<div id="temp_update" style="display: none;"></div>

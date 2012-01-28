@@ -24,4 +24,3 @@ $this->Html->addCrumb (__('Approve Photos', true));
 <?php endforeach; ?>
 </table>
 </div>
-<div id="temp_update" style="display: none;"></div>

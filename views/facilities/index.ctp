@@ -82,4 +82,3 @@ foreach ($regions as $region):
 
 </table>
 </div>
-<div id="temp_update" style="display: none;"></div>

@@ -67,4 +67,3 @@ $this->Html->addCrumb (__('List', true));
 		<li><?php echo $this->Html->link(sprintf(__('New %s', true), __('Question', true)), array('action' => 'add')); ?></li>
 	</ul>
 </div>
-<div id="temp_update" style="display: none;"></div>

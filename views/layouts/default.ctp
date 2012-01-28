@@ -78,6 +78,9 @@
 		echo $this->Html->link('Report a bug', "mailto:admin@zuluru.org?subject=Zuluru%20Bug&body=$body") . ' on this page.';
 		?></i></p>
 	</div>
+	<?php // Various Ajax bits throughout the system target this ?>
+	<div id="temp_update" style="display: none;"></div>
+
 	<?php if (isset ($this->Js)) echo $this->Js->writeBuffer(); ?>
 	<?php echo $this->element('sql_dump'); ?>
 </body>
