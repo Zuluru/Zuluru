@@ -37,11 +37,11 @@ if (!empty ($team['Team']['website'])) {
 	<dt><?php __('Division'); ?></dt>
 	<dd><?php
 	$title = array('title' => $team['Division']['full_league_name']);
-	echo $this->Html->link(__('Details', true), array('controller' => 'divisions', 'action' => 'view', 'division' => $$team['Team']['division_id']), $title) .
+	echo $this->Html->link(__('Details', true), array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Team']['division_id']), $title) .
 		' / ' .
-		$this->Html->link(__('Schedule', true), array('controller' => 'divisions', 'action' => 'schedule', 'division' => $$team['Team']['division_id'])) .
+		$this->Html->link(__('Schedule', true), array('controller' => 'divisions', 'action' => 'schedule', 'division' => $team['Team']['division_id'])) .
 		' / ' .
-		$this->Html->link(__('Standings', true), array('controller' => 'divisions', 'action' => 'standings', 'division' => $$team['Team']['division_id']));
+		$this->Html->link(__('Standings', true), array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Team']['division_id']));
 	?></dd>
 
 </dl>
