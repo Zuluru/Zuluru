@@ -53,7 +53,7 @@ class TeamEventsController extends AppController {
 			$this->redirect('/');
 		}
 		$this->TeamEvent->contain(array(
-			'Team' => array('Person' => array('Upload')),
+			'Team' => array('Person'),
 		));
 
 		$event = $this->TeamEvent->read(null, $id);

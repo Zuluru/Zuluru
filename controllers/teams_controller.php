@@ -374,7 +374,7 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->Team->contain(array(
-			'Person' => array('Upload'),
+			'Person',
 			'Division' => array('Day', 'League'),
 			'Franchise',
 			'Region',
@@ -911,7 +911,7 @@ class TeamsController extends AppController {
 				$this->_mergePaginationParams();
 				$this->paginate['Person'] = array(
 					'conditions' => $this->_generateSearchConditions($params, 'Person'),
-					'contain' => array('Upload'),
+					'contain' => false,
 				);
 				$this->set('people', $this->paginate('Person'));
 			}

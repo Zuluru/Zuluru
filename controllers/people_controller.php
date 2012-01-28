@@ -860,7 +860,7 @@ class PeopleController extends AppController {
 				$this->_mergePaginationParams();
 				$this->paginate['Person'] = array(
 					'conditions' => $this->_generateSearchConditions($params),
-					'contain' => array('Upload'),
+					'contain' => false,
 				);
 				$this->set('people', $this->paginate('Person'));
 			}

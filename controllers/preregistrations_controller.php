@@ -7,7 +7,7 @@ class PreregistrationsController extends AppController {
 	function index() {
 		$this->paginate['Preregistration'] = array(
 			'contain' => array(
-				'Person' => 'Upload',
+				'Person',
 				'Event',
 			),
 		);
@@ -60,7 +60,7 @@ class PreregistrationsController extends AppController {
 					$this->_mergePaginationParams();
 					$this->paginate['Person'] = array(
 						'conditions' => $this->_generateSearchConditions($params, 'Person'),
-						'contain' => array('Upload'),
+						'contain' => false,
 					);
 					$this->set('people', $this->paginate('Person'));
 				}

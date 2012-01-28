@@ -52,7 +52,7 @@ class FranchisesController extends AppController {
 
 	function index() {
 		$this->paginate = array(
-			'contain' => array('Person' => 'Upload'),
+			'contain' => array('Person'),
 		);
 		$this->set('franchises', $this->paginate());
 		$this->set('letters', $this->Franchise->find('all', array(
@@ -73,7 +73,7 @@ class FranchisesController extends AppController {
 
 		$this->set(compact('letter'));
 		$this->set('franchises', $this->Franchise->find('all', array(
-				'contain' => array('Person' => 'Upload'),
+				'contain' => array('Person'),
 				'conditions' => array(
 					'Franchise.name LIKE' => "$letter%",
 				),
@@ -320,7 +320,7 @@ class FranchisesController extends AppController {
 				$this->_mergePaginationParams();
 				$this->paginate['Person'] = array(
 					'conditions' => $this->_generateSearchConditions($params, 'Person'),
-					'contain' => array('Upload'),
+					'contain' => false,
 				);
 				$this->set('people', $this->paginate('Person'));
 			}
