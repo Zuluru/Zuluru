@@ -24,7 +24,7 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 
 			</dd>
 		<?php endif; ?>
-		<?php if ($is_me || $is_admin || $is_coordinator || $is_captain || $is_my_captain || $is_league_captain ||
+		<?php if ($is_me || $is_admin || $is_coordinator || $is_captain || $is_my_captain || $is_division_captain ||
 				($is_logged_in && $person['Person']['publish_email'])):?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Email Address'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
@@ -207,21 +207,21 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 </div>
 <?php endif; ?>
 
-<?php if (!empty($person['League'])):?>
+<?php if (!empty($person['Division'])):?>
 <div class="related">
-	<h3><?php __('Leagues');?></h3>
+	<h3><?php __('Divisions');?></h3>
 	<table class="list">
 	<?php
 		$i = 0;
-		foreach ($person['League'] as $league):
+		foreach ($person['Division'] as $division):
 			$class = null;
 			if ($i++ % 2 == 0) {
 				$class = ' class="altrow"';
 			}
 		?>
 		<tr<?php echo $class;?>>
-			<td><?php echo __(Configure::read("options.league_position.{$league['LeaguesPerson']['position']}"), true) . ' ' . __('of', true) . ' ' .
-					$this->Html->link($league['League']['name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $league['League']['id']));?></td>
+			<td><?php echo __(Configure::read("options.division_position.{$division['DivisionsPerson']['position']}"), true) . ' ' . __('of', true) . ' ' .
+					$this->Html->link($division['Division']['name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $division['Division']['id']));?></td>
 		</tr>
 		<?php endforeach; ?>
 	</table>

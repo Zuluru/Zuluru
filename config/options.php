@@ -128,7 +128,7 @@ $config['options'] = array(
 		'add'				=> 'Players are added directly',
 	),
 
-	'league_position' => array(
+	'division_position' => array(
 		'coordinator'		=> 'Coordinator',
 	),
 
