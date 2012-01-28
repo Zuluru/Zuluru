@@ -37,23 +37,38 @@ class Team extends AppModel {
 			),
 		),
 		'attendance_reminder' => array(
+			'numeric' => array(
+				'rule' => array('numeric'),
+				'allowEmpty' => true,
+				'message' => 'Please enter a number',
+				'last' => true,
+			),
 			'range' => array(
 				'rule' => array('range', -2, 6),
-				'allowEmpty' => true,
 				'message' => 'Attendance reminders can be sent a maximum of five days in advance',
 			),
 		),
 		'attendance_summary' => array(
+			'numeric' => array(
+				'rule' => array('numeric'),
+				'allowEmpty' => true,
+				'message' => 'Please enter a number',
+				'last' => true,
+			),
 			'range' => array(
 				'rule' => array('range', -2, 6),
-				'allowEmpty' => true,
 				'message' => 'Attendance summaries can be sent a maximum of five days in advance',
 			),
 		),
-		'attendance_notifications' => array(
+		'attendance_notification' => array(
+			'numeric' => array(
+				'rule' => array('numeric'),
+				'allowEmpty' => true,
+				'message' => 'Please enter a number',
+				'last' => true,
+			),
 			'range' => array(
 				'rule' => array('range', -2, 15),
-				'allowEmpty' => true,
 				'message' => 'Attendance notifications can be sent starting a maximum of 14 days in advance',
 			),
 		),
