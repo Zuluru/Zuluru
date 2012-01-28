@@ -416,19 +416,8 @@ class DivisionsController extends AppController {
 			'Game' => array(
 				'GameSlot' => array('Field' => 'Facility'),
 				'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $this->Session->read('Zuluru.TeamIDs'))),
-				// Get the list of captains for each team, for the popup
-				'HomeTeam' => array(
-					'Person' => array(
-						'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
-						'fields' => array('id', 'first_name', 'last_name'),
-					),
-				),
-				'AwayTeam' => array(
-					'Person' => array(
-						'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
-						'fields' => array('id', 'first_name', 'last_name'),
-					),
-				),
+				'HomeTeam',
+				'AwayTeam',
 			),
 		));
 		$division = $this->Division->read(null, $id);
@@ -605,13 +594,7 @@ class DivisionsController extends AppController {
 
 		$this->Division->contain(array (
 			'Day' => array('order' => 'day_id'),
-			// Get the list of captains for each team, for the popup
-			'Team' => array(
-				'Person' => array(
-					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
-					'fields' => array('id', 'first_name', 'last_name'),
-				),
-			),
+			'Team',
 			'League',
 		));
 		$division = $this->Division->read(null, $id);

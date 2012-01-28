@@ -393,12 +393,38 @@ class PeopleController extends AppController {
 		}
 		$this->set(compact('person'));
 		$this->set('is_me', ($id === $my_id));
+		$this->set($this->_connections($person));
+	}
+
+	function tooltip() {
+		$id = $this->_arg('person');
+		if (!$id) {
+			return;
+		}
+		$this->Person->contain(array(
+			'Upload',
+		));
+
+		$person = $this->Person->readCurrent($id);
+		if ($person === false) {
+			return;
+		}
+		$this->set(compact('person'));
+		$this->set('is_me', ($id === $this->Auth->user('id')));
+		$this->set($this->_connections($person));
+
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
+	}
+
+	function _connections($person) {
+		$connections = array();
 
 		// Check if the current user is a captain of a team the viewed player is on
 		$my_team_ids = $this->Session->read('Zuluru.OwnedTeamIDs');
 		$team_ids = Set::extract ('/Team/TeamsPerson[status=' . ROSTER_APPROVED . ']/team_id', $person);
 		$on_my_teams = array_intersect ($my_team_ids, $team_ids);
-		$this->set('is_captain', !empty ($on_my_teams));
+		$connections['is_captain'] = !empty ($on_my_teams);
 
 		// Check if the current user is a coordinator of a division the viewed player is a captain in
 		$positions = Configure::read('privileged_roster_positions');
@@ -410,7 +436,7 @@ class PeopleController extends AppController {
 			);
 		}
 		$in_my_divisions = array_intersect ($my_division_ids, $division_ids);
-		$this->set('is_coordinator', !empty ($in_my_divisions));
+		$connections['is_coordinator'] = !empty ($in_my_divisions);
 
 		// Check if the current user is a captain in a division the viewed player is a captain in
 		$captain_in_division_ids = Set::extract ('/Team/division_id', $this->Session->read('Zuluru.OwnedTeams'));
@@ -421,18 +447,20 @@ class PeopleController extends AppController {
 			}
 		}
 		$captains_in_same_division = array_intersect ($captain_in_division_ids, $opponent_captain_in_division_ids);
-		$this->set('is_division_captain', !empty ($captains_in_same_division));
+		$connections['is_division_captain'] = !empty ($captains_in_same_division);
 
 		// Check if the current user is on a team the viewed player is a captain of
-		$this->set('is_my_captain', false);
+		$connections['is_my_captain'] = false;
 		foreach ($person['Team'] as $team) {
 			if (in_array ($team['TeamsPerson']['position'], $positions) &&
 				in_array ($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs'))
 			) {
-				$this->set('is_my_captain', true);
+				$connections['is_my_captain'] = true;
 				break;
 			}
 		}
+
+		return $connections;
 	}
 
 	function edit() {

@@ -495,10 +495,30 @@ class TeamsController extends AppController {
 				$this->set(compact('affiliate'));
 			}
 		}
+	}
 
-		// Set up a couple more variables that the player popup block needs
-		$captain_in_division_ids = Set::extract ('/Team/division_id', $this->Session->read('Zuluru.OwnedTeams'));
-		$this->set('is_division_captain', in_array ($team['Team']['division_id'], $captain_in_division_ids));
+	function tooltip() {
+		$id = $this->_arg('team');
+		if (!$id) {
+			return;
+		}
+		$this->Team->contain(array(
+			// Get the list of captains
+			'Person' => array(
+				'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+				'fields' => array('id', 'first_name', 'last_name'),
+			),
+			'Division',
+		));
+
+		$team = $this->Team->read(null, $id);
+		if ($team === false) {
+			return;
+		}
+		$this->set(compact('team'));
+
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
 	}
 
 	function add() {
@@ -649,19 +669,8 @@ class TeamsController extends AppController {
 				'GameSlot' => array('Field' => 'Facility'),
 				'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $this->Session->read('Zuluru.TeamIDs'))),
 				'SpiritEntry',
-				// Get the list of captains for each team, for the popup
-				'HomeTeam' => array(
-					'Person' => array(
-						'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
-						'fields' => array('id', 'first_name', 'last_name'),
-					),
-				),
-				'AwayTeam' => array(
-					'Person' => array(
-						'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
-						'fields' => array('id', 'first_name', 'last_name'),
-					),
-				),
+				'HomeTeam',
+				'AwayTeam',
 				'Attendance' => array(
 					'Person' => array(
 						'fields' => array('gender'),

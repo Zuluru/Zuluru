@@ -1,5 +1,4 @@
-<div id="<?php echo $id; ?>" class="tooltip">
-<h2><?php printf (__('Game %d', true), $game['id']); ?></h2>
+<h2><?php printf (__('Game %d', true), $game['Game']['id']); ?></h2>
 <dl>
 	<dt><?php __('Date'); ?></dt>
 	<dd><?php echo $this->ZuluruTime->date($game['GameSlot']['game_date']); ?></dd>
@@ -26,4 +25,3 @@
 	?></dd>
 
 </dl>
-</div>

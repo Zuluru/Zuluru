@@ -110,6 +110,27 @@ class GamesController extends AppController {
 		$this->set('is_coordinator', in_array ($this->Game->data['Division']['id'], $this->Session->read('Zuluru.DivisionIDs')));
 	}
 
+	function tooltip() {
+		$id = $this->_arg('game');
+		if (!$id) {
+			return;
+		}
+		$this->Game->contain(array(
+			'HomeTeam',
+			'AwayTeam',
+			'GameSlot' => array('Field' => 'Facility'),
+		));
+
+		$game = $this->Game->read(null, $id);
+		if ($game === false) {
+			return;
+		}
+		$this->set(compact('game'));
+
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
+	}
+
 	function ratings_table() {
 		$id = $this->_arg('game');
 		if (!$id) {

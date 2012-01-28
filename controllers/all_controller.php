@@ -44,19 +44,8 @@ class AllController extends AppController {
 				'contain' => array(
 					'GameSlot' => array('Field' => 'Facility'),
 					'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $team_ids)),
-					// Get the list of captains for each team, for the popup
-					'HomeTeam' => array(
-						'Person' => array(
-							'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
-							'fields' => array('id', 'first_name', 'last_name'),
-						),
-					),
-					'AwayTeam' => array(
-						'Person' => array(
-							'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
-							'fields' => array('id', 'first_name', 'last_name'),
-						),
-					),
+					'HomeTeam',
+					'AwayTeam',
 					'Attendance' => array(
 						'conditions' => array('Attendance.person_id' => $this->Auth->user('id')),
 					),
