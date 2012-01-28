@@ -19,6 +19,7 @@ class DivisionsController extends AppController {
 		// People can perform these operations on divisions they coordinate
 		if (in_array ($this->params['action'], array(
 				'edit',
+				'add_teams',
 				'approve_scores',
 				'fields',
 				'slots',
@@ -280,6 +281,50 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(__('Failed to remove coordinator!', true), 'default', array('class' => 'warning'));
 		}
 		$this->redirect(array('action' => 'view', 'division' => $id));
+	}
+
+	function add_teams() {
+		$id = $this->_arg('division');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+		}
+
+		if (!empty($this->data)) {
+			$teams = $this->data['Team'];
+			$default = $teams[0];
+			unset($teams[0]);
+			foreach ($teams as $key => $team) {
+				if (!empty($team['name'])) {
+					$teams[$key] += $default;
+				} else {
+					unset($teams[$key]);
+				}
+			}
+			if ($this->Division->Team->saveAll($teams)) {
+				$this->Session->setFlash(sprintf(__('The %s have been saved', true), __('teams', true)), 'default', array('class' => 'success'));
+				$this->redirect(array('action' => 'view', 'division' => $id));
+			} else {
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('teams', true)), 'default', array('class' => 'warning'));
+				// Adjust validation errors; some might really refer to the shared "0" key
+				foreach ($this->Division->Team->validationErrors as $errors) {
+					foreach ($errors as $field => $error) {
+						if (array_key_exists($field, $default)) {
+							$this->Division->Team->validationErrors[0][$field] = $error;
+						}
+					}
+				}
+			}
+		}
+
+		if (empty($this->data)) {
+			$this->Division->contain('Person', 'League');
+			$this->data = $this->Division->read(null, $id);
+			if ($this->data === false) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+			}
+		}
 	}
 
 	function ratings() {

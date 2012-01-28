@@ -158,6 +158,18 @@ $config['event_connection'] = array(
 // Percent likelihood that a notice will be shown, if there is one to show
 $config['notice_frequency'] = 100;
 
+// List of colours to use for automatically-created teams
+$config['automatic_team_colours'] = array(
+	'Black',
+	'White',
+	'Red',
+	'Blue',
+	'Yellow',
+	'Green',
+	'Purple',
+	'Orange',
+);
+
 if (file_exists(CONFIGS . 'features_custom.php')) {
 	include(CONFIGS . 'features_custom.php');
 }
