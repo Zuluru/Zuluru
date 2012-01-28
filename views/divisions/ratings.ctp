@@ -22,10 +22,7 @@ $this->Html->addCrumb (__('Adjust Ratings', true));
 	</tr>
 <?php foreach ($division['Team'] as $key => $team): ?>
 	<tr>
-		<td><?php echo $this->ZuluruHtml->link ($team['name'],
-				array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']),
-				array('max_length' => 20)
-		); ?></td>
+		<td><?php echo $this->element('teams/block', array('team' => $team, 'show_shirt' => false)); ?></td>
 		<td><?php
 		Team::consolidateRoster ($team);
 		echo $team['average_skill'];

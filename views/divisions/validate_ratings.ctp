@@ -36,12 +36,12 @@ $this->Html->addCrumb (__('Validate Ratings', true));
 		<td><?php echo $this->Html->link ($game['Game']['id'], array('controller' => 'games', 'action' => 'view', 'game' => $game['Game']['id'])); ?></td>
 		<td><?php echo $this->ZuluruTime->date ($game['GameSlot']['game_date']); ?></td>
 		<td><?php echo Inflector::humanize ($game['Game']['status']); ?></td>
-		<td><?php echo $this->Html->link ($game['HomeTeam']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $game['HomeTeam']['id'])); ?></td>
+		<td><?php echo $this->element('teams/block', array('team' => $game['HomeTeam'], 'show_shirt' => false)); ?></td>
 		<td><?php echo $game['Game']['home_score']; ?></td>
 		<?php $class = ($game['Game']['rating_home'] == null || $game['Game']['rating_home'] == $game['Game']['calc_rating_home'] ? '' : ' class="warning-message"'); ?>
 		<td<?php echo $class; ?>><?php echo $game['Game']['rating_home']; ?></td>
 		<td<?php echo $class; ?>><?php echo $game['Game']['calc_rating_home']; ?></td>
-		<td><?php echo $this->Html->link ($game['AwayTeam']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $game['AwayTeam']['id'])); ?></td>
+		<td><?php echo $this->element('teams/block', array('team' => $game['AwayTeam'], 'show_shirt' => false)); ?></td>
 		<td><?php echo $game['Game']['away_score']; ?></td>
 		<?php $class = ($game['Game']['rating_away'] == null || $game['Game']['rating_away'] == $game['Game']['calc_rating_away'] ? '' : ' class="warning-message"'); ?>
 		<td<?php echo $class; ?>><?php echo $game['Game']['rating_away']; ?></td>
@@ -65,7 +65,7 @@ $this->Html->addCrumb (__('Validate Ratings', true));
 	</tr>
 <?php foreach ($division['Team'] as $key => $team): ?>
 	<tr>
-		<td><?php echo $this->Html->link ($team['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['id'])); ?></td>
+		<td><?php echo $this->element('teams/block', array('team' => $team, 'show_shirt' => false)); ?></td>
 		<?php $class = ($team['rating'] == $team['current_rating'] ? '' : ' class="warning-message"'); ?>
 		<td<?php echo $class; ?>><?php echo $team['rating']; ?></td>
 		<td<?php echo $class; ?>><?php echo $team['current_rating']; ?></td>

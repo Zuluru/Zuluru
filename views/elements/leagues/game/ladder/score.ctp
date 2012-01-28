@@ -6,12 +6,12 @@
 				}
 				else {
 					if ($game['Game']['home_score'] >= $game['Game']['away_score']) {
-						$winner = $this->Html->link($game['HomeTeam']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $game['HomeTeam']['id']));
-						$loser = $this->Html->link($game['AwayTeam']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $game['AwayTeam']['id']));
+						$winner = $this->element('teams/block', array('team' => $game['HomeTeam'], 'show_shirt' => false));
+						$loser = $this->element('teams/block', array('team' => $game['AwayTeam'], 'show_shirt' => false));
 					}
 					else {
-						$winner = $this->Html->link($game['AwayTeam']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $game['AwayTeam']['id']));
-						$loser = $this->Html->link($game['HomeTeam']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $game['HomeTeam']['id']));
+						$winner = $this->element('teams/block', array('team' => $game['AwayTeam'], 'show_shirt' => false));
+						$loser = $this->element('teams/block', array('team' => $game['HomeTeam'], 'show_shirt' => false));
 					}
 					if ($game['Game']['rating_points'] < 0) {
 						$winner_text = __('lose', true);

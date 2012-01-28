@@ -14,7 +14,7 @@ foreach ($registrations as $registration) {
 	$order_id = sprintf($order_id_format, $registration['Registration']['id']);
 	$rows[] = array(
 		$this->Html->link($order_id, array('action' => 'view', 'registration' => $registration['Registration']['id'])),
-		$this->Html->link($registration['Person']['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $registration['Person']['id'])),
+		$this->element('people/block', array('person' => $registration)),
 		$this->ZuluruTime->datetime ($registration['Registration']['modified']),
 		$registration['Registration']['payment'],
 		array(

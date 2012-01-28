@@ -10,9 +10,9 @@ $this->Html->addCrumb ($person['Person']['full_name']);
 <?php
 $roster_descriptions = Configure::read('options.roster_position');
 echo $this->Html->para(null, __('You are attempting to change player position for', true) . ' ' .
-	$this->Html->link($person['Person']['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $person['Person']['id'])) .
+	$this->element('people/block', compact('person')) .
 	' ' . __('on the team', true) . ' ' .
-	$this->Html->link($team['Team']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id'])));
+	$this->element('teams/block', array('team' => $team, 'show_shirt' => false)));
 echo $this->Html->para(null, __('Current position:', true) . ' ' .
 	$this->Html->tag('strong', __($roster_descriptions[$position], true)));
 

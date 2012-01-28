@@ -101,8 +101,7 @@ $numteams = count ($team_count);
 $rows = array();
 foreach ($division['Team'] as $team) {
 	$id = $team['id'];
-	$row = array ($this->Html->link ($team['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['id'])),
-					$team['rating']);
+	$row = array ($this->element('teams/block', array('team' => $team, 'show_shirt' => false)), $team['rating']);
 	if ($region_prefs) {
 		if (!empty($team['Region'])) {
 			$row[] = $team['Region']['name'];

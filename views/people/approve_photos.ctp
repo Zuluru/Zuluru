@@ -10,7 +10,7 @@ $this->Html->addCrumb (__('Approve Photos', true));
 <?php foreach ($photos as $photo): ?>
 <?php $rand = 'row_' . mt_rand(); ?>
 <tr id="<?php echo $rand; ?>">
-	<td><?php echo $this->Html->link ($photo['Person']['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $photo['Person']['id'])); ?></td>
+	<td><?php echo $this->element('people/block', array('person' => $photo)); ?></td>
 	<td><?php echo $this->element('people/player_photo', array('person' => $photo['Person'], 'upload' => $photo['Upload'])); ?></td>
 	<td class="actions"><?php
 	echo $this->Js->link (__('Approve', true),

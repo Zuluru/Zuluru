@@ -118,8 +118,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 				$approved = Configure::read('approved_by');
 				__($approved[$game['Game']['approved_by']]);
 			} else {
-				echo $this->Html->link($game['ApprovedBy']['full_name'],
-						array('controller' => 'people', 'action' => 'view', 'person' => $game['ApprovedBy']['id']));
+				echo $this->element('people/block', array('person' => $game['ApprovedBy']));
 			}
 			?>
 		</dd>
@@ -161,12 +160,10 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 	<tr>
 		<td><?php __('Entered By'); ?></td>
 		<td><?php if (isset ($homeScoreEntry))
-					echo $this->Html->link($homeScoreEntry['Person']['full_name'],
-						array('controller' => 'people', 'action' => 'view', 'person' => $homeScoreEntry['person_id']));
+					echo $this->element('people/block', array('person' => $homeScoreEntry));
 		?></td>
 		<td><?php if (isset ($awayScoreEntry))
-					echo $this->Html->link($awayScoreEntry['Person']['full_name'],
-						array('controller' => 'people', 'action' => 'view', 'person' => $awayScoreEntry['person_id']));
+					echo $this->element('people/block', array('person' => $awayScoreEntry));
 		?></td>
 	</tr>
 	<tr>

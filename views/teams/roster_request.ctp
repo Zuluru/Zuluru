@@ -9,7 +9,7 @@ $this->Html->addCrumb ($person['Person']['full_name']);
 <h2><?php  echo __('Roster Request', true) . ': ' . $team['Team']['name'] . ': ' . $person['Person']['full_name'];?></h2>
 <?php
 echo $this->Html->para(null, __('You are requesting to join the team', true) . ' ' .
-	$this->Html->link($team['Team']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id'])) .
+	$this->element('teams/block', array('team' => $team, 'show_shirt' => false)) .
 	'. ' .
 	__('A captain will have to approve your request before you are considered an active member of the team.', true));
 

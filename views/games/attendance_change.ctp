@@ -39,7 +39,7 @@ $this->Html->addCrumb ($team['name']);
 $status_descriptions = Configure::read('attendance');
 $roster_descriptions = Configure::read('options.roster_position');
 echo $this->Html->para(null, __('You are attempting to change attendance for', true) . ' ' .
-	$this->Html->link($person['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $person['id'])) .
+	$this->element('people/block', compact('person')) .
 	' (' . $roster_descriptions[$person['Team'][0]['TeamsPerson']['position']] . ').');
 echo $this->Html->para(null, __('Current status:', true) . ' ' .
 	$this->Html->tag('strong', __($status_descriptions[$attendance['status']], true)));

@@ -61,7 +61,7 @@ foreach ($participation as $person):
 	}
 ?>
 	<tr<?php echo $class;?>>
-		<td><?php echo $this->Html->link($person['Person']['id'], array('action' => 'view', 'person' => $person['Person']['id'])); ?></td>
+		<td><?php echo $this->element('people/block', array('person' => $person, 'display_field' => 'id')); ?></td>
 		<td><?php echo $person['Person']['first_name']; ?></td>
 		<td><?php echo $person['Person']['last_name']; ?></td>
 		<td><?php echo $person['Person']['gender']; ?></td>

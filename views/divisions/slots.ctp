@@ -50,12 +50,8 @@ echo $this->Form->end();
 <?php else: ?>
 		<td><?php echo $this->Html->link ($slot['Game']['id'],
 				array('controller' => 'games', 'action' => 'view', 'game' => $slot['Game']['id'])); ?></td>
-		<td><?php echo $this->ZuluruHtml->link ($slot['Game']['HomeTeam']['name'],
-				array('controller' => 'teams', 'action' => 'view', 'team' => $slot['Game']['HomeTeam']['id']),
-				array('max_length' => 16)); ?></td>
-		<td><?php echo $this->ZuluruHtml->link ($slot['Game']['AwayTeam']['name'],
-				array('controller' => 'teams', 'action' => 'view', 'team' => $slot['Game']['AwayTeam']['id']),
-				array('max_length' => 16)); ?></td>
+		<td><?php echo $this->element('teams/block', array('team' => $slot['Game']['HomeTeam'], 'max_length' => 16, 'show_shirt' => false)); ?></td>
+		<td><?php echo $this->element('teams/block', array('team' => $slot['Game']['AwayTeam'], 'max_length' => 16, 'show_shirt' => false)); ?></td>
 <?php endif; ?>
 		<td><?php __($slot['Field']['Facility']['Region']['name']); ?></td>
 <?php if (Configure::read('feature.region_preference')): ?>

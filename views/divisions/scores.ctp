@@ -47,7 +47,7 @@ foreach ($division['Game'] as $game) {
 }
 $header = array(null);
 foreach ($all_teams as $team_id => $team) {
-	$header[] = $this->Html->link ($team['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team_id));
+	$header[] = $this->element('teams/block', array('team' => $team, 'max_length' => 16, 'show_shirt' => false));
 }
 $header[] = null;
 

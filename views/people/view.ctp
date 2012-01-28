@@ -250,8 +250,8 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 		?>
 		<tr<?php echo $class;?>>
 			<td><?php echo $this->Html->link("{$allstar['GameSlot']['game_date']} {$allstar['GameSlot']['game_start']}", array('controller' => 'games', 'action' => 'view', 'game' => $allstar['Game']['id']));?></td>
-			<td><?php echo $this->Html->link($allstar['HomeTeam']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $allstar['HomeTeam']['id'])); ?></td>
-			<td><?php echo $this->Html->link($allstar['AwayTeam']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $allstar['AwayTeam']['id'])); ?></td>
+			<td><?php $this->element('teams/block', array('team' => $allstar['HomeTeam'])); ?></td>
+			<td><?php $this->element('teams/block', array('team' => $allstar['AwayTeam'])); ?></td>
 			<td><?php echo $this->Html->link("{$allstar['Field']['name']} {$allstar['Field']['num']}", array('controller' => 'fields', 'action' => 'view', 'field' => $allstar['Field']['id'])); ?></td>
 			<td class="actions">
 				<?php echo $this->Html->link(__('Delete', true), array('controller' => 'allstars', 'action' => 'delete', 'allstar' => $allstar['Allstar']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $allstar['Allstar']['id'])); ?>

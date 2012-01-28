@@ -16,7 +16,7 @@ foreach ($allstars as $allstar) {
 		$rows[] = array(array($this->Html->tag('h3', __($gender, true)), array('colspan' => 3)));
 	}
 	$rows[] = array(
-		$this->Html->link ($allstar['Person']['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $allstar['Person']['id'])),
+		$this->element('people/block', array('person' => $allstar)),
 		$this->Html->link ($allstar['Person']['email'], "mailto:{$allstar['Person']['email']}"),
 		$allstar[0]['count'],
 	);

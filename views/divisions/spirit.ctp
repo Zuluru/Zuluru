@@ -79,7 +79,7 @@ foreach ($spirit_obj->questions as $question => $detail) {
 $rows = $overall = array();
 foreach ($team_records as $team) {
 	$row = array(
-		$this->element('teams/block', array('team' => $team['details'])),
+		$this->element('teams/block', array('team' => $team['details'], 'show_shirt' => false)),
 		$this->element ('spirit/symbol', array(
 				'spirit_obj' => $spirit_obj,
 				'type' => $division['League']['display_sotg'],
@@ -177,8 +177,8 @@ foreach ($division['Game'] as $game) {
 				$row = array(
 						$this->Html->link ($game['id'], array('controller' => 'games', 'action' => 'view', 'game' => $game['id'])) . ' ' .
 							$this->ZuluruTime->date ($game['GameSlot']['game_date']),
-						$this->Html->link ($game[$team]['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $game[$team]['id'])),
-						$this->Html->link ($game[$opp]['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $game[$opp]['id'])),
+						$this->element('teams/block', array('team' => $game[$team], 'show_shirt' => false)),
+						$this->element('teams/block', array('team' => $game[$opp], 'show_shirt' => false)),
 						$entry['entered_sotg'],
 				);
 				foreach ($spirit_obj->questions as $question => $detail) {

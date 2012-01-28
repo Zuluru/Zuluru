@@ -9,7 +9,7 @@
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Name'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $this->Html->link($registration['Person']['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $registration['Person']['id'])); ?>
+			<?php echo $this->element('people/block', array('person' => $registration)); ?>
 
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('User ID'); ?></dt>

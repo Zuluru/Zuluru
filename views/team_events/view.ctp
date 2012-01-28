@@ -3,7 +3,7 @@
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Team'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $this->Html->link($event['Team']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $event['Team']['id'])); ?>
+			<?php echo $this->element('teams/block', array('team' => $event['Team'], 'show_shirt' => false)); ?>
 			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Event'); ?></dt>

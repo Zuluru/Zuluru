@@ -35,7 +35,7 @@ foreach ($team['Game'] as $game) {
 			$row = array(
 					$this->Html->link ($game['Game']['id'], array('controller' => 'games', 'action' => 'view', 'game' => $game['Game']['id'])) . ' ' .
 						$this->ZuluruTime->date ($game['GameSlot']['game_date']),
-					$this->Html->link ($game[$which]['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $game[$which]['id'])),
+					$this->element('teams/block', array('team' => $game[$which], 'show_shirt' => false)),
 					$entry['entered_sotg'],
 			);
 			foreach ($spirit_obj->questions as $question => $detail) {

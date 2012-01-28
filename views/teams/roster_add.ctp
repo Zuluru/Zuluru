@@ -12,15 +12,15 @@ $this->Html->addCrumb ($person['Person']['full_name']);
 <?php
 if ($adding) {
 	echo $this->Html->para(null, __('You are adding', true) . ' ' .
-		$this->Html->link($person['Person']['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $person['Person']['id'])) .
+		$this->element('people/block', compact('person')) .
 		' ' . __('to the team', true) . ' ' .
-		$this->Html->link($team['Team']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id'])) .
+		$this->element('teams/block', array('team' => $team, 'show_shirt' => false)) .
 		'.');
 } else {
 	echo $this->Html->para(null, __('You are inviting', true) . ' ' .
-		$this->Html->link($person['Person']['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $person['Person']['id'])) .
+		$this->element('people/block', compact('person')) .
 		' ' . __('to join the team', true) . ' ' .
-		$this->Html->link($team['Team']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id'])) .
+		$this->element('teams/block', array('team' => $team, 'show_shirt' => false)) .
 		'. ' .
 		__('The player will have to accept your invitation before they are considered an active member of the team.', true));
 }

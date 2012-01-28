@@ -10,11 +10,11 @@ $this->Html->addCrumb (__('Add Coordinator', true));
 <h2><?php echo sprintf(__('Add %s', true), __('Coordinator', true)) . ': ' . $division['Division']['full_league_name'];?></h2>
 
 <?php
-if (!empty ($league['Person'])) {
+if (!empty ($division['Person'])) {
 	echo $this->Html->tag ('h3', __('Current Coordinators:', true));
 	$coordinators = array();
-	foreach ($league['Person'] as $person) {
-		$coordinators[] = $this->Html->link ($person['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $person['id']));
+	foreach ($division['Person'] as $person) {
+		$coordinators[] = $this->element('people/block', compact('person'));
 	}
 	echo $this->Html->nestedList ($coordinators);
 }
