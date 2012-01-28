@@ -2,7 +2,6 @@
 // If this is the first block added, add in the supporting JS
 if (!Configure::read('tooltips_added')) {
 	Configure::write('tooltips_added', true);
-	$this->ZuluruHtml->script ('tooltip', array('inline' => false));
 	$this->ZuluruHtml->buffer ('<div id="tooltip" class="tooltip" style="display: none;"></div>');
 
 	$this->Js->buffer('
