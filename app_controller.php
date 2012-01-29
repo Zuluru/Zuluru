@@ -276,7 +276,7 @@ class AppController extends Controller {
 			// Roster and attendance updates may come from emailed links; people might not be logged in
 			// 'Payment' comes from the payment processor.
 			$this->Auth->allow(array('login', 'logout', 'create_account', 'reset_password', 'index', 'wizard',
-					'view', 'display', 'schedule', 'standings', 'ical', 'letter',
+					'view', 'tooltip', 'display', 'schedule', 'standings', 'ical', 'letter',
 					'roster_accept', 'roster_decline', 'attendance_change',
 					'payment', 'cron'));
 		}
