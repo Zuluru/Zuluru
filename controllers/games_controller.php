@@ -777,6 +777,11 @@ class GamesController extends AppController {
 				),
 				'Allstar' => array('Person'),
 			));
+		} else {
+			$contain = array_merge($contain, array(
+				'HomeTeam',
+				'AwayTeam',
+			));
 		}
 
 		$this->Game->contain ($contain);
