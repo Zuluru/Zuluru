@@ -1278,7 +1278,7 @@ class GamesController extends AppController {
 		{
 			$change_rating = true;
 		}
-		if ($data['Game']['tournament']) {
+		if ($game['Game']['tournament']) {
 			$change_rating = false;
 		}
 
