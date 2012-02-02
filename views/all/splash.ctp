@@ -168,9 +168,7 @@ foreach ($games as $game):
 					' (' . __('away', true) . ')';
 			}
 			__(' at ');
-			echo $this->Html->link($game['GameSlot']['Field']['long_code'],
-					array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id']),
-					array('title' => $game['GameSlot']['Field']['long_name']));
+			echo $this->element('fields/block', array('field' => $game['GameSlot']['Field']));
 		?></td>
 		<td class="actions splash_action"><?php
 		if (in_array ($game['HomeTeam']['id'], $this->Session->read('Zuluru.TeamIDs'))) {

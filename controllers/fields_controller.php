@@ -48,6 +48,28 @@ class FieldsController extends AppController {
 		$this->_addFieldMenuItems ($this->Field->data);
 	}
 
+	function tooltip() {
+		$id = $this->_arg('field');
+		if (!$id) {
+			return;
+		}
+		$this->Field->contain(array(
+			'Facility' => array(
+				'Region',
+			),
+		));
+
+		$field = $this->Field->read(null, $id);
+		if ($field === false) {
+			return;
+		}
+
+		$this->set(compact ('field'));
+
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
+	}
+
 	function add() {
 		$id = $this->_arg('facility');
 		if (!$id && empty($this->data)) {

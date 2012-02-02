@@ -74,8 +74,7 @@ $display_spirit = $is_admin || $is_coordinator || $team['Division']['League']['d
 				$link_address = strtr ($address, ' ', '+');
 				echo $this->Html->link($game['TeamEvent']['location_name'], "http://maps.google.com/maps?q=$link_address");
 			} else {
-				echo $this->Html->link($game['GameSlot']['Field']['long_code'],
-						array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id']), array('title' => $game['GameSlot']['Field']['long_name']));
+				echo $this->element('fields/block', array('field' => $game['GameSlot']['Field']));
 			}
 			?></td>
 			<td><?php

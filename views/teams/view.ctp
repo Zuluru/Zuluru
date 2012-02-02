@@ -32,7 +32,7 @@ $this->Html->addCrumb (__('View', true));
 		<?php if (!empty ($team['Team']['home_field'])):?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Home Field'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $this->Html->link($team['Field']['long_name'], array('controller' => 'fields', 'action' => 'view', 'field' => $team['Team']['home_field'])); ?>
+			<?php echo $this->element('fields/block', array('field' => $team['Field'], 'display_field' => 'long_name')); ?>
 
 		</dd>
 		<?php endif; ?>

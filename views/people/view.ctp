@@ -252,7 +252,7 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 			<td><?php echo $this->Html->link("{$allstar['GameSlot']['game_date']} {$allstar['GameSlot']['game_start']}", array('controller' => 'games', 'action' => 'view', 'game' => $allstar['Game']['id']));?></td>
 			<td><?php $this->element('teams/block', array('team' => $allstar['HomeTeam'])); ?></td>
 			<td><?php $this->element('teams/block', array('team' => $allstar['AwayTeam'])); ?></td>
-			<td><?php echo $this->Html->link("{$allstar['Field']['name']} {$allstar['Field']['num']}", array('controller' => 'fields', 'action' => 'view', 'field' => $allstar['Field']['id'])); ?></td>
+			<td><?php echo $this->element('fields/block', array('field' => $allstar['Field'])); ?></td>
 			<td class="actions">
 				<?php echo $this->Html->link(__('Delete', true), array('controller' => 'allstars', 'action' => 'delete', 'allstar' => $allstar['Allstar']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $allstar['Allstar']['id'])); ?>
 			</td>

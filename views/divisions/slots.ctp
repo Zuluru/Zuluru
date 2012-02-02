@@ -41,9 +41,7 @@ echo $this->Form->end();
 <?php foreach ($slots as $slot): ?>
 	<tr>
 		<td><?php __($slot['GameSlot']['id']); ?></td>
-		<td><?php echo $this->Html->link ($slot['Field']['long_code'],
-				array('controller' => 'fields', 'action' => 'view', 'field' => $slot['Field']['id']),
-				array('title' => $slot['Field']['long_name'])); ?></td>
+		<td><?php echo $this->element('fields/block', array('field' => $slot['Field'])); ?></td>
 <?php if (!$slot['Game']['id']): ?>
 <?php ++$unused; ?>
 		<td colspan="3">---- <?php __('field open'); ?> ----</td>

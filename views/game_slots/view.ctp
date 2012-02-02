@@ -8,7 +8,7 @@ $this->Html->addCrumb (__('View', true));
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Field'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $this->Html->link($gameSlot['Field']['long_name'], array('controller' => 'fields', 'action' => 'view', 'field' => $gameSlot['Field']['id'])); ?>
+			<?php echo $this->element('fields/block', array('field' => $gameSlot['Field'], 'display_field' => 'long_name')); ?>
 			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Game Date'); ?></dt>

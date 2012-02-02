@@ -91,9 +91,7 @@ foreach ($division['Game'] as $game):
 			$this->ZuluruTime->time($game['GameSlot']['display_game_end']);
 	echo $this->Html->link($time, array('controller' => 'games', 'action' => 'view', 'game' => $game['id']));
 	?></td>
-	<td><?php echo $this->Html->link($game['GameSlot']['Field']['long_code'],
-			array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id']),
-			array('title' => $game['GameSlot']['Field']['long_name'])); ?></td>
+	<td><?php echo $this->element('fields/block', array('field' => $game['GameSlot']['Field'])); ?></td>
 	<td><?php
 	if (empty ($game['HomeTeam'])) {
 		if (array_key_exists ('home_dependency', $game)) {
