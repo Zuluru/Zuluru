@@ -55,7 +55,6 @@ class Zuluru10Schema extends CakeSchema {
 		}
 		$results = array();
 		foreach ($commands as $table => $sql) {
-pr($sql);
 			if (!$this->db->execute($sql)) {
 				//$error = $table . ': '  . $db->lastError();
 				return false;
