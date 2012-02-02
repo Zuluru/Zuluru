@@ -15,7 +15,11 @@ function loadTooltip(base, ths) {
 				$('#tooltip').show();
 			},
 			error: function(message){
-				alert(message);
+				// If the status is 0, it's probably because the user
+				// clicked a link before the tip text loaded
+				if (message.status != 0) {
+					alert(message.statusText);
+				}
 			}
 		});
 	} else {
