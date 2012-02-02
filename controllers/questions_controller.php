@@ -99,29 +99,15 @@ class QuestionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('question', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action'=>'index'));
 		}
-
-		// Find all of the questionnaires that use this question
-		$this->QuestionnairesQuestions = ClassRegistry::init ('QuestionnairesQuestions');
-		$this->QuestionnairesQuestions->recursive = -1;
-		$questionnaires = $this->QuestionnairesQuestions->find('count', array(
-				'conditions' => array('question_id' => $id),
-		));
-		if ($questionnaires > 0) {
-			$this->Session->setFlash(__('This question is used by at least one questionnaire and cannot be deleted.', true), 'default', array('class' => 'info'));
+		$dependencies = $this->Question->dependencies($id);
+		if ($dependencies !== false) {
+			$this->Session->setFlash(__('The following records reference this question, so it cannot be deleted.', true) . '<br>' . $dependencies, 'default', array('class' => 'warning'));
 			$this->redirect(array('action'=>'index'));
 		}
-
-		// Wrap the whole thing in a transaction, for safety.
-		$transaction = new DatabaseTransaction($this->Question);
-
 		if ($this->Question->delete($id)) {
-			if ($this->Question->Answer->deleteAll(array('question_id' => $id))) {
-				$this->Session->setFlash(sprintf(__('%s deleted', true), __('Question', true)), 'default', array('class' => 'success'));
-				$transaction->commit();
-				$this->redirect(array('action'=>'index'));
-			}
+			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Question', true)), 'default', array('class' => 'success'));
+			$this->redirect(array('action'=>'index'));
 		}
-
 		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Question', true)), 'default', array('class' => 'warning'));
 		$this->redirect(array('action' => 'index'));
 	}

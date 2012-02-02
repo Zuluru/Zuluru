@@ -69,7 +69,7 @@ class TeamEvent extends AppModel {
 		'Attendance' => array(
 			'className' => 'Attendance',
 			'foreignKey' => 'team_event_id',
-			'dependent' => false,
+			'dependent' => true,
 			'conditions' => array('team_event_id !=' => null),
 			'fields' => '',
 			'order' => '',

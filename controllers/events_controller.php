@@ -200,6 +200,11 @@ class EventsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$dependencies = $this->Event->dependencies($id);
+		if ($dependencies !== false) {
+			$this->Session->setFlash(__('The following records reference this event, so it cannot be deleted.', true) . '<br>' . $dependencies, 'default', array('class' => 'warning'));
+			$this->redirect(array('action'=>'index'));
+		}
 		if ($this->Event->delete($id)) {
 			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Event', true)), 'default', array('class' => 'success'));
 			$this->redirect(array('action' => 'index'));

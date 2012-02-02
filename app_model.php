@@ -76,6 +76,50 @@ class AppModel extends Model {
 		return $results;
 	}
 
+	//
+	// Use model associations to determine whether a record can be deleted.
+	//
+	function dependencies($id) {
+		$dependencies = array();
+
+		foreach ($this->hasMany as $class => $association) {
+			$conditions = array("$class.{$association['foreignKey']}" => $id);
+			if (!empty($association['conditions'])) {
+				$conditions += $association['conditions'];
+			}
+
+			$dependent = $this->$class->find('count', array(
+					'conditions' => $conditions,
+					'contain' => false,
+			));
+			if ($dependent > 0) {
+				$dependencies[] = __(Inflector::pluralize($class), true) . ': ' . $dependent;
+			}
+		}
+
+		foreach ($this->hasAndBelongsToMany as $association) {
+			$class = $association['with'];
+
+			$conditions = array("$class.{$association['foreignKey']}" => $id);
+			if (!empty($association['conditions'])) {
+				$conditions += $association['conditions'];
+			}
+
+			$dependent = $this->$class->find('count', array(
+					'conditions' => $conditions,
+					'contain' => false,
+			));
+			if ($dependent > 0) {
+				$dependencies[] = __(Inflector::pluralize($association['className']), true) . ': ' . $dependent;
+			}
+		}
+
+		if (!empty($dependencies)) {
+			return implode(', ', $dependencies);
+		}
+		return true;
+	}
+
 	/**
 	 * Adjust the indices of the provided array, so that the
 	 * array is indexed by a specified id instead of from zero.

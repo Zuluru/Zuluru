@@ -150,11 +150,11 @@ class FacilitiesController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('facility', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action'=>'index'));
 		}
-
-		// TODO Handle deletions
-		$this->Session->setFlash(__('Deletions are not currently supported', true), 'default', array('class' => 'info'));
-		$this->redirect('/');
-
+		$dependencies = $this->Facility->dependencies($id);
+		if ($dependencies !== false) {
+			$this->Session->setFlash(__('The following records reference this facility, so it cannot be deleted.', true) . '<br>' . $dependencies, 'default', array('class' => 'warning'));
+			$this->redirect(array('action'=>'index'));
+		}
 		if ($this->Facility->delete($id)) {
 			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Facility', true)), 'default', array('class' => 'success'));
 			$this->redirect(array('action'=>'index'));

@@ -835,12 +835,12 @@ class PeopleController extends AppController {
 			$this->redirect('/');
 		}
 
-		// TODO: Don't delete people that have paid registration history, are on team rosters, division coordinators, or the only admin
-
-		// TODO Handle deletions
-		$this->Session->setFlash(sprintf(__('Deleting %s is disabled', true), 'players'), 'default', array('class' => 'info'));
-		$this->redirect('/');
-
+		// TODO: Don't delete the only admin
+		$dependencies = $this->Person->dependencies($id);
+		if ($dependencies !== false) {
+			$this->Session->setFlash(__('The following records reference this person, so it cannot be deleted.', true) . '<br>' . $dependencies, 'default', array('class' => 'warning'));
+			$this->redirect(array('action'=>'index'));
+		}
 		if ($this->Person->delete($id)) {
 			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Person', true)), 'default', array('class' => 'success'));
 			// TODO: Unwind any registrations, including calling event_obj for additional processing like deleting team records

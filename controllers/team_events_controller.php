@@ -133,11 +133,6 @@ class TeamEventsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team event', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
-
-		// TODO Handle deletions
-		$this->Session->setFlash(__('Deletions are not currently supported', true), 'default', array('class' => 'info'));
-		$this->redirect('/');
-
 		if ($this->TeamEvent->delete($id)) {
 			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Team event', true)), 'default', array('class' => 'success'));
 			$this->redirect('/');
