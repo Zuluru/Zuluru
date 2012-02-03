@@ -1406,11 +1406,11 @@ class GamesController extends AppController {
 			$email_time = $game_time + $game['Division']['email_after'] * 60 * 60;
 			$finalize_time = $game_time + $game['Division']['finalize_after'] * 60 * 60;
 			$games[$key]['finalized'] = $games[$key]['emailed'] = false;
-			if ($now > $finalize_time) {
+			if ($game['Division']['finalize_after'] > 0 && $now > $finalize_time) {
 				$games[$key]['finalized'] = true;
 				$games[$key]['finalized'] = $this->_finalizeGame ($game);
 			}
-			if ($games[$key]['finalized'] !== true && $now > $email_time) {
+			if ($game['Division']['email_after'] > 0 && $games[$key]['finalized'] !== true && $now > $email_time) {
 				$games[$key]['emailed'] =
 					$this->_remindTeam($game, $game['HomeTeam'], $game['AwayTeam'], 'score_reminder', true) ||
 					$this->_remindTeam($game, $game['AwayTeam'], $game['HomeTeam'], 'score_reminder', true);
