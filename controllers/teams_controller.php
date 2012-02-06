@@ -1062,13 +1062,7 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 
-		// Read the current team roster, just need the ids
 		$this->Team->contain(array (
-			'Person' => array(
-				'fields' => array(
-					'Person.id',
-				),
-			),
 			// We need league information for sending out invites, may as well read it now
 			'Division' => array(
 				'Day',
@@ -1082,28 +1076,24 @@ class TeamsController extends AppController {
 		}
 		$this->Team->Division->addPlayoffs($team);
 		$this->_limitOverride($id);
-		$current = Set::extract('/Person/id', $team);
 
-		// Find other divisions in the same league
+		// Find all divisions in the same league
 		$this->Team->Division->contain();
 		$divisions = $this->Team->Division->find('all', array(
 				'conditions' => array(
 					'Division.league_id' => $team['Division']['league_id'],
-					'Division.id !=' => $team['Division']['id'],
 				),
 		));
 
-		if (!empty($divisions)) {
-			$this->Team->contain(array(
-					'Person' => array(
-						'fields' => array(
-							'Person.id',
-						),
+		$this->Team->contain(array(
+				'Person' => array(
+					'fields' => array(
+						'Person.id',
 					),
-			));
-			$teams = $this->Team->find('all', array('conditions' => array('Team.division_id' => Set::extract('/Division/id', $divisions))));
-			$current = array_merge ($current, Set::extract('/Person/id', $teams));
-		}
+				),
+		));
+		$teams = $this->Team->find('all', array('conditions' => array('Team.division_id' => Set::extract('/Division/id', $divisions))));
+		$current = Set::extract('/Person/id', $teams);
 
 		// Only include people that aren't yet on the new roster
 		// or the roster of another team in the same league
