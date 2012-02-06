@@ -436,7 +436,8 @@ class TeamsController extends AppController {
 			foreach ($full_person['Team'] as $other_team) {
 				if (in_array($person['TeamsPerson']['position'], $playing_roster_positions)) {
 					// If this player is on a roster of another team in the same league...
-					if ($team['Division']['league_id'] == $other_team['Division']['league_id'] &&
+					if (array_key_exists('league_id', $other_team['Division']) &&
+						$team['Division']['league_id'] == $other_team['Division']['league_id'] &&
 						// and they're a regular player...
 						in_array($other_team['TeamsPerson']['position'], $playing_roster_positions))
 					{
@@ -463,7 +464,9 @@ class TeamsController extends AppController {
 				}
 
 				// If this player is on a roster of a team in another league...
-				if (!empty ($team_days) && $team['Division']['league_id'] != $other_team['Division']['league_id']) {
+				if (array_key_exists('league_id', $other_team['Division']) &&
+					!empty ($team_days) && $team['Division']['league_id'] != $other_team['Division']['league_id'])
+				{
 					// that has a schedule which at least partially overlaps with this division...
 					if (($other_team['Division']['open'] <= $team['Division']['open'] && $other_team['Division']['close'] >= $team['Division']['open']) ||
 						($team['Division']['open'] <= $other_team['Division']['open'] && $team['Division']['close'] >= $other_team['Division']['open']))
