@@ -47,9 +47,9 @@ $display_spirit = $is_admin || $is_coordinator || $team['Division']['League']['d
 			Game::_adjustEntryIndices ($game);
 			Game::_readDependencies($game['Game']);
 			if (Game::_is_finalized($game) && array_key_exists ($team['Team']['id'], $game['SpiritEntry'])) {
-				$value = $game['SpiritEntry'][$team['Team']['id']]['entered_sotg'];
+				$entry = $game['SpiritEntry'][$team['Team']['id']];
 			} else {
-				$value = null;
+				$entry = null;
 			}
 
 			$date = $game['GameSlot']['game_date'];
@@ -106,9 +106,9 @@ $display_spirit = $is_admin || $is_coordinator || $team['Division']['League']['d
 				if (!$is_event) {
 					echo $this->element ('spirit/symbol', array(
 							'spirit_obj' => $spirit_obj,
-							'type' => $team['Division']['League']['display_sotg'],
+							'league' => $team['Division']['League'],
 							'is_coordinator' => $is_coordinator,
-							'value' => $value,
+							'entry' => $entry,
 					));
 				}
 			?></td>

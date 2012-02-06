@@ -8,8 +8,13 @@ $this->Html->addCrumb (__('Spirit Report', true));
 <h3><?php  echo __('Spirit Report', true) . ': ' . $division['Division']['full_league_name'];?></h3>
 
 <?php
-$rows = $team_records = array();
-$questions = array('entered_sotg', 'assigned_sotg');
+$rows = $team_records = $questions = array();
+if ($division['League']['numeric_sotg']) {
+	$questions[] = 'entered_sotg';
+}
+if ($division['League']['sotg_questions'] != 'none') {
+	$questions[] = 'assigned_sotg';
+}
 foreach ($spirit_obj->questions as $question => $detail) {
 	if ($detail['type'] != 'text') {
 		$questions[] = $question;
@@ -18,21 +23,24 @@ foreach ($spirit_obj->questions as $question => $detail) {
 
 foreach ($division['Game'] as $game) {
 	foreach (array('HomeTeam', 'AwayTeam') as $team) {
-		$id = $game[$team]['id'];
-		if (!array_key_exists ($id, $team_records)) {
-			$team_records[$id] = array(
-				'details' => $game[$team],
-				'summary' => array_fill_keys ($questions, null),
-				'games' => 0,
-			);
-		}
-		// TODO: Pull the code from downloadable version here, to handle defaults, etc.
-		foreach ($game['SpiritEntry'] as $entry) {
-			if ($entry['team_id'] == $id) {
-				$entry['assigned_sotg'] = $spirit_obj->calculate ($entry);
-				++ $team_records[$id]['games'];
-				foreach ($questions as $question) {
-					$team_records[$id]['summary'][$question] += $entry[$question];
+		// Playoff games may not have teams assigned yet
+		if (!empty($game[$team])) {
+			$id = $game[$team]['id'];
+			if (!array_key_exists ($id, $team_records)) {
+				$team_records[$id] = array(
+					'details' => $game[$team],
+					'summary' => array_fill_keys ($questions, null),
+					'games' => 0,
+					);
+			}
+			// TODO: Pull the code from downloadable version here, to handle defaults, etc.
+			foreach ($game['SpiritEntry'] as $entry) {
+				if ($entry['team_id'] == $id) {
+					$entry['assigned_sotg'] = $spirit_obj->calculate ($entry);
+					++ $team_records[$id]['games'];
+					foreach ($questions as $question) {
+						$team_records[$id]['summary'][$question] += $entry[$question];
+					}
 				}
 			}
 		}
@@ -42,21 +50,31 @@ $team_count = count($team_records);
 
 foreach ($team_records as $id => $team) {
 	if ($team['games'] > 0) {
-		$team_records[$id]['summary']['entered_sotg'] /= $team['games'];
-		$team_records[$id]['summary']['assigned_sotg'] /= $team['games'];
+		if ($division['League']['numeric_sotg']) {
+			$team_records[$id]['summary']['entered_sotg'] /= $team['games'];
+		}
+		if ($division['League']['sotg_questions'] != 'none') {
+			$team_records[$id]['summary']['assigned_sotg'] /= $team['games'];
+		}
 	}
 }
 
 function compareSpirit($a,$b) {
-	if ($a['summary']['entered_sotg'] > $b['summary']['entered_sotg']) {
-		return -1;
-	} else if ($a['summary']['entered_sotg'] < $b['summary']['entered_sotg']) {
-		return 1;
-	} else if ($a['summary']['assigned_sotg'] > $b['summary']['assigned_sotg']) {
-		return -1;
-	} else if ($a['summary']['assigned_sotg'] < $b['summary']['assigned_sotg']) {
-		return 1;
-	} else if ($a['details']['name'] < $b['details']['name']) {
+	if (array_key_exists('entered_sotg', $a['summary'])) {
+		if ($a['summary']['entered_sotg'] > $b['summary']['entered_sotg']) {
+			return -1;
+		} else if ($a['summary']['entered_sotg'] < $b['summary']['entered_sotg']) {
+			return 1;
+		}
+	}
+	if (array_key_exists('assigned_sotg', $a['summary'])) {
+		if ($a['summary']['assigned_sotg'] > $b['summary']['assigned_sotg']) {
+			return -1;
+		} else if ($a['summary']['assigned_sotg'] < $b['summary']['assigned_sotg']) {
+			return 1;
+		}
+	}
+	if ($a['details']['name'] < $b['details']['name']) {
 		return -1;
 	} else if ($a['details']['name'] > $b['details']['name']) {
 		return 1;
@@ -69,7 +87,13 @@ usort ($team_records, 'compareSpirit');
 <h3><?php __('Team Spirit Summary'); ?></h3>
 
 <?php
-$header = array(__('Team', true), __('Average Spirit', true), __('Assigned Spirit', true));
+$header = array(__('Team', true));
+if ($division['League']['numeric_sotg']) {
+	$header[] = __('Average Spirit', true);
+}
+if ($division['League']['sotg_questions'] != 'none') {
+	$header[] = __('Assigned Spirit', true);
+}
 foreach ($spirit_obj->questions as $question => $detail) {
 	if ($detail['type'] != 'text') {
 		$header[] = $detail['name'];
@@ -78,23 +102,25 @@ foreach ($spirit_obj->questions as $question => $detail) {
 
 $rows = $overall = array();
 foreach ($team_records as $team) {
-	$row = array(
-		$this->element('teams/block', array('team' => $team['details'], 'show_shirt' => false)),
-		$this->element ('spirit/symbol', array(
+	$row = array($this->element('teams/block', array('team' => $team['details'], 'show_shirt' => false)));
+	if ($division['League']['numeric_sotg']) {
+		$row[] = $this->element ('spirit/symbol', array(
 				'spirit_obj' => $spirit_obj,
-				'type' => $division['League']['display_sotg'],
+				'league' => $division['League'],
 				'is_coordinator' => true,	// only ones allowed to even run this report
 				'value' => $team['summary']['entered_sotg'],
-		)),
-		$this->element ('spirit/symbol', array(
+		));
+		$overall['entered_sotg'][] = $team['summary']['entered_sotg'];
+	}
+	if ($division['League']['sotg_questions'] != 'none') {
+		$row[] = $this->element ('spirit/symbol', array(
 				'spirit_obj' => $spirit_obj,
-				'type' => $division['League']['display_sotg'],
+				'league' => $division['League'],
 				'is_coordinator' => true,
 				'value' => $team['summary']['assigned_sotg'],
-		)),
-	);
-	$overall['entered_sotg'][] = $team['summary']['entered_sotg'];
-	$overall['assigned_sotg'][] = $team['summary']['assigned_sotg'];
+		));
+		$overall['assigned_sotg'][] = $team['summary']['assigned_sotg'];
+	}
 
 	// This is to avoid divide-by-zero errors. No harm, since the numerators
 	// will all be 0 as well if they didn't have any games...
@@ -106,7 +132,7 @@ foreach ($team_records as $team) {
 		if ($detail['type'] != 'text') {
 			$row[] = $this->element ('spirit/symbol', array(
 					'spirit_obj' => $spirit_obj,
-					'type' => $division['League']['display_sotg'],
+					'league' => $division['League'],
 					'question' => $question,
 					'is_coordinator' => true,	// only ones allowed to even run this report
 					'value' => $team['summary'][$question] / $team['games'],
@@ -122,7 +148,7 @@ $stddev = array(array(__('Division std dev', true), array('class' => 'summary'))
 foreach ($overall as $question => $col) {
 	$average[] = array($this->element ('spirit/symbol', array(
 			'spirit_obj' => $spirit_obj,
-			'type' => $division['League']['display_sotg'],
+			'league' => $division['League'],
 			'question' => $question,
 			'is_coordinator' => true,	// only ones allowed to even run this report
 			'value' => array_sum ($col) / $team_count,
@@ -134,7 +160,11 @@ $rows[] = $stddev;
 
 echo $this->Html->tag ('table', $this->Html->tableHeaders ($header) . $this->Html->tableCells ($rows, array(), array('class' => 'altrow')), array('class' => 'list'));
 
-$bins = array_count_values (array_map ('intval', $overall['entered_sotg']));
+if ($division['League']['numeric_sotg']) {
+	$bins = array_count_values (array_map ('intval', $overall['entered_sotg']));
+} else {
+	$bins = array_count_values (array_map ('intval', $overall['assigned_sotg']));
+}
 ?>
 
 <h2><?php __('Distribution of team average spirit scores'); ?></h2>
@@ -154,14 +184,17 @@ echo $this->Html->tag ('table', $this->Html->tableHeaders ($header) . $this->Htm
 <h2><?php __('Spirit reports per game'); ?></h2>
 
 <?php
-// TODO: Include score column only if numeric scoring is on,
-// include other columns including calculation if survey is on
 $header = array(
 		__('Game', true),
 		__('Entry By', true),
 		__('Given To', true),
-		__('Score', true),
 );
+if ($division['League']['numeric_sotg']) {
+	$header[] = __('Entered', true);
+}
+if ($division['League']['sotg_questions'] != 'none') {
+	$header[] = __('Assigned', true);
+}
 
 foreach ($spirit_obj->questions as $detail) {
 	if ($detail['type'] != 'text') {
@@ -179,16 +212,21 @@ foreach ($division['Game'] as $game) {
 							$this->ZuluruTime->date ($game['GameSlot']['game_date']),
 						$this->element('teams/block', array('team' => $game[$team], 'show_shirt' => false)),
 						$this->element('teams/block', array('team' => $game[$opp], 'show_shirt' => false)),
-						$entry['entered_sotg'],
 				);
+				if ($division['League']['numeric_sotg']) {
+					$row[] = $entry['entered_sotg'];
+				}
+				if ($division['League']['sotg_questions'] != 'none') {
+					$row[] = $spirit_obj->calculate($entry);
+				}
 				foreach ($spirit_obj->questions as $question => $detail) {
 					if ($detail['type'] != 'text') {
 						$row[] = $this->element ('spirit/symbol', array(
 								'spirit_obj' => $spirit_obj,
-								'type' => $division['League']['display_sotg'],
+								'league' => $division['League'],
 								'question' => $question,
 								'is_coordinator' => true,	// only ones allowed to even run this report
-								'value' => $entry[$question],
+								'entry' => $entry,
 						));
 					}
 				}

@@ -141,9 +141,9 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 			<?php
 			echo $this->element ('spirit/symbol', array(
 					'spirit_obj' => $spirit_obj,
-					'type' => $game['Division']['League']['display_sotg'],
+					'league' => $game['Division']['League'],
 					'is_coordinator' => $is_coordinator,
-					'value' => $homeSpiritEntry['entered_sotg'],
+					'entry' => $homeSpiritEntry,
 			));
 			?>
 			&nbsp;
@@ -153,9 +153,9 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 			<?php
 			echo $this->element ('spirit/symbol', array(
 					'spirit_obj' => $spirit_obj,
-					'type' => $game['Division']['League']['display_sotg'],
+					'league' => $game['Division']['League'],
 					'is_coordinator' => $is_coordinator,
-					'value' => $awaySpiritEntry['entered_sotg'],
+					'entry' => $awaySpiritEntry,
 			));
 			?>
 			&nbsp;
@@ -232,8 +232,18 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 		<?php if ($game['Division']['League']['numeric_sotg'] || $game['Division']['League']['sotg_questions'] != 'none'): ?>
 		<tr>
 			<td><?php __('Spirit Assigned'); ?></td>
-			<td><?php if ($homeSpiritEntry != null) echo $homeSpiritEntry['entered_sotg']; ?></td>
-			<td><?php if ($awaySpiritEntry != null) echo $awaySpiritEntry['entered_sotg']; ?></td>
+			<td><?php echo $this->element ('spirit/symbol', array(
+					'spirit_obj' => $spirit_obj,
+					'league' => $game['Division']['League'],
+					'is_coordinator' => $is_coordinator,
+					'entry' => $homeSpiritEntry,
+			)); ?></td>
+			<td><?php echo $this->element ('spirit/symbol', array(
+					'spirit_obj' => $spirit_obj,
+					'league' => $game['Division']['League'],
+					'is_coordinator' => $is_coordinator,
+					'entry' => $awaySpiritEntry,
+			)); ?></td>
 		</tr>
 		</table>
 		<?php endif; ?>

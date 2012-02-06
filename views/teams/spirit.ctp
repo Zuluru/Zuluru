@@ -8,13 +8,16 @@ $this->Html->addCrumb ($team['Team']['name']);
 <h2><?php echo __('Team Spirit', true) . ': ' . $team['Team']['name'];?></h2>
 
 <?php
-// TODO: Include score column only if numeric scoring is on,
-// include other columns including calculation if survey is on
 $header = array(
 		__('Game', true),
 		__('Entry By', true),
-		__('Score', true),
 );
+if ($team['Division']['League']['numeric_sotg']) {
+	$header[] = __('Entered', true);
+}
+if ($team['Division']['League']['sotg_questions'] != 'none') {
+	$header[] = __('Assigned', true);
+}
 
 // TODO: Move display details into an element to share between this, division spirit report, maybe others
 foreach ($spirit_obj->questions as $detail) {
@@ -36,16 +39,21 @@ foreach ($team['Game'] as $game) {
 					$this->Html->link ($game['Game']['id'], array('controller' => 'games', 'action' => 'view', 'game' => $game['Game']['id'])) . ' ' .
 						$this->ZuluruTime->date ($game['GameSlot']['game_date']),
 					$this->element('teams/block', array('team' => $game[$which], 'show_shirt' => false)),
-					$entry['entered_sotg'],
 			);
+			if ($team['Division']['League']['numeric_sotg']) {
+				$row[] = $entry['entered_sotg'];
+			}
+			if ($team['Division']['League']['sotg_questions'] != 'none') {
+				$row[] = $spirit_obj->calculate($entry);
+			}
 			foreach ($spirit_obj->questions as $question => $detail) {
 				if ($detail['type'] != 'text') {
 					$row[] = $this->element ('spirit/symbol', array(
 							'spirit_obj' => $spirit_obj,
-							'type' => $team['Division']['League']['display_sotg'],
+							'league' => $team['Division']['League'],
 							'question' => $question,
 							'is_coordinator' => true,	// only ones allowed to even run this report
-							'value' => $entry[$question],
+							'entry' => $entry,
 					));
 				}
 			}

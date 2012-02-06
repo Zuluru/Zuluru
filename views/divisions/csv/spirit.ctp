@@ -6,9 +6,13 @@ $header = array(
 		__('Opponent', true),
 		__('Team Score', true),
 		__('Opp Score', true),
-		__('Spirit', true),
-		__('Calc Spirit', true),
 );
+if ($division['League']['numeric_sotg']) {
+	$header[] = __('Spirit', true);
+}
+if ($division['League']['sotg_questions'] != 'none') {
+	$header[] = __('Calc Spirit', true);
+}
 foreach ($spirit_obj->questions as $question => $detail) {
 	$header[] = __($detail['name'], true);
 }
@@ -34,33 +38,40 @@ foreach ($spirit_obj->questions as $question => $detail) {
 $team_results = array();
 foreach ($division['Game'] as $game) {
 	foreach (array('HomeTeam' => 'AwayTeam', 'AwayTeam' => 'HomeTeam') as $team => $opp) {
-		$id = $game[$team]['id'];
-		if (!array_key_exists ($id, $team_results)) {
-			$team_results[$id] = array(
-				$game[$team]['name'],
-				$game[$team]['id'],
-			);
-		}
-		$team_results[$id][] = $game[$opp]['name'];
-		$team_results[$id][] = ($team == 'HomeTeam' ? $game['home_score'] : $game['away_score']);
-		$team_results[$id][] = ($team == 'HomeTeam' ? $game['away_score'] : $game['home_score']);
-
-		if (strpos ($game['status'], 'default') !== false) {
-			$spirit_entry = $defaulted_entry;
-		} else {
-			$spirit_entry = $automatic_entry;
-		}
-
-		foreach ($game['SpiritEntry'] as $entry) {
-			if ($entry['team_id'] == $id) {
-				$spirit_entry = $entry;
-				$spirit_entry['assigned_sotg'] = $spirit_obj->calculate ($spirit_entry);
+		// Playoff games may not have teams assigned yet
+		if (!empty($game[$team])) {
+			$id = $game[$team]['id'];
+			if (!array_key_exists ($id, $team_results)) {
+				$team_results[$id] = array(
+					$game[$team]['name'],
+					$game[$team]['id'],
+				);
 			}
-		}
-		$team_results[$id][] = $spirit_entry['entered_sotg'];
-		$team_results[$id][] = $spirit_entry['assigned_sotg'];
-		foreach ($spirit_obj->questions as $question => $detail) {
-			$team_results[$id][] = $spirit_entry[$question];
+			$team_results[$id][] = $game[$opp]['name'];
+			$team_results[$id][] = ($team == 'HomeTeam' ? $game['home_score'] : $game['away_score']);
+			$team_results[$id][] = ($team == 'HomeTeam' ? $game['away_score'] : $game['home_score']);
+
+			if (strpos ($game['status'], 'default') !== false) {
+				$spirit_entry = $defaulted_entry;
+			} else {
+				$spirit_entry = $automatic_entry;
+			}
+
+			foreach ($game['SpiritEntry'] as $entry) {
+				if ($entry['team_id'] == $id) {
+					$spirit_entry = $entry;
+					$spirit_entry['assigned_sotg'] = $spirit_obj->calculate ($spirit_entry);
+				}
+			}
+			if ($division['League']['numeric_sotg']) {
+				$team_results[$id][] = $spirit_entry['entered_sotg'];
+			}
+			if ($division['League']['sotg_questions'] != 'none') {
+				$team_results[$id][] = $spirit_entry['assigned_sotg'];
+			}
+			foreach ($spirit_obj->questions as $question => $detail) {
+				$team_results[$id][] = $spirit_entry[$question];
+			}
 		}
 	}
 }

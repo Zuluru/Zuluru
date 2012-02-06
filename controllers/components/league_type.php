@@ -35,8 +35,8 @@ class LeagueTypeComponent extends Object
 	 * @param mixed $division Division to sort (teams are in ['Team'] key)
 	 *
 	 */
-	function sort(&$division, $include_tournament = true) {
-		$this->presort ($division);
+	function sort(&$division, $spirit_obj = null, $include_tournament = true) {
+		$this->presort ($division, $spirit_obj);
 		if ($include_tournament) {
 			usort ($division['Team'], array($this, 'compareTeamsTournament'));
 		} else {
@@ -51,7 +51,7 @@ class LeagueTypeComponent extends Object
 	 * @param mixed $division Division to perform calculations on
 	 *
 	 */
-	function presort(&$division) {
+	function presort(&$division, $spirit_obj) {
 		if (array_key_exists ('Game', $division)) {
 			$season = $tournament = array();
 			foreach ($division['Game'] as $game) {
@@ -67,13 +67,13 @@ class LeagueTypeComponent extends Object
 						$result['round'], $result['home_score'], $result['away_score']);
 				} else {
 					if (Game::_is_finalized($game)) {
-						$this->addGameResult ($season, $result['home_team'], $result['away_team'],
+						$this->addGameResult ($division, $season, $result['home_team'], $result['away_team'],
 								$result['round'], $result['home_score'], $result['away_score'],
-								Game::_get_spirit_entry ($game, $result['home_team']),
+								Game::_get_spirit_entry ($game, $result['home_team']), $spirit_obj,
 								$result['status'] == 'home_default');
-						$this->addGameResult ($season, $result['away_team'], $result['home_team'],
+						$this->addGameResult ($division, $season, $result['away_team'], $result['home_team'],
 								$result['round'], $result['away_score'], $result['home_score'],
-								Game::_get_spirit_entry ($game, $result['away_team']),
+								Game::_get_spirit_entry ($game, $result['away_team']), $spirit_obj,
 								$result['status'] == 'away_default');
 					}
 				}
@@ -97,7 +97,7 @@ class LeagueTypeComponent extends Object
 		}
 	}
 
-	function addGameResult (&$results, $team, $opp, $round, $score_for, $score_against, $spirit_for, $default) {
+	function addGameResult ($division, &$results, $team, $opp, $round, $score_for, $score_against, $spirit_for, $spirit_obj, $default) {
 		// What type of result was this?
 		if ($score_for > $score_against) {
 			$type = 'W';
@@ -145,10 +145,18 @@ class LeagueTypeComponent extends Object
 		$results[$team]['rounds'][$round]['gf'] += $score_for;
 		$results[$team]['ga'] += $score_against;
 		$results[$team]['rounds'][$round]['ga'] += $score_against;
+
 		// TODO: drop high and low spirit?
-		if (is_array ($spirit_for) && array_key_exists ('entered_sotg', $spirit_for)) {
-			$results[$team]['spirit'] += $spirit_for['entered_sotg'];
+		if ($spirit_obj) {
+			if (is_array ($spirit_for)) {
+				if (!$division['League']['numeric_sotg']) {
+					$results[$team]['spirit'] += $spirit_obj->calculate($spirit_for);
+				} else {
+					$results[$team]['spirit'] += $spirit_for['entered_sotg'];
+				}
+			}
 		}
+
 		$results[$team]['vs'][$opp] += $points;
 		$results[$team]['vspm'][$opp] += $score_for - $score_against;
 

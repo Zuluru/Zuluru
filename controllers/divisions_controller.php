@@ -630,8 +630,8 @@ class DivisionsController extends AppController {
 		Game::_adjustEntryIndices($division['Game']);
 
 		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
-		$league_obj->sort($division, false);
 		$spirit_obj = $this->_getComponent ('Spirit', $division['League']['sotg_questions'], $this);
+		$league_obj->sort($division, $spirit_obj, false);
 
 		// If we're asking for "team" standings, only show the 5 teams above and 5 teams below this team.
 		// Don't bother if there are 24 teams or less (24 is probably the largest fall division size).
@@ -1151,7 +1151,8 @@ class DivisionsController extends AppController {
 		}
 
 		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
-		$league_obj->sort($division, false);
+		$spirit_obj = $this->_getComponent ('Spirit', $division['League']['sotg_questions'], $this);
+		$league_obj->sort($division, $spirit_obj, false);
 		$reset = $this->_arg('reset');
 
 		// Wrap the whole thing in a transaction, for safety.
