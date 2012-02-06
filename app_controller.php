@@ -137,7 +137,11 @@ class AppController extends Controller {
 			$this->set('is_logged_in', $this->is_logged_in);
 		}
 
-		$this->set('is_mobile', $this->RequestHandler->isMobile());
+		if (isset($this->RequestHandler)) {
+			$this->set('is_mobile', $this->RequestHandler->isMobile());
+		} else {
+			$this->set('is_mobile', false);
+		}
 
 		// Set view variables for the menu
 		// TODO: Get the menu element name from some configuration, maybe per-user?
