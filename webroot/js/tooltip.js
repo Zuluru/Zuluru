@@ -2,8 +2,8 @@
 
 var tooltip_text = new Array();
 
-function loadTooltip(base, ths) {
-	var id = ths.getTrigger().attr('id');
+function loadTooltip(base, trigger) {
+	var id = trigger.attr('id');
 	if (tooltip_text[id] == undefined) {
 		var params = id.split('_');
 		$.ajax({
