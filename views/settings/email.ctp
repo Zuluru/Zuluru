@@ -31,6 +31,16 @@ $this->Html->addCrumb (__('Email', true));
 			),
 		));
 	}
+	echo $this->element('settings/input', array(
+		'category' => 'email',
+		'name' => 'emogrifier',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'label' => 'Use Emogrifier',
+			'after' => 'Enable or disable usage of the Emogrifier email style pre-processor.',
+		),
+	));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>

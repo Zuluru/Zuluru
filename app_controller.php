@@ -120,6 +120,9 @@ class AppController extends Controller {
 		}
 
 		$this->_initMenu();
+
+		// Set the theme, if any. Must be done before processing, in order for the theme to affect emails.
+		$this->theme = Configure::read('theme');
 	}
 
 	function beforeRender() {
