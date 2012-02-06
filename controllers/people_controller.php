@@ -677,16 +677,13 @@ class PeopleController extends AppController {
 		$this->set(compact('success'));
 
 		$person = $this->Person->Upload->read (null, $id);
-		$variables = array(
-			'%fullname' => $person['Person']['full_name'],
-		);
+		$this->set(compact('person'));
 
 		if (!$this->_sendMail (array (
 				'to' => $person,
-				'config_subject' => 'photo_approved_subject',
-				'config_body' => "photo_approved_body",
-				'variables' => $variables,
-				'sendAs' => 'text',
+				'subject' => Configure::read('organization.name') . ' Notification of Photo Approval',
+				'template' => 'photo_approved',
+				'sendAs' => 'both',
 		)))
 		{
 			$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['Person']['email']), 'default', array('class' => 'error'), 'email');
@@ -711,17 +708,13 @@ class PeopleController extends AppController {
 			}
 		}
 		$this->set(compact('success'));
-
-		$variables = array(
-			'%fullname' => $photo['Person']['full_name'],
-		);
+		$this->set('person', $photo);
 
 		if (!$this->_sendMail (array (
 				'to' => $photo,
-				'config_subject' => 'photo_deleted_subject',
-				'config_body' => "photo_deleted_body",
-				'variables' => $variables,
-				'sendAs' => 'text',
+				'subject' => Configure::read('organization.name') . ' Notification of Photo Deletion',
+				'template' => 'photo_deleted',
+				'sendAs' => 'both',
 		)))
 		{
 			$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $photo['Person']['email']), 'default', array('class' => 'error'), 'email');
@@ -948,18 +941,13 @@ class PeopleController extends AppController {
 					$this->redirect(array('action' => 'approve', 'person' => $person['Person']['id']));
 				}
 
-				$variables = array(
-					'%fullname' => $saved['Person']['full_name'],
-					'%memberid' => $this->data['Person']['id'],
-					'%username' => $saved['Person']['user_name'],
-				);
+				$this->set('person', $saved);
 
 				if (!$this->_sendMail (array (
 						'to' => $person,
-						'config_subject' => 'approved_subject',
-						'config_body' => "{$disposition}_body",
-						'variables' => $variables,
-						'sendAs' => 'text',
+						'subject' => Configure::read('organization.name') . ' Account Activation for ' . $saved['Person']['user_name'],
+						'template' => 'account_approved',
+						'sendAs' => 'both',
 				)))
 				{
 					$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['Person']['email']), 'default', array('class' => 'error'), 'email');
@@ -979,17 +967,13 @@ class PeopleController extends AppController {
 					$this->redirect(array('action' => 'approve', 'person' => $person['Person']['id']));
 				}
 
-				$variables = array(
-					'%fullname' => $saved['Person']['full_name'],
-					'%username' => $saved['Person']['user_name'],
-				);
+				$this->set('person', $saved);
 
 				if (!$this->_sendMail (array (
 						'to' => $person,
-						'config_subject' => 'approved_subject',
-						'config_body' => "{$disposition}_body",
-						'variables' => $variables,
-						'sendAs' => 'text',
+						'subject' => Configure::read('organization.name') . ' Account Activation for ' . $saved['Person']['user_name'],
+						'template' => 'account_approved',
+						'sendAs' => 'both',
 				)))
 				{
 					$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['Person']['email']), 'default', array('class' => 'error'), 'email');
@@ -1015,20 +999,13 @@ class PeopleController extends AppController {
 					break;
 				}
 
-				$variables = array(
-					'%fullname' => $person['Person']['full_name'],
-					'%username' => $person['Person']['user_name'],
-					'%existingusername' => $existing['Person']['user_name'],
-					'%existingemail' => $existing['Person']['email'],
-					'%passwordurl' => Router::url (Configure::read('urls.password_reset'), true),
-				);
+				$this->set(compact('person', 'existing'));
 
 				if (!$this->_sendMail (array (
 						'to' => array($person['Person'], $existing['Person']),
-						'config_subject' => "{$disposition}_subject",
-						'config_body' => "{$disposition}_body",
-						'variables' => $variables,
-						'sendAs' => 'text',
+						'subject' => Configure::read('organization.name') . ' Account Update',
+						'template' => 'account_delete_duplicate',
+						'sendAs' => 'both',
 				)))
 				{
 					$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['Person']['email']), 'default', array('class' => 'error'), 'email');
@@ -1079,20 +1056,13 @@ class PeopleController extends AppController {
 					$transaction->commit();
 				}
 
-				$variables = array(
-					'%fullname' => $person['Person']['full_name'],
-					'%username' => $person['Person']['user_name'],
-					'%existingusername' => $existing['Person']['user_name'],
-					'%existingemail' => $existing['Person']['email'],
-					'%passwordurl' => Router::url (Configure::read('urls.password_reset'), true),
-				);
+				$this->set(compact('person', 'existing'));
 
 				if (!$this->_sendMail (array (
 						'to' => array($person['Person'], $existing['Person']),
-						'config_subject' => "{$disposition}_subject",
-						'config_body' => "{$disposition}_body",
-						'variables' => $variables,
-						'sendAs' => 'text',
+						'subject' => Configure::read('organization.name') . ' Account Update',
+						'template' => 'account_merge_duplicate',
+						'sendAs' => 'both',
 				)))
 				{
 					$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['Person']['email']), 'default', array('class' => 'error'), 'email');
@@ -1205,49 +1175,44 @@ class PeopleController extends AppController {
 			));
 
 			$year = $this->membershipYear();
+			$this->set(compact('year'));
 			$now = time();
 
-			$current = array();
+			$emailed = 0;
+			$activity = array();
+
 			foreach ($events as $event) {
 				if (array_key_exists('membership_begins', $event['Event']) &&
 					strtotime ($event['Event']['membership_begins']) < $now &&
 					$now < strtotime ($event['Event']['membership_ends']))
 				{
-					$current[] = $event['Event']['id'];
-				}
-			}
+					$this->set(compact('event'));
 
-			$people = $this->Person->find ('all', array(
-					'conditions' => array(
-						array('Person.id IN (SELECT DISTINCT person_id FROM registrations WHERE event_id IN (' . implode (',', $current) . ') AND payment = "Paid")'),
-						array("Person.id NOT IN (SELECT secondary_id FROM activity_logs WHERE type = 'email_membership_letter' AND primary_id = $year)"),
-					),
-			));
+					$people = $this->Person->find ('all', array(
+							'conditions' => array(
+								array("Person.id IN (SELECT DISTINCT person_id FROM registrations WHERE event_id = {$event['Event']['id']} AND payment = 'Paid')"),
+								array("Person.id NOT IN (SELECT secondary_id FROM activity_logs WHERE type = 'email_membership_letter' AND primary_id = $year)"),
+							),
+					));
 
-			$emailed = 0;
-			$activity = array();
-			foreach ($people as $person) {
-				// Send the email
-				$variables = array(
-					'%fullname' => $person['Person']['full_name'],
-					'%firstname' => $person['Person']['first_name'],
-					'%lastname' => $person['Person']['last_name'],
-					'%year' => $year
-				);
-				if ($this->_sendMail (array (
-						'to' => $person,
-						'config_subject' => 'member_letter_subject',
-						'config_body' => 'member_letter_body',
-						'variables' => $variables,
-						'sendAs' => 'text',
-				)))
-				{
-					$activity[] = array(
-						'type' => 'email_membership_letter',
-						'primary_id' => $year,
-						'secondary_id' => $person['Person']['id'],
-					);
-					++ $emailed;
+					foreach ($people as $person) {
+						// Send the email
+						$this->set(compact('person'));
+						if ($this->_sendMail (array (
+								'to' => $person,
+								'subject' => Configure::read('organization.name') . " $year Membership",
+								'template' => 'membership_letter',
+								'sendAs' => 'both',
+						)))
+						{
+							$activity[] = array(
+								'type' => 'email_membership_letter',
+								'primary_id' => $year,
+								'secondary_id' => $person['Person']['id'],
+							);
+							++ $emailed;
+						}
+					}
 				}
 			}
 

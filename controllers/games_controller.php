@@ -1114,7 +1114,7 @@ class GamesController extends AppController {
 				'score_entry_penalty' => -$penalty,
 			);
 			$data['Game']['approved_by'] = APPROVAL_AUTOMATIC_HOME;
-			$this->_remindTeam($game, $game['AwayTeam'], $game['HomeTeam'], 'approval_notice', false);
+			$this->_remindTeam($game, $game['AwayTeam'], $game['HomeTeam'], 'score_approval', 'notification of score approval', false);
 		} else if ( !$home_entry && $away_entry ) {
 			switch( $away_entry['defaulted'] ) {
 				case 'us':
@@ -1143,7 +1143,7 @@ class GamesController extends AppController {
 				'score_entry_penalty' => -$penalty,
 			);
 			$data['Game']['approved_by'] = APPROVAL_AUTOMATIC_AWAY;
-			$this->_remindTeam($game, $game['HomeTeam'], $game['AwayTeam'], 'approval_notice', false);
+			$this->_remindTeam($game, $game['HomeTeam'], $game['AwayTeam'], 'score_approval', 'notification of score approval', false);
 		} else if ( !$home_entry && !$away_entry ) {
 			// TODO: don't do automatic forfeit yet.  Make it per-league configurable
 			return __('No score entry found for either team; cannot finalize this game.', true);
@@ -1308,7 +1308,7 @@ class GamesController extends AppController {
 		return true;
 	}
 
-	function _remindTeam($game, $team, $opponent, $reason, $update_db) {
+	function _remindTeam($game, $team, $opponent, $template, $subject, $update_db) {
 		if (array_key_exists($team['id'], $game['ScoreEntry'])) {
 			return false;
 		}
@@ -1319,21 +1319,20 @@ class GamesController extends AppController {
 			}
 		}
 
-		$variables = array(
-			'%fullname' => implode(', ', Set::extract('/Person/full_name', $team)),
-			'%team' => $team['name'],
-			'%opponent' => $opponent['name'],
-			'%league' => $game['Division']['full_league_name'],
-			'%gamedate' => $game['GameSlot']['game_date'],
-			'%scoreurl' => Router::url(array('controller' => 'games', 'action' => 'submit_score', 'game' => $game['Game']['id'], 'team' => $team['id']), true),
-		);
+		$this->set(array(
+				'team' => $team,
+				'opponent' => $opponent,
+				'division' => $game['Division'],
+				'game' => $game,
+				'captains' => implode(', ', Set::extract('/Person/first_name', $team)),
+		));
 
 		if (!$this->_sendMail (array (
 				'to' => $team,
 				'replyTo' => $game['Division']['Person'],
-				'config_subject' => "{$reason}_subject",
-				'config_body' => "{$reason}_body",
-				'variables' => $variables,
+				'subject' => "{$team['name']} $subject",
+				'template' => $template,
+				'sendAs' => 'both',
 		)))
 		{
 			return false;
@@ -1342,7 +1341,7 @@ class GamesController extends AppController {
 		if ($update_db) {
 			$this->Game->ScoreReminderEmail->create();
 			$this->Game->ScoreReminderEmail->save(array(
-				'type' => "email_$reason",
+				'type' => "email_$template",
 				'primary_id' => $game['Game']['id'],
 				'secondary_id' => $team['id'],
 			));
@@ -1412,8 +1411,8 @@ class GamesController extends AppController {
 			}
 			if ($game['Division']['email_after'] > 0 && $games[$key]['finalized'] !== true && $now > $email_time) {
 				$games[$key]['emailed'] =
-					$this->_remindTeam($game, $game['HomeTeam'], $game['AwayTeam'], 'score_reminder', true) ||
-					$this->_remindTeam($game, $game['AwayTeam'], $game['HomeTeam'], 'score_reminder', true);
+					$this->_remindTeam($game, $game['HomeTeam'], $game['AwayTeam'], 'score_reminder', 'reminder to submit score', true) ||
+					$this->_remindTeam($game, $game['AwayTeam'], $game['HomeTeam'], 'score_reminder', 'reminder to submit score', true);
 			}
 		}
 
