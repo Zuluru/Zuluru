@@ -2039,10 +2039,13 @@ class TeamsController extends AppController {
 						'Team' => array(
 							'Division' => array(
 								'Day',
-								'League',
+								'League' => array(
+									'fields' => array(
+										'League.id', 'League.name',
+									),
+								),
 								'fields' => array(
 									'Division.id', 'Division.name', 'Division.open', 'Division.ratio', 'Division.roster_deadline',
-									'League.id', 'League.name',
 								),
 							),
 							'Person' => array(
