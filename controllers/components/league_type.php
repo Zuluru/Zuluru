@@ -64,7 +64,7 @@ class LeagueTypeComponent extends Object
 
 				if ($result['tournament']) {
 					$this->addTournamentResult ($tournament, $result['home_team'], $result['away_team'],
-						$result['round'], $result['home_score'], $result['away_score']);
+						$result['tournament_pool'], $result['name'], $result['round'], $result['home_score'], $result['away_score']);
 				} else {
 					if (Game::_is_finalized($game)) {
 						$this->addGameResult ($division, $season, $result['home_team'], $result['away_team'],
@@ -91,7 +91,7 @@ class LeagueTypeComponent extends Object
 				if (array_key_exists ($team['id'], $tournament)) {
 					$division['Team'][$key]['tournament'] = $tournament[$team['id']];
 				} else {
-					$division['Team'][$key]['tournament'] = array();
+					$division['Team'][$key]['tournament'] = array('pool' => 999, 'results' => array());
 				}
 			}
 		}
@@ -169,24 +169,24 @@ class LeagueTypeComponent extends Object
 		}
 	}
 
-	function addTournamentResult (&$results, $team, $opp, $round, $score_for, $score_against) {
+	function addTournamentResult (&$results, $team, $opp, $pool, $name, $round, $score_for, $score_against) {
 		// Make sure the team records exist in the results
 		if (! array_key_exists ($team, $results)) {
-			$results[$team] = array();
+			$results[$team] = array('pool' => $pool, 'results' => array());
 		}
 		if (! array_key_exists ($opp, $results)) {
-			$results[$opp] = array();
+			$results[$opp] = array('pool' => $pool, 'results' => array());
 		}
 
 		// What type of result was this?
 		if ($score_for > $score_against) {
-			$results[$team][$round] = 1;
-			$results[$opp][$round] = -1;
+			$results[$team]['results'][$round] = 1;
+			$results[$opp]['results'][$round] = -1;
 		} else if ($score_for < $score_against) {
-			$results[$team][$round] = -1;
-			$results[$opp][$round] = 1;
+			$results[$team]['results'][$round] = -1;
+			$results[$opp]['results'][$round] = 1;
 		} else {
-			$results[$team][$round] = $results[$opp][$round] = 0;
+			$results[$team]['results'][$round] = $results[$opp]['results'][$round] = 0;
 		}
 	}
 
@@ -205,28 +205,35 @@ class LeagueTypeComponent extends Object
 			return $this->compareTeams($a, $b);
 		}
 
+		// If teams are not in the same pool, we use that
+		if ($a['tournament']['pool'] < $b['tournament']['pool']) {
+			return -1;
+		} else if ($a['tournament']['pool'] > $b['tournament']['pool']) {
+			return 1;
+		}
+
 		// Go through each tournament round and compare the two teams' results in that round
-		$rounds = array_unique(array_merge(array_keys($a['tournament']), array_keys($b['tournament'])));
+		$rounds = array_unique(array_merge(array_keys($a['tournament']['results']), array_keys($b['tournament']['results'])));
 		sort($rounds);
 		foreach ($rounds as $round) {
 			// If the first team had a bye in this round and the second team lost,
 			// put the first team ahead
-			if (!array_key_exists($round, $a['tournament']) && $b['tournament'][$round] < 0) {
+			if (!array_key_exists($round, $a['tournament']['results']) && $b['tournament']['results'][$round] < 0) {
 				return -1;
 			}
 
 			// If the second team had a bye in this round and the first team lost,
 			// put the second team ahead
-			if (!array_key_exists($round, $a['tournament']) && $b['tournament'][$round] < 0) {
+			if (!array_key_exists($round, $a['tournament']['results']) && $b['tournament']['results'][$round] < 0) {
 				return 1;
 			}
 
 			// If both teams played in this round and had different results,
 			// use that result to determine who is ahead
-			if (array_key_exists($round, $a['tournament']) && array_key_exists($round, $b['tournament']) &&
-				$a['tournament'][$round] != $b['tournament'][$round])
+			if (array_key_exists($round, $a['tournament']['results']) && array_key_exists($round, $b['tournament']['results']) &&
+				$a['tournament']['results'][$round] != $b['tournament']['results'][$round])
 			{
-				return ($a['tournament'][$round] > $b['tournament'][$round] ? -1 : 1);
+				return ($a['tournament']['results'][$round] > $b['tournament']['results'][$round] ? -1 : 1);
 			}
 		}
 

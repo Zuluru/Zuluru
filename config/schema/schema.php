@@ -203,6 +203,7 @@ class ZuluruSchema extends CakeSchema {
 		'division_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
 		'round' => array('type' => 'string', 'null' => false, 'default' => '1', 'length' => 10),
 		'tournament' => array('type' => 'boolean', 'null' => true, 'default' => '0'),
+		'tournament_pool' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'name' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 32),
 		'home_dependency_type' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 32),
 		'home_dependency_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),

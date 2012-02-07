@@ -186,8 +186,8 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		return $this->finishSchedule($division_id, $publish);
 	}
 
-	function createScheduleBlock($division_id, $exclude_teams, $type, $start_date, $publish, $overflow_type, $names, $first_team = 0) {
-		$this->startBlock($start_date, $names, $first_team);
+	function createScheduleBlock($division_id, $exclude_teams, $type, $start_date, $publish, $overflow_type, $names, $pool = 1, $first_team = 0) {
+		$this->startBlock($start_date, $names, $pool, $first_team);
 
 		switch($type) {
 			case 'single':
@@ -248,12 +248,12 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				list($x,$r) = $this->splitBrackets($num_teams, 4);
 				$ret = true;
 				for ($i = 0; $i < $x; ++$i) {
-					$this->startBlock($start_date, $names[$i + 1], $i * 4);
+					$this->startBlock($start_date, $names[$i + 1], $i + 1, $i * 4);
 					$ret &= $this->createSemis(true);
 				}
 				// Also handle the overflow type, if any
 				if ($overflow_type) {
-					$ret &= $this->createScheduleBlock($division_id, $exclude_teams, $overflow_type, $start_date, $publish, null, $names[$i + 1], $i * 4);
+					$ret &= $this->createScheduleBlock($division_id, $exclude_teams, $overflow_type, $start_date, $publish, null, $names[$i + 1], $i + 1, $i * 4);
 				}
 				break;
 			case 'brackets_of_8':
@@ -261,12 +261,12 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				list($x,$r) = $this->splitBrackets($num_teams, 8);
 				$ret = true;
 				for ($i = 0; $i < $x; ++$i) {
-					$this->startBlock($start_date, $names[$i + 1], $i * 8);
+					$this->startBlock($start_date, $names[$i + 1], $i + 1, $i * 8);
 					$ret = $this->createQuarters(true, true);
 				}
 				// Also handle the overflow type, if any
 				if ($overflow_type) {
-					$ret &= $this->createScheduleBlock($division_id, $exclude_teams, $overflow_type, $start_date, $publish, null, $names[$i + 1], $i * 8);
+					$ret &= $this->createScheduleBlock($division_id, $exclude_teams, $overflow_type, $start_date, $publish, null, $names[$i + 1], $i + 1, $i * 8);
 				}
 				break;
 		}
@@ -597,13 +597,14 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		return $success;
 	}
 
-	function startBlock($start_date, $block_name, $first_team) {
+	function startBlock($start_date, $block_name, $pool, $first_team) {
 		$this->start_date = $start_date;
 		if (is_string($block_name)) {
 			$this->block_name = $block_name;
 		} else {
 			$this->block_name = '';
 		}
+		$this->pool = $pool;
 		$this->first_team = $first_team;
 		if (!empty($this->games)) {
 			$this->first_game = max(array_keys($this->games));
@@ -652,6 +653,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			'away_team' => null,
 			'round' => $round,
 			'tournament' => true,
+			'tournament_pool' => $this->pool,
 			'name' => $block_name . $name,
 			'home_dependency_type' => $home_dependency_type,
 			'home_dependency_id' => $home_dependency_id,
