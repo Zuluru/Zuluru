@@ -96,6 +96,16 @@ $this->Html->addCrumb (__('Feature', true));
 			'after' => 'To use this, you need to separately install the TinyMCE plugin.',
 		),
 	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
+		'name' => 'annotations',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'label' => 'Enable annotations',
+			'after' => 'Allow players to attach notes to other players, teams, games and fields.',
+		),
+	));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>

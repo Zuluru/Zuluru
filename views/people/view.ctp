@@ -158,11 +158,27 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 
 			</dd>
 		<?php endif; ?>
+		<?php if (!empty($person['Note'])): ?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Private Note'); ?></dt>
+			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+				<?php echo $person['Note'][0]['note']; ?>
+
+			</dd>
+		<?php endif; ?>
 	</dl>
 </div>
 <div class="actions">
 	<ul>
 		<?php
+		if ($is_logged_in && Configure::read('feature.annotations')) {
+			if (!empty($person['Note'])) {
+				echo $this->Html->tag ('li', $this->Html->link(__('Delete Note', true), array('controller' => 'people', 'action' => 'delete_note', 'person' => $person['Person']['id'])));
+				$link = 'Edit Note';
+			} else {
+				$link = 'Add Note';
+			}
+			echo $this->Html->tag ('li', $this->Html->link(__($link, true), array('controller' => 'people', 'action' => 'note', 'person' => $person['Person']['id'])));
+		}
 		if ($is_me || $is_admin) {
 			echo $this->Html->tag ('li', $this->Html->link(__('Edit Profile', true), array('action' => 'edit', 'person' => $person['Person']['id'])));
 			echo $this->Html->tag ('li', $this->Html->link(__('Edit Preferences', true), array('action' => 'preferences', 'person' => $person['Person']['id'])));

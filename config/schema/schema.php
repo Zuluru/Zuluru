@@ -269,6 +269,20 @@ class ZuluruSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'key' => array('column' => 'key', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
+	var $notes = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'team_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'person_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'game_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'field_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'visibility' => array('type' => 'integer', 'null' => false, 'default' => '1'),
+		'created_team_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'created_person_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'note' => array('type' => 'text', 'null' => true, 'default' => NULL),
+		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
 	var $notices = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'display_to' => array('type' => 'string', 'null' => false, 'default' => 'player', 'length' => 16),

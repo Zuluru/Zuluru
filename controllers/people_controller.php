@@ -21,6 +21,8 @@ class PeopleController extends AppController {
 				'search',
 				'teams',
 				'photo',
+				'note',
+				'delete_note',
 		)))
 		{
 			return true;
@@ -386,7 +388,7 @@ class PeopleController extends AppController {
 			}
 		}
 
-		$person = $this->Person->readCurrent($id);
+		$person = $this->Person->readCurrent($id, $my_id);
 		if (empty($person)) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
@@ -405,7 +407,7 @@ class PeopleController extends AppController {
 			'Upload',
 		));
 
-		$person = $this->Person->readCurrent($id);
+		$person = $this->Person->readCurrent($id, $this->Auth->user('id'));
 		if (empty($person)) {
 			return;
 		}
@@ -512,6 +514,78 @@ class PeopleController extends AppController {
 			$this->Person->recursive = -1;
 			$this->data = $this->Person->read(null, $id);
 		}
+	}
+
+	function note() {
+		$id = $this->_arg('person');
+		$my_id = $this->Auth->user('id');
+
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$this->set(compact('id', 'my_id'));
+
+		if (!empty($this->data)) {
+			// Check that this user is allowed to edit this note
+			if (!empty($this->data['Note'][0]['id'])) {
+				$created = $this->Person->Note->field('created_person_id', array('id' => $this->data['Note'][0]['id']));
+				if ($created != $my_id) {
+					$this->Session->setFlash(sprintf(__('You are not allowed to edit that %s.', true), __('note', true)), 'default', array('class' => 'error'));
+					$this->redirect(array('action' => 'view', 'person' => $id));
+				}
+			}
+
+			$this->data['Note'][0]['person_id'] = $id;
+			$this->data['Note'][0]['created_person_id'] = $my_id;
+			$this->data['Note'][0]['visibility'] = VISIBILITY_PRIVATE;
+			if (empty($this->data['Note'][0]['note'])) {
+				if (!empty($this->data['Note'][0]['id'])) {
+					if ($this->Person->Note->delete($this->data['Note'][0]['id'])) {
+						$this->Session->setFlash(sprintf(__('The %s has been deleted', true), __('note', true)), 'default', array('class' => 'success'));
+					} else {
+						$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Note', true)), 'default', array('class' => 'warning'));
+					}
+				} else {
+					$this->Session->setFlash(__('You entered no text, so no note was added.', true), 'default', array('class' => 'warning'));
+				}
+				$this->redirect(array('action' => 'view', 'person' => $id));
+			} else if ($this->Person->Note->save($this->data['Note'][0])) {
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('note', true)), 'default', array('class' => 'success'));
+				$this->redirect(array('action' => 'view', 'person' => $id));
+			} else {
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('note', true)), 'default', array('class' => 'warning'));
+			}
+		}
+		if (empty($this->data)) {
+			$this->Person->contain(array(
+					'Note' => array('conditions' => array('created_person_id' => $my_id)),
+			));
+
+			$this->data = $this->Person->read(null, $id);
+		}
+
+		$this->helpers[] = 'TinyMce.TinyMce';
+	}
+
+	function delete_note() {
+		$id = $this->_arg('person');
+		$my_id = $this->Auth->user('id');
+
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$note_id = $this->Person->Note->field('id', array('person_id' => $id, 'created_person_id' => $my_id));
+		if (!$note_id) {
+			$this->Session->setFlash(sprintf(__('You do not have a note on that %s.', true), __('person', true)), 'default', array('class' => 'warning'));
+		} else if ($this->Person->Note->delete($note_id)) {
+			$this->Session->setFlash(sprintf(__('The %s has been deleted', true), __('note', true)), 'default', array('class' => 'success'));
+		} else {
+			$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Note', true)), 'default', array('class' => 'warning'));
+		}
+		$this->redirect(array('action' => 'view', 'person' => $id));
 	}
 
 	function preferences() {
@@ -853,7 +927,9 @@ class PeopleController extends AppController {
 				$this->_mergePaginationParams();
 				$this->paginate['Person'] = array(
 					'conditions' => $this->_generateSearchConditions($params),
-					'contain' => false,
+					'contain' => array(
+						'Note' => array('conditions' => array('created_person_id' => $this->Auth->user('id'))),
+					),
 				);
 				$this->set('people', $this->paginate('Person'));
 			}

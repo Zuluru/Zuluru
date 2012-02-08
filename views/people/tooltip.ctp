@@ -31,4 +31,14 @@ if (!empty($person['Person']['mobile_phone']) &&
 {
 	echo $person['Person']['mobile_phone'] . ' (' . __('mobile', true) . ')' . $this->Html->tag('br');
 }
+
+if ($is_logged_in && Configure::read('feature.annotations')) {
+	if (!empty($person['Note'])) {
+		echo $this->Html->link(__('Delete Note', true), array('controller' => 'people', 'action' => 'delete_note', 'person' => $person['Person']['id'])) . ' / ';
+		$link = 'Edit Note';
+	} else {
+		$link = 'Add Note';
+	}
+	echo $this->Html->link(__($link, true), array('controller' => 'people', 'action' => 'note', 'person' => $person['Person']['id']));
+}
 ?>

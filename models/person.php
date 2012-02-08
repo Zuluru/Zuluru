@@ -106,6 +106,19 @@ class Person extends User {
 			'finderQuery' => '',
 			'counterQuery' => ''
 		),
+		'Note' => array(
+			'className' => 'Note',
+			'foreignKey' => 'person_id',
+			'dependent' => true,
+			'conditions' => '',
+			'fields' => '',
+			'order' => '',
+			'limit' => '',
+			'offset' => '',
+			'exclusive' => '',
+			'finderQuery' => '',
+			'counterQuery' => ''
+		),
 	);
 
 	var $hasAndBelongsToMany = array(
@@ -143,7 +156,7 @@ class Person extends User {
 	);
 
 	// Return a person record including all details related to current divisions.
-	function readCurrent($id) {
+	function readCurrent($id, $my_id = null) {
 		// Check for invalid users (not logged in, for example)
 		if ($id === null) {
 			return array();
@@ -152,12 +165,14 @@ class Person extends User {
 		// Get the main record.  We don't contain Allstar, Team and Division
 		// records, because Person hasMany of them and by default this causes
 		// many queries to the database.
-		$this->recursive = -1;
 		$contain = array(
 			'Group',
 			'Setting',
 			'Upload',
 		);
+		if (Configure::read('feature.annotations') && $my_id !== null) {
+			$contain['Note'] = array('conditions' => array('created_person_id' => $my_id));
+		}
 		if (Configure::read('feature.registration')) {
 			$contain = array_merge ($contain, array(
 				'Registration' => array(

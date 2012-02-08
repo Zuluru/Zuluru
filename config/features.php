@@ -60,6 +60,13 @@ if (!defined('EVENT_PREDECESSOR')) {
 	define('EVENT_ALTERNATE', 3);
 }
 
+if (!defined('VISIBILITY_PRIVATE')) {
+	define('VISIBILITY_PRIVATE', 1);
+	define('VISIBILITY_CAPTAINS', 2);
+	define('VISIBILITY_TEAM', 3);
+	define('VISIBILITY_PUBLIC', 4);
+}
+
 $config['season_is_indoor'] = array(
 	'None'			=> false,
 	'Winter'		=> false,
