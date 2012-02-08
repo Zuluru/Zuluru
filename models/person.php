@@ -173,6 +173,9 @@ class Person extends User {
 		}
 		$this->contain($contain);
 		$person = $this->read(null, $id);
+		if (!$person) {
+			return array();
+		}
 
 		// Unfortunate that we have to manually specify the joins, but it seems
 		// that it's (currently) the only way to fetch all this data in a
