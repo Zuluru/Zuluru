@@ -10,6 +10,7 @@ if (count ($classes)) {
 	echo $this->element('teams/block', array('team' => $team));
 	?></td>
 	<td><?php echo $team['rating']; ?></td>
+	<?php if ($is_logged_in): ?>
 	<td><?php
 	$roster_required = Configure::read("roster_requirements.{$division['Division']['ratio']}");
 	$count = $team['roster_count'];
@@ -23,4 +24,5 @@ if (count ($classes)) {
 	<td class="actions">
 	<?php echo $this->element('teams/actions', compact('team')); ?>
 	</td>
+	<?php endif; ?>
 </tr>

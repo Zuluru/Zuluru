@@ -203,11 +203,6 @@ $this->Html->addCrumb (__('View', true));
 <div class="actions">
 	<ul>
 		<?php
-		if ($division['Division']['is_playoff']) {
-			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('initialize_32.png',
-				array('action' => 'initialize_ratings', 'division' => $division['Division']['id']),
-				array('alt' => __('Initialize', true), 'title' => __('Initialize Ratings', true))));
-		}
 		echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('schedule_32.png',
 			array('action' => 'schedule', 'division' => $division['Division']['id']),
 			array('alt' => __('Schedule', true), 'title' => __('Schedule', true))));
@@ -215,6 +210,11 @@ $this->Html->addCrumb (__('View', true));
 			array('action' => 'standings', 'division' => $division['Division']['id']),
 			array('alt' => __('Standings', true), 'title' => __('Standings', true))));
 		if ($is_admin || $is_coordinator) {
+			if ($division['Division']['is_playoff']) {
+				echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('initialize_32.png',
+					array('action' => 'initialize_ratings', 'division' => $division['Division']['id']),
+					array('alt' => __('Initialize', true), 'title' => __('Initialize Ratings', true))));
+			}
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('edit_32.png',
 				array('action' => 'edit', 'division' => $division['Division']['id']),
 				array('alt' => __('Edit', true), 'title' => __('Edit Division', true))));
