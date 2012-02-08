@@ -387,7 +387,7 @@ class PeopleController extends AppController {
 		}
 
 		$person = $this->Person->readCurrent($id);
-		if ($person === false) {
+		if (empty($person)) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
@@ -406,7 +406,7 @@ class PeopleController extends AppController {
 		));
 
 		$person = $this->Person->readCurrent($id);
-		if ($person === false) {
+		if (empty($person)) {
 			return;
 		}
 		$this->set(compact('person'));
