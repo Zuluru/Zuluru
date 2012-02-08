@@ -434,6 +434,35 @@ div.related
 	background-color: #cccccc;
 }
 
+/* Tooltip styling. By default the element to be styled is .tooltip  */
+#zuluru .tooltip
+{
+	display: none;
+	padding: 25px;
+	z-index: 900;
+}
+#zuluru #tooltip h2
+{
+	margin: 0;
+}
+#zuluru .tooltip dt
+{
+	line-height: 1.5em;
+}
+
+#zuluru .tooltip dd
+{
+	line-height: 1.5em;
+	margin: -1.5em 0 0 9em;
+}
+
+#zuluru .tooltip img.thumbnail
+{
+	float: right;
+	border: 0;
+	margin: -4px -4px 0 0;
+}
+
 /* Help styling. */
 #zuluru .help_block
 {

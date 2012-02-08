@@ -252,32 +252,11 @@ dl .altrow
 /* Tooltip styling. By default the element to be styled is .tooltip  */
 #zuluru .tooltip
 {
-	display: none;
 	background: transparent url(images/tooltip/white_arrow_big.png);
 	font-size: 11px;
 	height: 166px;
 	width: 320px;
-	padding: 25px;
 	color: #000;
-	z-index: 900;
-}
-
-#zuluru .tooltip dt
-{
-	line-height: 1.75em;
-}
-
-#zuluru .tooltip dd
-{
-	line-height: 1.75em;
-	margin: -1.75em 0 0 9em;
-}
-
-#zuluru .tooltip img.thumbnail
-{
-	float: right;
-	border: 0;
-	margin: -4px -4px 0 0;
 }
 
 /* Tournament bracket styling. */
