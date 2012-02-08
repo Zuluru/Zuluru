@@ -2115,7 +2115,8 @@ class TeamsController extends AppController {
 
 	function _rosterRemind($person, $captains, $team, $division, $roster, $second = false) {
 		$code = $this->_hash($roster);
-		$this->set(compact('person', 'team', 'division', 'roster', 'code'));
+		$league = $division['League'];
+		$this->set(compact('person', 'team', 'division', 'league', 'roster', 'code'));
 		$this->set ('captains', implode (', ', Set::extract ('/first_name', $captains)));
 		$this->set ('days', ($second ? 2 : 7));
 
