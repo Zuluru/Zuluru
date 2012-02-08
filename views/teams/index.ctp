@@ -63,9 +63,11 @@ foreach ($teams as $team):
 					array('alt' => __('Add Player', true), 'title' => __('Add Player', true)));
 			}
 			if ($is_admin) {
-				echo $this->ZuluruHtml->iconLink('spirit_24.png',
-					array('action' => 'spirit', 'team' => $team['Team']['id']),
-					array('alt' => __('Spirit', true), 'title' => __('See Team Spirit Report', true)));
+				if ($team['Division']['League']['numeric_sotg'] || $team['Division']['League']['sotg_questions'] != 'none') {
+					echo $this->ZuluruHtml->iconLink('spirit_24.png',
+						array('action' => 'spirit', 'team' => $team['Team']['id']),
+						array('alt' => __('Spirit', true), 'title' => __('See Team Spirit Report', true)));
+				}
 				echo $this->ZuluruHtml->iconLink('move_24.png',
 					array('action' => 'move', 'team' => $team['Team']['id']),
 					array('alt' => __('Move Team', true), 'title' => __('Move Team', true)));

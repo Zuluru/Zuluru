@@ -636,7 +636,9 @@ class AppController extends Controller {
 		}
 		if ($this->effective_admin) {
 			$this->_addMenuItem ('Move', array('controller' => 'teams', 'action' => 'move', 'team' => $team['Team']['id']), array('Teams', $key));
-			$this->_addMenuItem ('Spirit', array('controller' => 'teams', 'action' => 'spirit', 'team' => $team['Team']['id']), array('Teams', $key));
+			if ($team['Division']['League']['numeric_sotg'] || $team['Division']['League']['sotg_questions'] != 'none') {
+				$this->_addMenuItem ('Spirit', array('controller' => 'teams', 'action' => 'spirit', 'team' => $team['Team']['id']), array('Teams', $key));
+			}
 		}
 
 		if (array_key_exists('Division', $team)) {
@@ -696,8 +698,10 @@ class AppController extends Controller {
 				$this->_addMenuItem ('All stars', array('controller' => 'divisions', 'action' => 'allstars', 'division' => $division['id']), $path);
 			}
 			$this->_addMenuItem ('Captain emails', array('controller' => 'divisions', 'action' => 'emails', 'division' => $division['id']), $path);
-			$this->_addMenuItem ('Spirit Report', array('controller' => 'divisions', 'action' => 'spirit', 'division' => $division['id']), $path);
-			$this->_addMenuItem ('Download', array('controller' => 'divisions', 'action' => 'spirit', 'division' => $division['id'], 'ext' => 'csv'), array_merge($path, array('Spirit Report')));
+			if ($league['numeric_sotg'] || $league['sotg_questions'] != 'none') {
+				$this->_addMenuItem ('Spirit Report', array('controller' => 'divisions', 'action' => 'spirit', 'division' => $division['id']), $path);
+				$this->_addMenuItem ('Download', array('controller' => 'divisions', 'action' => 'spirit', 'division' => $division['id'], 'ext' => 'csv'), array_merge($path, array('Spirit Report')));
+			}
 		}
 		if ($this->is_admin) {
 			$this->_addMenuItem ('Add coordinator', array('controller' => 'divisions', 'action' => 'add_coordinator', 'division' => $division['id']), $path);

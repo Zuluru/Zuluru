@@ -40,7 +40,9 @@ if ($is_admin || (($is_captain || $is_coordinator) && $division['Division']['ros
 		array('controller' => 'teams', 'action' => 'add_player', 'team' => $team['id']),
 		array('alt' => __('Add Player', true), 'title' => __('Add Player', true)));
 }
-if ($is_admin || $is_coordinator) {
+if (($is_admin || $is_coordinator) &&
+	($division['League']['numeric_sotg'] || $division['League']['sotg_questions'] != 'none'))
+{
 	echo $this->ZuluruHtml->iconLink('spirit_24.png',
 		array('controller' => 'teams', 'action' => 'spirit', 'team' => $team['id']),
 		array('alt' => __('Spirit', true), 'title' => __('See Team Spirit Report', true)));

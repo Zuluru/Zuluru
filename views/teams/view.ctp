@@ -207,7 +207,9 @@ $this->Html->addCrumb (__('View', true));
 				array('action' => 'add_player', 'team' => $team['Team']['id']),
 				array('alt' => __('Add Player', true), 'title' => __('Add Player', true))));
 		}
-		if ($is_admin || $is_coordinator) {
+		if (($is_admin || $is_coordinator) &&
+			($team['Division']['League']['numeric_sotg'] || $team['Division']['League']['sotg_questions'] != 'none'))
+		{
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('spirit_32.png',
 				array('action' => 'spirit', 'team' => $team['Team']['id']),
 				array('alt' => __('Spirit', true), 'title' => __('See Team Spirit Report', true))));

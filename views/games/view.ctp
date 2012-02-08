@@ -135,7 +135,8 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 			<?php echo $game['Game']['away_score']; ?>
 
 		</dd>
-		<?php if ($is_admin || $is_coordinator || $game['Division']['League']['display_sotg'] != 'coordinator_only'): ?>
+		<?php if (($is_admin || $is_coordinator || $game['Division']['League']['display_sotg'] != 'coordinator_only') &&
+			($game['Division']['League']['numeric_sotg'] || $game['Division']['League']['sotg_questions'] != 'none')): ?>
 		<dt><?php echo __('Spirit for', true) . ' ' . $this->Text->truncate ($game['HomeTeam']['name'], 18); ?></dt>
 		<dd>
 			<?php

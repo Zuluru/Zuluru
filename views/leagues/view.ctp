@@ -69,9 +69,11 @@ $this->Html->addCrumb (__('View', true));
 				echo $this->ZuluruHtml->iconLink('schedule_add_32.png',
 					array('controller' => 'divisions', 'controller' => 'schedules', 'action' => 'add', 'division' => $division['id']),
 					array('alt' => __('Add Games', true), 'title' => __('Add Games', true)));
-				echo $this->ZuluruHtml->iconLink('spirit_32.png',
-					array('controller' => 'divisions', 'action' => 'spirit', 'division' => $division['id']),
-					array('alt' => __('Spirit', true), 'title' => __('See Division Spirit Report', true)));
+				if ($league['League']['numeric_sotg'] || $league['League']['sotg_questions'] != 'none') {
+					echo $this->ZuluruHtml->iconLink('spirit_32.png',
+						array('controller' => 'divisions', 'action' => 'spirit', 'division' => $division['id']),
+						array('alt' => __('Spirit', true), 'title' => __('See Division Spirit Report', true)));
+				}
 				echo $this->ZuluruHtml->iconLink('field_report_32.png',
 					array('controller' => 'divisions', 'action' => 'fields', 'division' => $division['id']),
 					array('alt' => __('Field Distribution', true), 'title' => __('Field Distribution Report', true)));

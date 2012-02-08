@@ -5,7 +5,8 @@ $this->Html->addCrumb (__('Schedule', true));
 ?>
 
 <?php
-$display_spirit = $is_admin || $is_coordinator || $team['Division']['League']['display_sotg'] != 'coordinator_only';
+$display_spirit = ($is_admin || $is_coordinator || $team['Division']['League']['display_sotg'] != 'coordinator_only') &&
+	($team['Division']['League']['numeric_sotg'] || $team['Division']['League']['sotg_questions'] != 'none');
 ?>
 <div class="teams schedule">
 <h2><?php  echo __('Team Schedule', true) . ': ' . $team['Team']['name'];?></h2>
@@ -46,7 +47,7 @@ $display_spirit = $is_admin || $is_coordinator || $team['Division']['League']['d
 			}
 			Game::_adjustEntryIndices ($game);
 			Game::_readDependencies($game['Game']);
-			if (Game::_is_finalized($game) && array_key_exists ($team['Team']['id'], $game['SpiritEntry'])) {
+			if ($display_spirit && Game::_is_finalized($game) && array_key_exists ($team['Team']['id'], $game['SpiritEntry'])) {
 				$entry = $game['SpiritEntry'][$team['Team']['id']];
 			} else {
 				$entry = null;
@@ -182,7 +183,9 @@ echo $this->ZuluruHtml->imageLink ('http://www.google.com/calendar/images/ext/gc
 				array('action' => 'add_player', 'team' => $team['Team']['id']),
 				array('alt' => __('Add Player', true), 'title' => __('Add Player', true))));
 		}
-		if ($is_admin || $is_coordinator) {
+		if (($is_admin || $is_coordinator) &&
+			($team['Division']['League']['numeric_sotg'] || $team['Division']['League']['sotg_questions'] != 'none'))
+		{
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('spirit_32.png',
 				array('action' => 'spirit', 'team' => $team['Team']['id']),
 				array('alt' => __('Spirit', true), 'title' => __('See Team Spirit Report', true))));
