@@ -15,6 +15,8 @@ class TeamsController extends AppController {
 				'roster_position',
 				'roster_add',
 				'emails',
+				'note',
+				'delete_note',
 		)))
 		{
 			// If a team id is specified, check if we're a captain of that team
@@ -373,13 +375,17 @@ class TeamsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
-		$this->Team->contain(array(
+		$contain = array(
 			'Person',
 			'Division' => array('Day', 'League'),
 			'Franchise',
 			'Region',
 			'Field' => array('Facility'),
-		));
+		);
+		if (Configure::read('feature.annotations') && $this->is_logged_in) {
+			$contain['Note'] = array('conditions' => array('created_person_id' => $this->Auth->user('id')));
+		}
+		$this->Team->contain($contain);
 
 		$team = $this->Team->read(null, $id);
 		if ($team === false) {
@@ -505,14 +511,18 @@ class TeamsController extends AppController {
 		if (!$id) {
 			return;
 		}
-		$this->Team->contain(array(
+		$contain = array(
 			// Get the list of captains
 			'Person' => array(
 				'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
 				'fields' => array('id', 'first_name', 'last_name'),
 			),
 			'Division',
-		));
+		);
+		if (Configure::read('feature.annotations') && $this->is_logged_in) {
+			$contain['Note'] = array('conditions' => array('created_person_id' => $this->Auth->user('id')));
+		}
+		$this->Team->contain($contain);
 
 		$team = $this->Team->read(null, $id);
 		if ($team === false) {
@@ -572,6 +582,78 @@ class TeamsController extends AppController {
 		));
 		$fields = Set::combine($fields, '{n}.Field.id', '{n}.Field.long_name');
 		$this->set(compact('regions', 'fields'));
+	}
+
+	function note() {
+		$id = $this->_arg('team');
+		$my_id = $this->Auth->user('id');
+
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$this->set(compact('id', 'my_id'));
+
+		if (!empty($this->data)) {
+			// Check that this user is allowed to edit this note
+			if (!empty($this->data['Note'][0]['id'])) {
+				$created = $this->Team->Note->field('created_person_id', array('id' => $this->data['Note'][0]['id']));
+				if ($created != $my_id) {
+					$this->Session->setFlash(sprintf(__('You are not allowed to edit that %s.', true), __('note', true)), 'default', array('class' => 'error'));
+					$this->redirect(array('action' => 'view', 'team' => $id));
+				}
+			}
+
+			$this->data['Note'][0]['team_id'] = $id;
+			$this->data['Note'][0]['created_person_id'] = $my_id;
+			$this->data['Note'][0]['visibility'] = VISIBILITY_PRIVATE;
+			if (empty($this->data['Note'][0]['note'])) {
+				if (!empty($this->data['Note'][0]['id'])) {
+					if ($this->Team->Note->delete($this->data['Note'][0]['id'])) {
+						$this->Session->setFlash(sprintf(__('The %s has been deleted', true), __('note', true)), 'default', array('class' => 'success'));
+					} else {
+						$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Note', true)), 'default', array('class' => 'warning'));
+					}
+				} else {
+					$this->Session->setFlash(__('You entered no text, so no note was added.', true), 'default', array('class' => 'warning'));
+				}
+				$this->redirect(array('action' => 'view', 'team' => $id));
+			} else if ($this->Team->Note->save($this->data['Note'][0])) {
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('note', true)), 'default', array('class' => 'success'));
+				$this->redirect(array('action' => 'view', 'team' => $id));
+			} else {
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('note', true)), 'default', array('class' => 'warning'));
+			}
+		}
+		if (empty($this->data)) {
+			$this->Team->contain(array(
+					'Note' => array('conditions' => array('created_person_id' => $my_id)),
+			));
+
+			$this->data = $this->Team->read(null, $id);
+		}
+
+		$this->helpers[] = 'TinyMce.TinyMce';
+	}
+
+	function delete_note() {
+		$id = $this->_arg('team');
+		$my_id = $this->Auth->user('id');
+
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$note_id = $this->Team->Note->field('id', array('team_id' => $id, 'created_person_id' => $my_id));
+		if (!$note_id) {
+			$this->Session->setFlash(sprintf(__('You do not have a note on that %s.', true), __('team', true)), 'default', array('class' => 'warning'));
+		} else if ($this->Team->Note->delete($note_id)) {
+			$this->Session->setFlash(sprintf(__('The %s has been deleted', true), __('note', true)), 'default', array('class' => 'success'));
+		} else {
+			$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Note', true)), 'default', array('class' => 'warning'));
+		}
+		$this->redirect(array('action' => 'view', 'team' => $id));
 	}
 
 	function delete() {

@@ -138,6 +138,19 @@ class Team extends AppModel {
 			'finderQuery' => '',
 			'counterQuery' => ''
 		),
+		'Note' => array(
+			'className' => 'Note',
+			'foreignKey' => 'team_id',
+			'dependent' => true,
+			'conditions' => '',
+			'fields' => '',
+			'order' => '',
+			'limit' => '',
+			'offset' => '',
+			'exclusive' => '',
+			'finderQuery' => '',
+			'counterQuery' => ''
+		),
 	);
 
 	var $hasAndBelongsToMany = array(

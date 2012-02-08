@@ -44,4 +44,17 @@ if (!empty ($team['Team']['website'])) {
 		$this->Html->link(__('Standings', true), array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Team']['division_id']));
 	?></dd>
 
+	<?php if ($is_logged_in && Configure::read('feature.annotations')): ?>
+	<dt><?php __('Notes'); ?></dt>
+	<dd><?php
+	if (!empty($team['Note'])) {
+		echo $this->Html->link(__('Delete', true), array('action' => 'delete_note', 'team' => $team['Team']['id'])) . ' / ';
+		$link = 'Edit';
+	} else {
+		$link = 'Add';
+	}
+	echo $this->Html->link(__($link, true), array('action' => 'note', 'team' => $team['Team']['id']));
+	?></dd>
+	<?php endif; ?>
+
 </dl>

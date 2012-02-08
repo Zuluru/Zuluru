@@ -161,6 +161,13 @@ $this->Html->addCrumb (__('View', true));
 
 		</dd>
 		<?php endif; ?>
+		<?php if (!empty($team['Note'])): ?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Private Note'); ?></dt>
+			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+				<?php echo $team['Note'][0]['note']; ?>
+
+			</dd>
+		<?php endif; ?>
 	</dl>
 </div>
 <div class="actions">
@@ -222,6 +229,15 @@ $this->Html->addCrumb (__('View', true));
 				array('action' => 'delete', 'team' => $team['Team']['id']),
 				array('alt' => __('Delete', true), 'title' => __('Delete Team', true)),
 				array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $team['Team']['id']))));
+		}
+		if ($is_logged_in && Configure::read('feature.annotations')) {
+			if (!empty($team['Note'])) {
+				echo $this->Html->tag ('li', $this->Html->link(__('Delete Note', true), array('action' => 'delete_note', 'team' => $team['Team']['id'])));
+				$link = 'Edit Note';
+			} else {
+				$link = 'Add Note';
+			}
+			echo $this->Html->tag ('li', $this->Html->link(__($link, true), array('action' => 'note', 'team' => $team['Team']['id'])));
 		}
 		?>
 	</ul>
