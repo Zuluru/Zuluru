@@ -41,21 +41,21 @@ foreach ($people as $person):
 			<?php echo $this->element('people/block', array('person' => $person, 'display_field' => 'last_name')); ?>
 		</td>
 		<td class="actions">
-			<?php echo $this->Html->link(__('View', true), array('controller' => 'people', 'action' => 'view', 'person' => $person['Person']['id'])); ?>
+			<?php echo $this->Html->link(__('View', true), array('action' => 'view', 'person' => $person['Person']['id'])); ?>
 			<?php
 			if ($is_logged_in && Configure::read('feature.annotations')) {
 				if (!empty($person['Note'])) {
-					echo $this->Html->link(__('Delete Note', true), array('controller' => 'people', 'action' => 'delete_note', 'person' => $person['Person']['id']));
+					echo $this->Html->link(__('Delete Note', true), array('action' => 'delete_note', 'person' => $person['Person']['id']));
 					$link = 'Edit Note';
 				} else {
 					$link = 'Add Note';
 				}
-				echo $this->Html->link(__($link, true), array('controller' => 'people', 'action' => 'note', 'person' => $person['Person']['id']));
+				echo $this->Html->link(__($link, true), array('action' => 'note', 'person' => $person['Person']['id']));
 			}
 			?>
 			<?php if ($is_admin): ?>
-			<?php echo $this->Html->link(__('Edit', true), array('controller' => 'people', 'action' => 'edit', 'person' => $person['Person']['id'])); ?>
-			<?php echo $this->Html->link(__('Delete', true), array('controller' => 'people', 'action' => 'delete', 'person' => $person['Person']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $person['Person']['id'])); ?>
+			<?php echo $this->Html->link(__('Edit', true), array('action' => 'edit', 'person' => $person['Person']['id'])); ?>
+			<?php echo $this->Html->link(__('Delete', true), array('action' => 'delete', 'person' => $person['Person']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $person['Person']['id'])); ?>
 			<?php endif; ?>
 			<?php
 			if (!empty($extra_url)) {

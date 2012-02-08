@@ -172,12 +172,12 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 		<?php
 		if ($is_logged_in && Configure::read('feature.annotations')) {
 			if (!empty($person['Note'])) {
-				echo $this->Html->tag ('li', $this->Html->link(__('Delete Note', true), array('controller' => 'people', 'action' => 'delete_note', 'person' => $person['Person']['id'])));
+				echo $this->Html->tag ('li', $this->Html->link(__('Delete Note', true), array('action' => 'delete_note', 'person' => $person['Person']['id'])));
 				$link = 'Edit Note';
 			} else {
 				$link = 'Add Note';
 			}
-			echo $this->Html->tag ('li', $this->Html->link(__($link, true), array('controller' => 'people', 'action' => 'note', 'person' => $person['Person']['id'])));
+			echo $this->Html->tag ('li', $this->Html->link(__($link, true), array('action' => 'note', 'person' => $person['Person']['id'])));
 		}
 		if ($is_me || $is_admin) {
 			echo $this->Html->tag ('li', $this->Html->link(__('Edit Profile', true), array('action' => 'edit', 'person' => $person['Person']['id'])));
