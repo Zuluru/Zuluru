@@ -1,5 +1,17 @@
 <?php
-$file = Inflector::slug(trim(low($colour), ' !()/,'));
+$file = Inflector::slug(trim(str_replace(array('!', '(', ')', ','), ' ', low($colour))));
+
+foreach (array('/', '_or_') as $split) {
+	if (strpos($file, $split) !== false) {
+		$parts = explode($split, $file);
+		$out = array();
+		foreach ($parts as $part) {
+			$out[] = $this->element('shirt', array('colour' => $part));
+		}
+		echo implode('/', $out);
+		return;
+	}
+}
 
 // Remove anything after "with"
 $with = strpos($file, '_with');
