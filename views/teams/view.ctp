@@ -280,8 +280,10 @@ $this->Html->addCrumb (__('View', true));
 			<?php
 			if ($team['Division']['is_playoff']) {
 				$typical_reason = 'the current roster does not meet the playoff roster rules';
-			} else {
+			} else if (Configure::read('feature.registration')) {
 				$typical_reason = 'they do not have a current membership';
+			} else {
+				$typical_reason = 'there is something wrong with their account';
 			}
 			echo sprintf(__('Notice: The following players are currently INELIGIBLE to participate on this roster. This is typically because %s. They are not allowed to play with this team until this is corrected. Hover your mouse over the %s to see the specific reason why.', true),
 				__($typical_reason, true),

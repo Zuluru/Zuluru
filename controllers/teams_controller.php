@@ -396,7 +396,7 @@ class TeamsController extends AppController {
 		$this->_limitOverride($id);
 		$team_days = Set::extract('/Division/Day/id', $team);
 
-		if (!empty($team['Team']['division_id'])) {
+		if (!empty($team['Team']['division_id']) && Configure::read('feature.registration')) {
 			$member_rule = "compare(member_type('{$team['Division']['open']}') != 'none')";
 		}
 
