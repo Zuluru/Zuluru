@@ -127,6 +127,7 @@ endif;
 ?>
 </table>
 </div>
+<?php if ($is_logged_in): ?>
 <div class="actions">
 	<ul>
 <?php
@@ -137,3 +138,4 @@ foreach ($years as $year) {
 
 	</ul>
 </div>
+<?php endif; ?>
