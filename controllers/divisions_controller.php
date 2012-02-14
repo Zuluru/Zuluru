@@ -366,16 +366,16 @@ class DivisionsController extends AppController {
 		$id = $this->_arg('division');
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action'=>'index'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 		$dependencies = $this->Division->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Session->setFlash(__('The following records reference this division, so it cannot be deleted.', true) . '<br>' . $dependencies, 'default', array('class' => 'warning'));
-			$this->redirect(array('action'=>'index'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 		if ($this->Division->delete($id)) {
 			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Division', true)), 'default', array('class' => 'success'));
-			$this->redirect(array('action'=>'index'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Division', true)), 'default', array('class' => 'warning'));
 		$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
