@@ -237,7 +237,7 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 		?>
 		<tr<?php echo $class;?>>
 			<td><?php echo __(Configure::read("options.division_position.{$division['DivisionsPerson']['position']}"), true) . ' ' . __('of', true) . ' ' .
-					$this->Html->link($division['Division']['name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $division['Division']['id']));?></td>
+					$this->Html->link($division['Division']['long_league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $division['Division']['id']));?></td>
 		</tr>
 		<?php endforeach; ?>
 	</table>
