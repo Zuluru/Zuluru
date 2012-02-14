@@ -61,6 +61,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 
 			case 6:
 				$types['semis_consolation_six'] = 'semi-finals and finals, plus 5th and 6th place play-ins';
+				$types['semis_double_elimination_six'] = 'semi-finals and finals, 1st and 2nd place have double-elimination option, everyone gets 3 games';
 				$types['semis_complete_six'] = 'semi-finals and finals, plus 5th and 6th place play-ins, everyone gets 3 games';
 				$types['semis_minimal_six'] = 'semi-finals and finals, 5th and 6th have consolation games, everyone gets 2 games';
 				// Two 3-team round-robins plus finals?
@@ -137,6 +138,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				return array(2, 1);
 			case 'semis_consolation_five':
 				return array(1, 2, 2, 2);
+			case 'semis_double_elimination_six':
 			case 'semis_complete_six':
 				return array(3, 3, 3);
 			case 'semis_consolation_six':
@@ -209,6 +211,9 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				break;
 			case 'semis_consolation_five':
 				$ret = $this->createSemisFive(true);
+				break;
+			case 'semis_double_elimination_six':
+				$ret = $this->createDoubleEliminationSix(true);
 				break;
 			case 'semis_complete_six':
 				$ret = $this->createCompleteSix(true);
@@ -346,6 +351,27 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 	}
 
 	function createCompleteSix($consolation) {
+		// Round 1: 1 vs 5, 2 vs 6, 3 vs 4
+		$success = $this->createTournamentGame (1, 1, 'A', 'seed', 1, 'seed', 5);
+		$success &= $this->createTournamentGame (2, 1, 'B', 'seed', 2, 'seed', 6);
+		$success &= $this->createTournamentGame (3, 1, 'C', 'seed', 3, 'seed', 4);
+
+		// Round 2: Winner A vs Winner B, Loser A vs Winner C, Loser B vs Loser C
+		$success &= $this->createTournamentGame (4, 2, 'D', 'game_winner', 1, 'game_winner', 2);
+		$success &= $this->createTournamentGame (5, 2, 'E', 'game_winner', 3, 'game_loser', 1);
+		$success &= $this->createTournamentGame (6, 2, 'F', 'game_loser', 2, 'game_loser', 3);
+
+		// Round 3: Winner D vs Winner E 1st/2nd Place, optional consolation games
+		$success &= $this->createTournamentGame (7, 3, ordinal($this->first_team + 1), 'game_winner', 4, 'game_winner', 5);
+		if ($consolation) {
+			$success &= $this->createTournamentGame (8, 3, ordinal($this->first_team + 3), 'game_loser', 4, 'game_winner', 6);
+			$success &= $this->createTournamentGame (9, 3, ordinal($this->first_team + 5), 'game_loser', 5, 'game_loser', 6);
+		}
+
+		return $success;
+	}
+
+	function createDoubleEliminationSix($consolation) {
 		// Round 1: 1 vs 2, 4 vs 5, 3 vs 6
 		$success = $this->createTournamentGame (1, 1, 'A', 'seed', 1, 'seed', 2);
 		$success &= $this->createTournamentGame (2, 1, 'B', 'seed', 4, 'seed', 5);
