@@ -140,6 +140,7 @@ class DivisionsController extends AppController {
 				'conditions' => array('OR' => array(
 					'League.is_open' => true,
 					'League.open > NOW()',
+					'League.open' => '0000-00-00',
 				)),
 				'contain' => false,
 		));
