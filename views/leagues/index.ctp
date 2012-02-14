@@ -95,6 +95,36 @@ foreach ($divisions as $division):
 		</td>
 	</tr>
 <?php endforeach; ?>
+<?php if (isset($leagues)): ?>
+<?php foreach ($leagues as $league): ?>
+	<tr>
+		<th<?php if (!$is_admin) echo ' colspan="2"'; ?>>
+			<?php echo $this->Html->link($league['League']['full_name'], array('action' => 'view', 'league' => $league['League']['id'])); ?>
+		</th>
+		<?php if ($is_admin): ?>
+		<th class="actions">
+			<?php
+				echo $this->ZuluruHtml->iconLink('edit_24.png',
+					array('action' => 'edit', 'league' => $league['League']['id']),
+					array('alt' => __('Edit', true), 'title' => __('Edit League', true)));
+				echo $this->ZuluruHtml->iconLink('league_clone_24.png',
+					array('controller' => 'leagues', 'action' => 'add', 'league' => $league['League']['id']),
+					array('alt' => __('Clone League', true), 'title' => __('Clone League', true)));
+				echo $this->ZuluruHtml->iconLink('division_add_24.png',
+					array('controller' => 'divisions', 'action' => 'add', 'league' => $league['League']['id']),
+					array('alt' => __('Add Division', true), 'title' => __('Add Division', true)));
+				echo $this->ZuluruHtml->iconLink('delete_24.png',
+					array('action' => 'delete', 'league' => $league['League']['id']),
+					array('alt' => __('Delete', true), 'title' => __('Delete League', true)),
+					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $league['League']['id'])));
+			?>
+		</th>
+		<?php endif; ?>
+	</tr>
+<?php
+	endforeach;
+endif;
+?>
 </table>
 </div>
 <div class="actions">

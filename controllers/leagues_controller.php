@@ -30,7 +30,16 @@ class LeaguesController extends AppController {
 		));
 		$this->League->Division->addPlayoffs($divisions);
 		usort ($divisions, array('League', 'compareLeagueAndDivision'));
-		$this->set(compact('divisions'));
+
+		// Find any newly created leagues with no divisions, for administrators
+		if ($this->is_admin) {
+			$leagues = $this->League->find('all', array(
+				'conditions' => array('open' => '0000-00-00'),
+				'contain' => false,
+			));
+		}
+
+		$this->set(compact('divisions', 'leagues'));
 
 		$this->League->Division->recursive = -1;
 		$this->set('years', $this->League->Division->find('all', array(
@@ -136,16 +145,16 @@ class LeaguesController extends AppController {
 		$id = $this->_arg('league');
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action'=>'index'));
+			$this->redirect(array('action' => 'index'));
 		}
 		$dependencies = $this->League->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Session->setFlash(__('The following records reference this league, so it cannot be deleted.', true) . '<br>' . $dependencies, 'default', array('class' => 'warning'));
-			$this->redirect(array('action'=>'index'));
+			$this->redirect(array('action' => 'index'));
 		}
 		if ($this->League->delete($id)) {
 			$this->Session->setFlash(sprintf(__('%s deleted', true), __('League', true)), 'default', array('class' => 'success'));
-			$this->redirect(array('action'=>'index'));
+			$this->redirect(array('action' => 'index'));
 		}
 		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('League', true)), 'default', array('class' => 'warning'));
 		$this->redirect(array('action' => 'index'));

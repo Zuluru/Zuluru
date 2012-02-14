@@ -68,7 +68,7 @@ class League extends AppModel {
 
 		// Add the year, if it's not already part of the name
 		$full_name = $long_name;
-		if (array_key_exists ('open', $record[$this->alias])) {
+		if (array_key_exists ('open', $record[$this->alias]) && $record[$this->alias]['open'] != '0000-00-00') {
 			$year = date ('Y', strtotime ($record[$this->alias]['open']));
 			if (strpos ($full_name, $year) === false) {
 				// TODO: Add closing year, if different than opening
