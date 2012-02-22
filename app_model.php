@@ -117,7 +117,7 @@ class AppModel extends Model {
 		if (!empty($dependencies)) {
 			return implode(', ', $dependencies);
 		}
-		return true;
+		return false;
 	}
 
 	/**
