@@ -32,6 +32,7 @@ $this->Html->addCrumb (__('Connections', true));
 
 		<fieldset>
 <?php
+	__('These two lists connect this event to events that have gone before. They will typically be the same. For more details see the help for each field.');
 	echo $this->ZuluruForm->input('Event.Predecessor', array(
 			'label' => __('Events to consider as predecessors to this one:', true),
 			'options' => $before,
@@ -49,14 +50,15 @@ $this->Html->addCrumb (__('Connections', true));
 
 		<fieldset>
 <?php
-	echo $this->ZuluruForm->input('Event.Successor', array(
-			'label' => __('Events to consider as successors to this one:', true),
+	__('These two lists connect this event to events that come later, and are generally not applicable when creating a new event. They will typically be the same. For more details see the help for each field.');
+	echo $this->ZuluruForm->input('Event.PredecessorTo', array(
+			'label' => __('Events that this one is considered a predecessor to:', true),
 			'options' => $after,
 			'multiple' => true,
 			'title' => __('Select all that apply', true),
 	));
-	echo $this->ZuluruForm->input('Event.PredecessorTo', array(
-			'label' => __('Events that this one is considered a predecessor to:', true),
+	echo $this->ZuluruForm->input('Event.Successor', array(
+			'label' => __('Events to consider as successors to this one:', true),
 			'options' => $after,
 			'multiple' => true,
 			'title' => __('Select all that apply', true),
