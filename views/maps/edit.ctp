@@ -4,7 +4,7 @@ $this->Html->addCrumb ("{$field['Facility']['name']} ({$field['Facility']['code'
 ?>
 
 <?php
-$map_vars = array('id', 'latitude', 'longitude', 'angle', 'width', 'length', 'zoom');
+$map_vars = array('id', 'num', 'latitude', 'longitude', 'angle', 'width', 'length', 'zoom');
 
 $zuluru_base = Configure::read('urls.zuluru_base');
 $gmaps_key = Configure::read('site.gmaps_key');
@@ -22,20 +22,41 @@ $variables = <<<END_OF_VARIABLES
 zuluru_path = "$zuluru_base/";
 leaguelat = $leaguelat;
 leaguelng = $leaguelng;
-drag = true;
-name = "{$field['Field']['long_name']}";
+name = "{$field['Facility']['name']}";
 address = "$address";
 full_address = "$full_address";
 
 END_OF_VARIABLES;
 
-echo $this->Form->create(false, array('url' => Router::normalize($this->here), 'name' => 'layout'));
+echo $this->Form->create('Field', array('url' => Router::normalize($this->here), 'name' => 'layout'));
 
+$vals = array();
 foreach ($map_vars as $var) {
-	if (!empty ($field['Field'][$var])) {
-		$variables .= "$var = {$field['Field'][$var]};\n";
+	$val = $field['Field'][$var];
+	if (!empty ($val)) {
+		if (!is_numeric($val)) {
+			$val = "\"$val\"";
+		}
+		$vals[] = "'$var': $val";
 	}
-	echo $this->Form->hidden($var, array('value' => $field['Field'][$var]));
+	echo $this->Form->hidden("{$field['Field']['id']}.$var", array('value' => $field['Field'][$var]));
+}
+$variables .= "fields[{$field['Field']['id']}] = { " . implode(', ', $vals) . " };\n";
+
+// Handle other fields at this site
+foreach ($field['Facility']['Field'] as $related) {
+	$vals = array();
+	foreach ($map_vars as $var) {
+		$val = $related[$var];
+		if (!empty ($val)) {
+			if (!is_numeric($val)) {
+				$val = "\"$val\"";
+			}
+			$vals[] = "'$var': $val";
+		}
+		echo $this->Form->hidden("{$related['id']}.$var", array('value' => $related[$var]));
+	}
+	$variables .= "fields[{$related['id']}] = { " . implode(', ', $vals) . " };\n";
 }
 
 // Handle parking
@@ -43,49 +64,40 @@ if ($field['Facility']['parking']) {
 	$parking = explode ('/', $field['Facility']['parking']);
 	foreach ($parking as $i => $pt) {
 		list($lat,$lng) = explode(',', $pt);
-		$variables .= "parking[$i] = new GLatLng($lat, $lng);\n";
-	}
-}
-
-// Handle other fields at this site
-foreach ($field['Facility']['Field'] as $related) {
-	foreach ($map_vars as $var) {
-		if (!empty ($related[$var])) {
-			$variables .= "other_{$var}[{$related['id']}] = {$related[$var]};\n";
-		}
+		$variables .= "parking[$i] = new google.maps.LatLng($lat, $lng);\n";
 	}
 }
 
 echo $this->ZuluruHtml->script (array(
-		"http://maps.google.com/maps?file=api&amp;v=2&amp;key=$gmaps_key",
+		"http://maps.googleapis.com/maps/api/js?key=$gmaps_key&libraries=geometry&sensor=false",
 		"map_common.js",
-		"map_view.js",
 		"map_edit.js",
 ), false);
 $this->Html->scriptBlock ($variables, array('inline' => false));
 ?>
 
-<h3><?php echo $field['Field']['long_name']; ?></h3>
+<h3><?php echo $field['Facility']['name']; ?></h3>
 <p><?php echo $address; ?></p>
+<h4 id="show_num"><?php echo $field['Field']['num']; ?></h4>
 
 <p>Angle:
 <span id="show_angle"></span>
-<input type="submit" onclick="return update_angle(10)" value="+10">
-<input type="submit" onclick="return update_angle(1)" value="+">
-<input type="submit" onclick="return update_angle(-1)" value="-">
-<input type="submit" onclick="return update_angle(-10)" value="-10">
+<input type="submit" onclick="return updateAngle(10)" value="+10">
+<input type="submit" onclick="return updateAngle(1)" value="+">
+<input type="submit" onclick="return updateAngle(-1)" value="-">
+<input type="submit" onclick="return updateAngle(-10)" value="-10">
 </p>
 
 <p>Width:
 <span id="show_width"></span>
-<input type="submit" onclick="return update_width(1)" value="+">
-<input type="submit" onclick="return update_width(-1)" value="-">
+<input type="submit" onclick="return updateWidth(1)" value="+">
+<input type="submit" onclick="return updateWidth(-1)" value="-">
 </p>
 
 <p>Length:
 <span id="show_length"></span>
-<input type="submit" onclick="return update_length(2)" value="+">
-<input type="submit" onclick="return update_length(-2)" value="-">
+<input type="submit" onclick="return updateLength(2)" value="+">
+<input type="submit" onclick="return updateLength(-2)" value="-">
 </p>
 
 <p>Playing Field Proper:
@@ -93,7 +105,7 @@ $this->Html->scriptBlock ($variables, array('inline' => false));
 </p>
 
 <p>End zone:
-<span id="show_endzone">25</span>
+<span id="show_endzone"></span>
 </p>
 
 <?php
@@ -104,5 +116,5 @@ echo $this->Form->end(array(
 ?>
 
 <?php
-$this->Js->buffer('initialize_edit();');
+$this->Js->buffer("initializeEdit({$field['Field']['id']});");
 ?>

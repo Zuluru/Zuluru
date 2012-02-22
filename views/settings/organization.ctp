@@ -101,8 +101,8 @@ $this->Html->addCrumb (__('Organization', true));
 		'category' => 'site',
 		'name' => 'gmaps_key',
 		'options' => array(
-			'label' => 'Google Maps API Key',
-			'after' => 'An API key for the <a href="http://www.google.com/apis/maps/signup.html">Google Maps API</a>. Required for rendering custom Google Maps.',
+			'label' => 'Google Maps API V3 Key',
+			'after' => 'A key for the <a href="http://code.google.com/apis/maps/documentation/javascript/tutorial.html#api_key">Google Maps API V3</a>. Required for rendering custom Google Maps.',
 		),
 	));
 	?>

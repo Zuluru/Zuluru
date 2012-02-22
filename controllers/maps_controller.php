@@ -48,7 +48,7 @@ class MapsController extends AppController {
 		}
 
 		if (!empty ($this->data)) {
-			if ($this->Field->save($this->data)) {
+			if ($this->Field->saveAll($this->data['Field'])) {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('field layout', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('controller' => 'maps', 'action' => 'view', 'field' => $id));
 			} else {
@@ -61,6 +61,7 @@ class MapsController extends AppController {
 				'Field' => array('conditions' => array(
 					'Field.id !=' => $id,
 					'Field.is_open' => true,
+					'Field.latitude !=' => null,
 				)),
 			),
 		));
