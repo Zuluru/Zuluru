@@ -21,11 +21,20 @@ $short = Configure::read('organization.short_name');
 		));
 		echo $this->ZuluruForm->input('last_name');
 		if (!Configure::read('feature.manage_accounts')) {
-			$admin = Configure::read('email.admin_email');
-			echo $this->ZuluruForm->input('user_name', array(
-				'disabled' => 'true',
-				'after' => $this->Html->para (null, __('To change this, please email your existing user name and preferred new user name to ', true) . $this->Html->link ($admin, "mailto:$admin") . '.'),
-			));
+			$username_edit = sprintf (Configure::read('urls.username_edit'), $id);
+			if ($username_edit) {
+				$username_link = $this->Html->link (Configure::read('feature.manage_name') . ' ' . __('username', true), $username_edit);
+				echo $this->ZuluruForm->input('email', array(
+					'disabled' => 'true',
+					'after' => $this->Html->para (null, __('To change this, edit your', true) . ' ' . $username_link),
+					));
+			} else {
+				$admin = Configure::read('email.admin_email');
+				echo $this->ZuluruForm->input('user_name', array(
+					'disabled' => 'true',
+					'after' => $this->Html->para (null, __('To change this, please email your existing user name and preferred new user name to ', true) . $this->Html->link ($admin, "mailto:$admin") . '.'),
+				));
+			}
 		} else {
 			echo $this->ZuluruForm->input('user_name');
 		}

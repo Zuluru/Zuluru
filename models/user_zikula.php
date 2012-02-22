@@ -55,7 +55,11 @@ class UserZikula extends User {
 		$this->User->recursive = -1;
 		$user = $this->User->read(null, $data[$this->alias][$this->primaryKey]);
 		if (!$user) {
-			return false;
+			return $this->create_user_record($data, array(
+				'first_name'=> 'pn_name',
+				'user_name'	=> 'pn_uname',
+				'email'		=> 'pn_email',
+			));
 		}
 
 		$field_map = array(

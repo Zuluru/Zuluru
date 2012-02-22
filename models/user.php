@@ -270,7 +270,7 @@ class User extends AppModel {
 	var $loginComponent = null;
 
 	function beforeValidate() {
-		if ($this->data[$this->alias]['addr_country'] == 'United States') {
+		if (array_key_exists('addr_country', $this->data[$this->alias]) && $this->data[$this->alias]['addr_country'] == 'United States') {
 			$this->validate['addr_postalcode']['postal'] = array(
 				'rule' => array('postal', null, 'us'),
 				'message' => 'You must enter a valid US zip code',
@@ -299,6 +299,35 @@ class User extends AppModel {
 		}
 
 		return $record;
+	}
+
+/**
+ * Create a simple user record. This will be called in the case where
+ * a third-party authentication system has logged someone in, but they
+ * don't yet have a Zuluru profile.
+ */
+	function create_user_record($data, $field_map) {
+		$save = array(
+			'id' => $data[$this->alias][$this->primaryKey],
+			'group_id' => 1,	// TODO: Assumed this is the Player group
+		);
+		foreach ($field_map as $new => $old) {
+			$save[$new] = $data[$this->alias][$old];
+		}
+		if (!empty($save['first_name']) && empty($save['last_name']) && strpos($save['first_name'], ' ') !== false) {
+			list($save['first_name'], $save['last_name']) =
+					explode(' ', $save['first_name'], 2);
+		}
+
+		// We know this record isn't going to have full validation
+		foreach (array_keys($this->User->validate) as $field) {
+			if (!array_key_exists($field, $save)) {
+				unset($this->User->validate[$field]);
+			}
+		}
+
+		$this->User->create();
+		return $this->User->save($save);
 	}
 
 /**
