@@ -174,8 +174,8 @@ class RegistrationsController extends AppController {
 	}
 
 	function report() {
-		$start_date = '2011-01-01';
-		$end_date = '2011-12-31';
+		$start_date = '2012-01-01';
+		$end_date = '2012-12-31';
 		$conditions = array(
 			'Registration.created >=' => $start_date,
 			'Registration.created <=' => $end_date,
