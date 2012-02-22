@@ -8,7 +8,6 @@ foreach ($games as $game) {
 		echo $this->Html->tag('h2', $game['Division']['League']['name']);
 	}
 
-	$op = 'ignored';
 	if ($game['finalized'] === true) {
 		$op = __('Finalized', true);
 	} else if ($game['emailed'] === true) {
