@@ -81,13 +81,13 @@ class TeamEvent extends AppModel {
 		),
 		'AttendanceReminderEmail' => array(
 			'className' => 'ActivityLog',
-			'foreignKey' => 'primary_id',
+			'foreignKey' => 'team_event_id',
 			'dependent' => true,
 			'conditions' => array('type' => array('email_event_attendance_reminder')),
 		),
 		'AttendanceSummaryEmail' => array(
 			'className' => 'ActivityLog',
-			'foreignKey' => 'primary_id',
+			'foreignKey' => 'team_event_id',
 			'dependent' => true,
 			'conditions' => array('type' => 'email_event_attendance_summary'),
 		),

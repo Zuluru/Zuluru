@@ -2155,8 +2155,8 @@ class TeamsController extends AppController {
 			foreach ($people as $person) {
 				$conditions = array(
 					'type' => ($person['TeamsPerson']['status'] == ROSTER_INVITED ? 'roster_invite_reminder' : 'roster_request_reminder'),
-					'primary_id' => $person['Team']['id'],
-					'secondary_id' => $person['Person']['id'],
+					'team_id' => $person['Team']['id'],
+					'person_id' => $person['Person']['id'],
 				);
 				$sent = $log->find('all', array('conditions' => $conditions, 'order' => 'ActivityLog.created'));
 				if (!empty ($sent)) {

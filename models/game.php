@@ -146,25 +146,25 @@ class Game extends AppModel {
 		),
 		'ScoreReminderEmail' => array(
 			'className' => 'ActivityLog',
-			'foreignKey' => 'primary_id',
+			'foreignKey' => 'game_id',
 			'dependent' => true,
 			'conditions' => array('type' => array('email_score_reminder', 'email_approval_notice')),
 		),
 		'ScoreMismatchEmail' => array(
 			'className' => 'ActivityLog',
-			'foreignKey' => 'primary_id',
+			'foreignKey' => 'game_id',
 			'dependent' => true,
 			'conditions' => array('type' => 'email_score_mismatch'),
 		),
 		'AttendanceReminderEmail' => array(
 			'className' => 'ActivityLog',
-			'foreignKey' => 'primary_id',
+			'foreignKey' => 'game_id',
 			'dependent' => true,
 			'conditions' => array('type' => array('email_attendance_reminder')),
 		),
 		'AttendanceSummaryEmail' => array(
 			'className' => 'ActivityLog',
-			'foreignKey' => 'primary_id',
+			'foreignKey' => 'game_id',
 			'dependent' => true,
 			'conditions' => array('type' => 'email_attendance_summary'),
 		),
@@ -381,7 +381,7 @@ class Game extends AppModel {
 	 *
 	 */
 	static function _adjustEntryIndices(&$game) {
-		foreach (array('ScoreEntry' => 'team_id', 'SpiritEntry' => 'team_id', 'ScoreReminderEmail' => 'secondary_id') as $model => $field) {
+		foreach (array('ScoreEntry' => 'team_id', 'SpiritEntry' => 'team_id', 'ScoreReminderEmail' => 'team_id') as $model => $field) {
 			self::_reindexInner($game, $model, $field);
 		}
 	}

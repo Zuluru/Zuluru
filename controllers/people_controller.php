@@ -1267,7 +1267,7 @@ class PeopleController extends AppController {
 					$people = $this->Person->find ('all', array(
 							'conditions' => array(
 								array("Person.id IN (SELECT DISTINCT person_id FROM registrations WHERE event_id = {$event['Event']['id']} AND payment = 'Paid')"),
-								array("Person.id NOT IN (SELECT secondary_id FROM activity_logs WHERE type = 'email_membership_letter' AND primary_id = $year)"),
+								array("Person.id NOT IN (SELECT person_id FROM activity_logs WHERE type = 'email_membership_letter' AND custom = $year)"),
 							),
 					));
 
@@ -1283,8 +1283,8 @@ class PeopleController extends AppController {
 						{
 							$activity[] = array(
 								'type' => 'email_membership_letter',
-								'primary_id' => $year,
-								'secondary_id' => $person['Person']['id'],
+								'custom' => $year,
+								'person_id' => $person['Person']['id'],
 							);
 							++ $emailed;
 						}

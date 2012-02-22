@@ -1080,7 +1080,7 @@ class GamesController extends AppController {
 //						$data['ScoreMismatchEmail'][0] = array(
 						$this->Game->ScoreMismatchEmail->save(array(
 							'type' => 'email_score_mismatch',
-							'primary_id' => $game['Game']['id'],
+							'game_id' => $game['Game']['id'],
 						));
 					}
 				}
@@ -1342,8 +1342,8 @@ class GamesController extends AppController {
 			$this->Game->ScoreReminderEmail->create();
 			$this->Game->ScoreReminderEmail->save(array(
 				'type' => "email_$template",
-				'primary_id' => $game['Game']['id'],
-				'secondary_id' => $team['id'],
+				'game_id' => $game['Game']['id'],
+				'team_id' => $team['id'],
 			));
 		}
 		return true;
@@ -1452,7 +1452,7 @@ class GamesController extends AppController {
 		foreach ($remind as $game) {
 			$game_date = strtotime($game['GameSlot']['game_date']);
 			$days_to_game = date('Y', $game_date) * 365 + date('z', $game_date) - $days;
-			$reminded = Set::extract('/AttendanceReminderEmail/secondary_id', $game);
+			$reminded = Set::extract('/AttendanceReminderEmail/person_id', $game);
 
 			if ($game['HomeTeam']['track_attendance'] && $game['HomeTeam']['attendance_reminder'] >= $days_to_game) {
 				$remind_count += $this->_remindAttendance($game, $game['HomeTeam'], $game['AwayTeam'], $reminded);
@@ -1505,7 +1505,7 @@ class GamesController extends AppController {
 		foreach ($summary as $game) {
 			$game_date = strtotime($game['GameSlot']['game_date']);
 			$days_to_game = date('Y', $game_date) * 365 + date('z', $game_date) - $days;
-			$summarized = Set::extract('/AttendanceSummaryEmail/secondary_id', $game);
+			$summarized = Set::extract('/AttendanceSummaryEmail/team_id', $game);
 
 			if ($game['HomeTeam']['track_attendance'] && $game['HomeTeam']['attendance_summary'] >= $days_to_game) {
 				$summary_count += $this->_summarizeAttendance($game, $game['HomeTeam'], $game['AwayTeam'], $summarized);
@@ -1554,8 +1554,8 @@ class GamesController extends AppController {
 						$this->Game->AttendanceReminderEmail->create();
 						$this->Game->AttendanceReminderEmail->save(array(
 							'type' => 'email_attendance_reminder',
-							'primary_id' => $game['Game']['id'],
-							'secondary_id' => $person['id'],
+							'game_id' => $game['Game']['id'],
+							'person_id' => $person['id'],
 						));
 					}
 				}
@@ -1597,8 +1597,8 @@ class GamesController extends AppController {
 			$this->Game->AttendanceSummaryEmail->create();
 			$this->Game->AttendanceSummaryEmail->save(array(
 				'type' => 'email_attendance_summary',
-				'primary_id' => $game['Game']['id'],
-				'secondary_id' => $team['id'],
+				'game_id' => $game['Game']['id'],
+				'team_id' => $team['id'],
 			));
 			return 1;
 		}

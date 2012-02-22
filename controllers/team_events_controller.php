@@ -434,7 +434,7 @@ class TeamEventsController extends AppController {
 		foreach ($remind as $event) {
 			$event_date = strtotime($event['TeamEvent']['date']);
 			$days_to_event = date('Y', $event_date) * 365 + date('z', $event_date) - $days;
-			$reminded = Set::extract('/AttendanceReminderEmail/secondary_id', $event);
+			$reminded = Set::extract('/AttendanceReminderEmail/person_id', $event);
 
 			if ($event['Team']['track_attendance'] && $event['Team']['attendance_reminder'] >= $days_to_event) {
 				$remind_count += $this->_remindAttendance($event, $event['Team'], $reminded);
@@ -461,7 +461,7 @@ class TeamEventsController extends AppController {
 		foreach ($summary as $event) {
 			$event_date = strtotime($event['TeamEvent']['date']);
 			$days_to_event = date('Y', $event_date) * 365 + date('z', $event_date) - $days;
-			$summarized = Set::extract('/AttendanceSummaryEmail/secondary_id', $event);
+			$summarized = Set::extract('/AttendanceSummaryEmail/team_id', $event);
 
 			if ($event['Team']['track_attendance'] && $event['Team']['attendance_summary'] >= $days_to_event) {
 				$summary_count += $this->_summarizeAttendance($event, $event['Team'], $summarized);
@@ -511,8 +511,8 @@ class TeamEventsController extends AppController {
 						$this->TeamEvent->AttendanceReminderEmail->create();
 						$this->TeamEvent->AttendanceReminderEmail->save(array(
 							'type' => 'email_event_attendance_reminder',
-							'primary_id' => $event['TeamEvent']['id'],
-							'secondary_id' => $person['id'],
+							'team_event_id' => $event['TeamEvent']['id'],
+							'person_id' => $person['id'],
 						));
 					}
 				}
@@ -559,8 +559,8 @@ class TeamEventsController extends AppController {
 			$this->TeamEvent->AttendanceSummaryEmail->create();
 			$this->TeamEvent->AttendanceSummaryEmail->save(array(
 				'type' => 'email_event_attendance_summary',
-				'primary_id' => $event['TeamEvent']['id'],
-				'secondary_id' => $team['id'],
+				'team_event_id' => $event['TeamEvent']['id'],
+				'team_id' => $team['id'],
 			));
 			return 1;
 		}

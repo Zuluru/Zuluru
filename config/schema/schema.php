@@ -4,11 +4,14 @@ class ZuluruSchema extends CakeSchema {
 
 	var $activity_logs = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
-		'type' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 128, 'key' => 'index'),
-		'primary_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
-		'secondary_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'type' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 128),
+		'team_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'person_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'game_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'team_event_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'custom' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
-		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'SECONDARY' => array('column' => array('type', 'primary_id'), 'unique' => 0), 'full' => array('column' => array('type', 'primary_id', 'secondary_id'), 'unique' => 0)),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $allstars = array(
