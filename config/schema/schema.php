@@ -264,7 +264,7 @@ class ZuluruSchema extends CakeSchema {
 	var $locks = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'key' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 32, 'key' => 'index'),
-		'user_id' => array('type' => 'integer', 'null' => false, 'default' => NULL),
+		'user_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'created' => array('type' => 'timestamp', 'null' => true, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'key' => array('column' => 'key', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
