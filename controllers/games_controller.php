@@ -1411,7 +1411,7 @@ class GamesController extends AppController {
 			}
 			if ($game['Division']['email_after'] > 0 && $games[$key]['finalized'] !== true && $now > $email_time) {
 				$games[$key]['emailed'] = $this->_remindTeam($game, $game['HomeTeam'], $game['AwayTeam'], 'score_reminder', 'reminder to submit score', true);
-				$games[$key]['emailed'] |= $this->_remindTeam($game, $game['AwayTeam'], $game['HomeTeam'], 'score_reminder', 'reminder to submit score', true);
+				$games[$key]['emailed'] = $this->_remindTeam($game, $game['AwayTeam'], $game['HomeTeam'], 'score_reminder', 'reminder to submit score', true) || $games[$key]['emailed'];
 			}
 		}
 
