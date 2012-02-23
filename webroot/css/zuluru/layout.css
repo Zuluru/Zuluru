@@ -22,6 +22,12 @@ body
 	font-family: Verdana,Helvetica,Arial,sans-serif;
 	font-size: 11px;
 }
+body.map
+{
+	padding: 0;
+	background-image: none;
+}
+
 #zuluru
 {
 	text-align: left;

@@ -43,7 +43,7 @@
 	?>
 	<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;" />
 </head>
-<body onresize="resizeMap()" style="padding: 0;">
+<body class="map" onresize="resizeMap()">
 	<div id="map" style="margin: 0; padding: 0; width: 70%; height: 400px; float: left;"></div>
 	<div style="margin: 0; padding-left: 1em; width: 27%; float: left;">
 		<?php
