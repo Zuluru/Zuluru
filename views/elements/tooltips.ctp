@@ -12,11 +12,13 @@ $.tools.tooltip.addEffect("dynamic",
 	// show function
 	function(done) {
 		// The tooltip will not actually be shown until the load completes
+		tooltip_cancelled = false;
 		done.call();
 	},
 
 	// hide function
 	function(done) {
+		tooltip_cancelled = true;
 		this.getTip().hide();
 		done.call();
 	}
@@ -60,7 +62,7 @@ $('.trigger').tooltip({
 	tip: '#tooltip',
 	cancelDefault: false,
 	delay: 500,
-	predelay: 500,
+	predelay: 1000,
 	onBeforeShow: function() {
 		loadTooltip('" . $this->Html->url('/') . "', this.getTrigger());
 	}
