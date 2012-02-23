@@ -4,7 +4,36 @@ class MapsController extends AppController {
 	var $name = 'Maps';
 	var $uses = array('Field');
 
-	function index() { // TODO
+	function index() {
+		if ($this->is_admin) {
+			$closed = $this->_arg('closed');
+		} else {
+			$closed = false;
+		}
+		if ($closed) {
+			$conditions = array();
+		} else {
+			$conditions = array(
+				'Field.is_open' => true,
+			);
+		}
+
+		$regions = $this->Field->Facility->Region->find('all', array(
+			'contain' => array(
+				'Facility' => array(
+					'conditions' => array(
+						'Facility.is_open' => true,
+					),
+					'order' => 'Facility.name',
+					'Field' => compact('conditions'),
+				),
+			),
+			'order' => 'Region.id',
+		));
+
+		$this->set(compact('regions', 'closed'));
+
+		$this->layout = 'map';
 	}
 
 	function view() {

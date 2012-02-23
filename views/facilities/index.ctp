@@ -7,7 +7,7 @@ $this->Html->addCrumb (__('List', true));
 <h2><?php __($closed ? 'Closed Facilities List' : 'Facilities List');?></h2>
 <?php if (!$closed) echo $this->element('fields/caution'); ?>
 
-<!-- p>There is also a <?php echo $this->Html->link(__('map of all fields', true), array('controller' => 'maps')); ?> available.</p -->
+<p>There is also a <?php echo $this->Html->link(__('map of all fields', true), array('controller' => 'maps')); ?> available.</p>
 
 <?php if ($is_admin): ?>
 <?php if ($closed): ?>

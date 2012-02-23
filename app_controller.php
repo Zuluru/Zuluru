@@ -390,6 +390,7 @@ class AppController extends Controller {
 		}
 
 		$this->_addMenuItem ('Fields', array('controller' => 'facilities', 'action' => 'index'));
+		$this->_addMenuItem ('Map of all fields', array('controller' => 'maps', 'action' => 'index'), 'Fields');
 		if ($this->is_admin) {
 			$this->_addMenuItem ('Closed facilities', array('controller' => 'facilities', 'action' => 'closed'), 'Fields');
 			$this->_addMenuItem ('Create facility', array('controller' => 'facilities', 'action' => 'add'), 'Fields');

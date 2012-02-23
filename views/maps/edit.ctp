@@ -70,7 +70,7 @@ if ($field['Facility']['parking']) {
 echo $this->Form->hidden('Facility.id', array('value' => $field['Facility']['id']));
 echo $this->Form->hidden('Facility.parking');
 
-echo $this->ZuluruHtml->script (array(
+$this->ZuluruHtml->script (array(
 		"http://maps.googleapis.com/maps/api/js?key=$gmaps_key&libraries=geometry&sensor=false",
 		"map_common.js",
 		"map_edit.js",
