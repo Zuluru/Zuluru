@@ -64,9 +64,11 @@ if ($field['Facility']['parking']) {
 	$parking = explode ('/', $field['Facility']['parking']);
 	foreach ($parking as $i => $pt) {
 		list($lat,$lng) = explode(',', $pt);
-		$variables .= "parking[$i] = new google.maps.LatLng($lat, $lng);\n";
+		$variables .= "parking[$i] = { 'position': new google.maps.LatLng($lat, $lng) };\n";
 	}
 }
+echo $this->Form->hidden('Facility.id', array('value' => $field['Facility']['id']));
+echo $this->Form->hidden('Facility.parking');
 
 echo $this->ZuluruHtml->script (array(
 		"http://maps.googleapis.com/maps/api/js?key=$gmaps_key&libraries=geometry&sensor=false",
@@ -106,6 +108,10 @@ $this->Html->scriptBlock ($variables, array('inline' => false));
 
 <p>End zone:
 <span id="show_endzone"></span>
+</p>
+
+<p>
+<input type="submit" onclick="return addParking()" value="Add Parking">
 </p>
 
 <?php

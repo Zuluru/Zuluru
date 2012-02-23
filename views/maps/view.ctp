@@ -49,7 +49,7 @@ if ($field['Facility']['parking']) {
 	$parking = explode ('/', $field['Facility']['parking']);
 	foreach ($parking as $i => $pt) {
 		list($lat,$lng) = explode(',', $pt);
-		$variables .= "parking[$i] = new google.maps.LatLng($lat, $lng);\n";
+		$variables .= "parking[$i] = { 'position': new google.maps.LatLng($lat, $lng) };\n";
 	}
 }
 

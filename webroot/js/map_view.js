@@ -17,7 +17,7 @@ function initializeView(id)
 	fields[id].window.open(map, fields[id].marker);
 
 	for (var p in parking) {
-		addParking (parking[p]);
+		showParking (parking[p].position);
 	}
 
 	directionsDisplay = new google.maps.DirectionsRenderer();

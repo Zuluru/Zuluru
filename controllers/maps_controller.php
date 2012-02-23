@@ -48,7 +48,7 @@ class MapsController extends AppController {
 		}
 
 		if (!empty ($this->data)) {
-			if ($this->Field->saveAll($this->data['Field'])) {
+			if ($this->Field->saveAll($this->data['Field']) && $this->Field->Facility->save($this->data['Facility'])) {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('field layout', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('controller' => 'maps', 'action' => 'view', 'field' => $id));
 			} else {

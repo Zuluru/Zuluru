@@ -134,7 +134,7 @@ function createMarker(position, title)
 	return marker;
 }
 
-function addParking(position)
+function showParking(position)
 {
 	var icon = new google.maps.MarkerImage(
 		zuluru_path + 'parking_pin.png',

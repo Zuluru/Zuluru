@@ -1,5 +1,6 @@
 var leaguelat = 0.0;
 var leaguelng = 0.0;
+var lastParkingId = 0;
 
 function initializeEdit(id)
 {
@@ -23,9 +24,19 @@ function initializeEdit(id)
 		}, function(result, status) { centerByAddress(id, result, status); });
 	}
 
-	for (var p in parking) {
-		addParking (parking[p]);
+	for (lastParkingId in parking)
+	{
+		parking[lastParkingId].marker = showParking (parking[lastParkingId].position);
+		parking[lastParkingId].marker.setOptions({'draggable':true});
+		deleteOnClick(parking[lastParkingId].marker, lastParkingId);
 	}
+}
+
+function deleteOnClick(marker, id)
+{
+	google.maps.event.addListener(marker, 'click', function() {
+		deleteParking(id);
+	});
 }
 
 function drawFields()
@@ -45,8 +56,6 @@ function selectOnClick(marker, id)
 	});
 }
 
-var listener = null;
-
 function saveField()
 {
 	if (current != 0) {
@@ -56,6 +65,8 @@ function saveField()
 	}
 }
 
+var drag_listener = null;
+
 function selectField(id)
 {
 	if (current != 0)
@@ -63,7 +74,7 @@ function selectField(id)
 		// Remove selection colouring and listener from the old field
 		fields[current].field_outline.setOptions({'fillColor':'#ff6060'});
 		fields[current].marker.setOptions({'draggable':false});
-		google.maps.event.removeListener(listener);
+		google.maps.event.removeListener(drag_listener);
 
 		// Save any layout changes into the form
 		saveField();
@@ -80,7 +91,7 @@ function selectField(id)
 	// Add selection colouring and listener to the new field
 	fields[id].field_outline.setOptions({'fillColor':'#60ff60'});
 	fields[id].marker.setOptions({'draggable':true});
-	listener = google.maps.event.addListener(fields[id].marker, 'drag', redraw);
+	drag_listener = google.maps.event.addListener(fields[id].marker, 'drag', redraw);
 
 	current = id;
 }
@@ -172,6 +183,49 @@ function updateLength(val)
 	return false;
 }
 
+var parking_listener = null;
+
+function addParking()
+{
+	if (parking_listener != null)
+	{
+		google.maps.event.removeListener(parking_listener);
+	}
+
+	//$('#map').css('cursor','crosshair');
+	parking_listener = google.maps.event.addListener(map, 'click', function(event) {
+		addParkingClick(event);
+	});
+
+	// Avoid form submission
+	return false;
+}
+
+function addParkingClick(event)
+{
+	google.maps.event.removeListener(parking_listener);
+	parking_listener = null;
+	//$('#map').css('cursor','auto');
+
+	++ lastParkingId;
+	var marker = showParking (event.latLng);
+	marker.setOptions({'draggable':true});
+	deleteOnClick(marker, lastParkingId);
+	parking[lastParkingId] = { 'marker': marker };
+}
+
+function deleteParking(id)
+{
+	if (confirm('Are you sure you want to delete this parking label?'))
+	{
+		parking[id].marker.setMap(null);
+		delete(parking[id]);
+	}
+
+	// Avoid form submission
+	return false;
+}
+
 function check()
 {
 	if (!confirm('Is the zoom level set properly for this view?'))
@@ -190,4 +244,17 @@ function check()
 		$('#Field' + id + 'Latitude').val(fields[id].marker.getPosition().lat());
 		$('#Field' + id + 'Longitude').val(fields[id].marker.getPosition().lng());
 	}
+
+	// Combine the parking details
+	var parkingString = '';
+	for (var p in parking)
+	{
+		if (parking[p] != undefined)
+		{
+			var position = parking[p].marker.getPosition();
+			parkingString += position.lat() + ',' + position.lng() + '/';
+		}
+	}
+	parkingString = parkingString.substring(0, parkingString.length - 1);
+	$('#FacilityParking').val(parkingString);
 }
