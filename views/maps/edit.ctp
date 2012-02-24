@@ -70,45 +70,22 @@ if ($field['Facility']['parking']) {
 echo $this->Form->hidden('Facility.id', array('value' => $field['Facility']['id']));
 echo $this->Form->hidden('Facility.parking');
 
+// TODO: Handle more than one sport in a site
+$sport = array_shift(array_keys(Configure::read('options.sport')));
 $this->ZuluruHtml->script (array(
 		"http://maps.googleapis.com/maps/api/js?key=$gmaps_key&libraries=geometry&sensor=false",
-		"map_common.js",
-		"map_edit.js",
+		'map_common.js',
+		'map_edit.js',
+		"sport_$sport.js",
 ), false);
 $this->Html->scriptBlock ($variables, array('inline' => false));
 ?>
 
 <h3><?php echo $field['Facility']['name']; ?></h3>
 <p><?php echo $address; ?></p>
-<h4 id="show_num"><?php echo $field['Field']['num']; ?></h4>
+<h4 id="show_num"></h4>
 
-<p>Angle:
-<span id="show_angle"></span>
-<input type="submit" onclick="return updateAngle(10)" value="+10">
-<input type="submit" onclick="return updateAngle(1)" value="+">
-<input type="submit" onclick="return updateAngle(-1)" value="-">
-<input type="submit" onclick="return updateAngle(-10)" value="-10">
-</p>
-
-<p>Width:
-<span id="show_width"></span>
-<input type="submit" onclick="return updateWidth(1)" value="+">
-<input type="submit" onclick="return updateWidth(-1)" value="-">
-</p>
-
-<p>Length:
-<span id="show_length"></span>
-<input type="submit" onclick="return updateLength(2)" value="+">
-<input type="submit" onclick="return updateLength(-2)" value="-">
-</p>
-
-<p>Playing Field Proper:
-<span id="show_field"></span>
-</p>
-
-<p>End zone:
-<span id="show_endzone"></span>
-</p>
+<?php echo $this->element("maps/edit/$sport"); ?>
 
 <p>
 <input type="submit" onclick="return addParking()" value="Add Parking">

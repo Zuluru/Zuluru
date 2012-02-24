@@ -1,3 +1,7 @@
+//
+// Common functions and variables shared among various map pages
+//
+
 var map;
 
 function initialize()
@@ -37,16 +41,6 @@ function getWindowHeight()
 	return 0;
 }
 
-function fieldLength(length)
-{
-	return length - endzoneLength(length) * 2;
-}
-
-function endzoneLength(length)
-{
-	return Math.floor(length * 5 / 12 / 2);
-}
-
 function makePosition(start, distance, angle)
 {
 	distance *= 0.9144;	// convert from yards to metres
@@ -66,44 +60,23 @@ var zuluru_path = '/zuluru';
 // Parking locations
 var parking = Array();
 
-function positions(id)
-{
-	var length = fieldLength(fields[id].length);
-	var endzone = endzoneLength(fields[id].length);
-	var position = fields[id].marker.getPosition();
-
-	var bb = new Array;
-	bb[1] = makePosition(position, fields[id].width / 2, 180 - fields[id].angle);
-	bb[0] = makePosition(bb[1], fields[id].length / 2, 270 - fields[id].angle);
-	bb[1] = makePosition(bb[0], fields[id].width, 0 - fields[id].angle);
-	bb[2] = makePosition(bb[1], fields[id].length, 90 - fields[id].angle);
-	bb[3] = makePosition(bb[0], fields[id].length, 90 - fields[id].angle);
-	bb[4] = makePosition(bb[1], endzone, 90 - fields[id].angle);
-	bb[5] = makePosition(bb[0], endzone, 90 - fields[id].angle);
-	bb[6] = makePosition(bb[1], length + endzone, 90 - fields[id].angle);
-	bb[7] = makePosition(bb[0], length + endzone, 90 - fields[id].angle);
-	return bb;
-}
-
 function drawField(id)
 {
 	var position = new google.maps.LatLng(fields[id].latitude, fields[id].longitude);
 	fields[id].marker = createMarker(position, fields[id].num);
 
-	var bb = positions(id);
-
 	fields[id].field_outline = new google.maps.Polygon({
 		'map':map,
-		'path':[bb[0], bb[1], bb[2], bb[3], bb[0]],
+		'path':outlinePositions(id),
 		'strokeColor':'#ffffff',
 		'strokeWeight':2,
 		'strokeOpacity':1.0,
 		'fillColor':'#ff6060',
 		'fillOpacity':0.4
 	});
-	fields[id].endzone_outline = new google.maps.Polyline({
+	fields[id].field_inline = new google.maps.Polyline({
 		'map':map,
-		'path':[bb[4], bb[5], bb[7], bb[6]],
+		'path':inlinePositions(id),
 		'strokeColor':'#ffffff',
 		'strokeWeight':2
 	});

@@ -72,7 +72,7 @@ if (isset ($add)) {
 		));
 		echo $this->ZuluruForm->input('ratio', array(
 			'label' => __('Gender Ratio', true),
-			'options' => Configure::read('options.ratio'),
+			'options' => Configure::read('sport.ratio'),
 			'empty' => '---',
 			'after' => $this->Html->para (null, __('Gender format for the division.', true)),
 		));

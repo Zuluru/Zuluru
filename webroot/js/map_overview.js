@@ -1,3 +1,7 @@
+//
+// Functions and variables for the "all fields" view
+//
+
 var bounds = new google.maps.LatLngBounds();
 
 function initializeOverview()

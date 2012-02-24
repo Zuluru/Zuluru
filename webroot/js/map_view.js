@@ -1,3 +1,7 @@
+//
+// Functions and variables for field viewing
+//
+
 // Objects for handling directions
 var directionsService = new google.maps.DirectionsService();
 var directionsDisplay;
@@ -34,10 +38,7 @@ function drawFields()
 					'<p>' + address +
 					'<br>Latitude: ' + Math.round(fields[id].latitude * 100000) / 100000  +
 					'<br>Longitude: ' + Math.round(fields[id].longitude * 100000) / 100000 + '</p>' +
-					'<h4>Suggested field layout:</h4>' +
-					'<p>Field width: ' + fields[id].width + ' yards' +
-					'<br>Field length: ' + fieldLength(fields[id].length) + ' yards' +
-					'<br>End zone length: ' + endzoneLength(fields[id].length) + ' yards</p>';
+					'<h4>Suggested field layout:</h4>' + layoutText(id) + '</p>';
 
 		fields[id].window = new google.maps.InfoWindow({'content':text});
 

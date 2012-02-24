@@ -10,6 +10,12 @@ class League extends AppModel {
 				'message' => 'A valid league name must be entered.',
 			),
 		),
+		'sport' => array(
+			'inlist' => array(
+				'rule' => array('inconfig', 'options.sport'),
+				'message' => 'You must select a valid sport.',
+			),
+		),
 		'season' => array(
 			'inlist' => array(
 				'rule' => array('inconfig', 'options.season'),
@@ -66,6 +72,11 @@ class League extends AppModel {
 			}
 		}
 
+		// Add the sport, if there are multiple options
+		if (array_key_exists ('sport', $record[$this->alias]) && count(Configure::read('options.sport')) > 1) {
+			$long_name .= ' ' . Inflector::humanize($record[$this->alias]['sport']);
+		}
+
 		// Add the year, if it's not already part of the name
 		$full_name = $long_name;
 		if (array_key_exists ('open', $record[$this->alias]) && $record[$this->alias]['open'] != '0000-00-00') {
@@ -92,6 +103,13 @@ class League extends AppModel {
 		} else {
 			$a_league = $a['Division']['League'];
 			$b_league = $b['Division']['League'];
+		}
+
+		// If they are different sports, we use that
+		if ($a_league['sport'] > $b_league['sport']) {
+			return 1;
+		} else if ($a_league['sport'] < $b_league['sport']) {
+			return -1;
 		}
 
 		// If they are in different years, we use that

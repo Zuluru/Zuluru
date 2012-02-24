@@ -1,3 +1,7 @@
+//
+// Functions and variables for field editing
+//
+
 var leaguelat = 0.0;
 var leaguelng = 0.0;
 var lastParkingId = 0;
@@ -56,15 +60,6 @@ function selectOnClick(marker, id)
 	});
 }
 
-function saveField()
-{
-	if (current != 0) {
-		fields[current].angle = parseInt ($('#show_angle').html());
-		fields[current].width = parseInt ($('#show_width').html());
-		fields[current].length = parseInt ($('#show_length').html());
-	}
-}
-
 var drag_listener = null;
 
 function selectField(id)
@@ -80,20 +75,16 @@ function selectField(id)
 		saveField();
 	}
 
+	current = id;
+
 	// Update the display with data about the selected field
-	$('#show_num').html(fields[id].num + ' (' + id + ')');
-	$('#show_angle').html(fields[id].angle);
-	$('#show_width').html(fields[id].width);
-	$('#show_length').html(fields[id].length);
-	$('#show_field').html(fieldLength(fields[id].length));
-	$('#show_endzone').html(endzoneLength(fields[id].length));
+	$('#show_num').html(fields[id].num + ' (id ' + id + ')');
+	updateForm();
 
 	// Add selection colouring and listener to the new field
 	fields[id].field_outline.setOptions({'fillColor':'#60ff60'});
 	fields[id].marker.setOptions({'draggable':true});
 	drag_listener = google.maps.event.addListener(fields[id].marker, 'drag', redraw);
-
-	current = id;
 }
 
 // Array for decoding the failure codes
@@ -117,8 +108,8 @@ function centerByAddress(id, result, status)
 
 	fields[id].latitude = position.lat();
 	fields[id].longitude = position.lng();
-	fields[id].length = 120;
-	fields[id].width = 40;
+	fields[id].length = maxLength();
+	fields[id].width = maxWidth();
 	fields[id].angle = 0;
 
 	map.setCenter(position);
@@ -131,9 +122,8 @@ function centerByAddress(id, result, status)
 
 function redraw()
 {
-	var bb = positions(current);
-	fields[current].field_outline.setPath([bb[0], bb[1], bb[2], bb[3], bb[0]]);
-	fields[current].endzone_outline.setPath([bb[4], bb[5], bb[7], bb[6]]);
+	fields[current].field_outline.setPath(outlinePositions(current));
+	fields[current].field_inline.setPath(inlinePositions(current));
 }
 
 function updateAngle(val)
@@ -145,7 +135,7 @@ function updateAngle(val)
 		fields[current].angle -= 180;
 	redraw();
 
-	$('#show_angle').html(fields[current].angle);
+	updateForm();
 
 	// Avoid form submission
 	return false;
@@ -154,13 +144,13 @@ function updateAngle(val)
 function updateWidth(val)
 {
 	fields[current].width += val;
-	if (fields[current].width < 25)
-		fields[current].width = 25;
-	if (fields[current].width > 40)
-		fields[current].width = 40;
+	if (fields[current].width < minWidth())
+		fields[current].width = minWidth();
+	if (fields[current].width > maxWidth())
+		fields[current].width = maxWidth();
 	redraw();
 
-	$('#show_width').html(fields[current].width);
+	updateForm();
 
 	// Avoid form submission
 	return false;
@@ -169,15 +159,13 @@ function updateWidth(val)
 function updateLength(val)
 {
 	fields[current].length += val;
-	if (fields[current].length < 50)
-		fields[current].length = 50;
-	if (fields[current].length > 120)
-		fields[current].length = 120;
+	if (fields[current].length < minLength())
+		fields[current].length = minLength();
+	if (fields[current].length > maxLength())
+		fields[current].length = maxLength();
 	redraw();
 
-	$('#show_length').html(fields[current].length);
-	$('#show_field').html(fieldLength(fields[current].length));
-	$('#show_endzone').html(endzoneLength(fields[current].length));
+	updateForm();
 
 	// Avoid form submission
 	return false;

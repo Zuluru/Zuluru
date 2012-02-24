@@ -252,6 +252,7 @@ class ZuluruSchema extends CakeSchema {
 	var $leagues = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'name' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
+		'sport' => array('type' => 'string', 'null' => false, 'default' => 'ultimate', 'length' => 32),
 		'season' => array('type' => 'string', 'null' => false, 'default' => 'None', 'length' => 16),
 		'open' => array('type' => 'date', 'null' => false, 'default' => NULL),
 		'close' => array('type' => 'date', 'null' => false, 'default' => NULL),

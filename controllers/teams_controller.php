@@ -395,6 +395,7 @@ class TeamsController extends AppController {
 		$this->Team->Division->addPlayoffs($team);
 		$this->_limitOverride($id);
 		$team_days = Set::extract('/Division/Day/id', $team);
+		Configure::load("sport/{$team['Division']['League']['sport']}");
 
 		if (!empty($team['Team']['division_id']) && Configure::read('feature.registration')) {
 			$member_rule = "compare(member_type('{$team['Division']['open']}') != 'none')";
@@ -2083,6 +2084,7 @@ class TeamsController extends AppController {
 			'league' => $team['Division']['League'],
 			'position' => $position,
 		));
+		Configure::load("sport/{$team['Division']['League']['sport']}");
 	}
 
 	function _initRosterCaptains ($team) {
@@ -2123,7 +2125,7 @@ class TeamsController extends AppController {
 								'Day',
 								'League' => array(
 									'fields' => array(
-										'League.id', 'League.name',
+										'League.id', 'League.name', 'League.sport',
 									),
 								),
 								'fields' => array(
@@ -2198,6 +2200,8 @@ class TeamsController extends AppController {
 	function _rosterRemind($person, $captains, $team, $division, $roster, $second = false) {
 		$code = $this->_hash($roster);
 		$league = $division['League'];
+		// TODO: Does this work when we have multiple sports?
+		Configure::load("sport/{$league['sport']}");
 		$this->set(compact('person', 'team', 'division', 'league', 'roster', 'code'));
 		$this->set ('captains', implode (', ', Set::extract ('/first_name', $captains)));
 		$this->set ('days', ($second ? 2 : 7));

@@ -5,9 +5,9 @@
 
 if (!defined('ZULURU_VERSION')) {
 	define('ZULURU_MAJOR', 1);
-	define('ZULURU_MINOR', 3);
-	define('ZULURU_REVISION', 10);
-	define('SCHEMA_VERSION', 19);
+	define('ZULURU_MINOR', 4);
+	define('ZULURU_REVISION', 0);
+	define('SCHEMA_VERSION', 20);
 }
 
 ?>

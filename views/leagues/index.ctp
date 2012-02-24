@@ -1,6 +1,9 @@
 <?php
 $this->Html->addCrumb (__('Leagues', true));
 $this->Html->addCrumb (__('List', true));
+if (!empty($sport)) {
+	$this->Html->addCrumb (__(Inflector::humanize($sport), true));
+}
 ?>
 
 <div class="leagues index">
@@ -132,7 +135,7 @@ endif;
 	<ul>
 <?php
 foreach ($years as $year) {
-	echo $this->Html->tag('li', $this->Html->link($year[0]['year'], array('year' => $year[0]['year'])));
+	echo $this->Html->tag('li', $this->Html->link($year[0]['year'], array('sport' => $sport, 'year' => $year[0]['year'])));
 }
 ?>
 

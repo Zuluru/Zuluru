@@ -63,6 +63,7 @@ class DivisionsController extends AppController {
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 		$this->Division->addPlayoffs($division);
+		Configure::load("sport/{$division['League']['sport']}");
 
 		// Find all games played by teams that are currently in this division,
 		// or tournament games for this division
@@ -113,6 +114,17 @@ class DivisionsController extends AppController {
 	}
 
 	function add() {
+		$league_id = $this->_arg('league');
+		if (!empty($this->data['Division']['league_id'])) {
+			$league_id = $this->data['Division']['league_id'];
+		}
+		if (!$league_id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+		}
+		$sport = $this->Division->League->field('sport', array('id' => $league_id));
+		Configure::load("sport/$sport");
+
 		if (!empty($this->data)) {
 			$this->Division->create();
 			if ($this->Division->save($this->data)) {
@@ -133,15 +145,18 @@ class DivisionsController extends AppController {
 		}
 
 		if ($this->_arg('league')) {
-			$this->data['Division']['league_id'] = $this->_arg('league');
+			$this->data['Division']['league_id'] = $league_id;
 		}
 
 		$leagues = $this->Division->League->find('all', array(
-				'conditions' => array('OR' => array(
-					'League.is_open' => true,
-					'League.open > NOW()',
-					'League.open' => '0000-00-00',
-				)),
+				'conditions' => array(
+					'OR' => array(
+						'League.is_open' => true,
+						'League.open > NOW()',
+						'League.open' => '0000-00-00',
+					),
+					'League.sport' => $sport,
+				),
 				'contain' => false,
 		));
 		usort ($leagues, array('League', 'compareLeagueAndDivision'));
@@ -162,6 +177,11 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+
+		$league_id = $this->Division->field('league_id', array('id' => $id));
+		$sport = $this->Division->League->field('sport', array('id' => $league_id));
+		Configure::load("sport/$sport");
+
 		if (!empty($this->data)) {
 			if ($this->Division->saveAll($this->data)) {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('division', true)), 'default', array('class' => 'success'));
@@ -177,16 +197,6 @@ class DivisionsController extends AppController {
 			));
 			$this->data = $this->Division->read(null, $id);
 		}
-
-		$leagues = $this->Division->League->find('all', array(
-				'conditions' => array('OR' => array(
-					'League.is_open' => true,
-					'League.open > NOW()',
-				)),
-				'contain' => false,
-		));
-		usort ($leagues, array('League', 'compareLeagueAndDivision'));
-		$this->set('leagues', Set::combine($leagues, '{n}.League.id', '{n}.League.full_name'));
 
 		$this->set('days', $this->Division->Day->find('list'));
 		$this->set('league_obj', $this->_getComponent ('LeagueType', $this->data['Division']['schedule_type'], $this));
@@ -217,6 +227,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		Configure::load("sport/{$division['League']['sport']}");
 
 		$this->set(compact('division'));
 

@@ -16,7 +16,7 @@ if (count ($classes)) {
 	<?php endif; ?>
 	<?php if ($is_logged_in): ?>
 	<td><?php
-	$roster_required = Configure::read("roster_requirements.{$division['Division']['ratio']}");
+	$roster_required = Configure::read("sport.roster_requirements.{$division['Division']['ratio']}");
 	$count = $team['roster_count'];
 	if (($is_admin || $is_coordinator) && $team['roster_count'] < $roster_required && $division['Division']['roster_deadline'] != '0000-00-00') {
 		echo $this->Html->tag ('span', $count, array('class' => 'warning-message'));

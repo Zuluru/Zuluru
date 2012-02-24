@@ -79,18 +79,6 @@ $config['season_is_indoor'] = array(
 	'Fall Indoor'	=> true,
 );
 
-$config['roster_requirements'] = array(
-	'4/3'	=> 12,
-	'5/2'	=> 12,
-	'3/3'	=> 10,
-	'4/2'	=> 10,
-	'3/2'	=> 8,
-	'2/2'	=> 7,
-	'womens'=> 12,
-	'mens'	=> 12,
-	'open'	=> 12,
-);
-
 // List of roster positions which denote player status on a roster.
 $config['playing_roster_positions'] = array(
 	'captain',

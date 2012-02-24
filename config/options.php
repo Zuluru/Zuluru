@@ -34,6 +34,7 @@ $config['options'] = array(
 		'Male',
 		'Female',
 	)),
+
 	'shirt_size'			=> make_options(array(
 		'Womens XSmall',
 		'Womens Small',
@@ -45,40 +46,38 @@ $config['options'] = array(
 		'Mens Large',
 		'Mens XLarge',
 	)),
+
 	'record_status'			=> make_options(array(
 		'new',
 		'inactive',
 		'active',
 		'locked',
 	)),
-	'ratio'					=> make_options(array(
-		'4/3',
-		'5/2',
-		'3/3',
-		'4/2',
-		'3/2',
-		'2/2',
-		'womens',
-		'mens',
-		'open',
+
+	'sport'					=> make_human_options(array(
+		'ultimate',
 	)),
+
 	'sotg_display'			=> make_human_options(array(
 		'coordinator_only',
 		'symbols_only',
 		'numeric',
 		'all',
 	)),
+
 	'allstar'				=> make_options(array(
 		'never',
 		'optional',
 		'always',
 	)),
+
 	'payment'				=> make_options(array(
 		'Unpaid',
 		'Pending',
 		'Paid',
 		'Refunded',
 	)),
+
 	'incident_types'		=> make_options(array(
 		'Field condition',
 		'Injury',
@@ -102,14 +101,14 @@ $config['options'] = array(
 	)),
 
 	'skill' => array(
-		'10'				=> '10: High calibre competitive player (team was top 4 at nationals)',
-		'9'					=> '9: Medium calibre competitive player',
-		'8'					=> '8: Lower calibre competitive player',
-		'7'					=> '7: Top tier Mon/Wed league player, minimal/no comp experience',
-		'6'					=> '6: Mid to Upper tier Mon/Wed OR Top Tier Tue/Thu league player',
-		'5'					=> '5: Mid tier league player',
-		'4'					=> '4: Key player lower tier team, minimal/no higher tier experience',
-		'3'					=> '3: Lower tier league player',
+		'10'				=> '10: High calibre touring player (team was top 4 at nationals)',
+		'9'					=> '9: Medium calibre touring player',
+		'8'					=> '8: Key player in competitive league, or lower calibre touring player',
+		'7'					=> '7: Competitive league player, minimal/no touring experience',
+		'6'					=> '6: Key player in intermediate league, or lower player in competitive league',
+		'5'					=> '5: Comfortable in intermediate league',
+		'4'					=> '4: Key player in recreational league, or lower player in intermediate league',
+		'3'					=> '3: Comfortable in recreational league',
 		'2'					=> '2: Beginner, minimal experience but athletic with sports background',
 		'1'					=> '1: Absolute Beginner',
 	),

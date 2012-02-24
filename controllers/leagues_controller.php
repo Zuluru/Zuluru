@@ -24,6 +24,12 @@ class LeaguesController extends AppController {
 		} else {
 			$conditions = array('YEAR(Division.open)' => $year);
 		}
+
+		$sport = $this->_arg('sport');
+		if ($sport) {
+			$conditions['League.sport'] = $sport;
+		}
+
 		$divisions = $this->League->Division->find('all', array(
 			'conditions' => $conditions,
 			'contain' => array('League', 'Day'),
@@ -39,7 +45,7 @@ class LeaguesController extends AppController {
 			));
 		}
 
-		$this->set(compact('divisions', 'leagues'));
+		$this->set(compact('divisions', 'leagues', 'sport'));
 
 		$this->League->Division->recursive = -1;
 		$this->set('years', $this->League->Division->find('all', array(

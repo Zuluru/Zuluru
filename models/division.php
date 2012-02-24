@@ -18,7 +18,7 @@ class Division extends AppModel {
 		),
 		'ratio' => array(
 			'inlist' => array(
-				'rule' => array('inconfig', 'options.ratio'),
+				'rule' => array('inconfig', 'sport.ratio'),
 				'message' => 'You must select a valid gender ratio.',
 			),
 		),

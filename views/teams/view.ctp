@@ -265,7 +265,7 @@ $this->Html->addCrumb (__('View', true));
 	</tr>
 	<?php
 		$i = $roster_count = $skill_count = $skill_total = 0;
-		$roster_required = Configure::read("roster_requirements.{$team['Division']['ratio']}");
+		$roster_required = Configure::read("sport.roster_requirements.{$team['Division']['ratio']}");
 		foreach ($team['Person'] as $person):
 			// Maybe add a warning
 			if ($person['can_add'] !== true && !$warning):
