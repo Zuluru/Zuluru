@@ -23,7 +23,7 @@ class NoticesData {
 		array(
 			'display_to' => 'coordinator',
 			'repeat' => null,
-			'notice' => '<h2>Did you know?</h2><p>Zuluru can now do playoff scheduling! When you start the \"add games\" process, below the selection for what type of games to add, you will have a link to create the playoff schedule. This can be done <strong>at any time</strong>. The schedule that it creates will have placeholders for various seeds, as well as winners and losers of previous games.</p><p>When the regular season is done and all game results are in, go to the league schedule page, and click the <%icon initialize_24.png %> icon to replace the various seeds with actual teams. After that, the various winner and loser slots will be filled in automatically as the playoff results come in!</p>',
+			'notice' => '<h2>Did you know?</h2><p>Zuluru can now do playoff scheduling! When you start the "add games" process, below the selection for what type of games to add, you will have a link to create the playoff schedule. This can be done <strong>at any time</strong>. The schedule that it creates will have placeholders for various seeds, as well as winners and losers of previous games.</p><p>When the regular season is done and all game results are in, go to the league schedule page, and click the <%icon initialize_24.png %> icon to replace the various seeds with actual teams. After that, the various winner and loser slots will be filled in automatically as the playoff results come in!</p>',
 			'active' => 1,
 			'effective_date' => '2011-10-27 00:00:00',
 			'created' => '2011-10-27 00:00:00',
@@ -31,7 +31,7 @@ class NoticesData {
 		array(
 			'display_to' => 'player',
 			'repeat' => null,
-			'notice' => '<h2>Did you know?</h2><p>If your team is using the attendance tracking feature, you can set your attendance in advance. You might use this to indicate when you\'ll be on vacation, for example, giving your captain plenty of notice.</p><p>Go to the <%link all splash \"Home\" %> page and look for the <%icon attendance_24.png %> icon next to your team name in the \"My Teams\" section.</p>',
+			'notice' => '<h2>Did you know?</h2><p>If your team is using the attendance tracking feature, you can set your attendance in advance. You might use this to indicate when you\'ll be on vacation, for example, giving your captain plenty of notice.</p><p>Go to the <%link all splash "Home" %> page and look for the <%icon attendance_24.png %> icon next to your team name in the "My Teams" section.</p>',
 			'active' => 1,
 			'effective_date' => '2011-10-27 00:00:00',
 			'created' => '2011-10-27 00:00:00',
@@ -39,7 +39,7 @@ class NoticesData {
 		array(
 			'display_to' => 'player',
 			'repeat' => null,
-			'notice' => '<h2>Did you know?</h2><p>If your team is using the attendance tracking feature and you\'ve set your attendance in advance, you can still get email notifications with game details.</p><p>Go to <%link people preferences My Profile -> Preferences %> and turn on the \"Always Send Attendance Reminder Emails\" option.</p>',
+			'notice' => '<h2>Did you know?</h2><p>If your team is using the attendance tracking feature and you\'ve set your attendance in advance, you can still get email notifications with game details.</p><p>Go to <%link people preferences My Profile -> Preferences %> and turn on the "Always Send Attendance Reminder Emails" option.</p>',
 			'active' => 1,
 			'effective_date' => '2011-10-27 00:00:00',
 			'created' => '2011-10-27 00:00:00',
@@ -47,7 +47,7 @@ class NoticesData {
 		array(
 			'display_to' => 'player',
 			'repeat' => null,
-			'notice' => '<h2>Did you know?</h2><p>Zuluru can export your personal perpetual schedule to anything that supports the iCal protocol, including iCal, Google Calendar, Thunderbird and more. Rather than adding each team individually as the seasons start, add this once and it will find every game you ever have!</p><p>Go to <%link people preferences My Profile -> Preferences %> to enable this option. After you do this, there will be a link at the bottom of the <%link all splash \"Home\" %> page with online help about how to make it work with your software.</p>',
+			'notice' => '<h2>Did you know?</h2><p>Zuluru can export your personal perpetual schedule to anything that supports the iCal protocol, including iCal, Google Calendar, Thunderbird and more. Rather than adding each team individually as the seasons start, add this once and it will find every game you ever have!</p><p>Go to <%link people preferences My Profile -> Preferences %> to enable this option. After you do this, there will be a link at the bottom of the <%link all splash "Home" %> page with online help about how to make it work with your software.</p>',
 			'active' => 1,
 			'effective_date' => '2011-10-27 00:00:00',
 			'created' => '2011-10-27 00:00:00',
@@ -79,7 +79,7 @@ class NoticesData {
 		array(
 			'display_to' => 'captain',
 			'repeat' => null,
-			'notice' => '<h2>Did you know?</h2><p>If you submit an incorrect score for a game, you can correct it with the \"Edit Score\" link.</p>',
+			'notice' => '<h2>Did you know?</h2><p>If you submit an incorrect score for a game, you can correct it with the "Edit Score" link.</p>',
 			'active' => 1,
 			'effective_date' => '2011-10-27 00:00:00',
 			'created' => '2011-10-27 00:00:00',
@@ -95,7 +95,7 @@ class NoticesData {
 		array(
 			'display_to' => 'player',
 			'repeat' => null,
-			'notice' => '<h2>Your feedback is important!</h2><p>There are many ways that you can help to improve Zuluru.<ul><li>Send feature requests to <a href=\"mailto:admin@zuluru.org\">admin@zuluru.org</a>. Many current Zuluru features are the result of user requests.</li><li>Use the \"Report a bug\" link at the bottom of every page to report bugs.</li><li>Use the link at the bottom of any help page to send suggestions for improvements to that help text.</li></ul></p><p>Your participation makes Zuluru better for you and everyone else.</p>',
+			'notice' => '<h2>Your feedback is important!</h2><p>There are many ways that you can help to improve Zuluru.<ul><li>Send feature requests to <a href="mailto:admin@zuluru.org">admin@zuluru.org</a>. Many current Zuluru features are the result of user requests.</li><li>Use the "Report a bug" link at the bottom of every page to report bugs.</li><li>Use the link at the bottom of any help page to send suggestions for improvements to that help text.</li></ul></p><p>Your participation makes Zuluru better for you and everyone else.</p>',
 			'active' => 1,
 			'effective_date' => '2011-10-27 00:00:00',
 			'created' => '2011-10-27 00:00:00',

@@ -398,7 +398,7 @@ CONFIG;
 				$commands[$table] = $db->alterSchema(array($table => $changes), $table);
 			} else {
 				$commands[$table] = $db->createSchema($schema, $table);
-				if (file_exists(CONFIGS . 'schema' . DS . 'data' . DS . $table . '.php')) {
+				if (file_exists(CONFIGS . 'schema' . DS . 'data' . DS . $table . '_data.php')) {
 					$this->dataObjects[$table] = Inflector::camelize($table) . 'Data';
 				}
 			}
