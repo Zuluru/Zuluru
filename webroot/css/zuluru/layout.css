@@ -142,6 +142,11 @@ body.map
 	padding: 4px;
 	border: 0;
 }
+#zuluru table.list p
+{
+	text-indent: 0;
+	margin: 0 0 1em;
+}
 
 /** Paging **/
 #zuluru div.paging
