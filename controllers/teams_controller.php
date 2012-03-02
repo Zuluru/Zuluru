@@ -802,6 +802,7 @@ class TeamsController extends AppController {
 		$this->set('is_captain', in_array($id, $this->Session->read('Zuluru.OwnedTeamIDs')));
 		$this->set('spirit_obj', $this->_getComponent ('Spirit', $team['Division']['League']['sotg_questions'], $this));
 		$this->set('display_attendance', $team['Team']['track_attendance'] && in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')));
+		$this->set('annotate', Configure::read('feature.annotations') && in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')));
 		$this->_addTeamMenuItems ($this->Team->data);
 	}
 
