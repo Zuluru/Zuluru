@@ -49,6 +49,13 @@ foreach ($teams as $team):
 			echo $this->ZuluruHtml->iconLink('standings_24.png',
 				array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Division']['id'], 'team' => $team['Team']['id']),
 				array('alt' => __('Standings', true), 'title' => __('Standings', true)));
+			if ($is_logged_in && $team['Team']['open_roster'] && $team['Division']['roster_deadline'] >= date('Y-m-d') &&
+				!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
+			{
+				echo $this->ZuluruHtml->iconLink('roster_add_32.png',
+					array('action' => 'roster_request', 'team' => $team['Team']['id']),
+					array('alt' => __('Join Team', true), 'title' => __('Join Team', true)));
+			}
 			if ($is_admin || in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs'))) {
 				echo $this->ZuluruHtml->iconLink('edit_24.png',
 					array('action' => 'edit', 'team' => $team['Team']['id']),
