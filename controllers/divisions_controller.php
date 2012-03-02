@@ -496,7 +496,7 @@ class DivisionsController extends AppController {
 				$team = $this->Division->Team->read(null, $team_id);
 
 				if ($allow_double_header) {
-					// Check that the double-header doesn't cause conflicts; must be at the same site, but different times
+					// Check that the double-header doesn't cause conflicts; must be at the same facility, but different times
 					$team_slot_ids = array_merge(
 						Set::extract ("/Game[home_team=$team_id]/GameSlot/id", $this->data),
 						Set::extract ("/Game[away_team=$team_id]/GameSlot/id", $this->data)

@@ -43,7 +43,7 @@ foreach ($map_vars as $var) {
 }
 $variables .= "fields[{$field['Field']['id']}] = { " . implode(', ', $vals) . " };\n";
 
-// Handle other fields at this site
+// Handle other fields at this facility
 foreach ($field['Facility']['Field'] as $related) {
 	$vals = array();
 	foreach ($map_vars as $var) {
