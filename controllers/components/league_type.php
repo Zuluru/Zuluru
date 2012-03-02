@@ -402,7 +402,7 @@ class LeagueTypeComponent extends Object
 
 		// Check that chosen game slots didn't somehow get allocated elsewhere in the meantime
 		$slots = Set::extract ('/GameSlot/id', $this->games);
-		$this->_controller->Division->Game->GameSlot->recursive = -1;
+		$this->_controller->Division->Game->GameSlot->contain();
 		$taken = $this->_controller->Division->Game->GameSlot->find('all', array('conditions' => array(
 				'id' => $slots,
 				'game_id !=' => null,

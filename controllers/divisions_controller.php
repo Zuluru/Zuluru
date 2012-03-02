@@ -492,7 +492,7 @@ class DivisionsController extends AppController {
 		$team_counts = array_count_values ($teams);
 		foreach ($team_counts as $team_id => $count) {
 			if ($count > 1) {
-				$this->Division->Team->recursive = -1;
+				$this->Division->Team->contain();
 				$team = $this->Division->Team->read(null, $team_id);
 
 				if ($allow_double_header) {
@@ -863,7 +863,7 @@ class DivisionsController extends AppController {
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$this->Division->DivisionGameslotAvailability->GameSlot->recursive = -1;
+		$this->Division->DivisionGameslotAvailability->GameSlot->contain();
 		$join = array( array(
 				'table' => "{$this->Division->tablePrefix}division_gameslot_availabilities",
 				'alias' => 'DivisionGameslotAvailability',

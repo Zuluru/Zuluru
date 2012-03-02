@@ -111,7 +111,7 @@ class FacilitiesController extends AppController {
 			}
 		}
 		if (empty($this->data)) {
-			$this->Facility->recursive = -1;
+			$this->Facility->contain();
 			$this->data = $this->Facility->read(null, $id);
 		}
 		$regions = $this->Facility->Region->find('list');

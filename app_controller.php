@@ -956,13 +956,13 @@ class AppController extends Controller {
 		$data = $this->Session->read("Zuluru.$key");
 		if ($data === null) {
 			if (is_numeric ($find)) {
-				$model->recursive = -1;
+				$model->contain();
 				$data = $model->read(null, $find);
 				$data = $data[$model->alias];
 			} else {
 				if ($find === null) {
 					$find = array(
-						'recursive' => -1,
+						'contain' => array(),
 						'conditions' => array(
 							'person_id' => $this->Auth->user('id'),
 						),

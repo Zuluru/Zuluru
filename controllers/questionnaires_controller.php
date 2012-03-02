@@ -118,7 +118,7 @@ class QuestionnairesController extends AppController {
 	function add_question($id, $i) {
 		Configure::write ('debug', 0);
 		$this->layout = 'ajax';
-		$this->Questionnaire->Question->recursive = -1;
+		$this->Questionnaire->Question->contain();
 		$question = $this->Questionnaire->Question->read(null, $id);
 		$question = $question['Question'];
 		$this->set(compact('question', 'i'));
@@ -132,7 +132,7 @@ class QuestionnairesController extends AppController {
 		$this->set($this->params['named']);
 
 		// Find all of the events that use this questionnaire
-		$this->Questionnaire->Event->recursive = -1;
+		$this->Questionnaire->Event->contain();
 		$events = $this->Questionnaire->Event->find('all', array(
 				'conditions' => array('questionnaire_id' => $questionnaire),
 				'fields' => 'id',

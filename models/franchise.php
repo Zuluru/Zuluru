@@ -67,7 +67,7 @@ class Franchise extends AppModel {
 			'Franchise.person_id' => $id,
 		);
 
-		$this->recursive = -1;
+		$this->contain();
 		$franchises = $this->find('all', array(
 				'conditions' => $conditions,
 		));

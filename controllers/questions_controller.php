@@ -156,7 +156,7 @@ class QuestionsController extends AppController {
 
 	function autocomplete() {
 		Configure::write ('debug', 0);
-		$this->Question->recursive = -1;
+		$this->Question->contain();
 		$this->set('questions', $this->Question->find('all', array(
 			'conditions' => array(
 				'Question.question LIKE' => "%{$this->params['url']['q']}%",

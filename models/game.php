@@ -342,7 +342,7 @@ class Game extends AppModel {
 		// different league on one of the unused slots.
 		$slot_ids = Set::extract ('/GameSlot/id', $games);
 		$game_ids = Set::extract ('/GameSlot/game_id', $games);
-		$this->GameSlot->recursive = -1;
+		$this->GameSlot->contain();
 		$taken = $this->GameSlot->find('all', array('conditions' => array(
 				'id' => $slot_ids,
 				'game_id !=' => null,
@@ -550,9 +550,9 @@ class Game extends AppModel {
 
 		// Find game details
 		if ($game_id !== null) {
-			$this->Contain (array(
+			$this->contain (array(
 				'GameSlot',
-				));
+			));
 			$game = $this->read(null, $game_id);
 			if (!$game) {
 				return;

@@ -515,7 +515,7 @@ class PeopleController extends AppController {
 			}
 		}
 		if (empty($this->data)) {
-			$this->Person->recursive = -1;
+			$this->Person->contain();
 			$this->data = $this->Person->read(null, $id);
 		}
 	}
@@ -975,7 +975,7 @@ class PeopleController extends AppController {
 			$this->redirect(array('action' => 'list_new'));
 		}
 
-		$this->Person->recursive = -1;
+		$this->Person->contain();
 		$person = $this->Person->read(null, $id);
 		if (!$person) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
@@ -1000,7 +1000,7 @@ class PeopleController extends AppController {
 			$dup_id = null;
 		}
 
-		$this->Person->recursive = -1;
+		$this->Person->contain();
 		$person = $this->Person->read(null, $this->data['Person']['id']);
 		if (!empty ($dup_id)) {
 			$existing = $this->Person->read(null, $dup_id);
@@ -1216,7 +1216,7 @@ class PeopleController extends AppController {
 			}
 		}
 
-		$this->Person->recursive = -1;
+		$this->Person->contain();
 		$this->set('person', $this->Person->read(null, $id));
 		$this->set('registrations', $this->paginate ('Registration', array('person_id' => $id)));
 	}
@@ -1233,7 +1233,7 @@ class PeopleController extends AppController {
 			}
 		}
 
-		$this->Person->recursive = -1;
+		$this->Person->contain();
 		$this->set('person', $this->Person->read(null, $id));
 		$this->set('teams', array_reverse($this->Person->Team->readByPlayerId($id, false)));
 	}

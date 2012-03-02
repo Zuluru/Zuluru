@@ -394,7 +394,7 @@ class RegistrationsController extends AppController {
 			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
 
-		$this->Registration->Person->recursive = -1;
+		$this->Registration->Person->contain();
 		$person = $this->Registration->Person->read (null, $this->Auth->user('id'));
 
 		$full = array();

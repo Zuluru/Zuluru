@@ -196,7 +196,7 @@ class Person extends User {
 		// that it's (currently) the only way to fetch all this data in a
 		// single query.
 		if (Configure::read('scoring.allstars')) {
-			$this->Allstar->recursive = -1;
+			$this->Allstar->contain();
 			$person['Allstar'] = $this->Allstar->find('all', array(
 					'conditions' => array(
 						'Allstar.person_id' => $id,
@@ -282,7 +282,7 @@ class Person extends User {
 	}
 
 	function findDuplicates($person) {
-		$this->recursive = -1;
+		$this->contain();
 		return $this->find('all', array(
 				'conditions' => array(
 					'id !=' => $person['Person']['id'],

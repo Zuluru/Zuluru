@@ -91,7 +91,7 @@ class FieldsController extends AppController {
 				$this->data = $this->Field->_afterFind($this->data);
 			}
 		} else {
-			$this->Field->Facility->contain(false);
+			$this->Field->Facility->contain();
 			$this->data = $this->Field->Facility->read(null, $id);
 			$this->data['Field'] = array('facility_id' => $id);
 		}

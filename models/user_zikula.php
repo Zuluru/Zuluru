@@ -52,7 +52,7 @@ class UserZikula extends User {
  * @access public
  */
 	function merge_user_record($data) {
-		$this->User->recursive = -1;
+		$this->User->contain();
 		$user = $this->User->read(null, $data[$this->alias][$this->primaryKey]);
 		if (!$user) {
 			return $this->create_user_record($data, array(

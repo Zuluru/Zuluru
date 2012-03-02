@@ -158,7 +158,7 @@ class TeamEvent extends AppModel {
 		}
 
 		// Find event details
-		$this->Contain (false);
+		$this->contain();
 		$event = $this->read(null, $event_id);
 		if (!$event) {
 			return;

@@ -147,7 +147,7 @@ class UsersController extends AppController {
 
 		if ($code !== null) {
 			// Look up the provided code
-			$this->User->recursive = -1;
+			$this->User->contain();
 			$matches = $this->User->read (null, $id);
 			if (empty ($matches) || substr ($matches['User']['password'], -8) != $code) {
 				$this->Session->setFlash(__('The provided code is not valid!', true), 'default', array('class' => 'warning'));
@@ -169,7 +169,7 @@ class UsersController extends AppController {
 				}
 				if (!empty ($this->data['User'])) {
 					// Find the user and send the email
-					$this->User->recursive = -1;
+					$this->User->contain();
 					$matches = $this->User->find ('all', array(
 							'conditions' => $this->data['User'],
 							'fields' => array('id', 'user_name', 'first_name', 'last_name', 'password', 'email'),

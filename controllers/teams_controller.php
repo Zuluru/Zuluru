@@ -129,7 +129,7 @@ class TeamsController extends AppController {
 	}
 
 	function unassigned() {
-		$this->Team->recursive = -1;
+		$this->Team->contain();
 		$this->set('teams', $this->paginate(array('Team.division_id' => null)));
 	}
 
@@ -371,7 +371,7 @@ class TeamsController extends AppController {
 			$lowest_spirit[$key] += $divisions[$team['Team']['division_id']];
 		}
 
-		$this->Team->Division->recursive = -1;
+		$this->Team->Division->contain();
 		$years = $this->Team->Division->find('all', array(
 			'fields' => 'DISTINCT YEAR(Division.open) AS year',
 			'conditions' => array('YEAR(Division.open) !=' => 0),
@@ -1032,7 +1032,7 @@ class TeamsController extends AppController {
 
 		// Admins and coordinators get to add people based on registration events
 		if ($this->effective_admin || $this->effective_coordinator) {
-			$this->Team->Person->Registration->Event->recursive = -1;
+			$this->Team->Person->Registration->Event->contain();
 			$events = $this->Team->Person->Registration->Event->find('all', array(
 					'conditions' => array(
 						'Event.open < NOW()',
@@ -1152,7 +1152,7 @@ class TeamsController extends AppController {
 		}
 
 		// Read the event
-		$this->Team->Person->Registration->Event->recursive = -1;
+		$this->Team->Person->Registration->Event->contain();
 		$event = $this->Team->Person->Registration->Event->read(null, $this->data['event']);
 		if ($event === false) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
@@ -1322,7 +1322,7 @@ class TeamsController extends AppController {
 		}
 
 		// Read the bare player record
-		$this->Team->Person->recursive = -1;
+		$this->Team->Person->contain();
 		$person = $this->Team->Person->read(null, $person_id);
 
 		// If a position was submitted, try to set it. Whether it succeeds or fails,
@@ -1364,7 +1364,7 @@ class TeamsController extends AppController {
 		}
 
 		// Read the bare player record
-		$this->Team->Person->recursive = -1;
+		$this->Team->Person->contain();
 		$person = $this->Team->Person->read(null, $my_id);
 
 		// Check if this person can even be added

@@ -39,7 +39,7 @@ class LeaguesController extends AppController {
 
 		$this->set(compact('divisions', 'leagues', 'sport'));
 
-		$this->League->Division->recursive = -1;
+		$this->League->Division->contain();
 		$this->set('years', $this->League->Division->find('all', array(
 			'fields' => 'DISTINCT YEAR(Division.open) AS year',
 			'conditions' => array('YEAR(Division.open) !=' => 0),
