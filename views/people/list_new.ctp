@@ -11,10 +11,13 @@ $rows = array();
 foreach ($new as $player) {
 	$links = array(
 		$this->Html->link (__('View', true), array('action' => 'view', 'person' => $player['Person']['id'])),
-		$this->Html->link (__('Approve', true), array('action' => 'approve', 'person' => $player['Person']['id'])),
-		$this->Html->link (__('Delete', true), array('action' => 'delete', 'person' => $player['Person']['id'])),
 		$this->Html->link (__('Edit', true), array('action' => 'edit', 'person' => $player['Person']['id'])),
+		$this->Html->link (__('Approve', true), array('action' => 'approve', 'person' => $player['Person']['id'])),
 	);
+	if (Configure::read('feature.manage_accounts')) {
+		$links[] = $this->Html->link (__('Delete', true), array('action' => 'delete', 'person' => $player['Person']['id']));
+	}
+
 	$class = ($player['Person']['duplicate'] ? 'warning-message' : '');
 	$rows[] = array(
 		array($player['Person']['full_name'], array('class' => $class)),
