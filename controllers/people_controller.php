@@ -541,7 +541,6 @@ class PeopleController extends AppController {
 			}
 
 			$this->data['Note'][0]['person_id'] = $id;
-			$this->data['Note'][0]['created_person_id'] = $my_id;
 			$this->data['Note'][0]['visibility'] = VISIBILITY_PRIVATE;
 			if (empty($this->data['Note'][0]['note'])) {
 				if (!empty($this->data['Note'][0]['id'])) {
