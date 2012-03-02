@@ -29,6 +29,7 @@ echo $this->Form->end();
 	<tr>
 		<th>ID</th>
 		<th>Field</th>
+		<th>Start Time</th>
 		<th>Game</th>
 		<th>Home</th>
 		<th>Away</th>
@@ -42,6 +43,7 @@ echo $this->Form->end();
 	<tr>
 		<td><?php __($slot['GameSlot']['id']); ?></td>
 		<td><?php echo $this->element('fields/block', array('field' => $slot['Field'])); ?></td>
+		<td><?php echo $this->ZuluruTime->time ($slot['GameSlot']['game_start']); ?></td>
 <?php if (!$slot['Game']['id']): ?>
 <?php ++$unused; ?>
 		<td colspan="3">---- <?php __('field open'); ?> ----</td>
