@@ -7,7 +7,7 @@ echo $this->element('help/topics', array(
 		),
 ));
 echo $this->element('help/topics', array(
-		'section' => 'leagues',
+		'section' => 'divisions',
 		'topics' => array(
 			'edit/exclude_teams' => 'Exclude Teams',
 		),

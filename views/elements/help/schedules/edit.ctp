@@ -10,7 +10,7 @@ echo $this->element('help/topics', array(
 		'compact' => true,
 ));
 echo $this->element('help/topics', array(
-		'section' => 'leagues',
+		'section' => 'divisions',
 		'topics' => array(
 			'fields' => 'Field Distribution Report',
 		),
