@@ -397,19 +397,8 @@ class GamesController extends AppController {
 		}
 
 		$this->Game->contain(array(
-			// Get the list of captains for each team, for the team pop-up
-			'HomeTeam' => array(
-				'Person' => array(
-					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
-					'fields' => array('id', 'first_name', 'last_name', 'email'),
-				),
-			),
-			'AwayTeam' => array(
-				'Person' => array(
-					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
-					'fields' => array('id', 'first_name', 'last_name', 'email'),
-				),
-			),
+			'HomeTeam',
+			'AwayTeam',
 			'GameSlot' => array('Field' => 'Facility'),
 		));
 		$game = $this->Game->read(null, $id);
@@ -460,7 +449,7 @@ class GamesController extends AppController {
 
 		if ($id) {
 			$this->Game->contain(array(
-				// Get the list of captains for each team, for the team pop-up
+				// Get the list of captains for each team, we may need to email them
 				'HomeTeam' => array(
 					'Person' => array(
 						'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
