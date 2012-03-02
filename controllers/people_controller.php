@@ -568,7 +568,9 @@ class PeopleController extends AppController {
 			$this->data = $this->Person->read(null, $id);
 		}
 
-		$this->helpers[] = 'TinyMce.TinyMce';
+		if (Configure::read('feature.tiny_mce')) {
+			$this->helpers[] = 'TinyMce.TinyMce';
+		}
 	}
 
 	function delete_note() {

@@ -647,7 +647,9 @@ class TeamsController extends AppController {
 			$this->data = $this->Team->read(null, $id);
 		}
 
-		$this->helpers[] = 'TinyMce.TinyMce';
+		if (Configure::read('feature.tiny_mce')) {
+			$this->helpers[] = 'TinyMce.TinyMce';
+		}
 	}
 
 	function delete_note() {
