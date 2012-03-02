@@ -393,7 +393,7 @@ class AppModel extends Model {
 
 		// Find the list of divisions in the same league
 		$division_obj = ClassRegistry::init('Division');
-		$division_obj->contain(false);
+		$division_obj->contain();
 		$division = $division_obj->read(null, $division_id);
 		$division_obj->addPlayoffs($division);
 
