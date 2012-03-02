@@ -5,11 +5,13 @@ class DivisionsController extends AppController {
 	var $helpers = array('ZuluruGame');
 	var $components = array('Lock', 'CanRegister');
 
+	function publicActions() {
+		return array('cron', 'view', 'schedule', 'standings');
+	}
+
 	function isAuthorized() {
+		// Anyone that's logged in can perform these operations
 		if (in_array ($this->params['action'], array(
-				'view',
-				'schedule',
-				'standings',
 				'scores',
 		)))
 		{

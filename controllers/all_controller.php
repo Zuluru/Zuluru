@@ -5,7 +5,12 @@ class AllController extends AppController {
 	var $uses = array('Game');
 	var $helpers = array('ZuluruGame');
 
+	function publicActions() {
+		return array('cron');
+	}
+
 	function isAuthorized() {
+		// Anyone that's logged in can perform these operations
 		switch ($this->params['action']) {
 			case 'splash':
 				return true;

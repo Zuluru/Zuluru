@@ -5,16 +5,8 @@ class LeaguesController extends AppController {
 	var $helpers = array('ZuluruGame');
 	var $components = array('Lock');
 
-	function isAuthorized() {
-		if (in_array ($this->params['action'], array(
-				'index',
-				'view',
-		)))
-		{
-			return true;
-		}
-
-		return false;
+	function publicActions() {
+		return array('cron', 'index', 'view');
 	}
 
 	function index() {

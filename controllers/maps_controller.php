@@ -4,6 +4,10 @@ class MapsController extends AppController {
 	var $name = 'Maps';
 	var $uses = array('Field');
 
+	function publicActions() {
+		return array('index', 'view');
+	}
+
 	function index() {
 		if ($this->is_admin) {
 			$closed = $this->_arg('closed');

@@ -4,6 +4,10 @@ class EventsController extends AppController {
 	var $name = 'Events';
 	var $components = array('CanRegister');
 
+	function publicActions() {
+		return array('index', 'view', 'wizard');
+	}
+
 	function index() {
 		if ($this->is_admin) {
 			$close = 'DATE_ADD(CURDATE(), INTERVAL -30 DAY)';

@@ -10,6 +10,11 @@ class RegistrationsController extends AppController {
 		),
 	);
 
+	function publicActions() {
+		// 'Payment' comes from the payment processor.
+		return array('payment');
+	}
+
 	function isAuthorized() {
 		// Anyone that's logged in can perform these operations
 		if (in_array ($this->params['action'], array(

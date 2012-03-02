@@ -3,6 +3,10 @@ class FacilitiesController extends AppController {
 
 	var $name = 'Facilities';
 
+	function publicActions() {
+		return array('index', 'view');
+	}
+
 	function index() {
 		$this->set('regions', $this->Facility->Region->find('all', array(
 			'contain' => array(

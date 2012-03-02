@@ -13,6 +13,10 @@ class PeopleController extends AppController {
 		),
 	);
 
+	function publicActions() {
+		return array('cron', 'view', 'tooltip', 'ical');
+	}
+
 	function isAuthorized() {
 		// Anyone that's logged in can perform these operations
 		if (in_array ($this->params['action'], array(

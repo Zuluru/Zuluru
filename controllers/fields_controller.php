@@ -3,6 +3,10 @@ class FieldsController extends AppController {
 
 	var $name = 'Fields';
 
+	function publicActions() {
+		return array('index', 'view', 'tooltip');
+	}
+
 	function isAuthorized() {
 		// Anyone that's logged in can perform these operations
 		if (in_array ($this->params['action'], array(

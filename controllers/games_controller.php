@@ -5,6 +5,13 @@ class GamesController extends AppController {
 	var $helpers = array('ZuluruGame');
 	var $components = array('Lock');
 
+	function publicActions() {
+		return array('cron', 'view', 'tooltip', 'ical',
+			// Attendance updates may come from emailed links; people might not be logged in
+			'attendance_change',
+		);
+	}
+
 	function isAuthorized() {
 		// Anyone that's logged in can perform these operations
 		if (in_array ($this->params['action'], array(

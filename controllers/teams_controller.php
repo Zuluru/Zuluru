@@ -5,7 +5,23 @@ class TeamsController extends AppController {
 	var $helpers = array('ZuluruGame', 'Ajax');
 	var $components = array('Lock');
 
+	function publicActions() {
+		return array('cron', 'index', 'letter', 'view', 'tooltip', 'schedule', 'ical',
+			// Roster updates may come from emailed links; people might not be logged in
+			'roster_accept', 'roster_decline',
+		);
+	}
+
 	function isAuthorized() {
+		// Anyone that's logged in can perform these operations
+		if (in_array ($this->params['action'], array(
+				'note',
+				'delete_note',
+		)))
+		{
+			return true;
+		}
+
 		// People can perform these operations on teams they run
 		if (in_array ($this->params['action'], array(
 				'edit',
@@ -15,8 +31,6 @@ class TeamsController extends AppController {
 				'roster_position',
 				'roster_add',
 				'emails',
-				'note',
-				'delete_note',
 		)))
 		{
 			// If a team id is specified, check if we're a captain of that team

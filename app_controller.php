@@ -280,19 +280,25 @@ class AppController extends Controller {
 			// Admins have permission to do anything.
 			$this->Auth->allow('*');
 		} else {
-			// Allow anyone (logged on or not) to log in or log out, list and view things.
-			// 'View' goes by various names.
-			// Roster and attendance updates may come from emailed links; people might not be logged in
-			// 'Payment' comes from the payment processor.
-			$this->Auth->allow(array('login', 'logout', 'create_account', 'reset_password', 'index', 'wizard',
-					'view', 'tooltip', 'display', 'schedule', 'standings', 'ical', 'letter',
-					'roster_accept', 'roster_decline', 'attendance_change',
-					'payment', 'cron'));
+			// Check what actions anyone (logged on or not) is allowed in this controller.
+			$allowed = $this->publicActions();
+
+			// An empty array here means the controller has *no* public actions, but an empty
+			// array passed to Auth->allow means *everything* is public.
+			if (!empty($allowed)) {
+				$this->Auth->allow($allowed);
+			}
 		}
 
 		// Other authentication is handled through the isAuthorized function of
 		// the individual controllers.
 		$this->Auth->authorize = 'controller';
+	}
+
+	// By default, nothing is public. Any controller with special permissions
+	// must override this function.
+	function publicActions() {
+		return null;
 	}
 
 	// By default, we allow the actions listed above (in the Auth->allow calls) and

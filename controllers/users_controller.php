@@ -4,6 +4,10 @@ class UsersController extends AppController {
 	var $name = 'Users';
 	var $uses = array('User', 'Group');
 
+	function publicActions() {
+		return array('login', 'logout', 'create_account', 'reset_password');
+	}
+
 	function isAuthorized() {
 		// People can perform these operations on their own account
 		if (in_array ($this->params['action'], array(

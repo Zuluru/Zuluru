@@ -4,6 +4,13 @@ class TeamEventsController extends AppController {
 	var $name = 'TeamEvents';
 	var $components = array('Lock');
 
+	function publicActions() {
+		return array('cron',
+			// Attendance updates may come from emailed links; people might not be logged in
+			'attendance_change',
+		);
+	}
+
 	function isAuthorized() {
 		// People can perform these operations on teams they run
 		if (in_array ($this->params['action'], array(
@@ -18,6 +25,7 @@ class TeamEventsController extends AppController {
 		}
 		if (in_array ($this->params['action'], array(
 				'edit',
+				'delete',
 		)))
 		{
 			$event = $this->_arg('event');

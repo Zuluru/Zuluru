@@ -3,6 +3,10 @@ class FranchisesController extends AppController {
 
 	var $name = 'Franchises';
 
+	function publicActions() {
+		return array('index', 'letter', 'view');
+	}
+
 	function isAuthorized() {
 		if (!Configure::read('feature.franchises')) {
 			return false;
