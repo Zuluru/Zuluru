@@ -24,6 +24,9 @@ $display_spirit = ($is_admin || $is_coordinator || $team['Division']['League']['
 			<?php if ($display_attendance): ?>
 			<th><?php __('Attendance'); ?></th>
 			<?php endif; ?>
+			<?php if ($annotate): ?>
+			<th><?php __('Notes'); ?></th>
+			<?php endif; ?>
 		</tr>
 	<?php
 	$i = 0;
@@ -130,6 +133,13 @@ $display_spirit = ($is_admin || $is_coordinator || $team['Division']['League']['
 				}
 			}
 			echo implode (' / ', $counts);
+			?></td>
+			<?php endif; ?>
+			<?php if ($annotate): ?>
+			<td><?php
+			if (!$is_event) {
+				echo $this->Html->link(__('Add', true), array('controller' => 'games', 'action' => 'note', 'game' => $game['Game']['id']));
+			}
 			?></td>
 			<?php endif; ?>
 		</tr>

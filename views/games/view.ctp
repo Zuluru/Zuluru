@@ -316,13 +316,63 @@ echo $this->element ('spirit/view',
 <?php endif; ?>
 
 </div>
-<?php if ($is_admin || $is_coordinator): ?>
+
+<?php if (!empty($game['Note'])): ?>
+	<fieldset>
+ 		<legend><?php __('Notes'); ?></legend>
+		<table class="list">
+		<tr>
+			<th><?php __('From'); ?></th>
+			<th><?php __('Note'); ?></th>
+			<th><?php __('Visibility'); ?></th>
+			<th class="actions"><?php __('Actions');?></th>
+		</tr>
+		<?php
+			$i = 0;
+			foreach ($game['Note'] as $note):
+				$class = null;
+				if ($i++ % 2 == 0) {
+					$class = ' class="altrow"';
+				}
+			?>
+			<tr<?php echo $class;?>>
+				<td><?php
+				echo $this->element('people/block', array('person' => $note['CreatedPerson']));
+				echo $this->Html->tag('br');
+				echo $this->ZuluruTime->datetime($note['created']); ?></td>
+				<td><?php echo $note['note']; ?></td>
+				<td><?php __(Configure::read("visibility.{$note['visibility']}")); ?></td>
+				<td class="actions">
+					<?php
+					if ($note['created_person_id'] == $my_id) {
+						echo $this->Html->link(__('Edit', true), array('action' => 'note', 'game' => $note['game_id'], 'note' => $note['id']));
+						echo $this->Html->link(__('Delete', true), array('action' => 'delete_note', 'note' => $note['id']), null, __('Are you sure you want to delete this note?', true));
+					}
+					?>
+				</td>
+			</tr>
+		<?php endforeach; ?>
+		</table>
+	</fieldset>
+<?php endif; ?>
+
+<?php
+$my_teams = $this->Session->read('Zuluru.TeamIDs');
+$can_annotate = Configure::read('feature.annotations') &&
+	(in_array($game['Game']['home_team'], $my_teams) || in_array($game['Game']['away_team'], $my_teams));
+?>
+<?php if ($is_admin || $is_coordinator || $can_annotate): ?>
 	<div class="actions">
 	<ul>
+		<?php if ($can_annotate): ?>
+		<li><?php echo $this->Html->link(__('Add Note', true), array('action' => 'note', 'game' => $game['Game']['id'])); ?> </li>
+		<?php endif; ?>
+		<?php if ($is_admin || $is_coordinator): ?>
 		<li><?php echo $this->Html->link(__('Edit Game', true), array('action' => 'edit', 'game' => $game['Game']['id'])); ?> </li>
 		<li><?php echo $this->Html->link(__('Delete Game', true), array('action' => 'delete', 'game' => $game['Game']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $game['Game']['id'])); ?> </li>
 		<?php if (Configure::read('scoring.allstars') && $game['Division']['allstars']): ?>
 		<li><?php echo $this->Html->link(__('Add Allstar', true), array('controller' => 'allstars', 'action' => 'add', 'game' => $game['Game']['id']));?> </li>
+		<?php endif; ?>
 		<?php endif; ?>
 	</ul>
 </div>

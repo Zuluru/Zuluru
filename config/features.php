@@ -93,6 +93,14 @@ $config['extended_playing_roster_positions'] = array(
 	'substitute',
 );
 
+// List of roster positions which denote a full-time member on a roster.
+$config['regular_roster_positions'] = array(
+	'coach',
+	'captain',
+	'assistant',
+	'player',
+);
+
 // List of roster positions which confer additional permissions such as viewing
 // of contact information and updating a team roster.
 $config['privileged_roster_positions'] = array(
@@ -148,6 +156,13 @@ $config['event_connection'] = array(
 	EVENT_PREDECESSOR => 'Predecessor',
 	EVENT_SUCCESSOR => 'Successor',
 	EVENT_ALTERNATE => 'Alternate',
+);
+
+$config['visibility'] = array(
+	VISIBILITY_PRIVATE => 'Private',
+	VISIBILITY_CAPTAINS => 'Captains',
+	VISIBILITY_TEAM => 'Team',
+	VISIBILITY_PUBLIC => 'Public',
 );
 
 // Percent likelihood that a notice will be shown, if there is one to show

@@ -42,8 +42,6 @@ class Game extends AppModel {
 			'className' => 'GameSlot',
 			'foreignKey' => 'game_id',
 			'conditions' => '',
-			'fields' => '',
-			'order' => ''
 		)
 	);
 
@@ -52,29 +50,21 @@ class Game extends AppModel {
 			'className' => 'Division',
 			'foreignKey' => 'division_id',
 			'conditions' => '',
-			'fields' => '',
-			'order' => ''
 		),
 		'HomeTeam' => array(
 			'className' => 'Team',
 			'foreignKey' => 'home_team',
 			'conditions' => '',
-			'fields' => '',
-			'order' => ''
 		),
 		'AwayTeam' => array(
 			'className' => 'Team',
 			'foreignKey' => 'away_team',
 			'conditions' => '',
-			'fields' => '',
-			'order' => ''
 		),
 		'ApprovedBy' => array(
 			'className' => 'Person',
 			'foreignKey' => 'approved_by',
 			'conditions' => '',
-			'fields' => '',
-			'order' => ''
 		)
 	);
 
@@ -84,65 +74,30 @@ class Game extends AppModel {
 			'foreignKey' => 'game_id',
 			'dependent' => true,
 			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 		'Attendance' => array(
 			'className' => 'Attendance',
 			'foreignKey' => 'game_id',
 			'dependent' => true,
 			'conditions' => array('team_event_id' => null),
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 		'Incident' => array(
 			'className' => 'Incident',
 			'foreignKey' => 'game_id',
 			'dependent' => true,
 			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 		'ScoreEntry' => array(
 			'className' => 'ScoreEntry',
 			'foreignKey' => 'game_id',
 			'dependent' => true,
 			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 		'SpiritEntry' => array(
 			'className' => 'SpiritEntry',
 			'foreignKey' => 'game_id',
 			'dependent' => true,
 			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 		'ScoreReminderEmail' => array(
 			'className' => 'ActivityLog',
@@ -167,6 +122,13 @@ class Game extends AppModel {
 			'foreignKey' => 'game_id',
 			'dependent' => true,
 			'conditions' => array('type' => 'email_attendance_summary'),
+		),
+		'Note' => array(
+			'className' => 'Note',
+			'foreignKey' => 'game_id',
+			'dependent' => true,
+			'conditions' => '',
+			'order' => 'Note.created',
 		),
 	);
 

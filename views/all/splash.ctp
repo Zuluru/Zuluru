@@ -196,6 +196,10 @@ foreach ($games as $game):
 		}
 
 		echo $this->ZuluruGame->displayScore ($game);
+
+		if (Configure::read('feature.annotations')) {
+			echo $this->Html->link(__('Add Note', true), array('controller' => 'games', 'action' => 'note', 'game' => $game['Game']['id']));
+		}
 		?></td>
 	</tr>
 <?php endforeach; ?>
