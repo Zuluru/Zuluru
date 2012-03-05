@@ -1,4 +1,4 @@
-<p>The "edit facility" page is used to update details of your facilities. Only those with "volunteer" status have permission to edit facility details.</p>
+<p>The "edit facility" page is used to update details of your facilities.</p>
 <p>The "create facility" page is essentially identical to this page.</p>
 <?php
 echo $this->element('help/topics', array(

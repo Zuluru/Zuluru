@@ -11,6 +11,9 @@ if ($is_coordinator || $is_admin) {
 					'image' => 'edit_32.png',
 				),
 				'publish',
+				'delete',
+				'reschedule',
+				'playoffs',
 			),
 	));
 }

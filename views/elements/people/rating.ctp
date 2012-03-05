@@ -10,7 +10,10 @@ $questions = Configure::read('sport.rating_questions');
 ?>
 <div id="zuluru">
 <p>Fill out this questionnaire and then click "Calculate" below to figure out the skill level you should use in Zuluru.</p>
-<p>The questionnaire is divided into <?php echo implode(' and ', array_keys($questions)); ?> sections. Answer each as honestly as possible, and the resulting Zuluru rating should be fairly accurate.</p>
+<p>The questionnaire is divided into <?php echo implode(' and ', array_keys($questions)); ?> sections.
+Answer each as honestly as possible, and the resulting Zuluru rating should be fairly accurate.
+When answering questions regarding relative skills, compare yourself to the average of all people playing the sport,
+not only those that you regularly compete against.</p>
 <p>The calculated value will be entered on the Zuluru account editing form.</p>
 
 <form name="rating">

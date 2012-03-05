@@ -6,7 +6,24 @@ if ($is_admin || $is_coordinator) {
 				'edit' => array(
 					'image' => 'edit_32.png',
 				),
-				'fields' => 'Field Distribution Report',
+				'add_teams' => array(
+					'image' => 'team_add_32.png',
+				),
+				'roster_add' => array(
+					'image' => 'roster_add_32.png',
+				),
+				'emails' => array(
+					'image' => 'email_32.png',
+				),
+				'fields' => array(
+					'image' => 'field_report_32.png',
+					'title' => 'Field Distribution Report',
+				),
+				'slots' => 'Field Availability Report',
+				'spirit' => array(
+					'image' => 'spirit_32.png',
+					'title' => 'Spirit Report',
+				),
 				'approve_scores' => array(
 					'image' => 'score_approve_32.png',
 				),

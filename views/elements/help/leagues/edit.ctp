@@ -5,7 +5,6 @@ echo $this->element('help/topics', array(
 		'section' => 'leagues/edit',
 		'topics' => array(
 			'name',
-			'games_before_repeat',
 		),
 ));
 ?>

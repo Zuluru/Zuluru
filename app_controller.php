@@ -479,6 +479,19 @@ class AppController extends Controller {
 		}
 
 		$this->_addMenuItem ('Help', array('controller' => 'help'));
+		$this->_addMenuItem ('New Users', array('controller' => 'help', 'action' => 'guide', 'new_user'), 'Help');
+		$this->_addMenuItem ('Advanced Users', array('controller' => 'help', 'action' => 'guide', 'advanced'), 'Help');
+		$this->_addMenuItem ('Captains', array('controller' => 'help', 'action' => 'guide', 'captain'), 'Help');
+		if ($this->is_admin || $this->Session->read('Zuluru.DivisionIDs')) {
+			$this->_addMenuItem ('Coordinators', array('controller' => 'help', 'action' => 'guide', 'coordinator'), 'Help');
+		}
+		if ($this->is_admin) {
+			$this->_addMenuItem ('Site Setup and Configuration', array('controller' => 'help', 'action' => 'guide', 'administrator', 'setup'), array('Help', 'Administrators'));
+			$this->_addMenuItem ('Player Management', array('controller' => 'help', 'action' => 'guide', 'administrator', 'players'), array('Help', 'Administrators'));
+			$this->_addMenuItem ('League Management', array('controller' => 'help', 'action' => 'guide', 'administrator', 'leagues'), array('Help', 'Administrators'));
+			$this->_addMenuItem ('Field Management', array('controller' => 'help', 'action' => 'guide', 'administrator', 'fields'), array('Help', 'Administrators'));
+			$this->_addMenuItem ('Registration', array('controller' => 'help', 'action' => 'guide', 'administrator', 'registration'), array('Help', 'Administrators'));
+		}
 	}
 
 	function _initSessionData($my_id) {

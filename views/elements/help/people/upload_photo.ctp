@@ -1,0 +1,2 @@
+<p>The <?php echo $this->Html->link('My Profile -> Upload Photo', array('controller' => 'people', 'action' => 'photo_upload')); ?> page will allow you to upload a photo of yourself, further personalizing your profile, and making it easier for captains to recognize you for all-star nominations and roster recruiting.
+Note that your photo is never visible to anyone outside the site, only to logged-in members of the club.</p>

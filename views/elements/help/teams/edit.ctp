@@ -10,15 +10,20 @@ echo $this->Html->link(__('registration system', true), array('controller' => 'e
 <p>The "create team" page is essentially identical to this page.</p>
 <?php endif; ?>
 <?php
+$topics = array(
+	'name',
+	'shirt_colour',
+);
+if (Configure::read('feature.region_preference')) {
+	$topics[] = 'region_preference';
+}
+$topics[] = 'open_roster';
+$topics['track_attendance'] = array(
+	'image' => 'attendance_32.png',
+);
+
 echo $this->element('help/topics', array(
 		'section' => 'teams/edit',
-		'topics' => array(
-			'name',
-			'shirt_colour',
-			'open_roster',
-			'track_attendance' => array(
-				'image' => 'attendance_32.png',
-			),
-		),
+		'topics' => $topics,
 ));
 ?>

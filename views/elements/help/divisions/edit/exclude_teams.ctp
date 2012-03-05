@@ -6,4 +6,4 @@ if (array_key_exists ('division', $this->passedArgs)) {
 } else {
 	__('edit the division');
 }
-?> and turn off this option.</p>
+?> and turn it off.</p>

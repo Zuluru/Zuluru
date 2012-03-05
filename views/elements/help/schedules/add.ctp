@@ -1,21 +1,32 @@
 <p>To add games to a schedule, you select the type of schedule to create, whether to publish games, and whether double-headers are allowed.</p>
 <?php
 echo $this->element('help/topics', array(
-		'section' => 'schedules',
+		'section' => 'schedules/add',
 		'topics' => array(
-			'add/schedule_type' => 'Schedule Type',
+			'schedule_type',
 		),
+		'compact' => true,
 ));
 echo $this->element('help/topics', array(
-		'section' => 'divisions',
+		'section' => 'games/edit',
 		'topics' => array(
-			'edit/exclude_teams' => 'Exclude Teams',
+			'publish',
+			'double_header' => 'Double-headers',
 		),
+		'compact' => true,
 ));
 echo $this->element('help/topics', array(
-		'section' => 'games',
+		'section' => 'divisions/edit',
 		'topics' => array(
-			'edit/start_date' => 'Start Date',
+			'exclude_teams',
 		),
+		'compact' => true,
+));
+echo $this->element('help/topics', array(
+		'section' => 'games/edit',
+		'topics' => array(
+			'start_date',
+		),
+		'compact' => true,
 ));
 ?>

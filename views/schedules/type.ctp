@@ -41,7 +41,9 @@ if ($is_tournament) {
 ?>
 </p>
 <?php if (!$is_tournament): ?>
-<p>Alternately, you can <?php echo $this->Html->link(__('create a playoff schedule', true), array('division' => $division['Division']['id'], 'playoff' => true)); ?>.</p>
+<p>Alternately, you can <?php echo $this->Html->link(__('create a playoff schedule', true), array('division' => $division['Division']['id'], 'playoff' => true)); ?>.
+<?php echo $this->ZuluruHtml->help(array('action' => 'schedules', 'playoffs')); ?>
+</p>
 <?php endif; ?>
 
 <?php

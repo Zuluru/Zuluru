@@ -477,7 +477,7 @@ div.related
 /* Help styling. */
 #zuluru .help_block
 {
-	padding: 0 25px;
+	padding: 0 0 0 50px;
 }
 
 div.help_dialog

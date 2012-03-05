@@ -173,7 +173,10 @@ $this->Html->addCrumb (__('View', true));
 		<?php if ($is_admin || $is_coordinator): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Exclude Teams'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-				<?php __($division['Division']['exclude_teams'] ? 'Yes' : 'No'); ?>
+				<?php
+				__($division['Division']['exclude_teams'] ? 'Yes' : 'No');
+				echo '&nbsp;' . $this->ZuluruHtml->help(array('action' => 'divisions', 'edit', 'exclude_teams'));
+				?>
 
 			</dd>
 			<?php if ($division['Division']['email_after'] != 0): ?>
