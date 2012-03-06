@@ -203,6 +203,26 @@ class Division extends AppModel {
 		return true;
 	}
 
+	function afterSave() {
+		if (!empty($this->data['Division']['league_id'])) {
+			$league_id = $this->data['Division']['league_id'];
+		} else {
+			$league_id = $this->field('league_id', array('id' => $this->id));
+		}
+
+		// Update this division's league open and close dates, if required
+		$this->League->contain();
+		$league = $this->League->read(array('open', 'close'), $league_id);
+
+		if (empty($league['League']['open']) || $league['League']['open'] == '0000-00-00') {
+			$league['League']['open'] = $this->data['Division']['open'];
+		} else {
+			$league['League']['open'] = min($league['League']['open'], $this->data['Division']['open']);
+		}
+		$league['League']['close'] = max($league['League']['close'], $this->data['Division']['close']);
+		$this->League->save($league, false);
+	}
+
 	function readByDate($date) {
 		// Our database has Sunday as 1, but date('w') gives it as 0
 		$day = date('w', strtotime ($date)) + 1;
