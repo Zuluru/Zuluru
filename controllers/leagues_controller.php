@@ -195,9 +195,10 @@ class LeaguesController extends AppController {
 		// Update any league open and close dates that have changed because of divisions
 		// being added or edited and then the is_open status
 		$open = $this->League->Division->find('all', array(
-				'conditions' => array(
+				'conditions' => array('OR' => array(
 					'Division.is_open' => true,
-				),
+					'Division.open > NOW()',
+				)),
 				'contain' => false,
 				'order' => 'Division.open',
 		));
