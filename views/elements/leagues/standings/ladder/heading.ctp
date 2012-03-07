@@ -4,7 +4,7 @@
 	<th rowspan="2"><?php __('Rating'); ?></th>
 	<th colspan="7"><?php __('Season To Date'); ?></th>
 	<th rowspan="2"><?php __('Streak'); ?></th>
-	<?php if ($division['League']['numeric_sotg'] || $division['League']['sotg_questions'] != 'none'): ?>
+	<?php if (League::hasSpirit($division)): ?>
 	<th rowspan="2"><?php __('Spirit'); ?></th>
 	<?php endif; ?>
 </tr>

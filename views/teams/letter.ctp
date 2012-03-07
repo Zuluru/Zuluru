@@ -68,7 +68,7 @@ foreach ($teams as $team):
 					array('alt' => __('Add Player', true), 'title' => __('Add Player', true)));
 			}
 			if ($is_admin) {
-				if ($team['Division']['League']['numeric_sotg'] || $team['Division']['League']['sotg_questions'] != 'none') {
+				if (League::hasSpirit($team)) {
 					echo $this->ZuluruHtml->iconLink('spirit_24.png',
 						array('action' => 'spirit', 'team' => $team['Team']['id']),
 						array('alt' => __('Spirit', true), 'title' => __('See Team Spirit Report', true)));

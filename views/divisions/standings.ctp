@@ -87,7 +87,7 @@ echo $this->element('leagues/standings/tournament/bracket', array('games' => $to
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('schedule_add_32.png',
 				array('controller' => 'schedules', 'action' => 'add', 'division' => $division['Division']['id']),
 				array('alt' => __('Add Games', true), 'title' => __('Add Games', true))));
-			if ($division['League']['numeric_sotg'] || $division['League']['sotg_questions'] != 'none') {
+			if (League::hasSpirit($division)) {
 				echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('spirit_32.png',
 					array('action' => 'spirit', 'division' => $division['Division']['id']),
 					array('alt' => __('Spirit', true), 'title' => __('See Division Spirit Report', true))));

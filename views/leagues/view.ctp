@@ -69,7 +69,7 @@ $this->Html->addCrumb (__('View', true));
 				echo $this->ZuluruHtml->iconLink('schedule_add_32.png',
 					array('controller' => 'divisions', 'controller' => 'schedules', 'action' => 'add', 'division' => $division['id']),
 					array('alt' => __('Add Games', true), 'title' => __('Add Games', true)));
-				if ($league['League']['numeric_sotg'] || $league['League']['sotg_questions'] != 'none') {
+				if (League::hasSpirit($league)) {
 					echo $this->ZuluruHtml->iconLink('spirit_32.png',
 						array('controller' => 'divisions', 'action' => 'spirit', 'division' => $division['id']),
 						array('alt' => __('Spirit', true), 'title' => __('See Division Spirit Report', true)));

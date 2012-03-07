@@ -183,5 +183,14 @@ class League extends AppModel {
 
 		return $a_league['id'] > $b_league['id'];
 	}
+
+	static function hasSpirit($league) {
+		if (array_key_exists('League', $league)) {
+			$league = $league['League'];
+		} else if (array_key_exists('Division', $league) && array_key_exists('League', $league['Division'])) {
+			$league = $league['Division']['League'];
+		}
+		return ($league['numeric_sotg'] || $league['sotg_questions'] != 'none');
+	}
 }
 ?>

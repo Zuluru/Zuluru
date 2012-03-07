@@ -70,7 +70,7 @@ foreach ($divisions as $division):
 				echo $this->ZuluruHtml->iconLink('schedule_add_24.png',
 					array('controller' => 'divisions', 'controller' => 'schedules', 'action' => 'add', 'division' => $division['Division']['id']),
 					array('alt' => __('Add Games', true), 'title' => __('Add Games', true)));
-				if ($division['League']['numeric_sotg'] || $division['League']['sotg_questions'] != 'none') {
+				if (League::hasSpirit($division)) {
 					echo $this->ZuluruHtml->iconLink('spirit_24.png',
 						array('controller' => 'divisions', 'action' => 'spirit', 'division' => $division['Division']['id']),
 						array('alt' => __('Spirit', true), 'title' => __('See Division Spirit Report', true)));

@@ -136,7 +136,7 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 
 		</dd>
 		<?php if (($is_admin || $is_coordinator || $game['Division']['League']['display_sotg'] != 'coordinator_only') &&
-			($game['Division']['League']['numeric_sotg'] || $game['Division']['League']['sotg_questions'] != 'none')): ?>
+			League::hasSpirit($game)): ?>
 		<dt><?php echo __('Spirit for', true) . ' ' . $this->Text->truncate ($game['HomeTeam']['name'], 18); ?></dt>
 		<dd>
 			<?php
@@ -230,7 +230,7 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 			}
 			?></td>
 		</tr>
-		<?php if ($game['Division']['League']['numeric_sotg'] || $game['Division']['League']['sotg_questions'] != 'none'): ?>
+		<?php if (League::hasSpirit($game)): ?>
 		<tr>
 			<td><?php __('Spirit Assigned'); ?></td>
 			<td><?php echo $this->element ('spirit/symbol', array(

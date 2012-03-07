@@ -178,7 +178,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 		}
 		?></td>
 	</tr>
-	<?php if ($game['Division']['League']['numeric_sotg'] || $game['Division']['League']['sotg_questions'] != 'none'): ?>
+	<?php if (League::hasSpirit($game)): ?>
 	<tr>
 		<td><?php __('Spirit Assigned'); ?></td>
 		<td><?php

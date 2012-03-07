@@ -24,7 +24,7 @@ if (count ($classes)) {
 		echo '-';
 	}
 	?></td>
-	<?php if ($division['League']['numeric_sotg'] || $division['League']['sotg_questions'] != 'none'): ?>
+	<?php if (League::hasSpirit($division)): ?>
 	<td><?php
 	if ($team['results']['games'] == 0) {
 		$spirit = null;
