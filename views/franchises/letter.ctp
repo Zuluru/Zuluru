@@ -21,7 +21,7 @@ echo implode ('&nbsp;&nbsp;', $links);
 <table class="list">
 <tr>
 	<th><?php __('Name');?></th>
-	<th><?php __('Owner');?></th>
+	<th><?php __('Owner(s)');?></th>
 	<th class="actions"><?php __('Actions');?></th>
 </tr>
 <?php
@@ -38,7 +38,13 @@ foreach ($franchises as $franchise):
 			<?php // TODO: Link to website, if any ?>
 		</td>
 		<td>
-			<?php echo $this->element('people/block', array('person' => $franchise['Person'])); ?>
+			<?php
+			$owners = array();
+			foreach ($franchise['Person'] as $person) {
+				$owners[] = $this->element('people/block', compact('person'));
+			}
+			echo implode(', ', $owners);
+			?>
 		</td>
 		<td class="actions">
 			<?php
@@ -50,8 +56,8 @@ foreach ($franchises as $franchise):
 					array('action' => 'add_team', 'franchise' => $franchise['Franchise']['id']),
 					array('alt' => __('Add Team', true), 'title' => __('Add Team', true)));
 				echo $this->ZuluruHtml->iconLink('move_24.png',
-					array('action' => 'transfer', 'franchise' => $franchise['Franchise']['id']),
-					array('alt' => __('Transfer', true), 'title' => __('Transfer Ownership', true)));
+					array('action' => 'add_owner', 'franchise' => $franchise['Franchise']['id']),
+					array('alt' => __('Add Owner', true), 'title' => __('Add an Owner', true)));
 			}
 			if ($is_admin) {
 				echo $this->ZuluruHtml->iconLink('delete_24.png',

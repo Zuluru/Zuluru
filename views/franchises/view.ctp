@@ -7,9 +7,15 @@ $this->Html->addCrumb (__('View', true));
 <div class="franchises view">
 <h2><?php  echo __('View Franchise', true) . ': ' . $franchise['Franchise']['name'];?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Owner'); ?></dt>
+		<?php
+		$owners = array();
+		foreach ($franchise['Person'] as $person) {
+			$owners[] = $this->element('people/block', compact('person'));
+		}
+		?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __(count($owners) > 1 ? 'Owners' : 'Owner'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $this->element('people/block', array('person' => $franchise['Person'])); ?>
+			<?php echo implode(', ', $owners); ?>
 
 		</dd>
 		<?php if (!empty ($franchise['Franchise']['website'])):?>
@@ -34,8 +40,8 @@ $this->Html->addCrumb (__('View', true));
 				array('action' => 'add_team', 'franchise' => $franchise['Franchise']['id']),
 				array('alt' => __('Add Team', true), 'title' => __('Add Team', true))));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('move_32.png',
-				array('action' => 'transfer', 'franchise' => $franchise['Franchise']['id']),
-				array('alt' => __('Transfer', true), 'title' => __('Transfer Ownership', true))));
+				array('action' => 'add_owner', 'franchise' => $franchise['Franchise']['id']),
+				array('alt' => __('Add Owner', true), 'title' => __('Add an Owner', true))));
 		}
 		if ($is_admin) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('delete_32.png',

@@ -3,10 +3,6 @@ class Franchise extends AppModel {
 	var $name = 'Franchise';
 	var $displayField = 'name';
 	var $order = 'Franchise.name';
-	var $actsAs = array('WhoDidIt' => array(
-		'created_by_field' => 'person_id',
-		'auto_bind' => false,
-	));
 
 	var $validate = array(
 		'name' => array(
@@ -28,17 +24,22 @@ class Franchise extends AppModel {
 		),
 	);
 
-	var $belongsTo = array(
+	var $hasAndBelongsToMany = array(
 		'Person' => array(
 			'className' => 'Person',
-			'foreignKey' => 'person_id',
+			'joinTable' => 'franchises_people',
+			'foreignKey' => 'franchise_id',
+			'associationForeignKey' => 'person_id',
+			'unique' => true,
 			'conditions' => '',
 			'fields' => '',
-			'order' => ''
-		)
-	);
-
-	var $hasAndBelongsToMany = array(
+			'order' => '',
+			'limit' => '',
+			'offset' => '',
+			'finderQuery' => '',
+			'deleteQuery' => '',
+			'insertQuery' => ''
+		),
 		'Team' => array(
 			'className' => 'Team',
 			'joinTable' => 'franchises_teams',
@@ -57,22 +58,16 @@ class Franchise extends AppModel {
 		)
 	);
 
-	function readByPlayerId($id) {
+	function readByPlayerId($id, $conditions = array()) {
 		// Check for invalid users
 		if ($id === null) {
 			return array();
 		}
 
-		$conditions = array(
-			'Franchise.person_id' => $id,
-		);
+		$this->Person->contain(array('Franchise' => compact('conditions')));
+		$person = $this->Person->read(null, $id);
 
-		$this->contain();
-		$franchises = $this->find('all', array(
-				'conditions' => $conditions,
-		));
-
-		return $franchises;
+		return $person['Franchise'];
 	}
 }
 ?>

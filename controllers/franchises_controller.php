@@ -24,7 +24,7 @@ class FranchisesController extends AppController {
 		if (in_array ($this->params['action'], array(
 				'edit',
 				'delete',
-				'transfer',
+				'add_owner',
 				'remove_team',
 		)))
 		{
@@ -115,7 +115,8 @@ class FranchisesController extends AppController {
 	function add() {
 		if (!empty($this->data)) {
 			$this->Franchise->create();
-			if ($this->Franchise->save($this->data)) {
+			$this->data['Person'] = array($this->Auth->User('id'));
+			if ($this->Franchise->saveAll($this->data)) {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('franchise', true)), 'default', array('class' => 'success'));
 				$this->_deleteFranchiseSessionData();
 				$this->redirect(array('action' => 'index'));
@@ -286,7 +287,7 @@ class FranchisesController extends AppController {
 		$this->redirect(array('action' => 'view', 'franchise' => $id));
 	}
 
-	function transfer() {
+	function add_owner() {
 		$id = $this->_arg('franchise');
 		if (!$id && empty($this->data)) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
@@ -301,13 +302,20 @@ class FranchisesController extends AppController {
 		$this->set(compact('franchise'));
 
 		$person_id = $this->_arg('person');
-		if ($person_id) {
-			if ($this->Franchise->saveField('person_id', $person_id)) {
-				$this->Session->setFlash(__('Ownership of the franchise has been transferred', true), 'default', array('class' => 'success'));
-				$this->_deleteFranchiseSessionData();
-				$this->redirect(array('action' => 'index'));
+		if ($person_id != null) {
+			$this->Franchise->Person->contain(array('Franchise' => array('conditions' => array('Franchise.id' => $id))));
+			$person = $this->Franchise->Person->read(null, $person_id);
+			if (!empty ($person['Franchise'])) {
+				$this->Session->setFlash(__("{$person['Person']['full_name']} is already an owner of this franchise", true), 'default', array('class' => 'info'));
 			} else {
-				$this->Session->setFlash(__('The franchise could not be transferred.', true), 'default', array('class' => 'warning'));
+				$franchise['Person'] = Set::extract ('/Person/id', $franchise);
+				$franchise['Person'][] = $person['Person']['id'];
+				if ($this->Franchise->saveAll ($franchise)) {
+					$this->Session->setFlash(__("Added {$person['Person']['full_name']} as owner", true), 'default', array('class' => 'success'));
+					$this->redirect(array('action' => 'view', 'franchise' => $id));
+				} else {
+					$this->Session->setFlash(__("Failed to add {$person['Person']['full_name']} as owner", true), 'default', array('class' => 'warning'));
+				}
 			}
 		}
 

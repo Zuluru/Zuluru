@@ -551,7 +551,8 @@ class AppController extends Controller {
 		}
 
 		$franchises = $this->Session->read('Zuluru.Franchises');
-		if (empty($franchises)) {
+		// TODO: Remove this temporary check for single-owner formatted franchise data
+		if (empty($franchises) || array_key_exists('Franchise', $franchises[0])) {
 			if (!isset ($this->Franchise)) {
 				if (!class_exists ('Franchise')) {
 					App::import ('Model', 'Franchise');
@@ -561,7 +562,7 @@ class AppController extends Controller {
 			$franchises = $this->Franchise->readByPlayerId ($my_id, true, true);
 
 			$this->Session->write ('Zuluru.Franchises', $franchises);
-			$this->Session->write ('Zuluru.FranchiseIDs', Set::extract ('/Franchise/id', $franchises));
+			$this->Session->write ('Zuluru.FranchiseIDs', Set::extract ('/id', $franchises));
 		}
 
 		$divisions = $this->Session->read('Zuluru.Divisions');
@@ -670,13 +671,13 @@ class AppController extends Controller {
 	 * Add all the links for a franchise to the menu.
 	 */
 	function _addFranchiseMenuItems($franchise) {
-		$this->_addMenuItem ($franchise['Franchise']['name'], array('controller' => 'franchises', 'action' => 'view', 'franchise' => $franchise['Franchise']['id']), array('Teams', 'Franchises'), "{$franchise['Franchise']['name']}::{$franchise['Franchise']['id']}");
-		$is_owner = in_array($franchise['Franchise']['id'], $this->Session->read('Zuluru.FranchiseIDs'));
+		$this->_addMenuItem ($franchise['name'], array('controller' => 'franchises', 'action' => 'view', 'franchise' => $franchise['id']), array('Teams', 'Franchises'), "{$franchise['name']}::{$franchise['id']}");
+		$is_owner = in_array($franchise['id'], $this->Session->read('Zuluru.FranchiseIDs'));
 		if ($this->is_admin || $is_owner) {
-			$this->_addMenuItem ('Edit', array('controller' => 'franchises', 'action' => 'edit', 'franchise' => $franchise['Franchise']['id']), array('Teams', 'Franchises', "{$franchise['Franchise']['name']}::{$franchise['Franchise']['id']}"));
-			$this->_addMenuItem ('Add team', array('controller' => 'franchises', 'action' => 'add_team', 'franchise' => $franchise['Franchise']['id']), array('Teams', 'Franchises', "{$franchise['Franchise']['name']}::{$franchise['Franchise']['id']}"));
-			$this->_addMenuItem ('Transfer ownership', array('controller' => 'franchises', 'action' => 'transfer', 'franchise' => $franchise['Franchise']['id']), array('Teams', 'Franchises', "{$franchise['Franchise']['name']}::{$franchise['Franchise']['id']}"));
-			$this->_addMenuItem ('Delete', array('controller' => 'franchises', 'action' => 'delete', 'franchise' => $franchise['Franchise']['id']), array('Teams', 'Franchises', "{$franchise['Franchise']['name']}::{$franchise['Franchise']['id']}"));
+			$this->_addMenuItem ('Edit', array('controller' => 'franchises', 'action' => 'edit', 'franchise' => $franchise['id']), array('Teams', 'Franchises', "{$franchise['name']}::{$franchise['id']}"));
+			$this->_addMenuItem ('Add Team', array('controller' => 'franchises', 'action' => 'add_team', 'franchise' => $franchise['id']), array('Teams', 'Franchises', "{$franchise['name']}::{$franchise['id']}"));
+			$this->_addMenuItem ('Add an Owner', array('controller' => 'franchises', 'action' => 'add_owner', 'franchise' => $franchise['id']), array('Teams', 'Franchises', "{$franchise['name']}::{$franchise['id']}"));
+			$this->_addMenuItem ('Delete', array('controller' => 'franchises', 'action' => 'delete', 'franchise' => $franchise['id']), array('Teams', 'Franchises', "{$franchise['name']}::{$franchise['id']}"));
 		}
 	}
 

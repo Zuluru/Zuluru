@@ -137,6 +137,21 @@ class Person extends User {
 			'deleteQuery' => '',
 			'insertQuery' => ''
 		),
+		'Franchise' => array(
+			'className' => 'Franchise',
+			'joinTable' => 'franchises_people',
+			'foreignKey' => 'person_id',
+			'associationForeignKey' => 'franchise_id',
+			'unique' => true,
+			'conditions' => '',
+			'fields' => '',
+			'order' => '',
+			'limit' => '',
+			'offset' => '',
+			'finderQuery' => '',
+			'deleteQuery' => '',
+			'insertQuery' => ''
+		),
 		'Team' => array(
 			'className' => 'Team',
 			'joinTable' => 'teams_people',

@@ -59,7 +59,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 					$division = $event['Event'];
 				}
 				$this->_controller->Team->Division->addPlayoffs($division);
-				$conditions = array('Franchise.person_id' => $user_id);
+				$conditions = array();
 
 				// Possibly narrow the list of possible franchises to those that are represented
 				// in the configured divisions
@@ -72,9 +72,8 @@ class EventTypeTeamComponent extends EventTypeComponent
 					$conditions['Franchise.id'] = $franchise_ids;
 				}
 
-				$franchises = $this->_controller->Team->Franchise->find('list', array(
-						'conditions' => $conditions,
-				));
+				$franchises = $this->_controller->Team->Franchise->readByPlayerId($user_id, $conditions);
+				$franchises = Set::combine($franchises, '{n}.id', '{n}.name');
 
 				// Teams added to playoff divisions must be in pre-existing franchises
 				if ($division['Division']['is_playoff']) {
@@ -251,9 +250,13 @@ class EventTypeTeamComponent extends EventTypeComponent
 				// We may need to create a new franchise record
 				if ($franchise == -1) {
 					$this->_controller->Team->Franchise->create();
-					if (!$this->_controller->Team->Franchise->save (array(
-						'name' => $team['name'],
-						'person_id' => $captain_id,
+					if (!$this->_controller->Team->Franchise->saveAll (array(
+						'Franchise' => array(
+							'name' => $team['name'],
+						),
+						'Person' => array(
+							$captain_id,
+						),
 					)))
 					{
 						// TODO: Some way to return the validation error, giving the user a better error message
