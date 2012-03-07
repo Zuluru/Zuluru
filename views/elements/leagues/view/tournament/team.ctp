@@ -12,7 +12,7 @@ if (count ($classes)) {
 	echo $this->element('teams/block', array('team' => $team));
 	?></td>
 	<?php if ($division['Division']['is_playoff']): ?>
-	<td><?php echo $team['affiliate_division']; ?></td>
+	<td><?php if (!empty($team['affiliate_division'])) echo $team['affiliate_division']; ?></td>
 	<?php endif; ?>
 	<?php if ($is_logged_in): ?>
 	<td><?php
