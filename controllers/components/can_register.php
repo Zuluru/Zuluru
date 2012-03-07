@@ -6,7 +6,7 @@ class CanRegisterComponent extends Object
 		$this->controller =& $controller;
 	}
 
-	function test($user_id, $event) {
+	function test($user_id, $event, $ignore_date = false) {
 		if (!isset ($this->Html)) {
 			App::import ('helper', 'Html');
 			$this->Html = new HtmlHelper();
@@ -108,7 +108,7 @@ class CanRegisterComponent extends Object
 
 		// If there is a preregistration record, we ignore open and close times.
 		$prereg = Set::extract ("/Preregistration[event_id={$event['Event']['id']}]", $this->person);
-		if (empty ($prereg)) {
+		if (empty ($prereg) && !$ignore_date) {
 			// Admins can test registration before it opens...
 			if (!$this->controller->is_admin) {
 				if (strtotime ($event['Event']['open']) > time()) {
