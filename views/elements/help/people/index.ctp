@@ -4,7 +4,7 @@ echo $this->element('help/topics', array(
 		'topics' => array(
 			'searching',
 			'preferences',
-			'upload_photo' => 'Player Photos',
+			'photo_upload' => 'Player Photos',
 			'skill_level',
 		),
 ));

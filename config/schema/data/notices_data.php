@@ -87,7 +87,7 @@ class NoticesData {
 		array(
 			'display_to' => 'player',
 			'repeat' => null,
-			'notice' => '<h2>Did you know?</h2><p>You can upload a photo of yourself! Captains often use photos to figure out who they want to nominate as an all-star or draft or recruit for their team.</p><p>Go to <%link people upload_photo My Profile -> Upload Photo %> to get started.</p>',
+			'notice' => '<h2>Did you know?</h2><p>You can upload a photo of yourself! Captains often use photos to figure out who they want to nominate as an all-star or draft or recruit for their team.</p><p>Go to <%link people photo_upload My Profile -> Upload Photo %> to get started.</p>',
 			'active' => 1,
 			'effective_date' => '2011-10-27 00:00:00',
 			'created' => '2011-10-27 00:00:00',

@@ -11,7 +11,7 @@ Clicking that icon will bring up the pop-up, and clicking it again will hide it.
 			'section' => 'people',
 			'topics' => array(
 				'preferences',
-				'upload_photo' => 'Player Photos',
+				'photo_upload' => 'Player Photos',
 				'skill_level',
 			),
 			'compact' => true,
