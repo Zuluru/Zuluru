@@ -169,7 +169,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 				if (!$for_edit) {
 					$validation['q' . FRANCHISE_ID]['unique'] = array(
 						'rule' => array('franchise_unique'),
-						'message' => array('answer_id' => 'New franchises are created with the same name as the team, but there is already a franchise with this name. To add this team to that franchise, you must be the franchise owner, which may require that the current owner transfer ownership to you.'),
+						'message' => array('answer_id' => 'New franchises are created with the same name as the team, but there is already a franchise with this name. To add this team to that franchise, you must be the franchise owner, which may require that the current owner add you as an owner.'),
 					);
 				}
 			}
