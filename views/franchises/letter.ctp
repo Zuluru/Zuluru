@@ -1,6 +1,6 @@
 <?php
 $this->Html->addCrumb (__('Franchises', true));
-$this->Html->addCrumb (sprintf(__('Starting with %', true), $letter));
+$this->Html->addCrumb (sprintf(__('Starting with %s', true), $letter));
 ?>
 
 <div class="franchises index">
