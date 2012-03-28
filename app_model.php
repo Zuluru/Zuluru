@@ -423,7 +423,11 @@ class AppModel extends Model {
 
 		// -1 means make a new one with the same name as the team
 		if ($value != -1) {
-			return $this->inquery ($check, 'Franchise', 'id', array('person_id' => $owner));
+			$franchise_obj = ClassRegistry::init('Franchise');
+			$franchise_obj->contain('Person');
+			$franchise = $franchise_obj->read(null, $value);
+			$owners = Set::extract('/Person/id', $franchise);
+			return in_array($owner, $owners);
 		}
 
 		return true;
