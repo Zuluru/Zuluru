@@ -5,17 +5,19 @@ if (empty($comment)):
 else:
 ?>added the following comment to <?php
 endif;
-?>their attendance at the <?php echo $team['name']; ?> game<?php
+?>their attendance at the <?php
+$url = Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']), true);
+echo $this->Html->link($team['name'], $url);
+?> game<?php
 if (isset($game)) {
+	$url = Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => $opponent['id']), true);
+	echo ' against ' . $this->Html->link($opponent['name'], $url);
+
 	$url = Router::url(array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id']), true);
-	echo ' against ' . $opponent['name'] .
-		' at ' . $this->Html->link($game['GameSlot']['Field']['long_name'], $url) .
-		' starting at ' . $this->ZuluruTime->time($game['GameSlot']['game_start']);
-	$arg = 'game';
-	$val = $game['Game']['id'];
-} else {
-	$arg = 'date';
-	$val = $date;
+	echo ' at ' . $this->Html->link($game['GameSlot']['Field']['long_name'], $url);
+
+	$url = Router::url(array('controller' => 'games', 'action' => 'view', 'game' => $game['Game']['id']), true);
+	echo ' starting at ' . $this->Html->link($this->ZuluruTime->time($game['GameSlot']['game_start']), $url);
 }
 ?> on <?php
 echo $this->ZuluruTime->date($date);

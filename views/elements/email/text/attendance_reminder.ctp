@@ -28,6 +28,12 @@ echo Router::url(array('controller' => 'games', 'action' => 'attendance_change',
 ?>
 
 
+Note that you can set your attendance in advance, giving your captain advance notice of vacations or other planned absences. You need to be logged into the website to update this.
+<?php
+echo Router::url(array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['id']), true);
+?>
+
+
 Thanks,
 <?php echo Configure::read('email.admin_name'); ?>
 

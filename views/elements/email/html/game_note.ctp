@@ -1,5 +1,10 @@
 <p><?php echo $person['full_name']; ?> has added a note about the <?php
-echo $team['Team']['name']; ?> game against <?php echo $opponent['name']; ?> at <?php
+$url = Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']), true);
+echo $this->Html->link($team['Team']['name'], $url);
+?> game against <?php
+$url = Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => $opponent['id']), true);
+echo $this->Html->link($opponent['name'], $url);
+?> at <?php
 $url = Router::url(array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id']), true);
 echo $this->Html->link($game['GameSlot']['Field']['long_name'], $url);
 ?> starting at <?php

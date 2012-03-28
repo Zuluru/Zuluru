@@ -1,12 +1,20 @@
 <p>Dear <?php echo $person['first_name']; ?>,</p>
 <p><?php echo $captain; ?> has indicated that you are <?php
 echo Configure::read("attendance_verb.$status");
-?> the <?php echo $team['name']; ?> game<?php
+?> the <?php
+$url = Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']), true);
+echo $this->Html->link($team['name'], $url);
+?> game<?php
 if (isset($game)) {
+	$url = Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => $opponent['id']), true);
+	echo ' against ' . $this->Html->link($opponent['name'], $url);
+
 	$url = Router::url(array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id']), true);
-	echo ' against ' . $opponent['name'] .
-		' at ' . $this->Html->link($game['GameSlot']['Field']['long_name'], $url) .
-		' starting at ' . $this->ZuluruTime->time($game['GameSlot']['game_start']);
+	echo ' at ' . $this->Html->link($game['GameSlot']['Field']['long_name'], $url);
+
+	$url = Router::url(array('controller' => 'games', 'action' => 'view', 'game' => $game['Game']['id']), true);
+	echo ' starting at ' . $this->Html->link($this->ZuluruTime->time($game['GameSlot']['game_start']), $url);
+
 	$arg = 'game';
 	$val = $game['Game']['id'];
 } else {
@@ -32,12 +40,11 @@ $url_array = array(
 foreach (Configure::read('attendance_verb') as $check_status => $check_verb):
 	if ($status != $check_status && array_key_exists($check_status, $player_options)):
 ?>
-<p>If you are <?php echo $check_verb; ?> this game:
-<?php
+<p>If you are <?php echo $check_verb; ?> this game, <?php
 $url_array['status'] = $check_status;
 $url = Router::url($url_array, true);
-echo $this->Html->link($url, $url);
-?></p>
+echo $this->Html->link(__('click here', true), $url);
+?>.</p>
 <?php
 	endif;
 endforeach;

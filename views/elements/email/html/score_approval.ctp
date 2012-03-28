@@ -1,8 +1,14 @@
 <p>Dear <?php echo $captains; ?>,</p>
 <p>You have not submitted a score for the game between your team <?php
-echo $team['name']; ?> and <?php
-echo $opponent['name']; ?>, starting at <?php
-echo $this->ZuluruTime->time($game['GameSlot']['game_start']); ?> on <?php
+$url = Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']), true);
+echo $this->Html->link($team['name'], $url);
+?> and <?php
+$url = Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => $opponent['id']), true);
+echo $this->Html->link($opponent['name'], $url);
+?>, starting at <?php
+$url = Router::url(array('controller' => 'games', 'action' => 'view', 'game' => $game['Game']['id']), true);
+echo $this->Html->link($this->ZuluruTime->time($game['GameSlot']['game_start']), $url);
+?> on <?php
 echo $this->ZuluruTime->date($game['GameSlot']['game_date']);
 ?> in <?php echo $division['full_league_name']; ?>.</p>
 <p>Scores need to be submitted in a timely fashion by both captains to substantiate results and for optimal scheduling of future games. Your opponent's submission for this game has now been accepted and they have been given a perfect spirit score as a result of their timely submission.</p>

@@ -5,7 +5,12 @@ if (empty($comment)):
 else:
 ?>added the following comment to <?php
 endif;
-?>their attendance at the <?php echo $team['name']; ?> event "<?php echo $event['TeamEvent']['name'];
+?>their attendance at the <?php
+$url = Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']), true);
+echo $this->Html->link($team['name'], $url);
+?> event "<?php
+$url = Router::url(array('controller' => 'team_events', 'action' => 'view', 'event' => $event['TeamEvent']['id']), true);
+echo $this->Html->link($event['TeamEvent']['name'], $url);
 ?>" at <?php echo $event['TeamEvent']['location_name'];
 $address = "{$event['TeamEvent']['location_street']}, {$event['TeamEvent']['location_city']}, {$event['TeamEvent']['location_province']}";
 $link_address = strtr ($address, ' ', '+');

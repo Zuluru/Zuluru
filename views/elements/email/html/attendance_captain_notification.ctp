@@ -2,12 +2,20 @@
 <p><?php echo $person['full_name']; ?> has indicated that <?php
 echo ($person['gender'] == 'Male' ? 'he' : 'she'); ?> will be <?php
 echo Configure::read("attendance_verb.$status");
-?> the <?php echo $team['name']; ?> game<?php
+?> the <?php
+$url = Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']), true);
+echo $this->Html->link($team['name'], $url);
+?> game<?php
 if (isset($game)) {
+	$url = Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => $opponent['id']), true);
+	echo ' against ' . $this->Html->link($opponent['name'], $url);
+
 	$url = Router::url(array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id']), true);
-	echo ' against ' . $opponent['name'] .
-		' at ' . $this->Html->link($game['GameSlot']['Field']['long_name'], $url) .
-		' starting at ' . $this->ZuluruTime->time($game['GameSlot']['game_start']);
+	echo ' at ' . $this->Html->link($game['GameSlot']['Field']['long_name'], $url);
+
+	$url = Router::url(array('controller' => 'games', 'action' => 'view', 'game' => $game['Game']['id']), true);
+	echo ' starting at ' . $this->Html->link($this->ZuluruTime->time($game['GameSlot']['game_start']), $url);
+
 	$arg = 'game';
 	$val = $game['Game']['id'];
 } else {

@@ -2,7 +2,9 @@
 <p><?php echo $person['full_name']; ?> has indicated that <?php
 echo ($person['gender'] == 'Male' ? 'he' : 'she'); ?> will be <?php
 echo Configure::read("event_attendance_verb.$status");
-?> the <?php echo $team['name']; ?> event "<?php echo $event['TeamEvent']['name'];
+?> the <?php echo $team['name']; ?> event "<?php
+$url = Router::url(array('controller' => 'team_events', 'action' => 'view', 'event' => $event['TeamEvent']['id']), true);
+echo $this->Html->link($event['TeamEvent']['name'], $url);
 ?>" at <?php echo $event['TeamEvent']['location_name'];
 $address = "{$event['TeamEvent']['location_street']}, {$event['TeamEvent']['location_city']}, {$event['TeamEvent']['location_province']}";
 $link_address = strtr ($address, ' ', '+');
