@@ -10,7 +10,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
  * @see HtmlPlusHelper::buffer()
  * @access private
  */
-    var $__bufferedHtml = array();
+	var $__bufferedHtml = array();
 
 	/**
 	 * Extend the default link function by allowing for shortening link titles.
@@ -85,7 +85,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 	 * Create links from images.
 	 */
 	function imageLink($img, $url, $imgOptions = array(), $urlOptions = array(), $confirmMessage = false) {
-		return parent::link (parent::image ($img, $imgOptions),
+		return $this->link (parent::image ($img, $imgOptions),
 							$url, array_merge (array('escape' => false), $urlOptions), $confirmMessage);
 	}
 
@@ -116,7 +116,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 	 * Create links from icons.
 	 */
 	function iconLink($img, $url, $imgOptions = array(), $urlOptions = array(), $confirmMessage = false) {
-		return parent::link ($this->icon ($img, $imgOptions),
+		return $this->link ($this->icon ($img, $imgOptions),
 							$url, array_merge (array('escape' => false), $urlOptions), $confirmMessage);
 	}
 
@@ -182,9 +182,9 @@ function show_help(id, link) {
 		return $help;
 	}
 
-    function buffer($html) {
-        $this->__bufferedHtml[] = $html;
-    }
+	function buffer($html) {
+		$this->__bufferedHtml[] = $html;
+	}
 
 /**
  * Get all the buffered HTML
@@ -193,13 +193,13 @@ function show_help(id, link) {
  * @return array Array of HTMLs added to the request.
  * @access public
  */
-    function getBuffer($clear = true) {
-        $buffer = $this->__bufferedHtml;
-        if ($clear) {
-            $this->__bufferedHtml = array();
-        }
-        return $buffer;
-    }
+	function getBuffer($clear = true) {
+		$buffer = $this->__bufferedHtml;
+		if ($clear) {
+			$this->__bufferedHtml = array();
+		}
+		return $buffer;
+	}
 }
 
 ?>
