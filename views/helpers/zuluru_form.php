@@ -72,10 +72,15 @@ class ZuluruFormHelper extends FormHelper {
 					$options['label'] = $text . ' ' . $help;
 				}
 			} else {
-				if (array_key_exists ('after', $options)) {
-					$options['after'] = $help . $options['after'];
+				if (array_key_exists ('multiple', $options) && $options['multiple'] == 'checkbox') {
+					$location = 'between';
 				} else {
-					$options['after'] = $help;
+					$location = 'after';
+				}
+				if (array_key_exists ($location, $options)) {
+					$options[$location] = $help . $options[$location];
+				} else {
+					$options[$location] = $help;
 				}
 			}
 		}
