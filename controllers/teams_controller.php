@@ -1619,9 +1619,9 @@ class TeamsController extends AppController {
 		}
 
 		// Non-captains are not allowed to promote themselves to captainly roles
-		unset ($roster_options['captain']);
-		unset ($roster_options['coach']);
-		unset ($roster_options['assistant']);
+		foreach (Configure::read('privileged_roster_positions') as $cap) {
+			unset ($roster_options[$cap]);
+		}
 
 		switch ($position) {
 			case 'substitute':
