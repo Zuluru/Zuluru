@@ -271,11 +271,12 @@ class SchedulesController extends AppController {
 		$num_fields = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams(), $this->data['Game']['overflow_type']);
 		if (is_array(current($num_fields))) {
 			$temp = array();
-			while (!empty($num_fields)) {
-				foreach (array_keys($num_fields) as $key) {
-					$temp[] = array_shift($num_fields[$key]);
-					if (empty($num_fields[$key])) {
-						unset($num_fields[$key]);
+			foreach ($num_fields as $rounds) {
+				foreach ($rounds as $round => $required) {
+					if (!array_key_exists($round, $temp)) {
+						$temp[$round] = $required;
+					} else {
+						$temp[$round] += $required;
 					}
 				}
 			}

@@ -694,9 +694,12 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 
 	function assignFieldsByRound() {
 		uasort($this->games, array($this, 'sortByRound'));
+		$rounds = count(array_unique(Set::extract('/round', $this->games)));
+		$dates = count(array_unique(Set::extract("/DivisionGameslotAvailability/GameSlot[game_date>={$this->start_date}]/game_date", $this->division)));
+		$separate_days = ($rounds <= $dates);
 
 		foreach ($this->games as $key => $game) {
-			$game_slot_id = $this->selectRoundGameslot($this->start_date, $game['round']);
+			$game_slot_id = $this->selectRoundGameslot($this->start_date, $game['round'], $separate_days);
 			if ($game_slot_id === false) {
 				return false;
 			}
@@ -709,7 +712,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		return true;
 	}
 
-	function selectRoundGameslot($date, $round) {
+	function selectRoundGameslot($date, $round, $separate_days) {
 		if (is_numeric ($date)) {
 			$date = date('Y-m-d', $date);
 		}
@@ -721,11 +724,14 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		}
 
 		// If we've gone to the next round, get rid of any unused slots in
-		// the same time as the last round
+		// the same time as the last round. If we have at least as many
+		// days as rounds, get rid of everything on the same day.
 		if ($round != $this->last_round) {
 			$this->last_round = $round;
 			foreach ($this->slots as $key => $slot) {
-				if ($slot['GameSlot']['game_date'] === $this->last_date && $slot['GameSlot']['game_start'] === $this->last_time) {
+				if ($slot['GameSlot']['game_date'] === $this->last_date &&
+					($separate_days || $slot['GameSlot']['game_start'] === $this->last_time))
+				{
 					unset ($this->slots[$key]);
 				}
 			}
