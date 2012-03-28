@@ -32,9 +32,11 @@ $this->Html->addCrumb ("{$person['Person']['first_name']} {$person['Person']['la
 		),
 	));
 
+	$now = time() - Configure::read('timezone.adjust') * 60;
+
 	$options = array('' => 'use system default');
 	foreach (Configure::read('options.date_formats') as $format) {
-		$options[$format] = date($format);
+		$options[$format] = date($format, $now);
 	}
 	echo $this->element('settings/input', array(
 		'person_id' => $id,
@@ -49,7 +51,7 @@ $this->Html->addCrumb ("{$person['Person']['first_name']} {$person['Person']['la
 
 	$options = array('' => 'use system default');
 	foreach (Configure::read('options.day_formats') as $format) {
-		$options[$format] = date($format);
+		$options[$format] = date($format, $now);
 	}
 	echo $this->element('settings/input', array(
 		'person_id' => $id,
@@ -64,7 +66,7 @@ $this->Html->addCrumb ("{$person['Person']['first_name']} {$person['Person']['la
 
 	$options = array('' => 'use system default');
 	foreach (Configure::read('options.time_formats') as $format) {
-		$options[$format] = date($format);
+		$options[$format] = date($format, $now);
 	}
 	echo $this->element('settings/input', array(
 		'person_id' => $id,
