@@ -162,9 +162,15 @@ class EventTypeTeamComponent extends EventTypeComponent
 			);
 
 			if (Configure::read('feature.franchises')) {
-				$validation['q' . FRANCHISE_ID]['owner'] = array(
-					'rule' => array('franchise_owner', $this->_controller->Auth->user('id'), $this->_controller->is_admin),
-					'message' => array('answer_id' => 'That franchise does not belong to you.'),
+				$validation['q' . FRANCHISE_ID] = array(
+					'notempty' => array(
+						'rule' => array('response', 'notempty'),
+						'message' => array('answer_id' => 'Select one.'),
+					),
+					'owner' => array(
+						'rule' => array('franchise_owner', $this->_controller->Auth->user('id'), $this->_controller->is_admin),
+						'message' => array('answer_id' => 'That franchise does not belong to you.'),
+					),
 				);
 				if (!$for_edit) {
 					$validation['q' . FRANCHISE_ID]['unique'] = array(

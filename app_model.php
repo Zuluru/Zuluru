@@ -351,7 +351,11 @@ class AppModel extends Model {
 		// have to extract the value to make the function generic
 		$value = array_values($check);
 		$value = $value[0];
-		$value = $value['answer'];
+		if (array_key_exists('answer', $value)) {
+			$value = $value['answer'];
+		} else {
+			$value = $value['answer_id'];
+		}
 
 		$Validation =& Validation::getInstance();
 		if (method_exists($Validation, $rule)) {
