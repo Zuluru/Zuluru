@@ -1253,6 +1253,7 @@ class PeopleController extends AppController {
 					'conditions' => array('type' => 'membership'),
 			));
 			$events = $this->Person->Registration->Event->find ('all', array(
+					'contain' => array(),
 					'conditions' => array('event_type_id' => $types)
 			));
 
@@ -1261,7 +1262,7 @@ class PeopleController extends AppController {
 			$now = time();
 
 			$emailed = 0;
-			$activity = array();
+			$log = ClassRegistry::init ('ActivityLog');
 
 			foreach ($events as $event) {
 				if (array_key_exists('membership_begins', $event['Event']) &&
@@ -1271,10 +1272,12 @@ class PeopleController extends AppController {
 					$this->set(compact('event'));
 
 					$people = $this->Person->find ('all', array(
+							'contain' => array(),
 							'conditions' => array(
 								array("Person.id IN (SELECT DISTINCT person_id FROM registrations WHERE event_id = {$event['Event']['id']} AND payment = 'Paid')"),
 								array("Person.id NOT IN (SELECT person_id FROM activity_logs WHERE type = 'email_membership_letter' AND custom = $year)"),
 							),
+							'limit' => 100,
 					));
 
 					foreach ($people as $person) {
@@ -1287,11 +1290,13 @@ class PeopleController extends AppController {
 								'sendAs' => 'both',
 						)))
 						{
-							$activity[] = array(
+							// Update the activity log
+							$log->create();
+							$log->save(array(
 								'type' => 'email_membership_letter',
 								'custom' => $year,
 								'person_id' => $person['Person']['id'],
-							);
+							));
 							++ $emailed;
 						}
 					}
@@ -1299,9 +1304,6 @@ class PeopleController extends AppController {
 			}
 
 			$this->set(compact ('emailed'));
-			// Update the activity log
-			$log = ClassRegistry::init ('ActivityLog');
-			$log->saveAll ($activity);
 		}
 
 		$this->Lock->unlock();
