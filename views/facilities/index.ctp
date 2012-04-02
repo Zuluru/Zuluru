@@ -28,7 +28,15 @@ Closing a facility closes all fields at that facility, and should only be done w
 <?php
 $i = 0;
 foreach ($regions as $region):
-	$ids = Set::extract('/Facility/Field/id', $region);
+	$ids = Set::extract('/Facility/id', $region);
+	if (!$is_admin) {
+		// We only want to list facilities without fields for administrators
+		foreach ($ids as $key => $id) {
+			if (!array_key_exists($id, $facilities_with_fields)) {
+				unset($ids[$key]);
+			}
+		}
+	}
 	if (empty($ids)) {
 		continue;
 	}
@@ -40,7 +48,7 @@ foreach ($regions as $region):
 	echo "<tr$class><td colspan='2'><h3>{$region['Region']['name']}</h3></td></tr>";
 
 	foreach ($region['Facility'] as $facility):
-		if (empty($facility['Field'])) {
+		if (empty($facility['Field']) && (!$is_admin || array_key_exists($facility['id'], $facilities_with_fields))) {
 			continue;
 		}
 
@@ -54,7 +62,11 @@ foreach ($regions as $region):
 			<?php echo $this->Html->link(__($facility['name'], true), array('controller' => 'facilities', 'action' => 'view', 'facility' => $facility['id'])); ?>
 		</td>
 		<td class="actions">
-			<?php echo $this->Html->link(__('Layout', true), array('controller' => 'maps', 'action' => 'view', 'field' => $facility['Field'][0]['id']), array('target' => '_new')); ?>
+			<?php
+			if (!empty($facility['Field'])) {
+				echo $this->Html->link(__('Layout', true), array('controller' => 'maps', 'action' => 'view', 'field' => $facility['Field'][0]['id']), array('target' => '_new'));
+			}
+			?>
 <?php if ($is_admin): ?>
 			<?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Facility', true)), array('controller' => 'facilities', 'action' => 'edit', 'facility' => $facility['id'])); ?>
 			<?php echo $this->Html->link(sprintf(__('Add %s', true), __('Field', true)), array('controller' => 'fields', 'action' => 'add', 'facility' => $facility['id'])); ?>

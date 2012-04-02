@@ -25,6 +25,9 @@ class FacilitiesController extends AppController {
 			),
 			'order' => 'Region.id',
 		)));
+		$this->set('facilities_with_fields', $this->Facility->Field->find('list', array(
+			'fields' => array('facility_id', 'id'),
+		)));
 		$this->set('closed', false);
 	}
 
@@ -42,6 +45,9 @@ class FacilitiesController extends AppController {
 				),
 			),
 			'order' => 'Region.id',
+		)));
+		$this->set('facilities_with_fields', $this->Facility->Field->find('list', array(
+			'fields' => array('facility_id', 'id'),
 		)));
 		$this->set('closed', true);
 		$this->render ('index');
