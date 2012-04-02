@@ -62,6 +62,9 @@ class AppController extends Controller {
 			$this->Configuration->load($this->Auth->user('id'));
 		}
 
+		// Set the theme, if any. Must be done before processing, in order for the theme to affect emails.
+		$this->theme = Configure::read('theme');
+
 		// Requests made through requestAction don't need any of the rest of this
 		if (array_key_exists('requested', $this->params) && $this->params['requested']) {
 			return;
@@ -120,9 +123,6 @@ class AppController extends Controller {
 		}
 
 		$this->_initMenu();
-
-		// Set the theme, if any. Must be done before processing, in order for the theme to affect emails.
-		$this->theme = Configure::read('theme');
 	}
 
 	function beforeRender() {
