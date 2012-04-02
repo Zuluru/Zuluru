@@ -1,10 +1,15 @@
+<?php
+$this->Html->addCrumb (__('Holidays', true));
+$this->Html->addCrumb (__('List', true));
+?>
+
 <div class="holidays index">
 	<h2><?php __('Holidays');?></h2>
-	<table cellpadding="0" cellspacing="0">
+	<table class="list">
 	<tr>
-			<th><?php echo $this->Paginator->sort('date');?></th>
-			<th><?php echo $this->Paginator->sort('name');?></th>
-			<th class="actions"><?php __('Actions');?></th>
+		<th><?php echo $this->Paginator->sort('date');?></th>
+		<th><?php echo $this->Paginator->sort('name');?></th>
+		<th class="actions"><?php __('Actions');?></th>
 	</tr>
 	<?php
 	$i = 0;
@@ -39,7 +44,6 @@
 	</div>
 </div>
 <div class="actions">
-	<h3><?php __('Actions'); ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link(__('New Holiday', true), array('action' => 'add')); ?></li>
 	</ul>
