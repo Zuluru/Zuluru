@@ -494,6 +494,7 @@ class PeopleController extends AppController {
 
 		if (!empty($this->data)) {
 			$this->data['Person']['complete'] = true;
+			$this->Person->data = array();
 			if ($this->Person->save($this->data)) {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('person', true)), 'default', array('class' => 'success'));
 
