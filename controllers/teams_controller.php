@@ -6,7 +6,7 @@ class TeamsController extends AppController {
 	var $components = array('Lock');
 
 	function publicActions() {
-		return array('cron', 'index', 'letter', 'view', 'tooltip', 'schedule', 'ical',
+		return array('cron', 'index', 'add', 'letter', 'view', 'tooltip', 'schedule', 'ical',
 			// Roster updates may come from emailed links; people might not be logged in
 			'roster_accept', 'roster_decline',
 		);
