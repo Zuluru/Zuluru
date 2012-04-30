@@ -14,12 +14,9 @@ class MapsController extends AppController {
 		} else {
 			$closed = false;
 		}
-		if ($closed) {
-			$conditions = array();
-		} else {
-			$conditions = array(
-				'Field.is_open' => true,
-			);
+		$conditions = array('Field.latitude !=' => NULL);
+		if (!$closed) {
+			$conditions['Field.is_open'] = true;
 		}
 
 		$regions = $this->Field->Facility->Region->find('all', array(
