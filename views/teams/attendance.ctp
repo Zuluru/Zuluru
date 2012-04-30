@@ -34,7 +34,7 @@ foreach ($event_attendance as $event) {
 		'event' => $event,
 		'header' => $this->ZuluruHtml->link ($event['TeamEvent']['name'],
 				array('controller' => 'team_events', 'action' => 'view', 'event' => $event['TeamEvent']['id']),
-				array('title' => $this->ZuluruTime->date($event['TeamEvent']['date']))
+				array('title' => $this->ZuluruTime->datetime("{$event['TeamEvent']['date']} {$event['TeamEvent']['start']}"))
 		),
 	);
 }
