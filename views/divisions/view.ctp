@@ -132,7 +132,7 @@ $this->Html->addCrumb (__('View', true));
 		<?php if ($is_admin): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Roster Rule'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-				<?php echo $this->Html->tag('pre', $division['Division']['roster_rule']); ?>
+				<?php echo $this->Html->tag('pre', $division['Division']['roster_rule'] . '&nbsp;'); ?>
 
 			</dd>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Roster Method'); ?></dt>
