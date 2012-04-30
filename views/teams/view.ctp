@@ -188,7 +188,7 @@ $this->Html->addCrumb (__('View', true));
 					array('alt' => __('Team Event', true), 'title' => __('Add a Team Event', true))));
 			}
 
-			if (in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs'))) {
+			if (in_array($my_id, Set::extract('/Person/id', $team))) {
 				echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('attendance_32.png',
 					array('action' => 'attendance', 'team' => $team['Team']['id']),
 					array('alt' => __('Attendance', true), 'title' => __('View Season Attendance Report', true))));
