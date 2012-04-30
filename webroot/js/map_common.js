@@ -126,6 +126,6 @@ function showParking(position)
 		'map':map,
 		'position':position,
 		'icon':icon,
-		'shadow':shadow,
+		'shadow':shadow
 	});
 }
