@@ -80,10 +80,7 @@ class GamesController extends AppController {
 		}
 
 		$contain = array (
-			'Division' => array(
-				'Person' => array('fields' => array('id', 'first_name', 'last_name', 'email')),
-				'League',
-			),
+			'Division' => array('League'),
 			'GameSlot' => array('Field' => 'Facility'),
 			// Get the list of captains for each team, we may need to email them
 			'HomeTeam' => array(
@@ -561,6 +558,7 @@ class GamesController extends AppController {
 		}
 
 		$this->Game->contain(array(
+			'Division' => array('League'),
 			'HomeTeam',
 			'AwayTeam',
 			'GameSlot' => array('Field' => 'Facility'),
