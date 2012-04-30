@@ -395,16 +395,21 @@ class AppModel extends Model {
 		$value = array_values($check);
 		$value = $value[0];
 
-		// Find the list of divisions in the same league
-		$division_obj = ClassRegistry::init('Division');
-		$division_obj->contain();
-		$division = $division_obj->read(null, $division_id);
-		$division_obj->addPlayoffs($division);
+		if ($division_id) {
+			// Find the list of divisions in the same league
+			$division_obj = ClassRegistry::init('Division');
+			$division_obj->contain();
+			$division = $division_obj->read(null, $division_id);
+			$division_obj->addPlayoffs($division);
+			$division_conditions = $division['Division']['sister_divisions'];
+		} else {
+			$division_conditions = $division_id;
+		}
 
 		$team_obj = ClassRegistry::init('Team');
 		$duplicate = $team_obj->find('count', array(
 			'conditions' => array(
-				'division_id' => $division['Division']['sister_divisions'],
+				'division_id' => $division_conditions,
 				'id !=' => $team_id,
 				'name' => $value,
 			),
