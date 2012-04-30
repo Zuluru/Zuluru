@@ -1905,7 +1905,7 @@ class TeamsController extends AppController {
 		if (!$this->_sendMail (array (
 				'to' => $captains,
 				'replyTo' => $person,
-				'subject' => "Request to join {$team['Team']['name']}",
+				'subject' => "{$person['Person']['full_name']} requested to join {$team['Team']['name']}",
 				'template' => 'roster_request',
 				'sendAs' => 'both',
 		)))
@@ -1927,7 +1927,7 @@ class TeamsController extends AppController {
 			if (!$this->_sendMail (array (
 					'to' => $captains,
 					'replyTo' => $person,
-					'subject' => "Invitation to join {$team['Team']['name']} was accepted",
+					'subject' => "{$person['Person']['full_name']} accepted your invitation to join {$team['Team']['name']}",
 					'template' => 'roster_accept_invite',
 					'sendAs' => 'both',
 			)))
@@ -1970,7 +1970,7 @@ class TeamsController extends AppController {
 				if (!$this->_sendMail (array (
 						'to' => $captains,
 						'replyTo' => $person,
-						'subject' => "Invitation to join {$team['Team']['name']} was declined",
+						'subject' => "{$person['Person']['full_name']} declined your invitation to join {$team['Team']['name']}",
 						'template' => 'roster_decline_invite',
 						'sendAs' => 'both',
 				)))
@@ -2035,7 +2035,7 @@ class TeamsController extends AppController {
 			if (!$this->_sendMail (array (
 					'to' => $captains,
 					'replyTo' => $person,
-					'subject' => "Change on {$team['Team']['name']} roster",
+					'subject' => "{$person['Person']['full_name']} position change on {$team['Team']['name']} roster",
 					'template' => 'roster_change_by_player',
 					'sendAs' => 'both',
 			)))
@@ -2079,7 +2079,7 @@ class TeamsController extends AppController {
 			if (!$this->_sendMail (array (
 					'to' => $captains,
 					'replyTo' => $person,
-					'subject' => "Removal from {$team['Team']['name']} roster",
+					'subject' => "{$person['Person']['full_name']} removed from {$team['Team']['name']} roster",
 					'template' => 'roster_remove_by_player',
 					'sendAs' => 'both',
 			)))
@@ -2256,7 +2256,7 @@ class TeamsController extends AppController {
 				if (!$this->_sendMail (array (
 						'to' => $captains,
 						'replyTo' => $person,
-						'subject' => "Unanswered invitation to join {$team['name']}",
+						'subject' => "{$person['full_name']} has not answered invitation to join {$team['name']}",
 						'template' => 'roster_invite_captain_reminder',
 						'sendAs' => 'both',
 						'ignore_empty_address' => true,
@@ -2269,7 +2269,7 @@ class TeamsController extends AppController {
 			if (!$this->_sendMail (array (
 					'to' => $captains,
 					'replyTo' => $person,
-					'subject' => "Reminder of request to join {$team['name']}",
+					'subject' => "Reminder of {$person['full_name']} request to join {$team['name']}",
 					'template' => 'roster_request_reminder',
 					'sendAs' => 'both',
 					'ignore_empty_address' => true,
@@ -2311,7 +2311,7 @@ class TeamsController extends AppController {
 					'to' => $captains,
 					'cc' => $person,
 					'replyTo' => $person,
-					'subject' => "Expired invitation to join {$team['name']}",
+					'subject' => "{$person['full_name']} invitation to join {$team['name']} expired",
 					'template' => 'roster_invite_expire',
 					'sendAs' => 'both',
 					'ignore_empty_address' => true,
@@ -2324,7 +2324,7 @@ class TeamsController extends AppController {
 					'to' => $person,
 					'cc' => $captains,
 					'replyTo' => $captains[0],
-					'subject' => "Expired request to join {$team['name']}",
+					'subject' => "{$person['full_name']} request to join {$team['name']} expired",
 					'template' => 'roster_request_expire',
 					'sendAs' => 'both',
 					'ignore_empty_address' => true,
