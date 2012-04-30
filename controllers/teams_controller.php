@@ -63,6 +63,14 @@ class TeamsController extends AppController {
 			if ($team && in_array ($team, $this->Session->read('Zuluru.TeamIDs'))) {
 				return true;
 			}
+			// Check past teams too
+			$count = $this->Team->TeamsPerson->find('count', array('conditions' => array(
+				'person_id' => $this->Auth->user('id'),
+				'team_id' => $team,
+			)));
+			if ($count) {
+				return true;
+			}
 		}
 
 		// People can perform these operations on divisions they coordinate
