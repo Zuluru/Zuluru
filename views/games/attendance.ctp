@@ -8,8 +8,14 @@ $this->Html->addCrumb ($this->ZuluruTime->date($game['GameSlot']['game_date']));
 <div class="games">
 <h2><?php  __('Attendance'); ?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo __('League', true) . '/' . __('Division', true); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo $this->Html->link($game['Division']['full_league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $game['Division']['id'])); ?>
+
+		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Game Date'); ?></dt>
-		<dd<?php if ($i++ % 2 == 0) echo $class;?>><?php echo $this->ZuluruTime->date($game['GameSlot']['game_date']); ?></dd>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>><?php echo $this->Html->link($this->ZuluruTime->date($game['GameSlot']['game_date']),
+			array('action' => 'view', 'game' => $game['Game']['id'])); ?></dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Game Time'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>><?php echo $this->ZuluruTime->time($game['GameSlot']['game_start']); ?> - <?php echo $this->ZuluruTime->time($game['GameSlot']['display_game_end']); ?></dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Team'); ?></dt>
@@ -53,6 +59,17 @@ $this->Html->addCrumb ($this->ZuluruTime->date($game['GameSlot']['game_date']));
 		}
 		?></dd>
 	</dl>
+
+<?php
+$can_annotate = Configure::read('feature.annotations') && in_array($team['id'], $this->Session->read('Zuluru.TeamIDs'));
+?>
+<div class="actions">
+	<ul>
+		<?php if ($can_annotate): ?>
+		<li><?php echo $this->Html->link(__('Add Note', true), array('action' => 'note', 'game' => $game['Game']['id'])); ?> </li>
+		<?php endif; ?>
+	</ul>
+</div>
 
 <div class="related">
 	<table class="list">
