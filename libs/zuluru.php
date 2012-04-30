@@ -31,8 +31,8 @@ function local_sunset_for_date ($date) {
 
 	$end_timestamp = date_sunset ($date, SUNFUNCS_RET_TIMESTAMP, $lat, $long, $zenith, date('Z') / 3600);
 
-	// Round down to nearest 5 minutes
-	$end_timestamp = floor( $end_timestamp / 300 ) * 300;
+	// Round down to nearest 5 minutes, and adjust for server location
+	$end_timestamp = floor( $end_timestamp / 300 ) * 300 - Configure::read('timezone.adjust') * 60;
 	return date('H:i:s', $end_timestamp);
 }
 
