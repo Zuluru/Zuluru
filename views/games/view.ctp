@@ -111,6 +111,43 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 </dl>
 
 <?php
+$my_teams = $this->Session->read('Zuluru.TeamIDs');
+if (in_array($game['Game']['home_team'], $my_teams)) {
+	$my_team = $game['HomeTeam'];
+} else if (in_array($game['Game']['away_team'], $my_teams)) {
+	$my_team = $game['AwayTeam'];
+}
+$display_attendance = isset($my_team) && $my_team['track_attendance'];
+$can_annotate = Configure::read('feature.annotations') && isset($my_team);
+?>
+<?php if ($is_admin || $is_coordinator || $display_attendance || $can_annotate): ?>
+<div class="actions">
+	<ul>
+		<?php if ($display_attendance): ?>
+		<li><?php echo $this->ZuluruHtml->iconLink('attendance_24.png',
+			array('controller' => 'games', 'action' => 'attendance', 'team' => $my_team['id'], 'game' => $game['Game']['id']),
+			array('alt' => __('Attendance', true), 'title' => __('View Game Attendance Report', true))); ?></li>
+		<?php endif; ?>
+		<?php if ($can_annotate): ?>
+		<li><?php echo $this->Html->link(__('Add Note', true), array('action' => 'note', 'game' => $game['Game']['id'])); ?> </li>
+		<?php endif; ?>
+		<?php if ($is_admin || $is_coordinator): ?>
+		<li><?php echo $this->ZuluruHtml->iconLink('edit_24.png',
+			array('action' => 'edit', 'game' => $game['Game']['id']),
+			array('alt' => __('Edit Game', true), 'title' => __('Edit Game', true))); ?></li>
+		<li><?php echo $this->ZuluruHtml->iconLink('delete_24.png',
+			array('action' => 'delete', 'game' => $game['Game']['id']),
+			array('alt' => __('Delete Game', true), 'title' => __('Delete Game', true)),
+			array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $game['Game']['id']))); ?></li>
+		<?php if (Configure::read('scoring.allstars') && $game['Division']['allstars']): ?>
+		<li><?php echo $this->Html->link(__('Add Allstar', true), array('controller' => 'allstars', 'action' => 'add', 'game' => $game['Game']['id']));?> </li>
+		<?php endif; ?>
+		<?php endif; ?>
+	</ul>
+</div>
+<?php endif; ?>
+
+<?php
 $homeSpiritEntry = $awaySpiritEntry = null;
 foreach ($game['SpiritEntry'] as $spiritEntry) {
 	if ($spiritEntry['team_id'] == $game['Game']['home_team']) {
@@ -121,7 +158,7 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 }
 ?>
 
-<fieldset class="wide_labels">
+<fieldset class="clear wide_labels">
 	<legend><?php __('Scoring'); ?></legend>
 	<dl>
 	<?php if (Game::_is_finalized($game)): ?>
@@ -315,8 +352,6 @@ echo $this->element ('spirit/view',
 	<?php endif; ?>
 <?php endif; ?>
 
-</div>
-
 <?php if (!empty($game['Note'])): ?>
 	<fieldset>
  		<legend><?php __('Notes'); ?></legend>
@@ -356,24 +391,4 @@ echo $this->element ('spirit/view',
 	</fieldset>
 <?php endif; ?>
 
-<?php
-$my_teams = $this->Session->read('Zuluru.TeamIDs');
-$can_annotate = Configure::read('feature.annotations') &&
-	(in_array($game['Game']['home_team'], $my_teams) || in_array($game['Game']['away_team'], $my_teams));
-?>
-<?php if ($is_admin || $is_coordinator || $can_annotate): ?>
-	<div class="actions">
-	<ul>
-		<?php if ($can_annotate): ?>
-		<li><?php echo $this->Html->link(__('Add Note', true), array('action' => 'note', 'game' => $game['Game']['id'])); ?> </li>
-		<?php endif; ?>
-		<?php if ($is_admin || $is_coordinator): ?>
-		<li><?php echo $this->Html->link(__('Edit Game', true), array('action' => 'edit', 'game' => $game['Game']['id'])); ?> </li>
-		<li><?php echo $this->Html->link(__('Delete Game', true), array('action' => 'delete', 'game' => $game['Game']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $game['Game']['id'])); ?> </li>
-		<?php if (Configure::read('scoring.allstars') && $game['Division']['allstars']): ?>
-		<li><?php echo $this->Html->link(__('Add Allstar', true), array('controller' => 'allstars', 'action' => 'add', 'game' => $game['Game']['id']));?> </li>
-		<?php endif; ?>
-		<?php endif; ?>
-	</ul>
 </div>
-<?php endif; ?>
