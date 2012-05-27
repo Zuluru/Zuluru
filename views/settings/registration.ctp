@@ -42,6 +42,7 @@ $this->Html->addCrumb (__('Registration', true));
 			'type' => 'textarea',
 			'label' => 'Text of refund policy',
 			'after' => 'Customize the text of your refund policy, to be shown on registration pages and invoices.',
+			'class' => 'mceSimple',
 		),
 	));
 	echo $this->element('settings/input', array(
@@ -51,9 +52,11 @@ $this->Html->addCrumb (__('Registration', true));
 			'type' => 'textarea',
 			'label' => 'Text of offline payment directions',
 			'after' => 'Customize the text of your offline payment policy.',
+			'class' => 'mceSimple',
 		),
 	));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
+<?php if (Configure::read('feature.tiny_mce')) $this->TinyMce->editor('simple'); ?>

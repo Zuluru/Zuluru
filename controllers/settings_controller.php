@@ -32,6 +32,10 @@ class SettingsController extends AppController {
 		));
 		$this->_loadAddressOptions();
 
+		if (Configure::read('feature.tiny_mce')) {
+			$this->helpers[] = 'TinyMce.TinyMce';
+		}
+
 		$this->render ($section);
 	}
 
