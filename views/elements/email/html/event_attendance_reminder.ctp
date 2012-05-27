@@ -19,16 +19,14 @@ echo $this->ZuluruTime->date($event['TeamEvent']['date']);
 <?php if (!empty($event['TeamEvent']['description'])): ?>
 <p><?php echo $event['TeamEvent']['description']; ?></p>
 <?php endif; ?>
-<p>If you are able to attend:
-<?php
+<p>If you are able to attend, <?php
 $url = Router::url(array('controller' => 'team_events', 'action' => 'attendance_change', 'event' => $event['TeamEvent']['id'], 'person' => $person['id'], 'code' => $code, 'status' => ATTENDANCE_ATTENDING), true);
-echo $this->Html->link($url, $url);
-?></p>
-<p>If you are unavailable to attend:
-<?php
+echo $this->Html->link(__('click here', true), $url);
+?>.</p>
+<p>If you are unavailable to attend, <?php
 $url = Router::url(array('controller' => 'team_events', 'action' => 'attendance_change', 'event' => $event['TeamEvent']['id'], 'person' => $person['id'], 'code' => $code, 'status' => ATTENDANCE_ABSENT), true);
-echo $this->Html->link($url, $url);
-?></p>
+echo $this->Html->link(__('click here', true), $url);
+?>.</p>
 <p>Thanks,
 <br /><?php echo Configure::read('email.admin_name'); ?>
 <br /><?php echo Configure::read('organization.short_name'); ?> web team</p>
