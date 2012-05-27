@@ -24,7 +24,7 @@ if (in_array ($game['HomeTeam']['id'], $team_id)) {
 }
 
 $field = "{$game['GameSlot']['Field']['long_name']} ({$game['GameSlot']['Field']['Facility']['code']})";
-$field_address = "{$game['GameSlot']['Field']['Facility']['location_street']}\, {$game['GameSlot']['Field']['Facility']['location_city']}\, {$game['GameSlot']['Field']['Facility']['location_province']} ({$game['GameSlot']['Field']['long_name']})";
+$field_address = ical_encode("{$game['GameSlot']['Field']['Facility']['location_street']}, {$game['GameSlot']['Field']['Facility']['location_city']}, {$game['GameSlot']['Field']['Facility']['location_province']} ({$game['GameSlot']['Field']['long_name']})");
 
 // encode game start and end times
 $game_date = "TZID=$timezone:" . strftime('%Y%m%d', strtotime($game['GameSlot']['game_date'])); // from date type
@@ -62,8 +62,8 @@ X-LOCATION-URL:<?php echo $field_url; ?>
 
 SUMMARY:<?php echo "{$my_team['name']} ($my_home_away)"; ?> vs. <?php echo "{$opponent['name']} ($opp_home_away)"; ?>
 
-DESCRIPTION:Game <?php echo $game_id; ?>: <?php echo "{$my_team['name']} ($my_home_away)"; ?> vs. <?php echo "{$opponent['name']} ($opp_home_away)"; ?>
- at <?php echo $field; ?> on <?php echo $game_stamp; ?> (they wear <?php echo $opponent['shirt_colour']; ?>)
+DESCRIPTION:Game <?php echo $game_id; ?>: <?php echo ical_encode("{$my_team['name']} ($my_home_away)"); ?> vs. <?php echo ical_encode("{$opponent['name']} ($opp_home_away)"); ?>
+ at <?php echo ical_encode($field); ?> on <?php echo $game_stamp; ?> (they wear <?php echo ical_encode($opponent['shirt_colour']); ?>)
 X-OPPONENT-COLOUR:<?php echo $opponent['shirt_colour']; ?>
 
 STATUS:CONFIRMED

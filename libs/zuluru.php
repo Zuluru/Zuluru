@@ -117,6 +117,15 @@ function ordinal($val) {
 	return $val . $ord;
 }
 
+function ical_encode($text) {
+	$text = strtr ($text, array(
+		'\\' => '\\\\',
+		',' => '\\,',
+		';' => '\\;',
+	));
+	return $text;
+}
+
 /**
  * This class handles database transactions in a safe manner.
  * Just create an object of this type, passing the model object
