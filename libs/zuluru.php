@@ -120,6 +120,7 @@ function ordinal($val) {
 function ical_encode($text) {
 	$text = strtr ($text, array(
 		'\\' => '\\\\',
+		'\'' => '\\\'',
 		',' => '\\,',
 		';' => '\\;',
 	));
