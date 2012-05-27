@@ -96,6 +96,9 @@ class AllController extends AppController {
 
 	function cron() {
 		$this->layout = 'bare';
+		if (!ini_get('safe_mode')) { 
+			set_time_limit(0);
+		}
 		Configure::write ('debug', 0);
 		$controllers = array('people', 'leagues', 'divisions', 'teams', 'games', 'team_events');
 		$this->set(compact('controllers'));
