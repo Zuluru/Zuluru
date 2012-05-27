@@ -1201,7 +1201,7 @@ class PeopleController extends AppController {
 		}
 
 		$this->set ('calendar_type', 'Player Schedule');
-		$this->set ('calendar_name', "{$person['Person']['full_name']}\'s schedule");
+		$this->set ('calendar_name', "{$person['Person']['full_name']}'s schedule");
 
 		Configure::write ('debug', 0);
 	}

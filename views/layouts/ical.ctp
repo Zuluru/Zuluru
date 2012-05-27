@@ -18,7 +18,7 @@ VERSION:2.0
 PRODID:-//Zuluru//<?php echo $calendar_type; ?>//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
-X-WR-CALNAME:<?php echo $calendar_name; ?> from <?php echo $short; ?>
+X-WR-CALNAME:<?php echo ical_encode($calendar_name); ?> from <?php echo $short; ?>
 
 BEGIN:VTIMEZONE
 TZID:US/Eastern
