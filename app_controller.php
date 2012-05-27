@@ -632,19 +632,25 @@ class AppController extends Controller {
 		$this->_limitOverride($team['Team']['id']);
 		$key = "{$team['Team']['name']}::{$team['Team']['id']}";
 
-		$this->_addMenuItem ("{$team['Team']['name']} ({$team['Division']['long_league_name']})", array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']), 'Teams', $key);
-		$this->_addMenuItem ('Schedule', array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['Team']['id']), array('Teams', $key));
-		$this->_addMenuItem ('Standings', array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Division']['id'], 'team' => $team['Team']['id']), array('Teams', $key));
-		if ($team['Team']['track_attendance'] &&
-			in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
-		{
-			$this->_addMenuItem ('Attendance', array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['Team']['id']), array('Teams', $key));
+		if (!empty($team['Team']['division_id'])) {
+			$this->_addMenuItem ("{$team['Team']['name']} ({$team['Division']['long_league_name']})", array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']), 'Teams', $key);
+			$this->_addMenuItem ('Schedule', array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['Team']['id']), array('Teams', $key));
+			$this->_addMenuItem ('Standings', array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Division']['id'], 'team' => $team['Team']['id']), array('Teams', $key));
+			if ($team['Team']['track_attendance'] &&
+				in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
+			{
+				$this->_addMenuItem ('Attendance', array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['Team']['id']), array('Teams', $key));
+			}
+			if ($this->is_logged_in && $team['Team']['open_roster'] && $team['Division']['roster_deadline'] >= date('Y-m-d') &&
+				!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
+			{
+				$this->_addMenuItem ('Join team', array('controller' => 'teams', 'action' => 'roster_request', 'team' => $team['Team']['id']), array('Teams', $key));
+			}
+			$this->_addDivisionMenuItems($team['Division'], $team['Division']['League']);
+		} else {
+			$this->_addMenuItem ($team['Team']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']), 'Teams', $key);
 		}
-		if ($this->is_logged_in && $team['Team']['open_roster'] && $team['Division']['roster_deadline'] >= date('Y-m-d') &&
-			!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
-		{
-			$this->_addMenuItem ('Join team', array('controller' => 'teams', 'action' => 'roster_request', 'team' => $team['Team']['id']), array('Teams', $key));
-		}
+
 		if ($this->is_admin || $is_captain) {
 			$this->_addMenuItem ('Edit', array('controller' => 'teams', 'action' => 'edit', 'team' => $team['Team']['id']), array('Teams', $key));
 			$this->_addMenuItem ('Player emails', array('controller' => 'teams', 'action' => 'emails', 'team' => $team['Team']['id']), array('Teams', $key));
@@ -660,10 +666,6 @@ class AppController extends Controller {
 		}
 		if ($this->is_admin && League::hasSpirit($team)) {
 			$this->_addMenuItem ('Spirit', array('controller' => 'teams', 'action' => 'spirit', 'team' => $team['Team']['id']), array('Teams', $key));
-		}
-
-		if (array_key_exists('Division', $team)) {
-			$this->_addDivisionMenuItems($team['Division'], $team['Division']['League']);
 		}
 	}
 

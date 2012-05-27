@@ -417,10 +417,12 @@ class TeamsController extends AppController {
 		$this->Team->Division->addPlayoffs($team);
 		$this->_limitOverride($id);
 		$team_days = Set::extract('/Division/Day/id', $team);
-		Configure::load("sport/{$team['Division']['League']['sport']}");
 
-		if (!empty($team['Team']['division_id']) && Configure::read('feature.registration')) {
-			$member_rule = "compare(member_type('{$team['Division']['open']}') != 'none')";
+		if (!empty($team['Team']['division_id'])) {
+			Configure::load("sport/{$team['Division']['League']['sport']}");
+			if (Configure::read('feature.registration')) {
+				$member_rule = "compare(member_type('{$team['Division']['open']}') != 'none')";
+			}
 		}
 
 		$playing_roster_positions = Configure::read('playing_roster_positions');
