@@ -119,6 +119,7 @@ class TeamEvent extends AppModel {
 		}
 
 		// Make sure that all required records exist
+		$event_conditions = array('team_id' => $team_id);
 		if ($event_id === null) {
 			$events = $this->find('list', array(
 					'fields' => array('id', 'date'),
@@ -128,21 +129,24 @@ class TeamEvent extends AppModel {
 			if (empty($events)) {
 				return array();
 			}
-			$conditions = array('team_event_id' => array_keys($events));
+			$attendance_conditions = array('team_event_id' => array_keys($events));
 			foreach ($events as $event_id => $date) {
 				$this->_create_attendance($team, $event_id, $date);
 			}
 		} else {
-			$conditions = array('team_event_id' => $event_id);
+			$event_conditions['id'] = $event_id;
+			$attendance_conditions = array('team_event_id' => $event_id);
 			$date = $this->field ('date', array('id' => $event_id));
 			$this->_create_attendance($team, $event_id, $date);
 		}
 
 		// Re-read whatever is current, including join tables that will be useful in the output
 		$attendance = $this->find('all', array(
-				'conditions' => array('team_id' => $team_id),
+				'conditions' => $event_conditions,
 				'contain' => array(
-					'Attendance',
+					'Attendance' => array(
+						'conditions' => $attendance_conditions,
+					),
 				),
 				'order' => 'TeamEvent.date',
 		));
@@ -176,7 +180,7 @@ class TeamEvent extends AppModel {
 		));
 
 		// Extract list of players on the roster as of this date
-		$roster = Set::extract ("/Person/TeamsPerson[created<=$date][status=" . ROSTER_APPROVED ."]/../.", $team);
+		$roster = Set::extract ("/Person/TeamsPerson[created<=$date]/../.", $team);
 
 		// Go through the roster and make sure there are records for all players on this date.
 		$attendance_update = array();
