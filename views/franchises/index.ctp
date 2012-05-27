@@ -50,7 +50,7 @@ foreach ($franchises as $franchise):
 		</td>
 		<td class="actions">
 			<?php
-			$is_owner = in_array($franchise['Franchise']['id'], $this->Session->read('Zuluru.FranchiseIDs'));
+			$is_owner = $this->Session->read('Zuluru.FranchiseIDs') && in_array($franchise['Franchise']['id'], $this->Session->read('Zuluru.FranchiseIDs'));
 			if ($is_admin || $is_owner) {
 				echo $this->ZuluruHtml->iconLink('edit_24.png',
 					array('action' => 'edit', 'franchise' => $franchise['Franchise']['id']),
