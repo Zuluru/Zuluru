@@ -178,15 +178,39 @@ class LeagueTypeComponent extends Object
 			$results[$opp] = array('pool' => $pool, 'results' => array());
 		}
 
+		// Check if this was a placement game
+		$final_win = $final_lose = null;
+		$suffix = substr($name, -2);
+		if (in_array($suffix, array('st', 'nd', 'rd', 'th'))) {
+			$name = substr($name, 0, -2);
+			while (true) {
+				$x = substr($name, -1);
+				$name = substr($name, 0, -1);
+				if (is_numeric($x)) {
+					$final_win = "$x$final_win";
+				} else {
+					$final_lose = $final_win + 1;
+					break;
+				}
+			}
+		}
+
 		// What type of result was this?
 		if ($score_for > $score_against) {
 			$results[$team]['results'][$round] = 1;
+			$results[$team]['final'] = $final_win;
+
 			$results[$opp]['results'][$round] = -1;
+			$results[$opp]['final'] = $final_lose;
 		} else if ($score_for < $score_against) {
 			$results[$team]['results'][$round] = -1;
+			$results[$team]['final'] = $final_lose;
+
 			$results[$opp]['results'][$round] = 1;
+			$results[$opp]['final'] = $final_win;
 		} else {
 			$results[$team]['results'][$round] = $results[$opp]['results'][$round] = 0;
+			$results[$team]['final'] = $results[$opp]['final'] = $final_win;
 		}
 	}
 
@@ -203,6 +227,15 @@ class LeagueTypeComponent extends Object
 	function compareTeamsTournament($a, $b) {
 		if (!array_key_exists('tournament', $a) || !array_key_exists('tournament', $b)) {
 			return $this->compareTeams($a, $b);
+		}
+
+		// If both teams have final placements, we use that
+		if ($a['tournament']['final'] !== null && $b['tournament']['final'] !== null) {
+			if ($a['tournament']['final'] > $b['tournament']['final']) {
+				return 1;
+			} else if ($a['tournament']['final'] < $b['tournament']['final']) {
+				return -1;
+			}
 		}
 
 		// If teams are not in the same pool, we use that
@@ -480,7 +513,7 @@ class LeagueTypeComponent extends Object
 
 		return true;
 	}
-	
+
 	/**
 	 * Schedule one set of games, using weighted field assignment
 	 *
@@ -673,7 +706,7 @@ class LeagueTypeComponent extends Object
 		}
 		return $this->division['Team'][$id]['preferred_ratio'];
 	}
-	
+
 	/**
 	 * Select a random gameslot
 	 *
