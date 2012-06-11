@@ -253,7 +253,6 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 		<th><?php __('Date'); ?></th>
 		<th><?php __('Home Team'); ?></th>
 		<th><?php __('Away Team'); ?></th>
-		<th><?php __('Field'); ?></th>
 		<th class="actions"><?php __('Actions');?></th>
 	</tr>
 	<?php
@@ -265,10 +264,9 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 			}
 		?>
 		<tr<?php echo $class;?>>
-			<td><?php echo $this->Html->link("{$allstar['GameSlot']['game_date']} {$allstar['GameSlot']['game_start']}", array('controller' => 'games', 'action' => 'view', 'game' => $allstar['Game']['id']));?></td>
-			<td><?php $this->element('teams/block', array('team' => $allstar['HomeTeam'])); ?></td>
-			<td><?php $this->element('teams/block', array('team' => $allstar['AwayTeam'])); ?></td>
-			<td><?php echo $this->element('fields/block', array('field' => $allstar['Field'])); ?></td>
+			<td><?php echo $this->Html->link($this->ZuluruTime->datetime("{$allstar['GameSlot']['game_date']} {$allstar['GameSlot']['game_start']}"), array('controller' => 'games', 'action' => 'view', 'game' => $allstar['Game']['id']));?></td>
+			<td><?php echo $this->element('teams/block', array('team' => $allstar['HomeTeam'])); ?></td>
+			<td><?php echo $this->element('teams/block', array('team' => $allstar['AwayTeam'])); ?></td>
 			<td class="actions">
 				<?php echo $this->Html->link(__('Delete', true), array('controller' => 'allstars', 'action' => 'delete', 'allstar' => $allstar['Allstar']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $allstar['Allstar']['id'])); ?>
 			</td>
