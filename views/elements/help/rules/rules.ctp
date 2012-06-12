@@ -10,6 +10,7 @@ echo $this->element('help/topics', array(
 			'team_count' => 'TEAM_COUNT',
 			'league_team_count' => 'LEAGUE_TEAM_COUNT',
 			'registered' => 'REGISTERED',
+			'has_document' => 'HAS_DOCUMENT',
 			'compare' => 'COMPARE',
 			'and' => 'AND',
 			'or' => 'OR',

@@ -234,6 +234,8 @@ class Game extends AppModel {
 					if (array_key_exists($game['Game']['home_dependency_id'], $games)) {
 						$round_games[] = $games[$game['Game']['home_dependency_id']];
 						unset ($games[$game['Game']['home_dependency_id']]);
+					} else {
+						$round_games[] = array();
 					}
 				} else {
 					$round_games[] = array();
@@ -243,13 +245,16 @@ class Game extends AppModel {
 					if (array_key_exists($game['Game']['away_dependency_id'], $games)) {
 						$round_games[] = $games[$game['Game']['away_dependency_id']];
 						unset ($games[$game['Game']['away_dependency_id']]);
+					} else {
+						$round_games[] = array();
 					}
 				} else {
 					$round_games[] = array();
 				}
 			}
 
-			if (empty($round_games)) {
+			$round_game_ids = Set::extract('/Game/id', $round_games);
+			if (empty($round_game_ids)) {
 				break;
 			}
 			$bracket[--$round] = $round_games;

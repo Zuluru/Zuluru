@@ -34,7 +34,8 @@ $ cd /path/to/cake
 $ mkdir zuluru
 $ cd zuluru
 $ git init
-$ git pull git://github.com/Zuluru/Zuluru.git
+$ git config remote.origin.url git://github.com/Zuluru/Zuluru.git
+$ git pull
 
 CONFIGURE WEB SERVER
 
@@ -135,12 +136,23 @@ Where htmlmail is the following general-purpose script:
 $email = $_SERVER['argv'][1];
 $subject = $_SERVER['argv'][2];
 $url = $_SERVER['argv'][3];
-$handle = fopen($url, 'rb');
-$contents = '';
-while (!feof($handle)) {
-	$contents .= fread($handle, 8192);
+
+if (function_exists('curl_init')) {
+	$curl_handle=curl_init();
+	curl_setopt($curl_handle, CURLOPT_URL, $url);
+	curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
+	curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($curl_handle, CURLOPT_USERAGENT, 'htmlmail');
+	$contents = curl_exec($curl_handle);
+	curl_close($curl_handle);
+} else {
+	$handle = fopen($url, 'rb');
+	$contents = '';
+	while (!feof($handle)) {
+		$contents .= fread($handle, 8192);
+	}
+	fclose($handle);
 }
-fclose($handle);
 
 $headers = 'Content-Type: text/html; charset="iso-8859-1"';
 mail($email, $subject, $contents, $headers, "-f admin@zuluru.org");
@@ -156,10 +168,20 @@ a manual conversion.
 
 UPDATES
 
+The source for Zuluru is updated on a regular basis, with bug fixes and
+new features being added. Most of the time, you will be able to update
+your local version just by executing
+$ git pull
+from your Zuluru folder. If you have made any customizations to Zuluru
+files, this may be more complex, requiring things like "stash", "merge"
+or "branch". Hopefully, you can use theming and the features_custom and
+options_custom config files to avoid any such changes.
+
 When updates to Zuluru are released, there may also be changes to the
 database required. After updating the code, go to
 <ZULURU>/install/install/update and Zuluru will take care of these
-changes for you.
+changes for you. If you have updated the code but not run this process,
+Zuluru will prompt you to do so.
 
 DEBUGGING
 

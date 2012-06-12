@@ -7,8 +7,16 @@ $this->Html->addCrumb (__('View', true));
 <div class="people view">
 <h2><?php
 echo __('View Player', true) . ': ' . $person['Person']['full_name'];
-if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approved']) {
-	echo $this->element('people/player_photo', array('person' => $person['Person'], 'upload' => $person['Upload'][0]));
+if ($is_logged_in) {
+	foreach ($person['Upload'] as $key => $upload) {
+		if ($upload['type_id'] === null) {
+			if ($upload['approved']) {
+				echo $this->element('people/player_photo', array('person' => $person['Person'], 'upload' => $upload));
+			}
+			// Remove photos from the list of documents we'll show later
+			unset($person['Upload'][$key]);
+		}
+	}
 }
 ?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
@@ -253,7 +261,6 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 		<th><?php __('Date'); ?></th>
 		<th><?php __('Home Team'); ?></th>
 		<th><?php __('Away Team'); ?></th>
-		<th><?php __('Field'); ?></th>
 		<th class="actions"><?php __('Actions');?></th>
 	</tr>
 	<?php
@@ -265,10 +272,9 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 			}
 		?>
 		<tr<?php echo $class;?>>
-			<td><?php echo $this->Html->link("{$allstar['GameSlot']['game_date']} {$allstar['GameSlot']['game_start']}", array('controller' => 'games', 'action' => 'view', 'game' => $allstar['Game']['id']));?></td>
-			<td><?php $this->element('teams/block', array('team' => $allstar['HomeTeam'])); ?></td>
-			<td><?php $this->element('teams/block', array('team' => $allstar['AwayTeam'])); ?></td>
-			<td><?php echo $this->element('fields/block', array('field' => $allstar['Field'])); ?></td>
+			<td><?php echo $this->Html->link($this->ZuluruTime->datetime("{$allstar['GameSlot']['game_date']} {$allstar['GameSlot']['game_start']}"), array('controller' => 'games', 'action' => 'view', 'game' => $allstar['Game']['id']));?></td>
+			<td><?php echo $this->element('teams/block', array('team' => $allstar['HomeTeam'])); ?></td>
+			<td><?php echo $this->element('teams/block', array('team' => $allstar['AwayTeam'])); ?></td>
 			<td class="actions">
 				<?php echo $this->Html->link(__('Delete', true), array('controller' => 'allstars', 'action' => 'delete', 'allstar' => $allstar['Allstar']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $allstar['Allstar']['id'])); ?>
 			</td>
@@ -352,12 +358,65 @@ if ($is_logged_in && !empty ($person['Upload']) && $person['Upload'][0]['approve
 			</td>
 		</tr>
 		<?php endforeach; ?>
-</table>
-<div class="actions">
-<ul>
-		<li><?php if ($is_me || $is_admin) echo $this->Html->link(__('Show Registration History', true), array('controller' => 'people', 'action' => 'registrations', 'person' => $person['Person']['id'])); ?> </li>
-	</ul>
+	</table>
+	<div class="actions">
+		<ul>
+			<li><?php echo $this->Html->link(__('Show Registration History', true), array('controller' => 'people', 'action' => 'registrations', 'person' => $person['Person']['id'])); ?> </li>
+		</ul>
 	</div>
 </div>
 <?php endif; ?>
+<?php endif; ?>
+
+<?php if (Configure::read('feature.documents') && ($is_admin || $is_me)):?>
+<div class="related">
+	<h3><?php __('Documents');?></h3>
+<?php if (!empty($person['Upload'])): ?>
+	<table class="list">
+	<tr>
+		<th><?php __('Document'); ?></th>
+		<th><?php __('Valid From'); ?></th>
+		<th><?php __('Valid Until'); ?></th>
+		<th class="actions"><?php __('Actions');?></th>
+	</tr>
+	<?php
+		$i = 0;
+		foreach ($person['Upload'] as $document):
+			$class = null;
+			if ($i++ % 2 == 0) {
+				$class = ' class="altrow"';
+			}
+			$rand = 'row_' . mt_rand();
+		?>
+		<tr<?php echo $class;?> id="<?php echo $rand; ?>">
+			<td><?php echo $document['UploadType']['name'];?></td>
+<?php if ($document['approved']): ?>
+			<td><?php echo $this->ZuluruTime->date($document['valid_from']);?></td>
+			<td><?php echo $this->ZuluruTime->date($document['valid_until']);?></td>
+<?php else: ?>
+			<td colspan="2" class="highlight"><?php __('Unapproved');?></td>
+<?php endif; ?>
+			<td class="actions">
+				<?php echo $this->Html->link(__('View', true), array('action' => 'document', 'id' => $document['id']), array('target' => 'preview'));?>
+<?php if ($is_admin):?>
+<?php if ($document['approved']): ?>
+				<?php echo $this->Html->link(__('Edit', true), array('action' => 'edit_document', 'id' => $document['id']));?>
+<?php else: ?>
+				<?php echo $this->Html->link(__('Approve', true), array('action' => 'approve_document', 'id' => $document['id']));?>
+<?php endif; ?>
+<?php endif; ?>
+				<?php echo $this->Js->link (__('Delete', true),
+					array('action' => 'delete_document', 'id' => $document['id'], 'row' => $rand),
+					array('update' => "#temp_update", 'confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $document['id']))); ?>
+			</td>
+		</tr>
+		<?php endforeach; ?>
+	</table>
+<?php endif; ?>
+	<div class="actions">
+		<ul>
+			<li><?php echo $this->Html->link(__('Upload New Document', true), array('action' => 'document_upload', 'person' => $person['Person']['id'])); ?> </li>
+		</ul>
+	</div>
+</div>
 <?php endif; ?>

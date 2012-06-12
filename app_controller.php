@@ -344,6 +344,9 @@ class AppController extends Controller {
 				$this->_addMenuItem ('Change password', array('controller' => 'users', 'action' => 'change_password'), 'My Profile');
 			}
 			$this->_addMenuItem ('Upload photo', array('controller' => 'people', 'action' => 'photo_upload'), 'My Profile');
+			if (Configure::read('feature.documents')) {
+				$this->_addMenuItem ('Upload document', array('controller' => 'people', 'action' => 'document_upload'), 'My Profile');
+			}
 		}
 
 		if (Configure::read('feature.registration')) {
@@ -427,11 +430,23 @@ class AppController extends Controller {
 			$new = $this->Person->Upload->find ('count', array(
 				'conditions' => array(
 					'approved' => 0,
-					'type' => 'person',
+					'type_id' => null,
 				),
 			));
 			if ($new > 0) {
 				$this->_addMenuItem ("Approve new photos ($new pending)", array('controller' => 'people', 'action' => 'approve_photos'), 'Players');
+			}
+
+			if (Configure::read('feature.documents')) {
+				$new = $this->Person->Upload->find ('count', array(
+					'conditions' => array(
+						'approved' => 0,
+						'type_id !=' => null,
+					),
+				));
+				if ($new > 0) {
+					$this->_addMenuItem ("Approve new documents ($new pending)", array('controller' => 'people', 'action' => 'approve_documents'), 'Players');
+				}
 			}
 		}
 
@@ -448,6 +463,9 @@ class AppController extends Controller {
 				}
 			}
 			$this->_addMenuItem ('Holidays', array('controller' => 'holidays', 'action' => 'index'), 'Settings');
+			if (Configure::read('feature.documents')) {
+				$this->_addMenuItem ('Upload Types', array('controller' => 'upload_types', 'action' => 'index'), 'Settings');
+			}
 
 			$this->_addMenuItem ('Statistics');
 			$this->_addMenuItem ('Player', array('controller' => 'people', 'action' => 'statistics'), 'Statistics');

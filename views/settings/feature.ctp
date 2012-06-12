@@ -106,6 +106,16 @@ $this->Html->addCrumb (__('Feature', true));
 			'after' => 'Allow players to attach notes to other players, teams, games and fields.',
 		),
 	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
+		'name' => 'documents',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'label' => 'Handle document uploads',
+			'after' => 'Enable or disable uploading of documents by players (e.g. as an alternative to faxing or emailing).',
+		),
+	));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
