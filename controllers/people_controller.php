@@ -25,6 +25,8 @@ class PeopleController extends AppController {
 				'search',
 				'teams',
 				'photo',
+				'document',
+				'delete_document',
 				'note',
 				'delete_note',
 		)))
@@ -38,6 +40,7 @@ class PeopleController extends AppController {
 				'preferences',
 				'photo_upload',
 				'photo_resize',
+				'document_upload',
 				'registrations',
 		)))
 		{
@@ -408,7 +411,7 @@ class PeopleController extends AppController {
 			return;
 		}
 		$this->Person->contain(array(
-			'Upload',
+			'Upload' => array('conditions' => array('type_id' => null)),
 		));
 
 		$person = $this->Person->readCurrent($id, $this->Auth->user('id'));
@@ -631,15 +634,18 @@ class PeopleController extends AppController {
 		$photo = $this->Person->Upload->find('first', array(
 				'contain' => false,
 				'conditions' => array(
-					'other_id' => $this->_arg('person'),
-					'type' => 'person',
+					'person_id' => $this->_arg('person'),
+					'type_id' => null,
 				),
 		));
 		if (!empty ($photo)) {
-			$this->layout = 'file';
-			$file = file_get_contents($file_dir . DS . $photo['Upload']['filename']);
-			$type = 'image/jpeg';
-			$this->set(compact('file', 'type'));
+			$this->view = 'Media';
+			$f = new File($photo['Upload']['filename']);
+			$this->set(array(
+					'path' => $file_dir . DS,
+					'id' => $photo['Upload']['filename'],
+					'extension' => $f->ext(),
+			));
 		}
 	}
 
@@ -713,14 +719,14 @@ class PeopleController extends AppController {
 				$photo = $this->Person->Upload->find('first', array(
 						'contain' => false,
 						'conditions' => array(
-							'other_id' => $person['id'],
-							'type' => 'person',
+							'person_id' => $person['id'],
+							'type_id' => null,
 						),
 				));
 				if (empty ($photo)) {
 					$this->Person->Upload->save(array(
-							'other_id' => $person['id'],
-							'type' => 'person',
+							'person_id' => $person['id'],
+							'type_id' => null,
 							'filename' => basename ($image),
 					));
 				} else {
@@ -736,7 +742,10 @@ class PeopleController extends AppController {
 	function approve_photos() {
 		$photos = $this->Person->Upload->find('all', array(
 				'contain' => array('Person'),
-				'conditions' => array('approved' => 0),
+				'conditions' => array(
+					'approved' => 0,
+					'type_id' => null,
+				),
 		));
 		if (empty ($photos)) {
 			$this->Session->setFlash(__('There are no photos to approve.', true), 'default', array('class' => 'info'));
@@ -798,6 +807,264 @@ class PeopleController extends AppController {
 		)))
 		{
 			$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $photo['Person']['email']), 'default', array('class' => 'error'), 'email');
+		}
+	}
+
+	function document() {
+		if (!Configure::read('feature.documents')) {
+			$this->Session->setFlash(__('Document management is disabled on this site.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$id = $this->_arg('id');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('document', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$file_dir = Configure::read('folders.uploads');
+		$this->Person->Upload->contain(array('Person', 'UploadType'));
+		$document = $this->Person->Upload->read(null, $id);
+		if (!$document) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('document', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		if (!$this->is_admin && $document['Upload']['person_id'] != $this->Auth->user('id')) {
+			$this->Session->setFlash(__('You do not have permission to access this document.', true), 'default', array('class' => 'warning'));
+			$this->redirect('/');
+		}
+
+		$this->view = 'Media';
+		$f = new File($document['Upload']['filename']);
+		$this->set(array(
+				'path' => $file_dir . DS,
+				'id' => $document['Upload']['filename'],
+				'extension' => $f->ext(),
+		));
+	}
+
+	function document_upload() {
+		if (!Configure::read('feature.documents')) {
+			$this->Session->setFlash(__('Document management is disabled on this site.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$id = $this->_arg('person');
+		if ($id) {
+			$this->Person->contain();
+			$person = $this->Person->read(null, $id);
+			if ($person) {
+				$person = $person['Person'];
+			}
+		} else {
+			$person = $this->_findSessionData('Person', $this->Person);
+		}
+		if (!$person) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$types = $this->Person->Upload->UploadType->find('list');
+		$this->set(compact('person', 'types'));
+
+		if (!empty ($this->data) && array_key_exists ('document', $this->data)) {
+			if (empty ($this->data['document'])) {
+				$this->Session->setFlash(__('There was an unexpected error uploading the file. Please try again.', true), 'default', array('class' => 'warning'));
+				return;
+			}
+			if ($this->data['document']['error'] == UPLOAD_ERR_INI_SIZE) {
+				$max = ini_get('upload_max_filesize');
+				$unit = substr($max,-1);
+				if ($unit == 'M' || $unit == 'K') {
+					$max .= 'b';
+				}
+				$this->Session->setFlash(sprintf (__('The selected document is too large. Documents must be less than %s.', true), $max), 'default', array('class' => 'warning'));
+				return;
+			}
+			if ($this->data['document']['error'] == UPLOAD_ERR_NO_FILE) {
+				$this->Session->setFlash(__('You must select a document to upload', true), 'default', array('class' => 'warning'));
+				return;
+			}
+			if ($this->data['document']['error'] == UPLOAD_ERR_NO_TMP_DIR ||
+				$this->data['document']['error'] == UPLOAD_ERR_CANT_WRITE)
+			{
+				$this->Session->setFlash(__('This system does not appear to be properly configured for document uploads. Please contact your administrator to have them correct this.', true), 'default', array('class' => 'error'));
+				return;
+			}
+			if ($this->data['document']['error'] != 0) {
+				$this->log($this->data, 'upload');
+				$this->Session->setFlash(__('There was an unexpected error uploading the file. Please try again.', true), 'default', array('class' => 'warning'));
+				return;
+			}
+
+			$transaction = new DatabaseTransaction($this->Person->Upload);
+			if ($this->Person->Upload->save(array(
+					'person_id' => $person['id'],
+					'type_id' => $this->data['document_type'],
+			))) {
+				$file_dir = Configure::read('folders.uploads');
+				$file_ext = substr($this->data['document']['name'], strrpos($this->data['document']['name'], '.') + 1);
+				$upload_target = $file_dir . DS . $person['id'] . '_' . $this->Person->Upload->id . '.' . $file_ext;
+				move_uploaded_file($this->data['document']['tmp_name'], $upload_target);
+				chmod ($upload_target, 0644);
+
+				$this->Person->Upload->saveField ('filename', basename ($upload_target));
+
+				$transaction->commit();
+				$this->Session->setFlash(__('Document saved, you will receive an email when it has been approved', true), 'default', array('class' => 'success'));
+				$this->redirect(array('action' => 'view', 'person' => $person['id']));
+			} else {
+				$this->Session->setFlash(__('Failed to save your document', true), 'default', array('class' => 'warning'));
+			}
+		}
+	}
+
+	function approve_documents() {
+		if (!Configure::read('feature.documents')) {
+			$this->Session->setFlash(__('Document management is disabled on this site.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$documents = $this->Person->Upload->find('all', array(
+				'contain' => array('Person', 'UploadType'),
+				'conditions' => array(
+					'approved' => 0,
+					'type_id !=' => null,
+				),
+				'order' => array('Person.last_name', 'Person.first_name', 'UploadType.id'),
+		));
+		if (empty ($documents)) {
+			$this->Session->setFlash(__('There are no documents to approve.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$this->set(compact('documents'));
+	}
+
+	function approve_document() {
+		if (!Configure::read('feature.documents')) {
+			$this->Session->setFlash(__('Document management is disabled on this site.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$id = $this->_arg('id');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('document', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$document = $this->Person->Upload->read (null, $id);
+		if (empty ($document)) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('document', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$this->set(compact('document'));
+
+		if (!empty($this->data)) {
+			if ($this->Person->Upload->save($this->data)) {
+				// Read updated version
+				$document = $this->Person->Upload->read (null, $id);
+				$this->set(compact('document'));
+				$this->Session->setFlash(sprintf (__('Approved %s', true), __('document', true)), 'default', array('class' => 'success'));
+
+				if (!$this->_sendMail (array (
+						'to' => $document,
+						'subject' => Configure::read('organization.name') . ' Notification of Document Approval',
+						'template' => 'document_approved',
+						'sendAs' => 'both',
+				)))
+				{
+					$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $document['Person']['email']), 'default', array('class' => 'error'), 'email');
+				}
+				$this->redirect(array('action' => 'approve_documents'));
+			} else {
+				$this->Session->setFlash(__('Failed to approve the document', true), 'default', array('class' => 'warning'));
+			}
+		} else {
+			$this->data = $document;
+		}
+	}
+
+	function edit_document() {
+		if (!Configure::read('feature.documents')) {
+			$this->Session->setFlash(__('Document management is disabled on this site.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$id = $this->_arg('id');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('document', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$document = $this->Person->Upload->read (null, $id);
+		if (empty ($document)) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('document', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$this->set(compact('document'));
+
+		if (!empty($this->data)) {
+			if ($this->Person->Upload->save($this->data)) {
+				// Read updated version
+				$document = $this->Person->Upload->read (null, $id);
+				$this->set(compact('document'));
+				$this->Session->setFlash(sprintf (__('Updated %s', true), __('document', true)), 'default', array('class' => 'success'));
+
+				if (!$this->_sendMail (array (
+						'to' => $document,
+						'subject' => Configure::read('organization.name') . ' Notification of Document Update',
+						'template' => 'document_updated',
+						'sendAs' => 'both',
+				)))
+				{
+					$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $document['Person']['email']), 'default', array('class' => 'error'), 'email');
+				}
+				$this->redirect(array('action' => 'view', 'person' => $document['Person']['id']));
+			} else {
+				$this->Session->setFlash(__('Failed to update the document', true), 'default', array('class' => 'warning'));
+			}
+		} else {
+			$this->data = $document;
+		}
+		$this->render('approve_document');
+	}
+
+	function delete_document() {
+		if (!Configure::read('feature.documents')) {
+			$this->Session->setFlash(__('Document management is disabled on this site.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
+
+		extract($this->params['named']);
+		$this->set($this->params['named']);
+
+		$document = $this->Person->Upload->read (null, $id);
+		if (empty ($document)) {
+			$success = false;
+		} else if (!$this->is_admin && $document['Upload']['person_id'] != $this->Auth->user('id')) {
+			$success = false;
+		} else {
+			$success = $this->Person->Upload->delete ($id);
+			if ($success) {
+				$file_dir = Configure::read('folders.uploads');
+				unlink($file_dir . DS . $document['Upload']['filename']);
+			}
+		}
+		$this->set(compact('success', 'document'));
+
+		if ($success && $document['Person']['id'] != $this->Auth->user('id')) {
+			if (!$this->_sendMail (array (
+					'to' => $document,
+					'subject' => Configure::read('organization.name') . ' Notification of Document Deletion',
+					'template' => 'document_deleted',
+					'sendAs' => 'both',
+			)))
+			{
+				$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $document['Person']['email']), 'default', array('class' => 'error'), 'email');
+			}
 		}
 	}
 

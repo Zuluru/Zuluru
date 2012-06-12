@@ -28,6 +28,12 @@ class CanRegisterComponent extends Object
 					'order' => 'payment DESC',	// This only works because Unpaid > Pending > Paid
 				),
 				'Preregistration',
+				'Upload' => array(
+					'conditions' => array(
+						'type_id !=' => null,
+						'approved' => true,
+					),
+				),
 			));
 			$this->person = $this->controller->Person->read(null, $user_id);
 		}

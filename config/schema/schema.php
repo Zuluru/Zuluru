@@ -527,15 +527,23 @@ class ZuluruSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'full' => array('column' => array('team_id', 'person_id'), 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
+	var $upload_types = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 256),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
 	var $uploads = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
-		'other_id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'index'),
-		'type' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 32),
+		'person_id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'index'),
+		'type_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'filename' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 128),
 		'approved' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'valid_from' => array('type' => 'date', 'null' => true, 'default' => NULL),
+		'valid_until' => array('type' => 'date', 'null' => true, 'default' => NULL),
 		'created' => array('type' => 'timestamp', 'null' => true, 'default' => NULL),
 		'updated' => array('type' => 'timestamp', 'null' => true, 'default' => NULL),
-		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'key' => array('column' => array('other_id', 'type'), 'unique' => 0)),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'person' => array('column' => 'person_id', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $waivers = array(

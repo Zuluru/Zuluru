@@ -82,9 +82,9 @@ class Person extends User {
 		),
 		'Upload' => array(
 			'className' => 'Upload',
-			'foreignKey' => 'other_id',
+			'foreignKey' => 'person_id',
 			'dependent' => false,
-			'conditions' => array('Upload.type' => 'person'),
+			'conditions',
 			'fields' => '',
 			'order' => '',
 			'limit' => '',
@@ -183,7 +183,7 @@ class Person extends User {
 		$contain = array(
 			'Group',
 			'Setting',
-			'Upload',
+			'Upload' => array('UploadType'),
 		);
 		if (Configure::read('feature.annotations') && $my_id !== null) {
 			$contain['Note'] = array('conditions' => array('created_person_id' => $my_id));

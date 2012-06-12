@@ -14,10 +14,10 @@ $this->Html->addCrumb (__('Approve Photos', true));
 	<td><?php echo $this->element('people/player_photo', array('person' => $photo['Person'], 'upload' => $photo['Upload'])); ?></td>
 	<td class="actions"><?php
 	echo $this->Js->link (__('Approve', true),
-			array('controller' => 'people', 'action' => 'approve_photo', 'person' => $photo['Person']['id'], 'id' => $photo['Upload']['id'], 'row' => $rand),
+			array('controller' => 'people', 'action' => 'approve_photo', 'id' => $photo['Upload']['id'], 'row' => $rand),
 			array('update' => "#temp_update"));
 	echo $this->Js->link (__('Delete', true),
-			array('controller' => 'people', 'action' => 'delete_photo', 'person' => $photo['Person']['id'], 'id' => $photo['Upload']['id'], 'row' => $rand),
+			array('controller' => 'people', 'action' => 'delete_photo', 'id' => $photo['Upload']['id'], 'row' => $rand),
 			array('update' => "#temp_update"));
 	?></td>
 </tr>
