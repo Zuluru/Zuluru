@@ -28,16 +28,16 @@
 			<td colspan="2" class="highlight"><?php __('Unapproved');?></td>
 <?php endif; ?>
 			<td class="actions">
-				<?php echo $this->Html->link(__('View', true), array('action' => 'document', 'id' => $document['id']), array('target' => 'preview'));?>
+				<?php echo $this->Html->link(__('View', true), array('controller' => 'people', 'action' => 'document', 'id' => $document['id']), array('target' => 'preview'));?>
 <?php if ($is_admin):?>
 <?php if ($document['approved']): ?>
-				<?php echo $this->Html->link(__('Edit', true), array('action' => 'edit_document', 'id' => $document['id']));?>
+				<?php echo $this->Html->link(__('Edit', true), array('controller' => 'people', 'action' => 'edit_document', 'id' => $document['id']));?>
 <?php else: ?>
-				<?php echo $this->Html->link(__('Approve', true), array('action' => 'approve_document', 'id' => $document['id']));?>
+				<?php echo $this->Html->link(__('Approve', true), array('controller' => 'people', 'action' => 'approve_document', 'id' => $document['id']));?>
 <?php endif; ?>
 <?php endif; ?>
 				<?php echo $this->Js->link (__('Delete', true),
-					array('action' => 'delete_document', 'id' => $document['id'], 'row' => $rand),
+					array('controller' => 'people', 'action' => 'delete_document', 'id' => $document['id'], 'row' => $rand),
 					array('update' => "#temp_update", 'confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $document['id']))); ?>
 			</td>
 		</tr>
