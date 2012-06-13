@@ -91,7 +91,7 @@ class LeagueTypeComponent extends Object
 				if (array_key_exists ($team['id'], $tournament)) {
 					$division['Team'][$key]['tournament'] = $tournament[$team['id']];
 				} else {
-					$division['Team'][$key]['tournament'] = array('pool' => 999, 'results' => array());
+					$division['Team'][$key]['tournament'] = array('pool' => 999, 'results' => array(), 'final' => null);
 				}
 			}
 		}
