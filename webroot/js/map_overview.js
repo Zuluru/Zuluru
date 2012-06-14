@@ -22,7 +22,9 @@ function drawFields()
 		var text = '<h3>' + fields[id].name + ' (' + fields[id].code + ')</h3>' +
 					'<p>' + fields[id].location_street +
 					'<br>Latitude: ' + Math.round(fields[id].latitude * 100000) / 100000  +
-					'<br>Longitude: ' + Math.round(fields[id].longitude * 100000) / 100000 + '</p>';
+					'<br>Longitude: ' + Math.round(fields[id].longitude * 100000) / 100000 +
+					'<br>Surface: ' + fields[id].surface +
+					'</p>';
 
 		fields[id].window = new google.maps.InfoWindow({'content':text});
 

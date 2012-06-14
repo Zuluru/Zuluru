@@ -4,6 +4,11 @@ $this->Html->addCrumb ($facility['Facility']['name']);
 $this->Html->addCrumb (__('View', true));
 ?>
 
+<?php
+$surfaces = array_unique(Set::extract('/Field/surface', $facility));
+$surfaces = array_map(array('Inflector', 'humanize'), $surfaces);
+?>
+
 <div class="facilities view">
 <h2><?php  echo __('View Facility', true) . ': ' . $facility['Facility']['name'];?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
@@ -37,6 +42,13 @@ $this->Html->addCrumb (__('View', true));
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $facility['Facility']['location_province']; ?>
 			&nbsp;
+		</dd>
+<?php endif; ?>
+<?php if (!empty ($surfaces)): ?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __(count($surfaces) == 1 ? 'Surface' : 'Surfaces'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo implode(', ', $surfaces); ?>
+
 		</dd>
 <?php endif; ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Status'); ?></dt>
@@ -114,6 +126,9 @@ $this->Html->addCrumb (__('View', true));
 			<tr>
 				<td><?php
 				echo $this->Html->link("{$facility['Facility']['name']} {$related['num']}", array('controller' => 'fields', 'action' => 'view', 'field' => $related['id']));
+				if (count($surfaces) > 1) {
+					echo " ({$related['surface']})";
+				}
 				?></td>
 <?php if ($is_admin): ?>
 				<td class="actions">

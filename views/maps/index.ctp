@@ -39,6 +39,10 @@ foreach ($regions as $region) {
 		$vals[] = "'latitude': " . array_sum($lats) / count($lats);
 		$vals[] = "'longitude': " . array_sum($lngs) / count($lngs);
 
+		$surfaces = array_unique(Set::extract('/Field/surface', $facility));
+		$surfaces = array_map(array('Inflector', 'humanize'), $surfaces);
+		$vals[] = "'surface': \"" . implode('/', $surfaces) . '"';
+
 		$variables .= "fields[{$facility['id']}] = { " . implode(', ', $vals) . " };\n";
 
 		echo $this->Html->para(null, $this->Html->link($facility['name'], '#', array(

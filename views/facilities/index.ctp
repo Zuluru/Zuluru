@@ -51,6 +51,7 @@ foreach ($regions as $region):
 		if (empty($facility['Field']) && (!$is_admin || array_key_exists($facility['id'], $facilities_with_fields))) {
 			continue;
 		}
+		$surfaces = array_unique(Set::extract('/Field/surface', $facility));
 
 		$class = null;
 		if ($i++ % 2 == 0) {
@@ -60,6 +61,7 @@ foreach ($regions as $region):
 	<tr<?php echo $class;?>>
 		<td>
 			<?php echo $this->Html->link(__($facility['name'], true), array('controller' => 'facilities', 'action' => 'view', 'facility' => $facility['id'])); ?>
+			[<?php echo implode('/', $surfaces); ?>]
 		</td>
 		<td class="actions">
 			<?php

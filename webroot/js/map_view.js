@@ -37,7 +37,9 @@ function drawFields()
 		var text = '<h3>' + name + ' ' + fields[id].num + '</h3>' +
 					'<p>' + address +
 					'<br>Latitude: ' + Math.round(fields[id].latitude * 100000) / 100000  +
-					'<br>Longitude: ' + Math.round(fields[id].longitude * 100000) / 100000 + '</p>' +
+					'<br>Longitude: ' + Math.round(fields[id].longitude * 100000) / 100000 +
+					'<br>Surface: ' + fields[id].surface +
+					'</p>' +
 					'<h4>Suggested field layout:</h4>' + layoutText(id) + '</p>';
 
 		fields[id].window = new google.maps.InfoWindow({'content':text});
