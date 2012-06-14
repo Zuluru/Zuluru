@@ -69,6 +69,11 @@ $this->Html->addCrumb (__('View', true));
 			<?php __($field['Field']['indoor'] ? 'Yes' : 'No'); ?>
 
 		</dd>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Surface'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php __(Configure::read("options.surface.{$field['Field']['surface']}")); ?>
+
+		</dd>
 <?php if ($is_admin): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Rating'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>

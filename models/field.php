@@ -17,6 +17,12 @@ class Field extends AppModel {
 				'message' => 'Select a rating from the list',
 			),
 		),
+		'surface' => array(
+			'inlist' => array(
+				'rule' => array('inconfig', 'options.surface'),
+				'message' => 'Select a playing surface from the list',
+			),
+		),
 		'layout_url' => array(
 			'url' => array(
 				'rule' => array('url'),

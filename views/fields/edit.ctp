@@ -22,6 +22,10 @@ if (isset ($add)) {
 		echo $this->ZuluruForm->input('num', array('label' => 'Number'));
 		echo $this->ZuluruForm->input('is_open');
 		echo $this->ZuluruForm->input('indoor');
+		echo $this->ZuluruForm->input('surface', array(
+				'options' => Configure::read('options.surface'),
+				'empty' => '---',
+		));
 		echo $this->ZuluruForm->input('rating', array(
 				'options' => Configure::read('options.field_rating'),
 				'empty' => '---',

@@ -165,6 +165,7 @@ class ZuluruSchema extends CakeSchema {
 		'num' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 15),
 		'is_open' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'indoor' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'surface' => array('type' => 'string', 'null' => false, 'default' => 'grass', 'length' => 32),
 		'rating' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 16),
 		'latitude' => array('type' => 'float', 'null' => true, 'default' => NULL),
 		'longitude' => array('type' => 'float', 'null' => true, 'default' => NULL),

@@ -58,6 +58,21 @@ $config['options'] = array(
 		'ultimate',
 	)),
 
+	'surface'				=> make_human_options(array(
+		'grass',
+		'turf',
+		'sand',
+		'dirt',
+		'clay',
+		'hardwood',
+		'rubber',
+		'urethane',
+		'concrete',
+		'asphalt',
+		'ice',
+		'snow',
+	)),
+
 	'sotg_display'			=> make_human_options(array(
 		'coordinator_only',
 		'symbols_only',

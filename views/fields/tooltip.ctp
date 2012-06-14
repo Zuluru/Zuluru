@@ -8,6 +8,8 @@ echo $field['Field']['long_name'];
 	<dd><?php echo $field['Facility']['location_city']; ?></dd>
 	<dt><?php __('Region'); ?></dt>
 	<dd><?php echo $field['Facility']['Region']['name']; ?></dd>
+	<dt><?php __('Surface'); ?></dt>
+	<dd><?php __(Configure::read("options.surface.{$field['Field']['surface']}")); ?></dd>
 <?php if ($field['Field']['length'] > 0): ?>
 	<dt><?php __('Map'); ?></dt>
 	<dd><?php echo $this->Html->link (__('Open in new window', true),
