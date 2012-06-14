@@ -14,6 +14,7 @@ $league = null;
 foreach ($divisions as $division):
 	if ($division['League']['id'] != $league):
 		$league = $division['League']['id'];
+		Configure::load("sport/{$division['League']['sport']}");
 ?>
 	<tr>
 		<th<?php if (!$is_admin) echo ' colspan="2"'; ?>>
@@ -77,7 +78,7 @@ foreach ($divisions as $division):
 				}
 				echo $this->ZuluruHtml->iconLink('field_report_24.png',
 					array('controller' => 'divisions', 'action' => 'fields', 'division' => $division['Division']['id']),
-					array('alt' => __('Field Distribution', true), 'title' => __('Field Distribution Report', true)));
+					array('alt' => sprintf(__('%s Distribution', true), Configure::read('sport.field_cap')), 'title' => sprintf(__('%s Distribution Report', true), Configure::read('sport.field_cap'))));
 			}
 			if ($is_admin) {
 				echo $this->ZuluruHtml->iconLink('coordinator_add_24.png',

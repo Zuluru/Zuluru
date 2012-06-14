@@ -43,7 +43,7 @@ if (isset ($add)) {
 <?php if (!isset ($add)): ?>
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Html->link(sprintf(__('Add %s', true), __('Field', true)), array('controller' => 'fields', 'action' => 'add', 'facility' => $this->data['Facility']['id']));?></li>
+		<li><?php echo $this->Html->link(sprintf(__('Add %s', true), __(Configure::read('ui.field_cap'), true)), array('controller' => 'fields', 'action' => 'add', 'facility' => $this->data['Facility']['id']));?></li>
 	</ul>
 </div>
 <?php endif; ?>

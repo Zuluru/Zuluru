@@ -86,7 +86,7 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 
 	function scheduleOptions($num_teams) {
 		$types = array(
-			'single' => 'single blank, unscheduled game (2 teams, one field, one day)',
+			'single' => sprintf(__('single blank, unscheduled game (2 teams, one %s)', true), Configure::read('sport.field')),
 			'blankset' => "set of blank unscheduled games for all teams in a division ($num_teams teams, " . ($num_teams / 2) . " games, one day)",
 			'oneset' => "set of randomly scheduled games for all teams in a division ($num_teams teams, " . ($num_teams / 2) . " games, one day)",
 			'fullround' => "full-division round-robin ($num_teams teams, " . (($num_teams - 1) * ($num_teams / 2)) . " games over " .($num_teams - 1) . " weeks)",
@@ -308,7 +308,7 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 
 			// b. schedule them
 			if (!$this->assignFields($date, $set_teams)) {
-				$this->_controller->Session->setFlash(sprintf (__('Had to stop with %s sets left to schedule: could not assign fields', true), $iterations_remaining), 'default', array('class' => 'error'));
+				$this->_controller->Session->setFlash(sprintf (__('Had to stop with %s sets left to schedule: could not assign %s', true), $iterations_remaining, Configure::read('sport.fields')), 'default', array('class' => 'error'));
 				return false;
 			}
 

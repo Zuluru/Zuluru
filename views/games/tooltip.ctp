@@ -4,7 +4,7 @@
 	<dd><?php echo $this->ZuluruTime->date($game['GameSlot']['game_date']); ?></dd>
 	<dt><?php __('Time'); ?></dt>
 	<dd><?php echo $this->ZuluruTime->time($game['GameSlot']['game_start']); ?> - <?php echo $this->ZuluruTime->time($game['GameSlot']['display_game_end']); ?></dd>
-	<dt><?php __('Field'); ?></dt>
+	<dt><?php __(Configure::read('ui.field_cap')); ?></dt>
 	<dd><?php echo $this->Html->link($game['GameSlot']['Field']['long_name'],
 			array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id'])); ?></dd>
 	<dt><?php __('Home Team'); ?></dt>

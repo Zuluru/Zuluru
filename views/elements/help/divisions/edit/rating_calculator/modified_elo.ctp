@@ -3,6 +3,6 @@
 <ul>
 <li>all games are equally weighted</li>
 <li>score differential bonus adjusted for Ultimate patterns (a 3 point win in soccer is a much bigger deal than in Ultimate)</li>
-<li>no bonus given for home-field advantage</li>
+<li>no bonus given for home-<?php __(Configure::read('ui.field')); ?> advantage</li>
 </ul>
 </p>

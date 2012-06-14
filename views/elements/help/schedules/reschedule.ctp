@@ -6,5 +6,5 @@ To do this, use the "reschedule" option from the division schedule.</p>
 <p>When you request to reschedule, you will be given a list of possible dates.
 Only those with available game slots are shown, to prevent conflicts.
 As with adding new games, you have the option to publish the rescheduled games immediately, or leave them unpublished so you can make adjustments first.</p>
-<p>Note that field and time assignments are <strong>not</strong> preserved through a reschedule.
+<p>Note that <?php __(Configure::read('ui.field')); ?> and time assignments are <strong>not</strong> preserved through a reschedule.
 If there are any such assignments that need to be preserved, you will need to edit the resulting schedule once the reschedule process has completed.</p>

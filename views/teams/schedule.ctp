@@ -15,7 +15,7 @@ $display_spirit = ($is_admin || $is_coordinator || $team['Division']['League']['
 		<tr>
 			<th><?php __('Date'); ?></th>
 			<th><?php __('Time'); ?></th>
-			<th><?php __('Field'); ?></th>
+			<th><?php __(Configure::read('sport.field_cap')); ?></th>
 			<th><?php __('Opponent'); ?></th>
 			<th><?php __('Score'); ?></th>
 			<?php if ($display_spirit): ?>

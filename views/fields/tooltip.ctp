@@ -23,7 +23,7 @@ echo $field['Field']['long_name'];
 <?php endif; ?>
 
 <?php if (!empty ($field['Field']['permit_url'])): ?>
-	<dt><?php __('Field&nbsp;Permit'); ?></dt>
+	<dt><?php printf(__('%s&nbsp;Permit', true), Configure::read('ui.field_cap')); ?></dt>
 	<dd><?php echo $this->Html->link ($field['Field']['permit_name'],
 		$field['Field']['permit_url']); ?></dd>
 <?php endif; ?>

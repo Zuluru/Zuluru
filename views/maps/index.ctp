@@ -1,5 +1,5 @@
 <?php
-$this->Html->addCrumb (__('All Fields', true));
+$this->Html->addCrumb (sprintf(__('All %s', true), Configure::read('ui.fields_cap')));
 ?>
 
 <?php
@@ -50,9 +50,9 @@ foreach ($regions as $region) {
 if ($is_admin) {
 	echo $this->Html->tag('br');
 	if ($closed) {
-		echo $this->Html->link(__('Show only open fields', true), array('action' => 'index'));
+		echo $this->Html->link(sprintf(__('Show only open %s', true), Configure::read('ui.fields')), array('action' => 'index'));
 	} else {
-		echo $this->Html->link(__('Show all fields', true), array('closed' => 1));
+		echo $this->Html->link(sprintf(__('Show all %s', true), Configure::read('ui.fields')), array('closed' => 1));
 	}
 }
 

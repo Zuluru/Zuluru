@@ -35,9 +35,9 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 
 	function scheduleOptions($num_teams) {
 		$types = array(
-			'single' => 'single blank, unscheduled game (2 teams, one field)',
+			'single' => sprintf(__('single blank, unscheduled game (2 teams, one %s)', true), Configure::read('sport.field')),
 			'blankset' => "set of blank unscheduled games for all teams in the division ($num_teams teams, " . ($num_teams / 2) . " games)",
-			);
+		);
 
 		// Add more types, depending on the number of teams
 		switch ($num_teams) {

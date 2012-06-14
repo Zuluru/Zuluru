@@ -6,7 +6,7 @@
  */
 $name = Configure::read('organization.short_name');
 ?>
-<p>Since you have indicated you wish to bring a dog to the fields, you
+<p>Since you have indicated you wish to bring a dog to the <?php __(Configure::read('ui.fields')); ?>, you
 must agree to the following waiver.</p>
 <p>If you have concerns about the data <?php echo $name; ?> collects, please see our 
 <a href="<?php echo Configure::read('urls.privacy_policy'); ?>" target="_new">Privacy Policy</a>.</p>

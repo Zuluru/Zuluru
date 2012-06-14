@@ -68,9 +68,10 @@ $short = Configure::read('organization.short_name');
 			'options' => $countries,
 			'after' => $this->Html->para (null, __('Select a country from the list.', true)),
 		));
+		$fields = __(Configure::read('ui.fields'));
 		echo $this->ZuluruForm->input('addr_postalcode', array(
 			'label' => __('Postal Code', true),
-			'after' => $this->Html->para (null, __("Please enter a correct postal code matching the address above. $short uses this information to help locate new fields near its members.", true)),
+			'after' => $this->Html->para (null, __("Please enter a correct postal code matching the address above. $short uses this information to help locate new %s near its members.", true)),
 		));
 	?>
 	</fieldset>

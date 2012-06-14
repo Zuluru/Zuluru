@@ -1,5 +1,5 @@
 <?php
-$this->Html->addCrumb (__('Field Layout', true));
+$this->Html->addCrumb (sprintf(__('%s Layout', true), Configure::read('ui.field_cap')));
 $this->Html->addCrumb ("{$field['Facility']['name']} ({$field['Facility']['code']}) {$field['Field']['num']}");
 ?>
 
@@ -67,7 +67,7 @@ $this->Html->scriptBlock ($variables, array('inline' => false));
 <h3><?php echo $field['Field']['long_name']; ?></h3>
 <p><?php echo $address; ?></p>
 
-<p>Get directions to this field from:
+<p>Get directions to this <?php echo Configure::read('ui.field'); ?> from:
 <form action="javascript:getDirections()">
 <input type="text" size=30 maxlength=50 name="saddr" id="saddr" value="<?php echo $home_addr; ?>" /><br>
 <input value="Get Directions" type="submit"><br>

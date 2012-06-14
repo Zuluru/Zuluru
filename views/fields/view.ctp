@@ -1,11 +1,11 @@
 <?php
-$this->Html->addCrumb (__('Fields', true));
+$this->Html->addCrumb (__(Configure::read('ui.fields_cap'), true));
 $this->Html->addCrumb ($field['Field']['long_name']);
 $this->Html->addCrumb (__('View', true));
 ?>
 
 <div class="fields view">
-<h2><?php  echo __('View Field', true) . ': ' . $field['Field']['long_name'];?></h2>
+<h2><?php  echo sprintf(__('View %s', true), Configure::read('ui.field_cap')) . ': ' . $field['Field']['long_name'];?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Facility'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
@@ -91,12 +91,12 @@ if ($field['Field']['length'] > 0) {
 <?php if (!empty ($field['Field']['layout_url'])): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Layout'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $this->Html->link (__('Click for field layout diagram in new window', true), $field['Field']['layout_url'], array('target' => '_new')); ?>
+			<?php echo $this->Html->link (sprintf(__('Click for %s layout diagram in new window', true), Configure::read('ui.field')), $field['Field']['layout_url'], array('target' => '_new')); ?>
 
 		</dd>
 <?php endif; ?>
 <?php if (!empty ($field['Field']['permit_url'])): ?>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Field&nbsp;Permit'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php printf(__('%s&nbsp;Permit', true), Configure::read('ui.field_cap')); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $this->Html->link ($field['Field']['permit_name'], $field['Field']['permit_url']); ?>
 
@@ -104,11 +104,11 @@ if ($field['Field']['length'] > 0) {
 <?php endif; ?>
 
 <?php if (!empty ($field['Facility']['Field'])): ?>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Other fields at this facility'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php printf(__('Other %s at this facility', true), Configure::read('ui.fields')); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<table class="list">
 			<tr>
-				<th>Fields</th>
+				<th><?php __(Configure::read('ui.field_cap')); ?></th>
 			</tr>
 			<?php
 			foreach ($field['Facility']['Field'] as $related) {
@@ -132,7 +132,7 @@ if ($field['Field']['length'] > 0) {
 <div class="actions">
 	<ul>
 <?php if ($is_admin): ?>
-		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Field', true)), array('action' => 'edit', 'field' => $field['Field']['id'])); ?> </li>
+		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __(Configure::read('ui.field_cap'), true)), array('action' => 'edit', 'field' => $field['Field']['id'])); ?> </li>
 		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Layout', true)), array('controller' => 'maps', 'action' => 'edit', 'field' => $field['Field']['id'])); ?> </li>
 		<li><?php echo $this->Html->link(sprintf(__('Add %s', true), __('Game Slots', true)), array('controller' => 'game_slots', 'action' => 'add', 'field' => $field['Field']['id'])); ?> </li>
 <?php endif; ?>

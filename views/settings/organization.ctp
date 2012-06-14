@@ -122,7 +122,7 @@ $this->Html->addCrumb (__('Organization', true));
 	));
 	?>
 
-	<p>The following settings are used for determining which season is currently in effect, for the purposes of providing links to current field permits.</p>
+	<p>The following settings are used for determining which season is currently in effect, for the purposes of providing links to current <?php __(Configure::read('ui.field')); ?> permits.</p>
 	<?php
 	$seasons = Configure::read('options.season');
 	unset($seasons['None']);

@@ -1,11 +1,11 @@
 <?php
 $this->Html->addCrumb (__('Divisions', true));
 $this->Html->addCrumb ($division['Division']['full_league_name']);
-$this->Html->addCrumb (__('Field Distribution Report', true));
+$this->Html->addCrumb (sprintf(__('%s Distribution Report', true), Configure::read('sport.field_cap')));
 ?>
 
 <div class="divisions field_distribution">
-<h2><?php  echo __('Field Distribution Report', true) . ': ' . $division['Division']['full_league_name'];?></h2>
+<h2><?php  echo sprintf(__('%s Distribution Report', true), Configure::read('sport.field_cap')) . ': ' . $division['Division']['full_league_name'];?></h2>
 <?php
 if (isset ($published)) {
 	echo $this->Html->para(null,

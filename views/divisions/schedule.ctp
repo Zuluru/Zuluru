@@ -76,7 +76,7 @@ if (!empty ($edit_date)) {
 			}
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('field_report_32.png',
 				array('action' => 'fields', 'division' => $division['Division']['id']),
-				array('alt' => __('Field Distribution', true), 'title' => __('Field Distribution Report', true))));
+				array('alt' => sprintf(__('%s Distribution', true), Configure::read('sport.field_cap')), 'title' => sprintf(__('%s Distribution Report', true), Configure::read('sport.field_cap')))));
 			// TODO: More links to reports, etc.
 		}
 		if ($is_admin) {

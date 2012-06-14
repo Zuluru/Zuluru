@@ -37,7 +37,7 @@ $has_seed_games = !empty($home_seed_games) || !empty($away_seed_games);
 		?>
 		<?php echo $this->ZuluruHtml->iconLink('field_24.png',
 				array('action' => 'slots', 'division' => $division['Division']['id'], 'date' => $date),
-				array('alt' => __('Fields', true), 'title' => __('Available Fields', true))); ?>
+				array('alt' => __(Configure::read('sport.fields_cap'), true), 'title' => sprintf(__('Available %s', true), __(Configure::read('sport.fields_cap'), true)))); ?>
 		<?php echo $this->ZuluruHtml->iconLink('edit_24.png',
 				array('controller' => 'divisions', 'action' => 'schedule', 'division' => $division['Division']['id'], 'edit_date' => $date, '#' => $date),
 				array('alt' => __('Edit Day', true), 'title' => __('Edit Day', true))); ?>
@@ -67,7 +67,7 @@ $has_seed_games = !empty($home_seed_games) || !empty($away_seed_games);
 <tr>
 	<th><?php if ($is_tournament): ?><?php __('Game'); ?><?php endif; ?></th>
 	<th><?php __('Time'); ?></th>
-	<th><?php __('Field'); ?></th>
+	<th><?php __(Configure::read('sport.field_cap')); ?></th>
 	<th><?php __('Home'); ?></th>
 	<th><?php __('Away'); ?></th>
 	<th><?php __('Score'); ?></th>

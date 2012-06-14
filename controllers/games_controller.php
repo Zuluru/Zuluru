@@ -944,6 +944,7 @@ class GamesController extends AppController {
 
 		$this->Game->contain ($contain);
 		$game = $this->Game->read(null, $id);
+		Configure::load("sport/{$game['Division']['League']['sport']}");
 		$this->Game->_adjustEntryIndices($game);
 		if ($game['Game']['home_team'] == $team_id) {
 			$opponent = $game['AwayTeam'];

@@ -1,5 +1,5 @@
 <?php
-$this->Html->addCrumb (__('Fields', true));
+$this->Html->addCrumb (__(Configure::read('ui.fields_cap'), true));
 $this->Html->addCrumb ($this->data['Facility']['name']);
 if (isset ($add)) {
 	$this->Html->addCrumb (__('Create', true));
@@ -11,7 +11,7 @@ if (isset ($add)) {
 <div class="fields form">
 <?php echo $this->Form->create('Field', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
- 		<legend><?php printf(__('Edit %s', true), __('Field', true)); ?></legend>
+ 		<legend><?php printf(__('Edit %s', true), __(Configure::read('ui.field_cap'), true)); ?></legend>
 		<?php
 		if (!isset ($add)) {
 			echo $this->Form->input('id');

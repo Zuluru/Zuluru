@@ -7,21 +7,21 @@ $this->Html->addCrumb (__('List', true));
 <h2><?php __($closed ? 'Closed Facilities List' : 'Facilities List');?></h2>
 <?php if (!$closed) echo $this->element('fields/caution'); ?>
 
-<p>There is also a <?php echo $this->Html->link(__('map of all fields', true), array('controller' => 'maps')); ?> available.</p>
+<p>There is also a <?php echo $this->Html->link(sprintf(__('map of all %s', true), __(Configure::read('ui.fields'), true)), array('controller' => 'maps')); ?> available.</p>
 
 <?php if ($is_admin): ?>
 <?php if ($closed): ?>
-<p class="highlight-message">This list shows facilities which are closed, or which have at least one closed field.
-Opening a facility leaves all fields at that facility closed; they must be individually opened through the "facility view" page.</p>
+<p class="highlight-message">This list shows facilities which are closed, or which have at least one closed <?php __(Configure::read('ui.field')); ?>.
+Opening a facility leaves all <?php __(Configure::read('ui.fields')); ?> at that facility closed; they must be individually opened through the "facility view" page.</p>
 <?php else: ?>
-<p class="highlight-message">This list shows only facilities which are open, and which also have open fields.
-Closing a facility closes all fields at that facility, and should only be done when a facility is no longer going to be in use.</p>
+<p class="highlight-message">This list shows only facilities which are open, and which also have open <?php __(Configure::read('ui.fields')); ?>.
+Closing a facility closes all <?php __(Configure::read('ui.fields')); ?> at that facility, and should only be done when a facility is no longer going to be in use.</p>
 <?php endif; ?>
 <?php endif; ?>
 
 <table class="list">
 <tr>
-	<th><?php __('Field'); ?></th>
+	<th><?php __(Configure::read('ui.field_cap')); ?></th>
 	<th><?php __('Actions'); ?></th>
 </tr>
 
@@ -69,7 +69,7 @@ foreach ($regions as $region):
 			?>
 <?php if ($is_admin): ?>
 			<?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Facility', true)), array('controller' => 'facilities', 'action' => 'edit', 'facility' => $facility['id'])); ?>
-			<?php echo $this->Html->link(sprintf(__('Add %s', true), __('Field', true)), array('controller' => 'fields', 'action' => 'add', 'facility' => $facility['id'])); ?>
+			<?php echo $this->Html->link(sprintf(__('Add %s', true), __(Configure::read('ui.field'), true)), array('controller' => 'fields', 'action' => 'add', 'facility' => $facility['id'])); ?>
 			<?php $id = 'span_' . mt_rand(); ?>
 			<span id="<?php echo $id; ?>">
 			<?php

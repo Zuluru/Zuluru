@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('View', true));
 <div class="gameSlots view">
 <h2><?php  __('Game Slot');?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Field'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __(Configure::read('ui.field_cap')); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $this->element('fields/block', array('field' => $gameSlot['Field'], 'display_field' => 'long_name')); ?>
 			&nbsp;

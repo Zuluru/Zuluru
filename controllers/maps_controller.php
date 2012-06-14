@@ -40,7 +40,7 @@ class MapsController extends AppController {
 	function view() {
 		$id = $this->_arg('field');
 		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('field', true)), 'default', array('class' => 'info'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'fields', 'action' => 'index'));
 		}
 
@@ -55,7 +55,7 @@ class MapsController extends AppController {
 
 		$field = $this->Field->read(null, $id);
 		if (!$field['Field']['length']) {
-			$this->Session->setFlash(__('That field has not yet been laid out.', true), 'default', array('class' => 'info'));
+			$this->Session->setFlash(sprintf(__('That %s has not yet been laid out.', true), Configure::read('ui.field')), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'fields', 'action' => 'index'));
 		}
 
@@ -73,16 +73,16 @@ class MapsController extends AppController {
 	function edit() {
 		$id = $this->_arg('field');
 		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('field', true)), 'default', array('class' => 'info'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'fields', 'action' => 'index'));
 		}
 
 		if (!empty ($this->data)) {
 			if ($this->Field->saveAll($this->data['Field']) && $this->Field->Facility->save($this->data['Facility'])) {
-				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('field layout', true)), 'default', array('class' => 'success'));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), sprintf(__('%s layout', true), Configure::read('ui.field'))), 'default', array('class' => 'success'));
 				$this->redirect(array('controller' => 'maps', 'action' => 'view', 'field' => $id));
 			} else {
-				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('field layout', true)), 'default', array('class' => 'warning'));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), sprintf(__('%s layout', true), Configure::read('ui.field'))), 'default', array('class' => 'warning'));
 			}
 		}
 
@@ -98,7 +98,7 @@ class MapsController extends AppController {
 
 		$field = $this->Field->read(null, $id);
 		if (!$field) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('field', true)), 'default', array('class' => 'info'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'fields', 'action' => 'index'));
 		}
 

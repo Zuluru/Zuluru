@@ -443,6 +443,8 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(__('This division has no games scheduled yet.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		Configure::load("sport/{$division['League']['sport']}");
+
 		// Sort games by date, time and field
 		usort ($division['Game'], array ('Game', 'compareDateAndField'));
 
@@ -523,7 +525,7 @@ class DivisionsController extends AppController {
 									return false;
 								}
 								if ($slot1['Field']['facility_id'] != $slot2['Field']['facility_id']) {
-									$this->Session->setFlash(sprintf (__('Team %s was scheduled on fields at different facilities!', true), $team['Team']['name']), 'default', array('class' => 'info'));
+									$this->Session->setFlash(sprintf (__('Team %s was scheduled on %s at different facilities!', true), $team['Team']['name'], Configure::read('ui.fields')), 'default', array('class' => 'info'));
 									return false;
 								}
 							}
@@ -616,6 +618,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		Configure::load("sport/{$division['League']['sport']}");
 
 		// Find all games played by teams that are currently in this division,
 		// or tournament games for this division
@@ -776,6 +779,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(__('This division has no games scheduled yet.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		Configure::load("sport/{$division['League']['sport']}");
 		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
 		$league_obj->sort($division);
 
@@ -862,6 +866,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		Configure::load("sport/{$division['League']['sport']}");
 
 		$this->Division->DivisionGameslotAvailability->GameSlot->contain();
 		$join = array( array(

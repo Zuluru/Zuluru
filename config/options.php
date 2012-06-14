@@ -79,7 +79,7 @@ $config['options'] = array(
 	)),
 
 	'incident_types'		=> make_options(array(
-		'Field condition',
+		Configure::read('ui.field_cap') . ' condition',
 		'Injury',
 		'Rules disagreement',
 		'Illegal Substitution',

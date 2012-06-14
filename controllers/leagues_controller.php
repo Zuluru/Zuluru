@@ -80,6 +80,7 @@ class LeaguesController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		Configure::load("sport/{$league['League']['sport']}");
 
 		$this->set(compact ('league'));
 		$divisions = $this->Session->read('Zuluru.DivisionIDs');

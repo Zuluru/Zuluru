@@ -83,7 +83,7 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 
 	function scheduleOptions($num_teams) {
 		$types = array(
-			'single' => 'single blank, unscheduled game (2 teams, one field, one day)',
+			'single' => sprintf(__('single blank, unscheduled game (2 teams, one %s)', true), Configure::read('sport.field')),
 			'oneset_ratings_ladder' => "set of ratings-scheduled games for all teams ($num_teams teams, " . ($num_teams / 2) . " games, one day)"
 		);
 

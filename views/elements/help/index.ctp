@@ -15,7 +15,7 @@
 		<li><?php echo $this->Html->link (__('Site Setup and Configuration', true), array('controller' => 'help', 'action' => 'guide', 'administrator', 'setup')); ?></li>
 		<li><?php echo $this->Html->link (__('Player Management', true), array('controller' => 'help', 'action' => 'guide', 'administrator', 'players')); ?></li>
 		<li><?php echo $this->Html->link (__('League Management', true), array('controller' => 'help', 'action' => 'guide', 'administrator', 'leagues')); ?></li>
-		<li><?php echo $this->Html->link (__('Field Management', true), array('controller' => 'help', 'action' => 'guide', 'administrator', 'fields')); ?></li>
+		<li><?php echo $this->Html->link (sprintf(__('%s Management', true), Configure::read('ui.field_cap')), array('controller' => 'help', 'action' => 'guide', 'administrator', 'fields')); ?></li>
 		<li><?php echo $this->Html->link (__('Registration', true), array('controller' => 'help', 'action' => 'guide', 'administrator', 'registration')); ?></li>
 	</ul>
 <?php endif; ?>
@@ -42,7 +42,7 @@
 <?php if ($is_admin): ?>
 	<li><?php echo $this->Html->link (__('Facilities', true), array('controller' => 'help', 'action' => 'facilities')) .
 		' ' . __('and', true) . ' ' .
-		$this->Html->link (__('Fields', true), array('controller' => 'help', 'action' => 'fields')); ?></li>
+		$this->Html->link (__(Configure::read('ui.fields_cap'), true), array('controller' => 'help', 'action' => 'fields')); ?></li>
 	<li><?php echo $this->Html->link (__('Rules Engine', true), array('controller' => 'help', 'action' => 'rules')); ?></li>
 	<li><?php echo $this->Html->link (__('Settings', true), array('controller' => 'help', 'action' => 'settings')); ?></li>
 <?php endif; ?>

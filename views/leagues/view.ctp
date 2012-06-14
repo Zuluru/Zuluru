@@ -76,7 +76,7 @@ $this->Html->addCrumb (__('View', true));
 				}
 				echo $this->ZuluruHtml->iconLink('field_report_32.png',
 					array('controller' => 'divisions', 'action' => 'fields', 'division' => $division['id']),
-					array('alt' => __('Field Distribution', true), 'title' => __('Field Distribution Report', true)));
+					array('alt' => sprintf(__('%s Distribution', true), Configure::read('sport.field_cap')), 'title' => sprintf(__('%s Distribution Report', true), Configure::read('sport.field_cap'))));
 			}
 			if ($is_admin) {
 				echo $this->ZuluruHtml->iconLink('coordinator_add_32.png',

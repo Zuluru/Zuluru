@@ -1,5 +1,5 @@
 <?php
-$this->Html->addCrumb (__('Field Editor', true));
+$this->Html->addCrumb (sprintf(__('%s Editor', true), Configure::read('ui.field_cap')));
 $this->Html->addCrumb ("{$field['Facility']['name']} ({$field['Facility']['code']}) {$field['Field']['num']}");
 ?>
 

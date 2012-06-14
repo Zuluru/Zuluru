@@ -21,9 +21,9 @@ if (isset ($field)) {
 } else {
 ?>
 		<fieldset>
-			<legend><?php __('Field Selection'); ?></legend>
-			<p class="warning-message">NOTE: By default, checking a facility here will create game slots for ALL open fields at that facility.
-			If you want to create game slots for selected fields, click the facility name to see the list of fields at that facility.</p>
+			<legend><?php printf(__('%s Selection', true), Configure::read('ui.field_cap')); ?></legend>
+			<p class="warning-message">NOTE: By default, checking a facility here will create game slots for ALL open <?php __(Configure::read('ui.fields')); ?> at that facility.
+			If you want to create game slots for selected <?php __(Configure::read('ui.fields')); ?>, click the facility name to see the list of <?php __(Configure::read('ui.fields')); ?> at that facility.</p>
 			<div class="actions">
 				<ul>
 <?php

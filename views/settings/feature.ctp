@@ -103,7 +103,7 @@ $this->Html->addCrumb (__('Feature', true));
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
 			'label' => 'Enable annotations',
-			'after' => 'Allow players to attach notes to other players, teams, games and fields.',
+			'after' => sprintf('Allow players to attach notes to other players, teams, games and %s.', Configure::read('ui.fields')),
 		),
 	));
 	echo $this->element('settings/input', array(

@@ -607,6 +607,11 @@ class TeamsController extends AppController {
 		if (empty($this->data)) {
 			$this->data = $this->Team->read(null, $id);
 		}
+		$division_id = $this->Team->field('division_id', array('id' => $id));
+		$league_id = $this->Team->Division->field('league_id', array('id' => $division_id));
+		$sport = $this->Team->Division->League->field('sport', array('id' => $league_id));
+		Configure::load("sport/$sport");
+
 		$regions = $this->Team->Division->Game->GameSlot->Field->Facility->Region->find('list');
 		$fields = $this->Team->Division->Game->GameSlot->Field->find('all', array(
 				'contain' => 'Facility',
@@ -784,6 +789,7 @@ class TeamsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		Configure::load("sport/{$team['Division']['League']['sport']}");
 		$this->Team->Division->Game->contain(array(
 				'GameSlot' => array('Field' => 'Facility'),
 				'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $this->Session->read('Zuluru.TeamIDs'))),

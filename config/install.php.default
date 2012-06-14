@@ -113,4 +113,16 @@ $config['timezone'] = array(
 	'adjust'			=> 0,
 );
 
+// This is the generic word to be used for all field-type spaces that the
+// site will deal with. If you offer Ultimate, volleyball and hockey, you
+// will need to find something that conveys "field, court or rink". Perhaps
+// "location"?
+$field = 'field';
+$config['ui'] = array(
+	'field' => $field,
+	'field_cap' => Inflector::humanize($field),
+	'fields' => Inflector::pluralize($field),
+	'fields_cap' => Inflector::humanize(Inflector::pluralize($field)),
+);
+
 ?>

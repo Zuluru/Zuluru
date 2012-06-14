@@ -1,5 +1,12 @@
 <?php
+$field = 'field';
+
 $config['sport'] = array(
+	'field' => $field,
+	'field_cap' => Inflector::humanize($field),
+	'fields' => Inflector::pluralize($field),
+	'fields_cap' => Inflector::humanize(Inflector::pluralize($field)),
+
 	'roster_requirements' => array(
 		'4/3'	=> 12,
 		'5/2'	=> 12,

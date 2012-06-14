@@ -27,9 +27,10 @@ if (isset ($add)) {
 		));
 		if ($is_admin) {
 			echo $this->ZuluruForm->input('home_field', array(
-				'after' => $this->Html->para (null, __('Home field, if applicable.', true)),
+				'label' => sprintf(__('Home %s', true), Configure::read('sport.field_cap')),
+				'after' => $this->Html->para (null, sprintf(__('Home %s, if applicable.', true), Configure::read('sport.field'))),
 				'options' => $fields,
-				'empty' => __('No home field', true),
+				'empty' => sprintf(__('No home %s', true), Configure::read('sport.field')),
 			));
 		}
 		if (Configure::read('feature.region_preference')) {

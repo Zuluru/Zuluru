@@ -83,7 +83,7 @@ class GameSlotsController extends AppController {
 				}
 			// Validate the input
 			} else if (!array_key_exists('Field', $this->data)) {
-				$this->Session->setFlash(__('You must select at least one field!', true), 'default', array('class' => 'info'));
+				$this->Session->setFlash(sprintf(__('You must select at least one %s!', true), Configure::read('ui.field')), 'default', array('class' => 'info'));
 			} else if (!array_key_exists('Division', $this->data)) {
 				$this->Session->setFlash(__('You must select at least one division!', true), 'default', array('class' => 'info'));
 			} else {

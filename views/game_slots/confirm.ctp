@@ -28,7 +28,7 @@
 		}
 		?>
 
-		<p>Click a field name below to edit the list of game slots that will be created for that field.</p>
+		<p>Click a <?php __(Configure::read('ui.field')); ?> name below to edit the list of game slots that will be created for that <?php __(Configure::read('ui.field')); ?>.</p>
 		<ul>
 		<?php
 		foreach ($regions as $region) {

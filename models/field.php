@@ -8,7 +8,7 @@ class Field extends AppModel {
 				'rule' => array('notempty'),
 				'required' => false,
 				'allowEmpty' => false,
-				'message' => 'Field number cannot be blank',
+				'message' => 'Number cannot be blank',
 			),
 		),
 		'rating' => array(

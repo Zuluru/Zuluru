@@ -25,7 +25,7 @@ class FieldsController extends AppController {
 	function view() {
 		$id = $this->_arg('field');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('field', true)), 'default', array('class' => 'info'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'facilities', 'action' => 'index'));
 		}
 		$this->Field->contain(array(
@@ -43,7 +43,7 @@ class FieldsController extends AppController {
 
 		$field = $this->Field->read(null, $id);
 		if ($field === false) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('field', true)), 'default', array('class' => 'info'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'facilities', 'action' => 'index'));
 		}
 
@@ -84,10 +84,10 @@ class FieldsController extends AppController {
 			$this->Field->create();
 
 			if ($this->Field->save($this->data)) {
-				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('field', true)), 'default', array('class' => 'success'));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'edit', 'field' => $this->Field->id));
 			} else {
-				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('field', true)), 'default', array('class' => 'warning'));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'warning'));
 				$this->data = $this->Field->_afterFind($this->data);
 			}
 		} else {
@@ -103,15 +103,15 @@ class FieldsController extends AppController {
 	function edit() {
 		$id = $this->_arg('field');
 		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('field', true)), 'default', array('class' => 'info'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'facilities', 'action' => 'index'));
 		}
 		if (!empty($this->data)) {
 			if ($this->Field->save($this->data)) {
-				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('field', true)), 'default', array('class' => 'success'));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'success'));
 				$this->redirect(array('controller' => 'facilities', 'action' => 'index'));
 			} else {
-				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('field', true)), 'default', array('class' => 'warning'));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'warning'));
 				$this->data = $this->Field->_afterFind($this->data);
 			}
 		}
@@ -150,26 +150,26 @@ class FieldsController extends AppController {
 	function delete() {
 		$id = $this->_arg('field');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('field', true)), 'default', array('class' => 'info'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'facilities', 'action' => 'index'));
 		}
 		$dependencies = $this->Field->dependencies($id);
 		if ($dependencies !== false) {
-			$this->Session->setFlash(__('The following records reference this field, so it cannot be deleted.', true) . '<br>' . $dependencies, 'default', array('class' => 'warning'));
+			$this->Session->setFlash(sprintf(__('The following records reference this %s, so it cannot be deleted.', true), Configure::read('ui.field')) . '<br>' . $dependencies, 'default', array('class' => 'warning'));
 			$this->redirect(array('action'=>'index'));
 		}
 		if ($this->Field->delete($id)) {
-			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Field', true)), 'default', array('class' => 'success'));
+			$this->Session->setFlash(sprintf(__('%s deleted', true), __(Configure::read('ui.field_cap'), true)), 'default', array('class' => 'success'));
 			$this->redirect(array('controller' => 'facilities', 'action' => 'index'));
 		}
-		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Field', true)), 'default', array('class' => 'warning'));
+		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __(Configure::read('ui.field_cap'), true)), 'default', array('class' => 'warning'));
 		$this->redirect(array('controller' => 'facilities', 'action' => 'index'));
 	}
 
 	function bookings() {
 		$id = $this->_arg('field');
 		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('field', true)), 'default', array('class' => 'info'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'facilities', 'action' => 'index'));
 		}
 		// TODO: Is there a better condition to use? Some divisions wrap around a year boundary.

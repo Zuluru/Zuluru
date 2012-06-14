@@ -101,11 +101,11 @@ $this->Html->addCrumb (__('View', true));
 <?php endif; ?>
 
 <?php if (!empty ($facility['Field'])): ?>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Fields at this facility'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php printf(__('%s at this facility', true), __(Configure::read('ui.fields_cap'), true)); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<table class="list">
 			<tr>
-				<th><?php __('Fields'); ?></th>
+				<th><?php __(Configure::read('ui.field_cap')); ?></th>
 <?php if ($is_admin): ?>
 				<th><?php __('Actions'); ?></th>
 <?php endif; ?>
@@ -117,7 +117,7 @@ $this->Html->addCrumb (__('View', true));
 				?></td>
 <?php if ($is_admin): ?>
 				<td class="actions">
-					<?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Field', true)), array('controller' => 'fields', 'action' => 'edit', 'field' => $related['id'])); ?>
+					<?php echo $this->Html->link(sprintf(__('Edit %s', true), __(Configure::read('ui.field_cap'), true)), array('controller' => 'fields', 'action' => 'edit', 'field' => $related['id'])); ?>
 					<?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Layout', true)), array('controller' => 'maps', 'action' => 'edit', 'field' => $related['id'])); ?>
 					<?php echo $this->Html->link(sprintf(__('Add %s', true), __('Game Slots', true)), array('controller' => 'game_slots', 'action' => 'add', 'field' => $related['id'])); ?>
 					<?php echo $this->Html->link(sprintf(__('View %s', true), __('Bookings', true)), array('controller' => 'fields', 'action' => 'bookings', 'field' => $related['id'])); ?>
@@ -155,7 +155,7 @@ $this->Html->addCrumb (__('View', true));
 	<ul>
 <?php if ($is_admin): ?>
 		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Facility', true)), array('action' => 'edit', 'facility' => $facility['Facility']['id'])); ?> </li>
-		<li><?php echo $this->Html->link(sprintf(__('Add %s', true), __('Field', true)), array('controller' => 'fields', 'action' => 'add', 'facility' => $facility['Facility']['id'])); ?> </li>
+		<li><?php echo $this->Html->link(sprintf(__('Add %s', true), __(Configure::read('ui.field_cap'), true)), array('controller' => 'fields', 'action' => 'add', 'facility' => $facility['Facility']['id'])); ?> </li>
 <?php endif; ?>
 	</ul>
 </div>

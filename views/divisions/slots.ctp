@@ -2,12 +2,12 @@
 
 <?php
 $this->Html->addCrumb (__('Divisions', true));
-$this->Html->addCrumb (__('Division Field Availability Report', true));
+$this->Html->addCrumb (sprintf(__('Division %s Availability Report', true), Configure::read('sport.field_cap')));
 $this->Html->addCrumb ($division['Division']['full_league_name']);
 ?>
 
 <div class="divisions slots">
-<h2><?php echo __('Division Field Availability Report', true) . ': ' . $division['Division']['full_league_name'];?></h2>
+<h2><?php echo sprintf(__('Division %s Availability Report', true), Configure::read('sport.field_cap')) . ': ' . $division['Division']['full_league_name'];?></h2>
 
 <p>Select a date below on which to view all available gameslots:</p>
 <?php
@@ -28,12 +28,12 @@ echo $this->Form->end();
 <table class="list">
 	<tr>
 		<th>ID</th>
-		<th>Field</th>
+		<th><?php __(Configure::read('sport.field_cap')); ?></th>
 		<th>Start Time</th>
 		<th>Game</th>
 		<th>Home</th>
 		<th>Away</th>
-		<th>Field Region</th>
+		<th><?php __(Configure::read('sport.field_cap')); ?> Region</th>
 <?php if (Configure::read('feature.region_preference')): ?>
 		<th>Home Pref</th>
 <?php endif; ?>
@@ -46,7 +46,7 @@ echo $this->Form->end();
 		<td><?php echo $this->ZuluruTime->time ($slot['GameSlot']['game_start']); ?></td>
 <?php if (!$slot['Game']['id']): ?>
 <?php ++$unused; ?>
-		<td colspan="3">---- <?php __('field open'); ?> ----</td>
+		<td colspan="3">---- <?php printf(__('%s open', true), Configure::read('sport.field')); ?> ----</td>
 <?php else: ?>
 		<td><?php echo $this->Html->link ($slot['Game']['id'],
 				array('controller' => 'games', 'action' => 'view', 'game' => $slot['Game']['id'])); ?></td>
@@ -64,7 +64,7 @@ echo $this->Form->end();
 	</tr>
 <?php endforeach; ?>
 </table>
-<?php printf (__('There are %s fields available for use this week, currently %s of these are unused.', true), count($slots), $unused); ?>
+<?php printf (__('There are %s %s available for use this week, currently %s of these are unused.', true), count($slots), Configure::read('sport.fields'), $unused); ?>
 <?php endif; ?>
 
 <?php if (!$this->params['isAjax']): ?>

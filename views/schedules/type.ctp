@@ -31,7 +31,7 @@ echo $this->Form->input('type', array(
 ));
 ?>
 
-<p>Select the type of game or games to add. Note that for auto-generated schedules, fields will be automatically allocated.
+<p>Select the type of game or games to add. Note that for auto-generated schedules, <?php __(Configure::read('sport.fields')); ?> will be automatically allocated.
 <?php
 if ($is_tournament) {
 	echo $this->ZuluruHtml->help(array('action' => 'schedules', 'add', 'schedule_type', 'tournament'));

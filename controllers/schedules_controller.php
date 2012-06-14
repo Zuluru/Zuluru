@@ -50,6 +50,8 @@ class SchedulesController extends AppController {
 			$this->league_obj = $this->_getComponent ('LeagueType', $this->division['Division']['schedule_type'], $this);
 		}
 
+		Configure::load("sport/{$this->division['League']['sport']}");
+
 		$this->set(array('id' => $id, 'division' => $this->division));
 		$this->_addDivisionMenuItems ($this->division['Division'], $this->division['League']);
 	}
@@ -182,7 +184,7 @@ class SchedulesController extends AppController {
 				'order' => 'GameSlot.game_date',
 		));
 		if (count($dates) == 0) {
-			$this->Session->setFlash(__('Sorry, there are no fields available for your division.  Check that fields have been allocated before attempting to proceed.', true), 'default', array('class' => 'info'));
+			$this->Session->setFlash(sprintf(__('Sorry, there are no %s available for your division. Check that %s have been allocated before attempting to proceed.', true), Configure::read('sport.fields'), Configure::read('sport.fields')), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'divisions', 'action' => 'view', 'division' => $id));
 		}
 		$dates = Set::extract ('/GameSlot/date', $dates);
@@ -297,7 +299,7 @@ class SchedulesController extends AppController {
 		foreach ($num_fields as $required) {
 			while ($required > 0) {
 				if (empty($field_counts)) {
-					$this->Session->setFlash(__('There are insufficient fields available to support the requested schedule.', true), 'default', array('class' => 'info'));
+					$this->Session->setFlash(sprintf(__('There are insufficient %s available to support the requested schedule.', true), Configure::read('sport.fields')), 'default', array('class' => 'info'));
 					return false;
 				}
 				$field_count = array_shift($field_counts);
@@ -430,7 +432,7 @@ class SchedulesController extends AppController {
 				'order' => 'GameSlot.game_date',
 		));
 		if (count($dates) == 0) {
-			$this->Session->setFlash(__('Sorry, there are no fields available for your division. Check that fields have been allocated before attempting to proceed.', true), 'default', array('class' => 'info'));
+			$this->Session->setFlash(sprintf (__('Sorry, there are no %s available for your division. Check that %s have been allocated before attempting to proceed.', true), Configure::read('sport.fields'), Configure::read('sport.fields')), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
 		}
 		$dates = Set::extract ('/0/date', $dates);

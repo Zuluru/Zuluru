@@ -398,12 +398,12 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Create league', array('controller' => 'leagues', 'action' => 'add'), 'Leagues');
 		}
 
-		$this->_addMenuItem ('Fields', array('controller' => 'facilities', 'action' => 'index'));
-		$this->_addMenuItem ('Map of all fields', array('controller' => 'maps', 'action' => 'index'), 'Fields');
+		$this->_addMenuItem (Configure::read('ui.fields_cap'), array('controller' => 'facilities', 'action' => 'index'));
+		$this->_addMenuItem ('Map of all ' . Configure::read('ui.fields'), array('controller' => 'maps', 'action' => 'index'), Configure::read('ui.fields_cap'));
 		if ($this->is_admin) {
-			$this->_addMenuItem ('Closed facilities', array('controller' => 'facilities', 'action' => 'closed'), 'Fields');
-			$this->_addMenuItem ('Create facility', array('controller' => 'facilities', 'action' => 'add'), 'Fields');
-			$this->_addMenuItem ('Add bulk gameslots', array('controller' => 'game_slots', 'action' => 'add'), 'Fields');
+			$this->_addMenuItem ('Closed facilities', array('controller' => 'facilities', 'action' => 'closed'), Configure::read('ui.fields_cap'));
+			$this->_addMenuItem ('Create facility', array('controller' => 'facilities', 'action' => 'add'), Configure::read('ui.fields_cap'));
+			$this->_addMenuItem ('Add bulk gameslots', array('controller' => 'game_slots', 'action' => 'add'), Configure::read('ui.fields_cap'));
 		}
 
 		if ($this->is_logged_in) {
@@ -507,7 +507,7 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Site Setup and Configuration', array('controller' => 'help', 'action' => 'guide', 'administrator', 'setup'), array('Help', 'Administrators'));
 			$this->_addMenuItem ('Player Management', array('controller' => 'help', 'action' => 'guide', 'administrator', 'players'), array('Help', 'Administrators'));
 			$this->_addMenuItem ('League Management', array('controller' => 'help', 'action' => 'guide', 'administrator', 'leagues'), array('Help', 'Administrators'));
-			$this->_addMenuItem ('Field Management', array('controller' => 'help', 'action' => 'guide', 'administrator', 'fields'), array('Help', 'Administrators'));
+			$this->_addMenuItem (Configure::read('ui.field_cap') . ' Management', array('controller' => 'help', 'action' => 'guide', 'administrator', 'fields'), array('Help', 'Administrators'));
 			$this->_addMenuItem ('Registration', array('controller' => 'help', 'action' => 'guide', 'administrator', 'registration'), array('Help', 'Administrators'));
 		}
 	}
@@ -733,8 +733,8 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Add Games', array('controller' => 'schedules', 'action' => 'add', 'division' => $division['id']), array_merge($path, array('Schedule')));
 			$this->_addMenuItem ('Approve scores', array('controller' => 'divisions', 'action' => 'approve_scores', 'division' => $division['id']), $path);
 			$this->_addMenuItem ('Edit', array('controller' => 'divisions', 'action' => 'edit', 'division' => $division['id']), $path);
-			$this->_addMenuItem ('Field distribution', array('controller' => 'divisions', 'action' => 'fields', 'division' => $division['id']), $path);
-			$this->_addMenuItem ('Available fields', array('controller' => 'divisions', 'action' => 'slots', 'division' => $division['id']), $path);
+			$this->_addMenuItem (Configure::read('ui.field_cap') . ' distribution', array('controller' => 'divisions', 'action' => 'fields', 'division' => $division['id']), $path);
+			$this->_addMenuItem ('Available ' . Configure::read('ui.fields'), array('controller' => 'divisions', 'action' => 'slots', 'division' => $division['id']), $path);
 			$this->_addMenuItem ('Status report', array('controller' => 'divisions', 'action' => 'status', 'division' => $division['id']), $path);
 			$this->_addMenuItem ('Validate ratings', array('controller' => 'divisions', 'action' => 'validate_ratings', 'division' => $division['id']), $path);
 			if (Configure::read('scoring.allstars') && $division['allstars'] != 'never') {
@@ -761,12 +761,12 @@ class AppController extends Controller {
 	 * Add all the links for a field to the menu.
 	 */
 	function _addFieldMenuItems($field) {
-		$this->_addMenuItem ($field['Field']['long_name'], array('controller' => 'fields', 'action' => 'view', 'field' => $field['Field']['id']), 'Fields');
-		$this->_addMenuItem ('View bookings', array('controller' => 'fields', 'action' => 'bookings', 'field' => $field['Field']['id']), array('Fields', $field['Field']['long_name']));
+		$this->_addMenuItem ($field['Field']['long_name'], array('controller' => 'fields', 'action' => 'view', 'field' => $field['Field']['id']), Configure::read('ui.fields_cap'));
+		$this->_addMenuItem ('View bookings', array('controller' => 'fields', 'action' => 'bookings', 'field' => $field['Field']['id']), array(Configure::read('ui.fields_cap'), $field['Field']['long_name']));
 		if ($this->is_admin) {
-			$this->_addMenuItem ('Add Game Slot', array('controller' => 'game_slots', 'action' => 'add', 'field' => $field['Field']['id']), array('Fields', $field['Field']['long_name']));
-			$this->_addMenuItem ('Edit Field', array('controller' => 'fields', 'action' => 'edit', 'field' => $field['Field']['id']), array('Fields', $field['Field']['long_name']));
-			$this->_addMenuItem ('Edit Layout', array('controller' => 'maps', 'action' => 'edit', 'field' => $field['Field']['id']), array('Fields', $field['Field']['long_name']));
+			$this->_addMenuItem ('Add Game Slot', array('controller' => 'game_slots', 'action' => 'add', 'field' => $field['Field']['id']), array(Configure::read('ui.fields_cap'), $field['Field']['long_name']));
+			$this->_addMenuItem (sprintf('Edit %s', Configure::read('ui.field_cap')), array('controller' => 'fields', 'action' => 'edit', 'field' => $field['Field']['id']), array(Configure::read('ui.fields_cap'), $field['Field']['long_name']));
+			$this->_addMenuItem ('Edit Layout', array('controller' => 'maps', 'action' => 'edit', 'field' => $field['Field']['id']), array(Configure::read('ui.fields_cap'), $field['Field']['long_name']));
 		}
 	}
 

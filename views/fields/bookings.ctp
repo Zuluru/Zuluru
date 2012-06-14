@@ -1,5 +1,5 @@
 <?php
-$this->Html->addCrumb (__('Fields', true));
+$this->Html->addCrumb (__(Configure::read('ui.fields_cap'), true));
 $this->Html->addCrumb (__('Availability and Bookings', true));
 $this->Html->addCrumb ($field['Field']['long_name']);
 ?>
