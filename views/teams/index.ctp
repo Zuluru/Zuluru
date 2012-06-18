@@ -49,7 +49,7 @@ foreach ($teams as $team):
 			echo $this->ZuluruHtml->iconLink('standings_24.png',
 				array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Division']['id'], 'team' => $team['Team']['id']),
 				array('alt' => __('Standings', true), 'title' => __('Standings', true)));
-			if ($is_logged_in && $team['Team']['open_roster'] && $team['Division']['roster_deadline'] >= date('Y-m-d') &&
+			if ($is_logged_in && $team['Team']['open_roster'] && !Division::rosterDeadlinePassed($team['Division']) &&
 				!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
 			{
 				echo $this->ZuluruHtml->iconLink('roster_add_32.png',
@@ -64,7 +64,7 @@ foreach ($teams as $team):
 					array('action' => 'emails', 'team' => $team['Team']['id']),
 					array('alt' => __('Player Emails', true), 'title' => __('Player Emails', true)));
 			}
-			if ($is_admin || (in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs')) && $team['Division']['roster_deadline'] >= date('Y-m-d'))) {
+			if ($is_admin || (in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs')) && !Division::rosterDeadlinePassed($team['Division']))) {
 				echo $this->ZuluruHtml->iconLink('roster_add_24.png',
 					array('action' => 'add_player', 'team' => $team['Team']['id']),
 					array('alt' => __('Add Player', true), 'title' => __('Add Player', true)));

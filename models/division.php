@@ -363,5 +363,16 @@ class Division extends AppModel {
 			}
 		}
 	}
+
+	static function rosterDeadline($division) {
+		if ($division['roster_deadline'] === null) {
+			return $division['close'];
+		}
+		return $division['roster_deadline'];
+	}
+
+	static function rosterDeadlinePassed($division) {
+		return (Division::rosterDeadline($division) < date('Y-m-d'));
+	}
 }
 ?>

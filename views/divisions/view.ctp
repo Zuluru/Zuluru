@@ -102,13 +102,11 @@ $this->Html->addCrumb (__('View', true));
 
 			</dd>
 		<?php endif; ?>
-		<?php if ($division['Division']['roster_deadline'] != '0000-00-00'): ?>
-			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Roster Deadline'); ?></dt>
-			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-				<?php echo $this->ZuluruTime->date($division['Division']['roster_deadline']); ?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Roster Deadline'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo $this->ZuluruTime->date(Division::rosterDeadline($division['Division'])); ?>
 
-			</dd>
-		<?php endif; ?>
+		</dd>
 		<?php if (!empty ($division['Day'])): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __(count ($division['Day']) == 1 ? 'Day' : 'Days'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>

@@ -194,7 +194,7 @@ $this->Html->addCrumb (__('View', true));
 					array('alt' => __('Attendance', true), 'title' => __('View Season Attendance Report', true))));
 			}
 		}
-		if ($is_logged_in && $team['Team']['open_roster'] && $team['Division']['roster_deadline'] >= date('Y-m-d') &&
+		if ($is_logged_in && $team['Team']['open_roster'] && !Division::rosterDeadlinePassed($team['Division']) &&
 			!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
 		{
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('roster_add_32.png',
@@ -209,7 +209,7 @@ $this->Html->addCrumb (__('View', true));
 				array('action' => 'emails', 'team' => $team['Team']['id']),
 				array('alt' => __('Player Emails', true), 'title' => __('Player Emails', true))));
 		}
-		if ($is_admin || (($is_captain || $is_coordinator) && $team['Division']['roster_deadline'] >= date('Y-m-d'))) {
+		if ($is_admin || (($is_captain || $is_coordinator) && !Division::rosterDeadlinePassed($team['Division']))) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('roster_add_32.png',
 				array('action' => 'add_player', 'team' => $team['Team']['id']),
 				array('alt' => __('Add Player', true), 'title' => __('Add Player', true))));
@@ -360,9 +360,9 @@ $this->Html->addCrumb (__('View', true));
 	<?php endif; ?>
 </table>
 
-	<?php if (($is_admin || $is_coordinator || $is_captain) && $roster_count < $roster_required && $team['Division']['roster_deadline'] != '0000-00-00' && $team['Division']['roster_deadline'] >= date('Y-m-d')):?>
+	<?php if (($is_admin || $is_coordinator || $is_captain) && $roster_count < $roster_required && !Division::rosterDeadlinePassed($team['Division'])):?>
 	<p class="warning-message">This team currently has only <?php echo $roster_count ?> full-time players listed. Your team roster must have a minimum of <?php echo $roster_required ?> rostered 'regular' players by the start of your division. For playoffs, your roster must be finalized by the team roster deadline (<?php
-	echo $this->ZuluruTime->date($team['Division']['roster_deadline']); ?>), and all team members must be listed as a 'regular player'.  If an individual has not replied promptly to your request to join, we suggest that you contact them to remind them to respond.</p>
+	echo $this->ZuluruTime->date(Division::rosterDeadline($team['Division'])); ?>), and all team members must be listed as a 'regular player'.  If an individual has not replied promptly to your request to join, we suggest that you contact them to remind them to respond.</p>
 	<?php endif; ?>
 
 </div>

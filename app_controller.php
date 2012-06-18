@@ -108,7 +108,7 @@ class AppController extends Controller {
 				$response_required = array();
 				foreach ($teams as $team) {
 					// Only force responses to leagues that have started play, but the roster deadline hasn't passed
-					if ($team['Division']['open'] < date('Y-m-d') && $team['Division']['roster_deadline'] >= date('Y-m-d')) {
+					if ($team['Division']['open'] < date('Y-m-d') && !Division::rosterDeadlinePassed($team['Division'])) {
 						$response_required[] = $team['Team']['id'];
 					}
 				}
@@ -659,7 +659,7 @@ class AppController extends Controller {
 			{
 				$this->_addMenuItem ('Attendance', array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['Team']['id']), array('Teams', $key));
 			}
-			if ($this->is_logged_in && $team['Team']['open_roster'] && $team['Division']['roster_deadline'] >= date('Y-m-d') &&
+			if ($this->is_logged_in && $team['Team']['open_roster'] && !Division::rosterDeadlinePassed($team['Division']) &&
 				!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
 			{
 				$this->_addMenuItem ('Join team', array('controller' => 'teams', 'action' => 'roster_request', 'team' => $team['Team']['id']), array('Teams', $key));
@@ -675,7 +675,7 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Delete', array('controller' => 'teams', 'action' => 'delete', 'team' => $team['Team']['id']), array('Teams', $key));
 		}
 		if ($this->effective_admin ||
-			(($is_captain || $this->effective_coordinator) && $team['Division']['roster_deadline'] >= date('Y-m-d')))
+			(($is_captain || $this->effective_coordinator) && !Division::rosterDeadlinePassed($team['Division'])))
 		{
 			$this->_addMenuItem ('Add player', array('controller' => 'teams', 'action' => 'add_player', 'team' => $team['Team']['id']), array('Teams', $key));
 		}

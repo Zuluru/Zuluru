@@ -90,7 +90,7 @@ foreach ($divisions as $division):
 		<td><?php echo $division['Division']['games_before_repeat']; ?></td>
 		<td><?php echo $this->ZuluruTime->date($division['Division']['open']); ?></td>
 		<td><?php echo $this->ZuluruTime->date($division['Division']['close']); ?></td>
-		<td><?php echo $this->ZuluruTime->date($division['Division']['roster_deadline']); ?></td>
+		<td><?php echo $this->ZuluruTime->date(Division::rosterDeadline($division['Division'])); ?></td>
 		<td><?php __(Inflector::humanize($division['Division']['allstars'])); ?></td>
 		<td><?php __(Inflector::humanize($division['Division']['rating_calculator'])); ?></td>
 		<td><?php echo $division['Division']['email_after']; ?></td>

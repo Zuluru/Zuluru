@@ -9,7 +9,7 @@ echo Configure::read("options.roster_position.${roster['position']}"); ?>.</p>
 <p>Please be advised that players are NOT considered a part of a team roster until your invitation to join has been accepted. The <?php
 echo $team['name']; ?> roster must be completed (minimum of <?php
 echo Configure::read("sport.roster_requirements.{$division['ratio']}"); ?> rostered players) by the team roster deadline (<?php
-echo $this->ZuluruTime->date($division['roster_deadline']);
+echo $this->ZuluruTime->date(Division::rosterDeadline($division));
 ?>), and all team members must have been accepted by the captain.</p>
 <p>Thanks,
 <br /><?php echo Configure::read('email.admin_name'); ?>

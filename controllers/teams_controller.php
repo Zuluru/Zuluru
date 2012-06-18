@@ -1018,7 +1018,7 @@ class TeamsController extends AppController {
 		$this->_limitOverride($id);
 		$this->set('is_coordinator', $this->effective_coordinator);
 
-		if (!$this->effective_admin && $team['Division']['roster_deadline'] < date('Y-m-d')) {
+		if (!$this->effective_admin && Division::rosterDeadlinePassed($team['Division'])) {
 			$this->Session->setFlash(__('The roster deadline for this division has already passed.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $id));
 		}
@@ -1614,7 +1614,7 @@ class TeamsController extends AppController {
 		// of admins when managing teams they are on.
 		$this->_limitOverride($team_id);
 
-		if (!$this->effective_admin && $team['Division']['roster_deadline'] < date('Y-m-d')) {
+		if (!$this->effective_admin && Division::rosterDeadlinePassed($team['Division'])) {
 			$this->Session->setFlash(__('The roster deadline for this division has already passed.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}

@@ -48,7 +48,7 @@ foreach ($teams as $team):
 		<td class="actions splash_action">
 			<?php
 			$is_captain = in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs'));
-			if ($team['Division']['roster_deadline'] >= date('Y-m-d') && $is_captain) {
+			if (!Division::rosterDeadlinePassed($team['Division']) && $is_captain) {
 				echo $this->ZuluruHtml->iconLink('roster_add_24.png',
 					array('controller' => 'teams', 'action' => 'add_player', 'team' => $team['Team']['id']),
 					array('alt' => __('Add Player', true), 'title' => __('Add Player', true)));
