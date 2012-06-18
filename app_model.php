@@ -82,7 +82,8 @@ class AppModel extends Model {
 	function dependencies($id) {
 		$dependencies = array();
 
-		foreach ($this->hasMany as $class => $association) {
+		foreach ($this->hasMany as $association) {
+			$class = $association['className'];
 			$conditions = array("$class.{$association['foreignKey']}" => $id);
 			if (!empty($association['conditions'])) {
 				$conditions += $association['conditions'];
