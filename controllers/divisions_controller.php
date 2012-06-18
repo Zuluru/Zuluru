@@ -181,8 +181,9 @@ class DivisionsController extends AppController {
 		}
 
 		$league_id = $this->Division->field('league_id', array('id' => $id));
-		$sport = $this->Division->League->field('sport', array('id' => $league_id));
-		Configure::load("sport/$sport");
+		$this->Division->League->contain(array());
+		$league = $this->Division->League->read(null, $league_id);
+		Configure::load("sport/{$league['League']['sport']}");
 
 		if (!empty($this->data)) {
 			if ($this->Division->saveAll($this->data)) {
@@ -192,13 +193,14 @@ class DivisionsController extends AppController {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('division', true)), 'default', array('class' => 'warning'));
 			}
 		}
+
 		if (empty($this->data)) {
 			$this->Division->contain(array (
 				'Day' => array('order' => 'day_id'),
-				'League',
 			));
 			$this->data = $this->Division->read(null, $id);
 		}
+		$this->data['League'] = $league['League'];
 
 		$this->set('days', $this->Division->Day->find('list'));
 		$this->set('league_obj', $this->_getComponent ('LeagueType', $this->data['Division']['schedule_type'], $this));
@@ -207,7 +209,7 @@ class DivisionsController extends AppController {
 			array_key_exists ('position', $this->data['Division']['DivisionsPerson']) &&
 			$this->data['Division']['DivisionsPerson']['position'] == 'coordinator');
 
-		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
+		$this->_addDivisionMenuItems ($this->data['Division'], $this->data['League']);
 	}
 
 	function scheduling_fields() {
