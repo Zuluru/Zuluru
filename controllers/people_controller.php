@@ -1181,6 +1181,9 @@ class PeopleController extends AppController {
 			$this->Session->setFlash(__('The following records reference this person, so it cannot be deleted.', true) . '<br>' . $dependencies, 'default', array('class' => 'warning'));
 			$this->redirect(array('action'=>'index'));
 		}
+		if (method_exists ($this->Auth->authenticate, 'delete_duplicate_user')) {
+			$this->Auth->authenticate->delete_duplicate_user($id);
+		}
 		if ($this->Person->delete($id)) {
 			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Person', true)), 'default', array('class' => 'success'));
 			// TODO: Unwind any registrations, including calling event_obj for additional processing like deleting team records
