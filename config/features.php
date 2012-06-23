@@ -180,6 +180,20 @@ $config['automatic_team_colours'] = array(
 	'Orange',
 );
 
+// MIME definitions for document types that CakePHP doesn't support
+$config['new_mime_types'] = array(
+	'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+	'dotx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.template',
+	'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+	'xltx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.template',
+	'potx' => 'application/vnd.openxmlformats-officedocument.presentationml.template',
+	'ppsx' => 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
+	'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+	'sldx' => 'application/vnd.openxmlformats-officedocument.presentationml.slide',
+	'xlam' => 'application/vnd.ms-excel.addin.macroEnabled.12',
+	'xlsb' => 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
+);
+
 if (file_exists(CONFIGS . 'features_custom.php')) {
 	include(CONFIGS . 'features_custom.php');
 }
