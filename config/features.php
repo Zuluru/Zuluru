@@ -194,6 +194,12 @@ $config['new_mime_types'] = array(
 	'xlsb' => 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
 );
 
+// Extensions that we want to send to the browser instead of downloading
+$config['no_download_extensions'] = array(  
+	'html', 'htm', 'txt', 'pdf',  
+	'bmp', 'gif', 'jpe', 'jpeg', 'jpg', 'png', 'tif', 'tiff',
+);
+
 if (file_exists(CONFIGS . 'features_custom.php')) {
 	include(CONFIGS . 'features_custom.php');
 }

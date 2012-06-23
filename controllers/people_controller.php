@@ -840,7 +840,9 @@ class PeopleController extends AppController {
 				'path' => $file_dir . DS,
 				'id' => $document['Upload']['filename'],
 				'extension' => $f->ext(),
+				'name' => $f->info['filename'],
 				'mimeType'  => Configure::read('new_mime_types'),
+				'download' => !in_array($f->ext(), Configure::read('no_download_extensions')),
 		));
 	}
 
