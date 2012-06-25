@@ -223,8 +223,6 @@ class ZuluruSchema extends CakeSchema {
 		'away_team' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'key' => 'index'),
 		'home_score' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'length' => 4),
 		'away_score' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'length' => 4),
-		'rating_home' => array('type' => 'integer', 'null' => true, 'default' => NULL),
-		'rating_away' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'rating_points' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'approved_by' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'status' => array('type' => 'string', 'null' => false, 'default' => 'normal', 'length' => 32),
@@ -497,6 +495,7 @@ class ZuluruSchema extends CakeSchema {
 		'attendance_reminder' => array('type' => 'integer', 'null' => true, 'default' => '-1'),
 		'attendance_summary' => array('type' => 'integer', 'null' => true, 'default' => '-1'),
 		'attendance_notification' => array('type' => 'integer', 'null' => true, 'default' => '-1'),
+		'initial_rating' => array('type' => 'integer', 'null' => true, 'default' => '1500'),
 		'rating' => array('type' => 'integer', 'null' => true, 'default' => '1500'),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'name' => array('column' => 'name', 'unique' => 0), 'division' => array('column' => 'division_id', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')

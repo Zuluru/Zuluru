@@ -234,6 +234,10 @@ $config['options'] = array(
 	'rating_calculator' => array(
 		'none' => 'None',
 		'wager' => 'Wager System',
+		'usau_college' => 'USA Ultimate College',
+		'rri' => 'RRI',
+		'krach' => 'KRACH',
+		'rpi' => 'RPI',
 		'modified_elo' => 'Modified Elo',
 	),
 

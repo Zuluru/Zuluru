@@ -26,15 +26,11 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 			echo $game['Game']['home_dependency'];
 			$game['HomeTeam']['Person'] = array();
 		} else {
-			$rating = $game['Game']['rating_home'];
-			if ($rating === null) {
-				$rating = $game['HomeTeam']['rating'];
-			}
 			echo $this->element('teams/block', array('team' => $game['HomeTeam']));
 			if (array_key_exists ('home_dependency', $game['Game'])) {
 				echo " ({$game['Game']['home_dependency']})";
 			}
-			echo ' (' . __('rated', true) . ": $rating)";
+			echo ' (' . __('currently rated', true) . ": {$game['HomeTeam']['rating']})";
 		}
 		?>
 
@@ -54,7 +50,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 			if (array_key_exists ('away_dependency', $game['Game'])) {
 				echo " ({$game['Game']['away_dependency']})";
 			}
-			echo ' (' . __('rated', true) . ": $rating)";
+			echo ' (' . __('currently rated', true) . ": $rating)";
 		}
 		?>
 

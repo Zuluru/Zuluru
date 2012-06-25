@@ -22,15 +22,11 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 			echo $game['Game']['home_dependency'];
 			$game['HomeTeam']['Person'] = array();
 		} else {
-			$rating = $game['Game']['rating_home'];
-			if ($rating === null) {
-				$rating = $game['HomeTeam']['rating'];
-			}
 			echo $this->element('teams/block', array('team' => $game['HomeTeam']));
 			if (array_key_exists ('home_dependency', $game['Game'])) {
 				echo " ({$game['Game']['home_dependency']})";
 			}
-			echo ' (' . __('rated', true) . ': ' . $rating . ')';
+			echo ' (' . __('currently rated', true) . ": {$game['HomeTeam']['rating']})";
 			if (!$preliminary && !Game::_is_finalized($game)) {
 				printf (' (%0.1f%% %s)', $ratings_obj->calculateExpectedWin($game['HomeTeam']['rating'], $game['AwayTeam']['rating']) * 100, __('chance to win', true));
 			}
@@ -45,15 +41,11 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 			echo $game['Game']['away_dependency'];
 			$game['AwayTeam']['Person'] = array();
 		} else {
-			$rating = $game['Game']['rating_away'];
-			if ($rating === null) {
-				$rating = $game['AwayTeam']['rating'];
-			}
 			echo $this->element('teams/block', array('team' => $game['AwayTeam']));
 			if (array_key_exists ('away_dependency', $game['Game'])) {
 				echo " ({$game['Game']['away_dependency']})";
 			}
-			echo ' (' . __('rated', true) . ': ' . $rating . ')';
+			echo ' (' . __('currently rated', true) . ": {$game['AwayTeam']['rating']})";
 			if (!$preliminary && !Game::_is_finalized($game)) {
 				printf (' (%0.1f%% %s)', $ratings_obj->calculateExpectedWin($game['AwayTeam']['rating'], $game['HomeTeam']['rating']) * 100, __('chance to win', true));
 			}
@@ -199,7 +191,11 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 			&nbsp;
 		</dd>
 		<?php endif; ?>
-		<?php echo $this->element("leagues/game/{$league_obj->render_element}/score", compact('game')); ?>
+		<?php
+		if ($ratings_obj->per_game_ratings) {
+			echo $this->element("leagues/game/{$league_obj->render_element}/score", compact('game'));
+		}
+		?>
 		<dt><?php __('Score Approved By'); ?></dt>
 		<dd>
 			<?php

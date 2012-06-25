@@ -8,6 +8,13 @@ class RatingsComponent extends Object
 	var $per_game_ratings = true;
 
 	/**
+	 * These settings are only used if per_game_ratings is false.
+	 * These defaults are good for the majority of such calulators.
+	 */
+	var $iterative = true;
+	var $iterations = 20;
+
+	/**
 	 * By default, we don't track ratings.
 	 */
 	function calculateRatingsChange($home_score, $away_score, $expected_win) {
@@ -31,7 +38,20 @@ class RatingsComponent extends Object
 		}
 
 		// Do the actual calculations
-		$game_update_count = $this->_recalculateRatings($division, $correct);
+		$this->_initializeRatings($division);
+		if ($this->per_game_ratings) {
+			$game_update_count = $this->_recalculateRatings($division, $correct);
+		} else {
+			$game_update_count = 0;
+			if ($this->iterative) {
+				for ($it = 0; $it < $this->iterations; ++ $it) {
+					$this->_recalculateRatings($division);
+				}
+			} else {
+				$this->_recalculateRatings($division);
+			}
+		}
+		$this->_finalizeRatings($division);
 
 		// Perhaps save any changes
 		$team_updates = array();
@@ -51,12 +71,24 @@ class RatingsComponent extends Object
 	}
 
 	/**
+	 * Initialize for ratings recalculation.
+	 */
+	function _initializeRatings(&$division) {
+		AppModel::_reindexOuter($division['Team'], 'Team', 'id');
+	}
+
+	/**
+	 * Finalize ratings recalculation. Might be used to normalize ratings, for example.
+	 */
+	function _finalizeRatings(&$division) {
+	}
+
+	/**
 	 * Recalculate ratings for all teams in a division. This default
 	 * implementation works for all calculators where rating points are
 	 * transferred on a per-game basis (i.e. per_game_ratings = true).
 	 */
 	function _recalculateRatings(&$division, $correct) {
-		AppModel::_reindexOuter($division['Team'], 'Team', 'id');
 		$moved_teams = array();
 		$game_updates = array();
 
@@ -72,13 +104,13 @@ class RatingsComponent extends Object
 			}
 
 			if (!array_key_exists ('current_rating', $division['Team'][$game['Game']['home_team']])) {
-				$division['Team'][$game['Game']['home_team']]['current_rating'] = $game['Game']['rating_home'];
+				$division['Team'][$game['Game']['home_team']]['current_rating'] = $division['Team'][$game['Game']['home_team']]['initial_rating'];
 			}
 			if (!array_key_exists ('current_rating', $division['Team'][$game['Game']['away_team']])) {
-				$division['Team'][$game['Game']['away_team']]['current_rating'] = $game['Game']['rating_away'];
+				$division['Team'][$game['Game']['away_team']]['current_rating'] = $division['Team'][$game['Game']['away_team']]['initial_rating'];
 			}
 
-			$division['Game'][$key]['Game']['calc_rating_home'] = $division['Team'][$game['Game']['home_team']]['current_rating'];
+            $division['Game'][$key]['Game']['calc_rating_home'] = $division['Team'][$game['Game']['home_team']]['current_rating'];
 			$division['Game'][$key]['Game']['calc_rating_away'] = $division['Team'][$game['Game']['away_team']]['current_rating'];
 
 			if ($this->game_obj->_is_finalized ($game) && $game['Game']['status'] != 'rescheduled') {
@@ -106,12 +138,6 @@ class RatingsComponent extends Object
 
 			// Only save updates for games that actually changed
 			$update = array('id' => $game['Game']['id']);
-			if ($division['Game'][$key]['Game']['calc_rating_home'] != $game['Game']['rating_home']) {
-				$update['rating_home'] = $division['Game'][$key]['Game']['calc_rating_home'];
-			}
-			if ($division['Game'][$key]['Game']['calc_rating_away'] != $game['Game']['rating_away']) {
-				$update['rating_away'] = $division['Game'][$key]['Game']['calc_rating_away'];
-			}
 			if ($division['Game'][$key]['Game']['calc_rating_points'] != $game['Game']['rating_points']) {
 				$update['rating_points'] = $division['Game'][$key]['Game']['calc_rating_points'];
 			}
@@ -130,7 +156,7 @@ class RatingsComponent extends Object
 			$this->game_obj->saveAll ($game_updates);
 		}
 
-		// Remove moved teams, and update the rest
+		// Remove moved teams
 		foreach ($moved_teams as $team) {
 			unset ($division['Team'][$team]);
 		}
