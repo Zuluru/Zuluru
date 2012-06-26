@@ -10,10 +10,8 @@ $this->Html->addCrumb (__('Validate Ratings', true));
 <table class="list">
 	<tr>
 		<th colspan="3">Game</th>
-		<th colspan="2">Home Team</th>
-		<th colspan="2">Rating</th>
-		<th colspan="2">Away Team</th>
-		<th colspan="2">Rating</th>
+		<th colspan="3">Home Team</th>
+		<th colspan="3">Away Team</th>
 		<th colspan="2">Transfer</th>
 	</tr>
 	<tr>
@@ -22,12 +20,10 @@ $this->Html->addCrumb (__('Validate Ratings', true));
 		<th>Status</th>
 		<th>Name</th>
 		<th>Score</th>
-		<th>Saved</th>
-		<th>Calc</th>
+		<th>Rating</th>
 		<th>Name</th>
 		<th>Score</th>
-		<th>Saved</th>
-		<th>Calc</th>
+		<th>Rating</th>
 		<th>Saved</th>
 		<th>Calc</th>
 	</tr>
@@ -38,14 +34,10 @@ $this->Html->addCrumb (__('Validate Ratings', true));
 		<td><?php echo Inflector::humanize ($game['Game']['status']); ?></td>
 		<td><?php echo $this->element('teams/block', array('team' => $game['HomeTeam'], 'show_shirt' => false)); ?></td>
 		<td><?php echo $game['Game']['home_score']; ?></td>
-		<?php $class = ($game['Game']['rating_home'] == null || $game['Game']['rating_home'] == $game['Game']['calc_rating_home'] ? '' : ' class="warning-message"'); ?>
-		<td<?php echo $class; ?>><?php echo $game['Game']['rating_home']; ?></td>
-		<td<?php echo $class; ?>><?php echo $game['Game']['calc_rating_home']; ?></td>
+		<td><?php echo $game['Game']['calc_rating_home']; ?></td>
 		<td><?php echo $this->element('teams/block', array('team' => $game['AwayTeam'], 'show_shirt' => false)); ?></td>
 		<td><?php echo $game['Game']['away_score']; ?></td>
-		<?php $class = ($game['Game']['rating_away'] == null || $game['Game']['rating_away'] == $game['Game']['calc_rating_away'] ? '' : ' class="warning-message"'); ?>
-		<td<?php echo $class; ?>><?php echo $game['Game']['rating_away']; ?></td>
-		<td<?php echo $class; ?>><?php echo $game['Game']['calc_rating_away']; ?></td>
+		<td><?php echo $game['Game']['calc_rating_away']; ?></td>
 		<?php $class = ($game['Game']['rating_points'] == $game['Game']['calc_rating_points'] ? '' : ' class="warning-message"'); ?>
 		<td<?php echo $class; ?>><?php echo $game['Game']['rating_points']; ?></td>
 		<td<?php echo $class; ?>><?php echo $game['Game']['calc_rating_points']; ?></td>

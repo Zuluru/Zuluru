@@ -720,7 +720,12 @@ class LeagueTypeComponent extends Object
 		}
 		$slots = Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date]/id", $this->division);
 		if (empty ($slots)) {
-			$this->_controller->Session->setFlash(__('Couldn\'t get a slot ID', true), 'default', array('class' => 'warning'));
+			App::import('Helper', 'Html');
+			$html = new HtmlHelper();
+
+			$this->_controller->Session->setFlash(sprintf(__('There are insufficient game slots available to complete this schedule. Check the %s for details.', true),
+					$html->link(sprintf(__('%s Availability Report', true), __(Configure::read('sport.field_cap'), true)), array('controller' => 'divisions', 'action' => 'slots', 'division' => $this->division['Division']['id'], 'date' => $date))),
+					'default', array('class' => 'warning'));
 			return false;
 		}
 

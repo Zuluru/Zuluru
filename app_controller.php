@@ -735,7 +735,7 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Approve scores', array('controller' => 'divisions', 'action' => 'approve_scores', 'division' => $division['id']), $path);
 			$this->_addMenuItem ('Edit', array('controller' => 'divisions', 'action' => 'edit', 'division' => $division['id']), $path);
 			$this->_addMenuItem (Configure::read('ui.field_cap') . ' distribution', array('controller' => 'divisions', 'action' => 'fields', 'division' => $division['id']), $path);
-			$this->_addMenuItem ('Available ' . Configure::read('ui.fields'), array('controller' => 'divisions', 'action' => 'slots', 'division' => $division['id']), $path);
+			$this->_addMenuItem (Configure::read('ui.field_cap') . ' availability', array('controller' => 'divisions', 'action' => 'slots', 'division' => $division['id']), $path);
 			$this->_addMenuItem ('Status report', array('controller' => 'divisions', 'action' => 'status', 'division' => $division['id']), $path);
 			$this->_addMenuItem ('Validate ratings', array('controller' => 'divisions', 'action' => 'validate_ratings', 'division' => $division['id']), $path);
 			if (Configure::read('scoring.allstars') && $division['allstars'] != 'never') {
