@@ -50,7 +50,7 @@ foreach ($teams as $team):
 			if ($is_logged_in && $team['Team']['open_roster'] && !Division::rosterDeadlinePassed($team['Division']) &&
 				!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
 			{
-				echo $this->ZuluruHtml->iconLink('roster_add_32.png',
+				echo $this->ZuluruHtml->iconLink('roster_add_24.png',
 					array('action' => 'roster_request', 'team' => $team['Team']['id']),
 					array('alt' => __('Join Team', true), 'title' => __('Join Team', true)));
 			}
