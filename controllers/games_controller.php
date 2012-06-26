@@ -508,13 +508,23 @@ class GamesController extends AppController {
 			$this->redirect('/');
 		}
 
-		if (Game::_is_finalized($game)) {
-			$this->Session->setFlash(__('The score for that game has already been finalized.', true), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'view', 'game' => $game['Game']['id']));
+		$msg = null;
+		if (!$this->_arg('force')) {
+			if (Game::_is_finalized($game)) {
+				$msg = 'The score for this game has already been finalized.';
+			}
+			if (!empty ($game['ScoreEntry'])) {
+				$msg = 'A score has already been submitted for this game.';
+			}
 		}
-		if (!empty ($game['ScoreEntry'])) {
-			$this->Session->setFlash(__('A score has already been submitted for that game.', true), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'view', 'game' => $game['Game']['id']));
+
+		if ($msg) {
+			App::import('Helper', 'Html');
+			$html = new HtmlHelper();
+			$this->Session->setFlash(__($msg, true) . ' ' .
+					sprintf(__('If you are absolutely sure that you want to delete it anyway, %s. <b>This cannot be undone!</b>', true), $html->link(__('click here', true), array('action' => 'delete', 'game' => $id, 'force' => true))),
+					'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'game' => $id));
 		}
 
 		// If the game isn't finalized, and there's no score entry, then there won't
@@ -524,6 +534,38 @@ class GamesController extends AppController {
 		if ($this->Game->delete($id)) {
 			if ($this->Game->GameSlot->updateAll (array('game_id' => null), array('GameSlot.id' => $game['GameSlot']['id']))) {
 				$this->Session->setFlash(sprintf(__('%s deleted', true), __('Game', true)), 'default', array('class' => 'success'));
+
+				// If we already have a rating, reverse the effect of this game from the
+				// team ratings
+				if (!is_null($game['Game']['rating_points']) && $game['Game']['rating_points'] != 0) {
+					if ($game['Game']['home_score'] >= $game['Game']['away_score']) {
+						$data = array(
+							array(
+								'id' => $game['HomeTeam']['id'],
+								'rating' => $game['HomeTeam']['rating'] - $game['Game']['rating_points'],
+							),
+							array(
+								'id' => $game['AwayTeam']['id'],
+								'rating' => $game['AwayTeam']['rating'] + $game['Game']['rating_points'],
+							),
+						);
+					} else if($game['Game']['away_score'] > $game['Game']['home_score']) {
+						$data = array(
+							array(
+								'id' => $game['HomeTeam']['id'],
+								'rating' => $game['HomeTeam']['rating'] + $game['Game']['rating_points'],
+							),
+							array(
+								'id' => $game['AwayTeam']['id'],
+								'rating' => $game['AwayTeam']['rating'] - $game['Game']['rating_points'],
+							),
+						);
+					}
+					if (!$this->Game->HomeTeam->saveAll ($data)) {
+						$this->Session->setFlash(__('Game was deleted, but ratings were not reset', true), 'default', array('class' => 'warning'));
+					}
+				}
+
 				$transaction->commit();
 				$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $game['Division']['id']));
 			} else {
