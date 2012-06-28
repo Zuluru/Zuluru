@@ -85,7 +85,13 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 	<?php endif; ?>
 
 	<?php
-	$captains = array_merge ($game['HomeTeam']['Person'], $game['AwayTeam']['Person']);
+	$players = array_merge ($game['HomeTeam']['Person'], $game['AwayTeam']['Person']);
+	$captains = array();
+	foreach ($players as $player) {
+		if (in_array($player['TeamsPerson']['position'], Configure::read('privileged_roster_positions')) && $player['TeamsPerson']['status'] == ROSTER_APPROVED) {
+			$captains[] = $player;
+		}
+	}
 	if (!empty ($captains)):
 	?>
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Captain Emails'); ?></dt>
