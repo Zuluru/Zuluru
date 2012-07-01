@@ -146,14 +146,14 @@ $config['options'] = array(
 		'coordinator'		=> 'Coordinator',
 	),
 
-	'game_status' => array(
-		'normal'			=> 'Normal',
-		'home_default'		=> 'Home Default',
-		'away_default'		=> 'Away Default',
-		'rescheduled'		=> 'Rescheduled',
-		'cancelled'			=> 'Cancelled',
-		'forfeit'			=> 'Forfeit',
-	),
+	'game_status' => make_human_options(array(
+		'normal',
+		'home_default',
+		'away_default',
+		'rescheduled',
+		'cancelled',
+		'forfeit',
+	)),
 
 	'field_rating' => array(
 		'A'					=> 'A',
