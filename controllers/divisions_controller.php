@@ -636,6 +636,7 @@ class DivisionsController extends AppController {
 							'Game.tournament' => true,
 						),
 					),
+					'NOT' => array('Game.status' => Configure::read('unplayed_status')),
 				),
 		));
 
