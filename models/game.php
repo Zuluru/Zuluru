@@ -407,10 +407,11 @@ class Game extends AppModel {
 
 	static function _is_finalized($game) {
 		if (array_key_exists ('Game', $game)) {
-			return (isset($game['Game']['home_score']) && isset($game['Game']['away_score']));
+			$test = $game['Game'];
 		} else {
-			return (isset($game['home_score']) && isset($game['away_score']));
+			$test = $game;
 		}
+		return ($test['status'] != 'normal' || (isset($test['home_score']) && isset($test['away_score'])));
 	}
 
 	/**

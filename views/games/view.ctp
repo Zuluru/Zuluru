@@ -151,6 +151,7 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 	<legend><?php __('Scoring'); ?></legend>
 	<dl>
 	<?php if (Game::_is_finalized($game)): ?>
+		<?php if (!in_array($game['Game']['status'], Configure::read('unplayed_status'))): ?>
 		<dt><?php echo $this->Text->truncate ($game['HomeTeam']['name'], 28); ?></dt>
 		<dd>
 			<?php echo $game['Game']['home_score']; ?>
@@ -187,6 +188,7 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 			?>
 			&nbsp;
 		</dd>
+		<?php endif; ?>
 		<?php endif; ?>
 		<?php
 		if ($ratings_obj->per_game_ratings) {
@@ -283,6 +285,8 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 	</dl>
 </fieldset>
 
+<?php if (!in_array($game['Game']['status'], Configure::read('unplayed_status'))): ?>
+
 <?php
 echo $this->element ('spirit/view',
 		array('team' => $game['HomeTeam'], 'league' => $game['Division']['League'], 'spirit' => $homeSpiritEntry, 'spirit_obj' => $spirit_obj));
@@ -343,6 +347,8 @@ echo $this->element ('spirit/view',
 		</table>
 	</fieldset>
 	<?php endif; ?>
+<?php endif; ?>
+
 <?php endif; ?>
 
 <?php if (!empty($game['Note'])): ?>

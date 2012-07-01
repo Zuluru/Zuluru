@@ -28,10 +28,14 @@ class ZuluruGameHelper extends Helper {
 			$second_score = $details['away_score'];
 		}
 
-		if ($first_score !== null && $second_score !== null) {
-			echo "{$first_score} - {$second_score}";
-			if (strpos ($details['status'], 'default') !== false) {
-				echo ' (' . __('default', true) . ')';
+		if (Game::_is_finalized($details)) {
+			if (in_array($details['status'], Configure::read('unplayed_status'))) {
+				__($details['status']);
+			} else {
+				echo "{$first_score} - {$second_score}";
+				if (strpos ($details['status'], 'default') !== false) {
+					echo ' (' . __('default', true) . ')';
+				}
 			}
 		} else {
 			// Check if one of the teams involved in the game is a team the current user is a captain of

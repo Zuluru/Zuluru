@@ -365,6 +365,9 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 	function getRecentOpponents($teamid, $gbr = null) {
 		$recent_opponents = array();
 		foreach ($this->division['Game'] as $game) {
+			if (in_array($game['status'], array('cancelled', 'rescheduled'))) {
+				continue;
+			}
 			if ($game['home_team'] == $teamid) {
 				$recent_opponents[] = $game['away_team'];
 			}

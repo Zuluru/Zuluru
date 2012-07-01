@@ -109,6 +109,13 @@ $config['privileged_roster_positions'] = array(
 	'assistant',
 );
 
+// List of game statuses that indicate that the game was not played.
+$config['unplayed_status'] = array(
+	'cancelled',
+	'forfeit',
+	'rescheduled',
+);
+
 $config['approved_by'] = array(
 	APPROVAL_AUTOMATIC			=> 'automatic approval',
 	APPROVAL_AUTOMATIC_HOME		=> 'automatic approval using home submission',
