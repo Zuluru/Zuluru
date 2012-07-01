@@ -131,9 +131,6 @@ $can_annotate = Configure::read('feature.annotations') && isset($my_team);
 			array('action' => 'delete', 'game' => $game['Game']['id']),
 			array('alt' => __('Delete Game', true), 'title' => __('Delete Game', true)),
 			array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $game['Game']['id']))); ?></li>
-		<?php if (Configure::read('scoring.allstars') && $game['Division']['allstars']): ?>
-		<li><?php echo $this->Html->link(__('Add Allstar', true), array('controller' => 'allstars', 'action' => 'add', 'game' => $game['Game']['id']));?> </li>
-		<?php endif; ?>
 		<?php endif; ?>
 	</ul>
 </div>
