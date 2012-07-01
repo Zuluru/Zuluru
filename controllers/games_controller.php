@@ -1019,11 +1019,17 @@ class GamesController extends AppController {
 			// the correct data gets into the correct form.
 			$this->data['Game']['id'] = $id;
 			$this->data['ScoreEntry'][$team_id]['team_id'] = $team_id;
-			$this->_spiritTeams ($opponent['id'], $team_id, $this->data);
+			$unplayed = in_array($this->data['ScoreEntry'][$team_id]['status'], Configure::read('unplayed_status'));
+			if (!$unplayed) {
+				$this->_spiritTeams ($opponent['id'], $team_id, $this->data);
+			} else {
+				unset($this->data['Allstar']);
+				unset($this->data['SpiritEntry']);
+			}
 
 			// Ensure that the saved score entry ids (if any) are the same as the posted ids (if any)
 			$saved = $posted = null;
-			if (array_key_exists ('ScoreEntry', $game) && array_key_exists ($team_id, $game['ScoreEntry']) && array_key_exists ('id', $game['ScoreEntry'][$team_id])) {
+			if (!empty($game['ScoreEntry'][$team_id]['id'])) {
 				$saved = $game['ScoreEntry'][$team_id]['id'];
 			}
 			if (array_key_exists ('id', $this->data['ScoreEntry'][$team_id])) {
@@ -1039,20 +1045,22 @@ class GamesController extends AppController {
 			}
 
 			// Same process, for spirit entries
-			$saved = $posted = null;
-			if (array_key_exists ('SpiritEntry', $game) && array_key_exists ($opponent['id'], $game['SpiritEntry']) && array_key_exists ('id', $game['SpiritEntry'][$opponent['id']])) {
-				$saved = $game['SpiritEntry'][$opponent['id']]['id'];
-			}
-			if (array_key_exists ('id', $this->data['SpiritEntry'][$opponent['id']])) {
-				$posted = $this->data['SpiritEntry'][$opponent['id']]['id'];
-			}
-			if ($saved !== $posted) {
-				if (!$posted) {
-					$this->Session->setFlash(__('There is already a spirit score submitted by your team for this game. To update this, use the "edit" link.', true), 'default', array('class' => 'info'));
-				} else {
-					$this->Session->setFlash(__('ID for posted spirit score does not match the saved ID.', true), 'default', array('class' => 'error'));
+			if (!$unplayed) {
+				$saved = $posted = null;
+				if (!empty($game['SpiritEntry'][$opponent['id']]['id'])) {
+					$saved = $game['SpiritEntry'][$opponent['id']]['id'];
 				}
-				$this->redirect('/');
+				if (array_key_exists ('id', $this->data['SpiritEntry'][$opponent['id']])) {
+					$posted = $this->data['SpiritEntry'][$opponent['id']]['id'];
+				}
+				if ($saved !== $posted) {
+					if (!$posted) {
+						$this->Session->setFlash(__('There is already a spirit score submitted by your team for this game. To update this, use the "edit" link.', true), 'default', array('class' => 'info'));
+					} else {
+						$this->Session->setFlash(__('ID for posted spirit score does not match the saved ID.', true), 'default', array('class' => 'error'));
+					}
+					$this->redirect('/');
+				}
 			}
 
 			// TODO: Validate that the all-star submissions are on the opposing roster
@@ -1089,39 +1097,68 @@ class GamesController extends AppController {
 			}
 
 			// Set default values in the case of a default reported
-			$default = $this->data['ScoreEntry'][$team_id]['defaulted'];
-			if ($default == 'us') {
-				$this->data['ScoreEntry'][$team_id]['score_for'] = Configure::read('scoring.default_losing_score');
-				$this->data['ScoreEntry'][$team_id]['score_against'] = Configure::read('scoring.default_winning_score');
-				$this->_spiritMerge ($opponent['id'], $spirit_obj->expected(), $this->data);
-			} else if ($default == 'them') {
-				$this->data['ScoreEntry'][$team_id]['score_for'] = Configure::read('scoring.default_winning_score');
-				$this->data['ScoreEntry'][$team_id]['score_against'] = Configure::read('scoring.default_losing_score');
-				$this->_spiritMerge ($opponent['id'], $spirit_obj->defaulted(), $this->data);
+			$status = $this->data['ScoreEntry'][$team_id]['status'];
+			if ($status == 'home_default') {
+				if ($game['Game']['home_team'] == $team_id) {
+					$this->data['ScoreEntry'][$team_id]['score_for'] = Configure::read('scoring.default_losing_score');
+					$this->data['ScoreEntry'][$team_id]['score_against'] = Configure::read('scoring.default_winning_score');
+					$this->_spiritMerge ($opponent['id'], $spirit_obj->expected(), $this->data);
+				} else {
+					$this->data['ScoreEntry'][$team_id]['score_for'] = Configure::read('scoring.default_winning_score');
+					$this->data['ScoreEntry'][$team_id]['score_against'] = Configure::read('scoring.default_losing_score');
+					$this->_spiritMerge ($opponent['id'], $spirit_obj->defaulted(), $this->data);
+				}
+			} else if ($status == 'away_default') {
+				if ($game['Game']['home_team'] == $team_id) {
+					$this->data['ScoreEntry'][$team_id]['score_for'] = Configure::read('scoring.default_winning_score');
+					$this->data['ScoreEntry'][$team_id]['score_against'] = Configure::read('scoring.default_losing_score');
+					$this->_spiritMerge ($opponent['id'], $spirit_obj->defaulted(), $this->data);
+				} else {
+					$this->data['ScoreEntry'][$team_id]['score_for'] = Configure::read('scoring.default_losing_score');
+					$this->data['ScoreEntry'][$team_id]['score_against'] = Configure::read('scoring.default_winning_score');
+					$this->_spiritMerge ($opponent['id'], $spirit_obj->expected(), $this->data);
+				}
+			} else if ($unplayed) {
+				$this->data['ScoreEntry'][$team_id]['score_for'] = $this->data['ScoreEntry'][$team_id]['score_against'] = null;
 			}
 
 			// Spirit score entry validation comes from the spirit component
 			$this->Game->SpiritEntry->validate = $spirit_obj->getValidate($game['Division']['League']);
 
+			$resultMessage = null;
+			$transaction = new DatabaseTransaction($this->Game);
 			if ($this->Game->saveAll($this->data, array('validate' => 'first'))) {
+				// If the game was unplayed, and there's a spirit entry from a previous submission,
+				// we must delete that entry.
+				if ($unplayed && !empty($game['SpiritEntry'][$opponent['id']]['id'])) {
+					$this->Game->SpiritEntry->delete($game['SpiritEntry'][$opponent['id']]['id'], false);
+				}
+				$transaction->commit();
+
 				// Check if the opponent has an entry
 				if (!$this->Game->_get_score_entry($game, $opponent['id'])) {
 					// No, so we just mention that it's been saved and move on
-					if ($this->data['ScoreEntry'][$team_id]['score_for'] > $this->data['ScoreEntry'][$team_id]['score_against']) {
+					if (in_array($this->data['ScoreEntry'][$team_id]['status'], Configure::read('unplayed_status'))) {
+						$status = __($this->data['ScoreEntry'][$team_id]['status'], true);
+					} else if ($this->data['ScoreEntry'][$team_id]['score_for'] > $this->data['ScoreEntry'][$team_id]['score_against']) {
 						$status = __('a win for your team', true);
 					} else if ($this->data['ScoreEntry'][$team_id]['score_for'] < $this->data['ScoreEntry'][$team_id]['score_against']) {
 						$status = __('a loss for your team', true);
 					} else {
 						$status = __('a tie', true);
 					}
-					$this->Session->setFlash(sprintf(__('This score has been saved. Once your opponent has entered their score, it will be officially posted.<br/><br/>The score you have submitted indicates that this game was %s. If this is incorrect, you can edit the score to correct it.', true), $status), 'default', array('class' => 'success'));
+					$resultMessage = sprintf(__('This score has been saved. Once your opponent has entered their score, it will be officially posted.<br/><br/>The score you have submitted indicates that this game was %s. If this is incorrect, you can edit the score to correct it.', true), $status);
+					$resultClass = 'success';
 				} else {
 					// Otherwise, both teams have an entry.  So, attempt to finalize using
 					// this information.
-					if( $this->_finalize($id) ) {
-						$this->Session->setFlash(__('This score agrees with the score submitted by your opponent. It will now be posted as an official game result.', true), 'default', array('class' => 'success'));
+					$result = $this->_finalize($id);
+					if ($result === true) {
+						$resultMessage = __('This score agrees with the score submitted by your opponent. It will now be posted as an official game result.', true);
+						$resultClass = 'success';
 					} else {
-						// Or, we have a problem.  A flash message will have been set in the finalize function.
+						$resultMessage = $result;
+						$resultClass = 'warning';
 					}
 				}
 
@@ -1140,17 +1177,21 @@ class GamesController extends AppController {
 							'sendAs' => 'html',
 					)))
 					{
-						// TODO: How to report extra information? Build a big flash message, or allow multiples?
-						// Maybe we should send the incident report before saving data, and add in a column for
+						// TODO: Maybe send the incident report before saving data, and add in a column for
 						// whether it was sent, thus allowing the cron to attempt to re-send it?
-						// $resultMessage .= __('Your incident report details have been sent for handling.', true);
+						$resultMessage .= ' ' . __('Your incident report details have been sent for handling.', true);
 					} else {
-						// TODO: Router has a url function, but not link; how do we build a link in a controller?
-						// $link = Router::link($addr, "mailto:$addr");
-						// $resultMessage .= sprintf (__('There was an error sending your incident report details. Please send them to %s to ensure proper handling.', true), $link);
+						App::import('Helper', 'Html');
+						$html = new HtmlHelper();
+						$link = $html->link($addr, "mailto:$addr");
+						$resultMessage .= ' ' . sprintf(__('There was an error sending your incident report details. Please send them to %s to ensure proper handling.', true), $link);
+						$resultClass = 'warning';
 					}
 				}
 
+				if ($resultMessage) {
+					$this->Session->setFlash($resultMessage, 'default', array('class' => $resultClass));
+				}
 				$this->redirect('/');
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('game results', true)), 'default', array('class' => 'warning'));
@@ -1201,14 +1242,12 @@ class GamesController extends AppController {
 		$this->Game->_adjustEntryIndices($game);
 
 		if ($this->Game->_is_finalized($game)) {
-			$this->Session->setFlash(__('Game has already been finalized.', true), 'default', array('class' => 'info'));
-			return false;
+			return __('Game has already been finalized.', true);
 		}
 
 		$result = $this->_finalizeGame ($game);
 		if ($result !== true) {
-			$this->Session->setFlash($result, 'default', array('class' => 'warning'));
-			return false;
+			return $result;
 		}
 		return true;
 	}
@@ -1237,22 +1276,11 @@ class GamesController extends AppController {
 		$away_entry = $this->Game->_get_score_entry($game, $game['Game']['away_team']);
 		if ($home_entry && $away_entry) {
 			if ($this->Game->_score_entries_agree($home_entry, $away_entry)) {
-				switch( $home_entry['defaulted'] ) {
-					case 'us':
-						// HOME default
-						$data['Game']['status'] = 'home_default';
-						break;
-
-					case 'them':
-						// AWAY default
-						$data['Game']['status'] = 'away_default';
-						break;
-
-					case 'no':
-					default:
-						// No default.  Just finalize score.
-						$data['Game']['home_score'] = $home_entry['score_for'];
-						$data['Game']['away_score'] = $home_entry['score_against'];
+				$data['Game']['status'] = $home_entry['status'];
+				if ($home_entry['status'] == 'normal') {
+					// No default.  Just finalize score.
+					$data['Game']['home_score'] = $home_entry['score_for'];
+					$data['Game']['away_score'] = $home_entry['score_against'];
 				}
 				$data['Game']['approved_by'] = APPROVAL_AUTOMATIC;
 			} else {
@@ -1276,28 +1304,28 @@ class GamesController extends AppController {
 						));
 					}
 				}
-				return __('This score doesn\'t agree with the one your opponent submitted.  Because of this, the score will not be posted until your coordinator approves it.', true);
+				return __('This score doesn\'t agree with the one your opponent submitted. Because of this, the score will not be posted until your coordinator approves it. Alternately, whichever captain made an error can edit their submission.', true);
 			}
 		} else if ( $home_entry && !$away_entry ) {
-			switch( $home_entry['defaulted'] ) {
-				case 'us':
-					// HOME default with no entry by AWAY
-					$data['Game']['status'] = 'home_default';
+			$data['Game']['status'] = $home_entry['status'];
+			switch( $home_entry['status'] ) {
+				case 'home_default':
 					$this->_spiritTeams ($game['Game']['home_team'], $game['Game']['away_team'], $data);
 					$this->_spiritMerge ($game['Game']['home_team'], $spirit_obj->defaulted(), $data);
 					break;
-				case 'them':
-					// AWAY default with no entry by AWAY
-					$data['Game']['status'] = 'away_default';
+				case 'away_default':
 					$this->_spiritTeams ($game['Game']['home_team'], $game['Game']['away_team'], $data);
 					$this->_spiritMerge ($game['Game']['home_team'], $spirit_obj->expected(), $data);
 					break;
-				default:
-					// no default, no entry by AWAY
+				case 'normal':
 					$data['Game']['home_score'] = $home_entry['score_for'];
 					$data['Game']['away_score'] = $home_entry['score_against'];
 					$this->_spiritTeams ($game['Game']['home_team'], $game['Game']['away_team'], $data);
 					$this->_spiritMerge ($game['Game']['home_team'], $spirit_obj->expected(), $data);
+					break;
+				default:
+					$data['Game']['home_score'] = $data['Game']['away_score'] = null;
+					break;
 			}
 			$penalty = Configure::read('scoring.missing_score_spirit_penalty');
 			$data['SpiritEntry'][$game['Game']['away_team']] = array(
@@ -1308,25 +1336,22 @@ class GamesController extends AppController {
 			$data['Game']['approved_by'] = APPROVAL_AUTOMATIC_HOME;
 			$this->_remindTeam($game, $game['AwayTeam'], $game['HomeTeam'], 'score_approval', 'notification of score approval', false);
 		} else if ( !$home_entry && $away_entry ) {
-			switch( $away_entry['defaulted'] ) {
-				case 'us':
-					// AWAY default with no entry by HOME
-					$data['Game']['status'] = 'away_default';
+			$data['Game']['status'] = $away_entry['status'];
+			switch( $away_entry['status'] ) {
+				case 'away_default':
 					$this->_spiritTeams ($game['Game']['away_team'], $game['Game']['home_team'], $data);
 					$this->_spiritMerge ($game['Game']['away_team'], $spirit_obj->defaulted(), $data);
 					break;
-				case 'them':
-					// HOME default with no entry by HOME
-					$data['Game']['status'] = 'home_default';
+				case 'home_default':
 					$this->_spiritTeams ($game['Game']['away_team'], $game['Game']['home_team'], $data);
 					$this->_spiritMerge ($game['Game']['away_team'], $spirit_obj->expected(), $data);
 					break;
-				default:
-					// no default, no entry by HOME
+				case 'normal':
 					$data['Game']['home_score'] = $away_entry['score_against'];
 					$data['Game']['away_score'] = $away_entry['score_for'];
 					$this->_spiritTeams ($game['Game']['away_team'], $game['Game']['home_team'], $data);
 					$this->_spiritMerge ($game['Game']['away_team'], $spirit_obj->expected(), $data);
+					break;
 			}
 			$penalty = Configure::read('scoring.missing_score_spirit_penalty');
 			$data['SpiritEntry'][$game['Game']['home_team']] = array(
@@ -1399,20 +1424,11 @@ class GamesController extends AppController {
 					$data['Game']['away_score'] = Configure::read('scoring.default_losing_score');
 					break;
 
-				case 'forfeit':
-					$data['Game']['home_score'] = $data['Game']['away_score'] = 0;
-					break;
-
-				case 'rescheduled':
-					// TODO: Should we mangle the scores for a rescheduled game?
-					break;
-
-				case 'cancelled':
-					$data['Game']['home_score'] = $data['Game']['away_score'] = null;
-					break;
-
 				case 'normal':
-				default;
+					break;
+
+				default:
+					$data['Game']['home_score'] = $data['Game']['away_score'] = null;
 					break;
 			}
 		}

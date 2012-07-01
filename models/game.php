@@ -5,7 +5,7 @@ class Game extends AppModel {
 	var $validate = array(
 		'home_score' => array(
 			'range' => array(
-				'rule' => array('inclusive_range', 0, 99),
+				'rule' => array('valid_score', 0, 99),
 				'required' => false,
 				'allowEmpty' => false,
 				'message' => 'Scores must be in the range 0-99',
@@ -14,7 +14,7 @@ class Game extends AppModel {
 		),
 		'away_score' => array(
 			'range' => array(
-				'rule' => array('inclusive_range', 0, 99),
+				'rule' => array('valid_score', 0, 99),
 				'required' => false,
 				'allowEmpty' => false,
 				'message' => 'Scores must be in the range 0-99',
@@ -386,19 +386,10 @@ class Game extends AppModel {
 	 */
 	static function _score_entries_agree ($one, $two)
 	{
-		if(
-			($one['defaulted'] == 'us' && $two['defaulted'] == 'them')
-			||
-			($one['defaulted'] == 'them' && $two['defaulted'] == 'us')
-		) {
-			return true;
-		}
-
-		if(! (($one['defaulted'] == 'no') && ($two['defaulted'] == 'no'))) {
-			return false;
-		}
-
-		if(($one['score_for'] == $two['score_against']) && ($one['score_against'] == $two['score_for']) ) {
+		if ($one['status'] == $two['status']) {
+			if ($one['status'] == 'normal') {
+				return (($one['score_for'] == $two['score_against']) && ($one['score_against'] == $two['score_for']));
+			}
 			return true;
 		}
 

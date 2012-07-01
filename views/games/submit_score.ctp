@@ -18,7 +18,7 @@ $opponent_score = Game::_get_score_entry($game, $opponent['id']);
 <div class="games form">
 <h2><?php  __('Submit Game Results'); ?></h2>
 
-<p>Submit the score for the <?php
+<p>Submit the result for the <?php
 echo $this->ZuluruTime->date ($game['GameSlot']['game_date']) . ' ' .
 	$this->ZuluruTime->time ($game['GameSlot']['game_start']);
 ?> at <?php
@@ -29,38 +29,44 @@ echo $this_team['name'];
 echo $opponent['name'];
 ?>
 .</p>
-<p>If your opponent has already entered a score, it will be displayed below.  If the score you enter does not agree with this score, posting of the score will be delayed until your coordinator can confirm the correct score.</p>
+<p>If your opponent has already entered a result, it will be displayed below.  If the result you enter does not agree with this result posting of the result will be delayed until your coordinator can confirm the correct result.</p>
 
 <?php
 echo $this->Form->create(false, array('url' => Router::normalize($this->here)));
-echo $this->Form->hidden("ScoreEntry.$team_id.defaulted", array('value' => 'no'));
+
+if ($opponent_score) {
+	$default_status = $opponent_score['status'];
+} else {
+	$default_status = null;
+}
+echo $this->Form->input("ScoreEntry.$team_id.status", array(
+		'id' => 'Status',
+		'label' => __('This game was:', true),
+		'options' => array(
+			'normal'			=> 'Played',
+			'home_default'		=> "Defaulted by {$game['HomeTeam']['name']}",
+			'away_default'		=> "Defaulted by {$game['AwayTeam']['name']}",
+			'cancelled'			=> 'Cancelled (e.g. due to weather)',
+		),
+		'default' => $default_status,
+));
 
 if (array_key_exists ($team_id, $game['ScoreEntry'])) {
 	echo $this->Form->hidden ("ScoreEntry.$team_id.id", array ('value' => $game['ScoreEntry'][$team_id]['id']));
 }
 ?>
 
-<table class="list">
+<table class="list" id="Scores">
 <tr>
 	<th>Team Name</th>
-	<th>Defaulted?</th>
 	<th>Your Score Entry</th>
 	<th>Opponent's Score Entry</th>
 </tr>
 <tr>
 	<td><?php echo $this_team['name']; ?></td>
-	<td><?php echo $this->Form->input("ScoreEntry.$team_id.defaulted", array(
-			'div' => false,
-			'id' => 'WeDefaulted',
-			'label' => false,
-			'type' => 'checkbox',
-			'value' => 'us',
-			'hiddenField' => false,
-			'onclick' => 'defaultCheckboxChanged()',
-	)); ?></td>
 	<td><?php echo $this->Form->input("ScoreEntry.$team_id.score_for", array(
 			'div' => false,
-			'id' => 'ScoreFor',
+			'id' => ($team_id == $game['HomeTeam']['id'] ? 'ScoreHome' : 'ScoreAway'),
 			'label' => false,
 			'size' => 2,
 	)); ?></td>
@@ -74,18 +80,9 @@ if (array_key_exists ($team_id, $game['ScoreEntry'])) {
 </tr>
 <tr>
 	<td><?php echo $opponent['name']; ?></td>
-	<td><?php echo $this->Form->input("ScoreEntry.$team_id.defaulted", array(
-			'div' => false,
-			'id' => 'TheyDefaulted',
-			'label' => false,
-			'type' => 'checkbox',
-			'value' => 'them',
-			'hiddenField' => false,
-			'onclick' => 'defaultCheckboxChanged()',
-	)); ?></td>
 	<td><?php echo $this->Form->input("ScoreEntry.$team_id.score_against", array(
 			'div' => false,
-			'id' => 'ScoreAgainst',
+			'id' => ($team_id == $game['HomeTeam']['id'] ? 'ScoreAway' : 'ScoreHome'),
 			'label' => false,
 			'size' => 2,
 	)); ?></td>
@@ -111,7 +108,6 @@ if (Configure::read('scoring.incident_reports')):
 			'type' => 'checkbox',
 			'value' => '1',
 			'label' => 'I have an incident to report',
-			'onclick' => 'incidentCheckboxChanged()',
 	));
 ?>
 <fieldset id="IncidentDetails">
@@ -138,7 +134,6 @@ if ($game['Division']['allstars'] == 'optional') {
 			'type' => 'checkbox',
 			'value' => '1',
 			'label' => 'I want to nominate an all-star',
-			'onclick' => 'allstarCheckboxChanged()',
 	));
 }
 if ($game['Division']['allstars'] != 'never'):
@@ -150,7 +145,7 @@ if ($game['Division']['allstars'] != 'never'):
 		$genders = 'one male and/or one female';
 	}
 ?>
-<fieldset id="AllstarDetails">
+<fieldset class="AllstarDetails">
 <legend>Allstar Nominations</legend>
 <p>You may select <?php echo $genders; ?> all-star from the list below<?php
 if ( $game['Division']['allstars'] == 'always' ) {
@@ -232,26 +227,37 @@ if (! empty ($game['Division']['League']['coord_list'])) {
 // checkboxes don't exist.
 // Note that the spirit scoring objects must implement the enableSpirit and
 // disableSpirit JavaScript functions to handle any non-text input fields.
-// TODO: Use "us", "them" and "both" classes to simplify this further
 $win = Configure::read('scoring.default_winning_score');
 $lose = Configure::read('scoring.default_losing_score');
 echo $this->Html->scriptBlock("
-function defaultCheckboxChanged() {
-	if ($('#WeDefaulted').attr('checked')) {
-		$('#TheyDefaulted').attr('disabled', 'disabled');
-		$('#ScoreFor').val($lose);
-		$('#ScoreAgainst').val($win);
+function statusChanged() {
+	if ($('#Status').val() == 'home_default') {
+		$('#ScoreHome').val($lose);
+		$('#ScoreAway').val($win);
 		disableCommon();
-	} else if ($('#TheyDefaulted').attr('checked')) {
-		$('#WeDefaulted').attr('disabled', 'disabled');
-		$('#ScoreFor').val($win);
-		$('#ScoreAgainst').val($lose);
+		enableScores();
+	} else if ($('#Status').val() == 'away_default') {
+		$('#ScoreHome').val($win);
+		$('#ScoreAway').val($lose);
 		disableCommon();
-	} else {
-		$('#TheyDefaulted').removeAttr('disabled');
-		$('#WeDefaulted').removeAttr('disabled');
+		enableScores();
+	} else if ($('#Status').val() == 'normal') {
 		enableCommon();
+		enableScores();
+	} else {
+		$('#ScoreHome').val(0);
+		$('#ScoreAway').val(0);
+		disableCommon();
+		disableScores();
 	}
+}
+
+function disableScores() {
+	$('#Scores').css('display', 'none');
+}
+
+function enableScores() {
+	$('#Scores').css('display', '');
 }
 
 function disableCommon() {
@@ -286,20 +292,26 @@ function incidentCheckboxChanged() {
 
 function allstarCheckboxChanged() {
 	if ($('#GameAllstar').attr('checked')) {
-		$('#AllstarDetails').css('display', '');
+		$('.AllstarDetails').css('display', '');
 	} else {
-		$('#AllstarDetails').css('display', 'none');
+		$('.AllstarDetails').css('display', 'none');
 	}
 }
 ");
 
 // Make sure things are set up correctly, in the case that
 // invalid data was detected and the form re-displayed.
-// Not sure what might be invalid if a "defaulted" box is
-// checked, since pretty much everything else is disabled,
+// Not sure what might be invalid if a "defaulted" status is
+// selected, since pretty much everything else is disabled,
 // but maybe something in the future. Cost to do this is
 // extremely minimal.
-$this->Js->buffer('defaultCheckboxChanged(); incidentCheckboxChanged();');
+$this->Js->buffer('
+$("#Status").change(function(){statusChanged();});
+$("#GameIncident").change(function(){incidentCheckboxChanged();});
+$("#GameAllstar").change(function(){allstarCheckboxChanged();});
+statusChanged();
+incidentCheckboxChanged();
+');
 if ($game['Division']['allstars'] == 'optional') {
 	$this->Js->buffer('allstarCheckboxChanged();');
 }

@@ -10,19 +10,19 @@ class ScoreEntry extends AppModel {
 	var $validate = array(
 		'score_for' => array(
 			'range' => array(
-				'rule' => array('inclusive_range', 0, 99),
+				'rule' => array('valid_score', 0, 99),
 				'message' => 'Scores must be in the range 0-99',
 			),
 		),
 		'score_against' => array(
 			'range' => array(
-				'rule' => array('inclusive_range', 0, 99),
+				'rule' => array('valid_score', 0, 99),
 				'message' => 'Scores must be in the range 0-99',
 			),
 		),
-		'defaulted' => array(
+		'status' => array(
 			'inlist' => array(
-				'rule' => array('inlist', array('no', 'us', 'them')),
+				'rule' => array('inconfig', 'options.game_status'),
 			),
 		),
 	);

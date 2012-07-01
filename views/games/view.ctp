@@ -237,8 +237,8 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 		</tr>
 		<tr>
 			<td><?php __('Defaulted?'); ?></td>
-			<td><?php if (isset ($homeScoreEntry)) echo $homeScoreEntry['defaulted']; ?></td>
-			<td><?php if (isset ($awayScoreEntry)) echo $awayScoreEntry['defaulted']; ?></td>
+			<td><?php if (isset ($homeScoreEntry)) __($homeScoreEntry['status'] == 'home_default' ? 'us' : ($homeScoreEntry['status'] == 'away_default' ? 'them' : 'no')); ?></td>
+			<td><?php if (isset ($awayScoreEntry)) __($awayScoreEntry['status'] == 'away_default' ? 'us' : ($awayScoreEntry['status'] == 'home_default' ? 'them' : 'no')); ?></td>
 		</tr>
 		<tr>
 			<td><?php __('Entered By'); ?></td>

@@ -67,6 +67,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php
 		echo $this->ZuluruForm->input('status', array(
+			'id' => 'Status',
 			'div' => false,
 			'label' => false,
 			'type' => 'select',
@@ -96,7 +97,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 	<?php endif; ?>
 </dl>
 
-<fieldset class="wide_labels">
+<fieldset id="Scores" class="wide_labels">
 	<legend><?php __('Scoring'); ?></legend>
 	<?php if (Game::_is_finalized($game)): ?>
 
@@ -145,8 +146,8 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 	</tr>
 	<tr>
 		<td><?php __('Defaulted?'); ?></td>
-		<td><?php if (isset ($homeScoreEntry)) echo $homeScoreEntry['defaulted']; ?></td>
-		<td><?php if (isset ($awayScoreEntry)) echo $awayScoreEntry['defaulted']; ?></td>
+		<td><?php if (isset ($homeScoreEntry)) __($homeScoreEntry['status'] == 'home_default' ? 'us' : ($homeScoreEntry['status'] == 'away_default' ? 'them' : 'no')); ?></td>
+		<td><?php if (isset ($awayScoreEntry)) __($awayScoreEntry['status'] == 'away_default' ? 'us' : ($awayScoreEntry['status'] == 'home_default' ? 'them' : 'no')); ?></td>
 	</tr>
 	<tr>
 		<td><?php __('Entered By'); ?></td>
@@ -193,12 +194,20 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 	<dl>
 		<dt><?php echo $this->Text->truncate ($game['HomeTeam']['name'], 28); ?></dt>
 		<dd>
-			<?php echo $this->ZuluruForm->input('home_score', array('label' => false, 'size' => 2)); ?>
+			<?php echo $this->ZuluruForm->input('home_score', array(
+					'id' => 'ScoreHome',
+					'label' => false,
+					'size' => 2,
+			)); ?>
 
 		</dd>
 		<dt><?php echo $this->Text->truncate ($game['AwayTeam']['name'], 28); ?></dt>
 		<dd>
-			<?php echo $this->ZuluruForm->input('away_score', array('label' => false, 'size' => 2)); ?>
+			<?php echo $this->ZuluruForm->input('away_score', array(
+					'id' => 'ScoreAway',
+					'label' => false,
+					'size' => 2,
+			)); ?>
 
 		</dd>
 	</dl>
@@ -217,7 +226,7 @@ echo $this->element ('spirit/input', array(
 <?php
 if ($game['Division']['allstars'] != 'never'):
 ?>
-<fieldset id="AllstarDetails">
+<fieldset class="AllstarDetails">
 <legend>Allstar Nominations: <?php echo $game['HomeTeam']['name']; ?></legend>
 
 <?php
@@ -251,7 +260,7 @@ echo $this->element ('spirit/input', array(
 <?php
 if ($game['Division']['allstars'] != 'never'):
 ?>
-<fieldset id="AllstarDetails">
+<fieldset class="AllstarDetails">
 <legend>Allstar Nominations: <?php echo $game['AwayTeam']['name']; ?></legend>
 
 <?php
@@ -270,3 +279,69 @@ echo $this->Form->input('Allstar.1.person_id', array(
 
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
+
+<?php
+// Note that the spirit scoring objects must implement the enableSpirit and
+// disableSpirit JavaScript functions to handle any non-text input fields.
+$win = Configure::read('scoring.default_winning_score');
+$lose = Configure::read('scoring.default_losing_score');
+echo $this->Html->scriptBlock("
+function statusChanged() {
+	if ($('#Status').val() == 'home_default') {
+		$('#ScoreHome').val($lose);
+		$('#ScoreAway').val($win);
+		disableCommon();
+		enableScores();
+	} else if ($('#Status').val() == 'away_default') {
+		$('#ScoreHome').val($win);
+		$('#ScoreAway').val($lose);
+		disableCommon();
+		enableScores();
+	} else if ($('#Status').val() == 'normal') {
+		enableCommon();
+		enableScores();
+	} else {
+		$('#ScoreHome').val(0);
+		$('#ScoreAway').val(0);
+		disableCommon();
+		disableScores();
+	}
+}
+
+function disableScores() {
+	$('#Scores').css('display', 'none');
+}
+
+function enableScores() {
+	$('#Scores').css('display', '');
+}
+
+function disableCommon() {
+	$('input:text').attr('disabled', 'disabled');
+	$('.AllstarDetails').css('display', 'none');
+	if (typeof window.disableSpirit == 'function') {
+		disableSpirit();
+	}
+}
+
+function enableCommon() {
+	$('input:text').removeAttr('disabled');
+	$('.AllstarDetails').css('display', '');
+	if (typeof window.enableSpirit == 'function') {
+		enableSpirit();
+	}
+}
+");
+
+// Make sure things are set up correctly, in the case that
+// invalid data was detected and the form re-displayed.
+// Not sure what might be invalid if a "defaulted" status is
+// selected, since pretty much everything else is disabled,
+// but maybe something in the future. Cost to do this is
+// extremely minimal.
+$this->Js->buffer('
+$("#Status").change(function(){statusChanged();});
+statusChanged();
+');
+
+?>

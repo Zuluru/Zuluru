@@ -387,7 +387,6 @@ class AppModel extends Model {
 		return false;
 	}
 
-
 	/**
 	 * Enforce unique team names within leagues instead of divisions,
 	 * but not in a way that messes with playoff divisions.
@@ -467,6 +466,19 @@ class AppModel extends Model {
 
 		$rule_obj = AppController::_getComponent ('Rule');
 		return $rule_obj->init ($value);
+	}
+
+	function valid_score($check, $lower, $upper) {
+		// $check array is passed using the form field name as the key
+		// have to extract the value to make the function generic
+		$value = array_values($check);
+		$value = $value[0];
+
+		$data = current($this->data);
+		if (in_array($data['status'], Configure::read('unplayed_status'))) {
+			return ($value === null);
+		}
+		return $this->inclusive_range($check, $lower, $upper);
 	}
 }
 ?>

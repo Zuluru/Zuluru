@@ -446,7 +446,7 @@ class ZuluruSchema extends CakeSchema {
 		'score_for' => array('type' => 'integer', 'null' => false, 'default' => '0', 'length' => 4),
 		'score_against' => array('type' => 'integer', 'null' => false, 'default' => '0', 'length' => 4),
 		'spirit' => array('type' => 'integer', 'null' => false, 'default' => '0', 'length' => 4),
-		'defaulted' => array('type' => 'string', 'null' => false, 'default' => 'no', 'length' => 8),
+		'status' => array('type' => 'string', 'null' => false, 'default' => 'normal', 'length' => 32),
 		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'team' => array('column' => array('team_id', 'game_id'), 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
