@@ -27,7 +27,7 @@ class SpiritComponent extends Object
 	 */
 	var $ratios = array(
 		'perfect' => 0.9,
-		'ok' => 0.6,
+		'ok' => 0.7,
 		'caution' => 0.4,
 		'not_ok' => 0,
 	);
@@ -70,16 +70,16 @@ class SpiritComponent extends Object
 	}
 
 	/**
-	 * Return an array with perfect scores
+	 * Return an array with expected scores
 	 */
-	function perfect() {
-		$perfect = array('entered_sotg' => $this->maxs());
+	function expected() {
+		$expected = array('entered_sotg' => $this->maxs());
 		foreach ($this->questions as $key => $question) {
 			if ($question['type'] != 'text') {
-				$perfect[$key] = $this->maxq($key);
+				$expected[$key] = $this->maxq($key);
 			}
 		}
-		return $perfect;
+		return $expected;
 	}
 	
 	/**

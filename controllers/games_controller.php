@@ -1093,7 +1093,7 @@ class GamesController extends AppController {
 			if ($default == 'us') {
 				$this->data['ScoreEntry'][$team_id]['score_for'] = Configure::read('scoring.default_losing_score');
 				$this->data['ScoreEntry'][$team_id]['score_against'] = Configure::read('scoring.default_winning_score');
-				$this->_spiritMerge ($opponent['id'], $spirit_obj->perfect(), $this->data);
+				$this->_spiritMerge ($opponent['id'], $spirit_obj->expected(), $this->data);
 			} else if ($default == 'them') {
 				$this->data['ScoreEntry'][$team_id]['score_for'] = Configure::read('scoring.default_winning_score');
 				$this->data['ScoreEntry'][$team_id]['score_against'] = Configure::read('scoring.default_losing_score');
@@ -1290,14 +1290,14 @@ class GamesController extends AppController {
 					// AWAY default with no entry by AWAY
 					$data['Game']['status'] = 'away_default';
 					$this->_spiritTeams ($game['Game']['home_team'], $game['Game']['away_team'], $data);
-					$this->_spiritMerge ($game['Game']['home_team'], $spirit_obj->perfect(), $data);
+					$this->_spiritMerge ($game['Game']['home_team'], $spirit_obj->expected(), $data);
 					break;
 				default:
 					// no default, no entry by AWAY
 					$data['Game']['home_score'] = $home_entry['score_for'];
 					$data['Game']['away_score'] = $home_entry['score_against'];
 					$this->_spiritTeams ($game['Game']['home_team'], $game['Game']['away_team'], $data);
-					$this->_spiritMerge ($game['Game']['home_team'], $spirit_obj->perfect(), $data);
+					$this->_spiritMerge ($game['Game']['home_team'], $spirit_obj->expected(), $data);
 			}
 			$penalty = Configure::read('scoring.missing_score_spirit_penalty');
 			$data['SpiritEntry'][$game['Game']['away_team']] = array(
@@ -1319,14 +1319,14 @@ class GamesController extends AppController {
 					// HOME default with no entry by HOME
 					$data['Game']['status'] = 'home_default';
 					$this->_spiritTeams ($game['Game']['away_team'], $game['Game']['home_team'], $data);
-					$this->_spiritMerge ($game['Game']['away_team'], $spirit_obj->perfect(), $data);
+					$this->_spiritMerge ($game['Game']['away_team'], $spirit_obj->expected(), $data);
 					break;
 				default:
 					// no default, no entry by HOME
 					$data['Game']['home_score'] = $away_entry['score_against'];
 					$data['Game']['away_score'] = $away_entry['score_for'];
 					$this->_spiritTeams ($game['Game']['away_team'], $game['Game']['home_team'], $data);
-					$this->_spiritMerge ($game['Game']['away_team'], $spirit_obj->perfect(), $data);
+					$this->_spiritMerge ($game['Game']['away_team'], $spirit_obj->expected(), $data);
 			}
 			$penalty = Configure::read('scoring.missing_score_spirit_penalty');
 			$data['SpiritEntry'][$game['Game']['home_team']] = array(

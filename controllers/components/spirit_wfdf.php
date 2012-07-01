@@ -166,6 +166,17 @@ class SpiritWfdfComponent extends SpiritComponent
 		'caution' => 0.25,
 		'not_ok' => 0,
 	);
+
+	function expected() {
+		return array(
+			'entered_sotg' => 15,
+			'q1' => 3,
+			'q2' => 3,
+			'q3' => 3,
+			'q4' => 3,
+			'q5' => 3,
+		);
+	}
 }
 
 ?>
