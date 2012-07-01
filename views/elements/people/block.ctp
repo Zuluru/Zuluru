@@ -14,9 +14,14 @@ if (isset ($options)) {
 if (!isset($display_field)) {
 	$display_field = 'full_name';
 }
-echo $this->ZuluruHtml->link($person[$display_field],
-	array('controller' => 'people', 'action' => 'view', 'person' => $person['id']),
-	$options);
+
+if (!isset($link) || $link) {
+	echo $this->ZuluruHtml->link($person[$display_field],
+		array('controller' => 'people', 'action' => 'view', 'person' => $person['id']),
+		$options);
+} else {
+	echo $this->ZuluruHtml->tag('span', $person[$display_field], $options);
+}
 
 echo $this->element('tooltips');
 ?>

@@ -161,8 +161,13 @@ if ( $game['Division']['allstars'] == 'always' ) {
 <?php
 // Build list of allstar options
 $players = array();
+$player_positions = Configure::read('playing_roster_positions');
 foreach ($opponent['Person'] as $person) {
-	$players[$person['gender']][$person['id']] = $this->element('people/block', compact('person'));
+	$block = $this->element('people/block', array('person' => $person, 'link' => false));
+	if (!in_array($person['TeamsPerson']['position'], $player_positions)) {
+		$block .= ' (' . __('substitute', true) . ')';
+	}
+	$players[$person['gender']][$person['id']] = $block;
 }
 
 // May need to tweak saved allstar data
