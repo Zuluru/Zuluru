@@ -65,17 +65,15 @@ class LeagueTypeComponent extends Object
 				if ($result['tournament']) {
 					$this->addTournamentResult ($tournament, $result['home_team'], $result['away_team'],
 						$result['tournament_pool'], $result['name'], $result['round'], $result['home_score'], $result['away_score']);
-				} else {
-					if (Game::_is_finalized($game)) {
-						$this->addGameResult ($division, $season, $result['home_team'], $result['away_team'],
-								$result['round'], $result['home_score'], $result['away_score'],
-								Game::_get_spirit_entry ($game, $result['home_team']), $spirit_obj,
-								$result['status'] == 'home_default');
-						$this->addGameResult ($division, $season, $result['away_team'], $result['home_team'],
-								$result['round'], $result['away_score'], $result['home_score'],
-								Game::_get_spirit_entry ($game, $result['away_team']), $spirit_obj,
-								$result['status'] == 'away_default');
-					}
+				} else if (Game::_is_finalized($game) && !in_array($result['status'], Configure::read('unplayed_status'))) {
+					$this->addGameResult ($division, $season, $result['home_team'], $result['away_team'],
+							$result['round'], $result['home_score'], $result['away_score'],
+							Game::_get_spirit_entry ($game, $result['home_team']), $spirit_obj,
+							$result['status'] == 'home_default');
+					$this->addGameResult ($division, $season, $result['away_team'], $result['home_team'],
+							$result['round'], $result['away_score'], $result['home_score'],
+							Game::_get_spirit_entry ($game, $result['away_team']), $spirit_obj,
+							$result['status'] == 'away_default');
 				}
 			}
 
