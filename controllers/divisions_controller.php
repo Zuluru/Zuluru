@@ -720,6 +720,7 @@ class DivisionsController extends AppController {
 							'Game.tournament' => true,
 						),
 					),
+					'NOT' => array('Game.status' => Configure::read('unplayed_status')),
 				),
 		));
 		if (empty ($division['Game'])) {
@@ -753,11 +754,11 @@ class DivisionsController extends AppController {
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
+		$conditions = array('NOT' => array('Game.status' => Configure::read('unplayed_status')));
+
 		if ($this->_arg('published')) {
-			$conditions = array('Game.published' => true);
+			$conditions['Game.published'] = true;
 			$this->set('published', true);
-		} else {
-			$conditions = array();
 		}
 
 		$this->Division->contain(array (
@@ -1004,6 +1005,7 @@ class DivisionsController extends AppController {
 				'HomeTeam',
 				'AwayTeam',
 				'order' => 'Game.id',
+				'conditions' => array('NOT' => array('Game.status' => Configure::read('unplayed_status'))),
 			),
 			'League',
 		));
@@ -1150,7 +1152,11 @@ class DivisionsController extends AppController {
 			'League',
 			// We may need all of the games, as some league types use game results
 			// to determine sort order.
-			'Game',
+			'Game' => array(
+				'conditions' => array(
+					'NOT' => array('Game.status' => Configure::read('unplayed_status')),
+				),
+			),
 		));
 		$division = $this->Division->read(null, $id);
 		if ($division === false) {
