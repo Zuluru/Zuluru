@@ -14,7 +14,9 @@ $this->Html->addCrumb ($field['Field']['long_name']);
 			<th><?php __('Start'); ?></th>
 			<th><?php __('End'); ?></th>
 			<th><?php __('Booking'); ?></th>
+			<?php if ($is_admin): ?>
 			<th><?php __('Actions'); ?></th>
+			<?php endif; ?>
 		</tr>
 	</thead>
 	<tbody>
@@ -30,6 +32,7 @@ $this->Html->addCrumb ($field['Field']['long_name']);
 						array('controller' => 'games', 'action' => 'view', 'game' => $slot['Game']['id']));
 			}
 			?></td>
+			<?php if ($is_admin): ?>
 			<td class="actions"><?php
 				echo $this->Html->link (__('Edit', true),
 						array('controller' => 'game_slots', 'action' => 'edit', 'slot' => $slot['id']));
@@ -43,6 +46,7 @@ $this->Html->addCrumb ($field['Field']['long_name']);
 				}
 				*/
 			?></td>
+			<?php endif; ?>
 		</tr>
 <?php endforeach; ?>
 	</tbody>
