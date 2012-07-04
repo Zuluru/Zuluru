@@ -41,6 +41,10 @@ echo $this->Html->link($url, $url);
 ?></p>
 <p>Either of these actions will generate an automatic email to <?php echo $person['first_name']; ?> indicating your selection. If you are unsure whether you will need <?php echo $person['first_name']; ?> for this game, it's best to leave <?php echo ($person['gender'] == 'Male' ? 'him' : 'her'); ?> listed as available, and take action later when you know for sure. You can always update <?php echo ($person['gender'] == 'Male' ? 'his' : 'her'); ?> status on the web site, there is no need to keep this email for that purpose.</p>
 <?php endif; ?>
+<p>You can also <?php
+$url = Router::url(array('controller' => 'games', 'action' => 'attendance', 'team' => $team['id'], 'game' => $game['Game']['id']), true);
+echo $this->Html->link(__('check up-to-the-minute details', true), $url);
+?>. You need to be logged into the website to update this.</p>
 <p>Thanks,
 <br /><?php echo Configure::read('email.admin_name'); ?>
 <br /><?php echo Configure::read('organization.short_name'); ?> web team</p>
