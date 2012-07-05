@@ -67,7 +67,7 @@ $this->Html->addCrumb (__('View', true));
 					array('controller' => 'divisions', 'action' => 'approve_scores', 'division' => $division['id']),
 					array('alt' => __('Approve scores', true), 'title' => __('Approve scores', true)));
 				echo $this->ZuluruHtml->iconLink('schedule_add_32.png',
-					array('controller' => 'divisions', 'controller' => 'schedules', 'action' => 'add', 'division' => $division['id']),
+					array('controller' => 'schedules', 'action' => 'add', 'division' => $division['id']),
 					array('alt' => __('Add Games', true), 'title' => __('Add Games', true)));
 				if (League::hasSpirit($league)) {
 					echo $this->ZuluruHtml->iconLink('spirit_32.png',
