@@ -1589,6 +1589,7 @@ class GamesController extends AppController {
 						'Game.home_score' => null,
 						'Game.away_score' => null,
 					)),
+					'NOT' => array('Game.status' => Configure::read('unplayed_status')),
 					array('OR' => array(
 						'Division.email_after >' => 0,
 						'Division.finalize_after >' => 0,
