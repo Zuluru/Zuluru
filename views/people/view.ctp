@@ -282,12 +282,6 @@ if ($is_logged_in) {
 		<?php endforeach; ?>
 	</table>
 	<?php endif; ?>
-
-	<div class="actions">
-		<ul>
-			<li><?php echo $this->Html->link(__('New Allstar Nomination', true), array('controller' => 'allstars', 'action' => 'add', 'person' => $person['Person']['id']));?> </li>
-		</ul>
-	</div>
 </div>
 <?php endif; ?>
 
