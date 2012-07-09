@@ -134,6 +134,16 @@ usort ($all_games, 'compareDateAndTime');
 	</tr>
 	<?php endforeach; ?>
 
+	<tr>
+		<th></th>
+		<?php
+		foreach ($all_games as $game) {
+			echo $this->Html->tag('th', $game['header']);
+		}
+		?>
+		<th><?php __('Total'); ?></th>
+	</tr>
+
 	<?php
 	foreach ($statuses as $status => $description):
 		$counts = array();
