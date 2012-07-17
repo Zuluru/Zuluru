@@ -23,8 +23,12 @@ $this->Html->addCrumb ($field['Field']['long_name']);
 <?php foreach ($field['GameSlot'] as $slot): ?>
 		<tr>
 			<td><?php echo $this->ZuluruTime->date ($slot['game_date']); ?></td>
+			<?php if ($is_admin): ?>
 			<td><?php echo $this->Html->link ($this->ZuluruTime->time ($slot['game_start']),
 						array('controller' => 'game_slots', 'action' => 'view', 'slot' => $slot['id'])); ?></td>
+			<?php else: ?>
+			<td><?php echo $this->ZuluruTime->time ($slot['game_start']); ?></td>
+			<?php endif; ?>
 			<td><?php echo $this->ZuluruTime->time ($slot['display_game_end']); ?></td>
 			<td><?php
 			if (!empty ($slot['Game'])) {
