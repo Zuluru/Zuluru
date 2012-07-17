@@ -1449,7 +1449,9 @@ class TeamsController extends AppController {
 		if ($code) {
 			// Authenticate the hash code
 			$hash = $this->_hash($person['Person']['TeamsPerson']);
-			if ($hash != $code) {
+			// Temporary addition during hash conversion period
+			$hash2 = $this->_hash($person['Person']['TeamsPerson'], false);
+			if ($hash != $code && $hash2 != $code) {
 				$this->Session->setFlash(__('The authorization code is invalid.', true), 'default', array('class' => 'warning'));
 				$this->redirect(array('action' => 'view', 'team' => $team_id));
 			}
@@ -1530,7 +1532,9 @@ class TeamsController extends AppController {
 		if ($code) {
 			// Authenticate the hash code
 			$hash = $this->_hash($person['Person']['TeamsPerson']);
-			if ($hash != $code) {
+			// Temporary addition during hash conversion period
+			$hash2 = $this->_hash($person['Person']['TeamsPerson'], false);
+			if ($hash != $code && $hash2 != $code) {
 				$this->Session->setFlash(__('The authorization code is invalid.', true), 'default', array('class' => 'warning'));
 				$this->redirect(array('action' => 'view', 'team' => $team_id));
 			}
@@ -1858,9 +1862,12 @@ class TeamsController extends AppController {
 		return true;
 	}
 
-	function _hash ($roster) {
+	function _hash ($roster, $salt = true) {
 		// Build a string of the inputs
 		$input = "{$roster['id']}:{$roster['team_id']}:{$roster['person_id']}:{$roster['position']}:{$roster['created']}";
+		if ($salt) {
+			$input = $input . ':' . Configure::read('Security.salt');
+		}
 		return md5($input);
 	}
 

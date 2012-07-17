@@ -733,10 +733,13 @@ class GamesController extends AppController {
 			// Authenticate the hash code
 			$player_hash = $this->_hash($attendance);
 			$captain_hash = $this->_hash(array_merge ($attendance, array('captain' => true)));
-			if ($player_hash == $code) {
+			// Temporary addition during hash conversion period
+			$player_hash2 = $this->_hash($attendance, false);
+			$captain_hash2 = $this->_hash(array_merge ($attendance, array('captain' => true)), false);
+			if ($player_hash == $code || $player_hash2 == $code) {
 				// Only the player will have this confirmation code
 				$is_me = true;
-			} else if ($captain_hash == $code) {
+			} else if ($captain_hash == $code || $captain_hash2 == $code) {
 				$is_captain = true;
 			} else {
 				$this->Session->setFlash(__('The authorization code is invalid.', true), 'default', array('class' => 'warning'));
@@ -1805,11 +1808,14 @@ class GamesController extends AppController {
 		return 0;
 	}
 
-	function _hash ($attendance) {
+	function _hash ($attendance, $salt = true) {
 		// Build a string of the inputs
 		$input = "{$attendance['id']}:{$attendance['team_id']}:{$attendance['game_id']}:{$attendance['person_id']}:{$attendance['created']}";
 		if (array_key_exists ('captain', $attendance)) {
 			$input .= ":captain";
+		}
+		if ($salt) {
+			$input = $input . ':' . Configure::read('Security.salt');
 		}
 		return md5($input);
 	}
