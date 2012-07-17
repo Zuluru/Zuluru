@@ -19,105 +19,47 @@ class Person extends User {
 			'className' => 'Allstar',
 			'foreignKey' => 'person_id',
 			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 		'Attendance' => array(
 			'className' => 'Attendance',
 			'foreignKey' => 'person_id',
 			'dependent' => true,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 		'Preregistration' => array(
 			'className' => 'Preregistration',
 			'foreignKey' => 'person_id',
 			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 		'Registration' => array(
 			'className' => 'Registration',
 			'foreignKey' => 'person_id',
 			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 		'Setting' => array(
 			'className' => 'Setting',
 			'foreignKey' => 'person_id',
 			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 		'Upload' => array(
 			'className' => 'Upload',
 			'foreignKey' => 'person_id',
 			'dependent' => false,
-			'conditions',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 		'Waiver' => array(
 			'className' => 'Waiver',
 			'foreignKey' => 'person_id',
 			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
 			'order' => 'Waiver.expires',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 		'Note' => array(
 			'className' => 'Note',
 			'foreignKey' => 'person_id',
 			'dependent' => true,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
+		),
+		'Subscription' => array(
+			'className' => 'Subscription',
+			'foreignKey' => 'person_id',
+			'dependent' => true,
 		),
 	);
 
@@ -128,14 +70,6 @@ class Person extends User {
 			'foreignKey' => 'person_id',
 			'associationForeignKey' => 'division_id',
 			'unique' => true,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'finderQuery' => '',
-			'deleteQuery' => '',
-			'insertQuery' => ''
 		),
 		'Franchise' => array(
 			'className' => 'Franchise',
@@ -143,14 +77,6 @@ class Person extends User {
 			'foreignKey' => 'person_id',
 			'associationForeignKey' => 'franchise_id',
 			'unique' => true,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'finderQuery' => '',
-			'deleteQuery' => '',
-			'insertQuery' => ''
 		),
 		'Team' => array(
 			'className' => 'Team',
@@ -159,15 +85,7 @@ class Person extends User {
 			'foreignKey' => 'person_id',
 			'associationForeignKey' => 'team_id',
 			'unique' => true,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'finderQuery' => '',
-			'deleteQuery' => '',
-			'insertQuery' => ''
-		)
+		),
 	);
 
 	// Return a person record including all details related to current divisions.
