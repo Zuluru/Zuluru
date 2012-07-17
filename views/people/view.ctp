@@ -44,7 +44,7 @@ if ($is_logged_in) {
 			</dd>
 		<?php endif; ?>
 		<?php if (!empty($person['Person']['home_phone']) &&
-					($is_me || $is_admin || $is_coordinator || $is_captain ||
+					($is_me || $is_admin || $is_coordinator || $is_captain || $is_my_captain || $is_division_captain ||
 						($is_logged_in && $person['Person']['publish_home_phone']))):?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Phone (home)'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
@@ -56,7 +56,7 @@ if ($is_logged_in) {
 			</dd>
 		<?php endif; ?>
 		<?php if (!empty($person['Person']['work_phone']) &&
-					($is_me || $is_admin || $is_coordinator || $is_captain ||
+					($is_me || $is_admin || $is_coordinator || $is_captain || $is_my_captain || $is_division_captain ||
 						($is_logged_in && $person['Person']['publish_work_phone']))):?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Phone (work)'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
@@ -71,7 +71,7 @@ if ($is_logged_in) {
 			</dd>
 		<?php endif; ?>
 		<?php if (!empty($person['Person']['mobile_phone']) &&
-					($is_me || $is_admin || $is_coordinator || $is_captain ||
+					($is_me || $is_admin || $is_coordinator || $is_captain || $is_my_captain || $is_division_captain ||
 						($is_logged_in && $person['Person']['publish_mobile_phone']))):?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Phone (mobile)'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
