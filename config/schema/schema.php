@@ -9,6 +9,7 @@ class ZuluruSchema extends CakeSchema {
 		'person_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'game_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'team_event_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'newsletter_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'custom' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
@@ -278,6 +279,31 @@ class ZuluruSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'key' => array('column' => 'key', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
+	var $mailing_lists = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 256),
+		'opt_out' => array('type' => 'boolean', 'null' => false, 'default' => '1'),
+		'rule' => array('type' => 'text', 'null' => true, 'default' => NULL),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
+	var $newsletters = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 256),
+		'mailing_list_id' => array('type' => 'integer', 'null' => false, 'default' => null),
+		'from' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 100),
+		'to' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 100),
+		'reply_to' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 100),
+		'subject' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 256),
+		'text' => array('type' => 'text', 'null' => true, 'default' => NULL),
+		'target' => array('type' => 'date', 'null' => true, 'default' => NULL),
+		'delay' => array('type' => 'integer', 'null' => false, 'default' => 10),
+		'batch_size' => array('type' => 'integer', 'null' => false, 'default' => 100),
+		'personalize' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
 	var $notes = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'team_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
@@ -309,7 +335,7 @@ class ZuluruSchema extends CakeSchema {
 		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
 		'remind' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
-		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'notice' => array('column' => 'notice_id', 'unique' => 0), 'full' => array('column' => array('notice_id', 'person_id'), 'unique' => 0)),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'notice' => array('column' => 'notice_id', 'unique' => 0), 'person' => array('column' => 'person_id', 'unique' => 0), 'full' => array('column' => array('notice_id', 'person_id'), 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $people = array(
@@ -480,6 +506,15 @@ class ZuluruSchema extends CakeSchema {
 		'q10' => array('type' => 'integer', 'null' => false, 'default' => '0'),
 		'comments' => array('type' => 'text', 'null' => true, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'team' => array('column' => array('team_id', 'game_id'), 'unique' => 0), 'created' => array('column' => array('created_team_id', 'game_id'), 'unique' => 0)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
+	var $subscriptions = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'mailing_list_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
+		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'subscribed' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'mailing_list' => array('column' => 'mailing_list_id', 'unique' => 0), 'person' => array('column' => 'person_id', 'unique' => 0), 'full' => array('column' => array('mailing_list_id', 'person_id'), 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $teams = array(

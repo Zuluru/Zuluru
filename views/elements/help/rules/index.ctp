@@ -4,6 +4,7 @@ if ($is_admin) {
 			'section' => 'rules',
 			'topics' => array(
 				'rules' => 'Rule Definitions',
+				'mailing_lists' => 'Using Rules with Mailing Lists',
 			),
 	));
 }

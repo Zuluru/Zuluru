@@ -452,6 +452,10 @@ class AppController extends Controller {
 		}
 
 		if ($this->is_admin) {
+			$this->_addMenuItem ('Newsletters', array('controller' => 'newsletters', 'action' => 'index'));
+			$this->_addMenuItem ('Mailing Lists', array('controller' => 'mailing_lists', 'action' => 'index'), 'Newsletters');
+			$this->_addMenuItem ('All Newsletters', array('controller' => 'newsletters', 'action' => 'past'), 'Newsletters');
+
 			$this->_addMenuItem ('Settings');
 			$this->_addMenuItem ('Organization', array('controller' => 'settings', 'action' => 'organization'), 'Settings');
 			$this->_addMenuItem ('Features', array('controller' => 'settings', 'action' => 'feature'), 'Settings');
