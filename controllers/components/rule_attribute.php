@@ -15,6 +15,10 @@ class RuleAttributeComponent extends RuleComponent
 		return $params['Person'][$this->config];
 	}
 
+	function build_query(&$joins, &$fields) {
+		return "Person.{$this->config}";
+	}
+
 	function desc() {
 		return sprintf (__('have a %s', true), __($this->config, true));
 	}

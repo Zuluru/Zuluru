@@ -5,6 +5,8 @@
 
 class RuleCompareComponent extends RuleComponent
 {
+	var $reverse = array('=' => '=', '<' => '>', '<=' => '>=', '>' => '<', '>=' => '<=', '!=' => '!=');
+
 	function parse($config) {
 		$this->rule = array();
 
@@ -23,7 +25,7 @@ class RuleCompareComponent extends RuleComponent
 			return false;
 		}
 		$op = substr ($config, 0, $p);
-		if (!in_array ($op, array('=', '<', '<=', '>', '>=', '!='))) {
+		if (!in_array ($op, array_keys($this->reverse))) {
 			$this->log("Did not find a valid operator in $config", 'rules');
 			return false;
 		}
@@ -84,6 +86,49 @@ class RuleCompareComponent extends RuleComponent
 		$this->reason = $prefix . $this->rule[0]->desc() . ' ' . $result . ' ' . $this->rule[1]->desc();
 
 		return $success;
+	}
+
+	function query() {
+		if (count ($this->rule) != 2 || empty($this->config)) {
+			return null;
+		}
+
+		$fields = $joins = array();
+		$left = $this->rule[0]->build_query($joins, $fields);
+		$right = $this->rule[1]->build_query($joins, $fields);
+		if ($left === false || $right === false) {
+			return false;
+		}
+
+		// Queries with "having" will also have "group by", which doesn't produce
+		// results for anyone with zero matches. Check for danger situations and
+		// don't allow them to proceed.
+		if ($this->rule[0]->query_having) {
+			if ($this->config[0] == '<' ||
+				($this->config == '=' && $right == '0') ||
+				($this->config == '!=' && $right != '0'))
+			{
+				return null;
+			}
+
+			$group = "{$this->rule[0]->query_having} {$this->config} $right";
+			$conditions = $left;
+		} else if ($this->rule[1]->query_having) {
+			if ($this->config[0] == '>' ||
+				($this->config == '=' && $left == '0') ||
+				($this->config == '!=' && $left != '0'))
+			{
+				return null;
+			}
+
+			$group = "{$this->rule[1]->query_having} {$this->reverse[$this->config]} $left";
+			$conditions = $right;
+		} else {
+			$group = '';
+			$conditions = array("$left {$this->config}" => $right);
+		}
+
+		return $this->_execute_query($conditions, $joins, $fields, $group);
 	}
 }
 

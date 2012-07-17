@@ -23,7 +23,7 @@ class RuleMemberTypeComponent extends RuleComponent
 				{
 					if ($reg['Event']['membership_type'] == 'full') {
 						return 'full';
-					} else if ($reg['Event']['membership_type'] == 'intro') {
+					} else if ($reg['Event']['membership_type'] == 'intro' || $reg['Event']['membership_type'] == 'junior_intro') {
 						$intro = true;
 					}
 				}
@@ -31,6 +31,12 @@ class RuleMemberTypeComponent extends RuleComponent
 		}
 
 		return ($intro ? 'intro' : 'none');
+	}
+
+	function build_query(&$joins, &$fields) {
+		// TODO: Membership start and end dates are in the custom data,
+		// making queries that use those values very difficult
+		return false;
 	}
 
 	function desc() {

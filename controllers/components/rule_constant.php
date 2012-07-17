@@ -15,6 +15,10 @@ class RuleConstantComponent extends RuleComponent
 		return $this->config;
 	}
 
+	function build_query(&$joins, &$fields) {
+		return $this->config;
+	}
+
 	// Just a constant, so we simply return our configured value
 	function desc() {
 		return $this->config;

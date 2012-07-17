@@ -41,6 +41,29 @@ class RuleAndComponent extends RuleComponent
 		$this->reason = implode (__(' AND ', true), $reasons);
 		return true;
 	}
+
+	function query() {
+		if (empty ($this->rule))
+			return false;
+		foreach ($this->rule as $rule) {
+			$people = $rule->query();
+			if ($people === null) {
+				return $people;
+			}
+			if (isset($ret)) {
+				$ret = array_intersect($ret, $people);
+			} else {
+				$ret = $people;
+			}
+
+			// If at any time there's none that match, skip the rest of the queries
+			if (empty($ret)) {
+				break;
+			}
+		}
+
+		return $ret;
+	}
 }
 
 ?>

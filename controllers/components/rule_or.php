@@ -41,6 +41,22 @@ class RuleOrComponent extends RuleComponent
 		$this->reason = implode (__(' OR ', true), $reasons);
 		return false;
 	}
+
+	function query() {
+		if (empty ($this->rule))
+			return false;
+
+		$ret = array();
+		foreach ($this->rule as $rule) {
+			$people = $rule->query();
+			if ($people === null) {
+				return $people;
+			}
+			$ret = array_unique(array_merge($ret, $people));
+		}
+
+		return $ret;
+	}
 }
 
 ?>

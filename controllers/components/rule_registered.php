@@ -25,6 +25,22 @@ class RuleRegisteredComponent extends RuleComponent
 		return false;
 	}
 
+	function query() {
+		return $this->_execute_query(
+			array(
+				'Registration.event_id' => $this->config,
+				'Registration.payment' => 'Paid',
+			),
+			array('Registration' => array(
+				'table' => 'registrations',
+				'alias' => 'Registration',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'Registration.person_id = Person.id',
+			))
+		);
+	}
+
 	function desc() {
 		return __('Registered', true);
 	}

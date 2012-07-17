@@ -23,6 +23,12 @@ class RuleComponent extends Object
 	var $reason = 'Unknown reason!';
 	var $reason_type = REASON_TYPE_PLAYER_ACTIVE;
 
+
+	/**
+	 * When building a query, do we need to use HAVING instead of WHERE?
+	 */
+	var $query_having = false;
+
 	/**
 	 * Common string replacements to make reasons more readable
 	 */
@@ -153,6 +159,41 @@ class RuleComponent extends Object
 		}
 
 		return $success;
+	}
+
+	/**
+	 * Perform a query that will find all people matching the rule.
+	 *
+	 * @return mixed Array of conditions, contains, etc. defining the query, or false if something failed
+	 *
+	 */
+	function query() {
+		if ($this->rule == null)
+			return null;
+		return $this->rule->query();
+	}
+
+	function _execute_query($conditions = array(), $joins = array(), $fields = array(), $group = '') {
+		if (empty($conditions) && empty($group)) {
+			return false;
+		}
+
+		// Merge in invariant conditions and fields
+		$conditions = array_merge(array(
+				'Person.complete' => true,
+				'Person.status' => 'active',
+				'Person.email !=' => '',
+		), $conditions);
+		$fields['Person.id'] = 'Person.id';
+
+		// Eliminate the keys on these arrays. They may be required to prevent
+		// duplicates during preparation, but mess up CakePHP's query generator
+		$joins = array_values($joins);
+		$fields = array_values($fields);
+
+		$this->_controller->Person->contain(array());
+		$people = $this->_controller->Person->find('all', compact('fields', 'conditions', 'joins', 'group'));
+		return Set::extract('/Person/id', $people);
 	}
 
 	/**
