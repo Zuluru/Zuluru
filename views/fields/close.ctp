@@ -6,7 +6,7 @@ if ($success) {
 	);
 	echo $this->Html->scriptBlock ("$('#$id').html('$content')");
 } else {
-	$field = Configure::read('ui.field')
+	$field = Configure::read('ui.field');
 	echo $this->Html->scriptBlock ("alert('Failed to close $field \'$name\'.')");
 }
 
