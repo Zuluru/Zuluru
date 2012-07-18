@@ -65,6 +65,7 @@ usort ($all_games, 'compareDateAndTime');
 		}
 		?>
 		<th><?php __('Total'); ?></th>
+		<th></th>
 	</tr>
 	</thead>
 	<tbody>
@@ -131,6 +132,7 @@ usort ($all_games, 'compareDateAndTime');
 		<td class="<?php echo low($statuses[$status]);?>"><?php echo $out; ?></td>
 		<?php endforeach; ?>
 		<td><?php echo $total; ?></td>
+		<td><?php echo $this->element('people/block', compact('person')); ?></td>
 	</tr>
 	<?php endforeach; ?>
 
@@ -142,6 +144,7 @@ usort ($all_games, 'compareDateAndTime');
 		}
 		?>
 		<th><?php __('Total'); ?></th>
+		<th></th>
 	</tr>
 
 	<?php
@@ -172,6 +175,7 @@ usort ($all_games, 'compareDateAndTime');
 		}
 		?></td>
 		<?php endforeach; ?>
+		<td></td>
 		<td></td>
 	</tr>
 	<?php
