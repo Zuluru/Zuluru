@@ -97,8 +97,10 @@ if (array_key_exists ($team_id, $game['ScoreEntry'])) {
 </table>
 
 <?php
-echo $this->element ('spirit/input', array('team_id' => $opponent['id'],
-		'created_team_id' => $this_team['id'], 'game' => $game, 'spirit_obj' => $spirit_obj));
+if (League::hasSpirit($game['Division']['League'])) {
+	echo $this->element ('spirit/input', array('team_id' => $opponent['id'],
+			'created_team_id' => $this_team['id'], 'game' => $game, 'spirit_obj' => $spirit_obj));
+}
 ?>
 
 <div id="IncidentWrapper">

@@ -13,6 +13,7 @@ $this->Html->addCrumb (__('View', true));
 
 		</dd>
 		<?php if ($is_admin || $is_coordinator): ?>
+		<?php if (Configure::read('feature.spirit')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Spirit Questionnaire'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php __(Configure::read("options.spirit_questions.{$league['League']['sotg_questions']}")); ?>
@@ -28,6 +29,7 @@ $this->Html->addCrumb (__('View', true));
 				<?php __(Inflector::Humanize ($league['League']['display_sotg'])); ?>
 
 			</dd>
+		<?php endif; ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Expected Max Score'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php echo $league['League']['expected_max_score']; ?>

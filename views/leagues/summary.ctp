@@ -9,9 +9,11 @@ $this->Html->addCrumb (__('Summary', true));
 <tr>
 	<th><?php __('Season');?></th>
 	<th><?php __('Name');?></th>
+	<?php if (Configure::read('feature.spirit')): ?>
 	<th><?php __('Spirit Display');?></th>
 	<th><?php __('Spirit Questionnaire');?></th>
 	<th><?php __('Numeric Spirit?');?></th>
+	<?php endif; ?>
 	<th><?php __('Max Score');?></th>
 </tr>
 <?php
@@ -37,9 +39,11 @@ foreach ($divisions as $division):
 		<td><?php
 		echo $this->Html->link($division['League']['name'], array('action' => 'edit', 'league' => $division['League']['id']));
 		?></td>
+		<?php if (Configure::read('feature.spirit')): ?>
 		<td><?php __(Inflector::humanize($division['League']['display_sotg'])); ?></td>
 		<td><?php echo $division['League']['sotg_questions']; ?></td>
 		<td><?php __($division['League']['numeric_sotg'] ? 'Yes' : 'No'); ?></td>
+		<?php endif; ?>
 		<td><?php echo $division['League']['expected_max_score']; ?></td>
 	</tr>
 <?php endforeach; ?>

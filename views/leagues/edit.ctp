@@ -43,27 +43,29 @@ if (isset ($add)) {
 	<fieldset>
  		<legend><?php __('Scoring'); ?></legend>
 	<?php
-		echo $this->Html->para('warning-message', __('NOTE: If you set the questionnaire to "' . Configure::read('options.spirit_questions.none') . '" and disable numeric entry, spirit will not be tracked for this league.', true));
-		echo $this->ZuluruForm->input('sotg_questions', array(
-			'options' => Configure::read('options.spirit_questions'),
-			'empty' => '---',
-			'label' => 'Spirit Questionnaire',
-			'default' => Configure::read('scoring.spirit_questions'),
-			'after' => $this->Html->para (null, __('Select which questionnaire to use for spirit scoring, or "' . Configure::read('options.spirit_questions.none') . '" to use numeric scoring only.', true)),
-		));
-		echo $this->ZuluruForm->input('numeric_sotg', array(
-			'options' => Configure::read('options.enable'),
-			'empty' => '---',
-			'label' => 'Spirit Numeric Entry',
-			'default' => Configure::read('scoring.spirit_numeric'),
-			'after' => $this->Html->para (null, __('Enable or disable the entry of a numeric spirit score, independent of the questionnaire selected above.', true)),
-		));
-		echo $this->ZuluruForm->input('display_sotg', array(
-			'options' => Configure::read('options.sotg_display'),
-			'empty' => '---',
-			'label' => 'Spirit Display',
-			'after' => $this->Html->para (null, __('Control spirit display. "All" shows numeric scores and survey answers (if applicable) to any player. "Numeric" shows game scores but not survey answers. "Symbols Only" shows only star, check, and X, with no numeric values attached. "Coordinator Only" restricts viewing of any per-game information to coordinators only.', true)),
-		));
+		if (Configure::read('feature.spirit')) {
+			echo $this->Html->para('warning-message', __('NOTE: If you set the questionnaire to "' . Configure::read('options.spirit_questions.none') . '" and disable numeric entry, spirit will not be tracked for this league.', true));
+			echo $this->ZuluruForm->input('sotg_questions', array(
+				'options' => Configure::read('options.spirit_questions'),
+				'empty' => '---',
+				'label' => 'Spirit Questionnaire',
+				'default' => Configure::read('scoring.spirit_questions'),
+				'after' => $this->Html->para (null, __('Select which questionnaire to use for spirit scoring, or "' . Configure::read('options.spirit_questions.none') . '" to use numeric scoring only.', true)),
+			));
+			echo $this->ZuluruForm->input('numeric_sotg', array(
+				'options' => Configure::read('options.enable'),
+				'empty' => '---',
+				'label' => 'Spirit Numeric Entry',
+				'default' => Configure::read('scoring.spirit_numeric'),
+				'after' => $this->Html->para (null, __('Enable or disable the entry of a numeric spirit score, independent of the questionnaire selected above.', true)),
+			));
+			echo $this->ZuluruForm->input('display_sotg', array(
+				'options' => Configure::read('options.sotg_display'),
+				'empty' => '---',
+				'label' => 'Spirit Display',
+				'after' => $this->Html->para (null, __('Control spirit display. "All" shows numeric scores and survey answers (if applicable) to any player. "Numeric" shows game scores but not survey answers. "Symbols Only" shows only star, check, and X, with no numeric values attached. "Coordinator Only" restricts viewing of any per-game information to coordinators only.', true)),
+			));
+		}
 		echo $this->ZuluruForm->input('expected_max_score', array(
 			'size' => 5,
 			'default' => 17,

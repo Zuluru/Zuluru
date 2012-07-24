@@ -278,8 +278,8 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 					'entry' => $awaySpiritEntry,
 			)); ?></td>
 		</tr>
-		</table>
 		<?php endif; ?>
+		</table>
 		<?php endif; ?>
 	<?php endif; ?>
 	</dl>
@@ -288,10 +288,12 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 <?php if (!in_array($game['Game']['status'], Configure::read('unplayed_status'))): ?>
 
 <?php
-echo $this->element ('spirit/view',
-		array('team' => $game['HomeTeam'], 'league' => $game['Division']['League'], 'spirit' => $homeSpiritEntry, 'spirit_obj' => $spirit_obj));
-echo $this->element ('spirit/view',
-		array('team' => $game['AwayTeam'], 'league' => $game['Division']['League'], 'spirit' => $awaySpiritEntry, 'spirit_obj' => $spirit_obj));
+if (League::hasSpirit($game)) {
+	echo $this->element ('spirit/view',
+			array('team' => $game['HomeTeam'], 'league' => $game['Division']['League'], 'spirit' => $homeSpiritEntry, 'spirit_obj' => $spirit_obj));
+	echo $this->element ('spirit/view',
+			array('team' => $game['AwayTeam'], 'league' => $game['Division']['League'], 'spirit' => $awaySpiritEntry, 'spirit_obj' => $spirit_obj));
+}
 ?>
 
 <?php if ($is_admin || $is_coordinator): ?>
@@ -301,7 +303,6 @@ echo $this->element ('spirit/view',
 		<table class="list">
 		<tr>
 			<th><?php __('Player'); ?></th>
-			<th class="actions"><?php __('Actions');?></th>
 		</tr>
 		<?php
 			$i = 0;
@@ -312,10 +313,7 @@ echo $this->element ('spirit/view',
 				}
 			?>
 			<tr<?php echo $class;?>>
-				<td><?php echo $allstar['Person']['full_name']; ?></td>
-				<td class="actions">
-					<?php echo $this->Html->link(__('Delete', true), array('controller' => 'allstars', 'action' => 'delete', 'person' => $allstar['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $allstar['id'])); ?>
-				</td>
+				<td><?php echo $this->element('people/block', array('person' => $allstar)); ?></td>
 			</tr>
 		<?php endforeach; ?>
 		</table>

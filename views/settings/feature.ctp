@@ -41,6 +41,16 @@ $this->Html->addCrumb (__('Feature', true));
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'feature',
+		'name' => 'spirit',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'label' => 'Handle Spirit of the Game',
+			'after' => 'Enable or disable Spirit of the Game options. If enabled here, Spirit can still be disabled on a per-league basis.',
+		),
+	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
 		'name' => 'franchises',
 		'options' => array(
 			'type' => 'radio',

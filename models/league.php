@@ -185,7 +185,9 @@ class League extends AppModel {
 	}
 
 	static function hasSpirit($league) {
-		if (array_key_exists('League', $league)) {
+		if (!Configure::read('feature.spirit')) {
+			return false;
+		} else if (array_key_exists('League', $league)) {
 			$league = $league['League'];
 		} else if (array_key_exists('Division', $league)) {
 			if (array_key_exists('League', $league['Division'])) {
