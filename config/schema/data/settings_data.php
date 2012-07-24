@@ -88,6 +88,11 @@ class SettingsData {
 		),
 		array(
 			'category' => 'feature',
+			'name' => 'spirit',
+			'value' => '1',
+		),
+		array(
+			'category' => 'feature',
 			'name' => 'generate_roster_email',
 			'value' => '1',
 		),
