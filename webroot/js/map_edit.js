@@ -5,6 +5,7 @@
 var leaguelat = 0.0;
 var leaguelng = 0.0;
 var lastParkingId = 0;
+var lastEntranceId = 0;
 
 function initializeEdit(id)
 {
@@ -32,14 +33,28 @@ function initializeEdit(id)
 	{
 		parking[lastParkingId].marker = showParking (parking[lastParkingId].position);
 		parking[lastParkingId].marker.setOptions({'draggable':true});
-		deleteOnClick(parking[lastParkingId].marker, lastParkingId);
+		deleteParkingOnClick(parking[lastParkingId].marker, lastParkingId);
+	}
+
+	for (lastEntranceId in entrances)
+	{
+		entrances[lastEntranceId].marker = showEntrance (entrances[lastEntranceId].position);
+		entrances[lastEntranceId].marker.setOptions({'draggable':true});
+		deleteEntranceOnClick(entrances[lastEntranceId].marker, lastEntranceId);
 	}
 }
 
-function deleteOnClick(marker, id)
+function deleteParkingOnClick(marker, id)
 {
 	google.maps.event.addListener(marker, 'click', function() {
 		deleteParking(id);
+	});
+}
+
+function deleteEntranceOnClick(marker, id)
+{
+	google.maps.event.addListener(marker, 'click', function() {
+		deleteEntrance(id);
 	});
 }
 
@@ -172,6 +187,7 @@ function updateLength(val)
 }
 
 var parking_listener = null;
+var entrance_listener = null;
 
 function addParking()
 {
@@ -198,7 +214,7 @@ function addParkingClick(event)
 	++ lastParkingId;
 	var marker = showParking (event.latLng);
 	marker.setOptions({'draggable':true});
-	deleteOnClick(marker, lastParkingId);
+	deleteParkingOnClick(marker, lastParkingId);
 	parking[lastParkingId] = { 'marker': marker };
 }
 
@@ -208,6 +224,47 @@ function deleteParking(id)
 	{
 		parking[id].marker.setMap(null);
 		delete(parking[id]);
+	}
+
+	// Avoid form submission
+	return false;
+}
+
+function addEntrance()
+{
+	if (entrance_listener != null)
+	{
+		google.maps.event.removeListener(entrance_listener);
+	}
+
+	//$('#map').css('cursor','crosshair');
+	entrance_listener = google.maps.event.addListener(map, 'click', function(event) {
+		addEntranceClick(event);
+	});
+
+	// Avoid form submission
+	return false;
+}
+
+function addEntranceClick(event)
+{
+	google.maps.event.removeListener(entrance_listener);
+	entrance_listener = null;
+	//$('#map').css('cursor','auto');
+
+	++ lastEntranceId;
+	var marker = showEntrance (event.latLng);
+	marker.setOptions({'draggable':true});
+	deleteEntranceOnClick(marker, lastEntranceId);
+	entrances[lastEntranceId] = { 'marker': marker };
+}
+
+function deleteEntrance(id)
+{
+	if (confirm('Are you sure you want to delete this entrance label?'))
+	{
+		entrances[id].marker.setMap(null);
+		delete(entrances[id]);
 	}
 
 	// Avoid form submission
@@ -245,4 +302,17 @@ function check()
 	}
 	parkingString = parkingString.substring(0, parkingString.length - 1);
 	$('#FacilityParking').val(parkingString);
+
+	// Combine the entrance details
+	var entranceString = '';
+	for (var p in entrances)
+	{
+		if (entrances[p] != undefined)
+		{
+			var position = entrances[p].marker.getPosition();
+			entranceString += position.lat() + ',' + position.lng() + '/';
+		}
+	}
+	entranceString = entranceString.substring(0, entranceString.length - 1);
+	$('#FacilityEntrances').val(entranceString);
 }

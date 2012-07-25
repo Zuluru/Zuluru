@@ -24,6 +24,10 @@ function initializeView(id)
 		showParking (parking[p].position);
 	}
 
+	for (var p in entrances) {
+		showEntrance (entrances[p].position);
+	}
+
 	directionsDisplay = new google.maps.DirectionsRenderer();
 	directionsDisplay.setMap(map);
 	directionsDisplay.setPanel(document.getElementById('directions'));

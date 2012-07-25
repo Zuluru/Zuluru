@@ -60,6 +60,9 @@ var zuluru_path = '/zuluru';
 // Parking locations
 var parking = Array();
 
+// Entrance locations
+var entrances = Array();
+
 function drawField(id)
 {
 	var position = new google.maps.LatLng(fields[id].latitude, fields[id].longitude);
@@ -111,6 +114,29 @@ function showParking(position)
 {
 	var icon = new google.maps.MarkerImage(
 		zuluru_path + 'parking_pin.png',
+		new google.maps.Size(12, 20),
+		new google.maps.Point(0, 0),
+		new google.maps.Point(6, 20)
+	);
+	var shadow = new google.maps.MarkerImage(
+		zuluru_path + 'mm_20_shadow.png',
+		new google.maps.Size(22, 20),
+		new google.maps.Point(0, 0),
+		new google.maps.Point(6, 20)
+	);
+
+	return new google.maps.Marker({
+		'map':map,
+		'position':position,
+		'icon':icon,
+		'shadow':shadow
+	});
+}
+
+function showEntrance(position)
+{
+	var icon = new google.maps.MarkerImage(
+		zuluru_path + 'entrance_pin.png',
 		new google.maps.Size(12, 20),
 		new google.maps.Point(0, 0),
 		new google.maps.Point(6, 20)

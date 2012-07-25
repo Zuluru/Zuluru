@@ -67,8 +67,19 @@ if ($field['Facility']['parking']) {
 		$variables .= "parking[$i] = { 'position': new google.maps.LatLng($lat, $lng) };\n";
 	}
 }
+
+// Handle entrances
+if ($field['Facility']['entrances']) {
+	$entrances = explode ('/', $field['Facility']['entrances']);
+	foreach ($entrances as $i => $pt) {
+		list($lat,$lng) = explode(',', $pt);
+		$variables .= "entrances[$i] = { 'position': new google.maps.LatLng($lat, $lng) };\n";
+	}
+}
+
 echo $this->Form->hidden('Facility.id', array('value' => $field['Facility']['id']));
 echo $this->Form->hidden('Facility.parking');
+echo $this->Form->hidden('Facility.entrances');
 
 // TODO: Handle more than one sport in a site
 $sport = array_shift(array_keys(Configure::read('options.sport')));
@@ -89,6 +100,7 @@ $this->Html->scriptBlock ($variables, array('inline' => false));
 
 <p>
 <input type="submit" onclick="return addParking()" value="Add Parking">
+<input type="submit" onclick="return addEntrance()" value="Add Entrance">
 </p>
 
 <?php

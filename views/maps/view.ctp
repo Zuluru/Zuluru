@@ -53,6 +53,15 @@ if ($field['Facility']['parking']) {
 	}
 }
 
+// Handle entrances
+if ($field['Facility']['entrances']) {
+	$entrances = explode ('/', $field['Facility']['entrances']);
+	foreach ($entrances as $i => $pt) {
+		list($lat,$lng) = explode(',', $pt);
+		$variables .= "entrances[$i] = { 'position': new google.maps.LatLng($lat, $lng) };\n";
+	}
+}
+
 // TODO: Handle more than one sport in a site
 $sport = array_shift(array_keys(Configure::read('options.sport')));
 $this->ZuluruHtml->script (array(

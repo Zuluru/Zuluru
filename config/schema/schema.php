@@ -148,6 +148,7 @@ class ZuluruSchema extends CakeSchema {
 		'location_city' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
 		'location_province' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
 		'parking' => array('type' => 'text', 'null' => true, 'default' => NULL),
+		'entrances' => array('type' => 'text', 'null' => true, 'default' => NULL),
 		'region_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'driving_directions' => array('type' => 'text', 'null' => true, 'default' => NULL),
 		'parking_details' => array('type' => 'text', 'null' => true, 'default' => NULL),
