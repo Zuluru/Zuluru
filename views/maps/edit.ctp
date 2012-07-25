@@ -5,6 +5,7 @@ $this->Html->addCrumb ("{$field['Facility']['name']} ({$field['Facility']['code'
 
 <?php
 $map_vars = array('id', 'num', 'latitude', 'longitude', 'angle', 'width', 'length', 'zoom');
+$required_map_vars = array('id', 'num');
 
 $zuluru_base = Configure::read('urls.zuluru_base');
 $gmaps_key = Configure::read('site.gmaps_key');
@@ -33,7 +34,7 @@ echo $this->Form->create('Field', array('url' => Router::normalize($this->here),
 $vals = array();
 foreach ($map_vars as $var) {
 	$val = $field['Field'][$var];
-	if (!empty ($val)) {
+	if (!empty ($val) || in_array($var, $required_map_vars)) {
 		if (!is_numeric($val)) {
 			$val = "\"$val\"";
 		}
@@ -48,7 +49,7 @@ foreach ($field['Facility']['Field'] as $related) {
 	$vals = array();
 	foreach ($map_vars as $var) {
 		$val = $related[$var];
-		if (!empty ($val)) {
+		if (!empty ($val) || in_array($var, $required_map_vars)) {
 			if (!is_numeric($val)) {
 				$val = "\"$val\"";
 			}
