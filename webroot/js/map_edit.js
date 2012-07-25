@@ -128,7 +128,7 @@ function centerByAddress(id, result, status)
 	fields[id].angle = 0;
 
 	map.setCenter(position);
-	map.setZoom(15);
+	map.setZoom(17);
 	map.setMapTypeId(google.maps.MapTypeId.HYBRID);
 
 	drawFields();
@@ -137,8 +137,10 @@ function centerByAddress(id, result, status)
 
 function redraw()
 {
-	fields[current].field_outline.setPath(outlinePositions(current));
-	fields[current].field_inline.setPath(inlinePositions(current));
+	if (fields[current].length != 0) {
+		fields[current].field_outline.setPath(outlinePositions(current));
+		fields[current].field_inline.setPath(inlinePositions(current));
+	}
 }
 
 function updateAngle(val)
@@ -283,9 +285,11 @@ function check()
 	for (var id in fields)
 	{
 		$('#Field' + id + 'Zoom').val(map.getZoom());
-		$('#Field' + id + 'Angle').val(fields[id].angle);
-		$('#Field' + id + 'Width').val(fields[id].width);
-		$('#Field' + id + 'Length').val(fields[id].length);
+		if (fields[id].length != 0) {
+			$('#Field' + id + 'Angle').val(fields[id].angle);
+			$('#Field' + id + 'Width').val(fields[id].width);
+			$('#Field' + id + 'Length').val(fields[id].length);
+		}
 		$('#Field' + id + 'Latitude').val(fields[id].marker.getPosition().lat());
 		$('#Field' + id + 'Longitude').val(fields[id].marker.getPosition().lng());
 	}

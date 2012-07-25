@@ -19,6 +19,9 @@ function endzoneLength(length)
 
 function layoutText(id)
 {
+	if (fields[id].length == 0) {
+		return null;
+	}
 	return '<p>Field width: ' + fields[id].width + ' yards' +
 			'<br>Field length: ' + fieldLength(fields[id].length) + ' yards' +
 			'<br>End zone length: ' + endzoneLength(fields[id].length) + ' yards';

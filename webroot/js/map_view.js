@@ -43,9 +43,11 @@ function drawFields()
 					'<br>Latitude: ' + Math.round(fields[id].latitude * 100000) / 100000  +
 					'<br>Longitude: ' + Math.round(fields[id].longitude * 100000) / 100000 +
 					'<br>Surface: ' + fields[id].surface +
-					'</p>' +
-					'<h4>Suggested field layout:</h4>' + layoutText(id) + '</p>';
-
+					'</p>';
+		var layout = layoutText(id);
+		if (layout != null) {
+			text += '<h4>Suggested field layout:</h4>' + layout + '</p>';
+		}
 		fields[id].window = new google.maps.InfoWindow({'content':text});
 
 		openOnClick(fields[id].marker, fields[id].window);

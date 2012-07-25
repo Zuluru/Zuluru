@@ -54,7 +54,7 @@ class MapsController extends AppController {
 		));
 
 		$field = $this->Field->read(null, $id);
-		if (!$field['Field']['length']) {
+		if (!$field['Field']['latitude']) {
 			$this->Session->setFlash(sprintf(__('That %s has not yet been laid out.', true), Configure::read('ui.field')), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'fields', 'action' => 'index'));
 		}
