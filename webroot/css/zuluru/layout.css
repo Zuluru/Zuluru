@@ -65,6 +65,11 @@ body.map
 	text-align: center;
 }
 
+.clear
+{
+	clear: both;
+}
+
 /** Specific areas **/
 #zuluru div.crumbs
 {
