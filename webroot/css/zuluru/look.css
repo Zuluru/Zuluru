@@ -257,6 +257,9 @@ dl .altrow
 	height: 166px;
 	width: 320px;
 	color: #000;
+	float: none;
+	border: 0;
+	max-width: inherit;
 }
 
 /* Tournament bracket styling. */

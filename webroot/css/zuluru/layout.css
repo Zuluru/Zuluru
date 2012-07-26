@@ -95,8 +95,13 @@ body.map
 {
 	width: 100%;
 }
+#zuluru table.container tr
+{
+    border: 0;
+}
 #zuluru table.container td
 {
+    border: 0;
 	padding: 4px 0;
 	vertical-align: top;
 }
