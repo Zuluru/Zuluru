@@ -288,7 +288,9 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 <?php if (!in_array($game['Game']['status'], Configure::read('unplayed_status'))): ?>
 
 <?php
-if (League::hasSpirit($game)) {
+if (League::hasSpirit($game) &&
+	($is_admin || $is_coordinator || ($homeSpiritEntry !== null && $awaySpiritEntry !== null)))
+{
 	echo $this->element ('spirit/view',
 			array('team' => $game['HomeTeam'], 'league' => $game['Division']['League'], 'spirit' => $homeSpiritEntry, 'spirit_obj' => $spirit_obj));
 	echo $this->element ('spirit/view',
