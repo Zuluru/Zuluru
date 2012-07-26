@@ -60,6 +60,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 			$this->ZuluruTime->time ($game['GameSlot']['game_start']) . '-' .
 			$this->ZuluruTime->time ($game['GameSlot']['display_game_end']);
 		?>
+	</dd>
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Location');?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php echo $this->element('fields/block', array('field' => $game['GameSlot']['Field'], 'display_field' => 'long_name')); ?>
@@ -149,8 +150,8 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 
 <fieldset class="clear wide_labels">
 	<legend><?php __('Scoring'); ?></legend>
-	<dl>
 	<?php if (Game::_is_finalized($game)): ?>
+	<dl>
 		<?php if (!in_array($game['Game']['status'], Configure::read('unplayed_status'))): ?>
 		<dt><?php echo $this->Text->truncate ($game['HomeTeam']['name'], 28); ?></dt>
 		<dd>
@@ -207,6 +208,7 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 			?>
 
 		</dd>
+	</dl>
 	<?php else: ?>
 		<p><?php __('Score not yet finalized'); ?></p>
 		<?php if (!empty($game['ScoreEntry']) && ($is_admin || $is_coordinator)):?>
@@ -282,7 +284,6 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 		</table>
 		<?php endif; ?>
 	<?php endif; ?>
-	</dl>
 </fieldset>
 
 <?php if (!in_array($game['Game']['status'], Configure::read('unplayed_status'))): ?>
