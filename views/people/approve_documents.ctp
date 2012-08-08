@@ -18,11 +18,19 @@ $this->Html->addCrumb (__('Approve Documents', true));
 			array('target' => 'preview'));
 	echo $this->Html->link (__('Approve', true),
 			array('action' => 'approve_document', 'id' => $document['Upload']['id']));
-	echo $this->Js->link (__('Delete', true),
-			array('action' => 'delete_document', 'id' => $document['Upload']['id'], 'row' => $rand),
-			array('update' => "#temp_update"));
+
+	$url = array('action' => 'delete_document', 'id' => $document['Upload']['id'], 'row' => $rand);
+	$url_string = Router::url($url);
+	echo $this->Html->link(__('Delete', true), $url,
+			array(
+				'escape' => false,
+				'onClick' => "document_handle_comment('$url_string'); return false;",
+			)
+	);
 	?></td>
 </tr>
 <?php endforeach; ?>
 </table>
 </div>
+
+<?php echo $this->element('people/document_div'); ?>

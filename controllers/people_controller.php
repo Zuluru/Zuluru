@@ -1050,6 +1050,9 @@ class PeopleController extends AppController {
 		} else if (!$this->is_admin && $document['Upload']['person_id'] != $this->Auth->user('id')) {
 			$success = false;
 		} else {
+			if (!empty($this->data['Document']['comment'])) {
+				$this->set('comment', $this->data['Document']['comment']);
+			}
 			$success = $this->Person->Upload->delete ($id);
 			if ($success) {
 				$file_dir = Configure::read('folders.uploads');

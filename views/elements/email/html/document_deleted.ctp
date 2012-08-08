@@ -10,6 +10,9 @@ echo $this->ZuluruTime->date($document['Upload']['valid_until']); ?>, has been r
 <?php else: ?>
  has been reviewed by an administrator and rejected as unsuitable for the desired purpose. Please review your upload to ensure that it is the correct document and easily legible, and try again.</p><?php
 endif; ?>
+<?php if (isset($comment)): ?>
+<p><?php echo $comment; ?></p>
+<?php endif; ?>
 <p>If you have any questions or concerns about this, please contact <?php echo $this->Html->link(Configure::read('email.admin_name'), 'mailto:' . Configure::read('email.admin_email')); ?>.</p>
 <p>Thanks,
 <br /><?php echo Configure::read('email.admin_name'); ?>

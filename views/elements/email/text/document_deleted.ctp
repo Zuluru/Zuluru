@@ -15,6 +15,11 @@ As the validity date has passed, this is most likely simply a housekeeping matte
 
 <?php
 endif; ?>
+<?php if (isset($comment)): ?>
+<?php echo $comment; ?>
+
+
+<?php endif; ?>
 If you have any questions or concerns about this, please contact <?php echo $this->Html->link(Configure::read('email.admin_name'), 'mailto:' . Configure::read('email.admin_email')); ?>.
 
 Thanks,
