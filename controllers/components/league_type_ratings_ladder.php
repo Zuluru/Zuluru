@@ -169,11 +169,12 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 			// the games_before_repeat restriction in order to be able to generate
 			// this schedule...
 
-			// The best possible schedule will first have the smallest games before repeat sum,
-			// then will have the smallest seed_closeness, and then will have the smallest ratings_closeness
-			if (	( count($gbr_diff) == 0  ||  array_sum($gbr_diff) > array_sum($gbr_diff_try) ) ||
-					( array_sum($gbr_diff) == array_sum($gbr_diff_try) && array_sum($seed_closeness) > array_sum($seed_closeness_try) ) ||
-					( array_sum($gbr_diff) == array_sum($gbr_diff_try) && array_sum($seed_closeness) == array_sum($seed_closeness_try) && array_sum($ratings_closeness) > array_sum($ratings_closeness_try) ) )
+			// The best possible schedule will first have the smallest seed_closeness,
+			// then will have the smallest ratings_closeness,
+			// and then will have the smallest games before repeat sum
+			if (	( count($gbr_diff) == 0 || array_sum($seed_closeness) > array_sum($seed_closeness_try) ) ||
+					( array_sum($seed_closeness) == array_sum($seed_closeness_try) && array_sum($ratings_closeness) > array_sum($ratings_closeness_try) ) ||
+					( array_sum($seed_closeness) == array_sum($seed_closeness_try) && array_sum($ratings_closeness) == array_sum($ratings_closeness_try) && array_sum($gbr_diff) > array_sum($gbr_diff_try) ) )
 			{
 				$versus_teams = $versus_teams_try;
 				$gbr_diff = $gbr_diff_try;
