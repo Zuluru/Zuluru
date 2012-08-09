@@ -161,10 +161,41 @@ class LeaguesController extends AppController {
 
 	function cron() {
 		$this->layout = 'bare';
+		if (!ini_get('safe_mode')) { 
+			set_time_limit(0);
+		}
 
 		if (!$this->Lock->lock ('cron')) {
 			return false;
 		}
+
+		// Find any leagues that are currently open, and possibly recalculate ratings
+		$leagues = $this->League->find('all', array(
+				'conditions' => array(
+					'League.is_open' => true,
+				),
+				'contain' => array(
+					'Division' => array(
+						'Team',
+					),
+				),
+				'order' => 'League.open',
+		));
+
+		foreach ($leagues as $key => $league) {
+			AppModel::_reindexInner($league['Division'], 'Team', 'id');
+
+			// Find all games played by teams that are in this league
+			$games = $this->League->readFinalizedGames($league);
+			if (!empty ($games)) {
+				foreach ($league['Division'] as $dkey => $division) {
+					$ratings_obj = $this->_getComponent ('Ratings', $division['rating_calculator'], $this);
+					$leagues[$key]['Division'][$dkey]['updates'] = $ratings_obj->recalculateRatings($league, $division, $games, true);
+				}
+			}
+		}
+
+		$this->set(compact('leagues'));
 
 		// Update the is_open status of any divisions that are about to open or have recently closed
 		$to_close = $this->League->Division->find('all', array(

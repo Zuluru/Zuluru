@@ -100,7 +100,7 @@ class AllController extends AppController {
 			set_time_limit(0);
 		}
 		Configure::write ('debug', 0);
-		$controllers = array('people', 'leagues', 'divisions', 'teams', 'games', 'team_events');
+		$controllers = array('people', 'leagues', 'teams', 'games', 'team_events');
 		$this->set(compact('controllers'));
 		foreach ($controllers as $controller) {
 			$this->set($controller, $this->requestAction(array('controller' => $controller, 'action' => 'cron'), array('return')));

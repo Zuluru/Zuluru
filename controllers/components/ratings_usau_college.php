@@ -8,22 +8,24 @@ class RatingsUsauCollegeComponent extends RatingsComponent
 {
 	var $per_game_ratings = false;
 
-	function _initializeRatings(&$division) {
-		parent::_initializeRatings($division);
+	function _initializeRatings($league, &$division, $games) {
+		parent::_initializeRatings($league, $division, $games);
 
 		// Start all teams with the same rating
-		foreach (array_keys($division['Team']) as $team_id) {
-			$division['Team'][$team_id]['current_rating'] = $division['Team'][$team_id]['initial_rating'];
-			$division['Team'][$team_id]['rating_sum'] = 0;
-			$division['Team'][$team_id]['weight_sum'] = 0;
+		foreach ($league['Division'] as $d) {
+			foreach (array_keys($d['Team']) as $team_id) {
+				$division['Team'][$team_id]['current_rating'] = $d['Team'][$team_id]['initial_rating'];
+				$division['Team'][$team_id]['rating_sum'] = 0;
+				$division['Team'][$team_id]['weight_sum'] = 0;
+			}
 		}
 	}
-	
-	function _recalculateRatings(&$division) {
+
+	function _recalculateRatings(&$division, $games) {
 		$today = time();
 
 		$pt_sum = $wt_sum = 0;
-		foreach ($division['Game'] as $game) {
+		foreach ($games as $game) {
 			$days = intval(($today - strtotime($game['GameSlot']['game_date'])) / DAY);
 			$weight = min(1, 1 / (pow(($days + 4) / 7, 0.4)));
 

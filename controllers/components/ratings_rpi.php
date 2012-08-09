@@ -11,9 +11,9 @@ class RatingsRpiComponent extends RatingsComponent
 	var $results = array();
 	var $vs = array();
 
-	function _initializeRatings(&$division) {
+	function _initializeRatings($league, &$division, $games) {
 		// Build some counters to make the later calculations trivial
-		foreach ($division['Game'] as $game) {
+		foreach ($games as $game) {
 			if (!$game['Game']['tournament'] && $this->game_obj->_is_finalized ($game) && $game['Game']['status'] != 'rescheduled') {
 				if (!array_key_exists($game['Game']['home_team'], $this->results)) {
 					$this->results[$game['Game']['home_team']] = array('games' => 0, 'wins' => 0);
@@ -60,7 +60,7 @@ class RatingsRpiComponent extends RatingsComponent
 		}
 	}
 
-	function _recalculateRatings(&$division) {
+	function _recalculateRatings(&$division, $games) {
 		foreach ($division['Team'] as $key => $team) {
 			if (!array_key_exists($team['id'], $this->results)) {
 				// If they haven't played yet, give them a neutral win percentage
@@ -69,8 +69,8 @@ class RatingsRpiComponent extends RatingsComponent
 				// This will put teams in the range from 1000-2000, similar to other calculators
 				$division['Team'][$key]['current_rating'] = intval(1000 * (
 					0.25 * $this->_wp($team['id']) +
-					0.50 * $this->_owp($division, $team['id']) +
-					0.25 * $this->_oowp($division, $team['id'])
+					0.50 * $this->_owp($games, $team['id']) +
+					0.25 * $this->_oowp($games, $team['id'])
 				)) + 1000;
 			}
 		}
@@ -94,10 +94,10 @@ class RatingsRpiComponent extends RatingsComponent
 		return $wins / $games;
 	}
 
-	function _owp($division, $team_id) {
+	function _owp($games, $team_id) {
 		$opponents = array_merge(
-			Set::extract("/Game[home_team=$team_id][tournament=0]/away_team", $division['Game']),
-			Set::extract("/Game[away_team=$team_id][tournament=0]/home_team", $division['Game'])
+			Set::extract("/Game[home_team=$team_id][tournament=0]/away_team", $games),
+			Set::extract("/Game[away_team=$team_id][tournament=0]/home_team", $games)
 		);
 
 		$sum = 0;
@@ -107,15 +107,15 @@ class RatingsRpiComponent extends RatingsComponent
 		return $sum / count($opponents);
 	}
 
-	function _oowp($division, $team_id) {
+	function _oowp($games, $team_id) {
 		$opponents = array_merge(
-			Set::extract("/Game[home_team=$team_id][tournament=0]/away_team", $division['Game']),
-			Set::extract("/Game[away_team=$team_id][tournament=0]/home_team", $division['Game'])
+			Set::extract("/Game[home_team=$team_id][tournament=0]/away_team", $games),
+			Set::extract("/Game[away_team=$team_id][tournament=0]/home_team", $games)
 		);
 
 		$sum = 0;
 		foreach ($opponents as $opponent) {
-			$sum += $this->_owp($division, $opponent);
+			$sum += $this->_owp($games, $opponent);
 		}
 		return $sum / count($opponents);
 	}

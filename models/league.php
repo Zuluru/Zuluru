@@ -198,5 +198,28 @@ class League extends AppModel {
 		}
 		return ($league['numeric_sotg'] || $league['sotg_questions'] != 'none');
 	}
+
+	function readFinalizedGames($league) {
+		$teams = Set::extract ('/Division/Team/id', $league);
+		if (empty($teams)) {
+			return array();
+		}
+
+		$this->Division->Game->contain (array('GameSlot', 'HomeTeam', 'AwayTeam'));
+		$games = $this->Division->Game->find('all', array(
+				'conditions' => array(
+					'OR' => array(
+						'home_team' => $teams,
+						'away_team' => $teams,
+					),
+					'home_score !=' => null,
+					'away_score !=' => null,
+				),
+		));
+
+		// Sort games by date, time and field
+		usort ($games, array ('Game', 'compareDateAndField'));
+		return $games;
+	}
 }
 ?>

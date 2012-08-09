@@ -31,24 +31,24 @@ class RatingsComponent extends Object
 		return ( 1 / ($power + 1) );
 	}
 
-	function recalculateRatings(&$division, $correct) {
+	function recalculateRatings($league, &$division, $games, $correct) {
 		if (!isset($this->game_obj)) {
 			$this->game_obj = ClassRegistry::init('Game');
 			$this->team_obj = ClassRegistry::init('Team');
 		}
 
 		// Do the actual calculations
-		$this->_initializeRatings($division);
+		$this->_initializeRatings($league, $division, $games);
 		if ($this->per_game_ratings) {
-			$game_update_count = $this->_recalculateRatings($division, $correct);
+			$game_update_count = $this->_recalculateRatings($division, $games, $correct);
 		} else {
 			$game_update_count = 0;
 			if ($this->iterative) {
 				for ($it = 0; $it < $this->iterations; ++ $it) {
-					$this->_recalculateRatings($division);
+					$this->_recalculateRatings($division, $games);
 				}
 			} else {
-				$this->_recalculateRatings($division);
+				$this->_recalculateRatings($division, $games);
 			}
 		}
 		$this->_finalizeRatings($division);
@@ -56,9 +56,9 @@ class RatingsComponent extends Object
 		// Perhaps save any changes
 		$team_updates = array();
 		foreach ($division['Team'] as $key => $team) {
-			if ($team['rating'] != $team['current_rating']) {
+			if (array_key_exists('rating', $team) && $team['rating'] != $team['current_rating']) {
 				$team_updates[] = array(
-					'id' => $team['id'],
+					'id' => $key,
 					'rating' => $team['current_rating'],
 				);
 			}
@@ -73,7 +73,7 @@ class RatingsComponent extends Object
 	/**
 	 * Initialize for ratings recalculation.
 	 */
-	function _initializeRatings(&$division) {
+	function _initializeRatings($league, &$division, $games) {
 		AppModel::_reindexOuter($division['Team'], 'Team', 'id');
 	}
 
@@ -88,11 +88,11 @@ class RatingsComponent extends Object
 	 * implementation works for all calculators where rating points are
 	 * transferred on a per-game basis (i.e. per_game_ratings = true).
 	 */
-	function _recalculateRatings(&$division, $correct) {
+	function _recalculateRatings(&$division, $games, $correct) {
 		$moved_teams = array();
 		$game_updates = array();
 
-		foreach ($division['Game'] as $key => $game) {
+		foreach ($games as $key => $game) {
 			// Handle teams that have moved
 			if (!array_key_exists ($game['Game']['home_team'], $division['Team'])) {
 				$moved_teams[] = $game['Game']['home_team'];
@@ -110,8 +110,8 @@ class RatingsComponent extends Object
 				$division['Team'][$game['Game']['away_team']]['current_rating'] = $division['Team'][$game['Game']['away_team']]['initial_rating'];
 			}
 
-            $division['Game'][$key]['Game']['calc_rating_home'] = $division['Team'][$game['Game']['home_team']]['current_rating'];
-			$division['Game'][$key]['Game']['calc_rating_away'] = $division['Team'][$game['Game']['away_team']]['current_rating'];
+            $games[$key]['Game']['calc_rating_home'] = $division['Team'][$game['Game']['home_team']]['current_rating'];
+			$games[$key]['Game']['calc_rating_away'] = $division['Team'][$game['Game']['away_team']]['current_rating'];
 
 			if ($this->game_obj->_is_finalized ($game) && $game['Game']['status'] != 'rescheduled') {
 				if ($game['Game']['tournament']) {
@@ -121,25 +121,25 @@ class RatingsComponent extends Object
 					// Defaulted games might not adjust ratings
 					$change = 0;
 				} else if ($game['Game']['home_score'] >= $game['Game']['away_score']) {
-					$division['Game'][$key]['Game']['expected'] = $this->calculateExpectedWin($division['Team'][$game['Game']['home_team']]['current_rating'], $division['Team'][$game['Game']['away_team']]['current_rating']);
-					$change = $this->calculateRatingsChange($game['Game']['home_score'], $game['Game']['away_score'], $division['Game'][$key]['Game']['expected']);
+					$games[$key]['Game']['expected'] = $this->calculateExpectedWin($division['Team'][$game['Game']['home_team']]['current_rating'], $division['Team'][$game['Game']['away_team']]['current_rating']);
+					$change = $this->calculateRatingsChange($game['Game']['home_score'], $game['Game']['away_score'], $games[$key]['Game']['expected']);
 					$division['Team'][$game['Game']['home_team']]['current_rating'] += $change;
 					$division['Team'][$game['Game']['away_team']]['current_rating'] -= $change;
 				} else {
-					$division['Game'][$key]['Game']['expected'] = $this->calculateExpectedWin($division['Team'][$game['Game']['away_team']]['current_rating'], $division['Team'][$game['Game']['home_team']]['current_rating']);
-					$change = $this->calculateRatingsChange($game['Game']['home_score'], $game['Game']['away_score'], $division['Game'][$key]['Game']['expected']);
+					$games[$key]['Game']['expected'] = $this->calculateExpectedWin($division['Team'][$game['Game']['away_team']]['current_rating'], $division['Team'][$game['Game']['home_team']]['current_rating']);
+					$change = $this->calculateRatingsChange($game['Game']['home_score'], $game['Game']['away_score'], $games[$key]['Game']['expected']);
 					$division['Team'][$game['Game']['home_team']]['current_rating'] -= $change;
 					$division['Team'][$game['Game']['away_team']]['current_rating'] += $change;
 				}
-				$division['Game'][$key]['Game']['calc_rating_points'] = $change;
+				$games[$key]['Game']['calc_rating_points'] = $change;
 			} else {
-				$division['Game'][$key]['Game']['calc_rating_points'] = $division['Game'][$key]['Game']['expected'] = null;
+				$games[$key]['Game']['calc_rating_points'] = $games[$key]['Game']['expected'] = null;
 			}
 
 			// Only save updates for games that actually changed
 			$update = array('id' => $game['Game']['id']);
-			if ($division['Game'][$key]['Game']['calc_rating_points'] != $game['Game']['rating_points']) {
-				$update['rating_points'] = $division['Game'][$key]['Game']['calc_rating_points'];
+			if ($games[$key]['Game']['calc_rating_points'] != $game['Game']['rating_points']) {
+				$update['rating_points'] = $games[$key]['Game']['calc_rating_points'];
 			}
 			if (count($update) > 1) {
 				$game_updates[] = $update;

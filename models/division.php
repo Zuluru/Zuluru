@@ -294,29 +294,6 @@ class Division extends AppModel {
 		return $divisions;
 	}
 
-	function readFinalizedGames($division) {
-		$teams = Set::extract ('/Team/id', $division);
-		if (empty($teams)) {
-			return array();
-		}
-
-		$this->Game->contain (array('GameSlot', 'HomeTeam', 'AwayTeam'));
-		$games = $this->Game->find('all', array(
-				'conditions' => array(
-					'OR' => array(
-						'home_team' => $teams,
-						'away_team' => $teams,
-					),
-					'home_score !=' => null,
-					'away_score !=' => null,
-				),
-		));
-
-		// Sort games by date, time and field
-		usort ($games, array ('Game', 'compareDateAndField'));
-		return $games;
-	}
-
 	// This would be better placed in afterFind, to make sure that it always happens,
 	// but the required queries mess up containment and cause far too much data to
 	// be read. Revisit this limitation with a future version of Cake.

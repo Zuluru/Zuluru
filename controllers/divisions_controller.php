@@ -30,7 +30,6 @@ class DivisionsController extends AppController {
 				'emails',
 				'spirit',
 				'ratings',
-				'validate_ratings',
 				'initialize_ratings',
 				'initialize_dependencies',
 		)))
@@ -557,48 +556,6 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(__('Saved schedule changes, but failed to clear unused slots!', true), 'default', array('class' => 'warning'));
 			return false;
 		}
-	}
-
-	function validate_ratings() {
-		$id = $this->_arg('division');
-		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
-		}
-		$correct = $this->_arg('correct');
-
-		$this->Division->contain(array (
-			'Team',
-			'League',
-		));
-		$division = $this->Division->read(null, $id);
-		if ($division === false) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
-		}
-		AppModel::_reindexOuter($division['Team'], 'Team', 'id');
-
-		// Find all finalized games played by teams that are currently in this division
-		$division['Game'] = $this->Division->readFinalizedGames($division);
-		if (empty ($division['Game'])) {
-			$this->Session->setFlash(__('This division has no games finalized yet.', true), 'default', array('class' => 'info'));
-			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
-		}
-
-		$ratings_obj = $this->_getComponent ('Ratings', $division['Division']['rating_calculator'], $this);
-
-		$ratings_obj->recalculateRatings($division, $correct);
-
-		// Find new rankings for each team, and sort by old ranking
-		$new = Set::sort (array_values ($division['Team']), '/current_rating', 'DESC');
-		foreach ($new as $key => $team) {
-			$division['Team'][$team['id']]['rank'] = $key + 1;
-		}
-		$division['Team'] = Set::sort (array_values ($division['Team']), '/rating', 'DESC');
-
-		$this->set(compact ('id', 'division', 'ratings_obj', 'correct'));
-
-		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 	}
 
 	function standings() {
@@ -1214,41 +1171,6 @@ class DivisionsController extends AppController {
 				'default', array('class' => 'success'));
 		$transaction->commit();
 		$this->redirect(array('action' => 'schedule', 'division' => $id));
-	}
-
-	function cron() {
-		$this->layout = 'bare';
-
-		if (!$this->Lock->lock ('cron')) {
-			return false;
-		}
-
-		// Find any divisions that are open, and possibly recalculate ratings
-		$divisions = $this->Division->find('all', array(
-				'conditions' => array(
-					'Division.is_open' => true,
-				),
-				'contain' => array(
-					'Team',
-					'League',
-				),
-				'order' => 'Division.open',
-		));
-
-		foreach ($divisions as $key => $division) {
-			$ratings_obj = $this->_getComponent ('Ratings', $division['Division']['rating_calculator'], $this);
-			AppModel::_reindexOuter($division['Team'], 'Team', 'id');
-
-			// Find all games played by teams that are currently in this division
-			$division['Game'] = $this->Division->readFinalizedGames($division);
-			if (!empty ($division['Game'])) {
-				$divisions[$key]['updates'] = $ratings_obj->recalculateRatings($division, true);
-			}
-		}
-
-		$this->set(compact('divisions'));
-
-		$this->Lock->unlock();
 	}
 
 	/**

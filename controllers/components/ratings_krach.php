@@ -25,9 +25,9 @@ class RatingsKrachComponent extends RatingsComponent
 		}
 	}
 
-	function _initializeRatings(&$division) {
+	function _initializeRatings($league, &$division, $games) {
 		// Build some counters to make the later calculations trivial
-		foreach ($division['Game'] as $game) {
+		foreach ($games as $game) {
 			if (!$game['Game']['tournament'] && $this->game_obj->_is_finalized ($game) && $game['Game']['status'] != 'rescheduled') {
 				if (!array_key_exists($game['Game']['home_team'], $this->results)) {
 					$this->results[$game['Game']['home_team']] = array('games' => 0, 'wins' => 0);
@@ -67,14 +67,16 @@ class RatingsKrachComponent extends RatingsComponent
 			}
 		}
 
-		foreach (array_keys($division['Team']) as $team_id) {
-			$division['Team'][$team_id]['current_rating'] = $division['Team'][$team_id]['initial_rating'];
+		foreach ($league['Division'] as $d) {
+			foreach (array_keys($d['Team']) as $team_id) {
+				$division['Team'][$team_id]['current_rating'] = $d['Team'][$team_id]['initial_rating'];
+			}
 		}
 	}
 
-	function _recalculateRatings(&$division) {
+	function _recalculateRatings(&$division, $games) {
 		foreach ($division['Team'] as $key => $team) {
-			$division['Team'][$key]['calculated_rating'] = max(1, $this->results[$team['id']]['wins'] * $this->_sos($division, $team['id']));
+			$division['Team'][$key]['calculated_rating'] = max(1, $this->results[$key]['wins'] * $this->_sos($division, $games, $key));
 		}
 
 		foreach (array_keys($division['Team']) as $key) {
@@ -82,10 +84,10 @@ class RatingsKrachComponent extends RatingsComponent
 		}
 	}
 
-	function _sos($division, $team_id) {
+	function _sos($division, $games, $team_id) {
 		$opponents = array_merge(
-			Set::extract("/Game[home_team=$team_id][tournament=0]/away_team", $division['Game']),
-			Set::extract("/Game[away_team=$team_id][tournament=0]/home_team", $division['Game'])
+			Set::extract("/Game[home_team=$team_id][tournament=0]/away_team", $games),
+			Set::extract("/Game[away_team=$team_id][tournament=0]/home_team", $games)
 		);
 
 		$sum = 0;
