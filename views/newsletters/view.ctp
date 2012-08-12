@@ -25,7 +25,6 @@ $this->Html->addCrumb (__('Preview', true));
 	</dl>
 </div>
 <div class="actions">
-	<h3><?php __('Actions'); ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link(__('Delivery Report', true), array('action' => 'delivery', 'newsletter' => $newsletter['Newsletter']['id'])); ?></li>
 		<li><?php echo $this->ZuluruHtml->iconLink('newsletter_send_32.png',
