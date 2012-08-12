@@ -15,6 +15,7 @@ $this->Html->addCrumb (__('Summary', true));
 	<th><?php __('Numeric Spirit?');?></th>
 	<?php endif; ?>
 	<th><?php __('Max Score');?></th>
+	<th><?php __('Schedule Attempts');?></th>
 </tr>
 <?php
 $i = 0;
@@ -45,6 +46,7 @@ foreach ($divisions as $division):
 		<td><?php __($division['League']['numeric_sotg'] ? 'Yes' : 'No'); ?></td>
 		<?php endif; ?>
 		<td><?php echo $division['League']['expected_max_score']; ?></td>
+		<td><?php echo $division['League']['schedule_attempts']; ?></td>
 	</tr>
 <?php endforeach; ?>
 </table>

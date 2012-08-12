@@ -13,6 +13,11 @@ $this->Html->addCrumb (__('View', true));
 
 		</dd>
 		<?php if ($is_admin || $is_coordinator): ?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Schedule Attempts'); ?></dt>
+			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+				<?php echo $league['League']['schedule_attempts']; ?>
+
+			</dd>
 		<?php if (Configure::read('feature.spirit')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Spirit Questionnaire'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>

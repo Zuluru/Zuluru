@@ -41,6 +41,16 @@ if (isset ($add)) {
 	?>
 	</fieldset>
 	<fieldset>
+ 		<legend><?php __('Scheduling'); ?></legend>
+	<?php
+		echo $this->ZuluruForm->input('schedule_attempts', array(
+			'size' => 5,
+			'default' => 100,
+			'after' => $this->Html->para (null, __('Number of attempts to generate a schedule, before taking the best option.', true)),
+		));
+	?>
+	</fieldset>
+	<fieldset>
  		<legend><?php __('Scoring'); ?></legend>
 	<?php
 		if (Configure::read('feature.spirit')) {
