@@ -266,9 +266,6 @@ class RegistrationsController extends AppController {
 			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
 
-		// Check the waiver, if any
-		$this->set('waivered', $this->_checkWaiver($event['Event']));
-
 		$event_obj = $this->_getComponent ('EventType', $event['EventType']['type'], $this);
 		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], $this->Auth->user('id'));
 		$this->set(compact ('id', 'event', 'event_obj'));

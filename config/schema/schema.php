@@ -115,7 +115,6 @@ class ZuluruSchema extends CakeSchema {
 		'name' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 128, 'key' => 'unique'),
 		'description' => array('type' => 'text', 'null' => true, 'default' => NULL),
 		'event_type_id' => array('type' => 'integer', 'null' => false, 'default' => NULL),
-		'waiver_type' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 16),
 		'cost' => array('type' => 'float', 'null' => true, 'default' => NULL, 'length' => '7,2'),
 		'tax1' => array('type' => 'float', 'null' => true, 'default' => NULL, 'length' => '7,2'),
 		'tax2' => array('type' => 'float', 'null' => true, 'default' => NULL, 'length' => '7,2'),
@@ -584,11 +583,26 @@ class ZuluruSchema extends CakeSchema {
 	);
 	var $waivers = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 256),
+		'text' => array('type' => 'text', 'null' => true, 'default' => NULL),
+		'active' => array('type' => 'boolean', 'null' => false, 'default' => '1'),
+		'expiry_type' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 32),
+		'start_month' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'start_day' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'end_month' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'end_day' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'duration' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
+	var $waivers_people = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'person_id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'index'),
-		'type' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 16),
+		'waiver_id' => array('type' => 'integer', 'null' => false, 'default' => NULL),
 		'created' => array('type' => 'timestamp', 'null' => true, 'default' => NULL),
-		'expires' => array('type' => 'timestamp', 'null' => true, 'default' => NULL),
-		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'key' => array('column' => 'person_id', 'unique' => 0)),
+		'valid_from' => array('type' => 'date', 'null' => true, 'default' => NULL),
+		'valid_until' => array('type' => 'date', 'null' => true, 'default' => NULL),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'person' => array('column' => 'person_id', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 }

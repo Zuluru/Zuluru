@@ -178,10 +178,12 @@ $config['options'] = array(
 //		'trial'				=> 'Trial',
 	),
 
-	'waiver_types' => array(
-		'none'				=> 'None',
-		'membership'		=> 'Membership',
-		'event'				=> 'Event',
+	'waivers' => array(
+		'expiry_type' => array(
+			'fixed_dates'		=> 'Fixed dates',
+			'elapsed_time'		=> 'A fixed duration',
+			'event'				=> 'Duration of the event',
+		),
 	),
 
 	'date_formats' => array(

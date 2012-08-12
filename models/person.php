@@ -45,12 +45,6 @@ class Person extends User {
 			'foreignKey' => 'person_id',
 			'dependent' => false,
 		),
-		'Waiver' => array(
-			'className' => 'Waiver',
-			'foreignKey' => 'person_id',
-			'dependent' => false,
-			'order' => 'Waiver.expires',
-		),
 		'Note' => array(
 			'className' => 'Note',
 			'foreignKey' => 'person_id',
@@ -84,6 +78,13 @@ class Person extends User {
 			'with' => 'TeamsPerson',
 			'foreignKey' => 'person_id',
 			'associationForeignKey' => 'team_id',
+			'unique' => true,
+		),
+		'Waiver' => array(
+			'className' => 'Waiver',
+			'joinTable' => 'waivers_people',
+			'foreignKey' => 'person_id',
+			'associationForeignKey' => 'waiver_id',
 			'unique' => true,
 		),
 	);

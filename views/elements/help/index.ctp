@@ -31,6 +31,9 @@
 <?php endif; ?>
 	<li><?php echo $this->Html->link (__('Registration', true), array('controller' => 'help', 'action' => 'registration')); ?></li>
 <?php endif; ?>
+<?php if ($is_admin): ?>
+	<li><?php echo $this->Html->link (__('Waivers', true), array('controller' => 'help', 'action' => 'waivers')); ?></li>
+<?php endif; ?>
 	<li><?php echo $this->Html->link (__('Teams', true), array('controller' => 'help', 'action' => 'teams')); ?></li>
 	<li><?php echo $this->Html->link (__('Games', true), array('controller' => 'help', 'action' => 'games')); ?></li>
 <?php if ($is_admin || $is_coordinator): ?>

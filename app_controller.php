@@ -359,6 +359,7 @@ class AppController extends Controller {
 			$this->_addMenuItem ('My Profile', array('controller' => 'people', 'action' => 'view'));
 			$this->_addMenuItem ('Edit', array('controller' => 'people', 'action' => 'edit'), 'My Profile');
 			$this->_addMenuItem ('Preferences', array('controller' => 'people', 'action' => 'preferences'), 'My Profile');
+			$this->_addMenuItem ('Waiver history', array('controller' => 'people', 'action' => 'waivers'), 'My Profile');
 			if (Configure::read('feature.manage_accounts')) {
 				$this->_addMenuItem ('Change password', array('controller' => 'users', 'action' => 'change_password'), 'My Profile');
 			}
@@ -467,6 +468,8 @@ class AppController extends Controller {
 					$this->_addMenuItem ("Approve new documents ($new pending)", array('controller' => 'people', 'action' => 'approve_documents'), 'Players');
 				}
 			}
+
+			$this->_addMenuItem ('Waivers', array('controller' => 'waivers', 'action' => 'index'), 'Players');
 		}
 
 		if ($this->is_admin) {
@@ -1033,86 +1036,6 @@ class AppController extends Controller {
 			$model->data = null;
 		}
 		return $data;
-	}
-
-	function _findWaiver($waivers, $date) {
-		foreach ($waivers as $waiver) {
-			if ($waiver['created'] <= $date && $waiver['expires'] >= $date) {
-				return $waiver;
-			}
-		}
-		return null;
-	}
-
-	function _checkWaiver($event) {
-		$type = $event['waiver_type'];
-		switch ($type) {
-			case 'membership':
-				$check_date = $event['membership_ends'];
-				break;
-
-			case 'event':
-				// TODO: There must be a better date than the registration closing
-				$check_date = $event['close'];
-				break;
-
-			default:
-				return false;
-		}
-
-		$waivers = $this->_findSessionData('Waivers', $this->Person->Waiver, array(
-				'recursive' => -1,
-				'conditions' => array(
-					'person_id' => $this->Auth->user('id'),
-				),
-		));
-		$waiver = $this->_findWaiver($waivers, $check_date);
-		if ($waiver === null) {
-			$this->Session->setFlash(__('You must sign the waiver before proceeding.', true), 'default', array('class' => 'info'));
-			$this->redirect (array('controller' => 'people', 'action' => 'sign_waiver', 'type' => $type, 'year' => $this->membershipYear ($check_date), 'event' => $event['id']));
-		} else {
-			return $this->membershipYear ($check_date);
-		}
-	}
-
-	function membershipYear($date = null) {
-		if ($date === null) {
-			$date = time();
-		} else {
-			$date = strtotime ($date);
-		}
-
-		$year = date('Y', $date);
-		$month = $this->membershipYearEndMonth();
-		$day = $this->membershipYearEndDay();
-		if ($month <= '06' && (date('m', $date) < $month ||
-			(date('m', $date) == $month && date('d', $date) <= $day)))
-		{
-			-- $year;
-		}
-		if ($month > '06' && (date('m', $date) > $month ||
-			(date('m', $date) == $month && date('d', $date) > $day)))
-		{
-			++ $year;
-		}
-		return $year;
-	}
-
-	function membershipEnd($year) {
-		$month = $this->membershipYearEndMonth();
-		$day = $this->membershipYearEndDay();
-		if ($month <= '06') {
-			++ $year;
-		}
-		return "$year-$month-$day";
-	}
-
-	function membershipYearEndMonth() {
-		return Configure::read('organization.year_end');
-	}
-
-	function membershipYearEndDay() {
-		return '31';
 	}
 
 	// TODO: Move this to a component? Leagues and Teams need it, but nothing else

@@ -62,11 +62,6 @@ class SettingsData {
 			'value' => '',
 		),
 		array(
-			'category' => 'organization',
-			'name' => 'year_end',
-			'value' => '03',
-		),
-		array(
 			'category' => 'site',
 			'name' => 'gmaps_key',
 			'value' => '',

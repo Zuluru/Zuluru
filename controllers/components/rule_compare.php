@@ -43,12 +43,12 @@ class RuleCompareComponent extends RuleComponent
 		return true;
 	}
 
-	function evaluate($params, $team) {
+	function evaluate($params, $team, $strict) {
 		if (count ($this->rule) != 2 || empty($this->config)) {
 			return null;
 		}
-		$left = $this->rule[0]->evaluate($params, $team);
-		$right = $this->rule[1]->evaluate($params, $team);
+		$left = $this->rule[0]->evaluate($params, $team, $strict);
+		$right = $this->rule[1]->evaluate($params, $team, $strict);
 		$prefix = '';
 		switch ($this->config) {
 			case '<':

@@ -20,7 +20,7 @@ if (isset ($add)) {
 			'size' => 70,
 			'after' => $this->Html->para (null, __('Full name of this registration event.', true)),
 		));
-		echo $this->Form->input('description', array(
+		echo $this->ZuluruForm->input('description', array(
 			'cols' => 70,
 			'rows' => 5,
 			'after' => $this->Html->para (null, __('Complete description of the event, HTML is allowed.', true)),
@@ -29,10 +29,6 @@ if (isset ($add)) {
 		echo $this->ZuluruForm->input('event_type_id', array(
 			'empty' => '---',
 			'after' => $this->Html->para (null, __('Note that any team type will result in team records being created. If you don\'t want this, then use the appropriate individual type.', true)),
-		));
-		echo $this->ZuluruForm->input('waiver_type', array(
-			'options' => Configure::read('options.waiver_types'),
-			'after' => $this->Html->para (null, __('What type of waiver to require the user to have signed before registering for this event. Memberships should always be set to "membership". Non-member events (those events that don\'t have rules that limit registration to members only) that involve game play should be set to "event". All others should typically be left as "None".', true)),
 		));
 		echo $this->ZuluruForm->input('cost', array(
 			'after' => $this->Html->para (null, __('Cost of this event, may be 0, <span class="error">not including tax</span>.', true)),
@@ -97,7 +93,7 @@ if (isset ($add)) {
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
 <?php if (!isset ($add)): ?>
-	<div class="actions">
+<div class="actions">
 	<ul>
 		<li><?php echo $this->Html->link(sprintf(__('Manage %s', true), __('Connections', true)), array('action' => 'connections', 'event' => $this->data['Event']['id'])); ?> </li>
 	</ul>

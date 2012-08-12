@@ -20,8 +20,6 @@ class PeopleController extends AppController {
 	function isAuthorized() {
 		// Anyone that's logged in can perform these operations
 		if (in_array ($this->params['action'], array(
-				'sign_waiver',
-				'view_waiver',
 				'search',
 				'teams',
 				'photo',
@@ -38,6 +36,7 @@ class PeopleController extends AppController {
 		if (in_array ($this->params['action'], array(
 				'edit',
 				'preferences',
+				'waivers',
 				'photo_upload',
 				'photo_resize',
 				'document_upload',
@@ -904,7 +903,8 @@ class PeopleController extends AppController {
 			if ($this->Person->Upload->save(array(
 					'person_id' => $person['id'],
 					'type_id' => $this->data['document_type'],
-			))) {
+			)))
+			{
 				$file_dir = Configure::read('folders.uploads');
 				$file_ext = substr($this->data['document']['name'], strrpos($this->data['document']['name'], '.') + 1);
 				$upload_target = $file_dir . DS . $person['id'] . '_' . $this->Person->Upload->id . '.' . $file_ext;
@@ -1072,101 +1072,6 @@ class PeopleController extends AppController {
 				$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $document['Person']['email']), 'default', array('class' => 'error'), 'email');
 			}
 		}
-	}
-
-	function sign_waiver() {
-		$type = $this->_arg('type');
-		if ($type == null || !array_key_exists ($type, Configure::read('options.waiver_types'))) {
-			$this->Session->setFlash(__('Unknown waiver type', true), 'default', array('class' => 'info'));
-			$this->redirect('/');
-		}
-
-		$id = $this->Auth->user('id');
-		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
-			$this->redirect('/');
-		}
-		$this->Person->contain ('Waiver');
-		$person = $this->Person->read(null, $id);
-
-		// Make sure it's either this year or next year they're waivering for
-		$current = $this->membershipYear();
-		$year = $this->_arg('year');
-		if ($year == null) {
-			$year = $current;
-		}
-		$expiry = $this->membershipEnd($year) . ' 23:59:59';
-
-		$waiver = $this->_findWaiver ($person['Waiver'], $expiry);
-		if ($waiver != null) {
-			$this->Session->setFlash(__('You have already accepted this waiver', true), 'default', array('class' => 'info'));
-			$this->redirect('/');
-		}
-		$this->set(compact('person', 'waiver'));
-
-		if ($year != $current && $year != $current+1) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('membership year', true)), 'default', array('class' => 'info'));
-			$this->redirect('/');
-		}
-
-		if (!empty ($this->data)) {
-			if ($this->data['Person']['signed'] == 'yes') {
-				if ($this->Person->Waiver->save (array(
-						'person_id' => $id,
-						'type' => $type,
-						'expires' => $expiry,
-				)))
-				{
-					// By deleting the waivers session variable, the next page will reload them
-					$this->Session->delete('Zuluru.Waivers');
-					$this->Session->setFlash(__('Waiver signed.', true), 'default', array('class' => 'success'));
-					$event = $this->_arg('event');
-					if ($event) {
-						$this->redirect(array('controller' => 'registrations', 'action' => 'register', 'event' => $event));
-					} else {
-						$this->redirect('/');
-					}
-				} else {
-					$this->Session->setFlash(__('Failed to save the waiver.', true), 'default', array('class' => 'warning'));
-				}
-			} else {
-				$this->Session->setFlash(__('Sorry, you may only proceed with registration by agreeing to the waiver.', true), 'default', array('class' => 'warning'));
-			}
-		}
-		$this->set(compact('type', 'year'));
-	}
-
-	function view_waiver() {
-		$type = $this->_arg('type');
-		if ($type == null || !array_key_exists ($type, Configure::read('options.waiver_types'))) {
-			$this->Session->setFlash(__('Unknown waiver type', true), 'default', array('class' => 'info'));
-			$this->redirect('/');
-		}
-
-		$id = $this->Auth->user('id');
-		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
-			$this->redirect('/');
-		}
-		$this->Person->contain ('Waiver');
-		$person = $this->Person->read(null, $id);
-
-		// Make sure it's either this year or next year they're waivering for
-		$current = $this->membershipYear();
-		$year = $this->_arg('year');
-		if ($year == null) {
-			$year = $current;
-		}
-
-		$waiver = $this->_findWaiver ($person['Waiver'], $this->membershipEnd ($year));
-		$this->set(compact('person', 'waiver'));
-
-		if ($year != $current && $year != $current+1) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('membership year', true)), 'default', array('class' => 'info'));
-			$this->redirect('/');
-		}
-
-		$this->set(compact('type', 'year'));
 	}
 
 	function delete() {
@@ -1516,6 +1421,22 @@ class PeopleController extends AppController {
 		$this->set('teams', array_reverse($this->Person->Team->readByPlayerId($id, false)));
 	}
 
+	function waivers() {
+		$id = $this->_arg('person');
+		$my_id = $this->Auth->user('id');
+
+		if (!$id) {
+			$id = $my_id;
+			if (!$id) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+				$this->redirect('/');
+			}
+		}
+
+		$this->Person->contain(array('Waiver' => array('order' => array('WaiversPerson.created' => 'DESC'))));
+		$this->set('person', $this->Person->read(null, $id));
+	}
+
 	function cron() {
 		$this->layout = 'bare';
 
@@ -1533,10 +1454,7 @@ class PeopleController extends AppController {
 					'conditions' => array('event_type_id' => $types)
 			));
 
-			$year = $this->membershipYear();
-			$this->set(compact('year'));
 			$now = time();
-
 			$emailed = 0;
 			$log = ClassRegistry::init ('ActivityLog');
 
@@ -1545,7 +1463,8 @@ class PeopleController extends AppController {
 					strtotime ($event['Event']['membership_begins']) < $now &&
 					$now < strtotime ($event['Event']['membership_ends']))
 				{
-					$this->set(compact('event'));
+					$year = date('Y', strtotime ($event['Event']['membership_begins']));
+					$this->set(compact('event', 'year'));
 
 					$people = $this->Person->find ('all', array(
 							'contain' => array(),

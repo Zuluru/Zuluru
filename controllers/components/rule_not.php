@@ -5,10 +5,10 @@
 
 class RuleNotComponent extends RuleComponent
 {
-	function evaluate($params, $team) {
+	function evaluate($params, $team, $strict) {
 		if ($this->rule == null)
 			return null;
-		$success = $this->rule->evaluate ($params, $team);
+		$success = $this->rule->evaluate ($params, $team, $strict);
 		$this->reason = $this->rule->reason;
 		$this->reason_type = $this->rule->reason_type;
 		return (! $success);

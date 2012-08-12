@@ -142,10 +142,10 @@ class RuleComponent extends Object
 	 * there is an error
 	 *
 	 */
-	function evaluate($params, $team = null) {
+	function evaluate($params, $team = null, $strict = true) {
 		if ($this->rule == null)
 			return null;
-		$success = $this->rule->evaluate ($params, $team);
+		$success = $this->rule->evaluate ($params, $team, $strict);
 		$this->reason = $this->rule->reason;
 		$this->reason_type = $this->rule->reason_type;
 

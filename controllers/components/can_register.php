@@ -6,7 +6,7 @@ class CanRegisterComponent extends Object
 		$this->controller =& $controller;
 	}
 
-	function test($user_id, $event, $ignore_date = false) {
+	function test($user_id, $event, $ignore_date = false, $strict = true) {
 		if (!isset ($this->Html)) {
 			App::import ('helper', 'Html');
 			$this->Html = new HtmlHelper();
@@ -34,6 +34,7 @@ class CanRegisterComponent extends Object
 						'approved' => true,
 					),
 				),
+				'Waiver',
 			));
 			$this->person = $this->controller->Person->read(null, $user_id);
 		}
@@ -49,7 +50,7 @@ class CanRegisterComponent extends Object
 				$this->controller->Session->setFlash(__('Failed to parse the rule', true), 'default', array('class' => 'error'));
 			}
 
-			$rule_allowed = $rule_obj->evaluate ($this->person);
+			$rule_allowed = $rule_obj->evaluate ($this->person, null, $strict);
 		}
 
 		// Find the registration cap and how many are already registered.

@@ -110,18 +110,6 @@ $this->Html->addCrumb (__('Organization', true));
 
 	<fieldset>
  		<legend><?php __('Dates'); ?></legend>
-	<?php
-	echo $this->element('settings/input', array(
-		'category' => 'organization',
-		'name' => 'year_end',
-		'options' => array(
-			'type' => 'select',
-			'options' => $this->Form->__generateOptions('month', array('monthNames' => true)),
-			'after' => 'Last month of your organization\'s membership year',
-		),
-	));
-	?>
-
 	<p>The following settings are used for determining which season is currently in effect, for the purposes of providing links to current <?php __(Configure::read('ui.field')); ?> permits.</p>
 	<?php
 	$seasons = Configure::read('options.season');

@@ -2,10 +2,22 @@
 $this->Html->addCrumb (__('Players', true));
 $this->Html->addCrumb ($person['Person']['full_name']);
 $this->Html->addCrumb (__('Sign Waiver', true));
+$this->Html->addCrumb ($waiver['Waiver']['name']);
 ?>
 
 <?php
-echo $this->element ("people/waiver/$type");
+$variables = array(
+	'%name%' => Configure::read('organization.name'),
+	'%short_name%' => Configure::read('organization.short_name'),
+	'%field%' => Configure::read('ui.field'),
+	'%fields%' => Configure::read('ui.fields'),
+	'%Field%' => Configure::read('ui.field_cap'),
+	'%Fields%' => Configure::read('ui.fields_cap'),
+	'%valid_from%' => $valid_from,
+	'%valid_until%' => $valid_until,
+);
+echo strtr($waiver['Waiver']['text'], $variables);
+
 echo $this->Form->create('Person', array('url' => Router::normalize($this->here)));
 echo $this->Html->para(null,
 	$this->Form->input('signed', array(

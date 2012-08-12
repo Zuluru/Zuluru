@@ -23,12 +23,12 @@ class RuleAndComponent extends RuleComponent
 		return (count($this->rule) > 1);
 	}
 
-	function evaluate($params, $team) {
+	function evaluate($params, $team, $strict) {
 		if (empty ($this->rule))
 			return null;
 		$reasons = array();
 		foreach ($this->rule as $rule) {
-			if (!$rule->evaluate ($params, $team)) {
+			if (!$rule->evaluate ($params, $team, $strict)) {
 				$this->reason = $rule->reason;
 				$this->reason_type = $rule->reason_type;
 				return false;
