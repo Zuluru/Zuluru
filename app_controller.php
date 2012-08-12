@@ -89,6 +89,10 @@ class AppController extends Controller {
 
 		$this->_initSessionData($this->Auth->user('id'));
 
+		if (!$this->RequestHandler->isAjax() && $this->_arg('return') && !$this->Session->check('Zuluru.redirect')) {
+			$this->Session->write('Zuluru.redirect', $this->referer(null, true));
+		}
+
 		// Check if we need to redirect logged-in users for some required step first
 		// We will allow them to see help or logout. Or get the leagues list, as that's where some things redirect to.
 		if ($this->is_member && $this->name != 'Help' && $this->action != 'logout' && ($this->name != 'Leagues' || $this->action != 'index')) {
@@ -148,6 +152,20 @@ class AppController extends Controller {
 		// TODO: Get the menu element name from some configuration, maybe per-user?
 		$this->set('menu_element', 'flyout');
 		$this->set('menu_items', $this->menu_items);
+	}
+
+	function redirect($url = null) {
+		// If there's a referer saved, we always go back there
+		if ($this->Session->check('Zuluru.redirect')) {
+			$url = Router::normalize($this->Session->read('Zuluru.redirect'));
+			$this->Session->delete('Zuluru.redirect');
+			parent::redirect($url);
+		}
+
+		// If there was no referer saved, we might not want to redirect
+		if ($url !== null) {
+			parent::redirect($url);
+		}
 	}
 
 	/**
