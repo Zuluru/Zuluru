@@ -40,7 +40,14 @@ $variables = array(
 	'%Field%' => Configure::read('ui.field_cap'),
 	'%Fields%' => Configure::read('ui.fields_cap'),
 	'%valid_from%' => $valid_from,
+	'%valid_from_year%' => date('Y', strtotime($valid_from)),
 	'%valid_until%' => $valid_until,
+	'%valid_until_year%' => date('Y', strtotime($valid_until)),
 );
+if ($variables['%valid_from_year%'] == $variables['%valid_until_year%']) {
+	$variables['%valid_years%'] = $variables['%valid_from_year%'];
+} else {
+	$variables['%valid_years%'] = "{$variables['%valid_from_year%']}-{$variables['%valid_until_year%']}";
+}
 echo strtr($waiver['Waiver']['text'], $variables);
 ?>
