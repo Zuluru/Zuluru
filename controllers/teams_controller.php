@@ -441,6 +441,7 @@ class TeamsController extends AppController {
 					'TeamsPerson',
 					'conditions' => array('Team.id !=' => $id),
 				),
+				'Waiver',
 			));
 			$full_person = $this->Team->Person->read(null, $person['id']);
 
@@ -1803,7 +1804,7 @@ class TeamsController extends AppController {
 				}
 			}
 
-			if (!array_key_exists('Registration', $person['Person']) || !array_key_exists('Team', $person['Person'])) {
+			if (!array_key_exists('Registration', $person['Person']) || !array_key_exists('Team', $person['Person']) || !array_key_exists('Waiver', $person['Person'])) {
 				// Get everything from the user record that the rule might need
 				$this->Team->Person->contain(array(
 					'Registration' => array(
@@ -1818,6 +1819,7 @@ class TeamsController extends AppController {
 						'Franchise',
 						'conditions' => array('Team.id !=' => $team['Team']['id']),
 					),
+					'Waiver',
 				));
 
 				$person = $this->Team->Person->read(null, $person['Person']['id']);
