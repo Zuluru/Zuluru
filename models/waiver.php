@@ -46,7 +46,8 @@ class Waiver extends AppModel {
 
 	function canSign($date) {
 		// You can't sign a waiver in the past
-		if ($date < date('Y-m-d')) {
+		list ($start, $end) = $this->validRange($date);
+		if ($date < $start) {
 			return false;
 		}
 
