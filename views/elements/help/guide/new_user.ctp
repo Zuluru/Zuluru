@@ -1,12 +1,12 @@
 <h2>New User Guide</h2>
-<p>For a new user, Zuluru can be a little overwhelming.
+<p>For a new user, <?php echo ZULURU; ?> can be a little overwhelming.
 This guide will help you through the most important things to get you started.
 After that, you may be interested in the <?php
 echo $this->Html->link (__('advanced users guide', true), array('controller' => 'help', 'action' => 'guide', 'advanced')); ?>, and if you plan on running a team, the <?php
 echo $this->Html->link (__('captains guide', true), array('controller' => 'help', 'action' => 'guide', 'captain')); ?> is a useful resource.</p>
 
 <h2>User Account and Profile</h2>
-<p>Some features of Zuluru (e.g. schedules and standings) are available for anyone to use.
+<p>Some features of <?php echo ZULURU; ?> (e.g. schedules and standings) are available for anyone to use.
 However, to participate in the <?php echo Configure::read('organization.name'); ?>, you must have a user account on the system.
 <?php if ($is_logged_in): ?>
 You are already logged in to the system, so it seems that you've successfully taken care of this step. For the record, your user name is '<?php echo $this->Session->read('Zuluru.Person.user_name'); ?>' and your ID number is <?php echo $this->Session->read('Zuluru.Person.id'); ?>.

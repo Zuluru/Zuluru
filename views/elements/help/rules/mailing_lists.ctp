@@ -1,7 +1,7 @@
 <p>There are two important points to note in regard to using the rules engine for mailing lists.</p>
 <h4>Relative Dates</h4>
 <?php $year = date('Y'); ?>
-<p>Zuluru's mailing lists are unlike traditional mailing lists, in that membership is dynamic.
+<p><?php echo ZULURU; ?>'s mailing lists are unlike traditional mailing lists, in that membership is dynamic.
 Every time a newsletter is sent, the rule for inclusion on the mailing list is re-evaluated and a new list of people to send to is generated.
 When setting up mailing list rules that involve dates, then, it is usually preferable to use relative dates rather than absolute.
 For example:</p>

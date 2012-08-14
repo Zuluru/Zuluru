@@ -1,16 +1,16 @@
 <h2>Administrator Guide: League Management</h2>
 
 <h3>Structure</h3>
-<p>Before starting to set up your leagues, it's important to understand the structure Zuluru is expecting.
-Following this structure will mean that Zuluru is optimized to work with you;
+<p>Before starting to set up your leagues, it's important to understand the structure <?php echo ZULURU; ?> is expecting.
+Following this structure will mean that <?php echo ZULURU; ?> is optimized to work with you;
 trying to impose a different structure may result in some awkwardness as you try to do the unexpected.</p>
 <p>Each year has one or more seasons.
 Each season has one or more leagues.
 Each league has one or more divisions.
 Each division has a number of teams.</p>
-<p>Note that, although you may have an identical league in multiple seasons, or in the same season from year to year, in Zuluru these are set up as different leagues.
+<p>Note that, although you may have an identical league in multiple seasons, or in the same season from year to year, in <?php echo ZULURU; ?> these are set up as different leagues.
 Similarly, although the same group of people might play under the same team name in more than one league, each instance of this will be a separate team.
-Zuluru retains all past history and makes it available to those who look for it;
+<?php echo ZULURU; ?> retains all past history and makes it available to those who look for it;
 players can scroll back through their past team history to relive glory days or remind themselves of old rivalries.</p>
 
 <h4>Seasons</h4>

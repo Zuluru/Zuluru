@@ -4,7 +4,7 @@
 
 <h3>Regions</h3>
 <p>Your organization will have one or more regions.
-Regions are defined in the database when Zuluru is installed; there is currently no interface for managing the list of regions.
+Regions are defined in the database when <?php echo ZULURU; ?> is installed; there is currently no interface for managing the list of regions.
 Examples might be North, South, East, Central, or named after neighbourhoods or political areas.</p>
 <p>Distinct regions are primarily useful if you want to support teams with regional preferences.</p>
 
@@ -22,7 +22,7 @@ A <?php __(Configure::read('ui.field')); ?> is the space where a single game can
 <p>If you use a single large "<?php __(Configure::read('ui.field')); ?>" to host more than one game at a time, then that must be configured as multiple <?php __(Configure::read('ui.fields')); ?>.</p>
 
 <h3>Layouts</h3>
-<p>Zuluru includes a <?php __(Configure::read('ui.field')); ?> layout viewer and editor integrated with Google Maps.
+<p><?php echo ZULURU; ?> includes a <?php __(Configure::read('ui.field')); ?> layout viewer and editor integrated with Google Maps.
 When you are viewing or editing a <?php __(Configure::read('ui.field')); ?>, other <?php __(Configure::read('ui.fields')); ?> at that facility will also be shown.
 Clicking the marker for a <?php __(Configure::read('ui.field')); ?> will "activate" that <?php __(Configure::read('ui.field')); ?>;
 in the viewer it will show details about that <?php __(Configure::read('ui.field')); ?>, and in the editor it will change which <?php __(Configure::read('ui.field')); ?> you are editing.

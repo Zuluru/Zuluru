@@ -1,4 +1,4 @@
-<p>Zuluru has online help throughout the system, accessed by clicking the <?php echo $this->ZuluruHtml->icon('help_16.png');
+<p><?php echo ZULURU; ?> has online help throughout the system, accessed by clicking the <?php echo $this->ZuluruHtml->icon('help_16.png');
 ?> icons on any page. These bits of documentation are also collected here in two forms: as guides for various user types and grouped by functional area.</p>
 <h2>User Guides</h2>
 <p>
