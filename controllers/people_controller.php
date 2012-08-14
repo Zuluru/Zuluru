@@ -1090,7 +1090,7 @@ class PeopleController extends AppController {
 		$dependencies = $this->Person->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Session->setFlash(__('The following records reference this person, so it cannot be deleted.', true) . '<br>' . $dependencies, 'default', array('class' => 'warning'));
-			$this->redirect(array('action'=>'index'));
+			$this->redirect('/');
 		}
 		if (method_exists ($this->Auth->authenticate, 'delete_duplicate_user')) {
 			$this->Auth->authenticate->delete_duplicate_user($id);
