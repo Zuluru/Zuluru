@@ -18,6 +18,7 @@ echo $this->Form->hidden('direction', array('value' => 'asc'));
 echo $this->Js->submit(__('Search', true), array('url'=> $url, 'update' => '#SearchResults', 'evalScripts' => true));
 echo $this->Form->end();
 ?>
+</div>
 
 <div id="SearchResults">
 </div>
