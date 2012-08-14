@@ -245,7 +245,10 @@ class Division extends AppModel {
 
 		$conditions = array(
 			'DivisionsPerson.person_id' => $id,
-			'Division.is_open' => $open,
+			'OR' => array(
+				'Division.is_open' => $open,
+				'Division.open >' => date('Y-m-d'),
+			),
 		);
 
 		$contain = array(
