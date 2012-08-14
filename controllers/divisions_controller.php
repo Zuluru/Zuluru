@@ -269,7 +269,10 @@ class DivisionsController extends AppController {
 						$this->_generateSearchConditions($params, 'Person'),
 						array('Group.name' => array('Volunteer', 'Administrator'))
 					),
-					'contain' => array('Group'),
+					'contain' => array(
+						'Group',
+						'Note' => array('conditions' => array('created_person_id' => $this->Auth->user('id'))),
+					),
 				);
 				$this->set('people', $this->paginate('Person'));
 			}
