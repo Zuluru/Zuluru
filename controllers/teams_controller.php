@@ -1160,7 +1160,7 @@ class TeamsController extends AppController {
 		}
 
 		foreach ($old_team['Person'] as $key => $person) {
-			$old_team['Person'][$key]['can_add'] = $this->_canAdd (array('Person' => $person), $team, 'player');
+			$old_team['Person'][$key]['can_add'] = $this->_canAdd (array('Person' => $person), $team, 'player', null, false);
 		}
 
 		$this->set(compact('team', 'old_team'));
@@ -1253,6 +1253,8 @@ class TeamsController extends AppController {
 				// so their adds are always approved
 				if ($this->_setRosterPosition ($person, $team, 'player', ROSTER_APPROVED)) {
 					$success[] = $person['Person']['full_name'];
+				} else if ($this->_setRosterPosition ($person, $team, 'player', ROSTER_INVITED)) {
+					$success[] = $person['Person']['full_name'];
 				} else {
 					$failure[] = $person['Person']['full_name'];
 				}
@@ -1275,7 +1277,7 @@ class TeamsController extends AppController {
 			if (empty($registration['Person'])) {
 				unset ($event['Registration'][$key]);
 			} else {
-				$event['Registration'][$key]['can_add'] = $this->_canAdd (array('Person' => $registration['Person']), $team, 'player');
+				$event['Registration'][$key]['can_add'] = $this->_canAdd (array('Person' => $registration['Person']), $team, 'player', null, false);
 			}
 		}
 
@@ -1362,7 +1364,7 @@ class TeamsController extends AppController {
 		}
 
 		// Check if this person can even be added
-		$can_add = $this->_canAdd ($person, $team);
+		$can_add = $this->_canAdd ($person, $team, null, null, false);
 		if ($can_add !== true) {
 			// If not, we may still allow the invitation, but give the captain a warning
 			$can_invite = $this->_canInvite ($person, $team);
@@ -1730,9 +1732,14 @@ class TeamsController extends AppController {
 			}
 		} else {
 			if ($status === ROSTER_INVITED) {
-				// Set the reason that they can't be added for the email
-				$this->set('accept_warning', $can_add);
-				$can_add = $this->_canInvite ($person, $team, $position);
+				// Redo the test, without being strict
+				$can_add = $this->_canAdd ($person, $team, $position, $status, false);
+
+				if ($can_add !== true) {
+					// Set the reason that they can't be added for the email
+					$this->set('accept_warning', $can_add);
+					$can_add = $this->_canInvite ($person, $team, $position);
+				}
 			}
 			if ($can_add !== true) {
 				$this->Session->setFlash($can_add, 'default', array('class' => 'warning'));
@@ -1787,7 +1794,7 @@ class TeamsController extends AppController {
 		}
 	}
 
-	function _canAdd ($person, $team, $position = null, $status = null) {
+	function _canAdd ($person, $team, $position = null, $status = null, $strict = true) {
 		if ($person['Person']['status'] != 'active') {
 			return __('New players must be approved by an administrator before they can be added to a team; this normally happens within one business day.', true);
 		}
@@ -1824,7 +1831,7 @@ class TeamsController extends AppController {
 
 				$person = $this->Team->Person->read(null, $person['Person']['id']);
 			}
-			if (!$this->can_add_rule_obj->evaluate ($person, $team)) {
+			if (!$this->can_add_rule_obj->evaluate ($person, $team, $strict)) {
 				switch ($this->can_add_rule_obj->reason_type) {
 					case REASON_TYPE_PLAYER_ACTIVE:
 						$prolog = 'To be added to this team, this player must first';
