@@ -20,6 +20,10 @@ if (isset ($add)) {
 			'size' => 60,
 			'after' => $this->Html->para (null, __('Full name of this waiver.', true)),
 		));
+		echo $this->ZuluruForm->input('description', array(
+			'size' => 60,
+			'after' => $this->Html->para (null, __('An extended description, shown solely to administrators, for example to differentiate between various "Membership" waivers.', true)),
+		));
 		if (!isset($can_edit_text) || $can_edit_text) {
 			echo $this->ZuluruForm->input('text', array(
 				'cols' => 60,

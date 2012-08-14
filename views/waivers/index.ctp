@@ -8,6 +8,7 @@ $this->Html->addCrumb (__('List', true));
 <table class="list">
 	<tr>
 		<th><?php __('Name'); ?></th>
+		<th><?php __('Description'); ?></th>
 		<th><?php __('Active'); ?></th>
 		<th><?php __('Expiry Type'); ?></th>
 		<th><?php __('Valid For'); ?></th>
@@ -23,6 +24,7 @@ $this->Html->addCrumb (__('List', true));
 	?>
 	<tr<?php echo $class;?>>
 		<td><?php echo $waiver['Waiver']['name']; ?>&nbsp;</td>
+		<td><?php echo $waiver['Waiver']['description']; ?>&nbsp;</td>
 		<td><?php __($waiver['Waiver']['active'] ? 'Yes' : 'No'); ?>&nbsp;</td>
 		<td><?php echo Configure::read("options.waivers.expiry_type.{$waiver['Waiver']['expiry_type']}"); ?>&nbsp;</td>
 		<td><?php

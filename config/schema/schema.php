@@ -584,6 +584,7 @@ class ZuluruSchema extends CakeSchema {
 	var $waivers = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 256),
+		'description' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 256),
 		'text' => array('type' => 'text', 'null' => true, 'default' => NULL),
 		'active' => array('type' => 'boolean', 'null' => false, 'default' => '1'),
 		'expiry_type' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 32),
