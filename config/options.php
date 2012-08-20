@@ -30,6 +30,17 @@ $config['options'] = array(
 		'1'					=> __('Enabled', true)
 	),
 
+	'access_required' => array(
+		'1'					=> __('User can update', true),
+		'2'					=> __('Admin can update', true),
+	),
+
+	'access_optional' => array(
+		'1'					=> __('User can update', true),
+		'2'					=> __('Admin can update', true),
+		'0'					=> __('Disabled entirely', true),
+	),
+
 	'gender'				=> make_options(array(
 		'Male',
 		'Female',

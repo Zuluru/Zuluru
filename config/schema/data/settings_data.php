@@ -168,6 +168,11 @@ class SettingsData {
 		),
 		array(
 			'category' => 'payment',
+			'name' => 'popup',
+			'value' => '1',
+		),
+		array(
+			'category' => 'payment',
 			'name' => 'invoice_implementation',
 			'value' => 'invoice',
 		),
@@ -245,6 +250,96 @@ class SettingsData {
 			'category' => 'registration',
 			'name' => 'refund_policy_text',
 			'value' => '<p>Refunds are granted under the following conditions: </p>\r\n<ul>\r\n    <li>All refunds less than $50.00 will be charged a minimum $5.00 administration fee. </li>\r\n    <li>If a member (individual registration) decides to quit after playing less than 25% of their games, a refund will be granted, less a 10% administration fee or minimum $5.00 administration fee. </li>\r\n    <li>If a team (league team registration) decides to quit before the season begins a refund will be granted, less a 10% administration fee or minimum $5.00 administration fee, provided that the cancellation occurs more than five business days prior to the start date of the associated league. Team refunds are not issued once a season begins or within 5 business days of the league start date. </li>\r\n    <li>If a team or member (tournament/event registration) decides to quit before a special event begins they should refer to the refund policy that is stipulated for that specific event (in the event registration details). In the absence of special event refund details the above stipulation of two business days notice will apply (to both teams and individuals), and a refund will be granted less a 10% administration fee or minimum $5.00 administration fee. </li>\r\n    <li>If a member or team is incorrectly charged or charged more than once for their registration a refund will be granted for the incorrect difference </li>\r\n    <li>Pro-rated refunds can be requested in extraordinary circumstances (e.g. if a player becomes seriously injured after playing more than 25% of their games) and are at the discretion of the GM </li>\r\n    <li>Other situations may warrant a refund, at the discretion of the GM </li>\r\n</ul>\r\n<p>Please note that we do not issue individual player refunds for \'team\' registrations; meaning if your captain registers a team and you pay the captain your portion of the team fee, it is between you and the captain to determine any individual refunds for the team contribution.</p>\r\n',
+		),
+		array(
+			'category' => 'profile',
+			'name' => 'first_name',
+			'value' => '2',
+		),
+		array(
+			'category' => 'profile',
+			'name' => 'last_name',
+			'value' => '2',
+		),
+		array(
+			'category' => 'profile',
+			'name' => 'home_phone',
+			'value' => '1',
+		),
+		array(
+			'category' => 'profile',
+			'name' => 'work_phone',
+			'value' => '1',
+		),
+		array(
+			'category' => 'profile',
+			'name' => 'mobile_phone',
+			'value' => '1',
+		),
+		array(
+			'category' => 'profile',
+			'name' => 'addr_street',
+			'value' => '1',
+		),
+		array(
+			'category' => 'profile',
+			'name' => 'addr_city',
+			'value' => '1',
+		),
+		array(
+			'category' => 'profile',
+			'name' => 'addr_prov',
+			'value' => '1',
+		),
+		array(
+			'category' => 'profile',
+			'name' => 'addr_country',
+			'value' => '1',
+		),
+		array(
+			'category' => 'profile',
+			'name' => 'addr_postalcode',
+			'value' => '1',
+		),
+		array(
+			'category' => 'profile',
+			'name' => 'gender',
+			'value' => '2',
+		),
+		array(
+			'category' => 'profile',
+			'name' => 'birthdate',
+			'value' => '2',
+		),
+		array(
+			'category' => 'profile',
+			'name' => 'height',
+			'value' => '1',
+		),
+		array(
+			'category' => 'profile',
+			'name' => 'skill_level',
+			'value' => '1',
+		),
+		array(
+			'category' => 'profile',
+			'name' => 'year_started',
+			'value' => '1',
+		),
+		array(
+			'category' => 'profile',
+			'name' => 'shirt_size',
+			'value' => '1',
+		),
+		array(
+			'category' => 'profile',
+			'name' => 'willing_to_volunteer',
+			'value' => '1',
+		),
+		array(
+			'category' => 'profile',
+			'name' => 'contact_for_feedback',
+			'value' => '1',
 		),
 	);
 

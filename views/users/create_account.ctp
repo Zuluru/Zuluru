@@ -43,65 +43,88 @@ $short = Configure::read('organization.short_name');
 		));
 	?>
 	</fieldset>
+	<?php if (Configure::read('profile.addr_street') || Configure::read('profile.addr_city') ||
+				Configure::read('profile.addr_prov') || Configure::read('profile.addr_country') ||
+				Configure::read('profile.addr_postalcode')): ?>
 	<fieldset>
  		<legend><?php __('Street Address'); ?></legend>
 	<?php
-		echo $this->ZuluruForm->input('addr_street', array(
-			'label' => __('Street and Number', true),
-			'after' => $this->Html->para (null, __('Number, street name, and apartment number if necessary.', true)),
-		));
-		echo $this->ZuluruForm->input('addr_city', array(
-			'label' => __('City', true),
-			'after' => $this->Html->para (null, __('Name of city.', true)),
-		));
-		echo $this->ZuluruForm->input('addr_prov', array(
-			'label' => __('Province', true),
-			'type' => 'select',
-			'empty' => '---',
-			'options' => $provinces,
-			'after' => $this->Html->para (null, __('Select a province/state from the list', true)),
-		));
-		echo $this->ZuluruForm->input('addr_country', array(
-			'label' => __('Country', true),
-			'type' => 'select',
-			'empty' => '---',
-			'options' => $countries,
-			'after' => $this->Html->para (null, __('Select a country from the list.', true)),
-		));
-		$fields = __(Configure::read('ui.fields'));
-		echo $this->ZuluruForm->input('addr_postalcode', array(
-			'label' => __('Postal Code', true),
-			'after' => $this->Html->para (null, __("Please enter a correct postal code matching the address above. $short uses this information to help locate new %s near its members.", true)),
-		));
+		if (Configure::read('profile.addr_street')) {
+			echo $this->ZuluruForm->input('addr_street', array(
+				'label' => __('Street and Number', true),
+				'after' => $this->Html->para (null, __('Number, street name, and apartment number if necessary.', true)),
+			));
+		}
+		if (Configure::read('profile.addr_city')) {
+			echo $this->ZuluruForm->input('addr_city', array(
+				'label' => __('City', true),
+				'after' => $this->Html->para (null, __('Name of city.', true)),
+			));
+		}
+		if (Configure::read('profile.addr_prov')) {
+			echo $this->ZuluruForm->input('addr_prov', array(
+				'label' => __('Province', true),
+				'type' => 'select',
+				'empty' => '---',
+				'options' => $provinces,
+				'after' => $this->Html->para (null, __('Select a province/state from the list', true)),
+			));
+		}
+		if (Configure::read('profile.addr_country')) {
+			echo $this->ZuluruForm->input('addr_country', array(
+				'label' => __('Country', true),
+				'type' => 'select',
+				'empty' => '---',
+				'options' => $countries,
+				'after' => $this->Html->para (null, __('Select a country from the list.', true)),
+			));
+		}
+		if (Configure::read('profile.addr_postalcode')) {
+			$fields = __(Configure::read('ui.fields'));
+			echo $this->ZuluruForm->input('addr_postalcode', array(
+				'label' => __('Postal Code', true),
+				'after' => $this->Html->para (null, __("Please enter a correct postal code matching the address above. $short uses this information to help locate new %s near its members.", true)),
+			));
+		}
 	?>
 	</fieldset>
+	<?php endif; ?>
+	<?php if (Configure::read('profile.home_phone') || Configure::read('profile.work_phone') ||
+				Configure::read('profile.mobile_phone')): ?>
 	<fieldset>
  		<legend><?php __('Telephone Numbers'); ?></legend>
 	<?php
-		echo $this->ZuluruForm->input('home_phone', array(
-			'after' => $this->Html->para (null, __('Enter your home telephone number. If you have only a mobile phone, enter that number both here and below.', true)),
-		));
-		echo $this->ZuluruForm->input('publish_home_phone', array(
-			'label' => __('Allow other players to view home number', true),
-		));
-		echo $this->ZuluruForm->input('work_phone', array(
-			'after' => $this->Html->para (null, __('Enter your work telephone number (optional).', true)),
-		));
-		echo $this->ZuluruForm->input('work_ext', array(
-			'label' => 'Work Extension',
-			'after' => $this->Html->para (null, __('Enter your work extension (optional).', true)),
-		));
-		echo $this->ZuluruForm->input('publish_work_phone', array(
-			'label' => __('Allow other players to view work number', true),
-		));
-		echo $this->ZuluruForm->input('mobile_phone', array(
-			'after' => $this->Html->para (null, __('Enter your cell or pager number (optional).', true)),
-		));
-		echo $this->ZuluruForm->input('publish_mobile_phone', array(
-			'label' => __('Allow other players to view mobile number', true),
-		));
+		if (Configure::read('profile.home_phone')) {
+			echo $this->ZuluruForm->input('home_phone', array(
+				'after' => $this->Html->para (null, __('Enter your home telephone number. If you have only a mobile phone, enter that number both here and below.', true)),
+			));
+			echo $this->ZuluruForm->input('publish_home_phone', array(
+				'label' => __('Allow other players to view home number', true),
+			));
+		}
+		if (Configure::read('profile.work_phone')) {
+			echo $this->ZuluruForm->input('work_phone', array(
+				'after' => $this->Html->para (null, __('Enter your work telephone number (optional).', true)),
+			));
+			echo $this->ZuluruForm->input('work_ext', array(
+				'label' => 'Work Extension',
+				'after' => $this->Html->para (null, __('Enter your work extension (optional).', true)),
+			));
+			echo $this->ZuluruForm->input('publish_work_phone', array(
+				'label' => __('Allow other players to view work number', true),
+			));
+		}
+		if (Configure::read('profile.mobile_phone')) {
+			echo $this->ZuluruForm->input('mobile_phone', array(
+				'after' => $this->Html->para (null, __('Enter your cell or pager number (optional).', true)),
+			));
+			echo $this->ZuluruForm->input('publish_mobile_phone', array(
+				'label' => __('Allow other players to view mobile number', true),
+			));
+		}
 	?>
 	</fieldset>
+	<?php endif; ?>
 	<?php if ($is_admin) : ?>
 	<fieldset>
  		<legend><?php __('Account Information'); ?></legend>
