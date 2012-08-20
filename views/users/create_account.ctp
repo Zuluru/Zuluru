@@ -143,50 +143,70 @@ $short = Configure::read('organization.short_name');
 	?>
 	</fieldset>
 	<?php endif; ?>
+	<?php if (Configure::read('profile.skill_level') || Configure::read('profile.year_started') ||
+				Configure::read('profile.birthdate') || Configure::read('profile.height') ||
+				Configure::read('profile.shirt_size') || Configure::read('feature.dog_questions') ||
+				in_array(Configure::read('profile.willing_to_volunteer'), $access) ||
+				in_array(Configure::read('profile.contact_for_feedback'), $access)): ?>
 	<fieldset>
  		<legend><?php __('Player and Skill Information'); ?></legend>
 	<?php
-		echo $this->ZuluruForm->input('skill_level', array(
-			'type' => 'select',
-			'empty' => '---',
-			'options' => Configure::read('options.skill'),
-			'after' => $this->Html->para(null, __('Please use the questionnaire to ', true) . $this->Html->link (__('calculate your rating', true), '#', array('onclick' => 'dorating(); return false;')) . '.'),
-		));
-		echo $this->ZuluruForm->input('year_started', array(
-			'type' => 'select',
-			'options' => $this->Form->__generateOptions('year', array(
-					'min' => Configure::read('options.year.started.min'),
-					'max' => Configure::read('options.year.started.max'),
-					'order' => 'desc'
-			)),
-			'empty' => '---',
-			'after' => $this->Html->para(null, 'The year you started playing in <strong>this</strong> league.'),
-		));
-		echo $this->ZuluruForm->input('birthdate', array(
-			'minYear' => Configure::read('options.year.born.min'),
-			'maxYear' => Configure::read('options.year.born.max'),
-			'after' => $this->Html->para(null, __('Please enter a correct birthdate; having accurate information is important for insurance purposes.', true)),
-		));
-		echo $this->ZuluruForm->input('height', array(
-			'size' => 6,
-			'after' => $this->Html->para(null, __('Please enter your height in inches (5 feet is 60 inches; 6 feet is 72 inches). This is used to help generate even teams for hat leagues.', true)),
-		));
-		echo $this->ZuluruForm->input('shirt_size', array(
-			'type' => 'select',
-			'empty' => '---',
-			'options' => Configure::read('options.shirt_size'),
-		));
+		if (Configure::read('profile.skill_level')) {
+			echo $this->ZuluruForm->input('skill_level', array(
+				'type' => 'select',
+				'empty' => '---',
+				'options' => Configure::read('options.skill'),
+				'after' => $this->Html->para(null, __('Please use the questionnaire to ', true) . $this->Html->link (__('calculate your rating', true), '#', array('onclick' => 'dorating(); return false;')) . '.'),
+			));
+		}
+		if (Configure::read('profile.year_started')) {
+			echo $this->ZuluruForm->input('year_started', array(
+				'type' => 'select',
+				'options' => $this->Form->__generateOptions('year', array(
+						'min' => Configure::read('options.year.started.min'),
+						'max' => Configure::read('options.year.started.max'),
+						'order' => 'desc'
+				)),
+				'empty' => '---',
+				'after' => $this->Html->para(null, 'The year you started playing in <strong>this</strong> league.'),
+			));
+		}
+		if (Configure::read('profile.birthdate')) {
+			echo $this->ZuluruForm->input('birthdate', array(
+				'minYear' => Configure::read('options.year.born.min'),
+				'maxYear' => Configure::read('options.year.born.max'),
+				'after' => $this->Html->para(null, __('Please enter a correct birthdate; having accurate information is important for insurance purposes.', true)),
+			));
+		}
+		if (Configure::read('profile.height')) {
+			echo $this->ZuluruForm->input('height', array(
+				'size' => 6,
+				'after' => $this->Html->para(null, __('Please enter your height in inches (5 feet is 60 inches; 6 feet is 72 inches). This is used to help generate even teams for hat leagues.', true)),
+			));
+		}
+		if (Configure::read('profile.shirt_size')) {
+			echo $this->ZuluruForm->input('shirt_size', array(
+				'type' => 'select',
+				'empty' => '---',
+				'options' => Configure::read('options.shirt_size'),
+			));
+		}
 		if (Configure::read('feature.dog_questions')) {
 			echo $this->ZuluruForm->input('has_dog');
 		}
-		echo $this->ZuluruForm->input('willing_to_volunteer', array(
-			'label' => __("Can $short contact you about volunteering?", true),
-		));
-		echo $this->ZuluruForm->input('contact_for_feedback', array(
-			'label' => __("From time to time, $short would like to contact members with information on our programs and to solicit feedback. Can $short contact you in this regard?"),
-		));
+		if (Configure::read('profile.willing_to_volunteer')) {
+			echo $this->ZuluruForm->input('willing_to_volunteer', array(
+				'label' => __("Can $short contact you about volunteering?", true),
+			));
+		}
+		if (Configure::read('profile.contact_for_feedback')) {
+			echo $this->ZuluruForm->input('contact_for_feedback', array(
+				'label' => __("From time to time, $short would like to contact members with information on our programs and to solicit feedback. Can $short contact you in this regard?"),
+			));
+		}
 	?>
 	</fieldset>
+	<?php endif; ?>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
 
