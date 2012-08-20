@@ -137,12 +137,14 @@ class RatingsComponent extends Object
 			}
 
 			// Only save updates for games that actually changed
-			$update = array('id' => $game['Game']['id']);
-			if ($games[$key]['Game']['calc_rating_points'] != $game['Game']['rating_points']) {
-				$update['rating_points'] = $games[$key]['Game']['calc_rating_points'];
-			}
-			if (count($update) > 1) {
-				$game_updates[] = $update;
+			if ($division['id'] == $game['Game']['division_id']) {
+				$update = array('id' => $game['Game']['id']);
+				if ($games[$key]['Game']['calc_rating_points'] != $game['Game']['rating_points']) {
+					$update['rating_points'] = $games[$key]['Game']['calc_rating_points'];
+				}
+				if (count($update) > 1) {
+					$game_updates[] = $update;
+				}
 			}
 		}
 
