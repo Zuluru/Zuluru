@@ -251,7 +251,7 @@ $sport = array_shift(array_keys(Configure::read('options.sport')));
  		<legend><?php __('Player Information'); ?></legend>
 	<?php
 		if (in_array (Configure::read('profile.skill_level'), $access)) {
-			if (!empty(Configure::read('sport.rating_questions'))) {
+			if (Configure::read('sport.rating_questions')) {
 				$after = $this->Html->para(null, __('Please use the questionnaire to ', true) . $this->Html->link (__('calculate your rating', true), '#', array('onclick' => 'dorating(); return false;')) . '.');
 			} else {
 				$after = null;
@@ -345,7 +345,7 @@ $sport = array_shift(array_keys(Configure::read('options.sport')));
 </div>
 
 <?php
-if (!empty(Configure::read('sport.rating_questions'))) {
+if (Configure::read('sport.rating_questions')) {
 	echo $this->element('people/rating', array('sport' => $sport, 'field' => '#PersonSkillLevel'));
 }
 ?>
