@@ -50,7 +50,9 @@ $display_spirit = ($is_admin || $is_coordinator || $team['Division']['League']['
 			}
 			Game::_adjustEntryIndices ($game);
 			Game::_readDependencies($game['Game']);
-			if ($display_spirit && Game::_is_finalized($game) && array_key_exists ($team['Team']['id'], $game['SpiritEntry'])) {
+			if ($display_spirit && !in_array($game['Game']['status'], Configure::read('unplayed_status')) &&
+				Game::_is_finalized($game) && array_key_exists ($team['Team']['id'], $game['SpiritEntry']))
+			{
 				$entry = $game['SpiritEntry'][$team['Team']['id']];
 			} else {
 				$entry = null;
