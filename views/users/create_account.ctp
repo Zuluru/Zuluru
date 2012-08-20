@@ -3,6 +3,9 @@ $this->Html->addCrumb (__('Users', true));
 $this->Html->addCrumb (__('Create', true));
 
 $short = Configure::read('organization.short_name');
+
+// TODO: Handle more than one sport in a site
+$sport = array_shift(array_keys(Configure::read('options.sport')));
 ?>
 
 <p>To create a new account, fill in all the fields below and click 'Submit' when done. Your account will be placed on hold until approved by an administrator. Once approved, you will be allocated a membership number, and have full access to the system.</p>
@@ -152,11 +155,16 @@ $short = Configure::read('organization.short_name');
  		<legend><?php __('Player and Skill Information'); ?></legend>
 	<?php
 		if (Configure::read('profile.skill_level')) {
+			if (!empty(Configure::read('sport.rating_questions'))) {
+				$after = $this->Html->para(null, __('Please use the questionnaire to ', true) . $this->Html->link (__('calculate your rating', true), '#', array('onclick' => 'dorating(); return false;')) . '.');
+			} else {
+				$after = null;
+			}
 			echo $this->ZuluruForm->input('skill_level', array(
 				'type' => 'select',
 				'empty' => '---',
 				'options' => Configure::read('options.skill'),
-				'after' => $this->Html->para(null, __('Please use the questionnaire to ', true) . $this->Html->link (__('calculate your rating', true), '#', array('onclick' => 'dorating(); return false;')) . '.'),
+				'after' => $after,
 			));
 		}
 		if (Configure::read('profile.year_started')) {
@@ -211,7 +219,7 @@ $short = Configure::read('organization.short_name');
 </div>
 
 <?php
-// TODO: Handle more than one sport in a site
-$sport = array_shift(array_keys(Configure::read('options.sport')));
-echo $this->element('people/rating', array('sport' => $sport, 'field' => '#UserSkillLevel'));
+if (!empty(Configure::read('sport.rating_questions'))) {
+	echo $this->element('people/rating', array('sport' => $sport, 'field' => '#UserSkillLevel'));
+}
 ?>

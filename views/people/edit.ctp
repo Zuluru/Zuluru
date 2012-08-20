@@ -11,6 +11,9 @@ $access = array(1);
 if ($is_admin) {
 	$access[] = 2;
 }
+
+// TODO: Handle more than one sport in a site
+$sport = array_shift(array_keys(Configure::read('options.sport')));
 ?>
 
 <p>Note that email and phone publish settings below only apply to regular players. Captains will always have access to view the phone numbers and email addresses of their confirmed players. All Team Captains will also have their email address viewable by other players.</p>
@@ -248,11 +251,16 @@ if ($is_admin) {
  		<legend><?php __('Player Information'); ?></legend>
 	<?php
 		if (in_array (Configure::read('profile.skill_level'), $access)) {
+			if (!empty(Configure::read('sport.rating_questions'))) {
+				$after = $this->Html->para(null, __('Please use the questionnaire to ', true) . $this->Html->link (__('calculate your rating', true), '#', array('onclick' => 'dorating(); return false;')) . '.');
+			} else {
+				$after = null;
+			}
 			echo $this->ZuluruForm->input('skill_level', array(
 				'type' => 'select',
 				'empty' => '---',
 				'options' => Configure::read('options.skill'),
-				'after' => $this->Html->para(null, __('Please use the questionnaire to ', true) . $this->Html->link (__('calculate your rating', true), '#', array('onclick' => 'dorating(); return false;')) . '.'),
+				'after' => $after,
 			));
 		} else if (Configure::read('profile.skill_level')) {
 			echo $this->ZuluruForm->input('skill_level', array(
@@ -337,7 +345,7 @@ if ($is_admin) {
 </div>
 
 <?php
-// TODO: Handle more than one sport in a site
-$sport = array_shift(array_keys(Configure::read('options.sport')));
-echo $this->element('people/rating', array('sport' => $sport, 'field' => '#PersonSkillLevel'));
+if (!empty(Configure::read('sport.rating_questions'))) {
+	echo $this->element('people/rating', array('sport' => $sport, 'field' => '#PersonSkillLevel'));
+}
 ?>
