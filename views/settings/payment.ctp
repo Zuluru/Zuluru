@@ -20,6 +20,15 @@ $this->Html->addCrumb (__('Online Payments', true));
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'payment',
+		'name' => 'popup',
+		'options' => array(
+			'type' => 'select',
+			'options' => Configure::read('options.enable'),
+			'after' => 'Handle online payments in a popup window?',
+		),
+	));
+	echo $this->element('settings/input', array(
+		'category' => 'payment',
 		'name' => 'invoice_implementation',
 		'options' => array(
 			'type' => 'select',

@@ -357,6 +357,7 @@ class AppController extends Controller {
 		if ($this->is_logged_in) {
 			$this->_addMenuItem ('Home', array('controller' => 'all', 'action' => 'splash'));
 			$this->_addMenuItem ('My Profile', array('controller' => 'people', 'action' => 'view'));
+			$this->_addMenuItem ('View', array('controller' => 'people', 'action' => 'view'), 'My Profile');
 			$this->_addMenuItem ('Edit', array('controller' => 'people', 'action' => 'edit'), 'My Profile');
 			$this->_addMenuItem ('Preferences', array('controller' => 'people', 'action' => 'preferences'), 'My Profile');
 			$this->_addMenuItem ('Waiver history', array('controller' => 'people', 'action' => 'waivers'), 'My Profile');
@@ -371,19 +372,23 @@ class AppController extends Controller {
 
 		if (Configure::read('feature.registration')) {
 			$this->_addMenuItem ('Registration', array('controller' => 'events', 'action' => 'wizard'));
+			$this->_addMenuItem ('Wizard', array('controller' => 'events', 'action' => 'wizard'), 'Registration');
 			$this->_addMenuItem ('All events', array('controller' => 'events', 'action' => 'index'), 'Registration');
 			if ($this->is_logged_in) {
 				$this->_addMenuItem ('My history', array('controller' => 'people', 'action' => 'registrations'), 'Registration');
 			}
 			if ($this->is_admin) {
 				$this->_addMenuItem ('Preregistrations', array('controller' => 'preregistrations', 'action' => 'index'), 'Registration');
+				$this->_addMenuItem ('List', array('controller' => 'preregistrations', 'action' => 'index'), array('Registration', 'Preregistrations'));
 				$this->_addMenuItem ('Add', array('controller' => 'preregistrations', 'action' => 'add'), array('Registration', 'Preregistrations'));
 				$this->_addMenuItem ('Unpaid', array('controller' => 'registrations', 'action' => 'unpaid'), 'Registration');
 				$this->_addMenuItem ('Report', array('controller' => 'registrations', 'action' => 'report'), 'Registration');
 				$this->_addMenuItem ('Create event', array('controller' => 'events', 'action' => 'add'), 'Registration');
 				$this->_addMenuItem ('Questionnaires', array('controller' => 'questionnaires', 'action' => 'index'), 'Registration');
+				$this->_addMenuItem ('List', array('controller' => 'questionnaires', 'action' => 'index'), array('Registration', 'Questionnaires'));
 				$this->_addMenuItem ('Questions', array('controller' => 'questions', 'action' => 'index'), array('Registration', 'Questionnaires'));
 				$this->_addMenuItem ('Deactivated', array('controller' => 'questionnaires', 'action' => 'deactivated'), array('Registration', 'Questionnaires'));
+				$this->_addMenuItem ('List', array('controller' => 'questions', 'action' => 'index'), array('Registration', 'Questionnaires', 'Questions'));
 				$this->_addMenuItem ('Deactivated', array('controller' => 'questions', 'action' => 'deactivated'), array('Registration', 'Questionnaires', 'Questions'));
 			}
 		}
@@ -397,6 +402,7 @@ class AppController extends Controller {
 
 		if ($this->is_logged_in) {
 			$this->_addMenuItem ('Teams', array('controller' => 'teams', 'action' => 'index'));
+			$this->_addMenuItem ('List', array('controller' => 'teams', 'action' => 'index'), 'Teams');
 			// If registrations are enabled, it takes care of team creation
 			if ($this->is_admin || !Configure::read('feature.registration')) {
 				$this->_addMenuItem ('Create team', array('controller' => 'teams', 'action' => 'add'), 'Teams');
@@ -409,16 +415,19 @@ class AppController extends Controller {
 
 		if ($this->is_logged_in && Configure::read('feature.franchises')) {
 			$this->_addMenuItem ('Franchises', array('controller' => 'franchises', 'action' => 'index'), 'Teams');
+			$this->_addMenuItem ('List', array('controller' => 'franchises', 'action' => 'index'), array('Teams', 'Franchises'));
 			$this->_addMenuItem ('Create franchise', array('controller' => 'franchises', 'action' => 'add'), array('Teams', 'Franchises'));
 		}
 
 		$this->_addMenuItem ('Leagues', array('controller' => 'leagues', 'action' => 'index'));
+		$this->_addMenuItem ('List', array('controller' => 'leagues', 'action' => 'index'), 'Leagues');
 		if ($this->is_admin) {
 			$this->_addMenuItem ('League summary', array('controller' => 'leagues', 'action' => 'summary'), 'Leagues');
 			$this->_addMenuItem ('Create league', array('controller' => 'leagues', 'action' => 'add'), 'Leagues');
 		}
 
 		$this->_addMenuItem (Configure::read('ui.fields_cap'), array('controller' => 'facilities', 'action' => 'index'));
+		$this->_addMenuItem ('List', array('controller' => 'facilities', 'action' => 'index'), Configure::read('ui.fields_cap'));
 		$this->_addMenuItem ('Map of all ' . Configure::read('ui.fields'), array('controller' => 'maps', 'action' => 'index'), Configure::read('ui.fields_cap'));
 		if ($this->is_admin) {
 			$this->_addMenuItem ('Closed facilities', array('controller' => 'facilities', 'action' => 'closed'), Configure::read('ui.fields_cap'));
@@ -474,8 +483,9 @@ class AppController extends Controller {
 
 		if ($this->is_admin) {
 			$this->_addMenuItem ('Newsletters', array('controller' => 'newsletters', 'action' => 'index'));
-			$this->_addMenuItem ('Mailing Lists', array('controller' => 'mailing_lists', 'action' => 'index'), 'Newsletters');
-			$this->_addMenuItem ('All Newsletters', array('controller' => 'newsletters', 'action' => 'past'), 'Newsletters');
+			$this->_addMenuItem ('List', array('controller' => 'newsletters', 'action' => 'index'), 'Newsletters');
+			$this->_addMenuItem ('Mailing lists', array('controller' => 'mailing_lists', 'action' => 'index'), 'Newsletters');
+			$this->_addMenuItem ('All newsletters', array('controller' => 'newsletters', 'action' => 'past'), 'Newsletters');
 
 			$this->_addMenuItem ('Settings');
 			$this->_addMenuItem ('Organization', array('controller' => 'settings', 'action' => 'organization'), 'Settings');
@@ -490,7 +500,7 @@ class AppController extends Controller {
 			}
 			$this->_addMenuItem ('Holidays', array('controller' => 'holidays', 'action' => 'index'), 'Settings');
 			if (Configure::read('feature.documents')) {
-				$this->_addMenuItem ('Upload Types', array('controller' => 'upload_types', 'action' => 'index'), 'Settings');
+				$this->_addMenuItem ('Upload types', array('controller' => 'upload_types', 'action' => 'index'), 'Settings');
 			}
 
 			$this->_addMenuItem ('Statistics');
@@ -523,17 +533,18 @@ class AppController extends Controller {
 		}
 
 		$this->_addMenuItem ('Help', array('controller' => 'help'));
-		$this->_addMenuItem ('New Users', array('controller' => 'help', 'action' => 'guide', 'new_user'), 'Help');
-		$this->_addMenuItem ('Advanced Users', array('controller' => 'help', 'action' => 'guide', 'advanced'), 'Help');
+		$this->_addMenuItem ('Help index', array('controller' => 'help'), 'Help');
+		$this->_addMenuItem ('New users', array('controller' => 'help', 'action' => 'guide', 'new_user'), 'Help');
+		$this->_addMenuItem ('Advanced users', array('controller' => 'help', 'action' => 'guide', 'advanced'), 'Help');
 		$this->_addMenuItem ('Captains', array('controller' => 'help', 'action' => 'guide', 'captain'), 'Help');
 		if ($this->is_admin || $this->Session->read('Zuluru.DivisionIDs')) {
 			$this->_addMenuItem ('Coordinators', array('controller' => 'help', 'action' => 'guide', 'coordinator'), 'Help');
 		}
 		if ($this->is_admin) {
-			$this->_addMenuItem ('Site Setup and Configuration', array('controller' => 'help', 'action' => 'guide', 'administrator', 'setup'), array('Help', 'Administrators'));
-			$this->_addMenuItem ('Player Management', array('controller' => 'help', 'action' => 'guide', 'administrator', 'players'), array('Help', 'Administrators'));
-			$this->_addMenuItem ('League Management', array('controller' => 'help', 'action' => 'guide', 'administrator', 'leagues'), array('Help', 'Administrators'));
-			$this->_addMenuItem (Configure::read('ui.field_cap') . ' Management', array('controller' => 'help', 'action' => 'guide', 'administrator', 'fields'), array('Help', 'Administrators'));
+			$this->_addMenuItem ('Site setup and configuration', array('controller' => 'help', 'action' => 'guide', 'administrator', 'setup'), array('Help', 'Administrators'));
+			$this->_addMenuItem ('Player management', array('controller' => 'help', 'action' => 'guide', 'administrator', 'players'), array('Help', 'Administrators'));
+			$this->_addMenuItem ('League management', array('controller' => 'help', 'action' => 'guide', 'administrator', 'leagues'), array('Help', 'Administrators'));
+			$this->_addMenuItem (Configure::read('ui.field_cap') . ' management', array('controller' => 'help', 'action' => 'guide', 'administrator', 'fields'), array('Help', 'Administrators'));
 			$this->_addMenuItem ('Registration', array('controller' => 'help', 'action' => 'guide', 'administrator', 'registration'), array('Help', 'Administrators'));
 		}
 	}

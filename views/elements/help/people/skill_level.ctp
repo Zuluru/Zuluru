@@ -1,4 +1,4 @@
-<p>When you first create a Zuluru profile, you set your skill level by answering a short questionnaire.
+<p>When you first create a <?php echo ZULURU; ?> profile, you set your skill level by answering a short questionnaire.
 Many players then just leave this alone, and it becomes increasingly inaccurate;
 we get better with experience, but we slow down as we age.
 It is recommended to revisit this questionnaire every year or two, so that your skill level remains an accurate representation of your abilities.

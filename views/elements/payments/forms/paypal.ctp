@@ -59,8 +59,16 @@ if (is_array($response)) {
 	}
 
 	$url = "{$paypal_url}webscr?cmd=_express-checkout&token=" . urlencode($response['TOKEN']);
-	echo $this->Form->create(false, array('url' => $url, 'target' => 'payment_window', 'name' => 'payment_form', 'escape' => false));
-	echo $this->Form->submit('https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif', array('div' => false, 'alt' => 'Pay', 'onClick' => 'open_payment_window();'));
+
+	$form_options = array('url' => $url, 'name' => 'payment_form', 'escape' => false);
+	$submit_options = array('div' => false, 'alt' => 'Pay');
+	if (Configure::read('payment.popup')) {
+		$form_options['target'] = 'payment_window';
+		$submit_options['onClick'] = 'open_payment_window();';
+	}
+
+	echo $this->Form->create(false, $form_options);
+	echo $this->Form->submit('https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif', $submit_options);
 	echo $this->Form->end();
 } else {
 	echo $this->Js->buffer("alert('$response');");

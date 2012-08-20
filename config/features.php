@@ -67,6 +67,15 @@ if (!defined('VISIBILITY_PRIVATE')) {
 	define('VISIBILITY_PUBLIC', 4);
 }
 
+if (!defined('ZULURU')) {
+	// This changes the name under which Zuluru presents itself.
+	// It can only be changed if you are also making substantial
+	// changes to the code, e.g. to customize for a specific use.
+	// Even in that case, you are required to retain the Zuluru
+	// trademark in the "Powered by" notice.
+	define('ZULURU', 'Zuluru');
+}
+
 $config['season_is_indoor'] = array(
 	'None'			=> false,
 	'Winter'		=> false,

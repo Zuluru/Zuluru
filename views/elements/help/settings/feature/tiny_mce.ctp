@@ -1,4 +1,4 @@
-<p>TinyMCE is a popular JavaScript WYSIWYG HTML editor. Using it with Zuluru requires a third-party CakePHP plugin, with a couple of modifications.</p>
+<p>TinyMCE is a popular JavaScript WYSIWYG HTML editor. Using it with <?php echo ZULURU; ?> requires a third-party CakePHP plugin, with a couple of modifications.</p>
 <p>One way to install this is something along these lines:
 <pre><code>$ cd /path/to/zuluru/plugins
 $ mkdir tiny_mce

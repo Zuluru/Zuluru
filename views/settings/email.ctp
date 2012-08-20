@@ -12,14 +12,14 @@ $this->Html->addCrumb (__('Email', true));
 		'category' => 'email',
 		'name' => 'admin_name',
 		'options' => array(
-			'after' => 'The name (or descriptive role) of the system administrator. Mail from Zuluru will come from this name.',
+			'after' => 'The name (or descriptive role) of the system administrator. Mail from <?php echo ZULURU; ?> will come from this name.',
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'email',
 		'name' => 'admin_email',
 		'options' => array(
-			'after' => 'The e-mail address of the system administrator. Mail from Zuluru will come from this address.',
+			'after' => 'The e-mail address of the system administrator. Mail from <?php echo ZULURU; ?> will come from this address.',
 		),
 	));
 	if (Configure::read('scoring.incident_reports')) {

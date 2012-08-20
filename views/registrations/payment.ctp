@@ -17,15 +17,17 @@ if ($result === true) {
 		' and try a different payment option.');
 }
 
-echo $this->Html->para(null, 'Click ' .
-	$this->Html->link('here', "http://{$_SERVER["SERVER_NAME"]}/", array('onclick' => 'close_and_redirect("' . $this->Html->url(array('controller' => 'events', 'action' => 'wizard'), true) . '")')) .
-	' to close this window.');
-$this->Html->scriptBlock('
+if (Configure::read('payment.popup')) {
+	echo $this->Html->para(null, 'Click ' .
+		$this->Html->link('here', "http://{$_SERVER["SERVER_NAME"]}/", array('onclick' => 'close_and_redirect("' . $this->Html->url(array('controller' => 'events', 'action' => 'wizard'), true) . '")')) .
+		' to close this window.');
+	$this->Html->scriptBlock('
 function close_and_redirect(url)
 {
 	window.opener.location.href = url;
 	window.close();
 }
-', array('inline' => false));
+	', array('inline' => false));
+}
 
 ?>

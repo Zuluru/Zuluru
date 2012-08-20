@@ -48,7 +48,15 @@ $unique_order_num = $invoice_num . sprintf('-%010d', $time);
 $login = Configure::read('payment.chase_live_store');
 $key = Configure::read('payment.chase_live_password');
 
-echo $this->Form->create(false, array('url' => 'https://checkout.e-xact.com/payment', 'target' => 'payment_window', 'name' => 'payment_form'));
+$form_options = array('url' => 'https://checkout.e-xact.com/payment', 'name' => 'payment_form');
+$submit_options = array('div' => false);
+
+if (Configure::read('payment.popup')) {
+	$form_options['target'] = 'payment_window';
+	$submit_options['onClick'] = 'open_payment_window();';
+}
+
+echo $this->Form->create(false, $form_options);
 
 function quick_hidden (&$ths, $name, $value) {
 	return $ths->Form->hidden($name, array('name' => $name, 'value' => $value));
@@ -108,7 +116,7 @@ echo quick_hidden($this, 'x_zip', $person['Person']['addr_postalcode']);
 echo quick_hidden($this, 'x_country', $person['Person']['addr_country']);
 echo quick_hidden($this, 'x_phone', $person['Person']['home_phone']);
 
-echo $this->Form->submit('Pay', array('div' => false, 'onClick' => 'open_payment_window();'));
+echo $this->Form->submit('Pay', $submit_options);
 
 echo $this->Form->end();
 

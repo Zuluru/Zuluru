@@ -1,5 +1,5 @@
 <h2>Captain Guide</h2>
-<p>So, you want to be a captain? Zuluru includes many tools and features to make this often thankless job much easier.</p>
+<p>So, you want to be a captain? <?php echo ZULURU; ?> includes many tools and features to make this often thankless job much easier.</p>
 
 <?php
 	echo $this->element('help/topics', array(
@@ -33,7 +33,7 @@
 <hr>
 <h3>Responsibilities</h3>
 <p>As a captain, you should familiarize yourself with the details of your league and division.
-Zuluru has many options for how spirit scores are collected, standings are calculated, playoffs are scheduled, etc.
+<?php echo ZULURU; ?> has many options for how spirit scores are collected, standings are calculated, playoffs are scheduled, etc.
 Knowing which options are in play for your team is important.</p>
 <p>You should also know who is coordinating your division.
 Coordinators are listed on the "division view" page.

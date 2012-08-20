@@ -523,7 +523,9 @@ class RegistrationsController extends AppController {
 	}
 
 	function payment() {
-		$this->layout = 'bare';
+		if (Configure::read('payment.popup')) {
+			$this->layout = 'bare';
+		}
 		$payment_obj = $this->_getComponent ('payment', Configure::read('payment.payment_implementation'), $this);
 		list ($result, $audit, $registration_ids) = $payment_obj->process ($this->params);
 		if ($result) {
