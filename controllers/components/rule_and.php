@@ -27,11 +27,12 @@ class RuleAndComponent extends RuleComponent
 		if (empty ($this->rule))
 			return null;
 		$reasons = array();
+		$status = true;
 		foreach ($this->rule as $rule) {
 			if (!$rule->evaluate ($params, $team, $strict)) {
-				$this->reason = $rule->reason;
+				$reasons[] = $rule->reason;
 				$this->reason_type = $rule->reason_type;
-				return false;
+				$status = false;
 			} else {
 				$reasons[] = $rule->reason;
 				// This isn't ideal, but will do until we find a test case demands something better
@@ -39,7 +40,7 @@ class RuleAndComponent extends RuleComponent
 			}
 		}
 		$this->reason = implode (__(' AND ', true), $reasons);
-		return true;
+		return $status;
 	}
 
 	function query() {
