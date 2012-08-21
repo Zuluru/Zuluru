@@ -17,7 +17,7 @@ echo $text;
 <p>You have received this message because you are on the <?php
 echo Configure::read('organization.name'); ?>'s <?php
 echo $newsletter['MailingList']['name']; ?> mailing list. To learn more about how we use your information, please read our privacy policy or contact <?php
-$this->Html->link(Configure::read('email.admin_name'), 'mailto:' . Configure::read('email.admin_email')); ?>.</p>
+echo $this->Html->link(Configure::read('email.admin_name'), 'mailto:' . Configure::read('email.admin_email')); ?>.</p>
 
 <?php if ($newsletter['MailingList']['opt_out']): ?>
 <p>To unsubscribe from this mailing list,
