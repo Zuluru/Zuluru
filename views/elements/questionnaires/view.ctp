@@ -14,10 +14,10 @@ if (array_key_exists ('Question', $questionnaire)) {
 						if (array_key_exists('Answer', $question)) {
 							$answer = array_shift (Set::extract ("/Answer[id={$answer['answer_id']}]/.", $question));
 							$answer = $answer['answer'];
-						} else if (array_key_exists('options', $question)) {
+						} else if (array_key_exists('options', $question) && array_key_exists($answer['answer_id'], $question['options'])) {
 							$answer = $question['options'][$answer['answer_id']];
 						} else {
-							// This shouldn't happen
+							// This shouldn't happen, unless questionnaires change after a registration happened
 							$answer = null;
 						}
 					} else {
