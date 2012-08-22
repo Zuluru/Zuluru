@@ -7,6 +7,7 @@ $this->Html->addCrumb (__('List', true));
 <h2><?php __('Waivers');?></h2>
 <table class="list">
 	<tr>
+		<th><?php __('Id'); ?></th>
 		<th><?php __('Name'); ?></th>
 		<th><?php __('Description'); ?></th>
 		<th><?php __('Active'); ?></th>
@@ -23,6 +24,7 @@ $this->Html->addCrumb (__('List', true));
 		}
 	?>
 	<tr<?php echo $class;?>>
+		<td><?php echo $waiver['Waiver']['id']; ?>&nbsp;</td>
 		<td><?php echo $waiver['Waiver']['name']; ?>&nbsp;</td>
 		<td><?php echo $waiver['Waiver']['description']; ?>&nbsp;</td>
 		<td><?php __($waiver['Waiver']['active'] ? 'Yes' : 'No'); ?>&nbsp;</td>

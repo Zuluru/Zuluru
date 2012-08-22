@@ -7,6 +7,7 @@ $this->Html->addCrumb (__('List', true));
 	<h2><?php __('Upload Types');?></h2>
 	<table class="list">
 	<tr>
+		<th><?php __('Id');?></th>
 		<th><?php __('Name');?></th>
 		<th class="actions"><?php __('Actions');?></th>
 	</tr>
@@ -19,6 +20,7 @@ $this->Html->addCrumb (__('List', true));
 		}
 	?>
 	<tr<?php echo $class;?>>
+		<td><?php echo $uploadType['UploadType']['id']; ?>&nbsp;</td>
 		<td><?php echo $uploadType['UploadType']['name']; ?>&nbsp;</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View', true), array('action' => 'view', 'type' => $uploadType['UploadType']['id'])); ?>
