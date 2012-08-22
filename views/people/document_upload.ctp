@@ -23,6 +23,7 @@ if ($unit == 'M' || $unit == 'K') {
 echo $this->Form->create(false, array('url' => Router::normalize($this->here), 'enctype' => 'multipart/form-data'));
 echo $this->Form->input('document_type', array(
 		'options' => $types,
+		'default' => $type,
 ));
 echo $this->Form->input('document', array('type' => 'file'));
 echo $this->Form->end(__('Upload', true));

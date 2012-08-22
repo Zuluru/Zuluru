@@ -867,7 +867,8 @@ class PeopleController extends AppController {
 		}
 
 		$types = $this->Person->Upload->UploadType->find('list');
-		$this->set(compact('person', 'types'));
+		$type = $this->_arg('type');
+		$this->set(compact('person', 'types', 'type'));
 
 		if (!empty ($this->data) && array_key_exists ('document', $this->data)) {
 			if (empty ($this->data['document'])) {
