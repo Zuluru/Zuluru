@@ -10,11 +10,31 @@ class RuleRegisteredComponent extends RuleComponent
 	function parse($config) {
 		$config = trim ($config, '"\'');
 		$this->config = array_map ('trim', explode (',', $config));
+		$model = ClassRegistry::init('Event');
+		$this->events = $model->find('all', array(
+				'contain' => array(),
+				'conditions' => array('id' => $this->config[0]),
+				'fields' => array('id', 'name'),
+		));
 		return true;
 	}
 
 	// Check if the user has registered for one of the specified events
-	function evaluate($params) {
+	function evaluate($params, $team, $strict, $text_reason) {
+		$events = array();
+		if ($text_reason) {
+			foreach ($this->events as $event) {
+				$events[] = $event['Event']['name'];
+			}
+		} else {
+			App::import('Helper', 'Html');
+			$html = new HtmlHelper();
+			foreach ($this->events as $event) {
+				$events[] = $html->link($event['Event']['name'], array('controller' => 'events', 'action' => 'view', 'event' => $event['Event']['id'], 'return' => true));
+			}
+		}
+		$this->reason = __('have previously registered for the', true) . ' ' . implode(' ' . __('or', true) . ' ', $events);
+
 		if (is_array($params) && array_key_exists ('Registration', $params)) {
 			$registered = Set::extract ('/Registration/Event/id', $params);
 			$prereqs = array_intersect ($registered, $this->config);

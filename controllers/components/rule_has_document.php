@@ -11,12 +11,23 @@ class RuleHasDocumentComponent extends RuleComponent
 		$this->config = array_map ('trim', explode (',', $config));
 		foreach ($this->config as $key => $val) {
 			$this->config[$key] = trim ($val, '"\'');
+			$model = ClassRegistry::init('UploadType');
+			$model->contain(array());
+			$this->document = $model->field('name', array('id' => $this->config[0]));
 		}
 		return (count($this->config) == 2);
 	}
 
 	// Check if the user has uploaded the required document
-	function evaluate($params) {
+	function evaluate($params, $team, $strict, $text_reason) {
+		if ($text_reason) {
+			$this->reason = "have uploaded the {$this->document}";
+		} else {
+			App::import('Helper', 'Html');
+			$html = new HtmlHelper();
+			$this->reason = $html->link("have uploaded the {$this->document}", array('controller' => 'people', 'action' => 'document_upload', 'type' => $this->config[0], 'return' => true));
+		}
+
 		if (is_array($params) && array_key_exists ('Upload', $params)) {
 			$date = date('Y-m-d', strtotime ($this->config[1]));
 			$matches = Set::extract ("/Upload[type_id={$this->config[0]}][valid_from<=$date][valid_until>=$date]", $params);

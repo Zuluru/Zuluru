@@ -448,7 +448,7 @@ class TeamsController extends AppController {
 			if ($person['TeamsPerson']['status'] == ROSTER_APPROVED) {
 				$team['Person'][$key]['can_add'] = true;
 			} else {
-				$team['Person'][$key]['can_add'] = $this->_canAdd ($full_person, $team, $person['TeamsPerson']['position'], $person['TeamsPerson']['status']);
+				$team['Person'][$key]['can_add'] = $this->_canAdd ($full_person, $team, $person['TeamsPerson']['position'], $person['TeamsPerson']['status'], true, true);
 			}
 
 			// Check if the player is a member, so we can highlight any that aren't
@@ -1160,7 +1160,7 @@ class TeamsController extends AppController {
 		}
 
 		foreach ($old_team['Person'] as $key => $person) {
-			$old_team['Person'][$key]['can_add'] = $this->_canAdd (array('Person' => $person), $team, 'player', null, false);
+			$old_team['Person'][$key]['can_add'] = $this->_canAdd (array('Person' => $person), $team, 'player', null, false, true);
 		}
 
 		$this->set(compact('team', 'old_team'));
@@ -1277,7 +1277,7 @@ class TeamsController extends AppController {
 			if (empty($registration['Person'])) {
 				unset ($event['Registration'][$key]);
 			} else {
-				$event['Registration'][$key]['can_add'] = $this->_canAdd (array('Person' => $registration['Person']), $team, 'player', null, false);
+				$event['Registration'][$key]['can_add'] = $this->_canAdd (array('Person' => $registration['Person']), $team, 'player', null, false, true);
 			}
 		}
 
@@ -1794,7 +1794,7 @@ class TeamsController extends AppController {
 		}
 	}
 
-	function _canAdd ($person, $team, $position = null, $status = null, $strict = true) {
+	function _canAdd ($person, $team, $position = null, $status = null, $strict = true, $text_reason = false) {
 		if ($person['Person']['status'] != 'active') {
 			return __('New players must be approved by an administrator before they can be added to a team; this normally happens within one business day.', true);
 		}
@@ -1831,7 +1831,7 @@ class TeamsController extends AppController {
 
 				$person = $this->Team->Person->read(null, $person['Person']['id']);
 			}
-			if (!$this->can_add_rule_obj->evaluate ($person, $team, $strict)) {
+			if (!$this->can_add_rule_obj->evaluate ($person, $team, $strict, $text_reason)) {
 				switch ($this->can_add_rule_obj->reason_type) {
 					case REASON_TYPE_PLAYER_ACTIVE:
 						$prolog = 'To be added to this team, this player must first';

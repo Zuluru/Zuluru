@@ -14,9 +14,9 @@ class RuleSignedWaiverComponent extends RuleComponent
 		}
 		if (count($this->config) >= 2) {
 			$this->date = date('Y-m-d', strtotime (array_pop($this->config)));
-			App::import('Helper', 'Html');
-			$html = new HtmlHelper();
-			$this->reason = $html->link(__('have signed the required waiver', true), array('controller' => 'waivers', 'action' => 'sign', 'waiver' => $this->config[0], 'date' => $this->date, 'return' => true));
+			$model = ClassRegistry::init('Waiver');
+			$model->contain(array());
+			$this->waiver = $model->field('name', array('id' => $this->config[0]));
 			return true;
 		} else {
 			return false;
@@ -24,7 +24,15 @@ class RuleSignedWaiverComponent extends RuleComponent
 	}
 
 	// Check if the user has signed the required waiver
-	function evaluate($params, $team, $strict) {
+	function evaluate($params, $team, $strict, $text_reason) {
+		if ($text_reason) {
+			$this->reason = "have signed the {$this->waiver} waiver";
+		} else {
+			App::import('Helper', 'Html');
+			$html = new HtmlHelper();
+			$this->reason = $html->link("have signed the {$this->waiver} waiver", array('controller' => 'waivers', 'action' => 'sign', 'waiver' => $this->config[0], 'date' => $this->date, 'return' => true));
+		}
+
 		if (!$strict) {
 			return true;
 		}
