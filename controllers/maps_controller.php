@@ -102,7 +102,16 @@ class MapsController extends AppController {
 			$this->redirect(array('controller' => 'fields', 'action' => 'index'));
 		}
 
-		$this->set(compact('field'));
+		// We use these as last-ditch emergency values, if the field has neither
+		// a valid lat/long or an address that Google can find.
+		$leaguelat = Configure::read('organization.latitude');
+		$leaguelng = Configure::read('organization.longitude');
+		if (empty($leaguelat) || empty($leaguelng)) {
+			$this->Session->setFlash(__('Before using the layout editor, you must set the default latitude and longitude for your organization.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'settings', 'action' => 'organization'));
+		}
+
+		$this->set(compact('field', 'leaguelat', 'leaguelng'));
 
 		$this->layout = 'map';
 	}

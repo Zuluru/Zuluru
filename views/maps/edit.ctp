@@ -12,11 +12,6 @@ $gmaps_key = Configure::read('site.gmaps_key');
 $address = "{$field['Facility']['location_street']}, {$field['Facility']['location_city']}";
 $full_address = "{$field['Facility']['location_street']}, {$field['Facility']['location_city']}, {$field['Facility']['location_province']}";
 
-// We use these as last-ditch emergency values, if the field has neither
-// a valid lat/long or an address that Google can find.
-$leaguelat = Configure::read('organization.latitude');
-$leaguelng = Configure::read('organization.longitude');
-
 // Build the list of variables to set for the JS.
 // The blank line before END_OF_VARIABLES is required.
 $variables = <<<END_OF_VARIABLES
