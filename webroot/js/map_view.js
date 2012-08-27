@@ -68,12 +68,14 @@ function openOnClick(marker, window) {
 function selectField(id)
 {
 	// Remove selection from the old field
-	if (current != 0)
+	if (current != 0 && fields[current].length != 0)
 	{
 		fields[current].field_outline.setOptions({'fillColor':'#ff6060'});
 	}
 
-	fields[id].field_outline.setOptions({'fillColor':'#60ff60'});
+	if (fields[id].length != 0) {
+		fields[id].field_outline.setOptions({'fillColor':'#60ff60'});
+	}
 	current = id;
 }
 

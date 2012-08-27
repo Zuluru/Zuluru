@@ -82,7 +82,9 @@ function selectField(id)
 	if (current != 0)
 	{
 		// Remove selection colouring and listener from the old field
-		fields[current].field_outline.setOptions({'fillColor':'#ff6060'});
+		if (fields[current].length != 0) {
+			fields[current].field_outline.setOptions({'fillColor':'#ff6060'});
+		}
 		fields[current].marker.setOptions({'draggable':false});
 		google.maps.event.removeListener(drag_listener);
 
@@ -97,7 +99,9 @@ function selectField(id)
 	updateForm();
 
 	// Add selection colouring and listener to the new field
-	fields[id].field_outline.setOptions({'fillColor':'#60ff60'});
+	if (fields[id].length != 0) {
+		fields[id].field_outline.setOptions({'fillColor':'#60ff60'});
+	}
 	fields[id].marker.setOptions({'draggable':true});
 	drag_listener = google.maps.event.addListener(fields[id].marker, 'drag', redraw);
 }
