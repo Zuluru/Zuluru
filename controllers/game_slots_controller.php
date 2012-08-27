@@ -35,7 +35,8 @@ class GameSlotsController extends AppController {
 				} else {
 					// Build the list of dates to re-use
 					$weeks = array();
-					$date = strtotime ($this->data['GameSlot']['game_date']);
+					// Use noon as the time, to avoid problems when we switch between DST and non-DST dates
+					$date = strtotime ($this->data['GameSlot']['game_date'] . ' 12:00:00');
 					while (count($weeks) < $this->data['GameSlot']['weeks']) {
 						if (!array_key_exists(date ('Y-m-d', $date), $holidays)) {
 							$weeks[] = date ('Y-m-d', $date);
