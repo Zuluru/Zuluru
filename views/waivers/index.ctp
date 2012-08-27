@@ -70,7 +70,7 @@ $this->Html->addCrumb (__('List', true));
 	<ul>
 		<?php
 		if ($is_admin) {
-			echo $this->Html->tag('li', $this->ZuluruHtml->iconLink('add_32.png',
+			echo $this->Html->tag('li', $this->ZuluruHtml->iconLink('waiver_add_32.png',
 				array('action' => 'add'),
 				array('alt' => __('Add', true), 'title' => __('Add Waiver', true))));
 		}

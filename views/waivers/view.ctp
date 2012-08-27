@@ -58,7 +58,7 @@ $this->Html->addCrumb (__('View', true));
 				array('action' => 'delete', 'waiver' => $waiver['Waiver']['id']),
 				array('alt' => __('Edit', true), 'title' => __('Edit Waiver', true)),
 				array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $waiver['Waiver']['id']))));
-			echo $this->Html->tag('li', $this->ZuluruHtml->iconLink('add_32.png',
+			echo $this->Html->tag('li', $this->ZuluruHtml->iconLink('waiver_add_32.png',
 				array('action' => 'add'),
 				array('alt' => __('Add', true), 'title' => __('Add Waiver', true))));
 		}
