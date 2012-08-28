@@ -25,7 +25,7 @@ if (isset ($add)) {
 		echo $this->ZuluruForm->input('shirt_colour', array(
 			'after' => $this->Html->para (null, __('Shirt colour of your team. If you don\'t have team shirts, pick \'light\' or \'dark\'.', true)),
 		));
-		if ($is_admin) {
+		if ($is_admin && Configure::read('feature.home_field')) {
 			echo $this->ZuluruForm->input('home_field', array(
 				'label' => sprintf(__('Home %s', true), Configure::read('sport.field_cap')),
 				'after' => $this->Html->para (null, sprintf(__('Home %s, if applicable.', true), Configure::read('sport.field'))),

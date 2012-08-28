@@ -661,8 +661,7 @@ class LeagueTypeComponent extends Object
 	}
 
 	function hasHomeField($game) {
-		return ($this->division['Team'][$game['home_team']]['home_field'] ||
-			$this->division['Team'][$game['home_team']]['home_field']);
+		return (Configure::read('feature.home_field') && $this->division['Team'][$game['home_team']]['home_field']);
 	}
 
 	function preferredFieldRatio($game) {
@@ -679,7 +678,7 @@ class LeagueTypeComponent extends Object
 		// to their opponents to break that tie. This tie-breaker will
 		// only matter if multiple teams share a home field, but it doesn't
 		// do any harm to include it in other situations.
-		if ($this->division['Team'][$game['home_team']]['home_field']) {
+		if (Configure::read('feature.home_field') && $this->division['Team'][$game['home_team']]['home_field']) {
 			$id = $game['away_team'];
 		} else {
 			$id = $game['home_team'];
@@ -758,14 +757,16 @@ class LeagueTypeComponent extends Object
 		$home = $this->division['Team'][$game['home_team']];
 		$away = $this->division['Team'][$game['away_team']];
 
-		// Try to adhere to the home team's home field
-		if ($home['home_field']) {
-			$slots = Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date][field_id={$home['home_field']}]/id", $this->division);
-		}
+		if (Configure::read('feature.home_field')) {
+			// Try to adhere to the home team's home field
+			if ($home['home_field']) {
+				$slots = Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date][field_id={$home['home_field']}]/id", $this->division);
+			}
 
-		// If not available, try the away team's home field
-		if (empty ($slots) && $away['home_field']) {
-			$slots = Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date][field_id={$away['home_field']}]/id", $this->division);
+			// If not available, try the away team's home field
+			if (empty ($slots) && $away['home_field']) {
+				$slots = Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date][field_id={$away['home_field']}]/id", $this->division);
+			}
 		}
 
 		// Maybe try region preferences

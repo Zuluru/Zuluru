@@ -29,7 +29,7 @@ $this->Html->addCrumb (__('View', true));
 
 		</dd>
 		<?php endif; ?>
-		<?php if (!empty ($team['Team']['home_field'])):?>
+		<?php if (Configure::read('feature.home_field') && !empty ($team['Team']['home_field'])):?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Home Field'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $this->element('fields/block', array('field' => $team['Field'], 'display_field' => 'long_name')); ?>

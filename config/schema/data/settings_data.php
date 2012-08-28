@@ -113,6 +113,11 @@ class SettingsData {
 		),
 		array(
 			'category' => 'feature',
+			'name' => 'home_field',
+			'value' => '0',
+		),
+		array(
+			'category' => 'feature',
 			'name' => 'dog_questions',
 			'value' => '0',
 		),

@@ -97,6 +97,15 @@ $this->Html->addCrumb (__('Feature', true));
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'feature',
+		'name' => 'home_field',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'after' => 'If enabled, administrators will be able to assign home ' . Configure::read('ui.fields') . ' to teams.',
+		),
+	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
 		'name' => 'force_roster_request',
 		'options' => array(
 			'type' => 'radio',
