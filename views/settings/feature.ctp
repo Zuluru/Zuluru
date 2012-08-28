@@ -51,6 +51,24 @@ $this->Html->addCrumb (__('Feature', true));
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'feature',
+		'name' => 'photos',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'after' => 'Enable or disable the option for players to upload profile photos.',
+		),
+	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
+		'name' => 'approve_photos',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'after' => 'If enabled, profile photos must be approved by an administrator before they will be visible.',
+		),
+	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
 		'name' => 'franchises',
 		'options' => array(
 			'type' => 'radio',

@@ -409,9 +409,6 @@ class PeopleController extends AppController {
 		if (!$id) {
 			return;
 		}
-		$this->Person->contain(array(
-			'Upload' => array('conditions' => array('type_id' => null)),
-		));
 
 		$person = $this->Person->readCurrent($id, $this->Auth->user('id'));
 		if (empty($person)) {
@@ -629,6 +626,10 @@ class PeopleController extends AppController {
 	}
 
 	function photo() {
+		if (!Configure::read('feature.photos')) {
+			return;
+		}
+
 		$file_dir = Configure::read('folders.uploads');
 		$photo = $this->Person->Upload->find('first', array(
 				'contain' => false,
@@ -649,6 +650,11 @@ class PeopleController extends AppController {
 	}
 
 	function photo_upload() {
+		if (!Configure::read('feature.photos')) {
+			$this->Session->setFlash(__('Uploading of photos is disabled on this site.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
 		$person = $this->_findSessionData('Person', $this->Person);
 		$size = 150;
 		$this->set(compact('person', 'size'));
@@ -739,6 +745,11 @@ class PeopleController extends AppController {
 	}
 
 	function approve_photos() {
+		if (!Configure::read('feature.approve_photos')) {
+			$this->Session->setFlash(__('Approval of photos is not required on this site.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
 		$photos = $this->Person->Upload->find('all', array(
 				'contain' => array('Person'),
 				'conditions' => array(

@@ -364,7 +364,9 @@ class AppController extends Controller {
 			if (Configure::read('feature.manage_accounts')) {
 				$this->_addMenuItem ('Change password', array('controller' => 'users', 'action' => 'change_password'), 'My Profile');
 			}
-			$this->_addMenuItem ('Upload photo', array('controller' => 'people', 'action' => 'photo_upload'), 'My Profile');
+			if (Configure::read('feature.photos')) {
+				$this->_addMenuItem ('Upload photo', array('controller' => 'people', 'action' => 'photo_upload'), 'My Profile');
+			}
 			if (Configure::read('feature.documents')) {
 				$this->_addMenuItem ('Upload document', array('controller' => 'people', 'action' => 'document_upload'), 'My Profile');
 			}
@@ -453,17 +455,21 @@ class AppController extends Controller {
 				$this->_addMenuItem ("Approve new accounts ($new pending)", array('controller' => 'people', 'action' => 'list_new'), 'Players');
 			}
 
-			if (!isset ($this->Person->Upload)) {
+			if (!isset ($this->Person->Upload) &&
+				(Configure::read('feature.photos') || Configure::read('feature.documents'))) {
 				$this->Person->Upload = ClassRegistry::init ('Upload');
 			}
-			$new = $this->Person->Upload->find ('count', array(
-				'conditions' => array(
-					'approved' => 0,
-					'type_id' => null,
-				),
-			));
-			if ($new > 0) {
-				$this->_addMenuItem ("Approve new photos ($new pending)", array('controller' => 'people', 'action' => 'approve_photos'), 'Players');
+
+			if (Configure::read('feature.photos') && Configure::read('feature.approve_photos')) {
+				$new = $this->Person->Upload->find ('count', array(
+					'conditions' => array(
+						'approved' => 0,
+						'type_id' => null,
+					),
+				));
+				if ($new > 0) {
+					$this->_addMenuItem ("Approve new photos ($new pending)", array('controller' => 'people', 'action' => 'approve_photos'), 'Players');
+				}
 			}
 
 			if (Configure::read('feature.documents')) {

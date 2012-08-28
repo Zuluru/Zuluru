@@ -88,6 +88,16 @@ class SettingsData {
 		),
 		array(
 			'category' => 'feature',
+			'name' => 'photos',
+			'value' => '1',
+		),
+		array(
+			'category' => 'feature',
+			'name' => 'approve_photos',
+			'value' => '1',
+		),
+		array(
+			'category' => 'feature',
 			'name' => 'generate_roster_email',
 			'value' => '1',
 		),

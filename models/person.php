@@ -102,11 +102,21 @@ class Person extends User {
 		$contain = array(
 			'Group',
 			'Setting',
-			'Upload' => array('UploadType'),
 		);
+
+		// May need to include various types of uploads
+		if (Configure::read('feature.photos') && !Configure::read('feature.documents')) {
+			$contain['Upload'] = array('conditions' => array('type_id' => null));
+		} else if (!Configure::read('feature.photos') && Configure::read('feature.documents')) {
+			$contain['Upload'] = array('UploadType', 'conditions' => array('type_id !=' => null));
+		} else if (Configure::read('feature.photos') && Configure::read('feature.documents')) {
+			$contain['Upload'] = array('UploadType');
+		}
+
 		if (Configure::read('feature.annotations') && $my_id !== null) {
 			$contain['Note'] = array('conditions' => array('created_person_id' => $my_id));
 		}
+
 		if (Configure::read('feature.registration')) {
 			$contain = array_merge ($contain, array(
 				'Registration' => array(
@@ -120,6 +130,7 @@ class Person extends User {
 				'Preregistration' => 'Event',
 			));
 		}
+
 		$this->contain($contain);
 		$person = $this->read(null, $id);
 		if (!$person) {
