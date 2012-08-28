@@ -248,7 +248,7 @@ $this->Html->addCrumb (__('View', true));
 <?php if ($is_logged_in):?>
 <div class="related">
 	<?php
-	$cols = 5;
+	$cols = 4;
 	$warning = false;
 	?>
 	<table class="list">
@@ -256,8 +256,10 @@ $this->Html->addCrumb (__('View', true));
 		<th><?php __('Name'); ?></th>
 		<th><?php __('Position'); ?></th>
 		<th><?php __('Gender'); ?></th>
+		<?php if (Configure::read('profile.skill_level')): ?>
 		<th><?php __('Rating'); ?></th>
-		<?php if ($is_admin || $is_coordinator) : ?>
+		<?php endif; ?>
+		<?php if (Configure::read('profile.shirt_size') && ($is_admin || $is_coordinator)): ?>
 		<th><?php __('Shirt Size'); ?></th>
 		<?php
 			++$cols;
@@ -339,9 +341,11 @@ $this->Html->addCrumb (__('View', true));
 		}
 		?></td>
 		<td><?php __($person['gender']);?></td>
+		<?php if (Configure::read('profile.skill_level')): ?>
 		<td><?php echo $person['skill_level'];?></td>
+		<?php endif; ?>
 		<?php
-		if ($is_admin || $is_coordinator) {
+		if (Configure::read('profile.shirt_size') && ($is_admin || $is_coordinator)) {
 			echo $this->Html->tag('td', __($person['shirt_size'], true));
 		}
 		?>
@@ -349,7 +353,7 @@ $this->Html->addCrumb (__('View', true));
 	</tr>
 	<?php endforeach; ?>
 	<?php
-	if ($skill_count) :
+	if (Configure::read('profile.skill_level') && $skill_count):
 		$class = null;
 		if ($i++ % 2 == 0) {
 			$class = ' class="altrow"';

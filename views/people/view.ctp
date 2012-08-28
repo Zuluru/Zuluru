@@ -43,7 +43,7 @@ if ($is_logged_in) {
 
 			</dd>
 		<?php endif; ?>
-		<?php if (!empty($person['Person']['home_phone']) &&
+		<?php if (Configure::read('profile.home_phone') && !empty($person['Person']['home_phone']) &&
 					($is_me || $is_admin || $is_coordinator || $is_captain || $is_my_captain || $is_division_captain ||
 						($is_logged_in && $person['Person']['publish_home_phone']))):?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Phone (home)'); ?></dt>
@@ -55,7 +55,7 @@ if ($is_logged_in) {
 
 			</dd>
 		<?php endif; ?>
-		<?php if (!empty($person['Person']['work_phone']) &&
+		<?php if (Configure::read('profile.work_phone') && !empty($person['Person']['work_phone']) &&
 					($is_me || $is_admin || $is_coordinator || $is_captain || $is_my_captain || $is_division_captain ||
 						($is_logged_in && $person['Person']['publish_work_phone']))):?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Phone (work)'); ?></dt>
@@ -70,7 +70,7 @@ if ($is_logged_in) {
 
 			</dd>
 		<?php endif; ?>
-		<?php if (!empty($person['Person']['mobile_phone']) &&
+		<?php if (Configure::read('profile.mobile_phone') && !empty($person['Person']['mobile_phone']) &&
 					($is_me || $is_admin || $is_coordinator || $is_captain || $is_my_captain || $is_division_captain ||
 						($is_logged_in && $person['Person']['publish_mobile_phone']))):?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Phone (mobile)'); ?></dt>
@@ -83,23 +83,39 @@ if ($is_logged_in) {
 			</dd>
 		<?php endif; ?>
 		<?php if ($is_me || $is_admin):?>
+		<?php if (Configure::read('profile.addr_street')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Address'); ?></dt>
 			<dd<?php if ($i % 2 == 0) echo $class;?>>
 				<?php echo $person['Person']['addr_street']; ?>
 
 			</dd>
+		<?php endif; ?>
+		<?php if (Configure::read('profile.addr_city') || Configure::read('profile.addr_prov') || Configure::read('profile.addr_country')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>>&nbsp;</dt>
 			<dd<?php if ($i % 2 == 0) echo $class;?>>
-				<?php echo $person['Person']['addr_city'] . ', ' .
-							__($person['Person']['addr_prov'], true) . ', ' .
-							__($person['Person']['addr_country'], true); ?>
+				<?php
+				$addr = array();
+				if (Configure::read('profile.addr_city')) {
+					$addr[] = $person['Person']['addr_city'];
+				}
+				if (Configure::read('profile.addr_city')) {
+					$addr[] = __($person['Person']['addr_prov'], true);
+				}
+				if (Configure::read('profile.addr_city')) {
+					$addr[] = __($person['Person']['addr_country'], true);
+				}
+				echo implode(', ', $addr);
+				?>
 
 			</dd>
+		<?php endif; ?>
+			<?php if (Configure::read('profile.addr_postalcode')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>>&nbsp;</dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php echo $person['Person']['addr_postalcode']; ?>
 
 			</dd>
+			<?php endif; ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Birthdate'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php echo $this->ZuluruTime->date($person['Person']['birthdate']); ?>
@@ -112,18 +128,22 @@ if ($is_logged_in) {
 
 		</dd>
 		<?php if ($is_me || $is_admin || $is_coordinator || $is_captain):?>
+			<?php if (Configure::read('profile.height')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Height'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php echo $person['Person']['height'] . ' ' . __('inches', true); ?>
 
 			</dd>
+			<?php endif; ?>
+			<?php if (Configure::read('profile.shirt_size')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Shirt Size'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php __($person['Person']['shirt_size']); ?>
 
 			</dd>
+			<?php endif; ?>
 		<?php endif; ?>
-		<?php if (!empty ($person['Person']['skill_level'])):?>
+		<?php if (Configure::read('profile.skill_level') && !empty ($person['Person']['skill_level'])):?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Skill Level'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php __(Configure::read("options.skill.{$person['Person']['skill_level']}")) ; ?>
@@ -155,16 +175,20 @@ if ($is_logged_in) {
 
 			</dd>
 			<?php endif; ?>
+			<?php if (Configure::read('profile.willing_to_volunteer')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Willing To Volunteer'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php __($person['Person']['willing_to_volunteer'] ? 'yes' : 'no'); ?>
 
 			</dd>
+			<?php endif; ?>
+			<?php if (Configure::read('profile.contact_for_feedback')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Contact For Feedback'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php __($person['Person']['contact_for_feedback'] ? 'yes' : 'no'); ?>
 
 			</dd>
+			<?php endif; ?>
 		<?php endif; ?>
 		<?php if (!empty($person['Note'])): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Private Note'); ?></dt>
