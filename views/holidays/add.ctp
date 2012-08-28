@@ -16,3 +16,5 @@
 		<li><?php echo $this->Html->link(__('List Holidays', true), array('action' => 'index'));?></li>
 	</ul>
 </div>
+
+<?php echo $this->ZuluruHtml->script ('datepicker', array('inline' => false));
