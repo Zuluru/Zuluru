@@ -117,7 +117,7 @@ class RatingsComponent extends Object
 				if ($game['Game']['tournament']) {
 					// Playoff games don't adjust ratings
 					$change = 0;
-				} else if (strpos($game['Game']['status'], 'default') !== false && !Configure::read('default_transfer_ratings')) {
+				} else if (strpos($game['Game']['status'], 'default') !== false && !Configure::read('scoring.default_transfer_ratings')) {
 					// Defaulted games might not adjust ratings
 					$change = 0;
 				} else if ($game['Game']['home_score'] >= $game['Game']['away_score']) {
