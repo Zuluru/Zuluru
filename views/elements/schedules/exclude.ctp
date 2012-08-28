@@ -7,7 +7,7 @@
 <ul>
 <?php
 foreach ($this->data['ExcludeTeams'] as $team_id => $one) {
-	$team = array_pop (Set::extract ("/Team[id=$team_id]/name", $league));
+	$team = array_pop (Set::extract ("/Team[id=$team_id]/name", $division));
 	echo $this->Html->tag('li', $team);
 }
 ?>
