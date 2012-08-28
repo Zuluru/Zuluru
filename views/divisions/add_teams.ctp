@@ -24,7 +24,9 @@ $this->Html->addCrumb (__('Add Teams', true));
 			'label' => false,
 			'default' => sprintf(__('Hat team %d', true), $num),
 		));
-		echo $this->Form->hidden("$num.shirt_colour", array('value' => $colour));
+		if (Configure::read('feature.shirt_colour')) {
+			echo $this->Form->hidden("$num.shirt_colour", array('value' => $colour));
+		}
 	}
 	?>
 	</fieldset>

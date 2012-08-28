@@ -11,7 +11,7 @@
 	<dd><?php
 	echo $this->Html->link($game['HomeTeam']['name'],
 			array('controller' => 'teams', 'action' => 'view', 'team' => $game['HomeTeam']['id']));
-	if (array_key_exists ('shirt_colour', $game['HomeTeam'])) {
+	if (Configure::read('feature.shirt_colour') && array_key_exists ('shirt_colour', $game['HomeTeam'])) {
 		echo ' ' . $this->element('shirt', array('colour' => $game['HomeTeam']['shirt_colour']));
 	}
 	?></dd>
@@ -19,7 +19,7 @@
 	<dd><?php
 	echo $this->Html->link($game['AwayTeam']['name'],
 			array('controller' => 'teams', 'action' => 'view', 'team' => $game['AwayTeam']['id']));
-	if (array_key_exists ('shirt_colour', $game['AwayTeam'])) {
+	if (Configure::read('feature.shirt_colour') && array_key_exists ('shirt_colour', $game['AwayTeam'])) {
 		echo ' ' . $this->element('shirt', array('colour' => $game['AwayTeam']['shirt_colour']));
 	}
 	?></dd>

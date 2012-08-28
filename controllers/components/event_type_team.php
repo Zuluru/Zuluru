@@ -29,14 +29,16 @@ class EventTypeTeamComponent extends EventTypeComponent
 				'after' => __('The full name of your team.', true),
 				'required' => true,
 			),
-			array(
+		);
+		if (Configure::read('feature.shirt_colour')) {
+			$fields[] = array(
 				'id' => SHIRT_COLOUR,
 				'type' => 'text',
 				'question' => __('Shirt Colour', true),
 				'after' => __('Shirt colour of your team. If you don\'t have team shirts, pick \'light\' or \'dark\'.', true),
 				'required' => true,
-			),
-		);
+			);
+		}
 
 		if ($for_output) {
 			$fields[] = array(
@@ -139,13 +141,15 @@ class EventTypeTeamComponent extends EventTypeComponent
 					'message' => array('answer' => 'Team name must not be blank.'),
 				),
 			),
-			'q' . SHIRT_COLOUR => array(
+		);
+		if (Configure::read('feature.shirt_colour')) {
+			$validation['q' . SHIRT_COLOUR] = array(
 				'notempty' => array(
 					'rule' => array('response', 'notempty'),
 					'message' => array('answer' => 'Shirt colour must not be blank.'),
 				),
-			),
-		);
+			);
+		}
 
 		// TODO: Add region and open roster validation, if necessary
 		if (!empty($event['Event']['division_id'])) {

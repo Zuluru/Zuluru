@@ -69,8 +69,10 @@ X-LOCATION-URL:<?php echo $field_url; ?>
 SUMMARY:<?php echo ical_encode("{$my_team['name']} ($my_home_away)"); ?> vs. <?php echo ical_encode("{$opponent['name']} ($opp_home_away)"); ?>
 
 DESCRIPTION:Game <?php echo $game_id; ?>: <?php echo ical_encode("{$my_team['name']} ($my_home_away)"); ?> vs. <?php echo ical_encode("{$opponent['name']} ($opp_home_away)"); ?>
- at <?php echo ical_encode($field); ?> on <?php echo $game_stamp; ?> (they wear <?php echo ical_encode($opponent['shirt_colour']); ?>)
+ at <?php echo ical_encode($field); ?> on <?php echo $game_stamp; ?><?php
+if (Configure::read('feature.shirt_colour') && !empty($opponent['shirt_colour'])): ?> (they wear <?php echo ical_encode($opponent['shirt_colour']); ?>)
 X-OPPONENT-COLOUR:<?php echo $opponent['shirt_colour']; ?>
+<?php endif; ?>
 
 STATUS:CONFIRMED
 TRANSP:OPAQUE

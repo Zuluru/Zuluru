@@ -12,8 +12,10 @@ echo $this->Html->link(__('registration system', true), array('controller' => 'e
 <?php
 $topics = array(
 	'name',
-	'shirt_colour',
 );
+if (Configure::read('feature.shirt_colour')) {
+	$topics[] = 'shirt_colour';
+}
 if (Configure::read('feature.region_preference')) {
 	$topics[] = 'region_preference';
 }

@@ -51,6 +51,16 @@ $this->Html->addCrumb (__('Feature', true));
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'feature',
+		'name' => 'shirt_colour',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'label' => 'Shirt Colours',
+			'after' => 'Disable this if teams don\'t have predetermined shirt colours (e.g. if you use pinnies or if matching shirt colours on a team is unimportant).',
+		),
+	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
 		'name' => 'photos',
 		'options' => array(
 			'type' => 'radio',

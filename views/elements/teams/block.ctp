@@ -18,7 +18,7 @@ if (isset ($max_length)) {
 echo $this->ZuluruHtml->link($team['name'],
 	array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']),
 	$options);
-if (array_key_exists ('shirt_colour', $team) && (!isset($show_shirt) || $show_shirt)) {
+if (Configure::read('feature.shirt_colour') && array_key_exists ('shirt_colour', $team) && (!isset($show_shirt) || $show_shirt)) {
 	echo ' ' . $this->element('shirt', array('colour' => $team['shirt_colour']));
 }
 

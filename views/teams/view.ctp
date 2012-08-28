@@ -14,6 +14,7 @@ $this->Html->addCrumb (__('View', true));
 
 		</dd>
 		<?php endif; ?>
+		<?php if (Configure::read('feature.shirt_colour')): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Shirt Colour'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php
@@ -22,6 +23,7 @@ $this->Html->addCrumb (__('View', true));
 			?>
 			&nbsp;
 		</dd>
+		<?php endif; ?>
 		<?php if ($team['Division']['id']): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Division'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
