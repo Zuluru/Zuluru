@@ -53,6 +53,7 @@ $this->Html->addCrumb (__('View', true));
 			?>
 
 		</dd>
+		<?php if (Configure::read('feature.attendance')): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Track Attendance'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php
@@ -132,6 +133,7 @@ $this->Html->addCrumb (__('View', true));
 
 		</dd>
 		<?php endif; ?>
+		<?php endif; ?>
 		<?php // TODO: SBF ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Rating'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
@@ -183,7 +185,7 @@ $this->Html->addCrumb (__('View', true));
 				array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Division']['id'], 'team' => $team['Team']['id']),
 				array('alt' => __('Standings', true), 'title' => __('View Team Standings', true))));
 		}
-		if ($team['Team']['track_attendance']) {
+		if (Configure::read('feature.attendance') && $team['Team']['track_attendance']) {
 			if ($is_captain) {
 				echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('team_event_add_32.png',
 					array('controller' => 'team_events', 'action' => 'add', 'team' => $team['Team']['id']),

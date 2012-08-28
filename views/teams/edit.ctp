@@ -45,11 +45,14 @@ if (isset ($add)) {
 		echo $this->ZuluruForm->input('open_roster', array(
 			'after' => $this->Html->para (null, __('If the team roster is open, others can request to join; otherwise, only the captain can add players.', true)),
 		));
-		echo $this->ZuluruForm->input('track_attendance', array(
-			'after' => $this->Html->para (null, __('If selected, the system will help you to monitor attendance on a game-to-game basis.', true)),
-			'onclick' => 'attendanceCheckboxChanged()',
-		));
+		if (Configure::read('feature.attendance')) {
+			echo $this->ZuluruForm->input('track_attendance', array(
+				'after' => $this->Html->para (null, __('If selected, the system will help you to monitor attendance on a game-to-game basis.', true)),
+				'onclick' => 'attendanceCheckboxChanged()',
+			));
+		}
 	?>
+	<?php if (Configure::read('feature.attendance')): ?>
 		<fieldset id="AttendanceDetails">
 	<?php
 		echo $this->ZuluruForm->input('attendance_reminder', array(
@@ -66,12 +69,14 @@ if (isset ($add)) {
 		));
 	?>
 		</fieldset>
+	<?php endif; ?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
 
 <?php
-echo $this->Html->scriptBlock("
+if (Configure::read('feature.attendance')) {
+	echo $this->Html->scriptBlock("
 function attendanceCheckboxChanged() {
 	if ($('#TeamTrackAttendance').attr('checked')) {
 		$('#AttendanceDetails').css('display', '');
@@ -80,5 +85,6 @@ function attendanceCheckboxChanged() {
 	}
 }
 ");
-$this->Js->buffer('attendanceCheckboxChanged();');
+	$this->Js->buffer('attendanceCheckboxChanged();');
+}
 ?>

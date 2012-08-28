@@ -61,6 +61,16 @@ $this->Html->addCrumb (__('Feature', true));
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'feature',
+		'name' => 'attendance',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'label' => 'Attendance Tracking',
+			'after' => 'Enable or disable everything to do with attendance tracking. If enabled here, teams can still opt not to use this feature.',
+		),
+	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
 		'name' => 'photos',
 		'options' => array(
 			'type' => 'radio',

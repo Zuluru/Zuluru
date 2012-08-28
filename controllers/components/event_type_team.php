@@ -116,7 +116,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 				);
 			}
 
-			if (array_key_exists ('ask_attendance', $event['Event']) && $event['Event']['ask_status']) {
+			if (Configure::read('feature.attendance') && array_key_exists ('ask_attendance', $event['Event']) && $event['Event']['ask_status']) {
 				$fields[] = array(
 					'id' => TRACK_ATTENDANCE,
 					'type' => 'checkbox',
@@ -219,7 +219,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 				'track_attendance' => TRACK_ATTENDANCE,
 			))
 		);
-		if ($team['track_attendance']) {
+		if (Configure::read('feature.attendance') && $team['track_attendance']) {
 			// Add some default values, chosen based on averages found in the TUC database so far
 			$team += array(
 				'attendance_reminder' => 3,
