@@ -29,7 +29,7 @@ echo $this->Form->create('Field', array('url' => Router::normalize($this->here),
 $vals = array();
 foreach ($map_vars as $var) {
 	$val = $field['Field'][$var];
-	if (!empty ($val) || in_array($var, $required_map_vars)) {
+	if (($val !== null && $val !== '') || in_array($var, $required_map_vars)) {
 		if (!is_numeric($val)) {
 			$val = "\"$val\"";
 		}

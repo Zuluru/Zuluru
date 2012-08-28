@@ -68,23 +68,21 @@ function drawField(id)
 	var position = new google.maps.LatLng(fields[id].latitude, fields[id].longitude);
 	fields[id].marker = createMarker(position, fields[id].num);
 
-	if (fields[id].length != 0) {
-		fields[id].field_outline = new google.maps.Polygon({
-			'map':map,
-			'path':outlinePositions(id),
-			'strokeColor':'#ffffff',
-			'strokeWeight':2,
-			'strokeOpacity':1.0,
-			'fillColor':'#ff6060',
-			'fillOpacity':0.4
-		});
-		fields[id].field_inline = new google.maps.Polyline({
-			'map':map,
-			'path':inlinePositions(id),
-			'strokeColor':'#ffffff',
-			'strokeWeight':2
-		});
-	}
+	fields[id].field_outline = new google.maps.Polygon({
+		'map':map,
+		'path':outlinePositions(id),
+		'strokeColor':'#ffffff',
+		'strokeWeight':2,
+		'strokeOpacity':1.0,
+		'fillColor':'#ff6060',
+		'fillOpacity':0.4
+	});
+	fields[id].field_inline = new google.maps.Polyline({
+		'map':map,
+		'path':inlinePositions(id),
+		'strokeColor':'#ffffff',
+		'strokeWeight':2
+	});
 }
 
 function createMarker(position, title)

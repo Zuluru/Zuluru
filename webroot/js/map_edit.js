@@ -82,9 +82,7 @@ function selectField(id)
 	if (current != 0)
 	{
 		// Remove selection colouring and listener from the old field
-		if (fields[current].length != 0) {
-			fields[current].field_outline.setOptions({'fillColor':'#ff6060'});
-		}
+		fields[current].field_outline.setOptions({'fillColor':'#ff6060'});
 		fields[current].marker.setOptions({'draggable':false});
 		google.maps.event.removeListener(drag_listener);
 
@@ -99,9 +97,7 @@ function selectField(id)
 	updateForm();
 
 	// Add selection colouring and listener to the new field
-	if (fields[id].length != 0) {
-		fields[id].field_outline.setOptions({'fillColor':'#60ff60'});
-	}
+	fields[id].field_outline.setOptions({'fillColor':'#60ff60'});
 	fields[id].marker.setOptions({'draggable':true});
 	drag_listener = google.maps.event.addListener(fields[id].marker, 'drag', redraw);
 }
@@ -141,10 +137,8 @@ function centerByAddress(id, result, status)
 
 function redraw()
 {
-	if (fields[current].length != 0) {
-		fields[current].field_outline.setPath(outlinePositions(current));
-		fields[current].field_inline.setPath(inlinePositions(current));
-	}
+	fields[current].field_outline.setPath(outlinePositions(current));
+	fields[current].field_inline.setPath(inlinePositions(current));
 }
 
 function updateAngle(val)
