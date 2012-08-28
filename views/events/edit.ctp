@@ -47,6 +47,7 @@ if (isset ($add)) {
 			'label' => 'Opens on',
 			'minYear' => Configure::read('options.year.event.min'),
 			'maxYear' => Configure::read('options.year.event.max'),
+			'looseYears' => true,
 			// TODO: JavaScript link on "12:01AM" to set the time in the inputs
 			'after' => $this->Html->para (null, __('The date and time at which registration for this event will open (12:01AM recommended to disambiguate noon from midnight).', true)),
 		));
@@ -54,6 +55,7 @@ if (isset ($add)) {
 			'label' => 'Closes on',
 			'minYear' => Configure::read('options.year.event.min'),
 			'maxYear' => Configure::read('options.year.event.max'),
+			'looseYears' => true,
 			// TODO: JavaScript link on "11:59PM" to set the time in the inputs
 			'after' => $this->Html->para (null, __('The date and time at which registration for this event will close (11:59PM recommended to disambiguate midnight from noon).', true)),
 		));

@@ -40,6 +40,16 @@ class ZuluruFormHelper extends FormHelper {
 			}
 		}
 
+		// Check if we need to allow a larger date range
+		if (!empty($options['looseYears']) && !empty($options['minYear'])) {
+			$value = $this->value($fieldName);
+			if (!empty($value)) {
+				$year = date('Y', strtotime($value));
+				$options['minYear'] = min($options['minYear'], $year - 1);
+				$options['maxYear'] = max($options['maxYear'], $year + 1);
+			}
+		}
+
 		// Check if there's online help for this field
 		$help_file = VIEWS . 'elements' . DS . 'help' . DS . $model . DS . 'edit' . DS . low($shortFieldName) . '.ctp';
 		if (file_exists($help_file)) {

@@ -46,6 +46,7 @@ if (isset ($add)) {
 		echo $this->ZuluruForm->input('target', array(
 			'minYear' => Configure::read('options.year.event.min'),
 			'maxYear' => Configure::read('options.year.event.max'),
+			'looseYears' => true,
 			'after' => $this->Html->para (null, __('Target date for sending this newsletter. For display purposes only; does not cause the newsletter to be sent on this date.', true)),
 		));
 		echo $this->ZuluruForm->input('delay', array(

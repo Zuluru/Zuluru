@@ -46,15 +46,24 @@ if (isset ($add)) {
 		echo $this->ZuluruForm->input('open', array(
 			'label' => 'First Game',
 			'empty' => '---',
+			'minYear' => Configure::read('options.year.event.min'),
+			'maxYear' => Configure::read('options.year.event.max'),
+			'looseYears' => true,
 			'after' => $this->Html->para (null, __('Date of the first game in the schedule. Will be used to determine open/closed status.', true)),
 		));
 		echo $this->ZuluruForm->input('close', array(
 			'label' => 'Last Game',
 			'empty' => '---',
+			'minYear' => Configure::read('options.year.event.min'),
+			'maxYear' => Configure::read('options.year.event.max'),
+			'looseYears' => true,
 			'after' => $this->Html->para (null, __('Date of the last game in the schedule. Will be used to determine open/closed status.', true)),
 		));
 		echo $this->ZuluruForm->input('roster_deadline', array(
 			'empty' => '---',
+			'minYear' => Configure::read('options.year.event.min'),
+			'maxYear' => Configure::read('options.year.event.max'),
+			'looseYears' => true,
 			'after' => $this->Html->para (null, __('The date after which teams are no longer allowed to edit their rosters. Leave blank for no deadline (changes can be made until the division is closed).', true)),
 		));
 	?>
