@@ -11,10 +11,13 @@ $order_id_format = Configure::read('registration.order_id_format');
 
 if (!empty($registrations)):
 	echo $this->Html->para(null, __('These are your current unpaid registrations. To remove one, click the "Unregister" button; note that this will delete all of your preferences and you may lose the spot that is currently tentatively reserved for you.', true));
-	echo $this->Html->para(null, __('<span class="highlight-message">Payment completes your registration and confirms your booking/purchase.</span> If you want to pay online with Visa, MasterCard or INTERAC&reg; Online, click the "Pay" button below.', true));
+	echo $this->Html->para(null, __('<span class="highlight-message">Payment completes your registration and confirms your booking/purchase.</span>', true));
 	echo $this->Html->para(null, sprintf (__('You may also %s and register for something else before paying.', true),
 		$this->Html->link(__('view the event list', true), array('controller' => 'events', 'action' => 'wizard'))
 	));
+	if (Configure::read('registration.online_payments')) {
+		echo $this->Html->para(null, __('If you want to pay online with ' . Configure::read('payment.options') . ', click the "Pay" button below.', true));
+	}
 	echo $this->element('payments/offline');
 ?>
 
@@ -95,6 +98,8 @@ if (!empty($full)):
 
 <?php
 echo $this->element('payments/refund');
-echo $this->Html->para('small', __('&reg; Trade-mark of Interac Inc. Used under licence. <a href="http://www.interaconline.com/learn/" target="_blank">Learn more</a> about INTERAC Online.', true));
+if (Configure::read('registration.online_payments') && stripos(Configure::read('payment.options'), 'interac')) {
+	echo $this->Html->para('small', __('&reg; Trade-mark of Interac Inc. Used under licence. <a href="http://www.interaconline.com/learn/" target="_blank">Learn more</a> about INTERAC Online.', true));
+}
 ?>
 </div>

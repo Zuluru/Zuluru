@@ -237,6 +237,11 @@ class SettingsData {
 			'value' => '0',
 		),
 		array(
+			'category' => 'payment',
+			'name' => 'options',
+			'value' => 'your credit card',
+		),
+		array(
 			'category' => 'email',
 			'name' => 'admin_email',
 			'value' => 'admin@example.com',

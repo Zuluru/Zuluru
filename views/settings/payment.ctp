@@ -20,6 +20,14 @@ $this->Html->addCrumb (__('Online Payments', true));
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'payment',
+		'name' => 'options',
+		'options' => array(
+			'type' => 'text',
+			'after' => 'List the payment options offered by your payment provider, or provide generic text.',
+		),
+	));
+	echo $this->element('settings/input', array(
+		'category' => 'payment',
 		'name' => 'popup',
 		'options' => array(
 			'type' => 'select',
