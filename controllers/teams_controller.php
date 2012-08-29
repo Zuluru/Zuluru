@@ -286,7 +286,7 @@ class TeamsController extends AppController {
 				'fields' => array(
 					'Game.division_id',
 					'IF(Game.approved_by = ' . APPROVAL_AUTOMATIC_HOME . ',HomeTeam.id,AwayTeam.id) AS id',
-					'IF(Game.approved_by = ' . APPROVAL_AUTOMATIC_AWAY . ',HomeTeam.name,AwayTeam.name) AS name',
+					'IF(Game.approved_by = ' . APPROVAL_AUTOMATIC_HOME . ',HomeTeam.name,AwayTeam.name) AS name',
 					'COUNT(Game.id) AS count',
 				),
 				'joins' => array(
