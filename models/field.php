@@ -20,6 +20,7 @@ class Field extends AppModel {
 		'surface' => array(
 			'inlist' => array(
 				'rule' => array('inconfig', 'options.surface'),
+				'required' => false,
 				'message' => 'Select a playing surface from the list',
 			),
 		),
