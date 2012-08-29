@@ -73,7 +73,7 @@ class TeamsController extends AppController {
 			}
 		}
 
-		// People can perform these operations on divisions they coordinate
+		// People can perform these operations on divisions they coordinate, unless it's their team
 		if (in_array ($this->params['action'], array(
 				'add_player',
 				'add_from_event',
@@ -86,6 +86,20 @@ class TeamsController extends AppController {
 			if ($team) {
 				$this->_limitOverride($team);
 				return $this->effective_coordinator;
+			}
+		}
+
+		// People can perform these operations on divisions they coordinate
+		if (in_array ($this->params['action'], array(
+				'spirit',
+		)))
+		{
+			// If a team id is specified, check if we're a coordinator of that team's division
+			$team = $this->_arg('team');
+			if ($team) {
+				$divisions = $this->Session->read('Zuluru.Divisions');
+				$teams = Set::extract ('/Team/id', $divisions);
+				return in_array ($team, $teams);
 			}
 		}
 
