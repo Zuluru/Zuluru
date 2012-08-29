@@ -164,7 +164,7 @@ class AppController extends Controller {
 
 		// If there was no referer saved, we might not want to redirect
 		if ($url !== null) {
-			parent::redirect($url);
+			parent::redirect(Router::normalize($url));
 		}
 	}
 
