@@ -29,19 +29,33 @@ $this->Html->addCrumb (__('View', true));
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Expiry Type'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $waiver['Waiver']['expiry_type']; ?>
+			<?php echo Configure::read("options.waivers.expiry_type.{$waiver['Waiver']['expiry_type']}"); ?>
 			&nbsp;
 		</dd>
+		<?php if ($waiver['Waiver']['expiry_type'] == 'fixed_dates'): ?>
+		<?php
+			$months = $this->Form->__generateOptions('month', array('monthNames' => true));
+			foreach ($months as $key => $month) {
+				unset($months[$key]);
+				$months[$key + 0] = $month;
+			}
+		?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Start'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $waiver['Waiver']['start']; ?>
+		<?php echo "{$months[$waiver['Waiver']['start_month']]} {$waiver['Waiver']['start_day']}"; ?>
 			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('End'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $waiver['Waiver']['end']; ?>
+		<?php echo "{$months[$waiver['Waiver']['end_month']]} {$waiver['Waiver']['end_day']}"; ?>
 			&nbsp;
 		</dd>
+		<?php elseif ($waiver['Waiver']['expiry_type'] == 'elapsed_time'): ?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('End'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+		<?php echo $waiver['Waiver']['duration'] . ' ' . __('days', true); ?>
+		</dd>
+		<?php endif; ?>
 	</dl>
 </div>
 <div class="actions">
