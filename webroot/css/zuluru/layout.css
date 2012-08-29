@@ -493,6 +493,8 @@ div.related
 div.help_dialog
 {
 	display: none;
+	text-align: left;
+	font-size: 100%;
 }
 
 div.help_dialog p
