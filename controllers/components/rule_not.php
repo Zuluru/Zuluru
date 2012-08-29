@@ -9,7 +9,7 @@ class RuleNotComponent extends RuleComponent
 		if ($this->rule == null)
 			return null;
 		$success = $this->rule->evaluate ($params, $team, $strict, $text_reason);
-		$this->reason = $this->rule->reason;
+		$this->reason = 'NOT ' . $this->rule->reason;
 		$this->reason_type = $this->rule->reason_type;
 		return (! $success);
 	}
