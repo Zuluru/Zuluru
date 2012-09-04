@@ -21,27 +21,55 @@ foreach ($spirit_obj->questions as $question => $detail) {
 	}
 }
 
+$defaulted_entry = array(
+	'entered_sotg' => '',
+	'assigned_sotg' => '',
+);
+$automatic_entry = array(
+	'entered_sotg' => $spirit_obj->max(),
+	'assigned_sotg' => $spirit_obj->max(),
+);
+foreach ($spirit_obj->questions as $question => $detail) {
+	$defaulted_entry[$question] = '';
+	if ($detail['type'] != 'text') {
+		$automatic_entry[$question] = $spirit_obj->max($question);
+	} else {
+		$automatic_entry[$question] = '--';
+	}
+}
+
+$teams = Set::extract('/Team/id', $division);
+$team_records = array();
 foreach ($division['Game'] as $game) {
 	foreach (array('HomeTeam', 'AwayTeam') as $team) {
-		// Playoff games may not have teams assigned yet
-		if (!empty($game[$team])) {
+		if (Game::_is_finalized($game)) {
 			$id = $game[$team]['id'];
+			if (!in_array($id, $teams)) {
+				continue;
+			}
 			if (!array_key_exists ($id, $team_records)) {
 				$team_records[$id] = array(
 					'details' => $game[$team],
 					'summary' => array_fill_keys ($questions, null),
 					'games' => 0,
-					);
+				);
 			}
-			// TODO: Pull the code from downloadable version here, to handle defaults, etc.
+
+			if (strpos ($game['Game']['status'], 'default') !== false) {
+				$spirit_entry = $defaulted_entry;
+			} else {
+				$spirit_entry = $automatic_entry;
+			}
+
 			foreach ($game['SpiritEntry'] as $entry) {
 				if ($entry['team_id'] == $id) {
-					$entry['assigned_sotg'] = $spirit_obj->calculate ($entry);
-					++ $team_records[$id]['games'];
-					foreach ($questions as $question) {
-						$team_records[$id]['summary'][$question] += $entry[$question];
-					}
+					$spirit_entry = $entry;
+					$spirit_entry['assigned_sotg'] = $spirit_obj->calculate ($spirit_entry);
 				}
+			}
+			++ $team_records[$id]['games'];
+			foreach ($questions as $question) {
+				$team_records[$id]['summary'][$question] += $spirit_entry[$question];
 			}
 		}
 	}
@@ -208,7 +236,7 @@ foreach ($division['Game'] as $game) {
 		foreach ($game['SpiritEntry'] as $entry) {
 			if ($entry['created_team_id'] == $game[$team]['id']) {
 				$row = array(
-						$this->Html->link ($game['id'], array('controller' => 'games', 'action' => 'view', 'game' => $game['id'])) . ' ' .
+						$this->Html->link ($game['Game']['id'], array('controller' => 'games', 'action' => 'view', 'game' => $game['Game']['id'])) . ' ' .
 							$this->ZuluruTime->date ($game['GameSlot']['game_date']),
 						$this->element('teams/block', array('team' => $game[$team], 'show_shirt' => false)),
 						$this->element('teams/block', array('team' => $game[$opp], 'show_shirt' => false)),

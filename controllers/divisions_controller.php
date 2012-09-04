@@ -959,14 +959,7 @@ class DivisionsController extends AppController {
 		}
 
 		$this->Division->contain(array (
-			'Game' => array(
-				'GameSlot',
-				'SpiritEntry',
-				'HomeTeam',
-				'AwayTeam',
-				'order' => 'Game.id',
-				'conditions' => array('NOT' => array('Game.status' => Configure::read('unplayed_status'))),
-			),
+			'Team',
 			'League',
 		));
 		$division = $this->Division->read(null, $id);
@@ -974,6 +967,23 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$teams = Set::extract('/Team/id', $division);
+		$this->Division->Game->contain(array (
+			'GameSlot',
+			'SpiritEntry',
+			'HomeTeam',
+			'AwayTeam',
+		));
+		$division['Game'] = $this->Division->Game->find('all', array(
+			'order' => 'Game.id',
+			'conditions' => array(
+				'OR' => array(
+					'home_team' => $teams,
+					'away_team' => $teams,
+				),
+				'NOT' => array('Game.status' => Configure::read('unplayed_status')),
+			),
+		));
 		if (empty ($division['Game'])) {
 			$this->Session->setFlash(__('This division has no games scheduled yet.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));

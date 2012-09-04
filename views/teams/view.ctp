@@ -369,8 +369,12 @@ $this->Html->addCrumb (__('View', true));
 </table>
 
 	<?php if (($is_admin || $is_coordinator || $is_captain) && $roster_count < $roster_required && !Division::rosterDeadlinePassed($team['Division'])):?>
-	<p class="warning-message">This team currently has only <?php echo $roster_count ?> full-time players listed. Your team roster must have a minimum of <?php echo $roster_required ?> rostered 'regular' players by the start of your division. For playoffs, your roster must be finalized by the team roster deadline (<?php
-	echo $this->ZuluruTime->date(Division::rosterDeadline($team['Division'])); ?>), and all team members must be listed as a 'regular player'.  If an individual has not replied promptly to your request to join, we suggest that you contact them to remind them to respond.</p>
+	<p class="warning-message">
+		<?php if (!$team['Division']['is_playoff']): ?>
+		This team currently has only <?php echo $roster_count ?> full-time players listed. Your team roster must have a minimum of <?php echo $roster_required ?> rostered 'regular' players by the start of your division. For playoffs, your roster must be finalized by the team roster deadline (<?php
+		echo $this->ZuluruTime->date(Division::rosterDeadline($team['Division'])); ?>), and all team members must be listed as a 'regular player'.
+		<?php endif; ?>
+		If an individual has not replied promptly to your request to join, we suggest that you contact them to remind them to respond.</p>
 	<?php endif; ?>
 
 </div>

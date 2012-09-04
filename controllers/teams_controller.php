@@ -333,6 +333,14 @@ class TeamsController extends AppController {
 			$no_scores[$key] += $divisions[$game['Game']['division_id']];
 		}
 
+		// Find the list of unplayed games
+		$unplayed = $this->Team->Division->Game->find('list', array(
+				'conditions' => array(
+					'division_id' => array_keys($divisions),
+					'status' => Configure::read('unplayed_status'),
+				),
+		));
+
 		// Get the list of top spirited teams
 		$top_spirit = $this->Team->find('all', array(
 				'fields' => array(
@@ -351,7 +359,10 @@ class TeamsController extends AppController {
 						'conditions' => 'SpiritEntry.team_id = Team.id',
 					),
 				),
-				'conditions' => array('division_id' => array_keys($divisions)),
+				'conditions' => array(
+					'division_id' => array_keys($divisions),
+					'NOT' => array('game_id' => $unplayed),
+				),
 				'contain' => false,
 				'group' => 'Team.id HAVING avgspirit IS NOT NULL',
 				'order' => array('avgspirit DESC', 'Team.name'),
@@ -381,7 +392,10 @@ class TeamsController extends AppController {
 						'conditions' => 'SpiritEntry.team_id = Team.id',
 					),
 				),
-				'conditions' => array('division_id' => array_keys($divisions)),
+				'conditions' => array(
+					'division_id' => array_keys($divisions),
+					'NOT' => array('game_id' => $unplayed),
+				),
 				'contain' => false,
 				'group' => 'Team.id HAVING avgspirit IS NOT NULL',
 				'order' => array('avgspirit ASC', 'Team.name'),
@@ -1845,7 +1859,7 @@ class TeamsController extends AppController {
 
 				$person = $this->Team->Person->read(null, $person['Person']['id']);
 			}
-			if (!$this->can_add_rule_obj->evaluate ($person, $team, $strict, $text_reason)) {
+			if (!$this->can_add_rule_obj->evaluate ($person, $team, $strict, $text_reason, false)) {
 				switch ($this->can_add_rule_obj->reason_type) {
 					case REASON_TYPE_PLAYER_ACTIVE:
 						$prolog = 'To be added to this team, this player must first';

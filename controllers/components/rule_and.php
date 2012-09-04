@@ -23,17 +23,17 @@ class RuleAndComponent extends RuleComponent
 		return (count($this->rule) > 1);
 	}
 
-	function evaluate($params, $team, $strict, $text_reason) {
+	function evaluate($params, $team, $strict, $text_reason, $complete) {
 		if (empty ($this->rule))
 			return null;
 		$reasons = array();
 		$status = true;
 		foreach ($this->rule as $rule) {
-			if (!$rule->evaluate ($params, $team, $strict, $text_reason)) {
+			if (!$rule->evaluate ($params, $team, $strict, $text_reason, $complete)) {
 				$reasons[] = $rule->reason;
 				$this->reason_type = $rule->reason_type;
 				$status = false;
-			} else {
+			} else if ($complete) {
 				$reasons[] = $rule->reason;
 				// This isn't ideal, but will do until we find a test case demands something better
 				$this->reason_type = $rule->reason_type;
