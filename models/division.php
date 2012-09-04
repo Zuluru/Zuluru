@@ -61,6 +61,24 @@ class Division extends AppModel {
 				'message' => 'You must select whether or not teams can be excluded.',
 			),
 		),
+		'flag_membership' => array(
+			'inlist' => array(
+				'rule' => array('inconfig', 'options.enable'),
+				'message' => 'You must select whether or not to flag players without current memberships on team rosters.',
+			),
+		),
+		'flag_roster_conflict' => array(
+			'inlist' => array(
+				'rule' => array('inconfig', 'options.enable'),
+				'message' => 'You must select whether or not to flag players on multiple teams in the same league.',
+			),
+		),
+		'flag_schedule_conflict' => array(
+			'inlist' => array(
+				'rule' => array('inconfig', 'options.enable'),
+				'message' => 'You must select whether or not to flag players that potentially have scheduling conflicts.',
+			),
+		),
 		'email_after' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),

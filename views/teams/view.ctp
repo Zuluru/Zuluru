@@ -284,7 +284,7 @@ $this->Html->addCrumb (__('View', true));
 			<?php
 			if ($team['Division']['is_playoff']) {
 				$typical_reason = 'the current roster does not meet the playoff roster rules';
-			} else if (Configure::read('feature.registration')) {
+			} else if (Configure::read('feature.registration') && $team['Division']['flag_membership']) {
 				$typical_reason = 'they do not have a current membership';
 			} else {
 				$typical_reason = 'there is something wrong with their account';
@@ -315,13 +315,13 @@ $this->Html->addCrumb (__('View', true));
 			if ($person['status'] == 'inactive') {
 				$conflicts[] = __('account inactive', true);
 			}
-			if (!$person['is_a_member']) {
+			if (Configure::read('feature.registration') && $team['Division']['flag_membership']  && !$person['is_a_member']) {
 				$conflicts[] = __('not a member', true);
 			}
-			if ($person['roster_conflict']) {
+			if ($team['Division']['flag_roster_conflict'] && $person['roster_conflict']) {
 				$conflicts[] = __('roster conflict', true);
 			}
-			if ($person['schedule_conflict']) {
+			if ($team['Division']['flag_schedule_conflict'] && $person['schedule_conflict']) {
 				$conflicts[] = __('schedule conflict', true);
 			}
 	?>

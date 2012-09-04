@@ -95,6 +95,20 @@ if (isset ($add)) {
 			'empty' => '---',
 			'after' => $this->Html->para (null, __('Do players need to accept invitations, or can they just be added? The latter has privacy policy implications and should be used only when necessary.', true)),
 		));
+		if (Configure::read('feature.registration')) {
+			echo $this->ZuluruForm->input('flag_membership', array(
+				'options' => Configure::read('options.enable'),
+				'empty' => '---',
+			));
+		}
+		echo $this->ZuluruForm->input('flag_roster_conflict', array(
+			'options' => Configure::read('options.enable'),
+			'empty' => '---',
+		));
+		echo $this->ZuluruForm->input('flag_schedule_conflict', array(
+			'options' => Configure::read('options.enable'),
+			'empty' => '---',
+		));
 	?>
 	</fieldset>
 	<fieldset>
