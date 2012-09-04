@@ -47,7 +47,7 @@ $sport = array_shift(array_keys(Configure::read('options.sport')));
 			$username_edit = sprintf (Configure::read('urls.username_edit'), $id);
 			if ($username_edit) {
 				$username_link = $this->Html->link (Configure::read('feature.manage_name') . ' ' . __('username', true), $username_edit);
-				echo $this->ZuluruForm->input('email', array(
+				echo $this->ZuluruForm->input('user_name', array(
 					'disabled' => 'true',
 					'after' => $this->Html->para (null, __('To change this, edit your', true) . ' ' . $username_link),
 					));
