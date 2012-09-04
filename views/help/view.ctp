@@ -1,7 +1,7 @@
 <div class="help">
 <?php
 $elements = array('help');
-$heading = 'Zuluru';
+$heading = ZULURU;
 if (isset ($controller)) {
 	$elements[] = $controller;
 	$heading = $controller;
@@ -31,11 +31,11 @@ if (isset ($controller) && !isset ($topic)) {
 	echo $this->Html->para (null, $this->Html->link (__('Return to main help page', true), array('controller' => 'help')));
 }
 
-$body = htmlspecialchars ('I have a suggestion for the Zuluru online help page at ' . implode(' : ', $elements));
+$body = htmlspecialchars ('I have a suggestion for the <?php echo ZULURU; ?> online help page at ' . implode(' : ', $elements));
 ?>
 
 <hr>
 <p>If you have suggestions for additions, changes or other improvements to this online help, please send them to <?php
-echo $this->Html->link ('admin@zuluru.org', "mailto:admin@zuluru.org?subject=Zuluru%20Online%20Help%20Suggestion&body=$body");
+echo $this->Html->link ('admin@zuluru.org', 'mailto:admin@zuluru.org?subject=' . ZULURU . "%20Online%20Help%20Suggestion&body=$body");
 ?>.</p>
 </div>

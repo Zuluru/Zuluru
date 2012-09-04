@@ -34,12 +34,13 @@ class RuleComponent extends Object
 	 */
 	var $tr = array(
 		'NOT not '										=> '',
-		'have a membership type of none'				=> 'not have a valid membership',
+		'have a membership type of none'				=> 'not already have a valid membership',
 		'have a membership type of intro'				=> 'have an introductory membership',
 		'have a membership type of full'				=> 'have a full membership',
 		'have an introductory membership OR have a full membership' => 'have a valid membership',
 		'have a full membership OR have an introductory membership' => 'have a valid membership',
 		'have a valid membership OR have a valid membership' => 'have a valid membership',
+		'not already have a valid membership AND not already have a valid membership' => 'not already have a valid membership',
 
 		'have a birthdate greater than or equal to'		=> 'have been born on or after',
 		'have a birthdate greater than'					=> 'have been born after',
