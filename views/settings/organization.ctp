@@ -108,12 +108,15 @@ $this->Html->addCrumb (__('Organization', true));
 	?>
 	</fieldset>
 
+	<?php
+	$seasons = Configure::read('options.season');
+	unset($seasons['None']);
+	if (!empty($seasons)):
+	?>
 	<fieldset>
  		<legend><?php __('Dates'); ?></legend>
 	<p>The following settings are used for determining which season is currently in effect, for the purposes of providing links to current <?php __(Configure::read('ui.field')); ?> permits.</p>
 	<?php
-	$seasons = Configure::read('options.season');
-	unset($seasons['None']);
 	foreach ($seasons as $season) {
 		$season = low($season);
 		$season_key = Inflector::slug($season);
@@ -129,5 +132,6 @@ $this->Html->addCrumb (__('Organization', true));
 	}
 	?>
 	</fieldset>
+	<?php endif; ?>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
