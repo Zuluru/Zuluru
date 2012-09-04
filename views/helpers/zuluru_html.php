@@ -141,7 +141,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 		$body = htmlspecialchars ('I have a suggestion for the Zuluru online help page at ' . implode(' : ', $url));
 		$add = $this->tag('hr') .
 				$this->para(null, 'If you have suggestions for additions, changes or other improvements to this online help, please send them to ' .
-					$this->link ('admin@zuluru.org', "mailto:admin@zuluru.org?subject=Zuluru%20Online%20Help%20Suggestion&body=$body") . '.');
+					$this->link ('admin@zuluru.org', 'mailto:admin@zuluru.org?subject=' . ZULURU . "%20Online%20Help%20Suggestion&body=$body") . '.');
 
 		// Add an invisible div with the help text in it, and attach an event to the image
 		$view =& ClassRegistry::getObject('view');
