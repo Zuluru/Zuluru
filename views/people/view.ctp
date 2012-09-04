@@ -83,14 +83,14 @@ if ($is_logged_in) {
 			</dd>
 		<?php endif; ?>
 		<?php if ($is_me || $is_admin):?>
-		<?php if (Configure::read('profile.addr_street')): ?>
+			<?php if (Configure::read('profile.addr_street')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Address'); ?></dt>
 			<dd<?php if ($i % 2 == 0) echo $class;?>>
 				<?php echo $person['Person']['addr_street']; ?>
 
 			</dd>
-		<?php endif; ?>
-		<?php if (Configure::read('profile.addr_city') || Configure::read('profile.addr_prov') || Configure::read('profile.addr_country')): ?>
+			<?php endif; ?>
+			<?php if (Configure::read('profile.addr_city') || Configure::read('profile.addr_prov') || Configure::read('profile.addr_country')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>>&nbsp;</dt>
 			<dd<?php if ($i % 2 == 0) echo $class;?>>
 				<?php
@@ -108,7 +108,7 @@ if ($is_logged_in) {
 				?>
 
 			</dd>
-		<?php endif; ?>
+			<?php endif; ?>
 			<?php if (Configure::read('profile.addr_postalcode')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>>&nbsp;</dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
@@ -116,11 +116,13 @@ if ($is_logged_in) {
 
 			</dd>
 			<?php endif; ?>
+			<?php if (Configure::read('profile.birthdate')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Birthdate'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php echo $this->ZuluruTime->date($person['Person']['birthdate']); ?>
 
 			</dd>
+			<?php endif; ?>
 		<?php endif; ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Gender'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
