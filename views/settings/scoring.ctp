@@ -36,6 +36,7 @@ $this->Html->addCrumb (__('Scoring', true));
 	?>
 	</fieldset>
 
+	<?php if (Configure::read('feature.spirit')): ?>
 	<fieldset>
  		<legend><?php __('Spirit Scores'); ?></legend>
 	<?php
@@ -80,6 +81,7 @@ $this->Html->addCrumb (__('Scoring', true));
 	));
 	?>
 	</fieldset>
+	<?php endif; ?>
 
 	<fieldset>
  		<legend><?php __('Score Entry Features'); ?></legend>
