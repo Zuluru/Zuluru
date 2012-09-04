@@ -44,19 +44,22 @@ class ZuluruGameHelper extends Helper {
 
 			if (!empty ($score_entry)) {
 				$score_entry = array_shift ($score_entry);
-
-				// If scores are being shown from a particular team's perspective,
-				// we may need to swap the home and away scores.
-				if ($show_score_for_team == $score_entry['team_id'] ||
-					($show_score_for_team === false && $score_entry['team_id'] == $details['home_team']))
-				{
-					$first_score = $score_entry['score_for'];
-					$second_score = $score_entry['score_against'];
+				if (in_array($score_entry['status'], Configure::read('unplayed_status'))) {
+					__($score_entry['status']);
 				} else {
-					$first_score = $score_entry['score_against'];
-					$second_score = $score_entry['score_for'];
+					// If scores are being shown from a particular team's perspective,
+					// we may need to swap the home and away scores.
+					if ($show_score_for_team == $score_entry['team_id'] ||
+						($show_score_for_team === false && $score_entry['team_id'] == $details['home_team']))
+					{
+						$first_score = $score_entry['score_for'];
+						$second_score = $score_entry['score_against'];
+					} else {
+						$first_score = $score_entry['score_against'];
+						$second_score = $score_entry['score_for'];
+					}
+					echo "{$first_score} - {$second_score}";
 				}
-				echo "{$first_score} - {$second_score}";
 
 				if ($team_id) {
 					echo $this->Html->link(
