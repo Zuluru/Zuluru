@@ -67,11 +67,10 @@ class InstallController extends InstallAppController {
  *
  * @return void
  */
-	function _writeInstalled() {
+	function _writeInstalled($schema = SCHEMA_VERSION) {
 		$file = new File(CONFIGS . 'installed.php', true);
 		$date = date('r');
 		$version = ZULURU_MAJOR . '.' . ZULURU_MINOR . '.' . ZULURU_REVISION;
-		$schema = SCHEMA_VERSION;
 
 		$installed = <<<CONFIG
 <?php
@@ -354,6 +353,7 @@ CONFIG;
 				if (!$this->_updateOne(array('name' => 'Zuluru' . $ver, 'path' => CONFIGS . 'schema' . DS . 'migrations', 'file' => 'schema' . $ver . '.php'))) {
 					return false;
 				}
+				$this->_writeInstalled($ver);
 			}
 		}
 		if (!$this->_updateOne(array('name' => 'Zuluru', 'path' => CONFIGS . 'schema', 'file' => 'schema.php'))) {
