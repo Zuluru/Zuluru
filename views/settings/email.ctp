@@ -22,6 +22,13 @@ $this->Html->addCrumb (__('Email', true));
 			'after' => 'The e-mail address of the system administrator. Mail from <?php echo ZULURU; ?> will come from this address.',
 		),
 	));
+	echo $this->element('settings/input', array(
+		'category' => 'email',
+		'name' => 'support_email',
+		'options' => array(
+			'after' => 'The e-mail address for system support. This address will be linked for bug reports, etc.',
+		),
+	));
 	if (Configure::read('scoring.incident_reports')) {
 		echo $this->element('settings/input', array(
 			'category' => 'email',
