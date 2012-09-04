@@ -18,6 +18,7 @@ foreach ($spirit_obj->questions as $question => $detail) {
 }
 fputcsv($fp, $header);
 
+$teams = Set::extract('/Team/id', $division);
 $defaulted_entry = array(
 	'entered_sotg' => '',
 	'assigned_sotg' => '',
@@ -35,12 +36,15 @@ foreach ($spirit_obj->questions as $question => $detail) {
 	}
 }
 
+$teams = Set::extract('/Team/id', $division);
 $team_results = array();
 foreach ($division['Game'] as $game) {
 	foreach (array('HomeTeam' => 'AwayTeam', 'AwayTeam' => 'HomeTeam') as $team => $opp) {
-		// Playoff games may not have teams assigned yet
-		if (!empty($game[$team])) {
+		if (Game::_is_finalized($game)) {
 			$id = $game[$team]['id'];
+			if (!in_array($id, $teams)) {
+				continue;
+			}
 			if (!array_key_exists ($id, $team_results)) {
 				$team_results[$id] = array(
 					$game[$team]['name'],
@@ -48,10 +52,10 @@ foreach ($division['Game'] as $game) {
 				);
 			}
 			$team_results[$id][] = $game[$opp]['name'];
-			$team_results[$id][] = ($team == 'HomeTeam' ? $game['home_score'] : $game['away_score']);
-			$team_results[$id][] = ($team == 'HomeTeam' ? $game['away_score'] : $game['home_score']);
+			$team_results[$id][] = ($team == 'HomeTeam' ? $game['Game']['home_score'] : $game['Game']['away_score']);
+			$team_results[$id][] = ($team == 'HomeTeam' ? $game['Game']['away_score'] : $game['Game']['home_score']);
 
-			if (strpos ($game['status'], 'default') !== false) {
+			if (strpos ($game['Game']['status'], 'default') !== false) {
 				$spirit_entry = $defaulted_entry;
 			} else {
 				$spirit_entry = $automatic_entry;

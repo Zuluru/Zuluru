@@ -38,11 +38,15 @@ foreach ($spirit_obj->questions as $question => $detail) {
 	}
 }
 
+$teams = Set::extract('/Team/id', $division);
 $team_records = array();
 foreach ($division['Game'] as $game) {
 	foreach (array('HomeTeam', 'AwayTeam') as $team) {
 		if (Game::_is_finalized($game)) {
 			$id = $game[$team]['id'];
+			if (!in_array($id, $teams)) {
+				continue;
+			}
 			if (!array_key_exists ($id, $team_records)) {
 				$team_records[$id] = array(
 					'details' => $game[$team],
@@ -51,7 +55,7 @@ foreach ($division['Game'] as $game) {
 				);
 			}
 
-			if (strpos ($game['status'], 'default') !== false) {
+			if (strpos ($game['Game']['status'], 'default') !== false) {
 				$spirit_entry = $defaulted_entry;
 			} else {
 				$spirit_entry = $automatic_entry;
@@ -232,7 +236,7 @@ foreach ($division['Game'] as $game) {
 		foreach ($game['SpiritEntry'] as $entry) {
 			if ($entry['created_team_id'] == $game[$team]['id']) {
 				$row = array(
-						$this->Html->link ($game['id'], array('controller' => 'games', 'action' => 'view', 'game' => $game['id'])) . ' ' .
+						$this->Html->link ($game['Game']['id'], array('controller' => 'games', 'action' => 'view', 'game' => $game['Game']['id'])) . ' ' .
 							$this->ZuluruTime->date ($game['GameSlot']['game_date']),
 						$this->element('teams/block', array('team' => $game[$team], 'show_shirt' => false)),
 						$this->element('teams/block', array('team' => $game[$opp], 'show_shirt' => false)),
