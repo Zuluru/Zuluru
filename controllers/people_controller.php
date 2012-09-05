@@ -731,6 +731,9 @@ class PeopleController extends AppController {
 			$temp_dir = Configure::read('folders.league_base') . DS . 'temp';
 			$file_dir = Configure::read('folders.uploads');
 
+			// Are approvals required?
+			$approved = (Configure::read('feature.approve_photos') ? false : true);
+
 			// Crop and resize the image
 			$image = $this->ImageCrop->cropImage($size,
 					$this->data['x1'], $this->data['y1'],
@@ -752,12 +755,15 @@ class PeopleController extends AppController {
 							'person_id' => $person['id'],
 							'type_id' => null,
 							'filename' => basename ($image),
+							'approved' => $approved,
 					));
 				} else {
 					$this->Person->Upload->id = $photo['Upload']['id'];
-					$this->Person->Upload->saveField ('approved', false);
+					$this->Person->Upload->saveField ('approved', $approved);
 				}
-				$this->Session->setFlash(__('Photo saved, but will not be visible by others until approved', true), 'default', array('class' => 'success'));
+				if (!$approved) {
+					$this->Session->setFlash(__('Photo saved, but will not be visible by others until approved', true), 'default', array('class' => 'success'));
+				}
 			}
 			$this->redirect(array('action' => 'view'));
 		}
