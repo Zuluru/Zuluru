@@ -353,7 +353,9 @@ CONFIG;
 				if (!$this->_updateOne(array('name' => 'Zuluru' . $ver, 'path' => CONFIGS . 'schema' . DS . 'migrations', 'file' => 'schema' . $ver . '.php'))) {
 					return false;
 				}
-				$this->_writeInstalled($ver);
+				if (isset($this->params['named']['execute'])) {
+					$this->_writeInstalled($ver);
+				}
 			}
 		}
 		if (!$this->_updateOne(array('name' => 'Zuluru', 'path' => CONFIGS . 'schema', 'file' => 'schema.php'))) {
