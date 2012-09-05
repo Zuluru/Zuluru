@@ -168,7 +168,16 @@ $sport = array_shift(array_keys(Configure::read('options.sport')));
 	<?php if (Configure::read('profile.home_phone') || Configure::read('profile.work_phone') ||
 				Configure::read('profile.mobile_phone')): ?>
 	<fieldset>
- 		<legend><?php __('Telephone Numbers'); ?></legend>
+ 		<legend><?php
+ 		if (Configure::read('profile.home_phone') + Configure::read('profile.work_phone') +
+ 			Configure::read('profile.mobile_phone') > 1)
+ 		{
+ 			$number = 'Numbers';
+ 		} else {
+ 			$number = 'Number';
+ 		}
+		__("Telephone $number");
+		?></legend>
 	<?php
 		if (in_array (Configure::read('profile.home_phone'), $access)) {
 			echo $this->ZuluruForm->input('home_phone', array(
