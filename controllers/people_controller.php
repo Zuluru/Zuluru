@@ -655,6 +655,25 @@ class PeopleController extends AppController {
 			$this->redirect('/');
 		}
 
+		$temp_dir = Configure::read('folders.league_base') . DS . 'temp';
+		if (!is_dir($temp_dir) || !is_writable($temp_dir)) {
+			if ($this->is_admin) {
+				$this->Session->setFlash(sprintf(__('Your temp folder %s does not exist or is not writable.', true), $temp_dir), 'default', array('class' => 'error'));
+			} else {
+				$this->Session->setFlash(__('This system does not appear to be properly configured for photo uploads. Please contact your administrator to have them correct this.', true), 'default', array('class' => 'error'));
+			}
+			$this->redirect('/');
+		}
+		$file_dir = Configure::read('folders.uploads');
+		if (!is_dir($file_dir) || !is_writable($file_dir)) {
+			if ($this->is_admin) {
+				$this->Session->setFlash(sprintf(__('Your uploads folder %s does not exist or is not writable.', true), $file_dir), 'default', array('class' => 'error'));
+			} else {
+				$this->Session->setFlash(__('This system does not appear to be properly configured for photo uploads. Please contact your administrator to have them correct this.', true), 'default', array('class' => 'error'));
+			}
+			$this->redirect('/');
+		}
+
 		$person = $this->_findSessionData('Person', $this->Person);
 		$size = 150;
 		$this->set(compact('person', 'size'));
