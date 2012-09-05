@@ -17,7 +17,9 @@ $sport = array_shift(array_keys(Configure::read('options.sport')));
 ?>
 
 <p>Note that email and phone publish settings below only apply to regular players. Captains will always have access to view the phone numbers and email addresses of their confirmed players. All Team Captains will also have their email address viewable by other players.</p>
+<?php if (Configure::read('urls.privacy_policy')): ?>
 <p>If you have concerns about the data <?php echo $short; ?> collects, please see our <strong><a href="<?php echo Configure::read('urls.privacy_policy'); ?>" target="_new">Privacy Policy</a>.</strong></p>
+<?php endif; ?>
 
 <div class="people form">
 <?php echo $this->Form->create('Person', array('url' => Router::normalize($this->here)));?>
@@ -166,7 +168,16 @@ $sport = array_shift(array_keys(Configure::read('options.sport')));
 	<?php if (Configure::read('profile.home_phone') || Configure::read('profile.work_phone') ||
 				Configure::read('profile.mobile_phone')): ?>
 	<fieldset>
- 		<legend><?php __('Telephone Numbers'); ?></legend>
+ 		<legend><?php
+ 		if (Configure::read('profile.home_phone') + Configure::read('profile.work_phone') +
+ 			Configure::read('profile.mobile_phone') > 1)
+ 		{
+ 			$number = 'Numbers';
+ 		} else {
+ 			$number = 'Number';
+ 		}
+		__("Telephone $number");
+		?></legend>
 	<?php
 		if (in_array (Configure::read('profile.home_phone'), $access)) {
 			echo $this->ZuluruForm->input('home_phone', array(
