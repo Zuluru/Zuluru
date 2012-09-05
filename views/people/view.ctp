@@ -6,7 +6,6 @@ $this->Html->addCrumb (__('View', true));
 
 <div class="people view">
 <h2><?php
-echo __('View Player', true) . ': ' . $person['Person']['full_name'];
 if ($is_logged_in) {
 	foreach ($person['Upload'] as $key => $upload) {
 		if ($upload['type_id'] === null) {
@@ -18,6 +17,7 @@ if ($is_logged_in) {
 		}
 	}
 }
+echo $person['Person']['full_name'];
 ?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
 		<?php if ($is_me || $is_admin):?>
