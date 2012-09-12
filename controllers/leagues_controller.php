@@ -202,7 +202,7 @@ class LeaguesController extends AppController {
 				'conditions' => array(
 					'Division.is_open' => true,
 					'OR' => array(
-						'Division.open > DATE_ADD(NOW(), INTERVAL 14 DAY)',
+						'Division.open > DATE_ADD(NOW(), INTERVAL 21 DAY)',
 						'Division.close < DATE_ADD(NOW(), INTERVAL -7 DAY)',
 					),
 				),
@@ -212,7 +212,7 @@ class LeaguesController extends AppController {
 		$to_open = $this->League->Division->find('all', array(
 				'conditions' => array(
 					'Division.is_open' => 0,
-					'Division.open < DATE_ADD(NOW(), INTERVAL 14 DAY)',
+					'Division.open < DATE_ADD(NOW(), INTERVAL 21 DAY)',
 					'Division.close > DATE_ADD(NOW(), INTERVAL -7 DAY)',
 				),
 				'contain' => array('League'),
@@ -254,7 +254,7 @@ class LeaguesController extends AppController {
 				'conditions' => array(
 					'League.is_open' => true,
 					'OR' => array(
-						'League.open > DATE_ADD(NOW(), INTERVAL 14 DAY)',
+						'League.open > DATE_ADD(NOW(), INTERVAL 21 DAY)',
 						'League.close < DATE_ADD(NOW(), INTERVAL -7 DAY)',
 					),
 				),
@@ -263,7 +263,7 @@ class LeaguesController extends AppController {
 		$to_open = $this->League->find('all', array(
 				'conditions' => array(
 					'League.is_open' => 0,
-					'League.open < DATE_ADD(NOW(), INTERVAL 14 DAY)',
+					'League.open < DATE_ADD(NOW(), INTERVAL 21 DAY)',
 					'League.close > DATE_ADD(NOW(), INTERVAL -7 DAY)',
 				),
 				'contain' => false,
