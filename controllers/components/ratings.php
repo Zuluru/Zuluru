@@ -75,6 +75,10 @@ class RatingsComponent extends Object
 	 */
 	function _initializeRatings($league, &$division, $games) {
 		AppModel::_reindexOuter($division['Team'], 'Team', 'id');
+
+		foreach (array_keys($division['Team']) as $team_id) {
+			$division['Team'][$team_id]['current_rating'] = $division['Team'][$team_id]['initial_rating'];
+		}
 	}
 
 	/**

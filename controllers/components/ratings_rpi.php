@@ -58,6 +58,10 @@ class RatingsRpiComponent extends RatingsComponent
 				}
 			}
 		}
+
+		foreach (array_keys($division['Team']) as $team_id) {
+			$division['Team'][$team_id]['current_rating'] = $division['Team'][$team_id]['initial_rating'];
+		}
 	}
 
 	function _recalculateRatings(&$division, $games) {
