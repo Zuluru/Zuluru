@@ -187,11 +187,9 @@ class LeaguesController extends AppController {
 
 			// Find all games played by teams that are in this league
 			$games = $this->League->readFinalizedGames($league);
-			if (!empty ($games)) {
-				foreach ($league['Division'] as $dkey => $division) {
-					$ratings_obj = $this->_getComponent ('Ratings', $division['rating_calculator'], $this);
-					$leagues[$key]['Division'][$dkey]['updates'] = $ratings_obj->recalculateRatings($league, $division, $games, true);
-				}
+			foreach ($league['Division'] as $dkey => $division) {
+				$ratings_obj = $this->_getComponent ('Ratings', $division['rating_calculator'], $this);
+				$leagues[$key]['Division'][$dkey]['updates'] = $ratings_obj->recalculateRatings($league, $division, $games, true);
 			}
 		}
 
