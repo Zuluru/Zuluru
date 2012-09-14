@@ -32,11 +32,24 @@ class ZuluruFormHelper extends FormHelper {
 		if (is_array ($options) && array_key_exists ('hide_single', $options) && $options['hide_single']) {
 			unset ($options['hide_single']);
 			$is_select = (array_key_exists ('type', $options) && $options['type'] == 'select') ||
-							(!array_key_exists ('type', $options) && array_key_exists ('options', $options));
-			if ($is_select && count ($options['options']) == 1)
-			{
-				$value = array_shift (array_keys ($options['options']));
-				return parent::hidden ($fieldName, array('value' => $value, /*'id' => null,*/ 'secure' => false));
+							(!array_key_exists ('type', $options));
+
+			if ($is_select) {
+				if (!isset($options['options'])) {
+					$view =& ClassRegistry::getObject('view');
+					$varName = Inflector::variable(
+						Inflector::pluralize(preg_replace('/_id$/', '', $this->field()))
+					);
+					$varOptions = $view->getVar($varName);
+					if (is_array($varOptions)) {
+						$options['options'] = $varOptions;
+					}
+				}
+
+				if (array_key_exists ('options', $options) && count ($options['options']) == 1) {
+					$value = array_shift (array_keys ($options['options']));
+					return parent::hidden ($fieldName, array('value' => $value, /*'id' => null,*/ 'secure' => false));
+				}
 			}
 		}
 
