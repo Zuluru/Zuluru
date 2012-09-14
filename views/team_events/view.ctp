@@ -1,3 +1,10 @@
+<?php
+$this->Html->addCrumb (__('Team Events', true));
+$this->Html->addCrumb ($event['Team']['name']);
+$this->Html->addCrumb ($event['TeamEvent']['name']);
+$this->Html->addCrumb (__('View', true));
+?>
+
 <div class="teamEvents view">
 <h2><?php  __('Team Event');?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
