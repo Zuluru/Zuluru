@@ -6,7 +6,7 @@ class DivisionsController extends AppController {
 	var $components = array('Lock', 'CanRegister');
 
 	function publicActions() {
-		return array('cron', 'view', 'schedule', 'standings');
+		return array('view', 'schedule', 'standings');
 	}
 
 	function isAuthorized() {
