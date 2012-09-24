@@ -13,6 +13,21 @@ class ZuluruHtmlHelper extends HtmlHelper {
 	var $__bufferedHtml = array();
 
 	/**
+	 * Extend the default tag function by allowing for arrays of text
+	 */
+	function tag($name, $text = null, $options = array()) {
+		if (is_array($text)) {
+			$output = '';
+			foreach ($text as $t) {
+				$output .= parent::tag($name, $t, $options);
+			}
+			return $output;
+		} else {
+			return parent::tag($name, $text, $options);
+		}
+	}
+
+	/**
 	 * Extend the default link function by allowing for shortening link titles.
 	 */
 	function link($title, $url = null, $options = array(), $confirmMessage = false) {
