@@ -3,8 +3,7 @@
 <?php __(Configure::read('ui.fields_cap')); ?> are handled in a hierarchical structure.</p>
 
 <h3>Regions</h3>
-<p>Your organization will have one or more regions.
-Regions are defined in the database when <?php echo ZULURU; ?> is installed; there is currently no interface for managing the list of regions.
+<p>Your organization will have one or more regions, which you manage through the <?php __(Configure::read('ui.fields_cap')); ?> -> Regions area.
 Examples might be North, South, East, Central, or named after neighbourhoods or political areas.</p>
 <p>Distinct regions are primarily useful if you want to support teams with regional preferences.</p>
 

@@ -435,6 +435,7 @@ class AppController extends Controller {
 		$this->_addMenuItem ('List', array('controller' => 'facilities', 'action' => 'index'), Configure::read('ui.fields_cap'));
 		$this->_addMenuItem ('Map of all ' . Configure::read('ui.fields'), array('controller' => 'maps', 'action' => 'index'), Configure::read('ui.fields_cap'));
 		if ($this->is_admin) {
+			$this->_addMenuItem ('Regions', array('controller' => 'regions', 'action' => 'index'), Configure::read('ui.fields_cap'));
 			$this->_addMenuItem ('Closed facilities', array('controller' => 'facilities', 'action' => 'closed'), Configure::read('ui.fields_cap'));
 			$this->_addMenuItem ('Create facility', array('controller' => 'facilities', 'action' => 'add'), Configure::read('ui.fields_cap'));
 			$this->_addMenuItem ('Add bulk gameslots', array('controller' => 'game_slots', 'action' => 'add'), Configure::read('ui.fields_cap'));

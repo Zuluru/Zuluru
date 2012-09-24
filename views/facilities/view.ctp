@@ -24,7 +24,13 @@ $surfaces = array_map(array('Inflector', 'humanize'), $surfaces);
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Region'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php __($facility['Region']['name']); ?>
+			<?php
+			if ($is_admin) {
+				echo $this->Html->link(__($facility['Region']['name'], true), array('controller' => 'regions', 'action' => 'view', 'region' => $facility['Region']['id']));
+			} else {
+				__($facility['Region']['name']);
+			}
+			?>
 
 		</dd>
 <?php if (!empty ($facility['Facility']['location_street'])): ?>
