@@ -41,15 +41,13 @@ $this->Html->addCrumb (__('View', true));
 			echo $this->ZuluruHtml->iconLink('view_32.png',
 				array('controller' => 'facilities', 'action' => 'view', 'facility' => $facility['id']),
 				array('alt' => __('View', true), 'title' => __('View', true)));
-			if ($is_admin) {
-				echo $this->ZuluruHtml->iconLink('edit_32.png',
-					array('controller' => 'facilities', 'action' => 'edit', 'facility' => $facility['id']),
-					array('alt' => __('Edit', true), 'title' => __('Edit', true)));
-				echo $this->ZuluruHtml->iconLink('delete_32.png',
-					array('controller' => 'facilities', 'action' => 'delete', 'facility' => $facility['id']),
-					array('alt' => __('Delete', true), 'title' => __('Delete', true)),
-					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $facility['id'])));
-			}
+			echo $this->ZuluruHtml->iconLink('edit_32.png',
+				array('controller' => 'facilities', 'action' => 'edit', 'facility' => $facility['id']),
+				array('alt' => __('Edit', true), 'title' => __('Edit', true)));
+			echo $this->ZuluruHtml->iconLink('delete_32.png',
+				array('controller' => 'facilities', 'action' => 'delete', 'facility' => $facility['id']),
+				array('alt' => __('Delete', true), 'title' => __('Delete', true)),
+				array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $facility['id'])));
 			?>
 		</td>
 	</tr>
@@ -64,21 +62,18 @@ $this->Html->addCrumb (__('View', true));
 		<?php
 		echo $this->Html->tag('li', $this->Html->link(__('New Facility', true),
 			array('controller' => 'facilities', 'action' => 'add', 'region' => $region['Region']['id'])));
-		echo $this->Html->tag('li', $this->ZuluruHtml->iconLink('view_32.png',
-			array('action' => 'index'),
-			array('alt' => __('List', true), 'title' => __('List Regions', true))));
-		if ($is_admin) {
-			echo $this->Html->tag('li', $this->ZuluruHtml->iconLink('edit_32.png',
-				array('action' => 'edit', 'region' => $region['Region']['id']),
-				array('alt' => __('Edit', true), 'title' => __('Edit Region', true))));
-			echo $this->Html->tag('li', $this->ZuluruHtml->iconLink('delete_32.png',
-				array('action' => 'delete', 'region' => $region['Region']['id']),
-				array('alt' => __('Edit', true), 'title' => __('Edit Region', true)),
-				array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $region['Region']['id']))));
-			echo $this->Html->tag('li', $this->ZuluruHtml->iconLink('add_32.png',
-				array('action' => 'add'),
-				array('alt' => __('Add', true), 'title' => __('Add Region', true))));
-		}
+		echo $this->Html->tag('li', $this->Html->link(__('List Regions', true),
+			array('action' => 'index')));
+		echo $this->Html->tag('li', $this->ZuluruHtml->iconLink('edit_32.png',
+			array('action' => 'edit', 'region' => $region['Region']['id']),
+			array('alt' => __('Edit', true), 'title' => __('Edit Region', true))));
+		echo $this->Html->tag('li', $this->ZuluruHtml->iconLink('delete_32.png',
+			array('action' => 'delete', 'region' => $region['Region']['id']),
+			array('alt' => __('Edit', true), 'title' => __('Edit Region', true)),
+			array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $region['Region']['id']))));
+		echo $this->Html->tag('li', $this->ZuluruHtml->iconLink('add_32.png',
+			array('action' => 'add'),
+			array('alt' => __('Add', true), 'title' => __('Add Region', true))));
 		?>
 	</ul>
 </div>
