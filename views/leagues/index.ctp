@@ -27,7 +27,7 @@ foreach ($divisions as $division):
 					array('action' => 'edit', 'league' => $division['League']['id']),
 					array('alt' => __('Edit', true), 'title' => __('Edit League', true)));
 				echo $this->ZuluruHtml->iconLink('league_clone_24.png',
-					array('controller' => 'leagues', 'action' => 'add', 'league' => $division['League']['id']),
+					array('action' => 'add', 'league' => $division['League']['id']),
 					array('alt' => __('Clone League', true), 'title' => __('Clone League', true)));
 				echo $this->ZuluruHtml->iconLink('division_add_24.png',
 					array('controller' => 'divisions', 'action' => 'add', 'league' => $division['League']['id']),
