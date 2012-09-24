@@ -57,7 +57,11 @@ class ZuluruFormHelper extends FormHelper {
 		if (!empty($options['looseYears']) && !empty($options['minYear'])) {
 			$value = $this->value($fieldName);
 			if (!empty($value)) {
-				$year = date('Y', strtotime($value));
+				if (is_array($value)) {
+					$year = $value['year'];
+				} else {
+					$year = date('Y', strtotime($value));
+				}
 				$options['minYear'] = min($options['minYear'], $year - 1);
 				$options['maxYear'] = max($options['maxYear'], $year + 1);
 			}
