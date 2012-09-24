@@ -1,3 +1,8 @@
+<?php
+$this->Html->addCrumb (__('Question', true));
+$this->Html->addCrumb (__('View', true));
+?>
+
 <div class="questions view">
 <h2><?php  __('Question');?></h2>
 <?php echo $this->element('questions/input', compact('question')); ?>

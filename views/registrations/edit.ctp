@@ -1,3 +1,10 @@
+<?php
+$this->Html->addCrumb (__('Registration', true));
+$this->Html->addCrumb ($registration['Person']['full_name']);
+$this->Html->addCrumb ($registration['Event']['name']);
+$this->Html->addCrumb (__('Edit', true));
+?>
+
 <div class="registrations form">
 <h2><?php printf(__('Edit %s', true), __('Registration', true)); ?></h2>
 <?php echo $this->Form->create('Registration', array('url' => Router::normalize($this->here)));?>

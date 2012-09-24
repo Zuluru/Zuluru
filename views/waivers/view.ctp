@@ -24,8 +24,8 @@ $this->Html->addCrumb (__('View', true));
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Active'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $waiver['Waiver']['active']; ?>
-			&nbsp;
+			<?php __($waiver['Waiver']['active'] ? 'Yes' : 'No'); ?>
+
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Expiry Type'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>

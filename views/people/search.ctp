@@ -16,5 +16,5 @@ $this->Html->addCrumb (__('Search', true));
 
 <?php if (!$this->params['isAjax']): ?>
 
-<p></p></div>
+</div>
 <?php endif; ?>

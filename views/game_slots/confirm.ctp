@@ -1,3 +1,8 @@
+<?php
+$this->Html->addCrumb (__('Game Slots', true));
+$this->Html->addCrumb (__('Confirm', true));
+?>
+
 <div class="gameSlots form">
 <?php echo $this->Form->create('GameSlot', array('url' => Router::normalize($this->here)));?>
 	<fieldset>

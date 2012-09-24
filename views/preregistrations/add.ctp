@@ -8,13 +8,15 @@ $this->Html->addCrumb (__('Add', true));
 	<fieldset>
  		<legend><?php __('Add Preregistration'); ?></legend>
 	<?php
-		echo $this->Form->input('event', array('options' => $events));
+		echo $this->Form->input('event', array(
+				'options' => $events,
+				'empty' => 'Select one:',
+		));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Continue', true));?>
 </div>
 <div class="actions">
-	<h3><?php __('Actions'); ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link(__('List Preregistrations', true), array('action' => 'index'));?></li>
 	</ul>

@@ -1,3 +1,8 @@
+<?php
+$this->Html->addCrumb (__('Registrations', true));
+$this->Html->addCrumb (__('View', true));
+?>
+
 <div class="registrations view">
 <h2><?php printf(__('View %s', true), __('Registration', true));?></h2>
 <fieldset><legend><?php __('Registration Details'); ?></legend>

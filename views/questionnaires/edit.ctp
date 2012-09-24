@@ -1,24 +1,39 @@
 <?php
 $this->Html->addCrumb (__('Questionnaire', true));
-$this->Html->addCrumb ($this->data['Questionnaire']['name']);
-$this->Html->addCrumb (__('Edit', true));
+if (isset ($add)) {
+	$this->Html->addCrumb (__('Create', true));
+} else {
+	$this->Html->addCrumb ($this->data['Questionnaire']['name']);
+	$this->Html->addCrumb (__('Edit', true));
+}
 ?>
 
 <div class="questionnaires form">
 <?php echo $this->Form->create('Questionnaire', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
- 		<legend><?php printf(__('Edit %s', true), __('Questionnaire', true)); ?></legend>
+ 		<legend><?php printf(__(isset($add) ? 'Create %s' : 'Edit %s', true), __('Questionnaire', true)); ?></legend>
 	<?php
-		echo $this->Form->input('id');
+		if (!isset ($add)) {
+			echo $this->Form->input('id');
+		}
 		echo $this->ZuluruForm->input('name', array('size' => 60));
-		echo $this->ZuluruForm->input('active');
+		if (!isset ($add)) {
+			echo $this->ZuluruForm->input('active');
+		}
 	?>
 	</fieldset>
+	<?php if (!isset ($add)): ?>
 	<fieldset>
  		<legend><?php __('Questions'); ?></legend>
 	<?php
 		echo $this->element('questionnaires/edit', array('questionnaire' => $this->data));
 	?>
 	</fieldset>
+	<?php endif; ?>
 <?php echo $this->Form->end(__('Submit', true));?>
+</div>
+<div class="actions">
+	<ul>
+		<li><?php echo $this->Html->link(sprintf(__('List %s', true), __('Questionnaires', true)), array('action' => 'index'));?></li>
+	</ul>
 </div>

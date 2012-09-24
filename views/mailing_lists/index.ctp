@@ -52,7 +52,6 @@ $this->Html->addCrumb (__('List', true));
 	</div>
 </div>
 <div class="actions">
-	<h3><?php __('Actions'); ?></h3>
 	<ul>
 		<li><?php echo $this->ZuluruHtml->iconLink('mailing_list_add_32.png',
 					array('action' => 'add'),
