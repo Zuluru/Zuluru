@@ -61,6 +61,9 @@ class AppController extends Controller {
 		{
 			$this->Configuration->load($this->Auth->user('id'));
 		}
+		if (Configure::read('feature.items_per_page')) {
+			$this->paginate['limit'] = Configure::read('feature.items_per_page');
+		}
 
 		// Set the theme, if any. Must be done before processing, in order for the theme to affect emails.
 		$this->theme = Configure::read('theme');

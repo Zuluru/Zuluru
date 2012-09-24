@@ -190,13 +190,14 @@ class RegistrationsController extends AppController {
 			'Person',
 		);
 		$order = array('Registration.payment' => 'DESC', 'Registration.created');
+		$limit = Configure::read('feature.items_per_page');
 
 		if ($this->params['url']['ext'] == 'csv') {
 			$this->set('registrations', $this->Registration->find ('all', compact('conditions', 'contain', 'order')));
 			$this->set('download_file_name', 'Registrations');
 		} else {
 			$this->paginate = array(
-				'Registration' => compact('conditions', 'contain', 'order'),
+				'Registration' => compact('conditions', 'contain', 'order', 'limit'),
 			);
 			$this->set('registrations', $this->paginate ('Registration'));
 		}
