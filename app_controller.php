@@ -493,34 +493,24 @@ class AppController extends Controller {
 
 		if ($this->is_admin) {
 			$this->_addMenuItem ('Newsletters', array('controller' => 'newsletters', 'action' => 'index'));
-			$this->_addMenuItem ('List', array('controller' => 'newsletters', 'action' => 'index'), 'Newsletters');
+			$this->_addMenuItem ('Upcoming', array('controller' => 'newsletters', 'action' => 'index'), 'Newsletters');
 			$this->_addMenuItem ('Mailing lists', array('controller' => 'mailing_lists', 'action' => 'index'), 'Newsletters');
 			$this->_addMenuItem ('All newsletters', array('controller' => 'newsletters', 'action' => 'past'), 'Newsletters');
 
-			$this->_addMenuItem ('Settings');
-			$this->_addMenuItem ('Organization', array('controller' => 'settings', 'action' => 'organization'), 'Settings');
-			$this->_addMenuItem ('Features', array('controller' => 'settings', 'action' => 'feature'), 'Settings');
-			$this->_addMenuItem ('Email', array('controller' => 'settings', 'action' => 'email'), 'Settings');
-			$this->_addMenuItem ('Users', array('controller' => 'settings', 'action' => 'user'), 'Settings');
-			$this->_addMenuItem ('Scoring', array('controller' => 'settings', 'action' => 'scoring'), 'Settings');
+			$this->_addMenuItem ('Organization', array('controller' => 'settings', 'action' => 'organization'), array('Configuration', 'Settings'));
+			$this->_addMenuItem ('Features', array('controller' => 'settings', 'action' => 'feature'), array('Configuration', 'Settings'));
+			$this->_addMenuItem ('Email', array('controller' => 'settings', 'action' => 'email'), array('Configuration', 'Settings'));
+			$this->_addMenuItem ('Users', array('controller' => 'settings', 'action' => 'user'), array('Configuration', 'Settings'));
+			$this->_addMenuItem ('Scoring', array('controller' => 'settings', 'action' => 'scoring'), array('Configuration', 'Settings'));
 			if (Configure::read('feature.registration')) {
-				$this->_addMenuItem ('Registration', array('controller' => 'settings', 'action' => 'registration'), 'Settings');
+				$this->_addMenuItem ('Registration', array('controller' => 'settings', 'action' => 'registration'), array('Configuration', 'Settings'));
 				if (Configure::read('registration.online_payments')) {
-					$this->_addMenuItem ('Payment', array('controller' => 'settings', 'action' => 'payment'), 'Settings');
+					$this->_addMenuItem ('Payment', array('controller' => 'settings', 'action' => 'payment'), array('Configuration', 'Settings'));
 				}
 			}
-			$this->_addMenuItem ('Holidays', array('controller' => 'holidays', 'action' => 'index'), 'Settings');
+			$this->_addMenuItem ('Holidays', array('controller' => 'holidays', 'action' => 'index'), 'Configuration');
 			if (Configure::read('feature.documents')) {
-				$this->_addMenuItem ('Upload types', array('controller' => 'upload_types', 'action' => 'index'), 'Settings');
-			}
-
-			$this->_addMenuItem ('Statistics');
-			$this->_addMenuItem ('Player', array('controller' => 'people', 'action' => 'statistics'), 'Statistics');
-			$this->_addMenuItem ('Participation', array('controller' => 'people', 'action' => 'participation'), array('Statistics', 'Player'));
-			$this->_addMenuItem ('Retention', array('controller' => 'people', 'action' => 'retention'), array('Statistics', 'Player'));
-			$this->_addMenuItem ('Team', array('controller' => 'teams', 'action' => 'statistics'), 'Statistics');
-			if (Configure::read('feature.registration')) {
-				$this->_addMenuItem ('Registration', array('controller' => 'registrations', 'action' => 'statistics'), 'Statistics');
+				$this->_addMenuItem ('Upload types', array('controller' => 'upload_types', 'action' => 'index'), 'Configuration');
 			}
 		}
 
@@ -557,6 +547,16 @@ class AppController extends Controller {
 			$this->_addMenuItem ('League management', array('controller' => 'help', 'action' => 'guide', 'administrator', 'leagues'), array('Help', 'Administrators'));
 			$this->_addMenuItem (Configure::read('ui.field_cap') . ' management', array('controller' => 'help', 'action' => 'guide', 'administrator', 'fields'), array('Help', 'Administrators'));
 			$this->_addMenuItem ('Registration', array('controller' => 'help', 'action' => 'guide', 'administrator', 'registration'), array('Help', 'Administrators'));
+		}
+
+		if ($this->is_admin) {
+			$this->_addMenuItem ('Statistics', array('controller' => 'people', 'action' => 'statistics'), 'Players');
+			$this->_addMenuItem ('Participation', array('controller' => 'people', 'action' => 'participation'), array('Players', 'Statistics'));
+			$this->_addMenuItem ('Retention', array('controller' => 'people', 'action' => 'retention'), array('Players', 'Statistics'));
+			$this->_addMenuItem ('Statistics', array('controller' => 'teams', 'action' => 'statistics'), 'Teams');
+			if (Configure::read('feature.registration')) {
+				$this->_addMenuItem ('Statistics', array('controller' => 'registrations', 'action' => 'statistics'), 'Registration');
+			}
 		}
 	}
 

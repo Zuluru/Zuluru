@@ -1,6 +1,6 @@
 <h2>Administrator Guide: Registration</h2>
 <p>Registration is an optional feature of <?php echo ZULURU; ?>.
-It can be disabled completely through the <?php echo $this->Html->link('Settings -> Features', array('controller' => 'settings', 'action' => 'feature')); ?> page.
+It can be disabled completely through the <?php echo $this->Html->link('Configuration -> Settings -> Features', array('controller' => 'settings', 'action' => 'feature')); ?> page.
 If it is disabled, you will be responsible for manually managing and tracking all registrations and payments, so even if you are not doing online payments, using the registration system will typically save you time and reduce problems.
 This guide will help you understand how to use the registration system to best effect.</p>
 
@@ -35,14 +35,14 @@ you do not need to create a new copy of an existing questionnaire for every new 
 <h3>Registrations</h3>
 <p>Once a registration event has opened, people will (hopefully!) start registering for it.
 You can access summaries and details of these registrations, including questionnaire answers,
-through the <?php echo $this->Html->link('Statistics -> Registration', array('controller' => 'registrations', 'action' => 'statistics')); ?> page,
+through the <?php echo $this->Html->link('Registration -> Statistics', array('controller' => 'registrations', 'action' => 'statistics')); ?> page,
 or the <?php echo $this->Html->link('events list', array('controller' => 'events')); ?>.</p>
 <p>If the event has a cost associated with it, people may pay either online or offline.</p>
 
 <h4>Online Payments</h4>
 <p><?php echo ZULURU; ?> supports multiple online payment providers, so if you choose to accept online payments, you have some options in who you want to deal with.
 Currently, you can enable only a single provider; there is no way to give the user a choice of who they want to pay you through.
-If you enable online payments in the <?php echo $this->Html->link('Settings -> Registration', array('controller' => 'settings', 'action' => 'registration')); ?> page, you will also need to enter the account credentials provided to you by the provider.</p>
+If you enable online payments in the <?php echo $this->Html->link('Configuration -> Settings -> Registration', array('controller' => 'settings', 'action' => 'registration')); ?> page, you will also need to enter the account credentials provided to you by the provider.</p>
 
 <h4>Offline Payments</h4>
 <p>Online payment providers do take a piece of every payment for their trouble, so some organizations opt to only collect money manually.

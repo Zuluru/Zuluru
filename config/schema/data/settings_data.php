@@ -1,5 +1,5 @@
 <?php
-// All of these can be changed through the various "Settings" pages of Zuluru.
+// All of these can be changed through the various "Configuration -> Settings" pages of Zuluru.
 // Easier to change them there than mess about with this file.
 class SettingsData {
 
