@@ -711,7 +711,6 @@ class PeopleController extends AppController {
 			}
 
 			// Image was uploaded, ask user to crop it
-			$temp_dir = Configure::read('folders.league_base') . DS . 'temp';
 			$rand = mt_rand();
 			$uploaded = $this->ImageCrop->uploadImage($this->data['image'], $temp_dir, "temp_{$person['id']}_$rand");
 			$this->set(compact('uploaded'));
