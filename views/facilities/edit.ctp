@@ -21,13 +21,17 @@ if (isset ($add)) {
 		echo $this->ZuluruForm->input('code');
 		echo $this->ZuluruForm->input('is_open');
 		echo $this->ZuluruForm->input('location_street', array('label' => 'Address'));
-		echo $this->ZuluruForm->input('location_city', array('label' => 'City'));
+		echo $this->ZuluruForm->input('location_city', array(
+				'label' => 'City',
+				'default' => Configure::read('organization.city'),
+		));
 		echo $this->ZuluruForm->input('location_province', array(
 				'label' => 'Province',
 				'options' => $provinces,
+				'default' => Configure::read('organization.province'),
 				'empty' => '---',
 		));
-		echo $this->ZuluruForm->input('region_id');
+		echo $this->ZuluruForm->input('region_id', array('hide_single' => true, 'default' => $region));
 		echo $this->ZuluruForm->input('driving_directions', array('cols' => 70, 'class' => 'mceSimple'));
 		echo $this->ZuluruForm->input('parking_details', array('cols' => 70, 'class' => 'mceSimple'));
 		echo $this->ZuluruForm->input('transit_directions', array('cols' => 70, 'class' => 'mceSimple'));
