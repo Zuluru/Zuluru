@@ -83,10 +83,10 @@ $sport = array_shift(array_keys(Configure::read('options.sport')));
 			));
 		}
 		if (Configure::read('profile.addr_postalcode')) {
-			$fields = __(Configure::read('ui.fields'));
+			$fields = __(Configure::read('ui.fields'), true);
 			echo $this->ZuluruForm->input('addr_postalcode', array(
 				'label' => __('Postal Code', true),
-				'after' => $this->Html->para (null, sprintf(__("Please enter a correct postal code matching the address above. $short uses this information to help locate new %s near its members.", true), Configure::read('ui.fields'))),
+				'after' => $this->Html->para (null, sprintf(__("Please enter a correct postal code matching the address above. $short uses this information to help locate new %s near its members.", true), $fields)),
 			));
 		}
 	?>
