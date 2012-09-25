@@ -880,7 +880,7 @@ class AppController extends Controller {
 	/**
 	 * Add a single item to the menu.
 	 */
-	function _addMenuItem($name, $url = null, $path = array(), $sort = null) {
+	function _addMenuItem($name, $url = null, $path = array(), $sort = null, $opts = null) {
 		if ($sort === null)
 			$sort = $name;
 		if (!is_array ($path))
@@ -893,12 +893,15 @@ class AppController extends Controller {
 			$parent =& $parent[$element]['items'];
 		}
 
-		if (!array_key_exists ($name, $parent)) {
+		if (!array_key_exists ($sort, $parent)) {
 			$parent[$sort] = array('items' => array(), 'name' => $name);
 		}
 
 		if ($url) {
 			$parent[$sort]['url'] = $url;
+		}
+		if ($opts) {
+			$parent[$sort]['opts'] = $opts;
 		}
 	}
 
