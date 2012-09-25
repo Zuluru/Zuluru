@@ -14,14 +14,14 @@ echo $field['Field']['long_name'];
 	<dt><?php __('Map'); ?></dt>
 	<dd><?php echo $this->Html->link (__('Open in new window', true),
 		array('controller' => 'maps', 'action' => 'view', 'field' => $field['Field']['id']),
-		array('target' => '_new')); ?></dd>
+		array('target' => 'map')); ?></dd>
 <?php endif; ?>
 
 <?php if (!empty ($field['Field']['layout_url'])): ?>
 	<dt><?php __('Layout'); ?></dt>
 	<dd><?php echo $this->Html->link (__('Open in new window', true),
 		$field['Field']['layout_url'],
-		array('target' => '_new')); ?></dd>
+		array('target' => 'map')); ?></dd>
 <?php endif; ?>
 
 <?php if (!empty ($field['Field']['permit_url'])): ?>

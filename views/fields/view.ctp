@@ -90,20 +90,20 @@ if ($field['Field']['length'] > 0) {
 ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Map'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo ($mapurl ? $this->Html->link (__('Click for map in new window', true), $mapurl, array('target' => '_new')) : __('N/A', true)); ?>
+			<?php echo ($mapurl ? $this->Html->link (__('Click for map in new window', true), $mapurl, array('target' => 'map')) : __('N/A', true)); ?>
 
 		</dd>
 <?php if (!empty ($field['Field']['layout_url'])): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Layout'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $this->Html->link (sprintf(__('Click for %s layout diagram in new window', true), Configure::read('ui.field')), $field['Field']['layout_url'], array('target' => '_new')); ?>
+			<?php echo $this->Html->link (sprintf(__('Click for %s layout diagram in new window', true), Configure::read('ui.field')), $field['Field']['layout_url'], array('target' => 'map')); ?>
 
 		</dd>
 <?php endif; ?>
 <?php if (!empty ($field['Field']['permit_url'])): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php printf(__('%s&nbsp;Permit', true), Configure::read('ui.field_cap')); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $this->Html->link ($field['Field']['permit_name'], $field['Field']['permit_url']); ?>
+			<?php echo $this->Html->link ($field['Field']['permit_name'], $field['Field']['permit_url'], array('target' => 'permit')); ?>
 
 		</dd>
 <?php endif; ?>

@@ -1,10 +1,14 @@
 <?php
+if (array_key_exists ('opts', $item)) {
+	$opts = $item['opts'];
+} else {
+	$opts = array();
+}
+
 $name = __($item['name'], true);
 $short_name = $text->truncate ($name, 18);
 if ($short_name != $name) {
-	$opts = array('title' => $name);
-} else {
-	$opts = array();
+	$opts['title'] = $name;
 }
 
 if (array_key_exists ('url', $item)) {

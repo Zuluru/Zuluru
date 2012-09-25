@@ -7,7 +7,7 @@ $this->Html->addCrumb (__('List', true));
 <h2><?php __($closed ? 'Closed Facilities List' : 'Facilities List');?></h2>
 <?php if (!$closed) echo $this->element('fields/caution'); ?>
 
-<p>There is also a <?php echo $this->Html->link(sprintf(__('map of all %s', true), __(Configure::read('ui.fields'), true)), array('controller' => 'maps')); ?> available.</p>
+<p>There is also a <?php echo $this->Html->link(sprintf(__('map of all %s', true), __(Configure::read('ui.fields'), true)), array('controller' => 'maps'), array('target' => 'map')); ?> available.</p>
 
 <?php if ($is_admin): ?>
 <?php if ($closed): ?>
@@ -66,7 +66,7 @@ foreach ($regions as $region):
 		<td class="actions">
 			<?php
 			if (!empty($facility['Field'])) {
-				echo $this->Html->link(__('Layout', true), array('controller' => 'maps', 'action' => 'view', 'field' => $facility['Field'][0]['id']), array('target' => '_new'));
+				echo $this->Html->link(__('Layout', true), array('controller' => 'maps', 'action' => 'view', 'field' => $facility['Field'][0]['id']), array('target' => 'map'));
 			}
 			?>
 <?php if ($is_admin): ?>

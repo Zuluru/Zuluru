@@ -433,7 +433,7 @@ class AppController extends Controller {
 
 		$this->_addMenuItem (Configure::read('ui.fields_cap'), array('controller' => 'facilities', 'action' => 'index'));
 		$this->_addMenuItem ('List', array('controller' => 'facilities', 'action' => 'index'), Configure::read('ui.fields_cap'));
-		$this->_addMenuItem ('Map of all ' . Configure::read('ui.fields'), array('controller' => 'maps', 'action' => 'index'), Configure::read('ui.fields_cap'));
+		$this->_addMenuItem ('Map of all ' . Configure::read('ui.fields'), array('controller' => 'maps', 'action' => 'index'), Configure::read('ui.fields_cap'), null, array('target' => 'map'));
 		if ($this->is_admin) {
 			$this->_addMenuItem ('Regions', array('controller' => 'regions', 'action' => 'index'), Configure::read('ui.fields_cap'));
 			$this->_addMenuItem ('Closed facilities', array('controller' => 'facilities', 'action' => 'closed'), Configure::read('ui.fields_cap'));
@@ -488,10 +488,6 @@ class AppController extends Controller {
 				}
 			}
 
-			$this->_addMenuItem ('Waivers', array('controller' => 'waivers', 'action' => 'index'), 'Players');
-		}
-
-		if ($this->is_admin) {
 			$this->_addMenuItem ('Newsletters', array('controller' => 'newsletters', 'action' => 'index'));
 			$this->_addMenuItem ('Upcoming', array('controller' => 'newsletters', 'action' => 'index'), 'Newsletters');
 			$this->_addMenuItem ('Mailing lists', array('controller' => 'mailing_lists', 'action' => 'index'), 'Newsletters');
@@ -512,6 +508,8 @@ class AppController extends Controller {
 			if (Configure::read('feature.documents')) {
 				$this->_addMenuItem ('Upload types', array('controller' => 'upload_types', 'action' => 'index'), 'Configuration');
 			}
+
+			$this->_addMenuItem ('Waivers', array('controller' => 'waivers', 'action' => 'index'), 'Configuration');
 		}
 
 		if (! $this->Session->read('Zuluru.external_login')) {
@@ -882,7 +880,7 @@ class AppController extends Controller {
 	/**
 	 * Add a single item to the menu.
 	 */
-	function _addMenuItem($name, $url = null, $path = array(), $sort = null) {
+	function _addMenuItem($name, $url = null, $path = array(), $sort = null, $opts = null) {
 		if ($sort === null)
 			$sort = $name;
 		if (!is_array ($path))
@@ -895,12 +893,15 @@ class AppController extends Controller {
 			$parent =& $parent[$element]['items'];
 		}
 
-		if (!array_key_exists ($name, $parent)) {
+		if (!array_key_exists ($sort, $parent)) {
 			$parent[$sort] = array('items' => array(), 'name' => $name);
 		}
 
 		if ($url) {
 			$parent[$sort]['url'] = $url;
+		}
+		if ($opts) {
+			$parent[$sort]['opts'] = $opts;
 		}
 	}
 
