@@ -153,7 +153,7 @@ $display_spirit = ($is_admin || $is_coordinator || $team['Division']['League']['
 <p>Get your team schedule in <?php // TODO: Better image locations, alt text
 echo $this->ZuluruHtml->iconLink ('ical.gif', array('action' => 'ical', $team['Team']['id'], 'team.ics'), array('alt' => 'iCal'));
 ?> format or <?php
-echo $this->ZuluruHtml->imageLink ('http://www.google.com/calendar/images/ext/gc_button6.gif', 'http://www.google.com/calendar/render?cid=' . $this->Html->url(array('action' => 'ical', $team['Team']['id']), true), array('alt' => 'add to Google Calendar'), array('target' => '_blank'));
+echo $this->ZuluruHtml->imageLink ('http://www.google.com/calendar/images/ext/gc_button6.gif', 'http://www.google.com/calendar/render?cid=' . $this->Html->url(array('action' => 'ical', $team['Team']['id']), true), array('alt' => 'add to Google Calendar'), array('target' => 'google'));
 ?>.</p>
 </div>
 

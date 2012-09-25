@@ -433,7 +433,7 @@ class AppController extends Controller {
 
 		$this->_addMenuItem (Configure::read('ui.fields_cap'), array('controller' => 'facilities', 'action' => 'index'));
 		$this->_addMenuItem ('List', array('controller' => 'facilities', 'action' => 'index'), Configure::read('ui.fields_cap'));
-		$this->_addMenuItem ('Map of all ' . Configure::read('ui.fields'), array('controller' => 'maps', 'action' => 'index'), Configure::read('ui.fields_cap'));
+		$this->_addMenuItem ('Map of all ' . Configure::read('ui.fields'), array('controller' => 'maps', 'action' => 'index'), Configure::read('ui.fields_cap'), null, array('target' => 'map'));
 		if ($this->is_admin) {
 			$this->_addMenuItem ('Regions', array('controller' => 'regions', 'action' => 'index'), Configure::read('ui.fields_cap'));
 			$this->_addMenuItem ('Closed facilities', array('controller' => 'facilities', 'action' => 'closed'), Configure::read('ui.fields_cap'));

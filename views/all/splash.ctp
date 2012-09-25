@@ -216,7 +216,7 @@ if (Configure::read('personal.enable_ical')) {
 	echo $this->ZuluruHtml->imageLink ('http://www.google.com/calendar/images/ext/gc_button6.gif',
 		'http://www.google.com/calendar/render?cid=' . $this->Html->url(array('controller' => 'people', 'action' => 'ical', $id), true),
 		array('alt' => 'add to Google Calendar'),
-		array('target' => '_blank'));
+		array('target' => 'google'));
 } else {
 	echo $this->Html->link (__('Edit your preferences', true), array('controller' => 'people', 'action' => 'preferences'));
 	__(' to enable your personal iCal feed');

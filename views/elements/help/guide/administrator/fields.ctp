@@ -41,7 +41,7 @@ When this happens, you can close <?php __(Configure::read('ui.fields')); ?> or f
 <p>By closing a <?php __(Configure::read('ui.field')); ?>, you are temporarily removing it from circulation.
 It will no longer show up on the "other <?php __(Configure::read('ui.fields')); ?>" list or the layout map for <?php __(Configure::read('ui.fields')); ?> at that facility,
 and you will not be able to add game slots for it.
-Facilities with no open <?php __(Configure::read('ui.fields')); ?> will not show up on the <?php __(Configure::read('ui.field')); ?> list or the <?php echo $this->Html->link(sprintf('map of all %s', Configure::read('ui.fields')), array('controller' => 'maps'), array('target' => 'new')); ?>.</p>
+Facilities with no open <?php __(Configure::read('ui.fields')); ?> will not show up on the <?php __(Configure::read('ui.field')); ?> list or the <?php echo $this->Html->link(sprintf('map of all %s', Configure::read('ui.fields')), array('controller' => 'maps'), array('target' => 'map')); ?>.</p>
 <p>By closing a facility, you are essentially permanently removing it, and all of its <?php __(Configure::read('ui.fields')); ?>, from circulation.
 It will no longer show up on the map of all <?php __(Configure::read('ui.fields')); ?> or the <?php __(Configure::read('ui.field')); ?> list.
 This should be done when a facility is permanently closed or permits are lost or dropped.

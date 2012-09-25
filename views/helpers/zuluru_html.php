@@ -150,7 +150,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 			'id' => $id,
 			'alt' => __('[Help]', true),
 			'title' => __('Additional help', true),
-		), array('target' => '_blank'));
+		), array('target' => 'help'));
 
 		// Build the link for suggestions
 		$body = htmlspecialchars ('I have a suggestion for the Zuluru online help page at ' . implode(' : ', $url));
