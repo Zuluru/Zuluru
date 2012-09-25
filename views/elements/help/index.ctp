@@ -47,7 +47,7 @@
 		' ' . __('and', true) . ' ' .
 		$this->Html->link (__(Configure::read('ui.fields_cap'), true), array('controller' => 'help', 'action' => 'fields')); ?></li>
 	<li><?php echo $this->Html->link (__('Rules Engine', true), array('controller' => 'help', 'action' => 'rules')); ?></li>
-	<li><?php echo $this->Html->link (__('Settings', true), array('controller' => 'help', 'action' => 'settings')); ?></li>
+	<li><?php echo $this->Html->link (__('Configuration', true), array('controller' => 'help', 'action' => 'settings')); ?></li>
 <?php endif; ?>
 </ul>
 </p>

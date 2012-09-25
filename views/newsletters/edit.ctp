@@ -11,7 +11,7 @@ if (isset ($add)) {
 <div class="newsletters form">
 <?php echo $this->Form->create('Newsletter', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
- 		<legend><?php printf(__('Edit %s', true), __('Newsletter', true)); ?></legend>
+ 		<legend><?php printf(__(isset($add) ? 'Create %s' : 'Edit %s', true), __('Newsletter', true)); ?></legend>
 	<?php
 		if (!isset ($add)) {
 			echo $this->Form->input('id');
@@ -20,7 +20,7 @@ if (isset ($add)) {
 			'size' => 60,
 			'after' => $this->Html->para (null, __('A short name for this newsletter, to be used as a heading in administrative reports.', true)),
 		));
-		echo $this->ZuluruForm->input('Newsletter.mailing_list_id');
+		echo $this->ZuluruForm->input('Newsletter.mailing_list_id', array('empty' => 'Select one:'));
 		echo $this->ZuluruForm->input('from', array(
 			'size' => 60,
 			'after' => $this->Html->para (null, __('Email address that this newsletter should come from.', true)),
@@ -64,6 +64,8 @@ if (isset ($add)) {
 </div>
 <div class="actions">
 	<ul>
+		<li><?php echo $this->Html->link(sprintf(__('List %s', true), __('Newsletters', true)), array('action' => 'index'));?></li>
+<?php if (!isset ($add)): ?>
 		<li><?php echo $this->Html->link(__('Delivery Report', true), array('action' => 'delivery', 'newsletter' => $this->Form->value('Newsletter.id'))); ?></li>
 		<li><?php echo $this->ZuluruHtml->iconLink('newsletter_send_32.png',
 					array('action' => 'send', 'newsletter' => $this->Form->value('Newsletter.id')),
@@ -72,10 +74,11 @@ if (isset ($add)) {
 					array('action' => 'delete', 'newsletter' => $this->Form->value('Newsletter.id')),
 					array('alt' => __('Delete', true), 'title' => __('Delete Newsletter', true)),
 					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $this->Form->value('Newsletter.id')))); ?></li>
-		<li><?php echo $this->Html->link(sprintf(__('List %s', true), __('Newsletters', true)), array('action' => 'index'));?></li>
+<?php else: ?>
 		<li><?php echo $this->ZuluruHtml->iconLink('newsletter_add_32.png',
 					array('action' => 'add'),
 					array('alt' => __('New', true), 'title' => __('New', true))); ?></li>
+<?php endif; ?>
 	</ul>
 </div>
 

@@ -1,3 +1,9 @@
+<?php
+$this->Html->addCrumb (__('Uload Types', true));
+$this->Html->addCrumb ($uploadType['UploadType']['name']);
+$this->Html->addCrumb (__('View', true));
+?>
+
 <div class="uploadTypes view">
 <h2><?php  echo __('Upload Type') . ': ' . $uploadType['UploadType']['name'];?></h2>
 <div class="related">
@@ -47,7 +53,6 @@
 </div>
 </div>
 <div class="actions">
-	<h3><?php __('Actions'); ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link(__('Edit Upload Type', true), array('action' => 'edit', 'type' => $uploadType['UploadType']['id'])); ?> </li>
 		<li><?php echo $this->Html->link(__('Delete Upload Type', true), array('action' => 'delete', 'type' => $uploadType['UploadType']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $uploadType['UploadType']['id'])); ?> </li>

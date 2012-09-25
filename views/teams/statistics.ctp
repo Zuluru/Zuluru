@@ -178,6 +178,8 @@ foreach ($no_scores as $team):
 	</tbody>
 </table>
 
+<?php if (Configure::read('feature.spirit')): ?>
+
 <h3><?php __('Top Spirited Teams'); ?></h3>
 <table class="list">
 	<thead>
@@ -225,6 +227,8 @@ foreach ($lowest_spirit as $team):
 
 	</tbody>
 </table>
+
+<?php endif; ?>
 
 </div>
 <div class="actions">

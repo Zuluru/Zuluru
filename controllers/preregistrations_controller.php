@@ -10,6 +10,7 @@ class PreregistrationsController extends AppController {
 				'Person',
 				'Event',
 			),
+			'limit' => Configure::read('feature.items_per_page'),
 		);
 		if ($this->_arg('event')) {
 			$id = $this->_arg('event');
@@ -61,6 +62,7 @@ class PreregistrationsController extends AppController {
 					$this->paginate['Person'] = array(
 						'conditions' => $this->_generateSearchConditions($params, 'Person'),
 						'contain' => false,
+						'limit' => Configure::read('feature.items_per_page'),
 					);
 					$this->set('people', $this->paginate('Person'));
 				}

@@ -1,21 +1,33 @@
+<?php
+$this->Html->addCrumb (__('Holiday', true));
+if (isset ($add)) {
+	$this->Html->addCrumb (__('Create', true));
+} else {
+	$this->Html->addCrumb ($this->data['Holiday']['name']);
+	$this->Html->addCrumb (__('Edit', true));
+}
+?>
+
 <div class="holidays form">
 <?php echo $this->Form->create('Holiday');?>
 	<fieldset>
-		<legend><?php __('Edit Holiday'); ?></legend>
+ 		<legend><?php printf(__(isset($add) ? 'Create %s' : 'Edit %s', true), __('Holiday', true)); ?></legend>
 	<?php
-		echo $this->Form->input('id');
-		echo $this->Form->input('date');
+		if (!isset($add)) {
+			echo $this->Form->input('id');
+		}
 		echo $this->Form->input('name');
+		echo $this->Form->input('date');
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
 <div class="actions">
-	<h3><?php __('Actions'); ?></h3>
 	<ul>
-
-		<li><?php echo $this->Html->link(__('Delete', true), array('action' => 'delete', $this->Form->value('Holiday.id')), null, sprintf(__('Are you sure you want to delete # %s?', true), $this->Form->value('Holiday.id'))); ?></li>
+<?php if (!isset ($add)): ?>
 		<li><?php echo $this->Html->link(__('List Holidays', true), array('action' => 'index'));?></li>
+<?php endif; ?>
+		<li><?php echo $this->Html->link(__('Delete', true), array('action' => 'delete', 'holiday' => $this->Form->value('Holiday.id')), null, sprintf(__('Are you sure you want to delete # %s?', true), $this->Form->value('Holiday.id'))); ?></li>
 	</ul>
 </div>
 

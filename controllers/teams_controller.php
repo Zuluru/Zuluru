@@ -110,6 +110,7 @@ class TeamsController extends AppController {
 		$this->paginate = array('Team' => array(
 				'conditions' => array('Division.is_open' => true),
 				'contain' => array('Division' => 'League'),
+				'limit' => Configure::read('feature.items_per_page'),
 		));
 		$this->set('teams', $this->paginate('Team'));
 		$this->set('letters', $this->Team->find('all', array(
@@ -1067,6 +1068,7 @@ class TeamsController extends AppController {
 				$this->paginate['Person'] = array(
 					'conditions' => $this->_generateSearchConditions($params, 'Person'),
 					'contain' => false,
+					'limit' => Configure::read('feature.items_per_page'),
 				);
 				$this->set('people', $this->paginate('Person'));
 			}

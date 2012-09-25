@@ -44,6 +44,9 @@ class QuestionnairesController extends AppController {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('questionnaire', true)), 'default', array('class' => 'warning'));
 			}
 		}
+		$this->set('add', true);
+
+		$this->render ('edit');
 	}
 
 	function edit() {

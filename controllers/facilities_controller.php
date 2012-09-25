@@ -91,6 +91,7 @@ class FacilitiesController extends AppController {
 		$this->set(compact('regions'));
 		$this->_loadAddressOptions();
 		$this->set('add', true);
+		$this->set('region', $this->_arg('region'));
 
 		if (Configure::read('feature.tiny_mce')) {
 			$this->helpers[] = 'TinyMce.TinyMce';

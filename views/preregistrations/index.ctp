@@ -54,7 +54,6 @@ if (isset($event)) {
 	</div>
 </div>
 <div class="actions">
-	<h3><?php __('Actions'); ?></h3>
 	<ul>
 		<li><?php
 		$url = array('action' => 'add');

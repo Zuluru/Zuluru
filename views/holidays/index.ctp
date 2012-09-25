@@ -23,8 +23,8 @@ $this->Html->addCrumb (__('List', true));
 		<td><?php echo $holiday['Holiday']['date']; ?>&nbsp;</td>
 		<td><?php echo $holiday['Holiday']['name']; ?>&nbsp;</td>
 		<td class="actions">
-			<?php echo $this->Html->link(__('Edit', true), array('action' => 'edit', $holiday['Holiday']['id'])); ?>
-			<?php echo $this->Html->link(__('Delete', true), array('action' => 'delete', $holiday['Holiday']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $holiday['Holiday']['id'])); ?>
+			<?php echo $this->Html->link(__('Edit', true), array('action' => 'edit', 'holiday' => $holiday['Holiday']['id'])); ?>
+			<?php echo $this->Html->link(__('Delete', true), array('action' => 'delete', 'holiday' => $holiday['Holiday']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $holiday['Holiday']['id'])); ?>
 		</td>
 	</tr>
 <?php endforeach; ?>

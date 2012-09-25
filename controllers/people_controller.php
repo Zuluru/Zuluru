@@ -90,52 +90,60 @@ class PeopleController extends AppController {
 		));
 
 		// Get the list of accounts by age
-		$age_count = $this->Person->find('all', array(
-				'fields' => array(
-					'FLOOR((YEAR(NOW()) - YEAR(birthdate)) / 5) * 5 AS age_bucket',
-					'COUNT(Person.id) AS count',
-				),
-				'conditions' => array(
-					array('birthdate !=' => null),
-					array('birthdate !=' => '0000-00-00'),
-				),
-				'group' => 'age_bucket',
-				'order' => 'age_bucket',
-				'recursive' => -1,
-		));
+		if (Configure::read('profile.birthdate')) {
+			$age_count = $this->Person->find('all', array(
+					'fields' => array(
+						'FLOOR((YEAR(NOW()) - YEAR(birthdate)) / 5) * 5 AS age_bucket',
+						'COUNT(Person.id) AS count',
+					),
+					'conditions' => array(
+						array('birthdate !=' => null),
+						array('birthdate !=' => '0000-00-00'),
+					),
+					'group' => 'age_bucket',
+					'order' => 'age_bucket',
+					'recursive' => -1,
+			));
+		}
 
 		// Get the list of accounts by year started
-		$started_count = $this->Person->find('all', array(
-				'fields' => array(
-					'Person.year_started',
-					'COUNT(Person.id) AS count',
-				),
-				'group' => 'year_started',
-				'order' => 'year_started',
-				'recursive' => -1,
-		));
+		if (Configure::read('profile.year_started')) {
+			$started_count = $this->Person->find('all', array(
+					'fields' => array(
+						'Person.year_started',
+						'COUNT(Person.id) AS count',
+					),
+					'group' => 'year_started',
+					'order' => 'year_started',
+					'recursive' => -1,
+			));
+		}
 
 		// Get the list of accounts by skill level
-		$skill_count = $this->Person->find('all', array(
-				'fields' => array(
-					'Person.skill_level',
-					'COUNT(Person.id) AS count',
-				),
-				'group' => 'skill_level',
-				'order' => 'skill_level DESC',
-				'recursive' => -1,
-		));
+		if (Configure::read('profile.skill_level')) {
+			$skill_count = $this->Person->find('all', array(
+					'fields' => array(
+						'Person.skill_level',
+						'COUNT(Person.id) AS count',
+					),
+					'group' => 'skill_level',
+					'order' => 'skill_level DESC',
+					'recursive' => -1,
+			));
+		}
 
 		// Get the list of accounts by city
-		$city_count = $this->Person->find('all', array(
-				'fields' => array(
-					'Person.addr_city',
-					'COUNT(Person.id) AS count',
-				),
-				'group' => 'addr_city HAVING count > 2',
-				'order' => 'count DESC',
-				'recursive' => -1,
-		));
+		if (Configure::read('profile.addr_city')) {
+			$city_count = $this->Person->find('all', array(
+					'fields' => array(
+						'Person.addr_city',
+						'COUNT(Person.id) AS count',
+					),
+					'group' => 'addr_city HAVING count > 2',
+					'order' => 'count DESC',
+					'recursive' => -1,
+			));
+		}
 
 		$this->set(compact('status_count', 'groups', 'group_count', 'gender_count',
 				'age_count', 'started_count', 'skill_count', 'city_count'));
@@ -711,7 +719,6 @@ class PeopleController extends AppController {
 			}
 
 			// Image was uploaded, ask user to crop it
-			$temp_dir = Configure::read('folders.league_base') . DS . 'temp';
 			$rand = mt_rand();
 			$uploaded = $this->ImageCrop->uploadImage($this->data['image'], $temp_dir, "temp_{$person['id']}_$rand");
 			$this->set(compact('uploaded'));
@@ -1154,6 +1161,7 @@ class PeopleController extends AppController {
 					'contain' => array(
 						'Note' => array('conditions' => array('created_person_id' => $this->Auth->user('id'))),
 					),
+					'limit' => Configure::read('feature.items_per_page'),
 				);
 				$this->set('people', $this->paginate('Person'));
 			}

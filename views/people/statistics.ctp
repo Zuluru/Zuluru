@@ -87,6 +87,7 @@ foreach ($gender_count as $gender):
 	</tbody>
 </table>
 
+<?php if (Configure::read('profile.birthdate')): ?>
 <h3><?php __('Players by Age'); ?></h3>
 <table class="list">
 	<thead>
@@ -113,7 +114,9 @@ foreach ($age_count as $age):
 		</tr>
 	</tbody>
 </table>
+<?php endif; ?>
 
+<?php if (Configure::read('profile.year_started')): ?>
 <h3><?php __('Players by Year Started'); ?></h3>
 <table class="list">
 	<thead>
@@ -140,7 +143,9 @@ foreach ($started_count as $started):
 		</tr>
 	</tbody>
 </table>
+<?php endif; ?>
 
+<?php if (Configure::read('profile.skill_level')): ?>
 <h3><?php __('Players by Skill Level'); ?></h3>
 <table class="list">
 	<thead>
@@ -167,7 +172,9 @@ foreach ($skill_count as $skill):
 		</tr>
 	</tbody>
 </table>
+<?php endif; ?>
 
+<?php if (Configure::read('profile.addr_city')): ?>
 <h3><?php __('Players by City'); ?></h3>
 <table class="list">
 	<thead>
@@ -194,5 +201,6 @@ foreach ($city_count as $city):
 		</tr>
 	</tbody>
 </table>
+<?php endif; ?>
 
 </div>

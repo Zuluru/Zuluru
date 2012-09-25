@@ -8,14 +8,6 @@ class HolidaysController extends AppController {
 		$this->set('holidays', $this->paginate());
 	}
 
-	function view($id = null) {
-		if (!$id) {
-			$this->Session->setFlash(__('Invalid holiday', true), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
-		}
-		$this->set('holiday', $this->Holiday->read(null, $id));
-	}
-
 	function add() {
 		if (!empty($this->data)) {
 			$this->Holiday->create();
@@ -26,9 +18,12 @@ class HolidaysController extends AppController {
 				$this->Session->setFlash(__('The holiday could not be saved. Please, try again.', true), 'default', array('class' => 'warning'));
 			}
 		}
+		$this->set('add', true);
+		$this->render('edit');
 	}
 
-	function edit($id = null) {
+	function edit() {
+		$id = $this->_arg('holiday');
 		if (!$id && empty($this->data)) {
 			$this->Session->setFlash(__('Invalid holiday', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
@@ -46,14 +41,15 @@ class HolidaysController extends AppController {
 		}
 	}
 
-	function delete($id = null) {
+	function delete() {
+		$id = $this->_arg('holiday');
 		if (!$id) {
 			$this->Session->setFlash(__('Invalid id for holiday', true), 'default', array('class' => 'info'));
-			$this->redirect(array('action'=>'index'));
+			$this->redirect(array('action' => 'index'));
 		}
 		if ($this->Holiday->delete($id)) {
 			$this->Session->setFlash(__('Holiday deleted', true), 'default', array('class' => 'success'));
-			$this->redirect(array('action'=>'index'));
+			$this->redirect(array('action' => 'index'));
 		}
 		$this->Session->setFlash(__('Holiday was not deleted', true), 'default', array('class' => 'warning'));
 		$this->redirect(array('action' => 'index'));

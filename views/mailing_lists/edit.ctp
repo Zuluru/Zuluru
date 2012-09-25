@@ -11,7 +11,7 @@ if (isset ($add)) {
 <div class="mailingLists form">
 <?php echo $this->Form->create('MailingList', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
- 		<legend><?php __('Edit Mailing List'); ?></legend>
+ 		<legend><?php printf(__(isset($add) ? 'Create %s' : 'Edit %s', true), __('Mailing List', true)); ?></legend>
 	<?php
 		if (!isset ($add)) {
 			echo $this->Form->input('id');
@@ -32,15 +32,16 @@ if (isset ($add)) {
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
 <div class="actions">
-	<h3><?php __('Actions'); ?></h3>
 	<ul>
+		<li><?php echo $this->Html->link(sprintf(__('List %s', true), __('Mailing Lists', true)), array('action' => 'index'));?></li>
+<?php if (!isset ($add)): ?>
 		<li><?php echo $this->ZuluruHtml->iconLink('delete_32.png',
 					array('action' => 'delete', 'mailing_list' => $this->Form->value('MailingList.id')),
 					array('alt' => __('Delete', true), 'title' => __('Delete Mailing List', true)),
 					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $this->Form->value('MailingList.id')))); ?></li>
-		<li><?php echo $this->Html->link(sprintf(__('List %s', true), __('Mailing Lists', true)), array('action' => 'index'));?></li>
 		<li><?php echo $this->ZuluruHtml->iconLink('mailing_list_add_32.png',
 					array('action' => 'add'),
 					array('alt' => __('New', true), 'title' => __('New', true))); ?></li>
+<?php endif; ?>
 	</ul>
 </div>

@@ -6,7 +6,7 @@ class DivisionsController extends AppController {
 	var $components = array('Lock', 'CanRegister');
 
 	function publicActions() {
-		return array('cron', 'view', 'schedule', 'standings');
+		return array('view', 'schedule', 'standings');
 	}
 
 	function isAuthorized() {
@@ -273,6 +273,7 @@ class DivisionsController extends AppController {
 						'Group',
 						'Note' => array('conditions' => array('created_person_id' => $this->Auth->user('id'))),
 					),
+					'limit' => Configure::read('feature.items_per_page'),
 				);
 				$this->set('people', $this->paginate('Person'));
 			}

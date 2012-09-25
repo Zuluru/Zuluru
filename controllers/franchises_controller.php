@@ -333,6 +333,7 @@ class FranchisesController extends AppController {
 				$this->paginate['Person'] = array(
 					'conditions' => $this->_generateSearchConditions($params, 'Person'),
 					'contain' => false,
+					'limit' => Configure::read('feature.items_per_page'),
 				);
 				$this->set('people', $this->paginate('Person'));
 			}

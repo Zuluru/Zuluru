@@ -22,7 +22,6 @@ $this->Html->addCrumb (__('View', true));
 	</dl>
 </div>
 <div class="actions">
-	<h3><?php __('Actions'); ?></h3>
 	<ul>
 		<li><?php echo $this->ZuluruHtml->iconLink('edit_32.png',
 					array('action' => 'edit', 'mailing_list' => $mailingList['MailingList']['id']),

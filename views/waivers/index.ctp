@@ -66,7 +66,6 @@ $this->Html->addCrumb (__('List', true));
 	</table>
 </div>
 <div class="actions">
-	<h3><?php __('Actions'); ?></h3>
 	<ul>
 		<?php
 		if ($is_admin) {

@@ -24,7 +24,11 @@ foreach ($new as $player) {
 		array(implode ('', $links), array('class' => 'actions'))
 	);
 }
-echo $this->Html->tag('table', $this->Html->tableCells ($rows, array(), array('class' => 'altrow')), array('class' => 'list'));
+if (empty($rows)) {
+	echo $this->Html->para(null, __('No accounts to approve.', true));
+} else {
+	echo $this->Html->tag('table', $this->Html->tableCells ($rows, array(), array('class' => 'altrow')), array('class' => 'list'));
+}
 ?>
 
 </div>
