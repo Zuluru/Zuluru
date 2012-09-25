@@ -488,10 +488,6 @@ class AppController extends Controller {
 				}
 			}
 
-			$this->_addMenuItem ('Waivers', array('controller' => 'waivers', 'action' => 'index'), 'Players');
-		}
-
-		if ($this->is_admin) {
 			$this->_addMenuItem ('Newsletters', array('controller' => 'newsletters', 'action' => 'index'));
 			$this->_addMenuItem ('Upcoming', array('controller' => 'newsletters', 'action' => 'index'), 'Newsletters');
 			$this->_addMenuItem ('Mailing lists', array('controller' => 'mailing_lists', 'action' => 'index'), 'Newsletters');
@@ -512,6 +508,8 @@ class AppController extends Controller {
 			if (Configure::read('feature.documents')) {
 				$this->_addMenuItem ('Upload types', array('controller' => 'upload_types', 'action' => 'index'), 'Configuration');
 			}
+
+			$this->_addMenuItem ('Waivers', array('controller' => 'waivers', 'action' => 'index'), 'Configuration');
 		}
 
 		if (! $this->Session->read('Zuluru.external_login')) {
