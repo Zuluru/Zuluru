@@ -16,6 +16,7 @@ if ($is_admin) {
 $sport = array_shift(array_keys(Configure::read('options.sport')));
 ?>
 
+<h2><?php echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_name']} {$this->data['Person']['last_name']}"; ?></h2>
 <p>Note that email and phone publish settings below only apply to regular players. Captains will always have access to view the phone numbers and email addresses of their confirmed players. All Team Captains will also have their email address viewable by other players.</p>
 <?php if (Configure::read('urls.privacy_policy')): ?>
 <p>If you have concerns about the data <?php echo $short; ?> collects, please see our <strong><a href="<?php echo Configure::read('urls.privacy_policy'); ?>" target="_new">Privacy Policy</a>.</strong></p>
