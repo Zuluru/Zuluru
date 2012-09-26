@@ -4,6 +4,8 @@ $this->Html->addCrumb (__('Create', true));
 
 $short = Configure::read('organization.short_name');
 
+$access = array(1);
+
 // TODO: Handle more than one sport in a site
 $sport = array_shift(array_keys(Configure::read('options.sport')));
 ?>
@@ -95,7 +97,16 @@ $sport = array_shift(array_keys(Configure::read('options.sport')));
 	<?php if (Configure::read('profile.home_phone') || Configure::read('profile.work_phone') ||
 				Configure::read('profile.mobile_phone')): ?>
 	<fieldset>
- 		<legend><?php __('Telephone Numbers'); ?></legend>
+ 		<legend><?php
+ 		if (Configure::read('profile.home_phone') + Configure::read('profile.work_phone') +
+ 			Configure::read('profile.mobile_phone') > 1)
+ 		{
+ 			$number = 'Numbers';
+ 		} else {
+ 			$number = 'Number';
+ 		}
+		__("Telephone $number");
+		?></legend>
 	<?php
 		if (Configure::read('profile.home_phone')) {
 			echo $this->ZuluruForm->input('home_phone', array(
