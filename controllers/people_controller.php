@@ -526,6 +526,7 @@ class PeopleController extends AppController {
 			$this->Person->contain();
 			$this->data = $this->Person->read(null, $id);
 		}
+		$this->set('is_me', ($id === $this->Auth->user('id')));
 	}
 
 	function note() {
