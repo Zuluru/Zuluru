@@ -125,6 +125,16 @@ $this->Html->addCrumb (__('Feature', true));
 	<?php
 	echo $this->element('settings/input', array(
 		'category' => 'feature',
+		'name' => 'auto_approve',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'label' => 'Automatically approve new user accounts',
+			'after' => 'By enabling this, you reduce administrative work and minimize delays for users. However, you also lose the ability to detect and eliminate duplicate accounts. <span class="warning-message">Use of this feature is recommended only for brand new sites wanting to ease the transition for their members.</span>',
+		),
+	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
 		'name' => 'photos',
 		'options' => array(
 			'type' => 'radio',

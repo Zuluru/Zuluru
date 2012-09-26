@@ -81,8 +81,16 @@ class UsersController extends AppController {
 			$this->User->create();
 			$this->data['User']['complete'] = true;
 			$this->data['User']['group_id'] = 1;	// TODO: Assumed this is the Player group
+			if (Configure::read('feature.auto_approve')) {
+				$this->data['User']['status'] = 'active';
+			}
+
 			if ($this->User->save($this->data)) {
-				$this->Session->setFlash(__('Your account has been saved. It must be approved by an administrator before you will have full access to the site. However, you can log in and start exploring right away.', true), 'default', array('class' => 'success'));
+				if (Configure::read('feature.auto_approve')) {
+					$this->Session->setFlash(__('Your account has been saved.', true), 'default', array('class' => 'success'));
+				} else {
+					$this->Session->setFlash(__('Your account has been saved. It must be approved by an administrator before you will have full access to the site. However, you can log in and start exploring right away.', true), 'default', array('class' => 'success'));
+				}
 
 				// There may be callbacks to handle
 				// TODO: How to handle this in conjunction with third-party auth systems?
