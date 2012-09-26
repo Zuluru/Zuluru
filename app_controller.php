@@ -338,14 +338,18 @@ class AppController extends Controller {
 	}
 
 	function _limitOverride($team_id) {
-		$on_team = in_array ($team_id, $this->Session->read('Zuluru.TeamIDs'));
+		$on_team = in_array($team_id, $this->Session->read('Zuluru.TeamIDs'));
+		if ($on_team) {
+			$this->effective_admin = $this->effective_coordinator = false;
+		} else {
+			$this->effective_admin = $this->is_admin;
 
-		$this->effective_admin = ($this->is_admin && !$on_team);
+			$divisions = $this->Session->read('Zuluru.Divisions');
+			$teams = Set::extract ('/Team/id', $divisions);
+			$this->effective_coordinator = (in_array ($team_id, $teams) && !$on_team);
+		}
+
 		$this->set('is_effective_admin', $this->effective_admin);
-
-		$divisions = $this->Session->read('Zuluru.Divisions');
-		$teams = Set::extract ('/Team/id', $divisions);
-		$this->effective_coordinator = (in_array ($team_id, $teams) && !$on_team);
 		$this->set('is_effective_coordinator', $this->effective_coordinator);
 	}
 
@@ -460,7 +464,8 @@ class AppController extends Controller {
 			}
 
 			if (!isset ($this->Person->Upload) &&
-				(Configure::read('feature.photos') || Configure::read('feature.documents'))) {
+				(Configure::read('feature.photos') || Configure::read('feature.documents')))
+			{
 				$this->Person->Upload = ClassRegistry::init ('Upload');
 			}
 
