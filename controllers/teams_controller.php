@@ -15,6 +15,7 @@ class TeamsController extends AppController {
 	function isAuthorized() {
 		// Anyone that's logged in can perform these operations
 		if (in_array ($this->params['action'], array(
+				'join',
 				'note',
 				'delete_note',
 		)))
@@ -150,6 +151,17 @@ class TeamsController extends AppController {
 				'group' => 'letter',
 		)));
 	}
+
+	function join() {
+		$this->paginate = array(
+				'conditions' => array(
+					'Team.open_roster' => true,
+					'Division.is_open' => true,
+				),
+				'contain' => array('Division' => 'League'),
+		);
+		$this->set('teams', $this->paginate('Team'));
+	}	
 
 	function unassigned() {
 		$this->Team->contain();
