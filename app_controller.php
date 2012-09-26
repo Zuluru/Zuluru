@@ -92,8 +92,8 @@ class AppController extends Controller {
 
 		$this->_initSessionData($this->Auth->user('id'));
 
-		if (!$this->RequestHandler->isAjax() && $this->_arg('return') && !$this->Session->check('Zuluru.redirect')) {
-			$this->Session->write('Zuluru.redirect', $this->referer(null, true));
+		if (!$this->RequestHandler->isAjax() && $this->_arg('return') && !$this->Session->check('Navigation.redirect')) {
+			$this->Session->write('Navigation.redirect', $this->referer(null, true));
 		}
 
 		// Check if we need to redirect logged-in users for some required step first
@@ -159,9 +159,9 @@ class AppController extends Controller {
 
 	function redirect($url = null) {
 		// If there's a referer saved, we always go back there
-		if ($this->Session->check('Zuluru.redirect')) {
-			$url = Router::normalize($this->Session->read('Zuluru.redirect'));
-			$this->Session->delete('Zuluru.redirect');
+		if ($this->Session->check('Navigation.redirect')) {
+			$url = Router::normalize($this->Session->read('Navigation.redirect'));
+			$this->Session->delete('Navigation.redirect');
 			parent::redirect($url);
 		}
 
