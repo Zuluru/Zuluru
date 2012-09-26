@@ -92,8 +92,15 @@ class AppController extends Controller {
 
 		$this->_initSessionData($this->Auth->user('id'));
 
-		if (!$this->RequestHandler->isAjax() && $this->_arg('return') && !$this->Session->check('Navigation.redirect')) {
-			$this->Session->write('Navigation.redirect', $this->referer(null, true));
+		if (!$this->RequestHandler->isAjax()) {
+			if ($this->_arg('return') && !$this->Session->check('Navigation.redirect')) {
+				// If there's a return requested, and nothing already saved to return to, remember the referrer
+				$this->Session->write('Navigation.redirect', $this->referer(null, true));
+			} else if (!$this->_arg('return') && $this->Session->check('Navigation.redirect')) {
+				// If there's no return requested, and something saved, then the operation was aborted and we
+				// don't want to remember this any more
+				$this->Session->delete('Navigation.redirect');
+			}
 		}
 
 		// Check if we need to redirect logged-in users for some required step first
