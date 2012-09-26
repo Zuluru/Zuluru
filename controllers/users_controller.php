@@ -101,8 +101,11 @@ class UsersController extends AppController {
 					$component->onAdd($this->data['User']);
 				}
 
-				// TODO: Automatically log the user in by writing to the session?
-				$this->redirect(array('action' => 'login'));
+				// Automatically log the user in
+				$this->data['User']['password'] = Security::hash($this->data['User']['passwd'], null, Configure::read ('security.salted_hash'));
+				$this->Auth->login($this->data);
+
+				$this->redirect('/');
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('account', true)), 'default', array('class' => 'warning'));
 			}
