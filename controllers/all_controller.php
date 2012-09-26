@@ -2,7 +2,7 @@
 class AllController extends AppController {
 
 	var $name = 'All';
-	var $uses = array('Game');
+	var $uses = array('Game', 'Team', 'Event', 'League');
 	var $helpers = array('ZuluruGame');
 
 	function publicActions() {
@@ -22,13 +22,13 @@ class AllController extends AppController {
 	// TODO: Split the pieces into their own controllers and use requestAction to fetch them here
 	function splash() {
 		// We already have a lot of the information we need, stored from when we built the menu
-		$this->set('id', $this->Auth->user('id'));
-		$this->set('name', $this->Session->read('Zuluru.Person.full_name'));
-		$this->set('teams', $this->Session->read('Zuluru.Teams'));
-		$this->set('divisions', $this->Session->read('Zuluru.Divisions'));
-		$this->set('unpaid', $this->Session->read('Zuluru.Unpaid'));
-
+		$id = $this->Auth->user('id');
+		$name = $this->Session->read('Zuluru.Person.full_name');
+		$teams = $this->Session->read('Zuluru.Teams');
 		$team_ids = $this->Session->read('Zuluru.TeamIDs');
+		$divisions = $this->Session->read('Zuluru.Divisions');
+		$unpaid = $this->Session->read('Zuluru.Unpaid');
+
 		if (!empty ($team_ids)) {
 			$game_opts = array(
 				'limit' => 4,
@@ -52,7 +52,7 @@ class AllController extends AppController {
 					'HomeTeam',
 					'AwayTeam',
 					'Attendance' => array(
-						'conditions' => array('Attendance.person_id' => $this->Auth->user('id')),
+						'conditions' => array('Attendance.person_id' => $id),
 					),
 				),
 			);
@@ -92,6 +92,60 @@ class AllController extends AppController {
 		} else {
 			$this->set('games', array());
 		}
+
+		$past_teams = $this->Team->TeamsPerson->find('count', array(
+				'conditions' => array('person_id' => $id),
+				'contain' => array(),
+		)) - count($team_ids);
+
+		// If the user has nothing going on, pull some more details to allow us to help them get started
+		if (!$this->is_admin && empty($teams) && empty($divisions) && empty($unpaid)) {
+			if (Configure::read('feature.registration')) {
+				$membership_types = $this->Event->EventType->find('list', array(
+						'conditions' => array('type' => 'membership'),
+				));
+				$membership_events = $this->Event->find('count', array(
+						'conditions' => array(
+							'event_type_id' => array_keys($membership_types),
+							'open < CURDATE()',
+							'close > CURDATE()',
+						),
+						'contain' => array(),
+				));
+				$non_membership_events = $this->Event->find('count', array(
+						'conditions' => array(
+							'NOT' => array('event_type_id' => array_keys($membership_types)),
+							'open < CURDATE()',
+							'close > CURDATE()',
+						),
+						'contain' => array(),
+				));
+			}
+
+			$open_teams = $this->Team->find('count', array(
+					'conditions' => array(
+						'Team.open_roster' => true,
+						'OR' => array(
+							'Division.is_open',
+							'Division.open > CURDATE()',
+						),
+					),
+					'contain' => array('Division'),
+			));
+
+			$open_leagues = $this->League->find('count', array(
+					'conditions' => array(
+						'OR' => array(
+							'League.is_open',
+							'League.open > CURDATE()',
+						),
+					),
+					'contain' => array(),
+			));
+		}
+
+		$this->set(compact('id', 'name', 'teams', 'divisions', 'unpaid', 'past_teams',
+				'membership_events', 'non_membership_events', 'open_teams', 'open_leagues'));
 	}
 
 	function cron() {

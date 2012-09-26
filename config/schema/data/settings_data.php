@@ -78,12 +78,22 @@ class SettingsData {
 		),
 		array(
 			'category' => 'feature',
+			'name' => 'auto_approve',
+			'value' => '0',
+		),
+		array(
+			'category' => 'feature',
 			'name' => 'registration',
 			'value' => '1',
 		),
 		array(
 			'category' => 'feature',
 			'name' => 'spirit',
+			'value' => '1',
+		),
+		array(
+			'category' => 'feature',
+			'name' => 'urls',
 			'value' => '1',
 		),
 		array(

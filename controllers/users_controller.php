@@ -81,8 +81,16 @@ class UsersController extends AppController {
 			$this->User->create();
 			$this->data['User']['complete'] = true;
 			$this->data['User']['group_id'] = 1;	// TODO: Assumed this is the Player group
+			if (Configure::read('feature.auto_approve')) {
+				$this->data['User']['status'] = 'active';
+			}
+
 			if ($this->User->save($this->data)) {
-				$this->Session->setFlash(__('Your account has been saved. It must be approved by an administrator before you will have full access to the site. However, you can log in and start exploring right away.', true), 'default', array('class' => 'success'));
+				if (Configure::read('feature.auto_approve')) {
+					$this->Session->setFlash(__('Your account has been saved.', true), 'default', array('class' => 'success'));
+				} else {
+					$this->Session->setFlash(__('Your account has been saved. It must be approved by an administrator before you will have full access to the site. However, you can log in and start exploring right away.', true), 'default', array('class' => 'success'));
+				}
 
 				// There may be callbacks to handle
 				// TODO: How to handle this in conjunction with third-party auth systems?
@@ -93,8 +101,11 @@ class UsersController extends AppController {
 					$component->onAdd($this->data['User']);
 				}
 
-				// TODO: Automatically log the user in by writing to the session?
-				$this->redirect(array('action' => 'login'));
+				// Automatically log the user in
+				$this->data['User']['password'] = Security::hash($this->data['User']['passwd'], null, Configure::read ('security.salted_hash'));
+				$this->Auth->login($this->data);
+
+				$this->redirect('/');
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('account', true)), 'default', array('class' => 'warning'));
 			}

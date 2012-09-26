@@ -217,17 +217,13 @@ class Team extends AppModel {
 			return array();
 		}
 
+		$conditions = array(
+			'Division.schedule_type !=' => 'none',
+		);
 		if ($open) {
-			$conditions = array(
-				'Division.schedule_type !=' => 'none',
-				'OR' => array(
-					'Division.is_open' => true,
-					'Division.open > CURDATE()',
-				),
-			);
-		} else {
-			$conditions = array(
-				'Division.schedule_type !=' => 'none',
+			$conditions['OR'] = array(
+				'Division.is_open' => true,
+				'Division.open > CURDATE()',
 			);
 		}
 		$conditions['TeamsPerson.person_id'] = $id;

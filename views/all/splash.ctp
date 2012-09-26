@@ -7,22 +7,57 @@ $this->Html->addCrumb ($name);
 <?php echo $this->Html->tag('h2', $name); ?>
 
 <?php
-$empty = true;
+if ($is_admin) {
+	echo $this->element('version_check');
+}
+
+if (!$is_admin && empty($unpaid) && empty($teams) && empty($divisions)):
+?>
+<div id="kick_start">
+<h3><?php __('You are not yet on any teams.'); ?></h3>
+<?php
+	$actions = array();
+
+	if (Configure::read('feature.registration')) {
+		$options = array();
+		if ($membership_events) {
+			$options[] = 'membership';
+		}
+		if ($non_membership_events) {
+			$options[] = 'an event';
+		}
+		if (!empty($options)) {
+			$actions[] = $this->Html->link ('Register for ' . implode(' or ', $options), array('controller' => 'events', 'action' => 'wizard'));
+		}
+	}
+
+	if ($open_teams) {
+		$actions[] = $this->Html->link ('Join an existing team', array('controller' => 'teams', 'action' => 'join'));
+	}
+
+	if ($open_leagues) {
+		$actions[] = $this->Html->link ('Check out the leagues we are currently offering', array('controller' => 'leagues'));
+	}
+
+	if (!empty($actions)) {
+		echo $this->Html->tag('div', $this->Html->nestedList($actions), array('class' => 'actions'));
+	}
+?>
+</div>
+
+<?php
+endif;
 
 if (!empty($unpaid)) {
-	$empty = false;
 	echo $this->Html->para (null, sprintf (__('You currently have %s unpaid %s. %s to complete these registrations.', true),
 			count($unpaid),
 			__(count($unpaid) > 1 ? 'registrations' : 'registration', true),
 			$this->Html->link (__('Click here', true), array('controller' => 'registrations', 'action' => 'checkout'))
 	));
 }
-
-if ($is_admin) {
-	echo $this->element('version_check');
-}
 ?>
 
+<?php if (!empty($teams) || $past_teams > 0): ?>
 <table class="list">
 <tr>
 	<th colspan="2"><?php
@@ -31,7 +66,6 @@ if ($is_admin) {
 	?></th>
 </tr>
 <?php
-$empty = false;
 $i = 0;
 foreach ($teams as $team):
 	$class = null;
@@ -79,11 +113,14 @@ foreach ($teams as $team):
 	</tr>
 <?php endforeach; ?>
 </table>
+<?php if ($past_teams > 0): ?>
 <div class="actions">
 	<ul>
 		<li><?php echo $this->Html->link(__('Show Team History', true), array('controller' => 'people', 'action' => 'teams')); ?> </li>
 	</ul>
 </div>
+<?php endif; ?>
+<?php endif; ?>
 
 <?php if (!empty ($divisions)) : ?>
 <table class="list">
@@ -91,7 +128,6 @@ foreach ($teams as $team):
 	<th colspan="2"><?php __('Divisions Coordinated');?></th>
 </tr>
 <?php
-$empty = false;
 $i = 0;
 foreach ($divisions as $division):
 	$class = null;
@@ -130,6 +166,7 @@ foreach ($divisions as $division):
 </table>
 <?php endif; ?>
 
+<?php if (!empty($games)): ?>
 <table class="list">
 <tr>
 	<th colspan="3"><?php
@@ -222,16 +259,7 @@ if (Configure::read('personal.enable_ical')) {
 	__(' to enable your personal iCal feed');
 }
 ?>. <?php echo $this->ZuluruHtml->help(array('action' => 'games', 'personal_feed')); ?></p>
-
-<?php
-if ($empty) {
-	echo $this->Html->para (null, sprintf (__('You are not yet on any teams. Perhaps you would like to %s, %s or %s.', true),
-		$this->Html->link ('register for membership or an event', array('controller' => 'events', 'action' => 'wizard')),
-		$this->Html->link ('look for a team to join', array('controller' => 'teams')),
-		$this->Html->link ('check out the leagues we are currently offering', array('controller' => 'leagues'))
-	));
-}
-?>
+<?php endif; ?>
 
 </div>
 

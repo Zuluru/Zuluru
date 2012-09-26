@@ -7,7 +7,7 @@ $this->Html->addCrumb (__('View', true));
 <div class="teams view">
 <h2><?php  echo __('View Team', true) . ': ' . $team['Team']['name'];?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
-		<?php if (!empty ($team['Team']['website'])):?>
+		<?php if (Configure::read('feature.urls') && !empty ($team['Team']['website'])):?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Website'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $this->Html->link($team['Team']['website'], $team['Team']['website']); ?>

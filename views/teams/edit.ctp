@@ -19,9 +19,11 @@ if (isset ($add)) {
 		echo $this->ZuluruForm->input('name', array(
 			'after' => $this->Html->para (null, __('The full name of your team.', true)),
 		));
-		echo $this->ZuluruForm->input('website', array(
-			'after' => $this->Html->para (null, __('Your team\'s website, if you have one.', true)),
-		));
+		if (Configure::read('feature.urls')) {
+			echo $this->ZuluruForm->input('website', array(
+				'after' => $this->Html->para (null, __('Your team\'s website, if you have one.', true)),
+			));
+		}
 		if (Configure::read('feature.shirt_colour')) {
 			echo $this->ZuluruForm->input('shirt_colour', array(
 				'after' => $this->Html->para (null, __('Shirt colour of your team. If you don\'t have team shirts, pick \'light\' or \'dark\'.', true)),

@@ -417,6 +417,17 @@ body.map
 	text-align: right;
 }
 
+#kick_start div.actions li
+{
+	float: none;
+	font-size: 150%;
+	margin: 0 0 10px;
+}
+#kick_start .actions a
+{
+	padding: 4px 10px;
+}
+
 /** Related **/
 div.related
 {

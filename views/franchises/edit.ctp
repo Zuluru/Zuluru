@@ -19,9 +19,11 @@ if (isset ($add)) {
 		echo $this->ZuluruForm->input('name', array(
 			'after' => $this->Html->para (null, __('The full name of your franchise.', true)),
 		));
-		echo $this->ZuluruForm->input('website', array(
-			'after' => $this->Html->para (null, __('Your franchise\'s website, if you have one.', true)),
-		));
+		if (Configure::read('feature.urls')) {
+			echo $this->ZuluruForm->input('website', array(
+				'after' => $this->Html->para (null, __('Your franchise\'s website, if you have one.', true)),
+			));
+		}
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
