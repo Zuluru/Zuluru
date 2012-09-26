@@ -31,7 +31,7 @@ $this->Html->addCrumb (__('Preview', true));
 					array('action' => 'send', 'newsletter' => $newsletter['Newsletter']['id']),
 					array('alt' => __('Send', true), 'title' => __('Send', true))); ?></li>
 		<li><?php echo $this->ZuluruHtml->iconLink('edit_32.png',
-					array('action' => 'edit', 'newsletter' => $newsletter['Newsletter']['id']),
+					array('action' => 'edit', 'newsletter' => $newsletter['Newsletter']['id'], 'return' => true),
 					array('alt' => __('Edit', true), 'title' => __('Edit', true))); ?></li>
 		<li><?php echo $this->ZuluruHtml->iconLink('delete_32.png',
 					array('action' => 'delete', 'newsletter' => $newsletter['Newsletter']['id']),

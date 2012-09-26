@@ -58,7 +58,7 @@ if (!empty ($edit_date)) {
 			array('alt' => __('Standings', true), 'title' => __('Standings', true))));
 		if ($is_admin || $is_coordinator) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('edit_32.png',
-				array('action' => 'edit', 'division' => $division['Division']['id']),
+				array('action' => 'edit', 'division' => $division['Division']['id'], 'return' => true),
 				array('alt' => __('Edit', true), 'title' => __('Edit Division', true))));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('email_32.png',
 				array('action' => 'emails', 'division' => $division['Division']['id']),

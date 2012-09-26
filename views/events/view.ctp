@@ -205,14 +205,14 @@ else:
 		}
 		if ($is_admin) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('edit_32.png',
-				array('action' => 'edit', 'event' => $event['Event']['id']),
+				array('action' => 'edit', 'event' => $event['Event']['id'], 'return' => true),
 				array('alt' => __('Edit', true), 'title' => __('Edit', true))));
 			$alt = sprintf(__('Manage %s', true), __('Connections', true));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('connections_32.png',
 				array('action' => 'connections', 'event' => $event['Event']['id']),
 				array('alt' => $alt, 'title' => $alt)));
 			echo $this->Html->tag ('li', $this->Html->link(sprintf(__('Edit %s', true), __('Questionnaire', true)),
-				array('controller' => 'questionnaires', 'action' => 'edit', 'questionnaire' => $event['Event']['questionnaire_id'])));
+				array('controller' => 'questionnaires', 'action' => 'edit', 'questionnaire' => $event['Event']['questionnaire_id'], 'return' => true)));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('delete_32.png',
 				array('action' => 'delete', 'event' => $event['Event']['id']),
 				array('alt' => __('Delete', true), 'title' => __('Delete', true)),

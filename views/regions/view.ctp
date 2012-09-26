@@ -42,10 +42,10 @@ $this->Html->addCrumb (__('View', true));
 				array('controller' => 'facilities', 'action' => 'view', 'facility' => $facility['id']),
 				array('alt' => __('View', true), 'title' => __('View', true)));
 			echo $this->ZuluruHtml->iconLink('edit_32.png',
-				array('controller' => 'facilities', 'action' => 'edit', 'facility' => $facility['id']),
+				array('controller' => 'facilities', 'action' => 'edit', 'facility' => $facility['id'], 'return' => true),
 				array('alt' => __('Edit', true), 'title' => __('Edit', true)));
 			echo $this->ZuluruHtml->iconLink('delete_32.png',
-				array('controller' => 'facilities', 'action' => 'delete', 'facility' => $facility['id']),
+				array('controller' => 'facilities', 'action' => 'delete', 'facility' => $facility['id'], 'return' => true),
 				array('alt' => __('Delete', true), 'title' => __('Delete', true)),
 				array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $facility['id'])));
 			?>
@@ -65,11 +65,11 @@ $this->Html->addCrumb (__('View', true));
 		echo $this->Html->tag('li', $this->Html->link(__('List Regions', true),
 			array('action' => 'index')));
 		echo $this->Html->tag('li', $this->ZuluruHtml->iconLink('edit_32.png',
-			array('action' => 'edit', 'region' => $region['Region']['id']),
+			array('action' => 'edit', 'region' => $region['Region']['id'], 'return' => true),
 			array('alt' => __('Edit', true), 'title' => __('Edit Region', true))));
 		echo $this->Html->tag('li', $this->ZuluruHtml->iconLink('delete_32.png',
 			array('action' => 'delete', 'region' => $region['Region']['id']),
-			array('alt' => __('Edit', true), 'title' => __('Edit Region', true)),
+			array('alt' => __('Delete', true), 'title' => __('Delete Region', true)),
 			array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $region['Region']['id']))));
 		echo $this->Html->tag('li', $this->ZuluruHtml->iconLink('add_32.png',
 			array('action' => 'add'),

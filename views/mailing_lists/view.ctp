@@ -24,7 +24,7 @@ $this->Html->addCrumb (__('View', true));
 <div class="actions">
 	<ul>
 		<li><?php echo $this->ZuluruHtml->iconLink('edit_32.png',
-					array('action' => 'edit', 'mailing_list' => $mailingList['MailingList']['id']),
+					array('action' => 'edit', 'mailing_list' => $mailingList['MailingList']['id'], 'return' => true),
 					array('alt' => __('Edit', true), 'title' => __('Edit', true))); ?></li>
 		<li><?php echo $this->ZuluruHtml->iconLink('delete_32.png',
 					array('action' => 'delete', 'mailing_list' => $mailingList['MailingList']['id']),
@@ -62,14 +62,14 @@ $this->Html->addCrumb (__('View', true));
 						array('controller' => 'newsletters', 'action' => 'view', 'newsletter' => $newsletter['id']),
 						array('alt' => __('Preview', true), 'title' => __('Preview', true))); ?>
 				<?php echo $this->ZuluruHtml->iconLink('edit_24.png',
-						array('controller' => 'newsletters', 'action' => 'edit', 'newsletter' => $newsletter['id']),
+						array('controller' => 'newsletters', 'action' => 'edit', 'newsletter' => $newsletter['id'], 'return' => true),
 						array('alt' => __('Edit', true), 'title' => __('Edit', true))); ?>
 				<?php echo $this->Html->link(__('Delivery Report', true), array('action' => 'delivery', 'newsletter' => $newsletter['id'])); ?>
 				<?php echo $this->ZuluruHtml->iconLink('newsletter_send_24.png',
 						array('controller' => 'newsletters', 'action' => 'send', 'newsletter' => $newsletter['id']),
 						array('alt' => __('Send', true), 'title' => __('Send', true))); ?>
 				<?php echo $this->ZuluruHtml->iconLink('delete_24.png',
-						array('controller' => 'newsletters', 'action' => 'delete', 'newsletter' => $newsletter['id']),
+						array('controller' => 'newsletters', 'action' => 'delete', 'newsletter' => $newsletter['id'], 'return' => true),
 						array('alt' => __('Delete', true), 'title' => __('Delete Newsletter', true)),
 						array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $newsletter['id']))); ?>
 			</td>

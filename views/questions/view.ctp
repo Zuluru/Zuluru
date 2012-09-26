@@ -9,7 +9,7 @@ $this->Html->addCrumb (__('View', true));
 </div>
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Question', true)), array('action' => 'edit', 'question' => $question['Question']['id'])); ?> </li>
+		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Question', true)), array('action' => 'edit', 'question' => $question['Question']['id'], 'return' => true)); ?> </li>
 	</ul>
 </div>
 <div class="related">

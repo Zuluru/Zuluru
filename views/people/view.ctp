@@ -214,7 +214,7 @@ echo $person['Person']['full_name'];
 			echo $this->Html->tag ('li', $this->Html->link(__($link, true), array('action' => 'note', 'person' => $person['Person']['id'])));
 		}
 		if ($is_me || $is_admin) {
-			echo $this->Html->tag ('li', $this->Html->link(__('Edit Profile', true), array('action' => 'edit', 'person' => $person['Person']['id'])));
+			echo $this->Html->tag ('li', $this->Html->link(__('Edit Profile', true), array('action' => 'edit', 'person' => $person['Person']['id'], 'return' => true)));
 			echo $this->Html->tag ('li', $this->Html->link(__('Edit Preferences', true), array('action' => 'preferences', 'person' => $person['Person']['id'])));
 		}
 		if ($is_admin) {
@@ -373,8 +373,8 @@ echo $person['Person']['full_name'];
 			<td><?php echo $registration['payment'];?></td>
 			<td class="actions">
 				<?php echo $this->Html->link(__('View', true), array('controller' => 'registrations', 'action' => 'view', 'registration' => $registration['id']));?>
-				<?php echo $this->Html->link(__('Edit', true), array('controller' => 'registrations', 'action' => 'edit', 'registration' => $registration['id'])); ?>
-				<?php echo $this->Html->link(__('Unregister', true), array('controller' => 'registrations', 'action' => 'unregister', 'registration' => $registration['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $registration['id'])); ?>
+				<?php echo $this->Html->link(__('Edit', true), array('controller' => 'registrations', 'action' => 'edit', 'registration' => $registration['id'], 'return' => true)); ?>
+				<?php echo $this->Html->link(__('Unregister', true), array('controller' => 'registrations', 'action' => 'unregister', 'registration' => $registration['id'], 'return' => true), null, sprintf(__('Are you sure you want to delete # %s?', true), $registration['id'])); ?>
 			</td>
 		</tr>
 		<?php endforeach; ?>
@@ -420,9 +420,9 @@ echo $person['Person']['full_name'];
 				<?php echo $this->Html->link(__('View', true), array('action' => 'document', 'id' => $document['id']), array('target' => 'preview'));?>
 <?php if ($is_admin):?>
 <?php if ($document['approved']): ?>
-				<?php echo $this->Html->link(__('Edit', true), array('action' => 'edit_document', 'id' => $document['id']));?>
+				<?php echo $this->Html->link(__('Edit', true), array('action' => 'edit_document', 'id' => $document['id'], 'return' => true));?>
 <?php else: ?>
-				<?php echo $this->Html->link(__('Approve', true), array('action' => 'approve_document', 'id' => $document['id']));?>
+				<?php echo $this->Html->link(__('Approve', true), array('action' => 'approve_document', 'id' => $document['id'], 'return' => true));?>
 <?php endif; ?>
 <?php endif; ?>
 				<?php echo $this->Js->link (__('Delete', true),

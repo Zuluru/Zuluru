@@ -15,7 +15,7 @@ $this->Html->addCrumb (__('View', true));
 
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Questionnaire', true)), array('action' => 'edit', 'questionnaire' => $questionnaire['Questionnaire']['id'])); ?> </li>
+		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Questionnaire', true)), array('action' => 'edit', 'questionnaire' => $questionnaire['Questionnaire']['id'], 'return' => true)); ?> </li>
 		<li><?php echo $this->Html->link(sprintf(__('Delete %s', true), __('Questionnaire', true)), array('action' => 'delete', 'questionnaire' => $questionnaire['Questionnaire']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $questionnaire['Questionnaire']['id'])); ?> </li>
 		<li><?php echo $this->Html->link(sprintf(__('List %s', true), __('Questionnaires', true)), array('action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(sprintf(__('New %s', true), __('Questionnaire', true)), array('action' => 'add')); ?> </li>
@@ -45,8 +45,8 @@ $this->Html->addCrumb (__('View', true));
 			<td><?php echo $this->ZuluruTime->fulldatetime ($event['close']);?></td>
 			<td class="actions">
 				<?php echo $this->Html->link(__('View', true), array('controller' => 'events', 'action' => 'view', 'event' => $event['id'])); ?>
-				<?php echo $this->Html->link(__('Edit', true), array('controller' => 'events', 'action' => 'edit', 'event' => $event['id'])); ?>
-				<?php echo $this->Html->link(__('Delete', true), array('controller' => 'events', 'action' => 'delete', 'event' => $event['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $event['id'])); ?>
+				<?php echo $this->Html->link(__('Edit', true), array('controller' => 'events', 'action' => 'edit', 'event' => $event['id'], 'return' => true)); ?>
+				<?php echo $this->Html->link(__('Delete', true), array('controller' => 'events', 'action' => 'delete', 'event' => $event['id'], 'return' => true), null, sprintf(__('Are you sure you want to delete # %s?', true), $event['id'])); ?>
 			</td>
 		</tr>
 	<?php endforeach; ?>

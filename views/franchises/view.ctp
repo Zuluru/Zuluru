@@ -18,7 +18,7 @@ $this->Html->addCrumb (__('View', true));
 			<?php echo implode(', ', $owners); ?>
 
 		</dd>
-		<?php if (Configure::read('feature.urls) && !empty ($franchise['Franchise']['website'])):?>
+		<?php if (Configure::read('feature.urls') && !empty ($franchise['Franchise']['website'])):?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Website'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $this->Html->link($franchise['Franchise']['website'], $franchise['Franchise']['website']); ?>

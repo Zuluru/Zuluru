@@ -45,22 +45,22 @@ foreach ($people as $person):
 			<?php
 			if ($is_logged_in && Configure::read('feature.annotations')) {
 				if (!empty($person['Note'])) {
-					echo $this->Html->link(__('Delete Note', true), array('controller' => 'people', 'action' => 'delete_note', 'person' => $person['Person']['id']));
+					echo $this->Html->link(__('Delete Note', true), array('controller' => 'people', 'action' => 'delete_note', 'person' => $person['Person']['id'], 'return' => true));
 					$link = 'Edit Note';
 				} else {
 					$link = 'Add Note';
 				}
-				echo $this->Html->link(__($link, true), array('controller' => 'people', 'action' => 'note', 'person' => $person['Person']['id']));
+				echo $this->Html->link(__($link, true), array('controller' => 'people', 'action' => 'note', 'person' => $person['Person']['id'], 'return' => true));
 			}
 			?>
 			<?php if ($is_admin): ?>
-			<?php echo $this->Html->link(__('Edit', true), array('controller' => 'people', 'action' => 'edit', 'person' => $person['Person']['id'])); ?>
-			<?php echo $this->Html->link(__('Delete', true), array('controller' => 'people', 'action' => 'delete', 'person' => $person['Person']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $person['Person']['id'])); ?>
+			<?php echo $this->Html->link(__('Edit', true), array('controller' => 'people', 'action' => 'edit', 'person' => $person['Person']['id'], 'return' => true)); ?>
+			<?php echo $this->Html->link(__('Delete', true), array('controller' => 'people', 'action' => 'delete', 'person' => $person['Person']['id'], 'return' => true), null, sprintf(__('Are you sure you want to delete # %s?', true), $person['Person']['id'])); ?>
 			<?php endif; ?>
 			<?php
 			if (!empty($extra_url)) {
 				foreach ($extra_url as $title => $url) {
-					$url = array_merge ($url, array('person' => $person['Person']['id']));
+					$url = array_merge ($url, array('person' => $person['Person']['id'], 'return' => true));
 					echo $this->Html->link(__($title, true), $url);
 				}
 			}

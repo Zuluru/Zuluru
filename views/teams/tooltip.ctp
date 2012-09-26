@@ -28,7 +28,7 @@
 			$this->Html->link(__('Schedule', true), array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['Team']['id'])) .
 			' / ' .
 			$this->Html->link(__('Standings', true), array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Team']['division_id'], 'team' => $team['Team']['id']));
-	if (Configure::read('feature.urls) && !empty ($team['Team']['website'])) {
+	if (Configure::read('feature.urls') && !empty ($team['Team']['website'])) {
 		echo ' / ' . $this->Html->link(__('Website', true), $team['Team']['website']);
 	}
 ?>

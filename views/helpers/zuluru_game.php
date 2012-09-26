@@ -101,7 +101,7 @@ class ZuluruGameHelper extends Helper {
 		$view =& ClassRegistry::getObject('view');
 		if ($view->viewVars['is_admin'] || in_array ($details['division_id'], $this->Session->read('Zuluru.DivisionIDs'))) {
 			echo $this->ZuluruHtml->iconLink('edit_24.png',
-				array('controller' => 'games', 'action' => 'edit', 'game' => $details['id']),
+				array('controller' => 'games', 'action' => 'edit', 'game' => $details['id'], 'return' => true),
 				array('alt' => __('Edit', true), 'title' => __('Edit', true)));
 		}
 	}

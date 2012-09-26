@@ -60,7 +60,7 @@ foreach ($divisions as $division):
 				array('alt' => __('Standings', true), 'title' => __('Standings', true)));
 			if ($is_admin || in_array($division['Division']['id'], $this->Session->read('Zuluru.DivisionIDs'))) {
 				echo $this->ZuluruHtml->iconLink('edit_24.png',
-					array('controller' => 'divisions', 'action' => 'edit', 'division' => $division['Division']['id']),
+					array('controller' => 'divisions', 'action' => 'edit', 'division' => $division['Division']['id'], 'return' => true),
 					array('alt' => __('Edit', true), 'title' => __('Edit Division', true)));
 				echo $this->ZuluruHtml->iconLink('email_24.png',
 					array('controller' => 'divisions', 'action' => 'emails', 'division' => $division['Division']['id']),
@@ -85,13 +85,13 @@ foreach ($divisions as $division):
 					array('controller' => 'divisions', 'action' => 'add_coordinator', 'division' => $division['Division']['id']),
 					array('alt' => __('Add Coordinator', true), 'title' => __('Add Coordinator', true)));
 				echo $this->ZuluruHtml->iconLink('division_clone_24.png',
-					array('controller' => 'divisions', 'action' => 'add', 'league' => $division['League']['id'], 'division' => $division['Division']['id']),
+					array('controller' => 'divisions', 'action' => 'add', 'league' => $division['League']['id'], 'division' => $division['Division']['id'], 'return' => true),
 					array('alt' => __('Clone Division', true), 'title' => __('Clone Division', true)));
 				if ($division['Division']['allstars'] != 'never') {
 					echo $this->Html->link(__('Allstars', true), array('controller' => 'divisions', 'action' => 'allstars', 'division' => $division['Division']['id']));
 				}
 				echo $this->ZuluruHtml->iconLink('delete_24.png',
-					array('controller' => 'divisions', 'action' => 'delete', 'division' => $division['Division']['id']),
+					array('controller' => 'divisions', 'action' => 'delete', 'division' => $division['Division']['id'], 'return' => true),
 					array('alt' => __('Delete', true), 'title' => __('Delete Division', true)),
 					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $division['Division']['id'])));
 			}

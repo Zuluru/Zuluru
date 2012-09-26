@@ -138,8 +138,8 @@ $surfaces = array_map(array('Inflector', 'humanize'), $surfaces);
 				?></td>
 <?php if ($is_admin): ?>
 				<td class="actions">
-					<?php echo $this->Html->link(sprintf(__('Edit %s', true), __(Configure::read('ui.field_cap'), true)), array('controller' => 'fields', 'action' => 'edit', 'field' => $related['id'])); ?>
-					<?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Layout', true)), array('controller' => 'maps', 'action' => 'edit', 'field' => $related['id'])); ?>
+					<?php echo $this->Html->link(sprintf(__('Edit %s', true), __(Configure::read('ui.field_cap'), true)), array('controller' => 'fields', 'action' => 'edit', 'field' => $related['id'], 'return' => true)); ?>
+					<?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Layout', true)), array('controller' => 'maps', 'action' => 'edit', 'field' => $related['id'], 'return' => true)); ?>
 					<?php echo $this->Html->link(sprintf(__('Add %s', true), __('Game Slots', true)), array('controller' => 'game_slots', 'action' => 'add', 'field' => $related['id'])); ?>
 					<?php echo $this->Html->link(sprintf(__('View %s', true), __('Bookings', true)), array('controller' => 'fields', 'action' => 'bookings', 'field' => $related['id'])); ?>
 					<?php $id = 'span_' . mt_rand(); ?>
@@ -175,7 +175,7 @@ $surfaces = array_map(array('Inflector', 'humanize'), $surfaces);
 <div class="actions">
 	<ul>
 <?php if ($is_admin): ?>
-		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Facility', true)), array('action' => 'edit', 'facility' => $facility['Facility']['id'])); ?> </li>
+		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Facility', true)), array('action' => 'edit', 'facility' => $facility['Facility']['id'], 'return' => true)); ?> </li>
 		<li><?php echo $this->Html->link(sprintf(__('Add %s', true), __(Configure::read('ui.field_cap'), true)), array('controller' => 'fields', 'action' => 'add', 'facility' => $facility['Facility']['id'])); ?> </li>
 <?php endif; ?>
 	</ul>
