@@ -88,6 +88,11 @@ class SettingsData {
 		),
 		array(
 			'category' => 'feature',
+			'name' => 'urls',
+			'value' => '1',
+		),
+		array(
+			'category' => 'feature',
 			'name' => 'shirt_colour',
 			'value' => '1',
 		),
