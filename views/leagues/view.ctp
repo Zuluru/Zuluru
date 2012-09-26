@@ -5,7 +5,7 @@ $this->Html->addCrumb (__('View', true));
 ?>
 
 <div class="leagues view">
-<h2><?php  echo __('View League', true) . ': ' . $league['League']['full_name'];?></h2>
+<h2><?php echo $league['League']['full_name'];?></h2>
 	<dl><?php $i = 1; $class = ' class="altrow"';?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Season'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>

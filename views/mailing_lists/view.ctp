@@ -5,7 +5,7 @@ $this->Html->addCrumb (__('View', true));
 ?>
 
 <div class="mailingLists view">
-<h2><?php  __('Mailing List');?></h2>
+<h2><?php echo $mailingList['MailingList']['name'];?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Name'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>

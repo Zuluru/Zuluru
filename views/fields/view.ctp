@@ -5,7 +5,7 @@ $this->Html->addCrumb (__('View', true));
 ?>
 
 <div class="fields view">
-<h2><?php  echo sprintf(__('View %s', true), Configure::read('ui.field_cap')) . ': ' . $field['Field']['long_name'];?></h2>
+<h2><?php echo $field['Field']['long_name'];?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Facility'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>

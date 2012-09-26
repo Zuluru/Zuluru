@@ -5,7 +5,7 @@ $this->Html->addCrumb (__('Preview', true));
 ?>
 
 <div class="newsletters view">
-<h2><?php  echo __('Newsletter Preview', true) . ': ' . $newsletter['Newsletter']['name'];?></h2>
+<h2><?php echo $newsletter['Newsletter']['name'] . ' (' . __('Preview', true) . ')';?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Subject'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>

@@ -5,7 +5,7 @@ $this->Html->addCrumb (__('View', true));
 ?>
 
 <div class="uploadTypes view">
-<h2><?php  echo __('Upload Type') . ': ' . $uploadType['UploadType']['name'];?></h2>
+<h2><?php echo $uploadType['UploadType']['name'];?></h2>
 <div class="related">
 	<h3><?php __('Documents');?></h3>
 <?php if (!empty($uploadType['Upload'])): ?>
