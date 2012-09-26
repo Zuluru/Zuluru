@@ -96,8 +96,8 @@ class AppController extends Controller {
 			if ($this->_arg('return') && !$this->Session->check('Navigation.redirect')) {
 				// If there's a return requested, and nothing already saved to return to, remember the referrer
 				$this->Session->write('Navigation.redirect', $this->referer(null, true));
-			} else if (!$this->_arg('return') && $this->Session->check('Navigation.redirect')) {
-				// If there's no return requested, and something saved, then the operation was aborted and we
+			} else if (!$this->_arg('return') && $this->Session->check('Navigation.redirect') && empty($this->data)) {
+				// If there's no return requested, and something saved, and this is not a POST, then the operation was aborted and we
 				// don't want to remember this any more
 				$this->Session->delete('Navigation.redirect');
 			}
