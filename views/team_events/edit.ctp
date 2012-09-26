@@ -22,7 +22,9 @@ if (isset ($add)) {
 
 		echo $this->ZuluruForm->input('name', array('label' => 'Event Name'));
 		echo $this->ZuluruForm->input('description');
-		echo $this->ZuluruForm->input('website');
+		if (Configure::read('feature.urls')) {
+			echo $this->ZuluruForm->input('website');
+		}
 		echo $this->ZuluruForm->input('date');
 		echo $this->ZuluruForm->input('start');
 		echo $this->ZuluruForm->input('end');

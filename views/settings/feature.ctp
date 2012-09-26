@@ -91,6 +91,16 @@ $this->Html->addCrumb (__('Feature', true));
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'feature',
+		'name' => 'urls',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'label' => 'Allow URLs',
+			'after' => 'Enable or disable attachment of URLs to team and franchise records.',
+		),
+	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
 		'name' => 'region_preference',
 		'options' => array(
 			'type' => 'radio',
