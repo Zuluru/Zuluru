@@ -4,6 +4,8 @@ $this->Html->addCrumb (__('Create', true));
 
 $short = Configure::read('organization.short_name');
 
+$access = array(1);
+
 // TODO: Handle more than one sport in a site
 $sport = array_shift(array_keys(Configure::read('options.sport')));
 ?>
