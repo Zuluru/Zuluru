@@ -10,7 +10,7 @@ $surfaces = array_map(array('Inflector', 'humanize'), $surfaces);
 ?>
 
 <div class="facilities view">
-<h2><?php  echo __('View Facility', true) . ': ' . $facility['Facility']['name'];?></h2>
+<h2><?php echo $facility['Facility']['name'];?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Name'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>

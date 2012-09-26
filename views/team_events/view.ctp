@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('View', true));
 ?>
 
 <div class="teamEvents view">
-<h2><?php  __('Team Event');?></h2>
+<h2><?php  echo $event['Team']['name'] . ': ' . $event['TeamEvent']['name'];?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Team'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>

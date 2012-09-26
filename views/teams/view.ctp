@@ -5,7 +5,7 @@ $this->Html->addCrumb (__('View', true));
 ?>
 
 <div class="teams view">
-<h2><?php  echo __('View Team', true) . ': ' . $team['Team']['name'];?></h2>
+<h2><?php echo $team['Team']['name'];?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
 		<?php if (Configure::read('feature.urls') && !empty ($team['Team']['website'])):?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Website'); ?></dt>

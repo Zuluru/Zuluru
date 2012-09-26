@@ -5,7 +5,7 @@ $this->Html->addCrumb (__('View', true));
 ?>
 
 <div class="franchises view">
-<h2><?php  echo __('View Franchise', true) . ': ' . $franchise['Franchise']['name'];?></h2>
+<h2><?php echo $franchise['Franchise']['name'];?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
 		<?php
 		$owners = array();
