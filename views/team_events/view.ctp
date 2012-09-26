@@ -25,7 +25,7 @@ $this->Html->addCrumb (__('View', true));
 			&nbsp;
 		</dd>
 		<?php endif; ?>
-		<?php if (Configure::read('feature.urls) && !empty($event['TeamEvent']['website'])): ?>
+		<?php if (Configure::read('feature.urls') && !empty($event['TeamEvent']['website'])): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Website'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $this->Html->link ($event['TeamEvent']['website'], $event['TeamEvent']['website']); ?>
