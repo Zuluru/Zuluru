@@ -30,9 +30,9 @@ foreach ($teams as $team):
 		</td>
 		<td class="actions">
 			<?php
-			echo $this->Html->link(__('Edit', true), array('action' => 'edit', 'team' => $team['Team']['id']));
-			echo $this->Html->link(__('Delete', true), array('action' => 'delete', 'team' => $team['Team']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $team['Team']['id']));
-			echo $this->Html->link(__('Move', true), array('action' => 'move', 'team' => $team['Team']['id']));
+			echo $this->Html->link(__('Edit', true), array('action' => 'edit', 'team' => $team['Team']['id'], 'return' => true));
+			echo $this->Html->link(__('Delete', true), array('action' => 'delete', 'team' => $team['Team']['id'], 'return' => true), null, sprintf(__('Are you sure you want to delete # %s?', true), $team['Team']['id']));
+			echo $this->Html->link(__('Move', true), array('action' => 'move', 'team' => $team['Team']['id'], 'return' => true));
 			?>
 		</td>
 	</tr>

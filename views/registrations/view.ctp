@@ -150,7 +150,7 @@ $this->Html->addCrumb (__('View', true));
 
 <div class="actions">
 	<ul>
-		<li><?php if ($is_admin) echo $this->Html->link(__('Edit', true), array('action' => 'edit', 'registration' => $registration['Registration']['id'])); ?> </li>
+		<li><?php if ($is_admin) echo $this->Html->link(__('Edit', true), array('action' => 'edit', 'registration' => $registration['Registration']['id'], 'return' => true)); ?> </li>
 		<li><?php echo $this->Html->link(__('Unregister', true),
 				array('action' => 'unregister', 'registration' => $registration['Registration']['id']),
 				null,

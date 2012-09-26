@@ -32,7 +32,7 @@ foreach ($counts as $division):
 			?></td>
 			<td><?php
 			if ($division['League']['id'] != $league) {
-				echo $this->Html->link($division['League']['name'], array('action' => 'edit', 'league' => $division['League']['id']));
+				echo $this->Html->link($division['League']['name'], array('action' => 'edit', 'league' => $division['League']['id'], 'return' => true));
 				$league = $division['League']['id'];
 			}
 			?>

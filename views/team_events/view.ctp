@@ -95,7 +95,7 @@ $this->Html->addCrumb (__('View', true));
 <div class="actions">
 	<ul>
 		<li><?php echo $this->ZuluruHtml->iconLink('edit_32.png',
-					array('action' => 'edit', 'event' => $event['TeamEvent']['id']),
+					array('action' => 'edit', 'event' => $event['TeamEvent']['id'], 'return' => true),
 					array('alt' => __('Edit Event', true), 'title' => __('Edit Event', true))); ?></li>
 		<li><?php echo $this->ZuluruHtml->iconLink('delete_32.png',
 					array('action' => 'delete', 'event' => $event['TeamEvent']['id']),

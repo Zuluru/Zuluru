@@ -29,7 +29,7 @@ if ($is_logged_in && $team['open_roster'] && !Division::rosterDeadlinePassed($di
 }
 if ($is_admin || $is_captain) {
 	echo $this->ZuluruHtml->iconLink('edit_24.png',
-		array('controller' => 'teams', 'action' => 'edit', 'team' => $team['id']),
+		array('controller' => 'teams', 'action' => 'edit', 'team' => $team['id'], 'return' => true),
 		array('alt' => __('Edit Team', true), 'title' => __('Edit Team', true)));
 	echo $this->ZuluruHtml->iconLink('email_24.png',
 		array('controller' => 'teams', 'action' => 'emails', 'team' => $team['id']),
@@ -50,7 +50,7 @@ if ($is_admin) {
 		array('controller' => 'teams', 'action' => 'move', 'team' => $team['id']),
 		array('alt' => __('Move Team', true), 'title' => __('Move Team', true)));
 	echo $this->ZuluruHtml->iconLink('delete_24.png',
-		array('controller' => 'teams', 'action' => 'delete', 'team' => $team['id']),
+		array('controller' => 'teams', 'action' => 'delete', 'team' => $team['id'], 'return' => true),
 		array('alt' => __('Delete', true), 'title' => __('Delete Team', true)),
 		array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $team['id'])));
 }

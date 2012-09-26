@@ -57,7 +57,7 @@ foreach ($games as $game):
 			}
 			?></td>
 			<td><?php echo $this->Html->link(__('approve score', true),
-					array('controller' => 'games', 'action' => 'edit', 'game' => $game['Game']['id'])); ?></td>
+					array('controller' => 'games', 'action' => 'edit', 'game' => $game['Game']['id'], 'return' => true)); ?></td>
 		</tr>
 		<tr>
 			<td><?php __('Home score'); ?>:</td>

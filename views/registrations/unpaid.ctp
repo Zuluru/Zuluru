@@ -18,9 +18,9 @@ foreach ($registrations as $registration) {
 		$this->ZuluruTime->datetime ($registration['Registration']['modified']),
 		$registration['Registration']['payment'],
 		array(
-			$this->Html->link(__('Unregister', true), array('action' => 'unregister', 'registration' => $registration['Registration']['id']), array(),
+			$this->Html->link(__('Unregister', true), array('action' => 'unregister', 'registration' => $registration['Registration']['id'], 'return' => true), array(),
 					__('Are you sure you want to delete this registration?', true)) .
-			$this->Html->link(__('Edit', true), array('action' => 'edit', 'registration' => $registration['Registration']['id'])),
+			$this->Html->link(__('Edit', true), array('action' => 'edit', 'registration' => $registration['Registration']['id'], 'return' => true)),
 			array('class' => 'actions'),
 		)
 	);

@@ -38,8 +38,8 @@ if (isset ($add)) {
 <?php if (!isset ($add)): ?>
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Facility', true)), array('controller' => 'facilities', 'action' => 'edit', 'facility' => $this->data['Field']['facility_id']));?></li>
-		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Layout', true)), array('controller' => 'maps', 'action' => 'edit', 'field' => $this->data['Field']['id']));?></li>
+		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Facility', true)), array('controller' => 'facilities', 'action' => 'edit', 'facility' => $this->data['Field']['facility_id'], 'return' => true));?></li>
+		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Layout', true)), array('controller' => 'maps', 'action' => 'edit', 'field' => $this->data['Field']['id'], 'return' => true));?></li>
 	</ul>
 </div>
 <?php endif; ?>

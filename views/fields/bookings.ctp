@@ -39,9 +39,9 @@ $this->Html->addCrumb ($field['Field']['long_name']);
 			<?php if ($is_admin): ?>
 			<td class="actions"><?php
 				echo $this->Html->link (__('Edit', true),
-						array('controller' => 'game_slots', 'action' => 'edit', 'slot' => $slot['id']));
+						array('controller' => 'game_slots', 'action' => 'edit', 'slot' => $slot['id'], 'return' => true));
 				echo $this->Html->link (__('Delete', true),
-						array('controller' => 'game_slots', 'action' => 'delete', 'slot' => $slot['id']));
+						array('controller' => 'game_slots', 'action' => 'delete', 'slot' => $slot['id'], 'return' => true));
 				// TODO: This doesn't work in the old Leaguerunner, rescheduling is only for leagues, not games
 				/*
 				if (!empty ($slot['Game'])) {

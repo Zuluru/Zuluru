@@ -137,8 +137,8 @@ if ($field['Field']['length'] > 0) {
 <div class="actions">
 	<ul>
 <?php if ($is_admin): ?>
-		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __(Configure::read('ui.field_cap'), true)), array('action' => 'edit', 'field' => $field['Field']['id'])); ?> </li>
-		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Layout', true)), array('controller' => 'maps', 'action' => 'edit', 'field' => $field['Field']['id'])); ?> </li>
+		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __(Configure::read('ui.field_cap'), true)), array('action' => 'edit', 'field' => $field['Field']['id'], 'return' => true)); ?> </li>
+		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Layout', true)), array('controller' => 'maps', 'action' => 'edit', 'field' => $field['Field']['id'], 'return' => true)); ?> </li>
 		<li><?php echo $this->Html->link(sprintf(__('Add %s', true), __('Game Slots', true)), array('controller' => 'game_slots', 'action' => 'add', 'field' => $field['Field']['id'])); ?> </li>
 <?php endif; ?>
 		<li><?php echo $this->Html->link(sprintf(__('View %s', true), __('Bookings ', true)), array('action' => 'bookings', 'field' => $field['Field']['id'])); ?> </li>

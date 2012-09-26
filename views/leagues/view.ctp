@@ -65,7 +65,7 @@ $this->Html->addCrumb (__('View', true));
 				array('alt' => __('Standings', true), 'title' => __('Standings', true)));
 			if ($is_admin || in_array($division['id'], $this->Session->read('Zuluru.DivisionIDs'))) {
 				echo $this->ZuluruHtml->iconLink('edit_32.png',
-					array('controller' => 'divisions', 'action' => 'edit', 'division' => $division['id']),
+					array('controller' => 'divisions', 'action' => 'edit', 'division' => $division['id'], 'return' => true),
 					array('alt' => __('Edit', true), 'title' => __('Edit Division', true)));
 				echo $this->ZuluruHtml->iconLink('email_32.png',
 					array('controller' => 'divisions', 'action' => 'emails', 'division' => $division['id']),
@@ -93,7 +93,7 @@ $this->Html->addCrumb (__('View', true));
 					echo $this->Html->link(__('Allstars', true), array('controller' => 'divisions', 'action' => 'allstars', 'division' => $division['id']));
 				}
 				echo $this->ZuluruHtml->iconLink('delete_32.png',
-					array('controller' => 'divisions', 'action' => 'delete', 'division' => $division['id']),
+					array('controller' => 'divisions', 'action' => 'delete', 'division' => $division['id'], 'return' => true),
 					array('alt' => __('Delete', true), 'title' => __('Delete Division', true)),
 					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $division['id'])));
 			}
@@ -108,7 +108,7 @@ $this->Html->addCrumb (__('View', true));
 		<?php
 		if ($is_admin) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('edit_32.png',
-				array('action' => 'edit', 'league' => $league['League']['id']),
+				array('action' => 'edit', 'league' => $league['League']['id'], 'return' => true),
 				array('alt' => __('Edit', true), 'title' => __('Edit League', true))));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('division_add_32.png',
 				array('controller' => 'divisions', 'action' => 'add', 'league' => $league['League']['id']),

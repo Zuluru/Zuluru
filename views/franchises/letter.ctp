@@ -50,7 +50,7 @@ foreach ($franchises as $franchise):
 			<?php
 			if ($is_admin || in_array($franchise['Franchise']['id'], $this->Session->read('Zuluru.FranchiseIDs'))) {
 				echo $this->ZuluruHtml->iconLink('edit_24.png',
-					array('action' => 'edit', 'franchise' => $franchise['Franchise']['id']),
+					array('action' => 'edit', 'franchise' => $franchise['Franchise']['id'], 'return' => true),
 					array('alt' => __('Edit Franchise', true), 'title' => __('Edit Franchise', true)));
 				echo $this->ZuluruHtml->iconLink('team_add_24.png',
 					array('action' => 'add_team', 'franchise' => $franchise['Franchise']['id']),
@@ -61,7 +61,7 @@ foreach ($franchises as $franchise):
 			}
 			if ($is_admin) {
 				echo $this->ZuluruHtml->iconLink('delete_24.png',
-					array('action' => 'delete', 'franchise' => $franchise['Franchise']['id']),
+					array('action' => 'delete', 'franchise' => $franchise['Franchise']['id'], 'return' => true),
 					array('alt' => __('Delete', true), 'title' => __('Delete Franchise', true)),
 					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $franchise['Franchise']['id'])));
 			}

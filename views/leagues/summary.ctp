@@ -38,7 +38,7 @@ foreach ($divisions as $division):
 		}
 		?></td>
 		<td><?php
-		echo $this->Html->link($division['League']['name'], array('action' => 'edit', 'league' => $division['League']['id']));
+		echo $this->Html->link($division['League']['name'], array('action' => 'edit', 'league' => $division['League']['id'], 'return' => true));
 		?></td>
 		<?php if (Configure::read('feature.spirit')): ?>
 		<td><?php __(Inflector::humanize($division['League']['display_sotg'])); ?></td>
@@ -86,12 +86,12 @@ foreach ($divisions as $division):
 		?></td>
 		<td><?php
 		if ($division['League']['id'] != $league) {
-			echo $this->Html->link($division['League']['name'], array('action' => 'edit', 'league' => $division['League']['id']));
+			echo $this->Html->link($division['League']['name'], array('action' => 'edit', 'league' => $division['League']['id'], 'return' => true));
 			$league = $division['League']['id'];
 		}
 		?>
 		</td>
-		<td><?php echo $this->Html->link($division['Division']['name'], array('controller' => 'divisions', 'action' => 'edit', 'division' => $division['Division']['id'])); ?></td>
+		<td><?php echo $this->Html->link($division['Division']['name'], array('controller' => 'divisions', 'action' => 'edit', 'division' => $division['Division']['id'], 'return' => true)); ?></td>
 		<td><?php __(Inflector::humanize($division['Division']['schedule_type'])); ?></td>
 		<td><?php echo $division['Division']['games_before_repeat']; ?></td>
 		<td><?php echo $this->ZuluruTime->date($division['Division']['open']); ?></td>
