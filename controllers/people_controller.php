@@ -525,7 +525,20 @@ class PeopleController extends AppController {
 		if (empty($this->data)) {
 			$this->Person->contain();
 			$this->data = $this->Person->read(null, $id);
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
 		}
+
+		if (Configure::read('feature.photos')) {
+			$this->data = array_merge($this->data, $this->Person->Upload->find('first', array(
+					'conditions' => array(
+						'person_id' => $id,
+						'type_id' => null,
+					),
+					'contain' => array(),
+			)));
+		}
+
 		$this->set('is_me', ($id === $this->Auth->user('id')));
 	}
 
