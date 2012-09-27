@@ -480,14 +480,15 @@ class PeopleController extends AppController {
 		$id = $this->_arg('person');
 		$my_id = $this->Auth->user('id');
 
-		if (!$id && empty($this->data)) {
+		if (!$id) {
 			$id = $my_id;
 			if (!$id) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 				$this->redirect('/');
 			}
 		}
-		$this->set(compact('id'));
+		$is_me = ($id === $this->Auth->user('id'));
+		$this->set(compact('id', 'is_me'));
 
 		// Any time that come here (whether manually or forced), we want to expire the
 		// login so that session data will be reloaded. Do this even when it's not a save,
@@ -503,7 +504,11 @@ class PeopleController extends AppController {
 			$this->data['Person']['complete'] = true;
 			$this->Person->data = array();
 			if ($this->Person->save($this->data)) {
-				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('person', true)), 'default', array('class' => 'success'));
+				if ($is_me) {
+					$this->Session->setFlash(__('Your profile has been saved', true), 'default', array('class' => 'success'));
+				} else {
+					$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('person', true)), 'default', array('class' => 'success'));
+				}
 
 				// There may be callbacks to handle
 				$components = Configure::read('callbacks.user');
@@ -543,8 +548,6 @@ class PeopleController extends AppController {
 				$this->data = array_merge($this->data, $upload);
 			}
 		}
-
-		$this->set('is_me', ($id === $this->Auth->user('id')));
 	}
 
 	function note() {

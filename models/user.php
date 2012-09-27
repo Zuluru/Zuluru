@@ -276,6 +276,12 @@ class User extends AppModel {
 				'message' => 'You must enter a valid US zip code',
 			);
 		}
+
+		foreach (array_keys($this->validate) as $field) {
+			if ($field != $this->userField && !Configure::read("profile.$field") && !array_key_exists($field, $this->data[$this->alias])) {
+				unset($this->validate[$field]);
+			}
+		}
 	}
 
 	function beforeSave() {
