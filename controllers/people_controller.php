@@ -532,13 +532,16 @@ class PeopleController extends AppController {
 		}
 
 		if (Configure::read('feature.photos')) {
-			$this->data = array_merge($this->data, $this->Person->Upload->find('first', array(
+			$upload = $this->Person->Upload->find('first', array(
 					'conditions' => array(
 						'person_id' => $id,
 						'type_id' => null,
 					),
 					'contain' => array(),
-			)));
+			));
+			if ($upload) {
+				$this->data = array_merge($this->data, $upload);
+			}
 		}
 
 		$this->set('is_me', ($id === $this->Auth->user('id')));
