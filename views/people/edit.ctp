@@ -27,7 +27,7 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 <p>If you have concerns about the data <?php echo $short; ?> collects, please see our <strong><a href="<?php echo Configure::read('urls.privacy_policy'); ?>" target="_new">Privacy Policy</a>.</strong></p>
 <?php endif; ?>
 
-<?php if (empty($this->data['Upload'])): ?>
+<?php if ($is_me && empty($this->data['Upload'])): ?>
 	<fieldset>
  		<legend><?php __('Photo'); ?></legend>
 <?php echo $this->ZuluruHtml->icon('blank_profile.jpg', array('class' => 'thumbnail', 'style' => 'float: left; margin-bottom: 7px;')); ?>
