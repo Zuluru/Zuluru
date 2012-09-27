@@ -525,8 +525,10 @@ class PeopleController extends AppController {
 		if (empty($this->data)) {
 			$this->Person->contain();
 			$this->data = $this->Person->read(null, $id);
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
-			$this->redirect('/');
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+				$this->redirect('/');
+			}
 		}
 
 		if (Configure::read('feature.photos')) {
