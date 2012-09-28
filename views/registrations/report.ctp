@@ -87,6 +87,7 @@ foreach ($registrations as $registration):
 <?php if (!$this->params['isAjax']): ?>
 
 </div>
+</div>
 
 <div class="actions">
 	<ul>
