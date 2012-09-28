@@ -101,9 +101,11 @@ class UsersController extends AppController {
 					$component->onAdd($this->data['User']);
 				}
 
-				// Automatically log the user in
-				$this->data['User']['password'] = Security::hash($this->data['User']['passwd'], null, Configure::read ('security.salted_hash'));
-				$this->Auth->login($this->data);
+				if (!$this->is_logged_in) {
+					// Automatically log the user in
+					$this->data['User']['password'] = Security::hash($this->data['User']['passwd'], null, Configure::read ('security.salted_hash'));
+					$this->Auth->login($this->data);
+				}
 
 				$this->redirect('/');
 			} else {
