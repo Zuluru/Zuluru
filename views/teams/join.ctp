@@ -33,3 +33,4 @@ foreach ($teams as $team) {
 </div>
 
 <p class="warning-message">If you don't see the team you're looking for, the captain may have made the roster "closed", so that they have to invite you to join the team. Contact them directly to let them know you've signed up and are ready to play!</p>
+</div>
