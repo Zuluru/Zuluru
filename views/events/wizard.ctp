@@ -5,6 +5,11 @@ $this->Html->addCrumb (__('Wizard', true));
 
 <div class="events index">
 <h2><?php __('Registration Wizard');?></h2>
+<?php
+echo $this->Html->para('highlight-message', sprintf (__('This wizard walks you through registration options based on your current status. As you register for things, different options may appear here. You might also want to review our %s.', true),
+		$this->Html->link(__('complete list of offerings', true), array('action' => 'index'))));
+?>
+
 <?php if (empty($events)): ?>
 <p class="warning-message">There are no events currently available for registration. Please check back periodically for updates.</p>
 <?php else: ?>
@@ -90,9 +95,6 @@ switch ($step) {
 		break;
 
 	default:
-		echo $this->Html->para('highlight-message', sprintf (__('This wizard walks you through registration options based on your current registration status. As you register for things, different options will appear here. You might also want to review our %s.', true),
-				$this->Html->link(__('complete list of offerings', true), array('action' => 'index'))));
-
 		if (!empty ($events_by_type[1])) {
 			echo $this->Html->para(null, __('You are eligible to register for membership in the club. A membership is typically required before you can sign up for team-related events.', true));
 			echo $this->Html->tag('span',
