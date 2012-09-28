@@ -5,7 +5,14 @@ $this->Html->addCrumb (__('List', true));
 
 <div class="facilities index">
 <h2><?php __($closed ? 'Closed Facilities List' : 'Facilities List');?></h2>
-<?php if (empty($regions)): ?>
+<?php
+if ($is_admin) {
+	$set_to_test = Set::extract('/Facility/id', $regions);
+} else {
+	$set_to_test = $facilities_with_fields;
+}
+if (empty($set_to_test)):
+?>
 <p class="warning-message">There are no facilities currently open. Please check back periodically for updates.</p>
 <?php else: ?>
 <?php if (!$closed) echo $this->element('fields/caution'); ?>
