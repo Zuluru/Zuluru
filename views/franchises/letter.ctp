@@ -5,6 +5,9 @@ $this->Html->addCrumb (sprintf(__('Starting with %s', true), $letter));
 
 <div class="franchises index">
 <h2><?php __('List Franchises');?></h2>
+<?php if (empty($franchises)): ?>
+<p class="warning-message">There are no franchises in the system. Please check back periodically for updates.</p>
+<?php else: ?>
 <p><?php
 __('Locate by letter: ');
 $links = array();
@@ -70,4 +73,5 @@ foreach ($franchises as $franchise):
 	</tr>
 <?php endforeach; ?>
 </table>
+<?php endif; ?>
 </div>

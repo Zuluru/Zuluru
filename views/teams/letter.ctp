@@ -5,6 +5,9 @@ $this->Html->addCrumb (sprintf(__('Starting with %s', true), $letter));
 
 <div class="teams index">
 <h2><?php __('List Teams');?></h2>
+<?php if (empty($teams)): ?>
+<p class="warning-message">There are no teams currently running. Please check back periodically for updates.</p>
+<?php else: ?>
 <p><?php
 __('Locate by letter: ');
 $links = array();
@@ -86,4 +89,5 @@ foreach ($teams as $team):
 	</tr>
 <?php endforeach; ?>
 </table>
+<?php endif; ?>
 </div>

@@ -6,6 +6,14 @@ $this->Html->addCrumb (__('Wizard', true));
 <div class="events index">
 <h2><?php __('Registration Wizard');?></h2>
 <?php
+echo $this->Html->para('highlight-message', sprintf (__('This wizard walks you through registration options based on your current status. As you register for things, different options may appear here. You might also want to review our %s.', true),
+		$this->Html->link(__('complete list of offerings', true), array('action' => 'index'))));
+?>
+
+<?php if (empty($events)): ?>
+<p class="warning-message">There are no events currently available for registration. Please check back periodically for updates.</p>
+<?php else: ?>
+<?php
 echo $this->element('registrations/notice');
 
 $events_by_type = array();
@@ -18,7 +26,7 @@ foreach ($types as $type) {
 switch ($step) {
 	case 'membership':
 		if (!empty ($events_by_type[1])) {
-			echo $this->Html->tag('h2', __($events_by_type[1][0]['EventType']['name'], true));
+			echo $this->Html->tag('h3', __($events_by_type[1][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You are currently eligible for the following memberships.', true));
 			echo $this->element('events/list', array('events' => $events_by_type[1]));
 		} else {
@@ -28,7 +36,7 @@ switch ($step) {
 
 	case 'league_team':
 		if (!empty ($events_by_type[2])) {
-			echo $this->Html->tag('h2', __($events_by_type[2][0]['EventType']['name'], true));
+			echo $this->Html->tag('h3', __($events_by_type[2][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You are currently eligible to register a team in the following leagues.', true));
 			echo $this->element('events/list', array('events' => $events_by_type[2]));
 		} else {
@@ -38,7 +46,7 @@ switch ($step) {
 
 	case 'league_individual':
 		if (!empty ($events_by_type[3])) {
-			echo $this->Html->tag('h2', __($events_by_type[3][0]['EventType']['name'], true));
+			echo $this->Html->tag('h3', __($events_by_type[3][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You are currently eligible to register as an individual in the following leagues.', true));
 			echo $this->element('events/list', array('events' => $events_by_type[3]));
 		} else {
@@ -48,7 +56,7 @@ switch ($step) {
 
 	case 'event_team':
 		if (!empty ($events_by_type[4])) {
-			echo $this->Html->tag('h2', __($events_by_type[4][0]['EventType']['name'], true));
+			echo $this->Html->tag('h3', __($events_by_type[4][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You are currently eligible to register a team for the following events.', true));
 			echo $this->element('events/list', array('events' => $events_by_type[4]));
 		} else {
@@ -58,7 +66,7 @@ switch ($step) {
 
 	case 'event_individual':
 		if (!empty ($events_by_type[5])) {
-			echo $this->Html->tag('h2', __($events_by_type[5][0]['EventType']['name'], true));
+			echo $this->Html->tag('h3', __($events_by_type[5][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You are currently eligible to register as an individual for the following events.', true));
 			echo $this->element('events/list', array('events' => $events_by_type[5]));
 		} else {
@@ -68,7 +76,7 @@ switch ($step) {
 
 	case 'clinic':
 		if (!empty ($events_by_type[6])) {
-			echo $this->Html->tag('h2', __($events_by_type[6][0]['EventType']['name'], true));
+			echo $this->Html->tag('h3', __($events_by_type[6][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You are currently eligible to register for the following clinics.', true));
 			echo $this->element('events/list', array('events' => $events_by_type[6]));
 		} else {
@@ -78,7 +86,7 @@ switch ($step) {
 
 	case 'social_event':
 		if (!empty ($events_by_type[7])) {
-			echo $this->Html->tag('h2', __($events_by_type[7][0]['EventType']['name'], true));
+			echo $this->Html->tag('h3', __($events_by_type[7][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You can register for the following social events.', true));
 			echo $this->element('events/list', array('events' => $events_by_type[7]));
 		} else {
@@ -87,9 +95,6 @@ switch ($step) {
 		break;
 
 	default:
-		echo $this->Html->para('highlight-message', sprintf (__('This wizard walks you through registration options based on your current registration status. As you register for things, different options will appear here. You might also want to review our %s.', true),
-				$this->Html->link(__('complete list of offerings', true), array('action' => 'index'))));
-
 		if (!empty ($events_by_type[1])) {
 			echo $this->Html->para(null, __('You are eligible to register for membership in the club. A membership is typically required before you can sign up for team-related events.', true));
 			echo $this->Html->tag('span',
@@ -142,4 +147,5 @@ switch ($step) {
 		break;
 }
 ?>
+<?php endif; ?>
 </div>

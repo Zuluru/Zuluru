@@ -5,6 +5,9 @@ $this->Html->addCrumb (__('List', true));
 
 <div class="teams index">
 <h2><?php __('List Teams');?></h2>
+<?php if (empty($teams)): ?>
+<p class="warning-message">There are no teams currently running. Please check back periodically for updates.</p>
+<?php else: ?>
 <p><?php
 __('Locate by letter: ');
 $links = array();
@@ -93,4 +96,5 @@ foreach ($teams as $team):
 	<?php echo $this->Paginator->prev('<< '.__('previous', true), array(), null, array('class'=>'disabled'));?>
  | 	<?php echo $this->Paginator->numbers();?> | 
 	<?php echo $this->Paginator->next(__('next', true).' >>', array(), null, array('class' => 'disabled'));?>
+<?php endif; ?>
 </div>

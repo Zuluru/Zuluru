@@ -5,6 +5,9 @@ $this->Html->addCrumb (__('List', true));
 
 <div class="events index">
 <h2><?php __('Registration Events List');?></h2>
+<?php if (empty($events)): ?>
+<p class="warning-message">There are no events currently available for registration. Please check back periodically for updates.</p>
+<?php else: ?>
 <?php
 echo $this->element('registrations/notice');
 if (!$is_logged_in) {
@@ -86,4 +89,5 @@ foreach ($events as $event):
 	</tr>
 <?php endforeach; ?>
 </table>
+<?php endif; ?>
 </div>

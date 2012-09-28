@@ -119,7 +119,12 @@ class EventsController extends AppController {
 	function add() {
 		if (!empty($this->data)) {
 			// Validation requires this information
-			$this->data = array_merge ($this->data, $this->Event->EventType->read(null, $this->data['Event']['event_type_id']));
+			$type = $this->Event->EventType->read(null, $this->data['Event']['event_type_id']);
+			if (empty ($type)) {
+				// We need something here to avoid errors
+				$type = array('EventType' => array('type' => null));
+			}
+			$this->data = array_merge ($this->data, $type);
 
 			$this->Event->create();
 			if ($this->Event->save($this->data)) {
@@ -130,15 +135,14 @@ class EventsController extends AppController {
 			}
 		} else {
 			// Set up defaults
-			$this->data = array('Event' => array(
-					'EventType' => array(
-						'type' => 'generic',
-					),
+			$this->data = array('EventType' => array(
+					'type' => 'generic',
 			));
 		}
 		$this->set('eventTypes', $this->Event->EventType->find('list'));
 		$this->set('questionnaires', $this->Event->Questionnaire->find('list'));
-		$this->set('event_obj', $this->_getComponent ('EventType', $this->data['Event']['EventType']['type'], $this));
+
+		$this->set('event_obj', $this->_getComponent ('EventType', $this->data['EventType']['type'], $this));
 		$this->set('add', true);
 
 		if (Configure::read('feature.tiny_mce')) {

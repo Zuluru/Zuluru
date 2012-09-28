@@ -524,14 +524,6 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Waivers', array('controller' => 'waivers', 'action' => 'index'), 'Configuration');
 		}
 
-		if (! $this->Session->read('Zuluru.external_login')) {
-			if ($this->is_logged_in) {
-				$this->_addMenuItem ('Logout', array('controller' => 'users', 'action' => 'logout'));
-			} else {
-				$this->_addMenuItem ('Login', array('controller' => 'users', 'action' => 'login'));
-			}
-		}
-
 		if (Configure::read('feature.manage_accounts')) {
 			if (!$this->is_logged_in) {
 				$this->_addMenuItem ('Reset password', array('controller' => 'users', 'action' => 'reset_password'));
@@ -566,6 +558,14 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Statistics', array('controller' => 'teams', 'action' => 'statistics'), 'Teams');
 			if (Configure::read('feature.registration')) {
 				$this->_addMenuItem ('Statistics', array('controller' => 'registrations', 'action' => 'statistics'), 'Registration');
+			}
+		}
+
+		if (! $this->Session->read('Zuluru.external_login')) {
+			if ($this->is_logged_in) {
+				$this->_addMenuItem ('Logout', array('controller' => 'users', 'action' => 'logout'));
+			} else {
+				$this->_addMenuItem ('Login', array('controller' => 'users', 'action' => 'login'));
 			}
 		}
 	}

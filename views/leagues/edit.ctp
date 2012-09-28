@@ -26,6 +26,7 @@ if (isset ($add)) {
 		if (count($sports) > 1) {
 			echo $this->ZuluruForm->input('sport', array(
 				'options' => $sports,
+				'hide_single' => true,
 				'empty' => '---',
 				'after' => $this->Html->para (null, __('Sport played in this league.', true)),
 			));
@@ -35,6 +36,7 @@ if (isset ($add)) {
 
 		echo $this->ZuluruForm->input('season', array(
 			'options' => Configure::read('options.season'),
+			'hide_single' => true,
 			'empty' => '---',
 			'after' => $this->Html->para (null, __('Season during which this league\'s games take place.', true)),
 		));

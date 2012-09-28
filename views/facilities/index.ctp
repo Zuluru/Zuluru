@@ -5,6 +5,9 @@ $this->Html->addCrumb (__('List', true));
 
 <div class="facilities index">
 <h2><?php __($closed ? 'Closed Facilities List' : 'Facilities List');?></h2>
+<?php if (empty($regions)): ?>
+<p class="warning-message">There are no facilities currently open. Please check back periodically for updates.</p>
+<?php else: ?>
 <?php if (!$closed) echo $this->element('fields/caution'); ?>
 
 <p>There is also a <?php echo $this->Html->link(sprintf(__('map of all %s', true), __(Configure::read('ui.fields'), true)), array('controller' => 'maps'), array('target' => 'map')); ?> available.</p>
@@ -95,4 +98,5 @@ foreach ($regions as $region):
 <?php endforeach; ?>
 
 </table>
+<?php endif; ?>
 </div>
