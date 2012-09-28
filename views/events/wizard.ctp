@@ -21,7 +21,7 @@ foreach ($types as $type) {
 switch ($step) {
 	case 'membership':
 		if (!empty ($events_by_type[1])) {
-			echo $this->Html->tag('h2', __($events_by_type[1][0]['EventType']['name'], true));
+			echo $this->Html->tag('h3', __($events_by_type[1][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You are currently eligible for the following memberships.', true));
 			echo $this->element('events/list', array('events' => $events_by_type[1]));
 		} else {
@@ -31,7 +31,7 @@ switch ($step) {
 
 	case 'league_team':
 		if (!empty ($events_by_type[2])) {
-			echo $this->Html->tag('h2', __($events_by_type[2][0]['EventType']['name'], true));
+			echo $this->Html->tag('h3', __($events_by_type[2][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You are currently eligible to register a team in the following leagues.', true));
 			echo $this->element('events/list', array('events' => $events_by_type[2]));
 		} else {
@@ -41,7 +41,7 @@ switch ($step) {
 
 	case 'league_individual':
 		if (!empty ($events_by_type[3])) {
-			echo $this->Html->tag('h2', __($events_by_type[3][0]['EventType']['name'], true));
+			echo $this->Html->tag('h3', __($events_by_type[3][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You are currently eligible to register as an individual in the following leagues.', true));
 			echo $this->element('events/list', array('events' => $events_by_type[3]));
 		} else {
@@ -51,7 +51,7 @@ switch ($step) {
 
 	case 'event_team':
 		if (!empty ($events_by_type[4])) {
-			echo $this->Html->tag('h2', __($events_by_type[4][0]['EventType']['name'], true));
+			echo $this->Html->tag('h3', __($events_by_type[4][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You are currently eligible to register a team for the following events.', true));
 			echo $this->element('events/list', array('events' => $events_by_type[4]));
 		} else {
@@ -61,7 +61,7 @@ switch ($step) {
 
 	case 'event_individual':
 		if (!empty ($events_by_type[5])) {
-			echo $this->Html->tag('h2', __($events_by_type[5][0]['EventType']['name'], true));
+			echo $this->Html->tag('h3', __($events_by_type[5][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You are currently eligible to register as an individual for the following events.', true));
 			echo $this->element('events/list', array('events' => $events_by_type[5]));
 		} else {
@@ -71,7 +71,7 @@ switch ($step) {
 
 	case 'clinic':
 		if (!empty ($events_by_type[6])) {
-			echo $this->Html->tag('h2', __($events_by_type[6][0]['EventType']['name'], true));
+			echo $this->Html->tag('h3', __($events_by_type[6][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You are currently eligible to register for the following clinics.', true));
 			echo $this->element('events/list', array('events' => $events_by_type[6]));
 		} else {
@@ -81,7 +81,7 @@ switch ($step) {
 
 	case 'social_event':
 		if (!empty ($events_by_type[7])) {
-			echo $this->Html->tag('h2', __($events_by_type[7][0]['EventType']['name'], true));
+			echo $this->Html->tag('h3', __($events_by_type[7][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You can register for the following social events.', true));
 			echo $this->element('events/list', array('events' => $events_by_type[7]));
 		} else {
