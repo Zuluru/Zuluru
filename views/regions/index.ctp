@@ -43,11 +43,9 @@ $this->Html->addCrumb (__('List', true));
 <div class="actions">
 	<ul>
 		<?php
-		if ($is_admin) {
-			echo $this->Html->tag('li', $this->ZuluruHtml->iconLink('add_32.png',
-				array('action' => 'add'),
-				array('alt' => __('Add', true), 'title' => __('Add Region', true))));
-		}
+		echo $this->Html->tag('li', $this->ZuluruHtml->iconLink('add_32.png',
+			array('action' => 'add'),
+			array('alt' => __('Add', true), 'title' => __('Add Region', true))));
 		?>
 	</ul>
 </div>
