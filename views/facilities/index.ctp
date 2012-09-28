@@ -71,7 +71,7 @@ foreach ($regions as $region):
 	<tr<?php echo $class;?>>
 		<td>
 			<?php echo $this->Html->link(__($facility['name'], true), array('controller' => 'facilities', 'action' => 'view', 'facility' => $facility['id'])); ?>
-			[<?php echo implode('/', $surfaces); ?>]
+			<?php if (!empty($surfaces)) echo '[' . implode('/', $surfaces) . ']'; ?>
 		</td>
 		<td class="actions">
 			<?php
