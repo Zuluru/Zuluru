@@ -5,6 +5,9 @@ $this->Html->addCrumb (__('Wizard', true));
 
 <div class="events index">
 <h2><?php __('Registration Wizard');?></h2>
+<?php if (empty($events)): ?>
+<p class="warning-message">There are no events currently available for registration. Please check back periodically for updates.</p>
+<?php else: ?>
 <?php
 echo $this->element('registrations/notice');
 
@@ -142,4 +145,5 @@ switch ($step) {
 		break;
 }
 ?>
+<?php endif; ?>
 </div>

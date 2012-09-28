@@ -8,6 +8,9 @@ if (!empty($sport)) {
 
 <div class="leagues index">
 <h2><?php __('Leagues');?></h2>
+<?php if (empty($divisions)): ?>
+<p class="warning-message">There are no leagues currently active. Please check back periodically for updates<?php if (!empty($years)) echo ' or use the links below to review historical information'; ?>.</p>
+<?php else: ?>
 <table class="list">
 <?php
 $league = null;
@@ -130,6 +133,7 @@ foreach ($divisions as $division):
 endif;
 ?>
 </table>
+<?php endif; ?>
 </div>
 <?php if ($is_logged_in): ?>
 <div class="actions">
