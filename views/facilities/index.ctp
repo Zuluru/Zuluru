@@ -80,8 +80,16 @@ foreach ($regions as $region):
 			}
 			?>
 <?php if ($is_admin): ?>
-			<?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Facility', true)), array('controller' => 'facilities', 'action' => 'edit', 'facility' => $facility['id'])); ?>
-			<?php echo $this->Html->link(sprintf(__('Add %s', true), __(Configure::read('ui.field'), true)), array('controller' => 'fields', 'action' => 'add', 'facility' => $facility['id'])); ?>
+			<?php echo $this->ZuluruHtml->iconLink('edit_32.png',
+					array('action' => 'edit', 'facility' => $facility['id'], 'return' => true),
+					array('alt' => __('Edit', true), 'title' => __('Edit', true))); ?>
+			<?php echo $this->ZuluruHtml->iconLink('add_32.png',
+					array('controller' => 'fields', 'action' => 'add', 'facility' => $facility['id'], 'return' => true),
+					array('alt' => sprintf(__('Add %s', true), __(Configure::read('ui.field'), true)), 'title' => sprintf(__('Add %s', true), __(Configure::read('ui.field'), true)))); ?>
+			<?php echo $this->ZuluruHtml->iconLink('delete_32.png',
+					array('action' => 'delete', 'facility' => $facility['id'], 'return' => true),
+					array('alt' => __('Delete', true), 'title' => __('Delete', true)),
+					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $facility['id']))); ?>
 			<?php $id = 'span_' . mt_rand(); ?>
 			<span id="<?php echo $id; ?>">
 			<?php
