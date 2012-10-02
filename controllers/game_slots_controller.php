@@ -176,6 +176,12 @@ class GameSlotsController extends AppController {
 			$this->redirect('/');
 		}
 
+		$game = $this->GameSlot->field('game_id', compact('id'));
+		if ($game) {
+			$this->Session->setFlash(__('This game slot has a game assigned to it and cannot be deleted.', true), 'default', array('class' => 'warning'));
+			$this->redirect('/');
+		}
+
 		// Wrap the whole thing in a transaction, for safety.
 		$transaction = new DatabaseTransaction($this->GameSlot);
 
