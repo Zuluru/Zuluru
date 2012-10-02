@@ -278,7 +278,7 @@ class User extends AppModel {
 		}
 
 		foreach (array_keys($this->validate) as $field) {
-			if ($field != $this->userField && !Configure::read("profile.$field") && !array_key_exists($field, $this->data[$this->alias])) {
+			if ($field != $this->userField && !Configure::read("profile.$field")) {
 				unset($this->validate[$field]);
 			}
 		}
