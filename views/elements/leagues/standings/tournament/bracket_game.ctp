@@ -48,7 +48,7 @@ if (!empty($game)) {
 ?>
 		</div>
 <?php
-	if (strtotime("{$game['GameSlot']['game_date']} {$game['GameSlot']['game_start']}") > time()) {
+	if (strtotime("{$game['GameSlot']['game_date']} {$game['GameSlot']['game_start']}") + Configure::read('timezone.adjust') * 60 > time()) {
 		$date = $this->ZuluruTime->date ($game['GameSlot']['game_date']) . '<br/>' .
 				$this->ZuluruTime->time ($game['GameSlot']['game_start']);
 		if ($game['Game']['published']) {

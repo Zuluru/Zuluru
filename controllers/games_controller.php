@@ -673,7 +673,7 @@ class GamesController extends AppController {
 			));
 			$game = $this->Game->read(null, $id);
 			$date = $game['GameSlot']['game_date'];
-			$past = ("{$game['GameSlot']['game_date']} {$game['GameSlot']['game_start']}" < date('Y-m-d H:i:s'));
+			$past = (strtotime("{$game['GameSlot']['game_date']} {$game['GameSlot']['game_start']}") + Configure::read('timezone.adjust') * 60 < time());
 
 			if ($game['Game']['home_team'] == $team_id) {
 				$team = $game['HomeTeam'];
@@ -993,7 +993,9 @@ class GamesController extends AppController {
 			$this->redirect('/');
 		}
 
-		if ($game['GameSlot']['game_date'] > time()) {
+		$end_time = strtotime("{$game['GameSlot']['game_date']} {$game['GameSlot']['display_game_end']}") +
+				Configure::read('timezone.adjust') * 60;
+		if ($end_time - 60 * 60 > time()) {
 			$this->Session->setFlash(__('That game has not yet occurred!', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
@@ -1605,8 +1607,8 @@ class GamesController extends AppController {
 		$now = time();
 		foreach ($games as $key => $game) {
 			$game_time = strtotime ("{$game['GameSlot']['game_date']} {$game['GameSlot']['game_start']}");
-			$email_time = $game_time + $game['Division']['email_after'] * 60 * 60;
-			$finalize_time = $game_time + $game['Division']['finalize_after'] * 60 * 60;
+			$email_time = $game_time + $offset + $game['Division']['email_after'] * 60 * 60;
+			$finalize_time = $game_time + $offset + $game['Division']['finalize_after'] * 60 * 60;
 			$games[$key]['finalized'] = $games[$key]['emailed'] = false;
 			if ($game['Division']['finalize_after'] > 0 && $now > $finalize_time) {
 				$games[$key]['finalized'] = true;

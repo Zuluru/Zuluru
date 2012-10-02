@@ -8,7 +8,7 @@ $this->Html->addCrumb (__('Sending', true));
 <h2><?php  echo __('Sending', true) . ': ' . $newsletter['Newsletter']['name'];?></h2>
 <?php
 if ($execute) {
-	echo $this->Html->para(null, 'Batch sent at ' . $this->ZuluruTime->time(time()));
+	echo $this->Html->para(null, 'Batch sent at ' . $this->ZuluruTime->time(time() - Configure::read('timezone.adjust') * 60));
 
 	$emails = Set::extract ('/Person/email', $people);
 	echo $this->Html->para(null, __('Sent email to', true) . ' ' . implode (', ', $emails));

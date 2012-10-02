@@ -118,12 +118,12 @@ class CanRegisterComponent extends Object
 		if (empty ($prereg) && !$ignore_date) {
 			// Admins can test registration before it opens...
 			if (!$this->controller->is_admin) {
-				if (strtotime ($event['Event']['open']) > time()) {
+				if (strtotime ($event['Event']['open']) + Configure::read('timezone.adjust') * 60 > time()) {
 					$messages[] = array('text' => __('This event is not yet open for registration.', true), 'class' => 'closed');
 					$continue = false;
 				}
 			}
-			if (time() > strtotime ($event['Event']['close'])) {
+			if (time() > strtotime ($event['Event']['close']) + Configure::read('timezone.adjust') * 60) {
 				$messages[] = array('text' => __('Registration for this event has closed.', true), 'class' => 'closed');
 				$continue = false;
 			}

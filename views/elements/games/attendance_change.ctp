@@ -30,7 +30,7 @@ if ($team['track_attendance']) {
 	}
 
 	$recent = ($game_date >= date('Y-m-d', time() - 14 * 24 * 60 * 60));
-	$future = ("$game_date $game_time" >= date('Y-m-d H:i:s') ? 1 : 0);
+	$future = (strtotime("$game_date $game_time") + Configure::read('timezone.adjust') * 60 >= time() ? 1 : 0);
 	$is_me = (!isset($person_id) || $person_id == $my_id);
 	if (($future || (!$future_only && $recent)) && ($is_me || $is_captain)) {
 		$url = array('controller' => 'games', 'action' => 'attendance_change', 'team' => $team['id']);
