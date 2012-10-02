@@ -273,6 +273,11 @@ class SettingsData {
 		),
 		array(
 			'category' => 'registration',
+			'name' => 'register_now',
+			'value' => '0',
+		),
+		array(
+			'category' => 'registration',
 			'name' => 'online_payments',
 			'value' => '1',
 		),

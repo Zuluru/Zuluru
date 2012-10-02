@@ -28,6 +28,16 @@ $this->Html->addCrumb (__('Registration', true));
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'registration',
+		'name' => 'register_now',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'label' => 'Include "register now" link?',
+			'after' => 'By enabling this, you will allow users to register for events directly from the wizard or event list, without going through the "view details" page. If you have various similar events, you should disable this so that people must see the description instead of just the name, decreasing confusion and incorrect registrations.',
+		),
+	));
+	echo $this->element('settings/input', array(
+		'category' => 'registration',
 		'name' => 'online_payments',
 		'options' => array(
 			'type' => 'radio',
