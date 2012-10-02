@@ -31,7 +31,6 @@ class CanRegisterComponent extends Object
 				'Upload' => array(
 					'conditions' => array(
 						'type_id !=' => null,
-						'approved' => true,
 					),
 				),
 				'Waiver',

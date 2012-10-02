@@ -20,17 +20,28 @@ class RuleHasDocumentComponent extends RuleComponent
 
 	// Check if the user has uploaded the required document
 	function evaluate($params, $team, $strict, $text_reason) {
-		if ($text_reason) {
-			$this->reason = "have uploaded the {$this->document}";
+		$matches = Set::extract ("/Upload[type_id={$this->config[0]}]", $params);
+		$unapproved = Set::extract ('/Upload[approved=0]', $matches);
+
+		if (empty($unapproved)) {
+			if ($text_reason) {
+				$this->reason = "have uploaded the {$this->document}";
+			} else {
+				App::import('Helper', 'Html');
+				$html = new HtmlHelper();
+				$this->reason = $html->link("have uploaded the {$this->document}", array('controller' => 'people', 'action' => 'document_upload', 'type' => $this->config[0], 'return' => true));
+			}
 		} else {
-			App::import('Helper', 'Html');
-			$html = new HtmlHelper();
-			$this->reason = $html->link("have uploaded the {$this->document}", array('controller' => 'people', 'action' => 'document_upload', 'type' => $this->config[0], 'return' => true));
+			$this->reason = "wait until your {$this->document} is approved";
+		}
+
+		if (!$strict) {
+			return true;
 		}
 
 		if (is_array($params) && array_key_exists ('Upload', $params)) {
 			$date = date('Y-m-d', strtotime ($this->config[1]));
-			$matches = Set::extract ("/Upload[type_id={$this->config[0]}][valid_from<=$date][valid_until>=$date]", $params);
+			$matches = Set::extract ("/Upload[valid_from<=$date][valid_until>=$date]", $params);
 			if (!empty ($matches)) {
 				return true;
 			}
