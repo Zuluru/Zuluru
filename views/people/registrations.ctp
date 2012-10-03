@@ -31,6 +31,7 @@ echo $this->Paginator->counter(array(
 	<th><?php echo $this->Paginator->sort('Order ID', 'id', array('buffer' => false));?></th>
 	<th><?php echo $this->Paginator->sort('Date', 'created', array('buffer' => false));?></th>
 	<th><?php echo $this->Paginator->sort('payment', null, array('buffer' => false));?></th>
+	<th><?php __('Actions');?></th>
 </tr>
 <?php
 $i = 0;
@@ -59,6 +60,15 @@ foreach ($registrations as $registration):
 		</td>
 		<td>
 			<?php echo $registration['Registration']['payment']; ?>
+		</td>
+		<td>
+			<?php
+			if ($is_admin) {
+				echo $this->Html->link (__('View', true), array('controller' => 'registrations', 'action' => 'view', 'registration' => $registration['Registration']['id']));
+				echo $this->Html->link(__('Edit', true), array('controller' => 'registrations', 'action' => 'edit', 'registration' => $registration['Registration']['id']));
+			}
+			echo $this->Html->link(__('Unregister', true), array('controller' => 'registrations', 'action' => 'unregister', 'registration' => $registration['Registration']['id'], 'return' => true), null, sprintf(__('Are you sure you want to delete # %s?', true), $registration['Registration']['id']));
+			?>
 		</td>
 	</tr>
 <?php endforeach; ?>

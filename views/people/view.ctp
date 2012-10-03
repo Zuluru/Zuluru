@@ -372,8 +372,10 @@ echo $person['Person']['full_name'];
 			<td><?php echo $this->ZuluruTime->date($registration['created']);?></td>
 			<td><?php echo $registration['payment'];?></td>
 			<td class="actions">
+			<?php if ($is_admin): ?>
 				<?php echo $this->Html->link(__('View', true), array('controller' => 'registrations', 'action' => 'view', 'registration' => $registration['id']));?>
 				<?php echo $this->Html->link(__('Edit', true), array('controller' => 'registrations', 'action' => 'edit', 'registration' => $registration['id'], 'return' => true)); ?>
+			<?php endif; ?>
 				<?php echo $this->Html->link(__('Unregister', true), array('controller' => 'registrations', 'action' => 'unregister', 'registration' => $registration['id'], 'return' => true), null, sprintf(__('Are you sure you want to delete # %s?', true), $registration['id'])); ?>
 			</td>
 		</tr>
