@@ -25,6 +25,7 @@ if ($permission && $approved) {
 			'action' => 'roster_position',
 			'team' => $roster['team_id'],
 			'person' => $roster['person_id'],
+			'return' => true,
 	));
 } else {
 	__(Configure::read("options.roster_position.{$roster['position']}"));
