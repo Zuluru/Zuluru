@@ -258,7 +258,7 @@ class RegistrationsController extends AppController {
 		// Re-do "can register" checks to make sure someone hasn't hand-fed us a URL
 		$test = $this->CanRegister->test ($this->Auth->user('id'), $event);
 		if (!$test['allowed']) {
-			if (!empty($test['redirect'])) {
+			if ($this->is_logged_in && !empty($test['redirect'])) {
 				$this->redirect(array_merge($test['redirect'], array('return' => true)), $this->here);
 			}
 			foreach ($test['messages'] as $key => $message) {

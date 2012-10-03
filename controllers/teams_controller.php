@@ -1519,7 +1519,7 @@ class TeamsController extends AppController {
 		// Check if this person can even be added
 		$can_add = $this->_canAdd ($person, $team, $person['Person']['TeamsPerson']['position'], $person['Person']['TeamsPerson']['status']);
 		if ($can_add !== true) {
-			if (!empty($this->can_add_rule_obj->redirect)) {
+			if ($this->is_logged_in && !empty($this->can_add_rule_obj->redirect)) {
 				$this->redirect(array_merge($this->can_add_rule_obj->redirect, array('return' => true)), $this->here);
 			}
 			$this->Session->setFlash($can_add, 'default', array('class' => 'warning'));
