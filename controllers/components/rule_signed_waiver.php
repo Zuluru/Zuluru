@@ -32,6 +32,7 @@ class RuleSignedWaiverComponent extends RuleComponent
 			$html = new HtmlHelper();
 			$this->reason = $html->link("have signed the {$this->waiver} waiver", array('controller' => 'waivers', 'action' => 'sign', 'waiver' => $this->config[0], 'date' => $this->date, 'return' => true));
 		}
+		$this->redirect = array('controller' => 'waivers', 'action' => 'sign', 'waiver' => $this->config[0], 'date' => $this->date);
 
 		if (!$strict) {
 			return true;

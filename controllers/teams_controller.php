@@ -1519,6 +1519,9 @@ class TeamsController extends AppController {
 		// Check if this person can even be added
 		$can_add = $this->_canAdd ($person, $team, $person['Person']['TeamsPerson']['position'], $person['Person']['TeamsPerson']['status']);
 		if ($can_add !== true) {
+			if (!empty($this->can_add_rule_obj->redirect)) {
+				$this->redirect(array_merge($this->can_add_rule_obj->redirect, array('return' => true)), $this->here);
+			}
 			$this->Session->setFlash($can_add, 'default', array('class' => 'warning'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
@@ -1537,7 +1540,6 @@ class TeamsController extends AppController {
 
 			if ($person_id == $my_id) {
 				$this->_deleteTeamSessionData();
-				$this->redirect('/');
 			}
 		} else {
 			$this->Session->setFlash(sprintf (__('The database failed to save the acceptance of this roster %s.', true),

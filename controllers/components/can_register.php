@@ -163,6 +163,9 @@ class CanRegisterComponent extends Object
 					$allowed = true;
 				} else {
 					$messages[] = array('text' => __('To register for this event, you must', true) . ' ' . $rule_obj->reason . '.', 'class' => 'error-message');
+					if ($strict && $rule_obj->redirect) {
+						$redirect = $rule_obj->redirect;
+					}
 				}
 			} else {
 				$messages[] = __('You may register for this because there are no prerequisites.', true);
@@ -170,7 +173,7 @@ class CanRegisterComponent extends Object
 			}
 		}
 
-		return compact('allowed', 'messages');
+		return compact('allowed', 'messages', 'redirect');
 	}
 }
 ?>

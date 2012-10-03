@@ -32,6 +32,9 @@ class RuleAndComponent extends RuleComponent
 			if (!$rule->evaluate ($params, $team, $strict, $text_reason, $complete)) {
 				$reasons[] = $rule->reason;
 				$this->reason_type = $rule->reason_type;
+				if (!$this->redirect) {
+					$this->redirect = $rule->redirect;
+				}
 				$status = false;
 			} else if ($complete) {
 				$reasons[] = $rule->reason;

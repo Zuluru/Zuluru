@@ -23,6 +23,10 @@ class RuleComponent extends Object
 	var $reason = 'Unknown reason!';
 	var $reason_type = REASON_TYPE_PLAYER_ACTIVE;
 
+	/**
+	 * Where to redirect to for prerequisite completion, if applicable
+	 */
+	var $redirect = null;
 
 	/**
 	 * When building a query, do we need to use HAVING instead of WHERE?
@@ -149,6 +153,7 @@ class RuleComponent extends Object
 		$success = $this->rule->evaluate ($params, $team, $strict, $text_reason, $complete);
 		$this->reason = $this->rule->reason;
 		$this->reason_type = $this->rule->reason_type;
+		$this->redirect = $this->rule->redirect;
 
 		// Do string replacements to make the reason more easily understandable
 		while (true) {
