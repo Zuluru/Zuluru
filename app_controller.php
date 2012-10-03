@@ -164,12 +164,19 @@ class AppController extends Controller {
 		$this->set('menu_items', $this->menu_items);
 	}
 
-	function redirect($url = null) {
+	function redirect($url = null, $next = null) {
 		// If there's a referer saved, we always go back there
 		if ($this->Session->check('Navigation.redirect')) {
-			$url = Router::normalize($this->Session->read('Navigation.redirect'));
+			$saved = Router::normalize($this->Session->read('Navigation.redirect'));
 			$this->Session->delete('Navigation.redirect');
-			parent::redirect($url);
+		}
+
+		if ($next) {
+			$this->Session->write('Navigation.redirect', $next);
+		}
+
+		if (isset($saved)) {
+			parent::redirect($saved);
 		}
 
 		// If there was no referer saved, we might not want to redirect
