@@ -101,7 +101,7 @@ class DivisionsController extends AppController {
 		$my_id = $this->Auth->user('id');
 		if ($my_id) {
 			foreach ($division['Event'] as $key => $event) {
-				$test = $this->CanRegister->test ($my_id, array('Event' => $event));
+				$test = $this->CanRegister->test ($my_id, array('Event' => $event), false, false);
 				if (!$test['allowed']) {
 					unset ($division['Event'][$key]);
 				}
