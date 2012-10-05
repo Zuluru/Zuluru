@@ -8,6 +8,12 @@ class Newsletter extends AppModel {
 				'rule' => array('notempty'),
 			),
 		),
+		'affiliate_id' => array(
+			'inlist' => array(
+				'rule' => array('inquery', 'Affiliate', 'id'),
+				'message' => 'You must select a valid affiliate.',
+			),
+		),
 		'mailing_list_id' => array(
 			'inlist' => array(
 				'rule' => array('inquery', 'MailingList', 'id'),
@@ -68,6 +74,13 @@ class Newsletter extends AppModel {
 	);
 
 	var $belongsTo = array(
+		'Affiliate' => array(
+			'className' => 'Affiliate',
+			'foreignKey' => 'affiliate_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
+		),
 		'MailingList' => array(
 			'className' => 'MailingList',
 			'foreignKey' => 'mailing_list_id',

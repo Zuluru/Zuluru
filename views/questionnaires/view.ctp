@@ -6,6 +6,15 @@ $this->Html->addCrumb (__('View', true));
 
 <div class="questionnaires view">
 <h2><?php echo $questionnaire['Questionnaire']['name'];?></h2>
+	<?php if (count($affiliates) > 1): ?>
+	<dl><?php $i = 1; $class = ' class="altrow"';?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Affiliate'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo $this->Html->link($questionnaire['Affiliate']['name'], array('controller' => 'affiliates', 'action' => 'view', 'affiliate' => $questionnaire['Affiliate']['id'])); ?>
+
+		</dd>
+	</dl>
+	<?php endif; ?>
 <?php echo $this->Form->create (false, array('url' => Router::normalize($this->here))); ?>
 	<fieldset><legend><?php __('Questionnaire Preview'); ?></legend>
 <?php echo $this->element('questionnaires/input', array('questionnaire' => $questionnaire)); ?>

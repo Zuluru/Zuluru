@@ -4,6 +4,13 @@ $this->Html->addCrumb ($event['Event']['name']);
 $this->Html->addCrumb (__('View', true));
 ?>
 
+<?php
+// Perhaps remove manager status, if we're looking at a different affiliate
+if ($is_manager && !in_array($event['Event']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+	$is_manager = false;
+}
+?>
+
 <div class="events view">
 	<h2><?php echo $event['Event']['name'];?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
@@ -12,6 +19,13 @@ $this->Html->addCrumb (__('View', true));
 			<?php echo $event['Event']['name']; ?>
 
 		</dd>
+		<?php if (count($affiliates) > 1): ?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Affiliate'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo $this->Html->link($event['Affiliate']['name'], array('controller' => 'affiliates', 'action' => 'view', 'affiliate' => $event['Affiliate']['id'])); ?>
+
+		</dd>
+		<?php endif; ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Description'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $event['Event']['description']; ?>
@@ -203,7 +217,7 @@ else:
 			echo $this->Html->tag ('li', $this->Html->link(sprintf(__('View %s', true), __('Division', true)),
 					array('controller' => 'divisions', 'action' => 'view', 'division' => $event['Division']['id'])));
 		}
-		if ($is_admin) {
+		if ($is_admin || $is_manager) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('edit_32.png',
 				array('action' => 'edit', 'event' => $event['Event']['id'], 'return' => true),
 				array('alt' => __('Edit', true), 'title' => __('Edit', true))));
@@ -235,7 +249,7 @@ else:
 	</ul>
 </div>
 
-<?php if (!empty($event['Preregistration']) && $is_admin):?>
+<?php if (!empty($event['Preregistration']) && ($is_admin || $is_manager)):?>
 <div class="related">
 	<h3><?php printf(__('Related %s', true), __('Preregistrations', true));?></h3>
 	<table class="list">

@@ -26,6 +26,58 @@ class RegistrationsController extends AppController {
 			return true;
 		}
 
+		if ($this->is_manager) {
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'report',
+					'unpaid',
+					'statistics',
+			)))
+			{
+				// If an affiliate id is specified, check if we're a manager of that affiliate
+				$affiliate = $this->_arg('affiliate');
+				if (!$affiliate) {
+					// If there's no affiliate, this is a top-level operation that all managers can perform
+					return true;
+				} else if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					return true;
+				}
+			}
+
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'summary',
+					'full_list',
+			)))
+			{
+				// If an event id is specified, check if we're a manager of that event's affiliate
+				$event = $this->_arg('event');
+				if ($event) {
+					$affiliate = $this->Registration->Event->field('affiliate_id', array('Event.id' => $event));
+					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'view',
+					'edit',
+			)))
+			{
+				// If an event id is specified, check if we're a manager of that event's affiliate
+				$registration = $this->_arg('registration');
+				if ($registration) {
+					$event = $this->Registration->field('event_id', array('Registration.id' => $registration));
+					$affiliate = $this->Registration->Event->field('affiliate_id', array('Event.id' => $event));
+					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+		}
+
 		return false;
 	}
 
@@ -136,12 +188,15 @@ class RegistrationsController extends AppController {
 			$year = date('Y');
 		}
 
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->set(compact('affiliates'));
+
 		$this->Registration->contain ();
 		$this->set('events', $this->Registration->find('all', array(
 			'fields' => array(
-				'Event.id',
-				'Event.name',
+				'Event.id', 'Event.name', 'Event.affiliate_id',
 				'EventType.name',
+				'Affiliate.name',
 				'COUNT(Registration.id) AS count',
 			),
 			'conditions' => array(
@@ -168,6 +223,13 @@ class RegistrationsController extends AppController {
 					'foreignKey' => false,
 					'conditions' => array('Event.event_type_id = EventType.id'),
 				),
+				array(
+					'table' => "{$this->Registration->tablePrefix}affiliates",
+					'alias' => 'Affiliate',
+					'type' => 'LEFT',
+					'foreignKey' => false,
+					'conditions' => array('Event.affiliate_id = Affiliate.id'),
+				),
 			),
 		)));
 
@@ -181,15 +243,20 @@ class RegistrationsController extends AppController {
 	function report() {
 		$start_date = '2012-01-01';
 		$end_date = '2012-12-31';
+		$affiliate = $this->_arg('affiliate');
+		$affiliates = $this->_applicableAffiliateIDs(true);
+
 		$conditions = array(
 			'Registration.created >=' => $start_date,
 			'Registration.created <=' => $end_date,
+			'Event.affiliate_id' => $affiliates,
 		);
+
 		$contain = array(
-			'Event' => 'EventType',
+			'Event' => array('EventType', 'Affiliate'),
 			'Person',
 		);
-		$order = array('Registration.payment' => 'DESC', 'Registration.created');
+		$order = array('Event.affiliate_id', 'Registration.payment' => 'DESC', 'Registration.created');
 		$limit = Configure::read('feature.items_per_page');
 
 		if ($this->params['url']['ext'] == 'csv') {
@@ -201,6 +268,8 @@ class RegistrationsController extends AppController {
 			);
 			$this->set('registrations', $this->paginate ('Registration'));
 		}
+
+		$this->set(compact('affiliates', 'affiliate'));
 	}
 
 	function view() {
@@ -455,7 +524,11 @@ class RegistrationsController extends AppController {
 			$this->redirect(array('action' => 'checkout'));
 		}
 
-		if (!$this->is_admin && $registration['Registration']['person_id'] != $this->Auth->user('id')) {
+		if (!$this->is_admin &&
+			!($this->is_manager && in_array($registration['Event']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'))) &&
+			$registration['Registration']['person_id'] != $this->Auth->user('id')
+		)
+		{
 			$this->Session->setFlash(__('You may only unregister from events that you have registered for!', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'checkout'));
 		}
@@ -512,7 +585,7 @@ class RegistrationsController extends AppController {
 			if (!empty ($registration['Event']['register_rule'])) {
 				$rule_obj = AppController::_getComponent ('Rule');
 				if ($rule_obj->init ($registration['Event']['register_rule']) &&
-					!$rule_obj->evaluate ($person))
+					!$rule_obj->evaluate ($registration['Event']['affiliate_id'], $person))
 				{
 					$this->Registration->delete($registration['id']);
 					$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
@@ -748,18 +821,20 @@ class RegistrationsController extends AppController {
 	}
 
 	function unpaid() {
-		$this->Registration->contain (array(
-			'Event' => array('EventType'),
-			'Person',
-		));
+		$affiliates = $this->_applicableAffiliateIDs(true);
 		$registrations = $this->Registration->find('all', array(
-				'conditions' => array(
-					'Registration.payment' => array('Unpaid', 'Pending'),
-				),
-				'order' => array('Registration.payment', 'Registration.modified'),
+			'conditions' => array(
+				'Registration.payment' => array('Unpaid', 'Pending'),
+				'Event.affiliate_id' => $affiliates,
+			),
+			'contain' => array(
+				'Event' => array('EventType', 'Affiliate'),
+				'Person',
+			),
+			'order' => array('Event.affiliate_id', 'Registration.payment', 'Registration.modified'),
 		));
 
-		$this->set(compact('registrations'));
+		$this->set(compact('registrations', 'affiliates'));
 	}
 
 	function _mergeAutoQuestions($event, $event_obj, &$questionnaire, $user_id = null, $for_output = false) {

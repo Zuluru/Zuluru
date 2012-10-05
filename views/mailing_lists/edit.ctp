@@ -19,6 +19,13 @@ if (isset ($add)) {
 		echo $this->ZuluruForm->input('name', array(
 			'size' => 60,
 		));
+		if (isset ($add)) {
+			echo $this->ZuluruForm->input('affiliate_id', array(
+				'options' => $affiliates,
+				'hide_single' => true,
+				'empty' => '---',
+			));
+		}
 		echo $this->ZuluruForm->input('opt_out', array(
 			'after' => $this->Html->para (null, __('Check this to allow recipients to unsubscribe from this mailing list. Be sure that your local privacy laws allow you to uncheck this before doing so.', true)),
 		));

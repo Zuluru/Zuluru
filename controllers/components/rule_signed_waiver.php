@@ -24,7 +24,7 @@ class RuleSignedWaiverComponent extends RuleComponent
 	}
 
 	// Check if the user has signed the required waiver
-	function evaluate($params, $team, $strict, $text_reason) {
+	function evaluate($affiliate, $params, $team, $strict, $text_reason) {
 		if ($text_reason) {
 			$this->reason = "have signed the {$this->waiver} waiver";
 		} else {
@@ -47,8 +47,9 @@ class RuleSignedWaiverComponent extends RuleComponent
 		return false;
 	}
 
-	function query() {
+	function query($affiliate) {
 		return $this->_execute_query(
+			$affiliate,
 			array(
 				'WaiversPerson.waiver_id' => $this->config,
 				'WaiversPerson.valid_from <=' => $this->date,

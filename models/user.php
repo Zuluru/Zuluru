@@ -245,6 +245,16 @@ class User extends AppModel {
 		),
 	);
 
+	var $hasAndBelongsToMany = array(
+		'Affiliate' => array(
+			'className' => 'Affiliate',
+			'joinTable' => 'affiliates_people',
+			'foreignKey' => 'person_id',
+			'associationForeignKey' => 'affiliate_id',
+			'unique' => true,
+		),
+	);
+
 	/**
 	 * Column in the table where user names are stored.
 	 */

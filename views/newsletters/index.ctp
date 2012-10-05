@@ -14,7 +14,19 @@ $this->Html->addCrumb (__('List', true));
 	</tr>
 	<?php
 	$i = 0;
+	$affiliate_id = null;
 	foreach ($newsletters as $newsletter):
+		if (count($affiliates) > 1 && $newsletter['MailingList']['affiliate_id'] != $affiliate_id):
+			$affiliate_id = $newsletter['MailingList']['affiliate_id'];
+	?>
+	<tr>
+		<th colspan="4">
+			<h3 class="affiliate"><?php echo $newsletter['MailingList']['Affiliate']['name']; ?></h3>
+		</th>
+	</tr>
+	<?php
+		endif;
+
 		$class = null;
 		if ($i++ % 2 == 0) {
 			$class = ' class="altrow"';

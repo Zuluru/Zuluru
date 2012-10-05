@@ -3,13 +3,48 @@ class UploadTypesController extends AppController {
 
 	var $name = 'UploadTypes';
 
+	function isAuthorized() {
+		if ($this->is_manager) {
+			// Managers can perform these operations
+			if (in_array ($this->params['action'], array(
+					'index',
+					'add',
+			)))
+			{
+				return true;
+			}
+
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'view',
+					'edit',
+					'delete',
+			)))
+			{
+				// If an upload type id is specified, check if we're a manager of that upload type's affiliate
+				$type = $this->_arg('type');
+				if ($type) {
+					$affiliate = $this->UploadType->field('affiliate_id', array('UploadType.id' => $type));
+					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
 	function index() {
 		if (!Configure::read('feature.documents')) {
 			$this->Session->setFlash(__('Document management is disabled on this site.', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
-		$this->set('uploadTypes', $this->UploadType->find('all'));
+		$this->set('uploadTypes', $this->UploadType->find('all', array(
+				'conditions' => array('UploadType.affiliate_id' => $this->_applicableAffiliateIDs(true)),
+				'contain' => array(),
+		)));
 	}
 
 	function view() {
@@ -25,8 +60,12 @@ class UploadTypesController extends AppController {
 		}
 		$this->UploadType->contain(array(
 				'Upload' => array('Person'),
+				'Affiliate',
 		));
 		$this->set('uploadType', $this->UploadType->read(null, $id));
+
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->set(compact('affiliates'));
 	}
 
 	function add() {
@@ -45,6 +84,7 @@ class UploadTypesController extends AppController {
 			}
 		}
 
+		$this->set('affiliates', $this->_applicableAffiliates(true));
 		$this->set('add', true);
 		$this->render ('edit');
 	}
@@ -71,6 +111,8 @@ class UploadTypesController extends AppController {
 		if (empty($this->data)) {
 			$this->data = $this->UploadType->read(null, $id);
 		}
+
+		$this->set('affiliates', $this->_applicableAffiliates(true));
 	}
 
 	function delete() {

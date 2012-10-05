@@ -15,6 +15,21 @@ class ZuluruSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
+	var $affiliates = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 32),
+		'active' => array('type' => 'boolean', 'null' => false, 'default' => '1'),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
+	var $affiliates_people = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'affiliate_id' => array('type' => 'integer', 'null' => false, 'default' => '1', 'key' => 'index'),
+		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'position' => array('type' => 'string', 'null' => true, 'default' => 'player', 'length' => 64),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'affiliate' => array('column' => 'affiliate_id', 'unique' => 0), 'full' => array('column' => array('affiliate_id', 'person_id'), 'unique' => 0)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
 	var $allstars = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'game_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
@@ -115,6 +130,7 @@ class ZuluruSchema extends CakeSchema {
 	);
 	var $events = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'affiliate_id' => array('type' => 'integer', 'null' => false, 'default' => '1'),
 		'name' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 128, 'key' => 'unique'),
 		'description' => array('type' => 'text', 'null' => true, 'default' => NULL),
 		'event_type_id' => array('type' => 'integer', 'null' => false, 'default' => NULL),
@@ -183,6 +199,7 @@ class ZuluruSchema extends CakeSchema {
 	);
 	var $franchises = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'affiliate_id' => array('type' => 'integer', 'null' => false, 'default' => '1'),
 		'name' => array('type' => 'string', 'null' => true, 'default' => NULL),
 		'website' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
@@ -244,6 +261,7 @@ class ZuluruSchema extends CakeSchema {
 	);
 	var $holidays = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'affiliate_id' => array('type' => 'integer', 'null' => false, 'default' => '1'),
 		'date' => array('type' => 'date', 'null' => true, 'default' => NULL),
 		'name' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
@@ -260,6 +278,7 @@ class ZuluruSchema extends CakeSchema {
 	);
 	var $leagues = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'affiliate_id' => array('type' => 'integer', 'null' => false, 'default' => '1'),
 		'name' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
 		'sport' => array('type' => 'string', 'null' => false, 'default' => 'ultimate', 'length' => 32),
 		'season' => array('type' => 'string', 'null' => false, 'default' => 'None', 'length' => 16),
@@ -276,6 +295,7 @@ class ZuluruSchema extends CakeSchema {
 	);
 	var $locks = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'affiliate_id' => array('type' => 'integer', 'null' => false, 'default' => '1'),
 		'key' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 32, 'key' => 'index'),
 		'user_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'created' => array('type' => 'timestamp', 'null' => true, 'default' => NULL),
@@ -284,6 +304,7 @@ class ZuluruSchema extends CakeSchema {
 	);
 	var $mailing_lists = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'affiliate_id' => array('type' => 'integer', 'null' => false, 'default' => '1'),
 		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 256),
 		'opt_out' => array('type' => 'boolean', 'null' => false, 'default' => '1'),
 		'rule' => array('type' => 'text', 'null' => true, 'default' => NULL),
@@ -394,6 +415,7 @@ class ZuluruSchema extends CakeSchema {
 	);
 	var $questionnaires = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'affiliate_id' => array('type' => 'integer', 'null' => false, 'default' => '1'),
 		'name' => array('type' => 'string', 'null' => false, 'default' => NULL),
 		'active' => array('type' => 'boolean', 'null' => false, 'default' => '1'),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
@@ -410,6 +432,7 @@ class ZuluruSchema extends CakeSchema {
 	);
 	var $questions = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'affiliate_id' => array('type' => 'integer', 'null' => false, 'default' => '1'),
 		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 128),
 		'question' => array('type' => 'text', 'null' => false, 'default' => NULL),
 		'type' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 20),
@@ -420,6 +443,7 @@ class ZuluruSchema extends CakeSchema {
 	);
 	var $regions = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'affiliate_id' => array('type' => 'integer', 'null' => false, 'default' => '1'),
 		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 32),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
@@ -523,6 +547,7 @@ class ZuluruSchema extends CakeSchema {
 	var $teams = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'name' => array('type' => 'string', 'null' => false, 'length' => 100, 'key' => 'index'),
+		'affiliate_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'division_id' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'key' => 'index'),
 		'website' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
 		'shirt_colour' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
@@ -567,6 +592,7 @@ class ZuluruSchema extends CakeSchema {
 	);
 	var $upload_types = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'affiliate_id' => array('type' => 'integer', 'null' => false, 'default' => '1'),
 		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 256),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
@@ -586,6 +612,7 @@ class ZuluruSchema extends CakeSchema {
 	);
 	var $waivers = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'affiliate_id' => array('type' => 'integer', 'null' => false, 'default' => '1'),
 		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 256),
 		'description' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 256),
 		'text' => array('type' => 'text', 'null' => true, 'default' => NULL),

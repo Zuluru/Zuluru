@@ -9,6 +9,37 @@ class LeaguesController extends AppController {
 		return array('cron', 'index', 'view');
 	}
 
+	function isAuthorized() {
+		if ($this->is_manager) {
+			// Managers can perform these operations
+			if (in_array ($this->params['action'], array(
+					'add',
+					'summary',
+			)))
+			{
+				return true;
+			}
+
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'edit',
+					'delete',
+			)))
+			{
+				// If a league id is specified, check if we're a manager of that league's affiliate
+				$league = $this->_arg('league');
+				if ($league) {
+					$affiliate = $this->League->field('affiliate_id', array('League.id' => $league));
+					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
 	function index() {
 		$year = $this->_arg('year');
 		if ($year === null) {
@@ -22,43 +53,61 @@ class LeaguesController extends AppController {
 			$conditions['League.sport'] = $sport;
 		}
 
+		$affiliate = $this->_arg('affiliate');
+		$affiliates = $this->_applicableAffiliateIDs();
+		$conditions['League.affiliate_id'] = $affiliates;
+
 		$divisions = $this->League->Division->find('all', array(
 			'conditions' => $conditions,
-			'contain' => array('League', 'Day'),
+			'contain' => array(
+				'League' => array('Affiliate'),
+				'Day',
+			),
 		));
 		$this->League->Division->addPlayoffs($divisions);
-		usort ($divisions, array('League', 'compareLeagueAndDivision'));
 
 		// Find any newly created leagues with no divisions, for administrators
 		if ($this->is_admin) {
 			$leagues = $this->League->find('all', array(
 				'conditions' => array('open' => '0000-00-00'),
-				'contain' => false,
+				'contain' => array('Affiliate'),
 			));
+			// Re-jig the array format
+			foreach (array_keys($leagues) as $key) {
+				$leagues[$key]['League']['Affiliate'] = $leagues[$key]['Affiliate'];
+				unset($leagues[$key]['Affiliate']);
+			}
+			$divisions = array_merge($divisions, $leagues);
 		}
 
-		$this->set(compact('divisions', 'leagues', 'sport'));
+		usort ($divisions, array('League', 'compareLeagueAndDivision'));
+		$this->set(compact('divisions', 'affiliate', 'affiliates', 'sport'));
 
-		$this->League->Division->contain();
-		$this->set('years', $this->League->Division->find('all', array(
-			'fields' => 'DISTINCT YEAR(Division.open) AS year',
-			'conditions' => array('YEAR(Division.open) !=' => 0),
-			'order' => 'Division.open',
+		$this->set('years', $this->League->find('all', array(
+			'fields' => 'DISTINCT YEAR(League.open) AS year',
+			'conditions' => array(
+				'YEAR(League.open) !=' => 0,
+				'League.affiliate_id' => $affiliates,
+			),
+			'contain' => false,
+			'order' => 'League.open',
 		)));
 	}
 
 	function summary() {
+		$affiliates = $this->_applicableAffiliateIDs(true);
 		$divisions = $this->League->Division->find('all', array(
 			'conditions' => array(
 				'OR' => array(
 					'League.is_open' => true,
 					'League.open > CURDATE()',
 				),
+				'League.affiliate_id' => $affiliates,
 			),
-			'contain' => array('League', 'Day'),
+			'contain' => array('League' => 'Affiliate', 'Day'),
 		));
 		usort ($divisions, array('League', 'compareLeagueAndDivision'));
-		$this->set(compact('divisions'));
+		$this->set(compact('divisions', 'affiliates'));
 	}
 
 	function view() {
@@ -74,6 +123,7 @@ class LeaguesController extends AppController {
 				'Day' => array('order' => 'day_id'),
 				'Team' => array ('Person', 'Franchise'),
 			),
+			'Affiliate',
 		));
 		$league = $this->League->read(null, $id);
 		if ($league === false) {
@@ -83,6 +133,9 @@ class LeaguesController extends AppController {
 		Configure::load("sport/{$league['League']['sport']}");
 
 		$this->set(compact ('league'));
+
+		$this->set('is_manager', $this->is_manager && in_array($league['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs')));
+
 		$divisions = $this->Session->read('Zuluru.DivisionIDs');
 		if (!empty($divisions)) {
 			$coordinated_divisions = array_intersect(Set::extract('/Division/id', $league), $divisions);
@@ -90,6 +143,9 @@ class LeaguesController extends AppController {
 			$coordinated_divisions = null;
 		}
 		$this->set('is_coordinator', !empty($coordinated_divisions));
+
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->set(compact('affiliates'));
 
 		$this->_addLeagueMenuItems ($this->League->data);
 	}
@@ -114,6 +170,7 @@ class LeaguesController extends AppController {
 			unset($this->data['League']['id']);
 		}
 
+		$this->set('affiliates', $this->_applicableAffiliates(true));
 		$this->set('add', true);
 		$this->render ('edit');
 	}
@@ -137,6 +194,7 @@ class LeaguesController extends AppController {
 			$this->data = $this->League->read(null, $id);
 		}
 
+		$this->set('affiliates', $this->_applicableAffiliates(true));
 		$this->_addLeagueMenuItems ($this->League->data);
 	}
 

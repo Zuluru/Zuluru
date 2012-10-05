@@ -8,6 +8,12 @@ class MailingList extends AppModel {
 				'rule' => array('notempty'),
 			),
 		),
+		'affiliate_id' => array(
+			'inlist' => array(
+				'rule' => array('inquery', 'Affiliate', 'id'),
+				'message' => 'You must select a valid affiliate.',
+			),
+		),
 		'opt_out' => array(
 			'boolean' => array(
 				'rule' => array('boolean'),
@@ -18,6 +24,16 @@ class MailingList extends AppModel {
 				'rule' => array('rule'),
 				'message' => 'There is an error in the rule syntax.',
 			),
+		),
+	);
+
+	var $belongsTo = array(
+		'Affiliate' => array(
+			'className' => 'Affiliate',
+			'foreignKey' => 'affiliate_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
 		),
 	);
 

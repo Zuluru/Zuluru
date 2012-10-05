@@ -9,7 +9,7 @@ $this->Html->addCrumb ($team['Team']['name']);
 <div class="teams add_player">
 <h2><?php echo sprintf(__('Add %s', true), __('Player', true)) . ': ' . $team['Team']['name'];?></h2>
 
-<?php echo $this->element('people/search_form'); ?>
+<?php echo $this->element('people/search_form', array('affiliate_id' => $team['Division']['League']['affiliate_id'])); ?>
 
 <?php endif; ?>
 

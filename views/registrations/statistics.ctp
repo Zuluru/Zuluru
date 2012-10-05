@@ -8,11 +8,18 @@ $this->Html->addCrumb (__('Statistics', true));
 
 <?php
 $rows = array();
-$group = null;
+$group = $affiliate_id = null;
 foreach ($events as $event) {
+	if (count($affiliates) > 1 && $event['Event']['affiliate_id'] != $affiliate_id) {
+		$affiliate_id = $event['Event']['affiliate_id'];
+		$rows[] = array(array($this->Html->tag('h3', $event['Affiliate']['name']), array('class' => 'affiliate', 'colspan' => 2)));
+	}
+
+	$group = null;
+
 	if ($event['EventType']['name'] != $group) {
 		$group = $event['EventType']['name'];
-		$rows[] = array(array($this->Html->tag('h3', $group), array('colspan' => 2)));
+		$rows[] = array(array($this->Html->tag('h4', $group), array('colspan' => 2)));
 	}
 	$rows[] = array($this->Html->link($event['Event']['name'], array('action' => 'summary', 'event' => $event['Event']['id'])),
 		$event[0]['count']);

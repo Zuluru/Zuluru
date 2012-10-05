@@ -10,6 +10,12 @@ class League extends AppModel {
 				'message' => 'A valid league name must be entered.',
 			),
 		),
+		'affiliate_id' => array(
+			'inlist' => array(
+				'rule' => array('inquery', 'Affiliate', 'id'),
+				'message' => 'You must select a valid affiliate.',
+			),
+		),
 		'sport' => array(
 			'inlist' => array(
 				'rule' => array('inconfig', 'options.sport'),
@@ -42,6 +48,16 @@ class League extends AppModel {
 		),
 	);
 
+	var $belongsTo = array(
+		'Affiliate' => array(
+			'className' => 'Affiliate',
+			'foreignKey' => 'affiliate_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
+		),
+	);
+
 	var $hasMany = array(
 		'Division' => array(
 			'className' => 'Division',
@@ -59,41 +75,44 @@ class League extends AppModel {
 	);
 
 	function _afterFind ($record) {
+		$this->_addNames($record[$this->alias]);
+		return $record;
+	}
+
+	static function _addNames(&$league) {
 		$long_name = '';
 
-		if (array_key_exists ('name', $record[$this->alias])) {
-			$long_name = $record[$this->alias]['name'];
+		if (array_key_exists ('name', $league)) {
+			$long_name = $league['name'];
 		}
 
 		// Add the season, if it's not already part of the name
-		if (array_key_exists ('season', $record[$this->alias])) {
-			if (strpos ($long_name, $record[$this->alias]['season']) === false) {
-				$long_name = $record[$this->alias]['season'] . ' ' . $long_name;
+		if (array_key_exists ('season', $league) && $league['season'] != 'None') {
+			if (strpos ($long_name, $league['season']) === false) {
+				$long_name = $league['season'] . ' ' . $long_name;
 			}
 		}
 
 		// Add the sport, if there are multiple options
-		if (array_key_exists ('sport', $record[$this->alias]) && count(Configure::read('options.sport')) > 1) {
-			$long_name .= ' ' . Inflector::humanize($record[$this->alias]['sport']);
+		if (array_key_exists ('sport', $league) && count(Configure::read('options.sport')) > 1) {
+			$long_name .= ' ' . Inflector::humanize($league['sport']);
 		}
 
 		// Add the year, if it's not already part of the name
 		$full_name = $long_name;
-		if (array_key_exists ('open', $record[$this->alias]) && $record[$this->alias]['open'] != '0000-00-00') {
-			$year = date ('Y', strtotime ($record[$this->alias]['open']));
+		if (array_key_exists ('open', $league) && $league['open'] != '0000-00-00') {
+			$year = date ('Y', strtotime ($league['open']));
 			if (strpos ($full_name, $year) === false) {
 				// TODO: Add closing year, if different than opening
 				$full_name = $year . ' ' . $full_name;
 			}
-			if (array_key_exists('season', $record[$this->alias])) {
-				$record[$this->alias]['long_season'] = "$year {$record[$this->alias]['season']}";
+			if (array_key_exists('season', $league)) {
+				$league['long_season'] = "$year {$league['season']}";
 			}
 		}
 
-		$record[$this->alias]['long_name'] = trim($long_name);
-		$record[$this->alias]['full_name'] = trim($full_name);
-
-		return $record;
+		$league['long_name'] = trim($long_name);
+		$league['full_name'] = trim($full_name);
 	}
 
 	static function compareLeagueAndDivision ($a, $b) {
@@ -103,6 +122,21 @@ class League extends AppModel {
 		} else {
 			$a_league = $a['Division']['League'];
 			$b_league = $b['Division']['League'];
+		}
+
+		if (array_key_exists('Affiliate', $a_league)) {
+			$a_affiliate = $a_league['Affiliate'];
+			$b_affiliate = $b_league['Affiliate'];
+		} else {
+			$a_affiliate = $a['Affiliate'];
+			$b_affiliate = $b['Affiliate'];
+		}
+
+		// If they are different affiliates, we use that
+		if ($a_affiliate['name'] > $b_affiliate['name']) {
+			return 1;
+		} else if ($a_affiliate['name'] < $b_affiliate['name']) {
+			return -1;
 		}
 
 		// If they are different sports, we use that

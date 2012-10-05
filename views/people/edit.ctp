@@ -92,6 +92,36 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 		}
 	?>
 	</fieldset>
+	<?php
+	// We hide the affiliate selection if it's not enabled, for admins,
+	// and for managers when only one affiliate is allowed. The latter
+	// is to prevent managers from switching themselves to another
+	// affiliate where they're not a manager.
+	if (Configure::read('feature.affiliates') && !$is_admin &&
+		(Configure::read('feature.multiple_affiliates') || !$is_manager)):
+	?>
+	<fieldset>
+ 		<legend><?php __('Affiliate'); ?></legend>
+	<?php
+		if (Configure::read('feature.multiple_affiliates')) {
+			$after = __('Select all affiliates you are interested in.', true);
+			if ($is_manager) {
+				$after .= ' ' . sprintf(__('Note that affiliates you are already a manager of (%s) are not included here; this will remain unchanged.', true),
+					implode(Set::extract('/Affiliate/name', $this->Session->read('Zuluru.ManagedAffiliates')), true));
+			}
+			echo $this->ZuluruForm->input('Affiliate', array(
+				'label' => __('Affiliates', true),
+				'after' => $this->Html->para (null, $after),
+				'multiple' => 'checkbox',
+			));
+		} else {
+			echo $this->ZuluruForm->input('Affiliate', array(
+				'empty' => '---',
+			));
+		}
+	?>
+	</fieldset>
+	<?php endif; ?>
 	<fieldset>
  		<legend><?php __('Online Contact'); ?></legend>
 	<?php

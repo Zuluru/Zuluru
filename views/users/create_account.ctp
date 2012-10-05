@@ -39,6 +39,25 @@ $sport = array_shift(array_keys(Configure::read('options.sport')));
 		echo $this->ZuluruForm->input('confirm_passwd', array('type' => 'password', 'label' => 'Confirm Password'));
 	?>
 	</fieldset>
+	<?php if (Configure::read('feature.affiliates')): ?>
+	<fieldset>
+ 		<legend><?php __('Affiliate'); ?></legend>
+	<?php
+		if (Configure::read('feature.multiple_affiliates')) {
+			echo $this->ZuluruForm->input('Affiliate', array(
+				'label' => __('Affiliates', true),
+				'after' => $this->Html->para (null, __('Select all affiliates you are interested in.', true)),
+				'multiple' => 'checkbox',
+			));
+		} else {
+			echo $this->ZuluruForm->input('Affiliate', array(
+				'empty' => '---',
+				'multiple' => false,
+			));
+		}
+	?>
+	</fieldset>
+	<?php endif; ?>
 	<fieldset>
  		<legend><?php __('Online Contact'); ?></legend>
 	<?php
@@ -97,16 +116,7 @@ $sport = array_shift(array_keys(Configure::read('options.sport')));
 	<?php if (Configure::read('profile.home_phone') || Configure::read('profile.work_phone') ||
 				Configure::read('profile.mobile_phone')): ?>
 	<fieldset>
- 		<legend><?php
- 		if (Configure::read('profile.home_phone') + Configure::read('profile.work_phone') +
- 			Configure::read('profile.mobile_phone') > 1)
- 		{
- 			$number = 'Numbers';
- 		} else {
- 			$number = 'Number';
- 		}
-		__("Telephone $number");
-		?></legend>
+ 		<legend><?php __('Telephone Numbers'); ?></legend>
 	<?php
 		if (Configure::read('profile.home_phone')) {
 			echo $this->ZuluruForm->input('home_phone', array(

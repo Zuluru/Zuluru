@@ -16,7 +16,7 @@ class RuleLeagueTeamCountComponent extends RuleComponent
 	// Count how many teams the user was on in the given leagues.
 	// Since we're only interested in non-subs, if the user in
 	// question is a sub on the current team, we'll just return 0.
-	function evaluate($params, $team) {
+	function evaluate($affiliate, $params, $team) {
 		$count = 0;
 		$positions = Configure::read('playing_roster_positions');
 
@@ -36,7 +36,7 @@ class RuleLeagueTeamCountComponent extends RuleComponent
 		return $count;
 	}
 
-	function build_query(&$joins, &$fields) {
+	function build_query($affiliate, &$joins, &$fields) {
 		$fields['team_count'] = 'COUNT(Team.id) as team_count';
 		$joins['TeamsPerson'] = array(
 			'table' => 'teams_people',

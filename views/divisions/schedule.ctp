@@ -4,6 +4,13 @@ $this->Html->addCrumb ($division['Division']['full_league_name']);
 $this->Html->addCrumb (__('Schedule', true));
 ?>
 
+<?php
+// Perhaps remove manager status, if we're looking at a different affiliate
+if ($is_manager && !in_array($division['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+	$is_manager = false;
+}
+?>
+
 <div class="divisions schedule">
 <h2><?php echo __('Division Schedule', true) . ': ' . $division['Division']['full_league_name'];?></h2>
 <?php
@@ -30,9 +37,9 @@ if (!empty ($edit_date)) {
 	$dates = array_unique(Set::extract ('/Game/GameSlot/game_date', $division));
 	foreach ($dates as $date) {
 		if ($date == $edit_date) {
-			echo $this->element('leagues/schedule/week_edit', compact ('date', 'slots'));
+			echo $this->element('leagues/schedule/week_edit', compact ('date', 'slots', 'is_manager'));
 		} else {
-			echo $this->element('leagues/schedule/week_view', compact ('date'));
+			echo $this->element('leagues/schedule/week_view', compact ('date', 'is_manager'));
 		}
 	}
 	?>
@@ -56,7 +63,7 @@ if (!empty ($edit_date)) {
 		echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('standings_32.png',
 			array('action' => 'standings', 'division' => $division['Division']['id']),
 			array('alt' => __('Standings', true), 'title' => __('Standings', true))));
-		if ($is_admin || $is_coordinator) {
+		if ($is_admin || $is_manager || $is_coordinator) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('edit_32.png',
 				array('action' => 'edit', 'division' => $division['Division']['id'], 'return' => true),
 				array('alt' => __('Edit', true), 'title' => __('Edit Division', true))));
@@ -79,7 +86,7 @@ if (!empty ($edit_date)) {
 				array('alt' => sprintf(__('%s Distribution', true), Configure::read('sport.field_cap')), 'title' => sprintf(__('%s Distribution Report', true), Configure::read('sport.field_cap')))));
 			// TODO: More links to reports, etc.
 		}
-		if ($is_admin) {
+		if ($is_admin || $is_manager) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('coordinator_add_32.png',
 				array('action' => 'add_coordinator', 'division' => $division['Division']['id']),
 				array('alt' => __('Add Coordinator', true), 'title' => __('Add Coordinator', true))));

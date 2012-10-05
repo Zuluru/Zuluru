@@ -13,17 +13,39 @@ if (!empty($sport)) {
 <?php else: ?>
 <table class="list">
 <?php
-$league = null;
+$affiliate_id = $league_id = null;
 foreach ($divisions as $division):
-	if ($division['League']['id'] != $league):
-		$league = $division['League']['id'];
-		Configure::load("sport/{$division['League']['sport']}");
+	$is_manager = in_array($division['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+
+	if (count($affiliates) > 1 && $division['League']['affiliate_id'] != $affiliate_id):
+		$affiliate_id = $division['League']['affiliate_id'];
 ?>
 	<tr>
 		<th<?php if (!$is_admin) echo ' colspan="2"'; ?>>
-			<?php echo $this->Html->link($division['League']['full_name'], array('action' => 'view', 'league' => $division['League']['id'])); ?>
+			<h3 class="affiliate"><?php echo $division['League']['Affiliate']['name']; ?></h3>
 		</th>
 		<?php if ($is_admin): ?>
+		<th class="actions">
+			<?php
+				echo $this->ZuluruHtml->iconLink('edit_24.png',
+					array('controller' => 'affiliates', 'action' => 'edit', 'affiliate' => $division['League']['affiliate_id'], 'return' => true),
+					array('alt' => __('Edit', true), 'title' => __('Edit Affiliate', true)));
+			?>
+		</th>
+		<?php endif; ?>
+	</tr>
+<?php
+	endif;
+
+	if ($division['League']['id'] != $league_id):
+		$league_id = $division['League']['id'];
+		Configure::load("sport/{$division['League']['sport']}");
+?>
+	<tr>
+		<th<?php if (!($is_admin || $is_manager)) echo ' colspan="2"'; ?>>
+			<?php echo $this->Html->link($division['League']['full_name'], array('action' => 'view', 'league' => $division['League']['id'])); ?>
+		</th>
+		<?php if ($is_admin || $is_manager): ?>
 		<th class="actions">
 			<?php
 				echo $this->ZuluruHtml->iconLink('edit_24.png',
@@ -45,6 +67,8 @@ foreach ($divisions as $division):
 	</tr>
 <?php
 	endif;
+
+	if (!empty($division['Division'])):
 ?>
 	<tr>
 		<td>
@@ -61,7 +85,7 @@ foreach ($divisions as $division):
 			echo $this->ZuluruHtml->iconLink('standings_24.png',
 				array('controller' => 'divisions', 'action' => 'standings', 'division' => $division['Division']['id']),
 				array('alt' => __('Standings', true), 'title' => __('Standings', true)));
-			if ($is_admin || in_array($division['Division']['id'], $this->Session->read('Zuluru.DivisionIDs'))) {
+			if ($is_admin || $is_manager || in_array($division['Division']['id'], $this->Session->read('Zuluru.DivisionIDs'))) {
 				echo $this->ZuluruHtml->iconLink('edit_24.png',
 					array('controller' => 'divisions', 'action' => 'edit', 'division' => $division['Division']['id'], 'return' => true),
 					array('alt' => __('Edit', true), 'title' => __('Edit Division', true)));
@@ -83,7 +107,7 @@ foreach ($divisions as $division):
 					array('controller' => 'divisions', 'action' => 'fields', 'division' => $division['Division']['id']),
 					array('alt' => sprintf(__('%s Distribution', true), Configure::read('sport.field_cap')), 'title' => sprintf(__('%s Distribution Report', true), Configure::read('sport.field_cap'))));
 			}
-			if ($is_admin) {
+			if ($is_admin || $is_manager) {
 				echo $this->ZuluruHtml->iconLink('coordinator_add_24.png',
 					array('controller' => 'divisions', 'action' => 'add_coordinator', 'division' => $division['Division']['id']),
 					array('alt' => __('Add Coordinator', true), 'title' => __('Add Coordinator', true)));
@@ -101,36 +125,9 @@ foreach ($divisions as $division):
 			?>
 		</td>
 	</tr>
-<?php endforeach; ?>
-<?php if (isset($leagues)): ?>
-<?php foreach ($leagues as $league): ?>
-	<tr>
-		<th<?php if (!$is_admin) echo ' colspan="2"'; ?>>
-			<?php echo $this->Html->link($league['League']['full_name'], array('action' => 'view', 'league' => $league['League']['id'])); ?>
-		</th>
-		<?php if ($is_admin): ?>
-		<th class="actions">
-			<?php
-				echo $this->ZuluruHtml->iconLink('edit_24.png',
-					array('action' => 'edit', 'league' => $league['League']['id']),
-					array('alt' => __('Edit', true), 'title' => __('Edit League', true)));
-				echo $this->ZuluruHtml->iconLink('league_clone_24.png',
-					array('controller' => 'leagues', 'action' => 'add', 'league' => $league['League']['id']),
-					array('alt' => __('Clone League', true), 'title' => __('Clone League', true)));
-				echo $this->ZuluruHtml->iconLink('division_add_24.png',
-					array('controller' => 'divisions', 'action' => 'add', 'league' => $league['League']['id']),
-					array('alt' => __('Add Division', true), 'title' => __('Add Division', true)));
-				echo $this->ZuluruHtml->iconLink('delete_24.png',
-					array('action' => 'delete', 'league' => $league['League']['id']),
-					array('alt' => __('Delete', true), 'title' => __('Delete League', true)),
-					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $league['League']['id'])));
-			?>
-		</th>
-		<?php endif; ?>
-	</tr>
 <?php
-	endforeach;
-endif;
+	endif;
+endforeach;
 ?>
 </table>
 <?php endif; ?>
@@ -140,7 +137,7 @@ endif;
 	<ul>
 <?php
 foreach ($years as $year) {
-	echo $this->Html->tag('li', $this->Html->link($year[0]['year'], array('sport' => $sport, 'year' => $year[0]['year'])));
+	echo $this->Html->tag('li', $this->Html->link($year[0]['year'], array('affiliate' => $affiliate, 'sport' => $sport, 'year' => $year[0]['year'])));
 }
 ?>
 

@@ -4,6 +4,13 @@ $this->Html->addCrumb ($division['Division']['full_league_name']);
 $this->Html->addCrumb (__('View', true));
 ?>
 
+<?php
+// Perhaps remove manager status, if we're looking at a different affiliate
+if ($is_manager && !in_array($division['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+	$is_manager = false;
+}
+?>
+
 <div class="divisions view">
 <h2><?php echo $division['Division']['name'];?></h2>
 	<dl><?php $i = 1; $class = ' class="altrow"';?>
@@ -24,7 +31,7 @@ $this->Html->addCrumb (__('View', true));
 				<?php __($division['League']['season']); ?>
 
 			</dd>
-			<?php if ($is_admin || $is_coordinator): ?>
+			<?php if ($is_admin || $is_manager || $is_coordinator): ?>
 				<dt<?php if ($j % 2 == 0) echo $class;?>><?php __('Spirit Questionnaire'); ?></dt>
 				<dd<?php if ($j++ % 2 == 0) echo $class;?>>
 					<?php __(Configure::read("options.spirit_questions.{$division['League']['sotg_questions']}")); ?>
@@ -56,7 +63,7 @@ $this->Html->addCrumb (__('View', true));
 		$coordinators = array();
 		foreach ($division['Person'] as $person) {
 			$coordinator = $this->element('people/block', compact('person'));
-			if ($is_admin) {
+			if ($is_admin || $is_manager) {
 				$coordinator .= '&nbsp;' .
 					$this->Html->tag('span',
 						$this->ZuluruHtml->iconLink('coordinator_delete_24.png',
@@ -127,7 +134,7 @@ $this->Html->addCrumb (__('View', true));
 
 			</dd>
 		<?php endif; ?>
-		<?php if ($is_admin): ?>
+		<?php if ($is_admin || $is_manager): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Roster Rule'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php echo $this->Html->tag('pre', $division['Division']['roster_rule'] . '&nbsp;'); ?>
@@ -148,7 +155,7 @@ $this->Html->addCrumb (__('View', true));
 
 		</dd>
 		<?php
-		$fields = $league_obj->schedulingFields($is_admin, $is_coordinator);
+		$fields = $league_obj->schedulingFields($is_admin || $is_manager, $is_coordinator);
 		foreach ($fields as $field => $options):
 		?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __($options['label']); ?></dt>
@@ -168,7 +175,7 @@ $this->Html->addCrumb (__('View', true));
 			?>
 
 		</dd>
-		<?php if ($is_admin || $is_coordinator): ?>
+		<?php if ($is_admin || $is_manager || $is_coordinator): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Exclude Teams'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php
@@ -210,7 +217,7 @@ $this->Html->addCrumb (__('View', true));
 		echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('standings_32.png',
 			array('action' => 'standings', 'division' => $division['Division']['id']),
 			array('alt' => __('Standings', true), 'title' => __('Standings', true))));
-		if ($is_admin || $is_coordinator) {
+		if ($is_admin || $is_manager || $is_coordinator) {
 			if ($division['Division']['is_playoff']) {
 				echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('initialize_32.png',
 					array('action' => 'initialize_ratings', 'division' => $division['Division']['id']),
@@ -241,7 +248,7 @@ $this->Html->addCrumb (__('View', true));
 				array('alt' => __('Add Teams', true), 'title' => __('Add Teams', true))));
 			// TODO: More links to reports, etc.
 		}
-		if ($is_admin) {
+		if ($is_admin || $is_manager) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('coordinator_add_32.png',
 				array('action' => 'add_coordinator', 'division' => $division['Division']['id']),
 				array('alt' => __('Add Coordinator', true), 'title' => __('Add Coordinator', true))));
@@ -262,7 +269,7 @@ $this->Html->addCrumb (__('View', true));
 	<table class="list">
 	<?php
 	echo $this->element("leagues/view/{$league_obj->render_element}/heading",
-			compact ('is_admin', 'is_coordinator'));
+			compact ('is_admin', 'is_manager', 'is_coordinator'));
 	$seed = $i = 0;
 	foreach ($division['Team'] as $team) {
 		$is_captain = in_array($team['id'], $this->Session->read('Zuluru.OwnedTeamIDs'));
@@ -280,7 +287,7 @@ $this->Html->addCrumb (__('View', true));
 		}
 		Team::consolidateRoster ($team);
 		echo $this->element("leagues/view/{$league_obj->render_element}/team",
-				compact ('is_admin', 'is_coordinator', 'is_captain', 'division', 'team', 'seed', 'classes'));
+				compact ('is_admin', 'is_manager', 'is_coordinator', 'is_captain', 'division', 'team', 'seed', 'classes'));
 	}
 	?>
 	</table>

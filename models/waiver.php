@@ -10,6 +10,12 @@ class Waiver extends AppModel {
 				'required' => true,
 			),
 		),
+		'affiliate_id' => array(
+			'inlist' => array(
+				'rule' => array('inquery', 'Affiliate', 'id'),
+				'message' => 'You must select a valid affiliate.',
+			),
+		),
 		'text' => array(
 			'notempty' => array(
 				'rule' => array('notempty'),
@@ -31,6 +37,16 @@ class Waiver extends AppModel {
 			'numeric' => array(
 				'rule' => array('numeric'),
 			),
+		),
+	);
+
+	var $belongsTo = array(
+		'Affiliate' => array(
+			'className' => 'Affiliate',
+			'foreignKey' => 'affiliate_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
 		),
 	);
 

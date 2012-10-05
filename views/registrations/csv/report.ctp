@@ -11,6 +11,9 @@ $header = array(
 		__('Payment', true),
 		__('Amount', true),
 );
+if (count($affiliates) && empty($affiliate)) {
+	array_unshift($header, __('Affiliate', true));
+}
 fputcsv($fp, $header);
 
 $order_fmt = Configure::read('registration.order_id_format');
@@ -29,6 +32,9 @@ foreach ($registrations as $registration) {
 			$registration['Registration']['payment'],
 			$registration['Event']['cost'] + $registration['Event']['tax1'] + $registration['Event']['tax2'],
 	);
+	if (count($affiliates) && empty($affiliate)) {
+		array_unshift($data, $registration['Event']['Affiliate']['name']);
+	}
 
 	// Output the data row
 	fputcsv($fp, $data);

@@ -69,13 +69,14 @@ class UsersController extends AppController {
 			$this->redirect('/');
 		}
 
-		if (!$this->is_admin && $this->Auth->user('id')) {
+		if (!$this->is_admin && !$this->is_manager && $this->Auth->user('id')) {
 			$this->Session->setFlash(__('You are already logged in!', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
 		$this->_loadAddressOptions();
 		$this->_loadGroupOptions();
+		$this->_loadAffiliateOptions();
 
 		if (!empty($this->data)) {
 			$this->User->create();
@@ -85,29 +86,49 @@ class UsersController extends AppController {
 				$this->data['User']['status'] = 'active';
 			}
 
-			if ($this->User->save($this->data)) {
-				if (Configure::read('feature.auto_approve')) {
-					$this->Session->setFlash(__('Your account has been saved.', true), 'default', array('class' => 'success'));
+			// Handle affiliations
+			if (Configure::read('feature.affiliates')) {
+				if (Configure::read('feature.multiple_affiliates')) {
+					if (empty($this->data['Affiliate']['Affiliate'])) {
+						$this->User->Affiliate->validationErrors['Affiliate'] = __('You must select at least one affiliate that you are interested in.', true);
+					}
 				} else {
-					$this->Session->setFlash(__('Your account has been saved. It must be approved by an administrator before you will have full access to the site. However, you can log in and start exploring right away.', true), 'default', array('class' => 'success'));
+					if (empty($this->data['Affiliate']['Affiliate']) || count($this->data['Affiliate']['Affiliate']) > 1) {
+						$this->User->Affiliate->validationErrors['Affiliate'] = __('You must select an affiliate that you are interested in.', true);
+					}
 				}
+			} else {
+				$this->data['Affiliate']['Affiliate'] = array(1);
+			}
 
-				// There may be callbacks to handle
-				// TODO: How to handle this in conjunction with third-party auth systems?
-				$this->data['User']['id'] = $this->User->id;
-				$components = Configure::read('callbacks.user');
-				foreach ($components as $name => $config) {
-					$component = $this->_getComponent('User', $name, $this, false, $config);
-					$component->onAdd($this->data['User']);
+			$this->User->set($this->data);
+			if ($this->User->validates() && $this->User->Affiliate->validates()) {
+				if ($this->User->saveAll($this->data)) {
+					if (Configure::read('feature.auto_approve')) {
+						$this->Session->setFlash('<h2>' . __('THANK YOU', true) . '</h2><p>' . sprintf(__('for creating an account with %s.', true), Configure::read('organization.name')) . '</p>', 'default', array('class' => 'success'));
+					} else {
+						$this->Session->setFlash(__('Your account has been created. It must be approved by an administrator before you will have full access to the site. However, you can log in and start exploring right away.', true), 'default', array('class' => 'success'));
+					}
+
+					// There may be callbacks to handle
+					// TODO: How to handle this in conjunction with third-party auth systems?
+					$this->data['User']['id'] = $this->User->id;
+					$components = Configure::read('callbacks.user');
+					foreach ($components as $name => $config) {
+						$component = $this->_getComponent('User', $name, $this, false, $config);
+						$component->onAdd($this->data['User']);
+					}
+
+					if (!$this->is_logged_in) {
+						// Automatically log the user in
+						$this->data['User']['password'] = Security::hash($this->data['User']['passwd'], null, Configure::read ('security.salted_hash'));
+						$this->Auth->login($this->data);
+					}
+
+					$this->redirect('/');
+				} else {
+					$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('account', true)), 'default', array('class' => 'warning'));
 				}
-
-				if (!$this->is_logged_in) {
-					// Automatically log the user in
-					$this->data['User']['password'] = Security::hash($this->data['User']['passwd'], null, Configure::read ('security.salted_hash'));
-					$this->Auth->login($this->data);
-				}
-
-				$this->redirect('/');
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('account', true)), 'default', array('class' => 'warning'));
 			}

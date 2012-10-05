@@ -3,6 +3,52 @@ class GameSlotsController extends AppController {
 
 	var $name = 'GameSlots';
 
+	function isAuthorized() {
+		if ($this->is_manager) {
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'add',
+			)))
+			{
+				// If an affiliate id is specified, check if we're a manager of that affiliate
+				$affiliate = $this->_arg('affiliate');
+				if ($affiliate && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					return true;
+				}
+
+				// If a field id is specified, check if we're a manager of that field
+				$field = $this->_arg('field');
+				if ($field) {
+					$facility = $this->GameSlot->Field->field('facility_id', array('Field.id' => $field));
+					$region = $this->GameSlot->Field->Facility->field('region_id', array('Facility.id' => $facility));
+					$affiliate = $this->GameSlot->Field->Facility->Region->field('affiliate_id', array('Region.id' => $region));
+					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'edit',
+					'view',
+					'delete',
+			)))
+			{
+				// If a questionnaire id is specified, check if we're a manager of that questionnaire's affiliate
+				$questionnaire = $this->_arg('questionnaire');
+				if ($questionnaire) {
+					$affiliate = $this->Questionnaire->field('affiliate_id', array('Questionnaire.id' => $questionnaire));
+					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
 	function view() {
 		$id = $this->_arg('slot');
 		if (!$id) {
@@ -22,6 +68,13 @@ class GameSlotsController extends AppController {
 	}
 
 	function add() {
+		$field = $this->_arg('field');
+		$affiliate = $this->_arg('affiliate');
+		if (!$affiliate && !$field) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('affiliate', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
 		if (!empty($this->data)) {
 			// Find the list of holidays to avoid
 			$holiday = ClassRegistry::init('Holiday');
@@ -95,13 +148,14 @@ class GameSlotsController extends AppController {
 			}
 		}
 
-		$id = $this->_arg('field');
-		if ($id) {
-			$this->GameSlot->Field->contain (array('Facility'));
-			$field = $this->GameSlot->Field->read(null, $id);
+		if ($field) {
+			$this->GameSlot->Field->contain (array('Facility' => 'Region'));
+			$field = $this->GameSlot->Field->read(null, $field);
+			$affiliate = $field['Facility']['Region']['affiliate_id'];
 			$this->set(compact('field'));
 		} else {
 			$regions = $this->GameSlot->Field->Facility->Region->find('all', array(
+				'conditions' => array('Region.affiliate_id' => $affiliate),
 				'contain' => array(
 					'Facility' => array(
 						'conditions' => array(
@@ -120,6 +174,7 @@ class GameSlotsController extends AppController {
 			));
 			$this->set(compact('regions'));
 		}
+		$this->set(compact('affiliate'));
 	}
 
 	function edit() {
@@ -163,7 +218,12 @@ class GameSlotsController extends AppController {
 			));
 			$this->data = $this->GameSlot->read(null, $id);
 		}
-		$divisions = $this->GameSlot->Game->Division->readByDate($this->data['GameSlot']['game_date']);
+
+		$field = $this->GameSlot->field('field_id', array('GameSlot.id' => $id));
+		$facility = $this->GameSlot->Field->field('facility_id', array('Field.id' => $field));
+		$region = $this->GameSlot->Field->Facility->field('region_id', array('Facility.id' => $facility));
+		$affiliate = $this->GameSlot->Field->Facility->Region->field('affiliate_id', array('Region.id' => $region));
+		$divisions = $this->GameSlot->Game->Division->readByDate($this->data['GameSlot']['game_date'], $affiliate);
 		$divisions = Set::combine($divisions, '{n}.Division.id', '{n}.Division.full_league_name');
 		$this->data['GameSlot']['division_id'] = Set::extract ('/DivisionGameslotAvailability/division_id', $this->data);
 		$this->set(compact('divisions'));

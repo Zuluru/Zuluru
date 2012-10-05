@@ -20,6 +20,13 @@ if (isset ($add)) {
 			'size' => 70,
 			'after' => $this->Html->para (null, __('Full name of this registration event.', true)),
 		));
+		if (isset ($add)) {
+			echo $this->ZuluruForm->input('affiliate_id', array(
+				'options' => $affiliates,
+				'hide_single' => true,
+				'empty' => '---',
+			));
+		}
 		echo $this->ZuluruForm->input('description', array(
 			'cols' => 70,
 			'rows' => 5,
@@ -97,7 +104,12 @@ if (isset ($add)) {
 <?php if (!isset ($add)): ?>
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Html->link(sprintf(__('Manage %s', true), __('Connections', true)), array('action' => 'connections', 'event' => $this->data['Event']['id'])); ?> </li>
+		<li><?php
+		$alt = sprintf(__('Manage %s', true), __('Connections', true));
+		echo $this->ZuluruHtml->iconLink('connections_24.png',
+			array('action' => 'connections', 'event' => $this->data['Event']['id']),
+			array('alt' => $alt, 'title' => $alt));
+		?> </li>
 	</ul>
 </div>
 <?php endif; ?>

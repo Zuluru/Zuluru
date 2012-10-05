@@ -28,6 +28,10 @@ echo $this->Paginator->counter(array(
 <?php
 $i = 0;
 foreach ($people as $person):
+	$affiliates = Set::extract('/Affiliate/id', $person);
+	$mine = array_intersect($affiliates, $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+	$is_manager = !empty($mine);
+
 	$class = null;
 	if ($i++ % 2 == 0) {
 		$class = ' class="altrow"';
@@ -53,7 +57,7 @@ foreach ($people as $person):
 				echo $this->Html->link(__($link, true), array('controller' => 'people', 'action' => 'note', 'person' => $person['Person']['id'], 'return' => true));
 			}
 			?>
-			<?php if ($is_admin): ?>
+			<?php if ($is_admin || $is_manager): ?>
 			<?php echo $this->Html->link(__('Edit', true), array('controller' => 'people', 'action' => 'edit', 'person' => $person['Person']['id'], 'return' => true)); ?>
 			<?php echo $this->Html->link(__('Delete', true), array('controller' => 'people', 'action' => 'delete', 'person' => $person['Person']['id'], 'return' => true), null, sprintf(__('Are you sure you want to delete # %s?', true), $person['Person']['id'])); ?>
 			<?php endif; ?>

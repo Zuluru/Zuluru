@@ -2,10 +2,16 @@
 if (!isset($is_captain)) {
 	$is_captain = false;
 }
+if (!isset($is_manager)) {
+	$is_manager = false;
+}
 if (!isset($is_coordinator)) {
 	$is_coordinator = false;
 }
 
+echo $this->ZuluruHtml->iconLink('view_24.png',
+	array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']),
+	array('alt' => __('View', true), 'title' => __('View', true)));
 if ($team['track_attendance']) {
 	if ($is_captain) {
 		echo $this->ZuluruHtml->iconLink('team_event_add_24.png',
@@ -27,7 +33,7 @@ if ($is_logged_in && $team['open_roster'] && !Division::rosterDeadlinePassed($di
 		array('controller' => 'teams', 'action' => 'roster_request', 'team' => $team['id']),
 		array('alt' => __('Join Team', true), 'title' => __('Join Team', true)));
 }
-if ($is_admin || $is_captain) {
+if ($is_admin || $is_manager || $is_captain) {
 	echo $this->ZuluruHtml->iconLink('edit_24.png',
 		array('controller' => 'teams', 'action' => 'edit', 'team' => $team['id'], 'return' => true),
 		array('alt' => __('Edit Team', true), 'title' => __('Edit Team', true)));
@@ -35,17 +41,17 @@ if ($is_admin || $is_captain) {
 		array('controller' => 'teams', 'action' => 'emails', 'team' => $team['id']),
 		array('alt' => __('Player Emails', true), 'title' => __('Player Emails', true)));
 }
-if ($is_admin || (($is_captain || $is_coordinator) && !Division::rosterDeadlinePassed($division['Division']))) {
+if ($is_admin || $is_manager || (($is_captain || $is_coordinator) && !Division::rosterDeadlinePassed($division['Division']))) {
 	echo $this->ZuluruHtml->iconLink('roster_add_24.png',
 		array('controller' => 'teams', 'action' => 'add_player', 'team' => $team['id']),
 		array('alt' => __('Add Player', true), 'title' => __('Add Player', true)));
 }
-if (($is_admin || $is_coordinator) && League::hasSpirit($division)) {
+if (($is_admin || $is_manager || $is_coordinator) && League::hasSpirit($division)) {
 	echo $this->ZuluruHtml->iconLink('spirit_24.png',
 		array('controller' => 'teams', 'action' => 'spirit', 'team' => $team['id']),
 		array('alt' => __('Spirit', true), 'title' => __('See Team Spirit Report', true)));
 }
-if ($is_admin) {
+if ($is_admin || $is_manager) {
 	echo $this->ZuluruHtml->iconLink('move_24.png',
 		array('controller' => 'teams', 'action' => 'move', 'team' => $team['id']),
 		array('alt' => __('Move Team', true), 'title' => __('Move Team', true)));

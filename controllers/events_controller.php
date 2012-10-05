@@ -8,20 +8,56 @@ class EventsController extends AppController {
 		return array('index', 'view', 'wizard');
 	}
 
+	function isAuthorized() {
+		if ($this->is_manager) {
+			// Managers can perform these operations
+			if (in_array ($this->params['action'], array(
+					'add',
+					'event_type_fields',
+			)))
+			{
+				return true;
+			}
+
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'edit',
+					'connections',
+					'delete',
+			)))
+			{
+				// If an event id is specified, check if we're a manager of that event's affiliate
+				$event = $this->_arg('event');
+				if ($event) {
+					$affiliate = $this->Event->field('affiliate_id', array('Event.id' => $event));
+					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
 	function index() {
-		if ($this->is_admin) {
+		if ($this->is_admin || $this->is_manager) {
 			$close = 'DATE_ADD(CURDATE(), INTERVAL -30 DAY)';
 		} else {
 			$close = 'CURDATE()';
 		}
+		$affiliates = $this->_applicableAffiliateIDs();
+
 		$this->set('events', $this->Event->find('all', array(
 			'conditions' => array(
 				'Event.open < DATE_ADD(CURDATE(), INTERVAL 30 DAY)',
 				"Event.close > $close",
+				'Event.affiliate_id' => $affiliates,
 			),
-			'order' => array('Event.event_type_id', 'Event.open', 'Event.close', 'Event.id'),
-			'contain' => array('EventType'),
+			'order' => array('Affiliate.name', 'Event.event_type_id', 'Event.open', 'Event.close', 'Event.id'),
+			'contain' => array('EventType', 'Affiliate'),
 		)));
+		$this->set(compact('affiliates'));
 	}
 
 	function wizard($step = null) {
@@ -38,6 +74,7 @@ class EventsController extends AppController {
 
 		// Find all the events that are potentially available
 		// TODO: Eliminate the events that don't match the step, if any
+		$affiliates = $this->_applicableAffiliateIDs();
 		$events = $this->Event->find('all', array(
 			'conditions' => array(
 				'OR' => array(
@@ -47,9 +84,10 @@ class EventsController extends AppController {
 					),
 					'Event.id' => $prereg,
 				),
+				'Event.affiliate_id' => $affiliates,
 			),
 			'order' => array('Event.event_type_id', 'Event.open', 'Event.close', 'Event.id'),
-			'contain' => array('EventType'),
+			'contain' => array('EventType', 'Affiliate'),
 		));
 
 		$types = $this->Event->EventType->find('all', array(
@@ -64,7 +102,7 @@ class EventsController extends AppController {
 			}
 		}
 
-		$this->set(compact('events', 'types', 'step'));
+		$this->set(compact('events', 'types', 'affiliates', 'step'));
 	}
 
 	function view() {
@@ -90,6 +128,7 @@ class EventsController extends AppController {
 			'Alternate' => array(
 				'EventType',
 			),
+			'Affiliate',
 		));
 		$event = $this->Event->read(null, $id);
 		if ($event === false) {
@@ -113,7 +152,8 @@ class EventsController extends AppController {
 			$this->set ($this->CanRegister->test ($this->Auth->user('id'), $event));
 		}
 
-		$this->set(compact ('id', 'event', 'facilities', 'times'));
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->set(compact ('id', 'event', 'facilities', 'times', 'affiliates'));
 	}
 
 	function add() {
@@ -139,10 +179,12 @@ class EventsController extends AppController {
 					'type' => 'generic',
 			));
 		}
+
 		$this->set('eventTypes', $this->Event->EventType->find('list'));
 		$this->set('questionnaires', $this->Event->Questionnaire->find('list'));
 
 		$this->set('event_obj', $this->_getComponent ('EventType', $this->data['EventType']['type'], $this));
+		$this->set('affiliates', $this->_applicableAffiliates(true));
 		$this->set('add', true);
 
 		if (Configure::read('feature.tiny_mce')) {
@@ -186,6 +228,7 @@ class EventsController extends AppController {
 				'Questionnaire.active' => true,
 		))));
 		$this->set('event_obj', $this->_getComponent ('EventType', $this->data['EventType']['type'], $this));
+		$this->set('affiliates', $this->_applicableAffiliates(true));
 
 		if (Configure::read('feature.tiny_mce')) {
 			$this->helpers[] = 'TinyMce.TinyMce';
@@ -301,6 +344,7 @@ class EventsController extends AppController {
 				"Event.open < DATE_ADD('{$this->data['Event']['open']}', INTERVAL 18 MONTH)",
 				"Event.close > DATE_ADD('{$this->data['Event']['close']}', INTERVAL -18 MONTH)",
 				"Event.close < DATE_ADD('{$this->data['Event']['close']}', INTERVAL 18 MONTH)",
+				'Event.affiliate_id' => $this->data['Event']['affiliate_id'],
 			),
 			'order' => array('Event.event_type_id', 'Event.open', 'Event.close', 'Event.id'),
 			'fields' => array('Event.id', 'Event.name', 'Event.open', 'Event.close', 'Event.event_type_id'),

@@ -11,11 +11,11 @@ class RuleConstantComponent extends RuleComponent
 		return true;
 	}
 
-	function evaluate($params) {
+	function evaluate($affiliate, $params) {
 		return $this->config;
 	}
 
-	function build_query(&$joins, &$fields) {
+	function build_query($affiliate, &$joins, &$fields) {
 		return $this->config;
 	}
 

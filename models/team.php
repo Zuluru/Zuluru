@@ -232,7 +232,7 @@ class Team extends AppModel {
 				'conditions' => $conditions,
 				'contain' => array(
 					'Division' => array(
-						'League',
+						'League' => array('Affiliate'),
 						'Day',
 					),
 				),

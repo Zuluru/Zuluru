@@ -9,7 +9,7 @@ $this->Html->addCrumb ($franchise['Franchise']['name']);
 <div class="franchises add_owner">
 <h2><?php echo __('Add an Owner', true) . ': ' . $franchise['Franchise']['name'];?></h2>
 
-<?php echo $this->element('people/search_form'); ?>
+<?php echo $this->element('people/search_form', array('affiliate_id' => $franchise['Franchise']['affiliate_id'])); ?>
 
 <?php endif; ?>
 

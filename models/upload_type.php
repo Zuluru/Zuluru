@@ -2,7 +2,7 @@
 class UploadType extends AppModel {
 	var $name = 'UploadType';
 	var $displayField = 'name';
-	var $order = 'name';
+	var $order = 'UploadType.name';
 
 	var $validate = array(
 		'name' => array(
@@ -14,6 +14,22 @@ class UploadType extends AppModel {
 				//'last' => false, // Stop validation after this rule
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
+		),
+		'affiliate_id' => array(
+			'inlist' => array(
+				'rule' => array('inquery', 'Affiliate', 'id'),
+				'message' => 'You must select a valid affiliate.',
+			),
+		),
+	);
+
+	var $belongsTo = array(
+		'Affiliate' => array(
+			'className' => 'Affiliate',
+			'foreignKey' => 'affiliate_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
 		),
 	);
 

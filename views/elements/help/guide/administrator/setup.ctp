@@ -21,7 +21,7 @@ they don't need (and shouldn't contain) copies of all settings.</p>
 <p>You will have several options under the Configuration menu.
 At the very least, you will have a Settings sub-menu (with Organization, Features, Email and Scoring) and Holidays.
 If you have enabled the registration feature, you will also have Settings -> Registration, and if you've enabled online payments, you'll also see Settings -> Payment.
-If you have enabled the document upload feature, you will also have options for configuring that.
+If you have enabled the affiliate or document upload features, you will also have options for configuring these.
 When you first install your system, you should go through and set these all up according to your particular needs.
 Details about each option are included on the settings pages, and not reiterated here.
 <ul>
@@ -31,6 +31,7 @@ Details about each option are included on the settings pages, and not reiterated
 <li>Use the Settings -> Scoring page to configure how the system handles certain score submission situations, and to set up some default values for creating new leagues.</li>
 <li>If you have enabled Registration on the Settings -> Features page, you then use the Settings -> Registration page to set up certain aspects of how the registration system will work.</li>
 <li>If you have enabled Online Payments on the Settings -> Registration page, you then use the Settings -> Payments page to define any applicable taxes and configure login credentials for your selected third-party payment provider.</li>
+<li>If you have enabled Affiliates on the Settings -> Features page, you then use the Affiliates area to set up your various affiliates, including optionally assigning managers to each.</li>
 <li>If you have enabled Document Uploads on the Settings -> Features page, you then use the Upload types area to define which documents people are allowed to upload.</li>
 <li>Finally, use the Holidays page to define the list of dates that will be skipped over when creating game slots and season attendance projections.</li>
 </ul>

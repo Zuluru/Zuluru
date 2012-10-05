@@ -12,7 +12,19 @@ $this->Html->addCrumb (__('List', true));
 	</tr>
 	<?php
 	$i = 0;
+	$affiliate_id = null;
 	foreach ($regions as $region):
+		if (count($affiliates) > 1 && $region['Region']['affiliate_id'] != $affiliate_id):
+			$affiliate_id = $region['Region']['affiliate_id'];
+	?>
+	<tr>
+		<th colspan="2">
+			<h3 class="affiliate"><?php echo $region['Affiliate']['name']; ?></h3>
+		</th>
+	</tr>
+	<?php
+		endif;
+
 		$class = null;
 		if ($i++ % 2 == 0) {
 			$class = ' class="altrow"';

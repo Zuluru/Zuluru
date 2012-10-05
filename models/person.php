@@ -58,6 +58,13 @@ class Person extends User {
 	);
 
 	var $hasAndBelongsToMany = array(
+		'Affiliate' => array(
+			'className' => 'Affiliate',
+			'joinTable' => 'affiliates_people',
+			'foreignKey' => 'person_id',
+			'associationForeignKey' => 'affiliate_id',
+			'unique' => true,
+		),
 		'Division' => array(
 			'className' => 'Division',
 			'joinTable' => 'divisions_people',
@@ -222,39 +229,55 @@ class Person extends User {
 
 		$person['Team'] = $this->Team->readByPlayerId($id);
 		$person['Division'] = $this->Division->readByPlayerId($id);
+		$person['Affiliate'] = $this->Affiliate->readByPlayerId($id);
 
 		return $person;
 	}
 
 	function findDuplicates($person) {
-		$this->contain();
+		if (array_key_exists('AffiliatePerson', $person)) {
+			$affiliate = $person['AffiliatePerson']['affiliate_id'];
+		} else {
+			$affiliate = Set::extract('Affiliate/id', $person);
+		}
 		return $this->find('all', array(
+				'joins' => array(
+					array(
+						'table' => "{$this->tablePrefix}affiliates_people",
+						'alias' => 'AffiliatePerson',
+						'type' => 'LEFT',
+						'foreignKey' => false,
+						'conditions' => 'AffiliatePerson.person_id = Person.id',
+					),
+				),
 				'conditions' => array(
-					'id !=' => $person['Person']['id'],
+					'Person.id !=' => $person['Person']['id'],
+					'AffiliatePerson.affiliate_id' => $affiliate,
 					'OR' => array(
-						'email' => $person['Person']['email'],
+						'Person.email' => $person['Person']['email'],
 						array(
-							'home_phone' => $person['Person']['home_phone'],
-							'home_phone !=' => '',
-							array('home_phone !=' => null),
+							'Person.home_phone' => $person['Person']['home_phone'],
+							'Person.home_phone !=' => '',
+							array('Person.home_phone !=' => null),
 						),
 						array(
-							'work_phone' => $person['Person']['work_phone'],
-							'work_phone !=' => '',
-							array('work_phone !=' => null),
+							'Person.work_phone' => $person['Person']['work_phone'],
+							'Person.work_phone !=' => '',
+							array('Person.work_phone !=' => null),
 						),
 						array(
-							'mobile_phone' => $person['Person']['mobile_phone'],
-							'mobile_phone !=' => '',
-							array('mobile_phone !=' => null),
+							'Person.mobile_phone' => $person['Person']['mobile_phone'],
+							'Person.mobile_phone !=' => '',
+							array('Person.mobile_phone !=' => null),
 						),
-						'addr_street' => $person['Person']['addr_street'],
+						'Person.addr_street' => $person['Person']['addr_street'],
 						array(
-							'first_name' => $person['Person']['first_name'],
-							'last_name' => $person['Person']['last_name'],
+							'Person.first_name' => $person['Person']['first_name'],
+							'Person.last_name' => $person['Person']['last_name'],
 						),
 					),
 				),
+				'contain' => array(),
 		));
 	}
 

@@ -12,6 +12,13 @@ $this->Html->addCrumb (__('View', true));
 			<?php echo $region['Region']['name']; ?>
 
 		</dd>
+		<?php if (count($affiliates) > 1): ?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Affiliate'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo $this->Html->link($region['Affiliate']['name'], array('controller' => 'affiliates', 'action' => 'view', 'affiliate' => $region['Affiliate']['id'])); ?>
+
+		</dd>
+		<?php endif; ?>
 	</dl>
 </div>
 <div class="related">

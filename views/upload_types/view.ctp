@@ -6,6 +6,15 @@ $this->Html->addCrumb (__('View', true));
 
 <div class="uploadTypes view">
 <h2><?php echo $uploadType['UploadType']['name'];?></h2>
+	<?php if (count($affiliates) > 1): ?>
+	<dl><?php $i = 1; $class = ' class="altrow"';?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Affiliate'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo $this->Html->link($uploadType['Affiliate']['name'], array('controller' => 'affiliates', 'action' => 'view', 'affiliate' => $uploadType['Affiliate']['id'])); ?>
+
+		</dd>
+	</dl>
+	<?php endif; ?>
 <div class="related">
 	<h3><?php __('Documents');?></h3>
 <?php if (!empty($uploadType['Upload'])): ?>
@@ -35,12 +44,10 @@ $this->Html->addCrumb (__('View', true));
 <?php endif; ?>
 			<td class="actions">
 				<?php echo $this->Html->link(__('View', true), array('controller' => 'people', 'action' => 'document', 'id' => $document['id']), array('target' => 'preview'));?>
-<?php if ($is_admin):?>
 <?php if ($document['approved']): ?>
 				<?php echo $this->Html->link(__('Edit', true), array('controller' => 'people', 'action' => 'edit_document', 'id' => $document['id']));?>
 <?php else: ?>
 				<?php echo $this->Html->link(__('Approve', true), array('controller' => 'people', 'action' => 'approve_document', 'id' => $document['id']));?>
-<?php endif; ?>
 <?php endif; ?>
 				<?php echo $this->Js->link (__('Delete', true),
 					array('controller' => 'people', 'action' => 'delete_document', 'id' => $document['id'], 'row' => $rand),

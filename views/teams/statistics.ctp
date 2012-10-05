@@ -19,8 +19,30 @@ $this->Html->addCrumb (__('Statistics', true));
 	<tbody>
 <?php
 $total = 0;
-$league = $season = null;
+$league = $season = $affiliate_id = null;
 foreach ($counts as $division):
+	if (count($affiliates) > 1 && $division['League']['affiliate_id'] != $affiliate_id):
+		$affiliate_id = $division['League']['affiliate_id'];
+		if ($total):
+?>
+		<tr>
+			<td colspan="3"><?php __('Total'); ?></td>
+			<td><?php echo $total; ?></td>
+		</tr>
+<?php
+		endif;
+
+		$total = 0;
+		$league = $season = null;
+?>
+		<tr>
+			<th colspan="4">
+				<h4 class="affiliate"><?php echo $division['League']['Affiliate']['name']; ?></h4>
+			</th>
+		</tr>
+<?php
+	endif;
+
 	$total += $division[0]['count'];
 ?>
 		<tr>
@@ -62,14 +84,23 @@ foreach ($counts as $division):
 	</thead>
 	<tbody>
 <?php
+$affiliate_id = null;
 foreach ($shorts as $team):
+	if (count($affiliates) > 1 && $team['League']['affiliate_id'] != $affiliate_id):
+		$affiliate_id = $team['League']['affiliate_id'];
 ?>
+		<tr>
+			<th colspan="3">
+				<h4 class="affiliate"><?php echo $team['League']['Affiliate']['name']; ?></h4>
+			</th>
+		</tr>
+<?php endif; ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
 			<td><?php echo $this->Html->link($team['Division']['full_league_name'],
 					array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])); ?></td>
 			<td><?php
-			echo $team[0]['size'];
+			echo $team[0]['count'];
 			if ($team[0]['subs'] > 0) {
 				echo " ({$team[0]['subs']} subs)";
 			}
@@ -91,8 +122,17 @@ foreach ($shorts as $team):
 	</thead>
 	<tbody>
 <?php
+$affiliate_id = null;
 foreach ($top_rating as $team):
+	if (count($affiliates) > 1 && $team['League']['affiliate_id'] != $affiliate_id):
+		$affiliate_id = $team['League']['affiliate_id'];
 ?>
+		<tr>
+			<th colspan="3">
+				<h4 class="affiliate"><?php echo $team['League']['Affiliate']['name']; ?></h4>
+			</th>
+		</tr>
+<?php endif; ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
 			<td><?php echo $this->Html->link($team['Division']['full_league_name'],
@@ -115,8 +155,17 @@ foreach ($top_rating as $team):
 	</thead>
 	<tbody>
 <?php
+$affiliate_id = null;
 foreach ($lowest_rating as $team):
+	if (count($affiliates) > 1 && $team['League']['affiliate_id'] != $affiliate_id):
+		$affiliate_id = $team['League']['affiliate_id'];
 ?>
+		<tr>
+			<th colspan="3">
+				<h4 class="affiliate"><?php echo $team['League']['Affiliate']['name']; ?></h4>
+			</th>
+		</tr>
+<?php endif; ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
 			<td><?php echo $this->Html->link($team['Division']['full_league_name'],
@@ -139,9 +188,18 @@ foreach ($lowest_rating as $team):
 	</thead>
 	<tbody>
 <?php
+$affiliate_id = null;
 foreach ($defaulting as $team):
 	$team['Team'] = $team[0];
+	if (count($affiliates) > 1 && $team['League']['affiliate_id'] != $affiliate_id):
+		$affiliate_id = $team['League']['affiliate_id'];
 ?>
+		<tr>
+			<th colspan="3">
+				<h4 class="affiliate"><?php echo $team['League']['Affiliate']['name']; ?></h4>
+			</th>
+		</tr>
+<?php endif; ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
 			<td><?php echo $this->Html->link($team['Division']['full_league_name'],
@@ -164,9 +222,18 @@ foreach ($defaulting as $team):
 	</thead>
 	<tbody>
 <?php
+$affiliate_id = null;
 foreach ($no_scores as $team):
 	$team['Team'] = $team[0];
+	if (count($affiliates) > 1 && $team['League']['affiliate_id'] != $affiliate_id):
+		$affiliate_id = $team['League']['affiliate_id'];
 ?>
+		<tr>
+			<th colspan="3">
+				<h4 class="affiliate"><?php echo $team['League']['Affiliate']['name']; ?></h4>
+			</th>
+		</tr>
+<?php endif; ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
 			<td><?php echo $this->Html->link($team['Division']['full_league_name'],
@@ -191,8 +258,17 @@ foreach ($no_scores as $team):
 	</thead>
 	<tbody>
 <?php
+$affiliate_id = null;
 foreach ($top_spirit as $team):
+	if (count($affiliates) > 1 && $team['League']['affiliate_id'] != $affiliate_id):
+		$affiliate_id = $team['League']['affiliate_id'];
 ?>
+		<tr>
+			<th colspan="3">
+				<h4 class="affiliate"><?php echo $team['League']['Affiliate']['name']; ?></h4>
+			</th>
+		</tr>
+<?php endif; ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
 			<td><?php echo $this->Html->link($team['Division']['full_league_name'],
@@ -215,8 +291,17 @@ foreach ($top_spirit as $team):
 	</thead>
 	<tbody>
 <?php
+$affiliate_id = null;
 foreach ($lowest_spirit as $team):
+	if (count($affiliates) > 1 && $team['League']['affiliate_id'] != $affiliate_id):
+		$affiliate_id = $team['League']['affiliate_id'];
 ?>
+		<tr>
+			<th colspan="3">
+				<h4 class="affiliate"><?php echo $team['League']['Affiliate']['name']; ?></h4>
+			</th>
+		</tr>
+<?php endif; ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
 			<td><?php echo $this->Html->link($team['Division']['full_league_name'],

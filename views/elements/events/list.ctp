@@ -8,7 +8,19 @@
 </tr>
 <?php
 $i = 0;
+$affiliate_id = null;
 foreach ($events as $event):
+	if (count($affiliates) > 1 && $event['Event']['affiliate_id'] != $affiliate_id):
+		$affiliate_id = $event['Event']['affiliate_id'];
+?>
+<tr>
+	<th colspan="5">
+		<h3 class="affiliate"><?php echo $event['Affiliate']['name']; ?></h3>
+	</th>
+</tr>
+<?php
+	endif;
+
 	$class = null;
 	if ($i++ % 2 == 0) {
 		$class = ' class="altrow"';

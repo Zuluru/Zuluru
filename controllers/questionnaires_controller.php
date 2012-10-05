@@ -2,17 +2,74 @@
 class QuestionnairesController extends AppController {
 
 	var $name = 'Questionnaires';
+	var $paginate = array(
+		'contain' => array('Affiliate'),
+		'order' => array('Affiliate.name'),
+	);
+
+	function isAuthorized() {
+		if ($this->is_manager) {
+			// Managers can perform these operations
+			if (in_array ($this->params['action'], array(
+					'index',
+					'deactivated',
+					'add',
+			)))
+			{
+				return true;
+			}
+
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'view',
+					'edit',
+					'add_question',
+					'remove_question',
+					'activate',
+					'deactivate',
+					'delete',
+			)))
+			{
+				// If a questionnaire id is specified, check if we're a manager of that questionnaire's affiliate
+				$questionnaire = $this->_arg('questionnaire');
+				if ($questionnaire) {
+					$affiliate = $this->Questionnaire->field('affiliate_id', array('Questionnaire.id' => $questionnaire));
+					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
 
 	function index() {
 		$this->Questionnaire->recursive = 0;
-		$this->set('questionnaires', $this->paginate('Questionnaire', array('active' => true)));
+
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->paginate['conditions'] = array(
+			'active' => true,
+			'Questionnaire.affiliate_id' => $affiliates,
+		);
+
+		$this->set('questionnaires', $this->paginate('Questionnaire'));
 		$this->set('active', true);
+		$this->set(compact('affiliates'));
 	}
 
 	function deactivated() {
 		$this->Questionnaire->recursive = 0;
-		$this->set('questionnaires', $this->paginate('Questionnaire', array('active' => false)));
+
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->paginate['conditions'] = array(
+			'active' => false,
+			'Questionnaire.affiliate_id' => $affiliates,
+		);
+
+		$this->set('questionnaires', $this->paginate('Questionnaire'));
 		$this->set('active', false);
+		$this->set(compact('affiliates'));
 		$this->render('index');
 	}
 
@@ -30,8 +87,12 @@ class QuestionnairesController extends AppController {
 					'conditions' => array('active' => true),
 				),
 				'Event',
+				'Affiliate',
 		));
 		$this->set('questionnaire', $this->Questionnaire->read(null, $id));
+
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->set(compact('affiliates'));
 	}
 
 	function add() {
@@ -44,6 +105,8 @@ class QuestionnairesController extends AppController {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('questionnaire', true)), 'default', array('class' => 'warning'));
 			}
 		}
+
+		$this->set('affiliates', $this->_applicableAffiliates(true));
 		$this->set('add', true);
 
 		$this->render ('edit');
@@ -67,8 +130,10 @@ class QuestionnairesController extends AppController {
 			$this->Questionnaire->contain(array('Question' => array('Answer')));
 			$this->data = $this->Questionnaire->read(null, $id);
 		}
+
 		$questions = $this->Questionnaire->Question->find('list');
 		$this->set(compact('questions'));
+		$this->set('affiliates', $this->_applicableAffiliates(true));
 	}
 
 	function activate() {

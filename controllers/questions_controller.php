@@ -2,17 +2,75 @@
 class QuestionsController extends AppController {
 
 	var $name = 'Questions';
+	var $paginate = array(
+		'contain' => array('Affiliate'),
+		'order' => array('Affiliate.name'),
+	);
+
+	function isAuthorized() {
+		if ($this->is_manager) {
+			// Managers can perform these operations
+			if (in_array ($this->params['action'], array(
+					'index',
+					'deactivated',
+					'add',
+					'autocomplete',
+			)))
+			{
+				return true;
+			}
+
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'view',
+					'edit',
+					'add_answer',
+					'delete_answer',
+					'activate',
+					'deactivate',
+					'delete',
+			)))
+			{
+				// If a question id is specified, check if we're a manager of that question's affiliate
+				$question = $this->_arg('question');
+				if ($question) {
+					$affiliate = $this->Question->field('affiliate_id', array('Question.id' => $question));
+					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
 
 	function index() {
 		$this->Question->recursive = 0;
-		$this->set('questions', $this->paginate('Question', array('active' => true)));
+
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->paginate['conditions'] = array(
+			'active' => true,
+			'Question.affiliate_id' => $affiliates,
+		);
+
+		$this->set('questions', $this->paginate('Question'));
 		$this->set('active', true);
+		$this->set(compact('affiliates'));
 	}
 
 	function deactivated() {
 		$this->Question->recursive = 0;
-		$this->set('questions', $this->paginate('Question', array('active' => false)));
+
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->paginate['conditions'] = array(
+			'active' => false,
+			'Question.affiliate_id' => $affiliates,
+		);
+
+		$this->set('questions', $this->paginate('Question'));
 		$this->set('active', false);
+		$this->set(compact('affiliates'));
 		$this->render('index');
 	}
 
@@ -22,7 +80,11 @@ class QuestionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('question', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Question->contain('Affiliate');
 		$this->set('question', $this->Question->read(null, $id));
+
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->set(compact('affiliates'));
 	}
 
 	function add() {
@@ -35,6 +97,8 @@ class QuestionsController extends AppController {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('question', true)), 'default', array('class' => 'warning'));
 			}
 		}
+
+		$this->set('affiliates', $this->_applicableAffiliates(true));
 
 		if (Configure::read('feature.tiny_mce')) {
 			$this->helpers[] = 'TinyMce.TinyMce';
@@ -59,6 +123,8 @@ class QuestionsController extends AppController {
 			$this->Question->contain(array('Answer' => array('order' => 'Answer.sort')));
 			$this->data = $this->Question->read(null, $id);
 		}
+
+		$this->set('affiliates', $this->_applicableAffiliates(true));
 
 		if (Configure::read('feature.tiny_mce')) {
 			$this->helpers[] = 'TinyMce.TinyMce';
@@ -156,16 +222,25 @@ class QuestionsController extends AppController {
 
 	function autocomplete() {
 		Configure::write ('debug', 0);
-		$this->Question->contain();
-		$this->set('questions', $this->Question->find('all', array(
-			'conditions' => array(
-				'Question.question LIKE' => "%{$this->params['url']['q']}%",
-				'Question.active' => true,
-			),
-			'fields' => array('Question.id', 'Question.question'),
-			'order' => 'Question.question',
-			'limit' => $this->params['url']['limit'],
-		)));
+
+		$conditions = array(
+			'Question.question LIKE' => "%{$this->params['url']['q']}%",
+			'Question.active' => true,
+		);
+		$affiliate = $this->_arg('affiliate');
+		if ($affiliate && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+			$conditions['Question.affiliate_id'] = $affiliate;
+
+			$this->set('questions', $this->Question->find('all', array(
+				'conditions' => $conditions,
+				'contain' => array(),
+				'fields' => array('Question.id', 'Question.question'),
+				'order' => 'Question.question',
+				'limit' => $this->params['url']['limit'],
+			)));
+		} else {
+			$this->set('questions', array());
+		}
 		$this->layout = 'ajax';
 	}
 

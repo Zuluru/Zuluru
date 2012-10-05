@@ -7,14 +7,26 @@ $this->Html->addCrumb (__('List', true));
 	<h2><?php __($active ? 'Questions List' : 'Deactivated Questions List');?></h2>
 	<table class="list">
 	<tr>
-			<th><?php echo $this->Paginator->sort('question');?></th>
-			<th><?php echo $this->Paginator->sort('type');?></th>
-			<th><?php echo $this->Paginator->sort('anonymous');?></th>
-			<th class="actions"><?php __('Actions');?></th>
+		<th><?php echo $this->Paginator->sort('question');?></th>
+		<th><?php echo $this->Paginator->sort('type');?></th>
+		<th><?php echo $this->Paginator->sort('anonymous');?></th>
+		<th class="actions"><?php __('Actions');?></th>
 	</tr>
 	<?php
 	$i = 0;
+	$affiliate_id = null;
 	foreach ($questions as $question):
+		if (count($affiliates) > 1 && $question['Question']['affiliate_id'] != $affiliate_id):
+			$affiliate_id = $question['Question']['affiliate_id'];
+	?>
+	<tr>
+		<th colspan="4">
+			<h3 class="affiliate"><?php echo $question['Affiliate']['name']; ?></h3>
+		</th>
+	</tr>
+	<?php
+		endif;
+
 		$class = null;
 		if ($i++ % 2 == 0) {
 			$class = ' class="altrow"';

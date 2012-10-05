@@ -23,13 +23,13 @@ class RuleOrComponent extends RuleComponent
 		return (count($this->rule) > 1);
 	}
 
-	function evaluate($params, $team, $strict, $text_reason, $complete) {
+	function evaluate($affiliate, $params, $team, $strict, $text_reason, $complete) {
 		if (empty ($this->rule))
 			return null;
 		$reasons = array();
 		$status = false;
 		foreach ($this->rule as $rule) {
-			if ($rule->evaluate ($params, $team, $strict, $text_reason, $complete)) {
+			if ($rule->evaluate ($affiliate, $params, $team, $strict, $text_reason, $complete)) {
 				$reasons[] = $rule->reason;
 				$this->reason_type = $rule->reason_type;
 				if (!$this->redirect) {
@@ -46,13 +46,13 @@ class RuleOrComponent extends RuleComponent
 		return $status;
 	}
 
-	function query() {
+	function query($affiliate) {
 		if (empty ($this->rule))
 			return false;
 
 		$ret = array();
 		foreach ($this->rule as $rule) {
-			$people = $rule->query();
+			$people = $rule->query($affiliate);
 			if ($people === null) {
 				return $people;
 			}

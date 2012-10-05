@@ -20,6 +20,13 @@ if (isset ($add)) {
 			'size' => 60,
 			'after' => $this->Html->para (null, __('Full name of this waiver.', true)),
 		));
+		if (isset ($add)) {
+			echo $this->ZuluruForm->input('affiliate_id', array(
+				'options' => $affiliates,
+				'hide_single' => true,
+				'empty' => '---',
+			));
+		}
 		echo $this->ZuluruForm->input('description', array(
 			'size' => 60,
 			'after' => $this->Html->para (null, __('An extended description, shown solely to administrators, for example to differentiate between various "Membership" waivers.', true)),

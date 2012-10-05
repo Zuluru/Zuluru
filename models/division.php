@@ -4,6 +4,12 @@ class Division extends AppModel {
 	var $displayField = 'name';
 
 	var $validate = array(
+		'affiliate_id' => array(
+			'inlist' => array(
+				'rule' => array('inquery', 'Affiliate', 'id'),
+				'message' => 'You must select a valid affiliate.',
+			),
+		),
 		'open' => array(
 			'date' => array(
 				'rule' => array('date'),
@@ -200,13 +206,20 @@ class Division extends AppModel {
 			$league = array();
 		}
 
-		if (array_key_exists ('name', $league)) {
-			$record[$this->alias]['league_name'] = trim ($league['name'] . ' ' . $record[$this->alias]['name']);
-			$record[$this->alias]['long_league_name'] = trim ($league['long_name'] . ' ' . $record[$this->alias]['name']);
-			$record[$this->alias]['full_league_name'] = trim ($league['full_name'] . ' ' . $record[$this->alias]['name']);
+		$this->_addNames($record[$this->alias], $league);
+		return $record;
+	}
+
+	static function _addNames(&$division, $league) {
+		if (!array_key_exists('long_name', $league)) {
+			League::_addNames($league);
 		}
 
-		return $record;
+		if (array_key_exists ('name', $league)) {
+			$division['league_name'] = trim ($league['name'] . ' ' . $division['name']);
+			$division['long_league_name'] = trim ($league['long_name'] . ' ' . $division['name']);
+			$division['full_league_name'] = trim ($league['full_name'] . ' ' . $division['name']);
+		}
 	}
 
 	// TODO: Add validation details before rendering, so required fields are properly highlighted
@@ -241,16 +254,19 @@ class Division extends AppModel {
 		$this->League->save($league, false);
 	}
 
-	function readByDate($date) {
+	function readByDate($date, $affiliate) {
 		// Our database has Sunday as 1, but date('w') gives it as 0
 		$day = date('w', strtotime ($date)) + 1;
 
 		$this->contain('League', 'Day');
 		$divisions = $this->find('all', array(
-				'conditions' => array('OR' => array(
-					'Division.is_open' => true,
-					'Division.open > CURDATE()',
-				)),
+				'conditions' => array(
+					'OR' => array(
+						'Division.is_open' => true,
+						'Division.open > CURDATE()',
+					),
+					'League.affiliate_id' => $affiliate,
+				),
 		));
 		return Set::extract("/Day[id=$day]/..", $divisions);
 	}

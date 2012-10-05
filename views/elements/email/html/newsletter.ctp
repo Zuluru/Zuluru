@@ -15,7 +15,12 @@ echo $text;
 <?php endif; ?>
 
 <p>You have received this message because you are on the <?php
-echo Configure::read('organization.name'); ?>'s <?php
+if (Configure::read('feature.affiliates') {
+	echo $newsletter['MailingList']['Affiliate']['name'];
+} else {
+	echo Configure::read('organization.name');
+}
+?>'s <?php
 echo $newsletter['MailingList']['name']; ?> mailing list. To learn more about how we use your information, please read our privacy policy or contact <?php
 echo $this->Html->link(Configure::read('email.admin_name'), 'mailto:' . Configure::read('email.admin_email')); ?>.</p>
 

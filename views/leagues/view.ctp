@@ -7,12 +7,19 @@ $this->Html->addCrumb (__('View', true));
 <div class="leagues view">
 <h2><?php echo $league['League']['full_name'];?></h2>
 	<dl><?php $i = 1; $class = ' class="altrow"';?>
+		<?php if (count($affiliates) > 1): ?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Affiliate'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo $this->Html->link($league['Affiliate']['name'], array('controller' => 'affiliates', 'action' => 'view', 'affiliate' => $league['Affiliate']['id'])); ?>
+
+		</dd>
+		<?php endif; ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Season'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php __($league['League']['season']); ?>
 
 		</dd>
-		<?php if ($is_admin || $is_coordinator): ?>
+		<?php if ($is_admin || $is_manager || $is_coordinator): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Schedule Attempts'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php echo $league['League']['schedule_attempts']; ?>
@@ -63,7 +70,7 @@ $this->Html->addCrumb (__('View', true));
 			echo $this->ZuluruHtml->iconLink('standings_32.png',
 				array('controller' => 'divisions', 'action' => 'standings', 'division' => $division['id']),
 				array('alt' => __('Standings', true), 'title' => __('Standings', true)));
-			if ($is_admin || in_array($division['id'], $this->Session->read('Zuluru.DivisionIDs'))) {
+			if ($is_admin || $is_manager || in_array($division['id'], $this->Session->read('Zuluru.DivisionIDs'))) {
 				echo $this->ZuluruHtml->iconLink('edit_32.png',
 					array('controller' => 'divisions', 'action' => 'edit', 'division' => $division['id'], 'return' => true),
 					array('alt' => __('Edit', true), 'title' => __('Edit Division', true)));
@@ -85,7 +92,7 @@ $this->Html->addCrumb (__('View', true));
 					array('controller' => 'divisions', 'action' => 'fields', 'division' => $division['id']),
 					array('alt' => sprintf(__('%s Distribution', true), Configure::read('sport.field_cap')), 'title' => sprintf(__('%s Distribution Report', true), Configure::read('sport.field_cap'))));
 			}
-			if ($is_admin) {
+			if ($is_admin || $is_manager) {
 				echo $this->ZuluruHtml->iconLink('coordinator_add_32.png',
 					array('controller' => 'divisions', 'action' => 'add_coordinator', 'division' => $division['id']),
 					array('alt' => __('Add Coordinator', true), 'title' => __('Add Coordinator', true)));
@@ -103,10 +110,10 @@ $this->Html->addCrumb (__('View', true));
 <?php endforeach; ?>
 </table>
 </div>
+<?php if ($is_admin || $is_manager): ?>
 <div class="actions">
 	<ul>
 		<?php
-		if ($is_admin) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('edit_32.png',
 				array('action' => 'edit', 'league' => $league['League']['id'], 'return' => true),
 				array('alt' => __('Edit', true), 'title' => __('Edit League', true))));
@@ -117,7 +124,7 @@ $this->Html->addCrumb (__('View', true));
 				array('action' => 'delete', 'league' => $league['League']['id']),
 				array('alt' => __('Delete', true), 'title' => __('Delete League', true)),
 				array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $league['League']['id']))));
-		}
 		?>
 	</ul>
 </div>
+<?php endif; ?>

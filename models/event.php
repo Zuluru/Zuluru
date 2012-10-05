@@ -9,6 +9,12 @@ class Event extends AppModel {
 				'message' => 'A valid event name must be entered.',
 			),
 		),
+		'affiliate_id' => array(
+			'inlist' => array(
+				'rule' => array('inquery', 'Affiliate', 'id'),
+				'message' => 'You must select a valid affiliate.',
+			),
+		),
 		'description' => array(
 			'notempty' => array(
 				'rule' => array('notempty'),
@@ -119,6 +125,13 @@ class Event extends AppModel {
 		'Division' => array(
 			'className' => 'Division',
 			'foreignKey' => 'division_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
+		),
+		'Affiliate' => array(
+			'className' => 'Affiliate',
+			'foreignKey' => 'affiliate_id',
 			'conditions' => '',
 			'fields' => '',
 			'order' => ''

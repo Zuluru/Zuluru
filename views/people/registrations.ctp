@@ -35,7 +35,19 @@ echo $this->Paginator->counter(array(
 </tr>
 <?php
 $i = 0;
+$affiliate_id = null;
 foreach ($registrations as $registration):
+	if (count($affiliates) > 1 && $registration['Event']['affiliate_id'] != $affiliate_id):
+		$affiliate_id = $registration['Event']['affiliate_id'];
+?>
+<tr>
+	<th colspan="5">
+		<h3 class="affiliate"><?php echo $registration['Event']['Affiliate']['name']; ?></h3>
+	</th>
+</tr>
+<?php
+	endif;
+
 	$class = null;
 	if ($i++ % 2 == 0) {
 		$class = ' class="altrow"';

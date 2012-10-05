@@ -14,13 +14,14 @@ class RuleTeamCountComponent extends RuleComponent
 
 	// Count how many teams the user was on that played in leagues
 	// that were open on the configured date
-	function evaluate($params) {
+	function evaluate($affiliate, $params) {
 		$date = strtotime ($this->config);
 		$count = 0;
 		$positions = Configure::read('playing_roster_positions');
 		foreach ($params['Team'] as $team) {
 			if (in_array($team['TeamsPerson']['position'], $positions) &&
 				$team['TeamsPerson']['status'] == ROSTER_APPROVED &&
+				$team['Division']['League']['affiliate_id'] == $affiliate &&
 				strtotime ($team['Division']['open']) <= $date &&
 				$date <= strtotime ($team['Division']['close']))
 			{
@@ -30,7 +31,7 @@ class RuleTeamCountComponent extends RuleComponent
 		return $count;
 	}
 
-	function build_query(&$joins, &$fields) {
+	function build_query($affiliate, &$joins, &$fields) {
 		$date = date('Y-m-d', strtotime ($this->config));
 		$fields['team_count'] = 'COUNT(Team.id) as team_count';
 		$joins['TeamsPerson'] = array(
@@ -54,12 +55,25 @@ class RuleTeamCountComponent extends RuleComponent
 			'foreignKey' => false,
 			'conditions' => 'Division.id = Team.division_id',
 		);
-		return array(
+		$query = array(
 			'Division.open <=' => $date,
 			'Division.close >=' => $date,
 			'TeamsPerson.position' => Configure::read('playing_roster_positions'),
 			'TeamsPerson.status' => ROSTER_APPROVED,
 		);
+
+		if (Configure::read('feature.affiliate')) {
+			$joins['League'] = array(
+				'table' => 'leagues',
+				'alias' => 'League',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'League.id = Division.league_id',
+			);
+			$query['League.affiliate_id'] = $affiliate;
+		}
+
+		return $query;
 	}
 
 	function desc() {

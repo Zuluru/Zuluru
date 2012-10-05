@@ -5,13 +5,7 @@ class PeopleController extends AppController {
 	var $uses = array('Person', 'Team', 'Division', 'Group', 'Province', 'Country');
 	var $helpers = array('CropImage');
 	var $components = array('ImageCrop', 'Lock');
-	var $paginate = array(
-		'Person' => array(),
-		'Registration' => array(
-			'contain' => array('Event' => array('EventType')),
-			'order' => array('Registration.created' => 'DESC'),
-		),
-	);
+	var $paginate = array('Person' => array());
 
 	function publicActions() {
 		return array('cron', 'view', 'tooltip', 'ical');
@@ -51,29 +45,75 @@ class PeopleController extends AppController {
 			}
 		}
 
+		if ($this->is_manager) {
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'list_new',
+					'statistics',
+					'participation',
+					'retention',
+			)))
+			{
+				// If an affiliate id is specified, check if we're a manager of that affiliate
+				$affiliate = $this->_arg('affiliate');
+				if (!$affiliate) {
+					// If there's no affiliate id, this is a top-level operation that all managers can perform
+					return true;
+				} else if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					return true;
+				}
+			}
+		}
+
 		return false;
 	}
 
 	function statistics() {
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->set(compact('affiliates'));
+
+		$joins = array(
+			array(
+				'table' => "{$this->Person->tablePrefix}affiliates_people",
+				'alias' => 'AffiliatePerson',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'AffiliatePerson.person_id = Person.id',
+			),
+			array(
+				'table' => "{$this->Person->tablePrefix}affiliates",
+				'alias' => 'Affiliate',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'Affiliate.id = AffiliatePerson.affiliate_id',
+			),
+		);
+
 		// Get the list of accounts by status
 		$status_count = $this->Person->find('all', array(
 				'fields' => array(
+					'Affiliate.*',
 					'Person.status',
 					'COUNT(Person.id) AS count',
 				),
-				'group' => 'Person.status',
-				'order' => 'Person.status',
+				'conditions' => array('AffiliatePerson.affiliate_id' => $affiliates),
+				'joins' => $joins,
+				'group' => array('AffiliatePerson.affiliate_id', 'Person.status'),
+				'order' => array('Affiliate.name', 'Person.status'),
 				'recursive' => -1,
 		));
 
 		// Get the list of accounts by group
 		$group_count = $this->Person->find('all', array(
 				'fields' => array(
+					'Affiliate.*',
 					'Person.group_id',
 					'COUNT(Person.id) AS count',
 				),
-				'group' => 'Person.group_id',
-				'order' => 'Person.group_id',
+				'conditions' => array('AffiliatePerson.affiliate_id' => $affiliates),
+				'joins' => $joins,
+				'group' => array('AffiliatePerson.affiliate_id', 'Person.group_id'),
+				'order' => array('Affiliate.name', 'Person.group_id'),
 				'recursive' => -1,
 		));
 		$groups = $this->Person->Group->find('list');
@@ -81,11 +121,14 @@ class PeopleController extends AppController {
 		// Get the list of accounts by gender
 		$gender_count = $this->Person->find('all', array(
 				'fields' => array(
+					'Affiliate.*',
 					'Person.gender',
 					'COUNT(Person.id) AS count',
 				),
-				'group' => 'Person.gender',
-				'order' => 'Person.gender DESC',
+				'conditions' => array('AffiliatePerson.affiliate_id' => $affiliates),
+				'joins' => $joins,
+				'group' => array('AffiliatePerson.affiliate_id', 'Person.gender'),
+				'order' => array('Affiliate.name', 'Person.gender' => 'DESC'),
 				'recursive' => -1,
 		));
 
@@ -93,15 +136,18 @@ class PeopleController extends AppController {
 		if (Configure::read('profile.birthdate')) {
 			$age_count = $this->Person->find('all', array(
 					'fields' => array(
+						'Affiliate.*',
 						'FLOOR((YEAR(NOW()) - YEAR(birthdate)) / 5) * 5 AS age_bucket',
 						'COUNT(Person.id) AS count',
 					),
 					'conditions' => array(
+						'AffiliatePerson.affiliate_id' => $affiliates,
 						array('birthdate !=' => null),
 						array('birthdate !=' => '0000-00-00'),
 					),
-					'group' => 'age_bucket',
-					'order' => 'age_bucket',
+					'joins' => $joins,
+					'group' => array('AffiliatePerson.affiliate_id', 'age_bucket'),
+					'order' => array('Affiliate.name', 'age_bucket'),
 					'recursive' => -1,
 			));
 		}
@@ -110,11 +156,14 @@ class PeopleController extends AppController {
 		if (Configure::read('profile.year_started')) {
 			$started_count = $this->Person->find('all', array(
 					'fields' => array(
+						'Affiliate.*',
 						'Person.year_started',
 						'COUNT(Person.id) AS count',
 					),
-					'group' => 'year_started',
-					'order' => 'year_started',
+					'conditions' => array('AffiliatePerson.affiliate_id' => $affiliates),
+					'joins' => $joins,
+					'group' => array('AffiliatePerson.affiliate_id', 'year_started'),
+					'order' => array('Affiliate.name', 'year_started'),
 					'recursive' => -1,
 			));
 		}
@@ -123,11 +172,14 @@ class PeopleController extends AppController {
 		if (Configure::read('profile.skill_level')) {
 			$skill_count = $this->Person->find('all', array(
 					'fields' => array(
+						'Affiliate.*',
 						'Person.skill_level',
 						'COUNT(Person.id) AS count',
 					),
-					'group' => 'skill_level',
-					'order' => 'skill_level DESC',
+					'conditions' => array('AffiliatePerson.affiliate_id' => $affiliates),
+					'joins' => $joins,
+					'group' => array('AffiliatePerson.affiliate_id', 'skill_level'),
+					'order' => array('Affiliate.name', 'skill_level' => 'DESC'),
 					'recursive' => -1,
 			));
 		}
@@ -136,11 +188,14 @@ class PeopleController extends AppController {
 		if (Configure::read('profile.addr_city')) {
 			$city_count = $this->Person->find('all', array(
 					'fields' => array(
+						'Affiliate.*',
 						'Person.addr_city',
 						'COUNT(Person.id) AS count',
 					),
-					'group' => 'addr_city HAVING count > 2',
-					'order' => 'count DESC',
+					'conditions' => array('AffiliatePerson.affiliate_id' => $affiliates),
+					'joins' => $joins,
+					'group' => array('AffiliatePerson.affiliate_id', 'addr_city HAVING count > 2'),
+					'order' => array('Affiliate.name', 'count' => 'DESC'),
 					'recursive' => -1,
 			));
 		}
@@ -499,36 +554,80 @@ class PeopleController extends AppController {
 
 		$this->_loadAddressOptions();
 		$this->_loadGroupOptions();
+		$this->_loadAffiliateOptions();
 
 		if (!empty($this->data)) {
 			$this->data['Person']['complete'] = true;
-			$this->Person->data = array();
-			if ($this->Person->save($this->data)) {
-				if ($is_me) {
-					$this->Session->setFlash(__('Your profile has been saved', true), 'default', array('class' => 'success'));
+			$this->Person->create();
+
+			// Handle affiliations for non-admins
+			if (!$this->is_admin) {
+				if (Configure::read('feature.affiliates')) {
+					// Manually select all affiliates the user is a manager of
+					if (is_array($this->data['Affiliate']['Affiliate'])) {
+						$this->data['Affiliate']['Affiliate'] = array_merge($this->data['Affiliate']['Affiliate'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+					} else {
+						$this->data['Affiliate']['Affiliate'] = $this->Session->read('Zuluru.ManagedAffiliateIDs');
+					}
+
+					if (Configure::read('feature.multiple_affiliates')) {
+						if (empty($this->data['Affiliate']['Affiliate'])) {
+							$this->Person->Affiliate->validationErrors['Affiliate'] = __('You must select at least one affiliate that you are interested in.', true);
+						}
+					} else {
+						if (empty($this->data['Affiliate']['Affiliate']) || count($this->data['Affiliate']['Affiliate']) > 1) {
+							$this->Person->Affiliate->validationErrors['Affiliate'] = __('You must select an affiliate that you are interested in.', true);
+						}
+					}
 				} else {
-					$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('person', true)), 'default', array('class' => 'success'));
+					$this->data['Affiliate']['Affiliate'] = array(1);
+				}
+			}
+
+			$this->Person->set($this->data);
+			if ($this->Person->validates() && $this->Person->Affiliate->validates()) {
+				if (!empty($this->data['Affiliate']['Affiliate'])) {
+					foreach ($this->data['Affiliate']['Affiliate'] as $key => $affiliate_id) {
+						if (in_array($affiliate_id, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+							$position = 'manager';
+						} else {
+							unset($position);
+						}
+						$this->data['Affiliate']['Affiliate'][$key] = compact('affiliate_id', 'position');
+					}
 				}
 
-				// There may be callbacks to handle
-				$components = Configure::read('callbacks.user');
-				foreach ($components as $name => $config) {
-					$component = $this->_getComponent('User', $name, $this, false, $config);
-					$component->onEdit($this->data['Person']);
-				}
+				if ($this->Person->saveAll($this->data)) {
+					if ($is_me) {
+						$this->Session->setFlash(__('Your profile has been saved', true), 'default', array('class' => 'success'));
+					} else {
+						$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('person', true)), 'default', array('class' => 'success'));
+					}
 
-				if ($this->data['Person']['id'] == $my_id) {
-					// Delete the session data, so it's reloaded next time it's needed
-					$this->Session->delete('Zuluru.Person');
-				}
+					// There may be callbacks to handle
+					$components = Configure::read('callbacks.user');
+					foreach ($components as $name => $config) {
+						$component = $this->_getComponent('User', $name, $this, false, $config);
+						$component->onEdit($this->data['Person']);
+					}
 
-				$this->redirect('/');
+					if ($this->data['Person']['id'] == $my_id) {
+						// Delete the session data, so it's reloaded next time it's needed
+						$this->Session->delete('Zuluru.Person');
+						$this->Session->delete('Zuluru.Affiliates');
+						$this->Session->delete('Zuluru.AffiliateIDs');
+					}
+
+					$this->redirect('/');
+				} else {
+					$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('person', true)), 'default', array('class' => 'warning'));
+				}
 			} else {
-				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('person', true)), 'default', array('class' => 'warning'));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('account', true)), 'default', array('class' => 'warning'));
 			}
 		}
 		if (empty($this->data)) {
-			$this->Person->contain();
+			$this->Person->contain('Affiliate');
 			$this->data = $this->Person->read(null, $id);
 			if (!$this->data) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
@@ -791,7 +890,7 @@ class PeopleController extends AppController {
 					$this->Person->Upload->saveField ('approved', $approved);
 				}
 				if (!$approved) {
-					$this->Session->setFlash(__('Photo saved, but will not be visible by others until approved', true), 'default', array('class' => 'success'));
+					$this->Session->setFlash(sprintf(__('The %s has been saved, but will not be visible until approved', true), __('photo', true)), 'default', array('class' => 'success'));
 				}
 			}
 			$this->redirect(array('action' => 'view'));
@@ -931,7 +1030,22 @@ class PeopleController extends AppController {
 			$this->redirect('/');
 		}
 
-		$types = $this->Person->Upload->UploadType->find('list');
+		$affiliates = $this->_applicableAffiliateIDs();
+		$types = $this->Person->Upload->UploadType->find('all', array(
+				'conditions' => array('UploadType.affiliate_id' => $affiliates),
+				'contain' => array('Affiliate'),
+				'order' => array('Affiliate.name', 'UploadType.name'),
+		));
+		if (count($affiliates) > 1) {
+			$names = array();
+			foreach ($types as $type) {
+				$names[$type['Affiliate']['name']][$type['UploadType']['id']] = $type['UploadType']['name'];
+			}
+			$types = $names;
+		} else {
+			$types = Set::combine($types, '{n}.UploadType.id', '{n}.UploadType.name');
+		}
+
 		$type = $this->_arg('type');
 		$this->set(compact('person', 'types', 'type'));
 
@@ -1179,25 +1293,47 @@ class PeopleController extends AppController {
 			} else {
 				$this->_mergePaginationParams();
 				$this->paginate['Person'] = array(
-					'conditions' => $this->_generateSearchConditions($params),
+					'conditions' => $this->_generateSearchConditions($params, null, 'AffiliatePerson'),
 					'contain' => array(
 						'Note' => array('conditions' => array('created_person_id' => $this->Auth->user('id'))),
+						'Affiliate',
 					),
 					'limit' => Configure::read('feature.items_per_page'),
+					'joins' => array(array(
+						'table' => "{$this->Person->tablePrefix}affiliates_people",
+						'alias' => 'AffiliatePerson',
+						'type' => 'LEFT',
+						'foreignKey' => false,
+						'conditions' => 'AffiliatePerson.person_id = Person.id',
+					)),
 				);
 				$this->set('people', $this->paginate('Person'));
 			}
 		}
-		$this->set(compact('url'));
+		$affiliates = $this->_applicableAffiliates();
+		$this->set(compact('url', 'affiliates'));
 	}
 
 	function list_new() {
+		$affiliates = $this->_applicableAffiliateIDs(true);
 		$new = $this->Person->find ('all', array(
-			'conditions' => array(
-				'status' => 'new',
-				'complete' => 1,
+			'joins' => array(
+				array(
+					'table' => "{$this->Person->tablePrefix}affiliates_people",
+					'alias' => 'AffiliatePerson',
+					'type' => 'LEFT',
+					'foreignKey' => false,
+					'conditions' => 'AffiliatePerson.person_id = Person.id',
+				),
 			),
-			'order' => array('last_name' => 'DESC', 'first_name' => 'DESC'),
+			'conditions' => array(
+				'Person.status' => 'new',
+				'Person.complete' => 1,
+				'AffiliatePerson.affiliate_id' => $affiliates,
+			),
+			'contain' => array(),
+			'fields' => array('Person.*', 'AffiliatePerson.*'),
+			'order' => array('Person.last_name' => 'DESC', 'Person.first_name' => 'DESC'),
 		));
 		foreach ($new as $key => $person) {
 			$duplicates = $this->Person->findDuplicates($person);
@@ -1225,7 +1361,7 @@ class PeopleController extends AppController {
 			$this->redirect(array('action' => 'list_new'));
 		}
 
-		$this->Person->contain();
+		$this->Person->contain('Affiliate');
 		$person = $this->Person->read(null, $id);
 		if (!$person) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
@@ -1466,9 +1602,17 @@ class PeopleController extends AppController {
 			}
 		}
 
+		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->Person->contain();
 		$this->set('person', $this->Person->read(null, $id));
+		$this->paginate['Registration'] = array(
+				'contain' => array('Event' => array('EventType', 'Affiliate')),
+				'conditions' => array('Event.affiliate_id' => $affiliates),
+				'order' => array('Event.affiliate_id', 'Registration.created' => 'DESC'),
+				'limit' => Configure::read('feature.items_per_page'),
+		);
 		$this->set('registrations', $this->paginate ('Registration', array('person_id' => $id)));
+		$this->set(compact('affiliates'));
 	}
 
 	function teams() {
@@ -1500,8 +1644,14 @@ class PeopleController extends AppController {
 			}
 		}
 
-		$this->Person->contain(array('Waiver' => array('order' => array('WaiversPerson.created' => 'DESC'))));
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->Person->contain(array('Waiver' => array(
+				'Affiliate',
+				'conditions' => array('Waiver.affiliate_id' => $affiliates),
+				'order' => array('Waiver.affiliate_id', 'WaiversPerson.created' => 'DESC'),
+		)));
 		$this->set('person', $this->Person->read(null, $id));
+		$this->set(compact('affiliates'));
 	}
 
 	function cron() {

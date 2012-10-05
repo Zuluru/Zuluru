@@ -3,10 +3,52 @@ class RegionsController extends AppController {
 
 	var $name = 'Regions';
 
+	function isAuthorized() {
+		if ($this->is_manager) {
+			// Managers can perform these operations
+			if (in_array ($this->params['action'], array(
+					'index',
+					'add',
+			)))
+			{
+				// If an affiliate id is specified, check if we're a manager of that affiliate
+				$affiliate = $this->_arg('affiliate');
+				if (!$affiliate) {
+					// If there's no affiliate id, this is a top-level operation that all managers can perform
+					return true;
+				} else if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					return true;
+				}
+			}
+
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'edit',
+					'delete',
+			)))
+			{
+				// If a region id is specified, check if we're a manager of that region's affiliate
+				$region = $this->_arg('region');
+				if ($region) {
+					$affiliate = $this->Region->field('affiliate_id', array('Region.id' => $region));
+					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
 	function index() {
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->set(compact('affiliates'));
+
 		$this->set('regions', $this->Region->find('all', array(
-				'contain' => array(),
-				'order' => array('Region.name'),
+				'conditions' => array('affiliate_id' => $affiliates),
+				'contain' => 'Affiliate',
+				'order' => array('Affiliate.name', 'Region.name'),
 		)));
 	}
 
@@ -16,8 +58,11 @@ class RegionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('region', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
-		$this->Region->contain(array('Facility'));
+		$this->Region->contain(array('Affiliate', 'Facility'));
 		$this->set('region', $this->Region->read(null, $id));
+
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->set(compact('affiliates'));
 	}
 
 	function add() {
@@ -30,6 +75,8 @@ class RegionsController extends AppController {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('region', true)), 'default', array('class' => 'warning'));
 			}
 		}
+		$affiliates = $this->_applicableAffiliates(true);
+		$this->set(compact('affiliates'));
 		$this->set('add', true);
 
 		$this->render ('edit');
@@ -52,6 +99,8 @@ class RegionsController extends AppController {
 		if (empty($this->data)) {
 			$this->data = $this->Region->read(null, $id);
 		}
+		$affiliates = $this->_applicableAffiliates(true);
+		$this->set(compact('affiliates'));
 	}
 
 	function delete() {

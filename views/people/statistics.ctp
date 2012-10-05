@@ -17,7 +17,30 @@ $this->Html->addCrumb (__('Statistics', true));
 	<tbody>
 <?php
 $total = 0;
+$affiliate_id = null;
 foreach ($status_count as $status):
+	if (count($affiliates) > 1 && $status['Affiliate']['id'] != $affiliate_id):
+		$affiliate_id = $status['Affiliate']['id'];
+		if ($total):
+?>
+		<tr>
+			<td><?php __('Total'); ?></td>
+			<td><?php echo $total; ?></td>
+		</tr>
+<?php
+		endif;
+
+		$total = 0;
+		$league = $season = null;
+?>
+		<tr>
+			<th colspan="2">
+				<h4 class="affiliate"><?php echo $status['Affiliate']['name']; ?></h4>
+			</th>
+		</tr>
+<?php
+	endif;
+
 	$total += $status[0]['count'];
 ?>
 		<tr>
@@ -44,7 +67,30 @@ foreach ($status_count as $status):
 	<tbody>
 <?php
 $total = 0;
+$affiliate_id = null;
 foreach ($group_count as $group):
+	if (count($affiliates) > 1 && $group['Affiliate']['id'] != $affiliate_id):
+		$affiliate_id = $group['Affiliate']['id'];
+		if ($total):
+?>
+		<tr>
+			<td><?php __('Total'); ?></td>
+			<td><?php echo $total; ?></td>
+		</tr>
+<?php
+		endif;
+
+		$total = 0;
+		$league = $season = null;
+?>
+		<tr>
+			<th colspan="2">
+				<h4 class="affiliate"><?php echo $group['Affiliate']['name']; ?></h4>
+			</th>
+		</tr>
+<?php
+	endif;
+
 	$total += $group[0]['count'];
 ?>
 		<tr>
@@ -71,7 +117,30 @@ foreach ($group_count as $group):
 	<tbody>
 <?php
 $total = 0;
+$affiliate_id = null;
 foreach ($gender_count as $gender):
+	if (count($affiliates) > 1 && $gender['Affiliate']['id'] != $affiliate_id):
+		$affiliate_id = $gender['Affiliate']['id'];
+		if ($total):
+?>
+		<tr>
+			<td><?php __('Total'); ?></td>
+			<td><?php echo $total; ?></td>
+		</tr>
+<?php
+		endif;
+
+		$total = 0;
+		$league = $season = null;
+?>
+		<tr>
+			<th colspan="2">
+				<h4 class="affiliate"><?php echo $gender['Affiliate']['name']; ?></h4>
+			</th>
+		</tr>
+<?php
+	endif;
+
 	$total += $gender[0]['count'];
 ?>
 		<tr>
@@ -99,7 +168,30 @@ foreach ($gender_count as $gender):
 	<tbody>
 <?php
 $total = 0;
+$affiliate_id = null;
 foreach ($age_count as $age):
+	if (count($affiliates) > 1 && $age['Affiliate']['id'] != $affiliate_id):
+		$affiliate_id = $age['Affiliate']['id'];
+		if ($total):
+?>
+		<tr>
+			<td><?php __('Total'); ?></td>
+			<td><?php echo $total; ?></td>
+		</tr>
+<?php
+		endif;
+
+		$total = 0;
+		$league = $season = null;
+?>
+		<tr>
+			<th colspan="2">
+				<h4 class="affiliate"><?php echo $age['Affiliate']['name']; ?></h4>
+			</th>
+		</tr>
+<?php
+	endif;
+
 	$total += $age[0]['count'];
 ?>
 <tr>
@@ -128,7 +220,30 @@ foreach ($age_count as $age):
 	<tbody>
 <?php
 $total = 0;
+$affiliate_id = null;
 foreach ($started_count as $started):
+	if (count($affiliates) > 1 && $started['Affiliate']['id'] != $affiliate_id):
+		$affiliate_id = $started['Affiliate']['id'];
+		if ($total):
+?>
+		<tr>
+			<td><?php __('Total'); ?></td>
+			<td><?php echo $total; ?></td>
+		</tr>
+<?php
+		endif;
+
+		$total = 0;
+		$league = $season = null;
+?>
+		<tr>
+			<th colspan="2">
+				<h4 class="affiliate"><?php echo $started['Affiliate']['name']; ?></h4>
+			</th>
+		</tr>
+<?php
+	endif;
+
 	$total += $started[0]['count'];
 ?>
 		<tr>
@@ -157,7 +272,30 @@ foreach ($started_count as $started):
 	<tbody>
 <?php
 $total = 0;
+$affiliate_id = null;
 foreach ($skill_count as $skill):
+	if (count($affiliates) > 1 && $skill['Affiliate']['id'] != $affiliate_id):
+		$affiliate_id = $skill['Affiliate']['id'];
+		if ($total):
+?>
+		<tr>
+			<td><?php __('Total'); ?></td>
+			<td><?php echo $total; ?></td>
+		</tr>
+<?php
+		endif;
+
+		$total = 0;
+		$league = $season = null;
+?>
+		<tr>
+			<th colspan="2">
+				<h4 class="affiliate"><?php echo $skill['Affiliate']['name']; ?></h4>
+			</th>
+		</tr>
+<?php
+	endif;
+
 	$total += $skill[0]['count'];
 ?>
 		<tr>
@@ -186,7 +324,30 @@ foreach ($skill_count as $skill):
 	<tbody>
 <?php
 $total = 0;
+$affiliate_id = null;
 foreach ($city_count as $city):
+	if (count($affiliates) > 1 && $city['Affiliate']['id'] != $affiliate_id):
+		$affiliate_id = $city['Affiliate']['id'];
+		if ($total):
+?>
+		<tr>
+			<td><?php __('Total'); ?></td>
+			<td><?php echo $total; ?></td>
+		</tr>
+<?php
+		endif;
+
+		$total = 0;
+		$league = $season = null;
+?>
+		<tr>
+			<th colspan="2">
+				<h4 class="affiliate"><?php echo $city['Affiliate']['name']; ?></h4>
+			</th>
+		</tr>
+<?php
+	endif;
+
 	$total += $city[0]['count'];
 ?>
 		<tr>

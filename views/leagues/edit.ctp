@@ -3,7 +3,6 @@ $this->Html->addCrumb (__('Leagues', true));
 if (isset ($add)) {
 	$this->Html->addCrumb (__('Create', true));
 } else {
-	// TODO: simulate the full_name virtual field
 	$this->Html->addCrumb ($this->data['League']['name']);
 	$this->Html->addCrumb (__('Edit', true));
 }
@@ -21,6 +20,14 @@ if (isset ($add)) {
 			'size' => 70,
 			'after' => $this->Html->para (null, __('The full name of the league. Year and season will be automatically added.', true)),
 		));
+
+		if (isset ($add)) {
+			echo $this->ZuluruForm->input('affiliate_id', array(
+				'options' => $affiliates,
+				'hide_single' => true,
+				'empty' => '---',
+			));
+		}
 
 		$sports = Configure::read('options.sport');
 		if (count($sports) > 1) {

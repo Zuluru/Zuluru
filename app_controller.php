@@ -214,6 +214,21 @@ class AppController extends Controller {
 	}
 
 	/**
+	 * Read and set variables for the database-based affiliate options.
+	 */
+	function _loadAffiliateOptions() {
+		$affiliates = $this->Person->Affiliate->find('all', array(
+				'conditions' => array(
+					'active' => true,
+					'NOT' => array('id' => $this->Session->read('Zuluru.ManagedAffiliateIDs')),
+				),
+		));
+		$affiliates = Set::combine($affiliates, '{n}.Affiliate.id', '{n}.Affiliate.name');
+
+		$this->set('affiliates', $affiliates);
+	}
+
+	/**
 	 * Basic check for authorization, based solely on the person's login group.
 	 * Set some "is_" variables for the views to use (is_admin, is_member, etc.).
 	 *
@@ -226,7 +241,7 @@ class AppController extends Controller {
 	 * @access public
 	 */
 	function _setPermissions() {
-		$this->is_admin = $this->is_volunteer = $this->is_member = $this->is_logged_in = false;
+		$this->is_admin = $this->is_manager = $this->is_volunteer = $this->is_member = $this->is_logged_in = false;
 		$auth =& $this->Auth->authenticate;
 		$user = $this->Auth->user();
 
@@ -287,6 +302,9 @@ class AppController extends Controller {
 			case 'Administrator':
 				$this->is_admin = true;
 
+			case 'Manager':
+				$this->is_manager = true;
+
 			case 'Volunteer':
 				$this->is_volunteer = true;
 
@@ -299,6 +317,7 @@ class AppController extends Controller {
 
 		// Set these in convenient locations for views to use
 		$this->set('is_admin', $this->is_admin);
+		$this->set('is_manager', $this->is_manager);
 		$this->set('is_volunteer', $this->is_volunteer);
 		$this->set('is_member', $this->is_member);
 		$this->set('is_logged_in', $this->is_logged_in);
@@ -358,13 +377,124 @@ class AppController extends Controller {
 		} else {
 			$this->effective_admin = $this->is_admin;
 
-			$divisions = $this->Session->read('Zuluru.Divisions');
-			$teams = Set::extract ('/Team/id', $divisions);
-			$this->effective_coordinator = (in_array ($team_id, $teams) && !$on_team);
+			if ($this->is_manager) {
+				if (!isset ($this->Team)) {
+					$this->Team = ClassRegistry::init ('Team');
+				}
+				$division = $this->Team->field('division_id', array('id' => $team_id));
+				$league = $this->Team->Division->field('league_id', array('id' => $division));
+				$affiliate = $this->Team->Division->League->field('affiliate_id', array('id' => $league));
+				$this->effective_coordinator = in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+			} else {
+				$divisions = $this->Session->read('Zuluru.Divisions');
+				$teams = Set::extract ('/Team/id', $divisions);
+				$this->effective_coordinator = in_array($team_id, $teams);
+			}
 		}
 
 		$this->set('is_effective_admin', $this->effective_admin);
 		$this->set('is_effective_coordinator', $this->effective_coordinator);
+	}
+
+	// Various ways to get the list of affiliates to show
+	function _applicableAffiliates($admin_only = false) {
+		if (!Configure::read('feature.affiliates')) {
+			return array(1 => Configure::read('organization.name'));
+		}
+
+		$affiliate_model = ClassRegistry::init ('Affiliate');
+
+		// If there's something in the URL, perhaps only use that
+		$affiliate = $this->_arg('affiliate');
+		if ($affiliate === null) {
+			// If the user has selected a specific affiliate to view, perhaps only use that
+			$affiliate = $this->Session->read('Zuluru.CurrentAffiliate');
+		}
+
+		if ($affiliate !== null) {
+			// We only allow overrides through the URL or session if:
+			// - this is not an admin-only page OR
+			// - the current user is an admin OR
+			// - the current user is a manager of that affiliate
+			if (!$admin_only || $this->is_admin ||
+				($this->is_manager && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs')))
+			)
+			{
+				return $affiliate_model->find('list', array(
+					'conditions' => array('Affiliate.id' => $affiliate),
+				));
+			}
+		}
+
+		// Managers may get only their list of managed affiliates
+		if (!$this->is_admin && $this->is_manager && $admin_only) {
+			$affiliates = $this->Session->read('Zuluru.ManagedAffiliates');
+			$affiliates = Set::combine($affiliates, '{n}.Affiliate.id', '{n}.Affiliate.name');
+			ksort($affiliates);
+			return $affiliates;
+		}
+
+		// Non-admins get their current list of "subscribed" affiliates
+		if ($this->is_logged_in && !$this->is_admin) {
+			$affiliates = $this->Session->read('Zuluru.Affiliates');
+			if (!empty($affiliates)) {
+				$affiliates = Set::combine($affiliates, '{n}.Affiliate.id', '{n}.Affiliate.name');
+				ksort($affiliates);
+				return $affiliates;
+			}
+		}
+
+		// Anyone not logged in, and admins, get the full list
+		return $affiliate_model->find('list', array(
+				'conditions' => array('active' => true),
+				'order' => 'name',
+		));
+	}
+
+	// Various ways to get the list of affiliates to query
+	function _applicableAffiliateIDs($admin_only = false) {
+		if (!Configure::read('feature.affiliates')) {
+			return array(1);
+		}
+
+		// If there's something in the URL, perhaps only use that
+		$affiliate = $this->_arg('affiliate');
+		if ($affiliate === null) {
+			// If the user has selected a specific affiliate to view, perhaps only use that
+			$affiliate = $this->Session->read('Zuluru.CurrentAffiliate');
+		}
+
+		if ($affiliate !== null) {
+			// We only allow overrides through the URL or session if:
+			// - this is not an admin-only page OR
+			// - the current user is an admin OR
+			// - the current user is a manager of that affiliate
+			if (!$admin_only || $this->is_admin ||
+				($this->is_manager && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs')))
+			)
+			{
+				return array($affiliate);
+			}
+		}
+
+		// Managers may get only their list of managed affiliates
+		if (!$this->is_admin && $this->is_manager && $admin_only) {
+			return $this->Session->read('Zuluru.ManagedAffiliateIDs');
+		}
+
+		// Non-admins get their current list of selected affiliates
+		if ($this->is_logged_in && !$this->is_admin) {
+			$affiliates = $this->Session->read('Zuluru.AffiliateIDs');
+			if (!empty($affiliates)) {
+				return $affiliates;
+			}
+		}
+
+		// Anyone not logged in, and admins, get the full list
+		$affiliate_model = ClassRegistry::init ('Affiliate');
+		return array_keys($affiliate_model->find('list', array(
+				'conditions' => array('active' => true),
+		)));
 	}
 
 	/**
@@ -375,6 +505,11 @@ class AppController extends Controller {
 	{
 		// Initialize the menu
 		$this->menu_items = array();
+
+		if ($this->is_manager) {
+			$affiliates = $this->_applicableAffiliates(true);
+		}
+
 		if ($this->is_logged_in) {
 			$this->_addMenuItem ('Home', array('controller' => 'all', 'action' => 'splash'));
 			$this->_addMenuItem ('My Profile', array('controller' => 'people', 'action' => 'view'));
@@ -400,7 +535,7 @@ class AppController extends Controller {
 			if ($this->is_logged_in) {
 				$this->_addMenuItem ('My history', array('controller' => 'people', 'action' => 'registrations'), 'Registration');
 			}
-			if ($this->is_admin) {
+			if ($this->is_admin || $this->is_manager) {
 				$this->_addMenuItem ('Preregistrations', array('controller' => 'preregistrations', 'action' => 'index'), 'Registration');
 				$this->_addMenuItem ('List', array('controller' => 'preregistrations', 'action' => 'index'), array('Registration', 'Preregistrations'));
 				$this->_addMenuItem ('Add', array('controller' => 'preregistrations', 'action' => 'add'), array('Registration', 'Preregistrations'));
@@ -427,10 +562,10 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Teams', array('controller' => 'teams', 'action' => 'index'));
 			$this->_addMenuItem ('List', array('controller' => 'teams', 'action' => 'index'), 'Teams');
 			// If registrations are enabled, it takes care of team creation
-			if ($this->is_admin || !Configure::read('feature.registration')) {
+			if ($this->is_admin || $this->is_manager || !Configure::read('feature.registration')) {
 				$this->_addMenuItem ('Create team', array('controller' => 'teams', 'action' => 'add'), 'Teams');
 			}
-			if ($this->is_admin) {
+			if ($this->is_admin || $this->is_manager) {
 				$this->_addMenuItem ('Unassigned teams', array('controller' => 'teams', 'action' => 'unassigned'), 'Teams');
 			}
 			$this->_addMenuItem ('My history', array('controller' => 'people', 'action' => 'teams'), 'Teams');
@@ -444,7 +579,7 @@ class AppController extends Controller {
 
 		$this->_addMenuItem ('Leagues', array('controller' => 'leagues', 'action' => 'index'));
 		$this->_addMenuItem ('List', array('controller' => 'leagues', 'action' => 'index'), 'Leagues');
-		if ($this->is_admin) {
+		if ($this->is_admin || $this->is_manager) {
 			$this->_addMenuItem ('League summary', array('controller' => 'leagues', 'action' => 'summary'), 'Leagues');
 			$this->_addMenuItem ('Create league', array('controller' => 'leagues', 'action' => 'add'), 'Leagues');
 		}
@@ -452,28 +587,44 @@ class AppController extends Controller {
 		$this->_addMenuItem (Configure::read('ui.fields_cap'), array('controller' => 'facilities', 'action' => 'index'));
 		$this->_addMenuItem ('List', array('controller' => 'facilities', 'action' => 'index'), Configure::read('ui.fields_cap'));
 		$this->_addMenuItem ('Map of all ' . Configure::read('ui.fields'), array('controller' => 'maps', 'action' => 'index'), Configure::read('ui.fields_cap'), null, array('target' => 'map'));
-		if ($this->is_admin) {
+		if ($this->is_admin || $this->is_manager) {
 			$this->_addMenuItem ('Regions', array('controller' => 'regions', 'action' => 'index'), Configure::read('ui.fields_cap'));
 			$this->_addMenuItem ('List', array('controller' => 'regions', 'action' => 'index'), array(Configure::read('ui.fields_cap'), 'Regions'));
 			$this->_addMenuItem ('Create Region', array('controller' => 'regions', 'action' => 'add'), array(Configure::read('ui.fields_cap'), 'Regions'));
 
 			$this->_addMenuItem ('Closed facilities', array('controller' => 'facilities', 'action' => 'closed'), Configure::read('ui.fields_cap'));
 			$this->_addMenuItem ('Create facility', array('controller' => 'facilities', 'action' => 'add'), Configure::read('ui.fields_cap'));
-			$this->_addMenuItem ('Add bulk gameslots', array('controller' => 'game_slots', 'action' => 'add'), Configure::read('ui.fields_cap'));
+			if (count($affiliates) == 1) {
+				$this->_addMenuItem ('Add bulk gameslots', array('controller' => 'game_slots', 'action' => 'add', 'affiliate' => array_shift(array_keys($affiliates))), Configure::read('ui.fields_cap'));
+			} else {
+				foreach ($affiliates as $affiliate => $name) {
+					$this->_addMenuItem ($name, array('controller' => 'game_slots', 'action' => 'add', 'affiliate' => $affiliate), array(Configure::read('ui.fields_cap'), 'Add bulk gameslots'));
+				}
+			}
 		}
 
 		if ($this->is_logged_in) {
 			$this->_addMenuItem ('Search', array('controller' => 'people', 'action' => 'search'), 'Players');
 		}
 
-		if ($this->is_admin) {
+		if ($this->is_admin || $this->is_manager) {
 			if (!isset ($this->Person)) {
 				$this->Person = ClassRegistry::init ('Person');
 			}
 			$new = $this->Person->find ('count', array(
+				'joins' => array(
+					array(
+						'table' => "{$this->Person->tablePrefix}affiliates_people",
+						'alias' => 'AffiliatePerson',
+						'type' => 'LEFT',
+						'foreignKey' => false,
+						'conditions' => 'AffiliatePerson.person_id = Person.id',
+					),
+				),
 				'conditions' => array(
-					'status' => 'new',
-					'complete' => 1,
+					'Person.status' => 'new',
+					'Person.complete' => 1,
+					'AffiliatePerson.affiliate_id' => array_keys($affiliates),
 				),
 			));
 			if ($new > 0) {
@@ -514,7 +665,10 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Upcoming', array('controller' => 'newsletters', 'action' => 'index'), 'Newsletters');
 			$this->_addMenuItem ('Mailing lists', array('controller' => 'mailing_lists', 'action' => 'index'), 'Newsletters');
 			$this->_addMenuItem ('All newsletters', array('controller' => 'newsletters', 'action' => 'past'), 'Newsletters');
+		}
 
+		// TODO: Some settings should be per-affiliate
+		if ($this->is_admin) {
 			$this->_addMenuItem ('Organization', array('controller' => 'settings', 'action' => 'organization'), array('Configuration', 'Settings'));
 			$this->_addMenuItem ('Features', array('controller' => 'settings', 'action' => 'feature'), array('Configuration', 'Settings'));
 			$this->_addMenuItem ('Email', array('controller' => 'settings', 'action' => 'email'), array('Configuration', 'Settings'));
@@ -526,6 +680,13 @@ class AppController extends Controller {
 					$this->_addMenuItem ('Payment', array('controller' => 'settings', 'action' => 'payment'), array('Configuration', 'Settings'));
 				}
 			}
+
+			if (Configure::read('feature.affiliates')) {
+				$this->_addMenuItem ('Affiliates', array('controller' => 'affiliates', 'action' => 'index'), 'Configuration');
+			}
+		}
+
+		if ($this->is_admin || $this->is_manager) {
 			$this->_addMenuItem ('Holidays', array('controller' => 'holidays', 'action' => 'index'), 'Configuration');
 			if (Configure::read('feature.documents')) {
 				$this->_addMenuItem ('Upload types', array('controller' => 'upload_types', 'action' => 'index'), 'Configuration');
@@ -540,7 +701,7 @@ class AppController extends Controller {
 			}
 			if (!$this->is_logged_in) {
 				$this->_addMenuItem ('Create account', array('controller' => 'users', 'action' => 'create_account'));
-			} else if ($this->is_admin) {
+			} else if ($this->is_admin || $this->is_manager) {
 				$this->_addMenuItem ('Create account', array('controller' => 'users', 'action' => 'create_account'), 'Players');
 			}
 		}
@@ -550,18 +711,20 @@ class AppController extends Controller {
 		$this->_addMenuItem ('New users', array('controller' => 'help', 'action' => 'guide', 'new_user'), 'Help');
 		$this->_addMenuItem ('Advanced users', array('controller' => 'help', 'action' => 'guide', 'advanced'), 'Help');
 		$this->_addMenuItem ('Captains', array('controller' => 'help', 'action' => 'guide', 'captain'), 'Help');
-		if ($this->is_admin || $this->Session->read('Zuluru.DivisionIDs')) {
+		if ($this->is_admin || $this->is_manager || $this->Session->read('Zuluru.DivisionIDs')) {
 			$this->_addMenuItem ('Coordinators', array('controller' => 'help', 'action' => 'guide', 'coordinator'), 'Help');
 		}
 		if ($this->is_admin) {
 			$this->_addMenuItem ('Site setup and configuration', array('controller' => 'help', 'action' => 'guide', 'administrator', 'setup'), array('Help', 'Administrators'));
+		}
+		if ($this->is_admin || $this->is_manager) {
 			$this->_addMenuItem ('Player management', array('controller' => 'help', 'action' => 'guide', 'administrator', 'players'), array('Help', 'Administrators'));
 			$this->_addMenuItem ('League management', array('controller' => 'help', 'action' => 'guide', 'administrator', 'leagues'), array('Help', 'Administrators'));
 			$this->_addMenuItem (Configure::read('ui.field_cap') . ' management', array('controller' => 'help', 'action' => 'guide', 'administrator', 'fields'), array('Help', 'Administrators'));
 			$this->_addMenuItem ('Registration', array('controller' => 'help', 'action' => 'guide', 'administrator', 'registration'), array('Help', 'Administrators'));
 		}
 
-		if ($this->is_admin) {
+		if ($this->is_admin || $this->is_manager) {
 			$this->_addMenuItem ('Statistics', array('controller' => 'people', 'action' => 'statistics'), 'Players');
 			$this->_addMenuItem ('Participation', array('controller' => 'people', 'action' => 'participation'), array('Players', 'Statistics'));
 			$this->_addMenuItem ('Retention', array('controller' => 'people', 'action' => 'retention'), array('Players', 'Statistics'));
@@ -610,6 +773,21 @@ class AppController extends Controller {
 						'payment' => array('Unpaid', 'Pending'),
 					),
 			));
+		}
+
+		$affiliates = $this->Session->read('Zuluru.Affiliates');
+		if (empty($affiliates)) {
+			if (!isset ($this->Affiliate)) {
+				$this->Affiliate = ClassRegistry::init('Affiliate');
+			}
+			$affiliates = $this->Affiliate->readByPlayerId ($my_id);
+
+			$this->Session->write ('Zuluru.Affiliates', $affiliates);
+			$this->Session->write ('Zuluru.AffiliateIDs', Set::extract ('/Affiliate/id', $affiliates));
+
+			$managed = Set::extract('/AffiliatesPerson[position=manager]/..', $affiliates);
+			$this->Session->write ('Zuluru.ManagedAffiliates', $managed);
+			$this->Session->write ('Zuluru.ManagedAffiliateIDs', Set::extract ('/Affiliate/id', $managed));
 		}
 
 		$teams = $this->Session->read('Zuluru.Teams');
@@ -715,6 +893,8 @@ class AppController extends Controller {
 	 */
 	function _addTeamMenuItems($team) {
 		$is_captain = in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs'));
+		$is_manager = $this->is_manager && in_array($team['Division']['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+
 		$this->_limitOverride($team['Team']['id']);
 		$key = "{$team['Team']['name']}::{$team['Team']['id']}";
 
@@ -737,12 +917,12 @@ class AppController extends Controller {
 			$this->_addMenuItem ($team['Team']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']), 'Teams', $key);
 		}
 
-		if ($this->is_admin || $is_captain) {
+		if ($this->is_admin || $is_manager || $is_captain) {
 			$this->_addMenuItem ('Edit', array('controller' => 'teams', 'action' => 'edit', 'team' => $team['Team']['id']), array('Teams', $key));
 			$this->_addMenuItem ('Player emails', array('controller' => 'teams', 'action' => 'emails', 'team' => $team['Team']['id']), array('Teams', $key));
 			$this->_addMenuItem ('Delete', array('controller' => 'teams', 'action' => 'delete', 'team' => $team['Team']['id']), array('Teams', $key));
 		}
-		if ($this->effective_admin ||
+		if ($this->effective_admin || $is_manager ||
 			(($is_captain || $this->effective_coordinator) && !Division::rosterDeadlinePassed($team['Division'])))
 		{
 			$this->_addMenuItem ('Add player', array('controller' => 'teams', 'action' => 'add_player', 'team' => $team['Team']['id']), array('Teams', $key));
@@ -750,7 +930,7 @@ class AppController extends Controller {
 		if ($this->effective_admin) {
 			$this->_addMenuItem ('Move', array('controller' => 'teams', 'action' => 'move', 'team' => $team['Team']['id']), array('Teams', $key));
 		}
-		if ($this->is_admin && League::hasSpirit($team)) {
+		if (($this->is_admin || $is_manager) && League::hasSpirit($team)) {
 			$this->_addMenuItem ('Spirit', array('controller' => 'teams', 'action' => 'spirit', 'team' => $team['Team']['id']), array('Teams', $key));
 		}
 	}
@@ -761,7 +941,9 @@ class AppController extends Controller {
 	function _addFranchiseMenuItems($franchise) {
 		$this->_addMenuItem ($franchise['name'], array('controller' => 'franchises', 'action' => 'view', 'franchise' => $franchise['id']), array('Teams', 'Franchises'), "{$franchise['name']}::{$franchise['id']}");
 		$is_owner = in_array($franchise['id'], $this->Session->read('Zuluru.FranchiseIDs'));
-		if ($this->is_admin || $is_owner) {
+		$is_manager = $this->is_manager && in_array($franchise['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+
+		if ($this->is_admin || $is_manager || $is_owner) {
 			$this->_addMenuItem ('Edit', array('controller' => 'franchises', 'action' => 'edit', 'franchise' => $franchise['id']), array('Teams', 'Franchises', "{$franchise['name']}::{$franchise['id']}"));
 			$this->_addMenuItem ('Add Team', array('controller' => 'franchises', 'action' => 'add_team', 'franchise' => $franchise['id']), array('Teams', 'Franchises', "{$franchise['name']}::{$franchise['id']}"));
 			$this->_addMenuItem ('Add an Owner', array('controller' => 'franchises', 'action' => 'add_owner', 'franchise' => $franchise['id']), array('Teams', 'Franchises', "{$franchise['name']}::{$franchise['id']}"));
@@ -785,6 +967,7 @@ class AppController extends Controller {
 	 */
 	function _addDivisionMenuItems($division, $league) {
 		$is_coordinator = in_array($division['id'], $this->Session->read('Zuluru.DivisionIDs'));
+		$is_manager = $this->is_manager && in_array($league['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
 
 		$this->_addMenuItem ($league['name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $league['id']), 'Leagues');
 		$path = array('Leagues', $league['name']);
@@ -797,7 +980,7 @@ class AppController extends Controller {
 		if ($this->is_logged_in) {
 			$this->_addMenuItem ('Scores', array('controller' => 'divisions', 'action' => 'scores', 'division' => $division['id']), $path);
 		}
-		if ($this->is_admin || $is_coordinator) {
+		if ($this->is_admin || $is_manager || $is_coordinator) {
 			$this->_addMenuItem ('Add Games', array('controller' => 'schedules', 'action' => 'add', 'division' => $division['id']), array_merge($path, array('Schedule')));
 			$this->_addMenuItem ('Approve scores', array('controller' => 'divisions', 'action' => 'approve_scores', 'division' => $division['id']), $path);
 			$this->_addMenuItem ('Edit', array('controller' => 'divisions', 'action' => 'edit', 'division' => $division['id']), $path);
@@ -820,7 +1003,7 @@ class AppController extends Controller {
 		// Some items are only applicable depending on league configuration
 		if (!empty ($division['schedule_type'])) {
 			$league_obj = $this->_getComponent ('LeagueType', $division['schedule_type'], $this);
-			$league_obj->addMenuItems ($division, $path, $is_coordinator);
+			$league_obj->addMenuItems ($division, $path, $is_coordinator || $is_manager);
 		}
 	}
 
@@ -1027,12 +1210,16 @@ class AppController extends Controller {
 		}
 	}
 
-	function _generateSearchConditions($params, $model = null) {
+	function _generateSearchConditions($params, $model = null, $affiliate_model = null) {
 		$conditions = array();
 		if ($model == null) {
 			$model = Inflector::singularize($this->name);
 		}
 		$model_obj = $this->{$model};
+
+		if ($affiliate_model && array_key_exists('affiliate_id', $params)) {
+			$conditions["$affiliate_model.affiliate_id"] = $params['affiliate_id'];
+		}
 
 		foreach ($params as $field => $value) {
 			if (!array_key_exists ($field, $model_obj->_schema))

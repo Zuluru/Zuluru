@@ -22,6 +22,16 @@ class SchedulesController extends AppController {
 			if ($division && in_array ($division, $this->Session->read('Zuluru.DivisionIDs'))) {
 				return true;
 			}
+
+			// If a division id is specified, check if we're a manager of that division's affiliate
+			if ($this->is_manager && $division) {
+				$league = $this->Division->field('league_id', array('id' => $division));
+				$affiliate = $this->Division->League->field('affiliate_id', array('id' => $league));
+				if ($affiliate && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					return true;
+				}
+			}
+
 		}
 
 		return false;
@@ -216,7 +226,7 @@ class SchedulesController extends AppController {
 	}
 
 	function _finalize($id) {
-		if (!$this->Lock->lock ('scheduling', 'schedule creation or edit')) {
+		if (!$this->Lock->lock ('scheduling', $this->division['League']['affiliate_id'], 'schedule creation or edit')) {
 			$this->redirect(array('controller' => 'divisions', 'action' => 'view', 'division' => $id));
 		}
 

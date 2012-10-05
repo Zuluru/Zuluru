@@ -4,20 +4,50 @@ class PreregistrationsController extends AppController {
 	var $name = 'Preregistrations';
 	var $components = array('CanRegister');
 
+	function isAuthorized() {
+		if ($this->is_manager) {
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'index',
+					'add',
+			)))
+			{
+				// If an event id is specified, check if we're a manager of that event's affiliate
+				$event = $this->_arg('event');
+				if ($event) {
+					$affiliate = $this->Preregistration->Event->field('affiliate_id', array('Event.id' => $event));
+					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				} else {
+					// If there's no event id, this is a top-level operation that all managers can perform
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	function index() {
+		$affiliates = $this->_applicableAffiliateIDs(true);
+
 		$this->paginate['Preregistration'] = array(
 			'contain' => array(
 				'Person',
-				'Event',
+				'Event' => 'Affiliate',
 			),
 			'limit' => Configure::read('feature.items_per_page'),
+			'conditions' => array('Event.affiliate_id' => $affiliates),
 		);
 		if ($this->_arg('event')) {
 			$id = $this->_arg('event');
-			$this->paginate['Preregistration']['conditions'] = array('event_id' => $id);
+			$this->paginate['Preregistration']['conditions']['event_id'] = $id;
+			$this->Preregistration->Event->contain('Affiliate');
 			$this->set('event', $this->Preregistration->Event->read(null, $id));
 		}
 		$this->set('preregistrations', $this->paginate('Preregistration'));
+		$this->set(compact('affiliates'));
 	}
 
 	function add() {
@@ -26,6 +56,9 @@ class PreregistrationsController extends AppController {
 		if (array_key_exists('event', $url)) {
 			$event = $this->Preregistration->Event->read(null, $url['event']);
 		}
+
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->set(compact('affiliates'));
 
 		if (array_key_exists('event', $url) && array_key_exists('person', $url)) {
 			$data = array(
@@ -60,27 +93,51 @@ class PreregistrationsController extends AppController {
 					$this->Person = $this->Preregistration->Person;
 					$this->_mergePaginationParams();
 					$this->paginate['Person'] = array(
-						'conditions' => $this->_generateSearchConditions($params, 'Person'),
-						'contain' => false,
+						'conditions' => $this->_generateSearchConditions($params, 'Person', 'AffiliatePerson'),
+						'contain' => array('Affiliate'),
 						'limit' => Configure::read('feature.items_per_page'),
+						'joins' => array(array(
+							'table' => "{$this->Person->tablePrefix}affiliates_people",
+							'alias' => 'AffiliatePerson',
+							'type' => 'LEFT',
+							'foreignKey' => false,
+							'conditions' => 'AffiliatePerson.person_id = Person.id',
+						)),
 					);
 					$this->set('people', $this->paginate('Person'));
 				}
 			}
 			$this->set(compact('url'));
-			if (array_key_exists('event', $url)) {
+			if (!empty($url['event'])) {
 				$this->set(compact('event'));
 				$this->render('add_to_event');
 			} else {
-				$events = $this->Preregistration->Event->find('list', array(
+				$events = $this->Preregistration->Event->find('all', array(
 						'conditions' => array(
 							// Unlikely that we want to let someone post-register for something
 							// that closed more than 3 months ago
 							'Event.close > DATE_SUB(CURDATE(), INTERVAL 3 MONTH)',
+							'Event.affiliate_id' => $affiliates,
 						),
-						'order' => 'Event.open DESC, Event.id DESC',
+						'contain' => array('Affiliate'),
+						'order' => array('Affiliate.name', 'Event.open DESC', 'Event.id DESC'),
 				));
+
+				if (count($affiliates) > 1) {
+					$names = array();
+					foreach ($events as $event) {
+						$names[$event['Affiliate']['name']][$event['Event']['id']] = $event['Event']['name'];
+					}
+					$events = $names;
+				} else {
+					$events = Set::combine($events, '{n}.Event.id', '{n}.Event.name');
+				}
+
 				$this->set(compact('events'));
+
+				if (array_key_exists('event', $url)) {
+					$this->Session->setFlash(__('You must select an event!', true), 'default', array('class' => 'warning'));
+				}
 			}
 		}
 	}

@@ -19,6 +19,15 @@ if (isset ($add)) {
 		echo $this->ZuluruForm->input('name', array(
 			'after' => $this->Html->para (null, __('The full name of your team.', true)),
 		));
+
+		if (isset ($add)) {
+			echo $this->ZuluruForm->input('affiliate_id', array(
+				'options' => $affiliates,
+				'hide_single' => true,
+				'empty' => '---',
+			));
+		}
+
 		if (Configure::read('feature.urls')) {
 			echo $this->ZuluruForm->input('website', array(
 				'after' => $this->Html->para (null, __('Your team\'s website, if you have one.', true)),

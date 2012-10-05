@@ -41,6 +41,49 @@ class DivisionsController extends AppController {
 			}
 		}
 
+		if ($this->is_manager) {
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'select',
+			)))
+			{
+				// If an affiliate id is specified, check if we're a manager of that affiliate
+				$affiliate = $this->_arg('affiliate');
+				if ($affiliate && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					return true;
+				}
+			}
+
+			if (in_array ($this->params['action'], array(
+					'add',
+					'edit',
+					'add_coordinator',
+					'delete',
+					'add_teams',
+					'approve_scores',
+					'fields',
+					'slots',
+					'status',
+					'allstars',
+					'emails',
+					'spirit',
+					'ratings',
+					'initialize_ratings',
+					'initialize_dependencies',
+			)))
+			{
+				// If a division id is specified, check if we're a manager of that division's affiliate
+				$division = $this->_arg('division');
+				if ($division) {
+					$league = $this->Division->field('league_id', array('id' => $division));
+					$affiliate = $this->Division->League->field('affiliate_id', array('id' => $league));
+					if ($affiliate && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+		}
+
 		return false;
 	}
 
@@ -174,7 +217,7 @@ class DivisionsController extends AppController {
 					),
 					'League.sport' => $sport,
 				),
-				'contain' => false,
+				'contain' => array('Affiliate'),
 		));
 		usort ($leagues, array('League', 'compareLeagueAndDivision'));
 		$this->set('leagues', Set::combine($leagues, '{n}.League.id', '{n}.League.full_name'));
@@ -282,14 +325,22 @@ class DivisionsController extends AppController {
 				$this->_mergePaginationParams();
 				$this->paginate['Person'] = array(
 					'conditions' => array_merge (
-						$this->_generateSearchConditions($params, 'Person'),
-						array('Group.name' => array('Volunteer', 'Administrator'))
+						$this->_generateSearchConditions($params, 'Person', 'AffiliatePerson'),
+						array('Group.name' => array('Volunteer', 'Manager', 'Administrator'))
 					),
 					'contain' => array(
 						'Group',
 						'Note' => array('conditions' => array('created_person_id' => $this->Auth->user('id'))),
+						'Affiliate',
 					),
 					'limit' => Configure::read('feature.items_per_page'),
+					'joins' => array(array(
+						'table' => "{$this->Division->Person->tablePrefix}affiliates_people",
+						'alias' => 'AffiliatePerson',
+						'type' => 'LEFT',
+						'foreignKey' => false,
+						'conditions' => 'AffiliatePerson.person_id = Person.id',
+					)),
 				);
 				$this->set('people', $this->paginate('Person'));
 			}
@@ -422,28 +473,6 @@ class DivisionsController extends AppController {
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$is_coordinator = in_array($id, $this->Session->read('Zuluru.DivisionIDs'));
-		if ($this->is_admin || $is_coordinator) {
-			$edit_date = $this->_arg('edit_date');
-			if (!empty ($this->data)) {
-				$edit_date = $this->data['Game']['edit_date'];
-				unset ($this->data['Game']['edit_date']);
-			}
-		} else {
-			$edit_date = null;
-		}
-
-		if ($edit_date) {
-			$game_slots = $this->Division->DivisionGameslotAvailability->GameSlot->getAvailable($id, $edit_date);
-		}
-
-		// Save posted data
-		if (!empty ($this->data) && ($this->is_admin || $is_coordinator)) {
-			if ($this->_validateAndSaveSchedule($game_slots)) {
-				$this->redirect (array('action' => 'schedule', 'division' => $id));
-			}
-		}
-
 		$this->Division->contain(array (
 			'Day' => array('order' => 'day_id'),
 			'Team',
@@ -465,6 +494,29 @@ class DivisionsController extends AppController {
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 		Configure::load("sport/{$division['League']['sport']}");
+
+		$is_coordinator = in_array($id, $this->Session->read('Zuluru.DivisionIDs'));
+		$is_manager = $this->is_manager && in_array($division['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+		if ($this->is_admin || $is_manager || $is_coordinator) {
+			$edit_date = $this->_arg('edit_date');
+			if (!empty ($this->data)) {
+				$edit_date = $this->data['Game']['edit_date'];
+				unset ($this->data['Game']['edit_date']);
+			}
+		} else {
+			$edit_date = null;
+		}
+
+		if ($edit_date) {
+			$game_slots = $this->Division->DivisionGameslotAvailability->GameSlot->getAvailable($id, $edit_date);
+		}
+
+		// Save posted data
+		if (!empty ($this->data) && ($this->is_admin || $is_manager || $is_coordinator)) {
+			if ($this->_validateAndSaveSchedule($game_slots)) {
+				$this->redirect (array('action' => 'schedule', 'division' => $id));
+			}
+		}
 
 		// Sort games by date, time and field
 		usort ($division['Game'], array ('Game', 'compareDateAndField'));
@@ -559,7 +611,9 @@ class DivisionsController extends AppController {
 			}
 		}
 
-		if (!$this->Lock->lock ('scheduling', 'schedule creation or edit')) {
+		$league = $this->Division->field('league_id', array('id' => $this->_arg('division')));
+		$affiliate = $this->Division->League->field('affiliate_id', array('id' => $league));
+		if (!$this->Lock->lock ('scheduling', $affiliate, 'schedule creation or edit')) {
 			return false;
 		}
 		if (!$this->Division->Game->_saveGames($this->data['Game'], $publish)) {
@@ -1210,7 +1264,7 @@ class DivisionsController extends AppController {
 	function select($date) {
 		Configure::write ('debug', 0);
 		$this->layout = 'ajax';
-		$this->set('divisions', $this->Division->readByDate($date));
+		$this->set('divisions', $this->Division->readByDate($date, $this->_arg('affiliate')));
 	}
 }
 ?>

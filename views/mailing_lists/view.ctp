@@ -11,6 +11,13 @@ $this->Html->addCrumb (__('View', true));
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $mailingList['MailingList']['name']; ?>
 		</dd>
+		<?php if (count($affiliates) > 1): ?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Affiliate'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo $this->Html->link($mailingList['Affiliate']['name'], array('controller' => 'affiliates', 'action' => 'view', 'affiliate' => $mailingList['Affiliate']['id'])); ?>
+
+		</dd>
+		<?php endif; ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Opt Out'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php __($mailingList['MailingList']['opt_out'] ? 'Yes' : 'No'); ?>

@@ -20,7 +20,7 @@ if (!empty ($division['Person'])) {
 }
 ?>
 
-<?php echo $this->element('people/search_form'); ?>
+<?php echo $this->element('people/search_form', array('affiliate_id' => $division['League']['affiliate_id'])); ?>
 
 <?php endif; ?>
 

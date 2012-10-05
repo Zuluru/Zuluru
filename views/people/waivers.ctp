@@ -17,7 +17,19 @@ $this->Html->addCrumb (__('Waiver History', true));
 	</tr>
 	<?php
 	$i = 0;
+	$affiliate_id = null;
 	foreach ($person['Waiver'] as $waiver):
+		if (count($affiliates) > 1 && $waiver['affiliate_id'] != $affiliate_id):
+			$affiliate_id = $waiver['affiliate_id'];
+	?>
+	<tr>
+		<th colspan="5">
+			<h3 class="affiliate"><?php echo $waiver['Affiliate']['name']; ?></h3>
+		</th>
+	</tr>
+	<?php
+		endif;
+
 		$class = null;
 		if ($i++ % 2 == 0) {
 			$class = ' class="altrow"';

@@ -74,6 +74,55 @@ class TeamsController extends AppController {
 			}
 		}
 
+		if ($this->is_manager) {
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'statistics',
+					'unassigned',
+			)))
+			{
+				// If an affiliate id is specified, check if we're a manager of that affiliate
+				$affiliate = $this->_arg('affiliate');
+				if (!$affiliate) {
+					// If there's no affiliate id, this is a top-level operation that all managers can perform
+					return true;
+				} else if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					return true;
+				}
+			}
+
+			if (in_array ($this->params['action'], array(
+				'edit',
+				'delete',
+				'add_player',
+				'add_from_team',
+				'add_from_event',
+				'roster_position',
+				'roster_request',
+				'roster_add',
+				'emails',
+				'attendance',
+				'spirit',
+				'move',
+			)))
+			{
+				// If a team id is specified, check if we're a manager of that team's affiliate
+				$team = $this->_arg('team');
+				if ($team) {
+					$division = $this->Team->field('division_id', array('id' => $team));
+					if ($division) {
+						$league = $this->Team->Division->field('league_id', array('id' => $division));
+						$affiliate = $this->Team->Division->League->field('affiliate_id', array('id' => $league));
+					} else {
+						$affiliate = $this->Team->field('affiliate_id', array('id' => $team));
+					}
+					if ($affiliate && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+		}
+
 		// People can perform these operations on divisions they coordinate, unless it's their team
 		if (in_array ($this->params['action'], array(
 				'add_player',
@@ -108,17 +157,54 @@ class TeamsController extends AppController {
 	}
 
 	function index() {
+		$affiliate = $this->_arg('affiliate');
+		$affiliates = $this->_applicableAffiliateIDs();
+		$this->set(compact('affiliates', 'affiliate'));
+
+		$conditions = array(
+			'Division.is_open' => true,
+			'League.affiliate_id' => $affiliates,
+		);
+
+		$joins = array(
+			array(
+				'table' => "{$this->Team->tablePrefix}divisions",
+				'alias' => 'Division',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'Team.division_id = Division.id',
+			),
+			array(
+				'table' => "{$this->Team->tablePrefix}leagues",
+				'alias' => 'League',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'Division.league_id = League.id',
+			),
+			array(
+				'table' => "{$this->Team->tablePrefix}affiliates",
+				'alias' => 'Affiliate',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'League.affiliate_id = Affiliate.id',
+			),
+		);
+
 		$this->paginate = array('Team' => array(
-				'conditions' => array('Division.is_open' => true),
-				'contain' => array('Division' => 'League'),
+				'conditions' => $conditions,
+				'contain' => array(),
+				'joins' => $joins,
+				'fields' => array('Team.*', 'Division.*', 'League.*', 'Affiliate.*'),
+				'order' => array('Affiliate.name', 'Team.name', 'Division.open'),
 				'limit' => Configure::read('feature.items_per_page'),
 		));
 		$this->set('teams', $this->paginate('Team'));
 		$this->set('letters', $this->Team->find('all', array(
-				'contain' => array('Division' => 'League'),
+				'conditions' => $conditions,
+				'contain' => array(),
+				'joins' => $joins,
 				'fields' => array('DISTINCT SUBSTR(Team.name, 1, 1) AS letter'),
 				'order' => 'letter',
-				'conditions' => array('Division.is_open' => true),
 				// Grouping necessary because Cake adds Team.id to the query, so we get
 				// "DISTINCT letter, id", which is more results than just "DISTINCT letter"
 				'group' => 'letter',
@@ -132,20 +218,55 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 
-		$this->set(compact('letter'));
+		$affiliate = $this->_arg('affiliate');
+		$affiliates = $this->_applicableAffiliateIDs();
+		$this->set(compact('letter', 'affiliates', 'affiliate'));
+
+		$conditions = array(
+			'Division.is_open' => true,
+			'League.affiliate_id' => $affiliates,
+		);
+
+		$joins = array(
+			array(
+				'table' => "{$this->Team->tablePrefix}divisions",
+				'alias' => 'Division',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'Team.division_id = Division.id',
+			),
+			array(
+				'table' => "{$this->Team->tablePrefix}leagues",
+				'alias' => 'League',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'Division.league_id = League.id',
+			),
+			array(
+				'table' => "{$this->Team->tablePrefix}affiliates",
+				'alias' => 'Affiliate',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'League.affiliate_id = Affiliate.id',
+			),
+		);
+
 		$this->set('teams', $this->Team->find('all', array(
-				'contain' => array('Division' => 'League'),
-				'conditions' => array(
-					'Division.is_open' => true,
+				'conditions' => array_merge($conditions, array(
 					'Team.name LIKE' => "$letter%",
-				),
-				'order' => array('Team.name', 'Division.open'),
+				)),
+				'contain' => array(),
+				'joins' => $joins,
+				'fields' => array('Team.*', 'Division.*', 'League.*', 'Affiliate.*'),
+				'order' => array('Affiliate.name', 'Team.name', 'Division.open'),
 		)));
+
 		$this->set('letters', $this->Team->find('all', array(
-				'contain' => array('Division' => 'League'),
+				'conditions' => $conditions,
+				'contain' => array(),
+				'joins' => $joins,
 				'fields' => array('DISTINCT SUBSTR(Team.name, 1, 1) AS letter'),
 				'order' => 'letter',
-				'conditions' => array('Division.is_open' => true),
 				// Grouping necessary because Cake adds Team.id to the query, so we get
 				// "DISTINCT letter, id", which is more results than just "DISTINCT letter"
 				'group' => 'letter',
@@ -153,22 +274,69 @@ class TeamsController extends AppController {
 	}
 
 	function join() {
-		$this->paginate = array(
-				'conditions' => array(
-					'Team.open_roster' => true,
-					'Division.is_open' => true,
-				),
-				'contain' => array('Division' => 'League'),
+		$affiliate = $this->_arg('affiliate');
+		$affiliates = $this->_applicableAffiliateIDs();
+		$this->set(compact('affiliates', 'affiliate'));
+
+		$conditions = array(
+			'Team.open_roster' => true,
+			'Division.is_open' => true,
+			'League.affiliate_id' => $affiliates,
 		);
+
+		$joins = array(
+			array(
+				'table' => "{$this->Team->tablePrefix}divisions",
+				'alias' => 'Division',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'Team.division_id = Division.id',
+			),
+			array(
+				'table' => "{$this->Team->tablePrefix}leagues",
+				'alias' => 'League',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'Division.league_id = League.id',
+			),
+			array(
+				'table' => "{$this->Team->tablePrefix}affiliates",
+				'alias' => 'Affiliate',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'League.affiliate_id = Affiliate.id',
+			),
+		);
+
+		$this->paginate = array('Team' => array(
+				'conditions' => $conditions,
+				'contain' => array(),
+				'joins' => $joins,
+				'fields' => array('Team.*', 'Division.*', 'League.*', 'Affiliate.*'),
+				'order' => array('Affiliate.name', 'Team.name', 'Division.open'),
+				'limit' => Configure::read('feature.items_per_page'),
+		));
 		$this->set('teams', $this->paginate('Team'));
 	}	
 
 	function unassigned() {
-		$this->Team->contain();
-		$this->set('teams', $this->paginate(array('Team.division_id' => null)));
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->paginate['Team'] = array(
+			'conditions' => array(
+				'Team.affiliate_id' => $affiliates,
+				'Team.division_id' => null,
+			),
+			'contain' => array(),
+			'limit' => Configure::read('feature.items_per_page'),
+		);
+		$this->set('teams', $this->paginate('Team'));
 	}
 
 	function statistics() {
+		// We need the names here, so that "top 10" lists are sorted by affiliate name
+		$affiliates = $this->_applicableAffiliates(true);
+		$this->set(compact('affiliates'));
+
 		// Division conditions take precedence over year conditions
 		$division = $this->_arg('division');
 		$year = $this->_arg('year');
@@ -179,10 +347,14 @@ class TeamsController extends AppController {
 		} else {
 			$conditions = array('YEAR(Division.open)' => $year);
 		}
+		$conditions['League.affiliate_id'] = array_keys($affiliates);
 
 		$divisions = $this->Team->Division->find('all', array(
 				'conditions' => $conditions,
-				'contain' => array('League', 'Day'),
+				'contain' => array(
+					'League' => 'Affiliate',
+					'Day',
+				),
 		));
 		$this->Team->Division->addPlayoffs($divisions);
 		AppModel::_reindexOuter($divisions, 'Division', 'id');
@@ -209,7 +381,7 @@ class TeamsController extends AppController {
 		$shorts = $this->Team->find('all', array(
 				'fields' => array(
 					'Team.id', 'Team.name', 'Team.division_id',
-					'COUNT(TeamsPerson.person_id) AS size',
+					'COUNT(TeamsPerson.person_id) AS count',
 				),
 				'joins' => array(
 					array(
@@ -225,8 +397,7 @@ class TeamsController extends AppController {
 					'TeamsPerson.position' => Configure::read('playing_roster_positions'),
 				),
 				'contain' => false,
-				'group' => 'Team.id HAVING size < 12',
-				'order' => array('size DESC', 'Team.name'),
+				'group' => 'Team.id HAVING count < 12',
 		));
 		foreach ($shorts as $key => $short) {
 			$shorts[$key][0]['subs'] = $this->Team->TeamsPerson->find('count', array(
@@ -237,37 +408,113 @@ class TeamsController extends AppController {
 			));
 			$shorts[$key] += $divisions[$short['Team']['division_id']];
 		}
+		usort($shorts, array('TeamsController', 'compareAffiliateAndCount'));
 
-		// Get the list of top-rated teams
-		$top_rating = $this->Team->find('all', array(
-				'fields' => array(
-					'Team.id', 'Team.name', 'Team.division_id', 'Team.rating',
-				),
-				'conditions' => array('division_id' => array_keys($divisions)),
-				'contain' => false,
-				'order' => 'Team.rating DESC',
-				'limit' => 10,
-		));
+		$top_rating = $lowest_rating = $top_spirit = $lowest_spirit = array();
+		foreach (array_keys($affiliates) as $affiliate) {
+			$affiliate_divisions = Set::extract("/League[affiliate_id=$affiliate]/../Division/id", $divisions);
+
+			// Get the list of top-rated teams
+			$top_rating = array_merge($top_rating, $this->Team->find('all', array(
+					'fields' => array(
+						'Team.id', 'Team.name', 'Team.division_id', 'Team.rating',
+					),
+					'conditions' => array('division_id' => $affiliate_divisions),
+					'contain' => false,
+					'order' => 'Team.rating DESC',
+					'limit' => 10,
+			)));
+
+			// Get the list of lowest-rated teams
+			$lowest_rating = array_merge($lowest_rating, $this->Team->find('all', array(
+					'fields' => array(
+						'Team.id', 'Team.name', 'Team.division_id', 'Team.rating',
+					),
+					'conditions' => array('division_id' => $affiliate_divisions),
+					'contain' => false,
+					'order' => 'Team.rating ASC',
+					'limit' => 10,
+			)));
+
+			if (Configure::read('feature.spirit')) {
+				// Find the list of unplayed games
+				$unplayed = $this->Team->Division->Game->find('list', array(
+						'conditions' => array(
+							'division_id' => $affiliate_divisions,
+							'status' => Configure::read('unplayed_status'),
+						),
+				));
+
+				// Get the list of top spirited teams
+				$top_spirit = array_merge($top_spirit, $this->Team->find('all', array(
+						'fields' => array(
+							'Team.id', 'Team.name', 'Team.division_id',
+							'ROUND( AVG( COALESCE(
+								SpiritEntry.entered_sotg,
+								SpiritEntry.score_entry_penalty + SpiritEntry.q1 + SpiritEntry.q2 + SpiritEntry.q3 + SpiritEntry.q4 + SpiritEntry.q5 + SpiritEntry.q6 + SpiritEntry.q7 + SpiritEntry.q8 + SpiritEntry.q9 + SpiritEntry.q10 )
+							), 2) AS avgspirit',
+						),
+						'joins' => array(
+							array(
+								'table' => "{$this->Team->tablePrefix}spirit_entries",
+								'alias' => 'SpiritEntry',
+								'type' => 'LEFT',
+								'foreignKey' => false,
+								'conditions' => 'SpiritEntry.team_id = Team.id',
+							),
+						),
+						'conditions' => array(
+							'division_id' => $affiliate_divisions,
+							'NOT' => array('game_id' => $unplayed),
+						),
+						'contain' => false,
+						'group' => 'Team.id HAVING avgspirit IS NOT NULL',
+						'order' => array('avgspirit DESC', 'Team.name'),
+						'limit' => 10,
+				)));
+
+				// Get the list of lowest spirited teams
+				$lowest_spirit = array_merge($lowest_spirit, $this->Team->find('all', array(
+						'fields' => array(
+							'Team.id', 'Team.name', 'Team.division_id',
+							'ROUND( AVG( COALESCE(
+								SpiritEntry.entered_sotg,
+								SpiritEntry.score_entry_penalty + SpiritEntry.q1 + SpiritEntry.q2 + SpiritEntry.q3 + SpiritEntry.q4 + SpiritEntry.q5 + SpiritEntry.q6 + SpiritEntry.q7 + SpiritEntry.q8 + SpiritEntry.q9 + SpiritEntry.q10 )
+							), 2) AS avgspirit',
+						),
+						'joins' => array(
+							array(
+								'table' => "{$this->Team->tablePrefix}spirit_entries",
+								'alias' => 'SpiritEntry',
+								'type' => 'LEFT',
+								'foreignKey' => false,
+								'conditions' => 'SpiritEntry.team_id = Team.id',
+							),
+						),
+						'conditions' => array(
+							'division_id' => $affiliate_divisions,
+							'NOT' => array('game_id' => $unplayed),
+						),
+						'contain' => false,
+						'group' => 'Team.id HAVING avgspirit IS NOT NULL',
+						'order' => array('avgspirit ASC', 'Team.name'),
+						'limit' => 10,
+				)));
+			}
+		}
 
 		// Add division info
 		foreach ($top_rating as $key => $team) {
 			$top_rating[$key] += $divisions[$team['Team']['division_id']];
 		}
-
-		// Get the list of lowest-rated teams
-		$lowest_rating = $this->Team->find('all', array(
-				'fields' => array(
-					'Team.id', 'Team.name', 'Team.division_id', 'Team.rating',
-				),
-				'conditions' => array('division_id' => array_keys($divisions)),
-				'contain' => false,
-				'order' => 'Team.rating ASC',
-				'limit' => 10,
-		));
-
-		// Add division info
 		foreach ($lowest_rating as $key => $team) {
 			$lowest_rating[$key] += $divisions[$team['Team']['division_id']];
+		}
+		foreach ($top_spirit as $key => $team) {
+			$top_spirit[$key] += $divisions[$team['Team']['division_id']];
+		}
+		foreach ($lowest_spirit as $key => $team) {
+			$lowest_spirit[$key] += $divisions[$team['Team']['division_id']];
 		}
 
 		// Get the list of defaulting teams
@@ -300,13 +547,13 @@ class TeamsController extends AppController {
 				),
 				'contain' => false,
 				'group' => 'id',
-				'order' => 'count DESC',
 		));
 
 		// Add division info
 		foreach ($defaulting as $key => $game) {
 			$defaulting[$key] += $divisions[$game['Game']['division_id']];
 		}
+		usort($defaulting, array('TeamsController', 'compareAffiliateAndCount'));
 
 		// Get the list of non-score-submitting teams
 		$no_scores = $this->Team->Division->Game->find('all', array(
@@ -338,87 +585,13 @@ class TeamsController extends AppController {
 				),
 				'contain' => false,
 				'group' => 'id',
-				'order' => 'count DESC',
 		));
 
 		// Add division info
 		foreach ($no_scores as $key => $game) {
 			$no_scores[$key] += $divisions[$game['Game']['division_id']];
 		}
-
-		// Find the list of unplayed games
-		$unplayed = $this->Team->Division->Game->find('list', array(
-				'conditions' => array(
-					'division_id' => array_keys($divisions),
-					'status' => Configure::read('unplayed_status'),
-				),
-		));
-
-		// Get the list of top spirited teams
-		$top_spirit = $this->Team->find('all', array(
-				'fields' => array(
-					'Team.id', 'Team.name', 'Team.division_id',
-					'ROUND( AVG( COALESCE(
-						SpiritEntry.entered_sotg,
-						SpiritEntry.score_entry_penalty + SpiritEntry.q1 + SpiritEntry.q2 + SpiritEntry.q3 + SpiritEntry.q4 + SpiritEntry.q5 + SpiritEntry.q6 + SpiritEntry.q7 + SpiritEntry.q8 + SpiritEntry.q9 + SpiritEntry.q10 )
-					), 2) AS avgspirit',
-				),
-				'joins' => array(
-					array(
-						'table' => "{$this->Team->tablePrefix}spirit_entries",
-						'alias' => 'SpiritEntry',
-						'type' => 'LEFT',
-						'foreignKey' => false,
-						'conditions' => 'SpiritEntry.team_id = Team.id',
-					),
-				),
-				'conditions' => array(
-					'division_id' => array_keys($divisions),
-					'NOT' => array('game_id' => $unplayed),
-				),
-				'contain' => false,
-				'group' => 'Team.id HAVING avgspirit IS NOT NULL',
-				'order' => array('avgspirit DESC', 'Team.name'),
-				'limit' => 10,
-		));
-
-		// Add division info
-		foreach ($top_spirit as $key => $team) {
-			$top_spirit[$key] += $divisions[$team['Team']['division_id']];
-		}
-
-		// Get the list of lowest spirited teams
-		$lowest_spirit = $this->Team->find('all', array(
-				'fields' => array(
-					'Team.id', 'Team.name', 'Team.division_id',
-					'ROUND( AVG( COALESCE(
-						SpiritEntry.entered_sotg,
-						SpiritEntry.score_entry_penalty + SpiritEntry.q1 + SpiritEntry.q2 + SpiritEntry.q3 + SpiritEntry.q4 + SpiritEntry.q5 + SpiritEntry.q6 + SpiritEntry.q7 + SpiritEntry.q8 + SpiritEntry.q9 + SpiritEntry.q10 )
-					), 2) AS avgspirit',
-				),
-				'joins' => array(
-					array(
-						'table' => "{$this->Team->tablePrefix}spirit_entries",
-						'alias' => 'SpiritEntry',
-						'type' => 'LEFT',
-						'foreignKey' => false,
-						'conditions' => 'SpiritEntry.team_id = Team.id',
-					),
-				),
-				'conditions' => array(
-					'division_id' => array_keys($divisions),
-					'NOT' => array('game_id' => $unplayed),
-				),
-				'contain' => false,
-				'group' => 'Team.id HAVING avgspirit IS NOT NULL',
-				'order' => array('avgspirit ASC', 'Team.name'),
-				'limit' => 10,
-		));
-
-		// Add division info
-		foreach ($lowest_spirit as $key => $team) {
-			$lowest_spirit[$key] += $divisions[$team['Team']['division_id']];
-		}
+		usort($no_scores, array('TeamsController', 'compareAffiliateAndCount'));
 
 		$this->Team->Division->contain();
 		$years = $this->Team->Division->find('all', array(
@@ -430,6 +603,28 @@ class TeamsController extends AppController {
 		$this->set(compact('counts', 'shorts', 'top_rating', 'lowest_rating',
 				'defaulting', 'no_scores', 'top_spirit', 'lowest_spirit',
 				'year', 'years', 'divisions'));
+	}
+
+	static function compareAffiliateAndCount($a, $b) {
+		if ($a['League']['Affiliate']['name'] > $b['League']['Affiliate']['name']) {
+			return 1;
+		} else if ($a['League']['Affiliate']['name'] < $b['League']['Affiliate']['name']) {
+			return -1;
+		}
+
+		if ($a[0]['count'] > $b[0]['count']) {
+			return 1;
+		} else if ($a[0]['count'] < $b[0]['count']) {
+			return -1;
+		}
+
+		if ($a['Team']['name'] > $b['Team']['name']) {
+			return 1;
+		} else if ($a['Team']['name'] < $b['Team']['name']) {
+			return -1;
+		}
+
+		return 0;
 	}
 
 	function view() {
@@ -498,7 +693,7 @@ class TeamsController extends AppController {
 				if (!$rule_obj->init ($member_rule)) {
 					return __('Failed to parse the rule', true);
 				}
-				$team['Person'][$key]['is_a_member'] = $rule_obj->evaluate ($full_person, $team);
+				$team['Person'][$key]['is_a_member'] = $rule_obj->evaluate($team['Division']['League']['affiliate_id'], $full_person, $team);
 			} else {
 				// Ensure there's no warnings
 				$team['Person'][$key]['is_a_member'] = true;
@@ -609,21 +804,36 @@ class TeamsController extends AppController {
 
 		if (!empty($this->data)) {
 			$this->Team->create();
+			if (!$this->is_admin && (!empty($this->data['Team']['affiliate_id']) && !in_array($this->data['Team']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs')))) {
+				$this->data['Person'] = array(array(
+					'person_id' => $this->Auth->user('id'),
+					'position' => 'captain',
+					'status' => ROSTER_APPROVED,
+				));
+			}
+
 			if ($this->Team->save($this->data)) {
-				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('team', true)), 'default', array('class' => 'success'));
+				$this->Session->setFlash(sprintf(__('The %s has been saved, but will not be visible until approved', true), __('team', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('team', true)), 'default', array('class' => 'warning'));
 			}
 		}
-		$regions = $this->Team->Division->Game->GameSlot->Field->Facility->Region->find('list');
+		$affiliates = $this->_applicableAffiliates();
+		$regions = $this->Team->Division->Game->GameSlot->Field->Facility->Region->find('list', array(
+				'conditions' => array('affiliate_id' => array_keys($affiliates)),
+		));
 		$fields = $this->Team->Division->Game->GameSlot->Field->find('all', array(
 				'contain' => 'Facility',
-				'conditions' => array('Facility.is_open', 'Field.is_open'),
+				'conditions' => array(
+					'Facility.region_id' => array_keys($regions),
+					'Facility.is_open' => true,
+					'Field.is_open' => true,
+				),
 				'order' => array('Facility.name', 'Field.num'),
 		));
 		$fields = Set::combine($fields, '{n}.Field.id', '{n}.Field.long_name');
-		$this->set(compact('regions', 'fields'));
+		$this->set(compact('affiliates', 'regions', 'fields'));
 
 		$this->set('add', true);
 		$this->render ('edit');
@@ -654,14 +864,21 @@ class TeamsController extends AppController {
 		$sport = $this->Team->Division->League->field('sport', array('id' => $league_id));
 		Configure::load("sport/$sport");
 
-		$regions = $this->Team->Division->Game->GameSlot->Field->Facility->Region->find('list');
+		$affiliates = $this->_applicableAffiliates();
+		$regions = $this->Team->Division->Game->GameSlot->Field->Facility->Region->find('list', array(
+				'conditions' => array('affiliate_id' => array_keys($affiliates)),
+		));
 		$fields = $this->Team->Division->Game->GameSlot->Field->find('all', array(
 				'contain' => 'Facility',
-				'conditions' => array('Facility.is_open', 'Field.is_open'),
+				'conditions' => array(
+					'Facility.region_id' => array_keys($regions),
+					'Facility.is_open' => true,
+					'Field.is_open' => true,
+				),
 				'order' => array('Facility.name', 'Field.num'),
 		));
 		$fields = Set::combine($fields, '{n}.Field.id', '{n}.Field.long_name');
-		$this->set(compact('regions', 'fields'));
+		$this->set(compact('affiliates', 'regions', 'fields'));
 	}
 
 	function note() {
@@ -793,10 +1010,13 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'view', 'team' => $id));
 		}
 
+		$affiliates = $this->_applicableAffiliateIDs(true);
 		$conditions = array('OR' => array(
-			'Division.is_open' => true,
-			'Division.open > CURDATE()',
-		));
+				'Division.is_open' => true,
+				'Division.open > CURDATE()',
+			),
+			'League.affiliate_id' => $affiliates,
+		);
 		if ($team['Division']['id']) {
 			$conditions += array(
 					'Division.id !=' => $team['Division']['id'],
@@ -1078,9 +1298,16 @@ class TeamsController extends AppController {
 				$this->Person = $this->Team->Person;
 				$this->_mergePaginationParams();
 				$this->paginate['Person'] = array(
-					'conditions' => $this->_generateSearchConditions($params, 'Person'),
-					'contain' => false,
+					'conditions' => $this->_generateSearchConditions($params, 'Person', 'AffiliatePerson'),
+					'contain' => array('Affiliate'),
 					'limit' => Configure::read('feature.items_per_page'),
+					'joins' => array(array(
+						'table' => "{$this->Team->Person->tablePrefix}affiliates_people",
+						'alias' => 'AffiliatePerson',
+						'type' => 'LEFT',
+						'foreignKey' => false,
+						'conditions' => 'AffiliatePerson.person_id = Person.id',
+					)),
 				);
 				$this->set('people', $this->paginate('Person'));
 			}
@@ -1875,7 +2102,7 @@ class TeamsController extends AppController {
 
 				$person = $this->Team->Person->read(null, $person['Person']['id']);
 			}
-			if (!$this->can_add_rule_obj->evaluate ($person, $team, $strict, $text_reason, false)) {
+			if (!$this->can_add_rule_obj->evaluate($team['Division']['League']['affiliate_id'], $person, $team, $strict, $text_reason, false)) {
 				switch ($this->can_add_rule_obj->reason_type) {
 					case REASON_TYPE_PLAYER_ACTIVE:
 						$prolog = 'To be added to this team, this player must first';

@@ -7,8 +7,45 @@ class FacilitiesController extends AppController {
 		return array('index', 'view');
 	}
 
+	function isAuthorized() {
+		if ($this->is_manager) {
+			// Managers can perform these operations
+			if (in_array ($this->params['action'], array(
+					'add',
+					'closed',
+			)))
+			{
+				return true;
+			}
+
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'edit',
+					'open',
+					'close',
+					'delete',
+			)))
+			{
+				// If a facility id is specified, check if we're a manager of that facility's affiliate
+				$facility = $this->_arg('facility');
+				if ($facility) {
+					$region = $this->Facility->field('region_id', array('Facility.id' => $facility));
+					$affiliate = $this->Facility->Region->field('affiliate_id', array('Region.id' => $region));
+					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
 	function index() {
+		$affiliates = $this->_applicableAffiliateIDs();
+
 		$this->set('regions', $this->Facility->Region->find('all', array(
+			'conditions' => array('Region.affiliate_id' => $affiliates),
 			'contain' => array(
 				'Facility' => array(
 					'conditions' => array(
@@ -22,6 +59,7 @@ class FacilitiesController extends AppController {
 						'order' => 'Field.num',
 					),
 				),
+				'Affiliate',
 			),
 			'order' => 'Region.id',
 		)));
@@ -29,10 +67,14 @@ class FacilitiesController extends AppController {
 			'fields' => array('facility_id', 'id'),
 		)));
 		$this->set('closed', false);
+		$this->set(compact('affiliates'));
 	}
 
 	function closed() {
+		$affiliates = $this->_applicableAffiliateIDs(true);
+
 		$this->set('regions', $this->Facility->Region->find('all', array(
+			'conditions' => array('Region.affiliate_id' => $affiliates),
 			'contain' => array(
 				'Facility' => array(
 					'order' => 'Facility.name',
@@ -43,6 +85,7 @@ class FacilitiesController extends AppController {
 						'order' => 'Field.num',
 					),
 				),
+				'Affiliate',
 			),
 			'order' => 'Region.id',
 		)));
@@ -50,7 +93,8 @@ class FacilitiesController extends AppController {
 			'fields' => array('facility_id', 'id'),
 		)));
 		$this->set('closed', true);
-		$this->render ('index');
+		$this->set(compact('affiliates'));
+		$this->render('index');
 	}
 
 	function view() {
@@ -62,7 +106,6 @@ class FacilitiesController extends AppController {
 		$this->Facility->contain (array (
 			'Region',
 			'Field' => array(
-				'conditions' => $this->is_admin ? array() : array('Field.is_open' => true),
 				'order' => 'Field.is_open DESC, Field.num'
 			),
 		));
@@ -87,8 +130,12 @@ class FacilitiesController extends AppController {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('facility', true)), 'default', array('class' => 'warning'));
 			}
 		}
-		$regions = $this->Facility->Region->find('list');
-		$this->set(compact('regions'));
+
+		$affiliates = $this->_applicableAffiliates(true);
+		$regions = $this->Facility->Region->find('list', array(
+				'conditions' => array('Region.affiliate_id' => array_keys($affiliates)),
+		));
+		$this->set(compact('regions', 'affiliates'));
 		$this->_loadAddressOptions();
 		$this->set('add', true);
 		$this->set('region', $this->_arg('region'));
@@ -121,8 +168,12 @@ class FacilitiesController extends AppController {
 			$this->Facility->contain();
 			$this->data = $this->Facility->read(null, $id);
 		}
-		$regions = $this->Facility->Region->find('list');
-		$this->set(compact('regions'));
+
+		$affiliates = $this->_applicableAffiliates(true);
+		$regions = $this->Facility->Region->find('list', array(
+				'conditions' => array('Region.affiliate_id' => array_keys($affiliates)),
+		));
+		$this->set(compact('regions', 'affiliates'));
 		$this->_loadAddressOptions();
 		$this->set('region', $this->_arg('region'));
 

@@ -33,6 +33,14 @@ class FranchisesController extends AppController {
 			if ($franchise && in_array ($franchise, $this->Session->read('Zuluru.FranchiseIDs'))) {
 				return true;
 			}
+
+			// Managers can perform these operations in affiliates they manage
+			if ($franchise && $this->is_manager) {
+				$affiliate = $this->Franchise->field('affiliate_id', array('Franchise.id' => $franchise));
+				if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					return true;
+				}
+			}
 		}
 
 		// People can perform these operations on teams they run
@@ -55,11 +63,21 @@ class FranchisesController extends AppController {
 	}
 
 	function index() {
-		$this->paginate = array(
-			'contain' => array('Person'),
-		);
+		$affiliate = $this->_arg('affiliate');
+		$affiliates = $this->_applicableAffiliateIDs();
+		$this->set(compact('affiliates', 'affiliate'));
+
+		$this->paginate = array('Franchise' => array(
+				'conditions' => array('Franchise.affiliate_id' => $affiliates),
+				'contain' => array('Person', 'Affiliate'),
+				'order' => array('Affiliate.name', 'Franchise.name'),
+				'limit' => Configure::read('feature.items_per_page'),
+		));
+
 		$this->set('franchises', $this->paginate());
 		$this->set('letters', $this->Franchise->find('all', array(
+				'conditions' => array('Franchise.affiliate_id' => $affiliates),
+				'contain' => array('Affiliate'),
 				'fields' => array('DISTINCT SUBSTR(Franchise.name, 1, 1) AS letter'),
 				'order' => 'letter',
 				// Grouping necessary because Cake adds Franchise.id to the query, so we get
@@ -75,15 +93,23 @@ class FranchisesController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 
-		$this->set(compact('letter'));
+		$affiliate = $this->_arg('affiliate');
+		$affiliates = $this->_applicableAffiliateIDs();
+		$this->set(compact('letter', 'affiliates', 'affiliate'));
+
 		$this->set('franchises', $this->Franchise->find('all', array(
-				'contain' => array('Person'),
+				'contain' => array('Person', 'Affiliate'),
 				'conditions' => array(
 					'Franchise.name LIKE' => "$letter%",
 				),
-				'order' => array('Franchise.name'),
+				'order' => array('Affiliate.name', 'Franchise.name'),
 		)));
 		$this->set('letters', $this->Franchise->find('all', array(
+				'conditions' => array(
+					'Franchise.name LIKE' => "$letter%",
+					'Franchise.affiliate_id' => $affiliates,
+				),
+				'contain' => array('Affiliate'),
 				'fields' => array('DISTINCT SUBSTR(Franchise.name, 1, 1) AS letter'),
 				'order' => 'letter',
 				// Grouping necessary because Cake adds Franchise.id to the query, so we get
@@ -101,6 +127,7 @@ class FranchisesController extends AppController {
 		$this->Franchise->contain (array(
 			'Team' => array('Division' => 'League'),
 			'Person',
+			'Affiliate',
 		));
 
 		$franchise = $this->Franchise->read(null, $id);
@@ -110,6 +137,9 @@ class FranchisesController extends AppController {
 		}
 
 		$this->set('franchise', $franchise);
+
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->set(compact('affiliates'));
 	}
 
 	function add() {
@@ -125,6 +155,7 @@ class FranchisesController extends AppController {
 			}
 		}
 
+		$this->set('affiliates', $this->_applicableAffiliates(true));
 		$this->set('add', true);
 		$this->render ('edit');
 	}
@@ -146,6 +177,8 @@ class FranchisesController extends AppController {
 		if (empty($this->data)) {
 			$this->data = $this->Franchise->read(null, $id);
 		}
+
+		$this->set('affiliates', $this->_applicableAffiliates(true));
 	}
 
 	function delete() {
@@ -331,9 +364,16 @@ class FranchisesController extends AppController {
 				$this->Person = $this->Franchise->Person;
 				$this->_mergePaginationParams();
 				$this->paginate['Person'] = array(
-					'conditions' => $this->_generateSearchConditions($params, 'Person'),
-					'contain' => false,
+					'conditions' => $this->_generateSearchConditions($params, 'Person', 'AffiliatePerson'),
+					'contain' => array('Affiliate'),
 					'limit' => Configure::read('feature.items_per_page'),
+					'joins' => array(array(
+						'table' => "{$this->Franchise->Person->tablePrefix}affiliates_people",
+						'alias' => 'AffiliatePerson',
+						'type' => 'LEFT',
+						'foreignKey' => false,
+						'conditions' => 'AffiliatePerson.person_id = Person.id',
+					)),
 				);
 				$this->set('people', $this->paginate('Person'));
 			}

@@ -19,11 +19,22 @@ $this->Html->addCrumb (__('Summary', true));
 </tr>
 <?php
 $i = 0;
-$league = $season = null;
+$league = $season = $affiliate_id = null;
 foreach ($divisions as $division):
 	if ($division['League']['id'] == $league) {
 		continue;
 	}
+	if (count($affiliates) > 1 && $division['League']['affiliate_id'] != $affiliate_id):
+		$affiliate_id = $division['League']['affiliate_id'];
+?>
+<tr>
+	<th colspan="<?php echo 4 + (Configure::read('feature.spirit') * 3); ?>">
+		<h3 class="affiliate"><?php echo $division['League']['Affiliate']['name']; ?></h3>
+	</th>
+</tr>
+<?php
+	endif;
+
 	$league = $division['League']['id'];
 	$class = null;
 	if ($i++ % 2 == 0) {
@@ -70,8 +81,19 @@ foreach ($divisions as $division):
 </tr>
 <?php
 $i = 0;
-$league = $season = null;
+$league = $season = $affiliate_id = null;
 foreach ($divisions as $division):
+	if (count($affiliates) > 1 && $division['League']['affiliate_id'] != $affiliate_id):
+		$affiliate_id = $division['League']['affiliate_id'];
+?>
+<tr>
+	<th colspan="13">
+		<h3 class="affiliate"><?php echo $division['League']['Affiliate']['name']; ?></h3>
+	</th>
+</tr>
+<?php
+	endif;
+
 	$class = null;
 	if ($i++ % 2 == 0) {
 		$class = ' class="altrow"';

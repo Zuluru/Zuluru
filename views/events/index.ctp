@@ -3,6 +3,19 @@ $this->Html->addCrumb (__('Registration Events', true));
 $this->Html->addCrumb (__('List', true));
 ?>
 
+<?php
+// Perhaps remove manager status, if we're looking at a different affiliate
+if ($is_manager) {
+	$affiliates = array_unique(Set::extract('/Event/affiliate_id', $events));
+	$mine = array_intersect($affiliates, $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+	if (empty($mine)) {
+		$is_manager = false;
+	}
+} else {
+	$mine = array();
+}
+?>
+
 <div class="events index">
 <h2><?php __('Registration Events List');?></h2>
 <?php if (empty($events)): ?>
@@ -25,14 +38,41 @@ if (!$is_logged_in) {
 </tr>
 <?php
 $i = 0;
-$last_name = null;
+$now = date('Y-m-d H:i:s');
+
+$last_name = $affiliate_id = null;
+$cols = 4 + (!$is_admin);
 foreach ($events as $event):
+	if (count($affiliates) > 1 && $event['Event']['affiliate_id'] != $affiliate_id):
+		$affiliate_id = $event['Event']['affiliate_id'];
+		$is_manager = in_array($affiliate_id, $mine);
+?>
+<tr>
+	<th colspan="<?php echo $cols; ?>">
+		<h3 class="affiliate"><?php echo $event['Affiliate']['name']; ?></h3>
+	</th>
+	<?php if ($is_admin): ?>
+	<th class="actions">
+		<?php
+			echo $this->ZuluruHtml->iconLink('edit_24.png',
+				array('controller' => 'affiliates', 'action' => 'edit', 'affiliate' => $event['Event']['affiliate_id'], 'return' => true),
+				array('alt' => __('Edit', true), 'title' => __('Edit Affiliate', true)));
+		?>
+	</th>
+	<?php endif; ?>
+</tr>
+<?php
+	endif;
+
+	if ($event['Event']['close'] < $now && !($is_admin || $is_manager)) {
+		continue;
+	}
 	if ($event['EventType']['name'] != $last_name) {
 		$class = null;
 		if ($i++ % 2 == 0) {
 			$class = ' class="altrow"';
 		}
-		echo "<tr$class><td colspan='5'><h3>{$event['EventType']['name']}</h3></td></tr>";
+		echo "<tr$class><td colspan='5'><h4>{$event['EventType']['name']}</h4></td></tr>";
 		$last_name = $event['EventType']['name'];
 	}
 	$class = null;
@@ -68,7 +108,7 @@ foreach ($events as $event):
 			if (Configure::read('registration.register_now')) {
 				echo $this->Html->link(__('Register Now', true), array('controller' => 'registrations', 'action' => 'register', 'event' => $event['Event']['id']));
 			}
-			if ($is_admin) {
+			if ($is_admin || $is_manager) {
 				echo $this->ZuluruHtml->iconLink('edit_24.png',
 					array('action' => 'edit', 'event' => $event['Event']['id']),
 					array('alt' => __('Edit', true), 'title' => __('Edit', true)));

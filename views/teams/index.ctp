@@ -13,7 +13,7 @@ __('Locate by letter: ');
 $links = array();
 foreach ($letters as $l) {
 	$l = up($l[0]['letter']);
-	$links[] = $this->Html->link($l, array('action' => 'letter', 'letter' => $l));
+	$links[] = $this->Html->link($l, array('action' => 'letter', 'affiliate' => $affiliate, 'letter' => $l));
 }
 echo implode ('&nbsp;&nbsp;', $links);
 ?></p>
@@ -31,7 +31,22 @@ echo $this->Paginator->counter(array(
 </tr>
 <?php
 $i = 0;
+$affiliate_id = null;
 foreach ($teams as $team):
+	$is_manager = in_array($team['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+	Division::_addNames($team['Division'], $team['League']);
+
+	if (count($affiliates) > 1 && $team['League']['affiliate_id'] != $affiliate_id):
+		$affiliate_id = $team['League']['affiliate_id'];
+?>
+<tr>
+	<th colspan="3">
+		<h3 class="affiliate"><?php echo $team['Affiliate']['name']; ?></h3>
+	</th>
+</tr>
+<?php
+	endif;
+
 	$class = null;
 	if ($i++ % 2 == 0) {
 		$class = ' class="altrow"';
@@ -59,7 +74,7 @@ foreach ($teams as $team):
 					array('action' => 'roster_request', 'team' => $team['Team']['id']),
 					array('alt' => __('Join Team', true), 'title' => __('Join Team', true)));
 			}
-			if ($is_admin || in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs'))) {
+			if ($is_admin || $is_manager || in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs'))) {
 				echo $this->ZuluruHtml->iconLink('edit_24.png',
 					array('action' => 'edit', 'team' => $team['Team']['id']),
 					array('alt' => __('Edit Team', true), 'title' => __('Edit Team', true)));
@@ -67,12 +82,12 @@ foreach ($teams as $team):
 					array('action' => 'emails', 'team' => $team['Team']['id']),
 					array('alt' => __('Player Emails', true), 'title' => __('Player Emails', true)));
 			}
-			if ($is_admin || (in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs')) && !Division::rosterDeadlinePassed($team['Division']))) {
+			if ($is_admin || $is_manager || (in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs')) && !Division::rosterDeadlinePassed($team['Division']))) {
 				echo $this->ZuluruHtml->iconLink('roster_add_24.png',
 					array('action' => 'add_player', 'team' => $team['Team']['id']),
 					array('alt' => __('Add Player', true), 'title' => __('Add Player', true)));
 			}
-			if ($is_admin) {
+			if ($is_admin || $is_manager) {
 				if (League::hasSpirit($team)) {
 					echo $this->ZuluruHtml->iconLink('spirit_24.png',
 						array('action' => 'spirit', 'team' => $team['Team']['id']),

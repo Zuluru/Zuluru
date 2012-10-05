@@ -147,10 +147,10 @@ class RuleComponent extends Object
 	 * there is an error
 	 *
 	 */
-	function evaluate($params, $team = null, $strict = true, $text_reason = false, $complete = true) {
+	function evaluate($affiliate, $params, $team = null, $strict = true, $text_reason = false, $complete = true) {
 		if ($this->rule == null)
 			return null;
-		$success = $this->rule->evaluate ($params, $team, $strict, $text_reason, $complete);
+		$success = $this->rule->evaluate($affiliate, $params, $team, $strict, $text_reason, $complete);
 		$this->reason = $this->rule->reason;
 		$this->reason_type = $this->rule->reason_type;
 		$this->redirect = $this->rule->redirect;
@@ -173,13 +173,13 @@ class RuleComponent extends Object
 	 * @return mixed Array of conditions, contains, etc. defining the query, or false if something failed
 	 *
 	 */
-	function query() {
+	function query($affiliate) {
 		if ($this->rule == null)
 			return null;
-		return $this->rule->query();
+		return $this->rule->query($affiliate);
 	}
 
-	function _execute_query($conditions = array(), $joins = array(), $fields = array(), $group = '') {
+	function _execute_query($affiliate, $conditions = array(), $joins = array(), $fields = array(), $group = '') {
 		if (empty($conditions) && empty($group)) {
 			return false;
 		}
@@ -191,6 +191,17 @@ class RuleComponent extends Object
 				'Person.email !=' => '',
 		), $conditions);
 		$fields['Person.id'] = 'Person.id';
+
+		if (Configure::read('feature.affiliate')) {
+			$conditions['AffiliatePerson.affiliate_id'] = $affiliate;
+			$joins['AffiliatePerson'] = array(
+				'table' => "{$this->Person->tablePrefix}affiliates_people",
+				'alias' => 'AffiliatePerson',
+				'type' => 'INNER',
+				'foreignKey' => false,
+				'conditions' => 'AffiliatePerson.person_id = Person.id',
+			);
+		}
 
 		// Eliminate the keys on these arrays. They may be required to prevent
 		// duplicates during preparation, but mess up CakePHP's query generator

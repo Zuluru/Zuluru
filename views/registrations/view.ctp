@@ -3,6 +3,15 @@ $this->Html->addCrumb (__('Registrations', true));
 $this->Html->addCrumb (__('View', true));
 ?>
 
+<?php
+// Perhaps remove manager status, if we're looking at a different affiliate
+if ($is_manager) {
+	if (!in_array($registration['Event']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+		$is_manager = false;
+	}
+}
+?>
+
 <div class="registrations view">
 <h2><?php printf(__('View %s', true), __('Registration', true));?></h2>
 <fieldset><legend><?php __('Registration Details'); ?></legend>
@@ -50,7 +59,7 @@ $this->Html->addCrumb (__('View', true));
 	</dl>
 </fieldset>
 
-<?php if ($is_admin && $registration['RegistrationAudit']['id'] != null):?>
+<?php if (($is_admin || $is_manager) && $registration['RegistrationAudit']['id'] != null):?>
 <fieldset><legend><?php __('Payment Details');?></legend>
 	<div class="related">
 		<dl><?php $i = 0; $class = ' class="altrow"';?>
@@ -150,7 +159,7 @@ $this->Html->addCrumb (__('View', true));
 
 <div class="actions">
 	<ul>
-		<li><?php if ($is_admin) echo $this->Html->link(__('Edit', true), array('action' => 'edit', 'registration' => $registration['Registration']['id'], 'return' => true)); ?> </li>
+		<li><?php if ($is_admin || $is_manager) echo $this->Html->link(__('Edit', true), array('action' => 'edit', 'registration' => $registration['Registration']['id'], 'return' => true)); ?> </li>
 		<li><?php echo $this->Html->link(__('Unregister', true),
 				array('action' => 'unregister', 'registration' => $registration['Registration']['id']),
 				null,

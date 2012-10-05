@@ -8,10 +8,14 @@ class LockComponent extends Object
 		$this->controller =& $controller;
 	}
 
-	function lock($key, $text = null) {
+	function lock($key, $affiliate = null, $text = null) {
 		$this->locked = false;
 		$this->Lock = ClassRegistry::init ('Lock');
-		$locks = $this->Lock->find ('all', array('conditions' => array('key' => $key)));
+		$conditions = array('key' => $key);
+		if ($affiliate !== null) {
+			$conditions['affiliate_id'] = $affiliate;
+		}
+		$locks = $this->Lock->find ('all', compact('conditions'));
 		if (!empty ($locks)) {
 			$age = (time() - strtotime ($locks[0]['Lock']['created'])) / 60;
 			if ($age > 15) {
@@ -24,7 +28,7 @@ class LockComponent extends Object
 				return false;
 			}
 		}
-		$this->Lock->save (array('key' => $key, 'user_id' => $this->controller->Auth->user('id')));
+		$this->Lock->save (array('key' => $key, 'affiliate' => $affiliate, 'user_id' => $this->controller->Auth->user('id')));
 		$this->locked = true;
 		return true;
 	}

@@ -78,6 +78,16 @@ class SettingsData {
 		),
 		array(
 			'category' => 'feature',
+			'name' => 'affiliates',
+			'value' => '0',
+		),
+		array(
+			'category' => 'feature',
+			'name' => 'multiple_affiliates',
+			'value' => '0',
+		),
+		array(
+			'category' => 'feature',
 			'name' => 'auto_approve',
 			'value' => '0',
 		),

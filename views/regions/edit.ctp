@@ -17,6 +17,13 @@ if (isset ($add)) {
 			echo $this->Form->input('id');
 		}
 		echo $this->Form->input('name');
+		if (isset ($add)) {
+			echo $this->ZuluruForm->input('affiliate_id', array(
+				'options' => $affiliates,
+				'hide_single' => true,
+				'empty' => '---',
+			));
+		}
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>

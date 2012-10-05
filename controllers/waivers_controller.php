@@ -3,7 +3,8 @@ class WaiversController extends AppController {
 
 	var $name = 'Waivers';
 	var $paginate = array(
-		'contain' => array(),
+		'contain' => array('Affiliate'),
+		'order' => array('Affiliate.name', 'Waiver.id'),
 	);
 
 	function isAuthorized() {
@@ -16,12 +17,42 @@ class WaiversController extends AppController {
 			return true;
 		}
 
+		if ($this->is_manager) {
+			// Managers can perform these operations
+			if (in_array ($this->params['action'], array(
+					'index',
+					'add',
+			)))
+			{
+				return true;
+			}
+
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'view',
+					'edit',
+					'delete',
+			)))
+			{
+				// If a waiver id is specified, check if we're a manager of that waiver's affiliate
+				$waiver = $this->_arg('waiver');
+				if ($waiver) {
+					$affiliate = $this->Waiver->field('affiliate_id', array('Waiver.id' => $waiver));
+					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+		}
+
 		return false;
 	}
 
 	function index() {
-		$this->Waiver->recursive = 0;
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->paginate['conditions'] = array('Waiver.affiliate_id' => $affiliates);
 		$this->set('waivers', $this->paginate());
+		$this->set(compact('affiliates'));
 	}
 
 	function view() {
@@ -30,8 +61,11 @@ class WaiversController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('waiver', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
-		$this->Waiver->contain(array());
+		$this->Waiver->contain('Affiliate');
 		$this->set('waiver', $this->Waiver->read(null, $id));
+
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->set(compact('affiliates'));
 	}
 
 	function add() {
@@ -44,6 +78,7 @@ class WaiversController extends AppController {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('waiver', true)), 'default', array('class' => 'warning'));
 			}
 		}
+		$this->set('affiliates', $this->_applicableAffiliates(true));
 		$this->set('add', true);
 
 		if (Configure::read('feature.tiny_mce')) {
@@ -81,6 +116,7 @@ class WaiversController extends AppController {
 			$this->data = $this->Waiver->read(null, $id);
 		}
 
+		$this->set('affiliates', $this->_applicableAffiliates(true));
 		if (Configure::read('feature.tiny_mce')) {
 			$this->helpers[] = 'TinyMce.TinyMce';
 		}

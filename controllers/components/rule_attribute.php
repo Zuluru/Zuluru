@@ -10,12 +10,12 @@ class RuleAttributeComponent extends RuleComponent
 		return true;
 	}
 
-	function evaluate($params) {
+	function evaluate($affiliate, $params) {
 		// TODO: Look for likely array keys (person, user model config name)
 		return $params['Person'][$this->config];
 	}
 
-	function build_query(&$joins, &$fields) {
+	function build_query($affiliate, &$joins, &$fields) {
 		return "Person.{$this->config}";
 	}
 

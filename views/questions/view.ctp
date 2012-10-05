@@ -5,6 +5,15 @@ $this->Html->addCrumb (__('View', true));
 
 <div class="questions view">
 <h2><?php  __('Question');?></h2>
+	<?php if (count($affiliates) > 1): ?>
+	<dl><?php $i = 1; $class = ' class="altrow"';?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Affiliate'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo $this->Html->link($question['Affiliate']['name'], array('controller' => 'affiliates', 'action' => 'view', 'affiliate' => $question['Affiliate']['id'])); ?>
+
+		</dd>
+	</dl>
+	<?php endif; ?>
 <?php echo $this->element('questions/input', compact('question')); ?>
 </div>
 <div class="actions">
@@ -34,8 +43,7 @@ $this->Html->addCrumb (__('View', true));
 			<td><?php echo $questionnaire['name'];?></td>
 			<td class="actions">
 				<?php echo $this->Html->link(__('Preview', true), array('controller' => 'questionnaires', 'action' => 'view', 'questionnaire' => $questionnaire['id'])); ?>
-				<?php echo $this->Html->link(__('Edit', true), array('controller' => 'questionnaires', 'action' => 'edit', 'questionnaire' => $questionnaire['id'])); ?>
-				<?php echo $this->Html->link(__('Delete', true), array('controller' => 'questionnaires', 'action' => 'delete', 'questionnaire' => $questionnaire['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $questionnaire['id'])); ?>
+				<?php echo $this->Html->link(__('Edit', true), array('controller' => 'questionnaires', 'action' => 'edit', 'questionnaire' => $questionnaire['id'], 'return' => true)); ?>
 			</td>
 		</tr>
 	<?php endforeach; ?>

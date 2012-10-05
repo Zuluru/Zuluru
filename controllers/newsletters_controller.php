@@ -6,21 +6,76 @@ class NewslettersController extends AppController {
 	var $components = array('Email', 'Lock');
 
 	var $paginate = array(
-		'Newsletter' => array(
-				'order' => array('target' => 'DESC'),
-		),
+		'order' => array('target' => 'DESC'),
+		'contain' => array('MailingList' => 'Affiliate'),
 	);
 
+	function isAuthorized() {
+		if ($this->is_manager) {
+			// Managers can perform these operations
+			if (in_array ($this->params['action'], array(
+					'index',
+					'past',
+					'add',
+			)))
+			{
+				// If an affiliate id is specified, check if we're a manager of that affiliate
+				$affiliate = $this->_arg('affiliate');
+				if (!$affiliate) {
+					// If there's no affiliate id, this is a top-level operation that all managers can perform
+					return true;
+				} else if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					return true;
+				}
+			}
+
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'view',
+					'edit',
+					'send',
+					'delivery',
+					'delete',
+			)))
+			{
+				// If a newsletter id is specified, check if we're a manager of that newsletter's affiliate
+				$newsletter = $this->_arg('newsletter');
+				if ($newsletter) {
+					$mailingList = $this->Newsletter->field('mailing_list_id', array('Newsletter.id' => $newsletter));
+					$affiliate = $this->Newsletter->MailingList->field('affiliate_id', array('MailingList.id' => $mailingList));
+					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
 	function index() {
-		$this->Newsletters->recursive = 0;
-		$this->set('newsletters', $this->paginate('Newsletter', array('target >= DATE_ADD(CURDATE(), INTERVAL -30 DAY)')));
+		$affiliates = $this->_applicableAffiliateIDs(true);
+
+		$this->paginate['conditions'] = array(
+			'target >= DATE_ADD(CURDATE(), INTERVAL -30 DAY)',
+			'MailingList.affiliate_id' => $affiliates,
+		);
+
+		$this->set('newsletters', $this->paginate('Newsletter'));
 		$this->set('current', true);
+		$this->set(compact('affiliates'));
 	}
 
 	function past() {
-		$this->Newsletters->recursive = 0;
+		$affiliates = $this->_applicableAffiliateIDs(true);
+
+		$this->paginate['conditions'] = array(
+			'Newsletter.affiliate_id' => $affiliates,
+		);
+
 		$this->set('newsletters', $this->paginate('Newsletter'));
 		$this->set('current', false);
+		$this->set(compact('affiliates'));
 		$this->render('index');
 	}
 
@@ -30,7 +85,7 @@ class NewslettersController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('newsletter', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
-		$this->Newsletter->contain();
+		$this->Newsletter->contain('MailingList');
 		$this->set('newsletter', $this->Newsletter->read(null, $id));
 	}
 
@@ -44,7 +99,24 @@ class NewslettersController extends AppController {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('newsletter', true)), 'default', array('class' => 'warning'));
 			}
 		}
-		$this->set('mailingLists', $this->Newsletter->MailingList->find('list'));
+
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$mailingLists = $this->Newsletter->MailingList->find('all', array(
+				'conditions' => array('MailingList.affiliate_id' => $affiliates),
+				'contain' => array('Affiliate'),
+				'order' => array('Affiliate.name', 'MailingList.name'),
+		));
+		if (count($affiliates) > 1) {
+			$names = array();
+			foreach ($mailingLists as $mailingList) {
+				$names[$mailingList['Affiliate']['name']][$mailingList['MailingList']['id']] = $mailingList['MailingList']['name'];
+			}
+			$mailingLists = $names;
+		} else {
+			$mailingLists = Set::combine($mailingLists, '{n}.MailinstList.id', '{n}.MailinstList.name');
+		}
+		$this->set(compact('mailingLists'));
+
 		$this->set('add', true);
 
 		if (Configure::read('feature.tiny_mce')) {
@@ -69,10 +141,16 @@ class NewslettersController extends AppController {
 			}
 		}
 		if (empty($this->data)) {
-			$this->Newsletter->contain();
+			$this->Newsletter->contain('MailingList');
 			$this->data = $this->Newsletter->read(null, $id);
+			$affiliate = $this->data['MailingList']['affiliate_id'];
+		} else {
+			$mailingList = $this->Newsletter->field('mailing_list_id', array('Newsletter.id' => $id));
+			$affiliate = $this->Newsletter->MailingList->field('affiliate_id', array('MailingList.id' => $mailingList));
 		}
-		$this->set('mailingLists', $this->Newsletter->MailingList->find('list'));
+		$this->set('mailingLists', $this->Newsletter->MailingList->find('list', array(
+				'conditions' => array('affiliate_id' => $affiliate),
+		)));
 
 		if (Configure::read('feature.tiny_mce')) {
 			$this->helpers[] = 'TinyMce.TinyMce';
@@ -133,6 +211,7 @@ class NewslettersController extends AppController {
 			$this->Newsletter->contain(array(
 				'Delivery',
 				'MailingList' => array(
+					'Affiliate',
 					'Subscription' => array(
 						'conditions' => array('subscribed' => 0),
 					),
@@ -147,7 +226,7 @@ class NewslettersController extends AppController {
 				$this->redirect(array('action' => 'view', 'newsletter' => $id));
 			}
 
-			$people = $rule_obj->query();
+			$people = $rule_obj->query($newsletter['MailingList']['affiliate_id']);
 			if ($people === null) {
 				$this->Session->setFlash(__('The syntax of the mailing list rule is valid, but it is not possible to build a query which will return the expected results. See the "rules engine" help for suggestions.', true), 'default', array('class' => 'error'));
 				$this->redirect(array('action' => 'view', 'newsletter' => $id));
@@ -175,7 +254,7 @@ class NewslettersController extends AppController {
 				$this->redirect(array('action' => 'delivery', 'newsletter' => $id));
 			}
 
-			if (!$this->Lock->lock ('newsletter', 'newsletter delivery')) {
+			if (!$this->Lock->lock ('newsletter', $newsletter['MailingList']['affiliate_id'], 'newsletter delivery')) {
 				$this->redirect(array('action' => 'view', 'newsletter' => $id));
 			}
 
@@ -183,7 +262,7 @@ class NewslettersController extends AppController {
 			$this->set(compact('delay'));
 		} else {
 			$this->Newsletter->contain(array(
-				'MailingList',
+				'MailingList' => 'Affiliate',
 			));
 			$newsletter = $this->Newsletter->read(null, $id);
 

@@ -5,17 +5,17 @@
 
 class RuleFormatDateComponent extends RuleComponent
 {
-	function evaluate($params) {
+	function evaluate($affiliate, $params) {
 		if ($this->rule == null)
 			return null;
-		$date = $this->rule->evaluate ($params);
+		$date = $this->rule->evaluate($affiliate, $params);
 		return date ('Y-m-d', strtotime ($date));
 	}
 
-	function build_query(&$joins, &$fields) {
+	function build_query($affiliate, &$joins, &$fields) {
 		if ($this->rule == null)
 			return null;
-		$date = $this->rule->build_query ($joins, $fields);
+		$date = $this->rule->build_query($affiliate, $joins, $fields);
 		return date ('Y-m-d', strtotime ($date));
 	}
 

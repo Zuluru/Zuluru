@@ -20,7 +20,7 @@ class RuleRegisteredComponent extends RuleComponent
 	}
 
 	// Check if the user has registered for one of the specified events
-	function evaluate($params, $team, $strict, $text_reason) {
+	function evaluate($affiliate, $params, $team, $strict, $text_reason) {
 		$events = array();
 		if ($text_reason) {
 			foreach ($this->events as $event) {
@@ -45,8 +45,9 @@ class RuleRegisteredComponent extends RuleComponent
 		return false;
 	}
 
-	function query() {
+	function query($affiliate) {
 		return $this->_execute_query(
+			$affiliate,
 			array(
 				'Registration.event_id' => $this->config,
 				'Registration.payment' => 'Paid',

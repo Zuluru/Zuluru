@@ -3,6 +3,19 @@ $this->Html->addCrumb (__('Facilities', true));
 $this->Html->addCrumb (__('List', true));
 ?>
 
+<?php
+// Perhaps remove manager status, if we're looking at a different affiliate
+if ($is_manager) {
+	$affiliates = array_unique(Set::extract('/Region/affiliate_id', $regions));
+	$mine = array_intersect($affiliates, $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+	if (empty($mine)) {
+		$is_manager = false;
+	}
+} else {
+	$mine = array();
+}
+?>
+
 <div class="facilities index">
 <h2><?php __($closed ? 'Closed Facilities List' : 'Facilities List');?></h2>
 <?php
@@ -19,7 +32,7 @@ if (empty($set_to_test)):
 
 <p>There is also a <?php echo $this->Html->link(sprintf(__('map of all %s', true), __(Configure::read('ui.fields'), true)), array('controller' => 'maps'), array('target' => 'map')); ?> available.</p>
 
-<?php if ($is_admin): ?>
+<?php if ($is_admin || $is_manager): ?>
 <?php if ($closed): ?>
 <p class="highlight-message">This list shows facilities which are closed, or which have at least one closed <?php __(Configure::read('ui.field')); ?>.
 Opening a facility leaves all <?php __(Configure::read('ui.fields')); ?> at that facility closed; they must be individually opened through the "facility view" page.</p>
@@ -37,9 +50,11 @@ Closing a facility closes all <?php __(Configure::read('ui.fields')); ?> at that
 
 <?php
 $i = 0;
+$affiliate_id = null;
 foreach ($regions as $region):
+	$is_manager = in_array($region['Region']['affiliate_id'], $mine);
 	$ids = Set::extract('/Facility/id', $region);
-	if (!$is_admin) {
+	if (!$is_admin || $is_manager) {
 		// We only want to list facilities without fields for administrators
 		foreach ($ids as $key => $id) {
 			if (!array_key_exists($id, $facilities_with_fields)) {
@@ -51,14 +66,25 @@ foreach ($regions as $region):
 		continue;
 	}
 
+	if (count($affiliates) > 1 && $region['Region']['affiliate_id'] != $affiliate_id):
+		$affiliate_id = $region['Region']['affiliate_id'];
+?>
+<tr>
+	<th colspan="2">
+		<h3 class="affiliate"><?php echo $region['Affiliate']['name']; ?></h3>
+	</th>
+</tr>
+<?php
+	endif;
+
 	$class = null;
 	if ($i++ % 2 == 0) {
 		$class = ' class="altrow"';
 	}
-	echo "<tr$class><td colspan='2'><h3>{$region['Region']['name']}</h3></td></tr>";
+	echo "<tr$class><td colspan='2'><h4>{$region['Region']['name']}</h4></td></tr>";
 
 	foreach ($region['Facility'] as $facility):
-		if (empty($facility['Field']) && (!$is_admin || array_key_exists($facility['id'], $facilities_with_fields))) {
+		if (empty($facility['Field']) && (!($is_admin || $is_manager) || array_key_exists($facility['id'], $facilities_with_fields))) {
 			continue;
 		}
 		$surfaces = array_unique(Set::extract('/Field/surface', $facility));
@@ -79,7 +105,7 @@ foreach ($regions as $region):
 				echo $this->Html->link(__('Layout', true), array('controller' => 'maps', 'action' => 'view', 'field' => $facility['Field'][0]['id']), array('target' => 'map'));
 			}
 			?>
-<?php if ($is_admin): ?>
+		<?php if ($is_admin || $is_manager): ?>
 			<?php echo $this->ZuluruHtml->iconLink('edit_32.png',
 					array('action' => 'edit', 'facility' => $facility['id'], 'return' => true),
 					array('alt' => __('Edit', true), 'title' => __('Edit', true))); ?>
@@ -106,10 +132,10 @@ foreach ($regions as $region):
 			}
 			?>
 			</span>
-<?php endif; ?>
+		<?php endif; ?>
 		</td>
 	</tr>
-<?php endforeach; ?>
+	<?php endforeach; ?>
 <?php endforeach; ?>
 
 </table>

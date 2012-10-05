@@ -39,7 +39,19 @@ echo $this->Paginator->counter(array(
 <?php
 $order_fmt = Configure::read('registration.order_id_format');
 $i = 0;
+$affiliate_id = null;
 foreach ($registrations as $registration):
+	if (count($affiliates) > 1 && $registration['Event']['affiliate_id'] != $affiliate_id):
+		$affiliate_id = $registration['Event']['affiliate_id'];
+?>
+<tr>
+	<th colspan="9">
+		<h3 class="affiliate"><?php echo $registration['Event']['Affiliate']['name']; ?></h3>
+	</th>
+</tr>
+<?php
+	endif;
+
 	$class = null;
 	if ($i++ % 2 == 0) {
 		$class = ' class="altrow"';
@@ -91,7 +103,7 @@ foreach ($registrations as $registration):
 
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Html->link(sprintf(__('Download %s Report', true), __('Registration', true)), array('action' => 'report', 'ext' => 'csv')); ?> </li>
+		<li><?php echo $this->Html->link(sprintf(__('Download %s Report', true), __('Registration', true)), array('action' => 'report', 'affiliate' => $affiliate, 'ext' => 'csv')); ?> </li>
 	</ul>
 </div>
 

@@ -15,11 +15,17 @@ zuluru_path = "$zuluru_base/";
 
 END_OF_VARIABLES;
 
+$affiliate_id = null;
 foreach ($regions as $region) {
 	if (empty($region['Facility'])) {
 		continue;
 	}
-	echo $this->Html->tag('h3', $region['Region']['name']);
+	if (count($affiliates) > 1 && $region['Region']['affiliate_id'] != $affiliate_id) {
+		$affiliate_id = $region['Region']['affiliate_id'];
+		echo $this->Html->tag('h3', $region['Affiliate']['name'], array('class' => 'affiliate'));
+	}
+
+	echo $this->Html->tag('h4', $region['Region']['name']);
 
 	foreach ($region['Facility'] as $facility) {
 		if (empty($facility['Field'])) {

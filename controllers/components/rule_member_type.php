@@ -11,13 +11,14 @@ class RuleMemberTypeComponent extends RuleComponent
 	}
 
 	// Check if the user was a member on the configured date
-	function evaluate($params) {
+	function evaluate($affiliate, $params) {
 		$date = strtotime ($this->config);
 		// TODO: A better way to rank membership types that handles more than just intro and full
 		$intro = false;
 		if (is_array($params) && array_key_exists ('Registration', $params)) {
 			foreach ($params['Registration'] as $reg) {
 				if (array_key_exists('membership_begins', $reg['Event']) &&
+					$reg['Event']['affiliate_id'] == $affiliate &&
 					strtotime ($reg['Event']['membership_begins']) <= $date &&
 					$date <= strtotime ($reg['Event']['membership_ends']))
 				{
@@ -33,7 +34,7 @@ class RuleMemberTypeComponent extends RuleComponent
 		return ($intro ? 'intro' : 'none');
 	}
 
-	function build_query(&$joins, &$fields) {
+	function build_query($affiliate, &$joins, &$fields) {
 		// TODO: Membership start and end dates are in the custom data,
 		// making queries that use those values very difficult
 		return false;

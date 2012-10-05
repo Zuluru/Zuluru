@@ -17,7 +17,19 @@ $this->Html->addCrumb (__('List', true));
 	</tr>
 	<?php
 	$i = 0;
+	$affiliate_id = null;
 	foreach ($waivers as $waiver):
+		if (count($affiliates) > 1 && $waiver['Waiver']['affiliate_id'] != $affiliate_id):
+			$affiliate_id = $waiver['Waiver']['affiliate_id'];
+	?>
+	<tr>
+		<th colspan="7">
+			<h3 class="affiliate"><?php echo $waiver['Affiliate']['name']; ?></h3>
+		</th>
+	</tr>
+	<?php
+		endif;
+
 		$class = null;
 		if ($i++ % 2 == 0) {
 			$class = ' class="altrow"';
@@ -50,15 +62,13 @@ $this->Html->addCrumb (__('List', true));
 		echo $this->ZuluruHtml->iconLink('view_24.png',
 			array('action' => 'view', 'waiver' => $waiver['Waiver']['id']),
 			array('alt' => __('View', true), 'title' => __('View', true)));
-		if ($is_admin) {
-			echo $this->ZuluruHtml->iconLink('edit_24.png',
-				array('action' => 'edit', 'waiver' => $waiver['Waiver']['id']),
-				array('alt' => __('Edit', true), 'title' => __('Edit', true)));
-			echo $this->ZuluruHtml->iconLink('delete_24.png',
-				array('action' => 'delete', 'waiver' => $waiver['Waiver']['id']),
-				array('alt' => __('Delete', true), 'title' => __('Delete', true)),
-				array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $waiver['Waiver']['id'])));
-		}
+		echo $this->ZuluruHtml->iconLink('edit_24.png',
+			array('action' => 'edit', 'waiver' => $waiver['Waiver']['id']),
+			array('alt' => __('Edit', true), 'title' => __('Edit', true)));
+		echo $this->ZuluruHtml->iconLink('delete_24.png',
+			array('action' => 'delete', 'waiver' => $waiver['Waiver']['id']),
+			array('alt' => __('Delete', true), 'title' => __('Delete', true)),
+			array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $waiver['Waiver']['id'])));
 		?>
 		</td>
 	</tr>
@@ -68,11 +78,9 @@ $this->Html->addCrumb (__('List', true));
 <div class="actions">
 	<ul>
 		<?php
-		if ($is_admin) {
-			echo $this->Html->tag('li', $this->ZuluruHtml->iconLink('waiver_add_32.png',
-				array('action' => 'add'),
-				array('alt' => __('Add', true), 'title' => __('Add Waiver', true))));
-		}
+		echo $this->Html->tag('li', $this->ZuluruHtml->iconLink('waiver_add_32.png',
+			array('action' => 'add'),
+			array('alt' => __('Add', true), 'title' => __('Add Waiver', true))));
 		?>
 	</ul>
 </div>

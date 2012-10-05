@@ -5,6 +5,14 @@ $this->Html->addCrumb (__('View', true));
 ?>
 
 <?php
+// Perhaps remove manager status, if we're looking at a different affiliate
+if ($is_manager && !in_array($facility['Region']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+	$is_manager = false;
+}
+if (!$is_admin && !$is_manager) {
+	$facility['Field'] = Set::extract('/Field[is_open=1]/.', $facility);
+}
+
 $surfaces = array_unique(Set::extract('/Field/surface', $facility));
 $surfaces = array_map(array('Inflector', 'humanize'), $surfaces);
 ?>
@@ -25,7 +33,7 @@ $surfaces = array_map(array('Inflector', 'humanize'), $surfaces);
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Region'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php
-			if ($is_admin) {
+			if ($is_admin || $is_manager) {
 				echo $this->Html->link(__($facility['Region']['name'], true), array('controller' => 'regions', 'action' => 'view', 'region' => $facility['Region']['id']));
 			} else {
 				__($facility['Region']['name']);
@@ -124,7 +132,7 @@ $surfaces = array_map(array('Inflector', 'humanize'), $surfaces);
 			<table class="list">
 			<tr>
 				<th><?php __(Configure::read('ui.field_cap')); ?></th>
-<?php if ($is_admin): ?>
+<?php if ($is_admin || $is_manager): ?>
 				<th><?php __('Actions'); ?></th>
 <?php endif; ?>
 			</tr>
@@ -136,7 +144,7 @@ $surfaces = array_map(array('Inflector', 'humanize'), $surfaces);
 					echo " ({$related['surface']})";
 				}
 				?></td>
-<?php if ($is_admin): ?>
+<?php if ($is_admin || $is_manager): ?>
 				<td class="actions">
 					<?php echo $this->Html->link(sprintf(__('Edit %s', true), __(Configure::read('ui.field_cap'), true)), array('controller' => 'fields', 'action' => 'edit', 'field' => $related['id'], 'return' => true)); ?>
 					<?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Layout', true)), array('controller' => 'maps', 'action' => 'edit', 'field' => $related['id'], 'return' => true)); ?>
@@ -174,7 +182,7 @@ $surfaces = array_map(array('Inflector', 'humanize'), $surfaces);
 
 <div class="actions">
 	<ul>
-<?php if ($is_admin): ?>
+<?php if ($is_admin || $is_manager): ?>
 		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Facility', true)), array('action' => 'edit', 'facility' => $facility['Facility']['id'], 'return' => true)); ?> </li>
 		<li><?php echo $this->Html->link(sprintf(__('Add %s', true), __(Configure::read('ui.field_cap'), true)), array('controller' => 'fields', 'action' => 'add', 'facility' => $facility['Facility']['id'])); ?> </li>
 <?php endif; ?>

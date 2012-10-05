@@ -20,6 +20,7 @@ class CanRegisterComponent extends Object
 		// Cache database results for multiple calls
 		if (!isset ($this->person)) {
 			$this->controller->Person->contain (array (
+				'Affiliate',
 				'Registration' => array(
 					'Event' => array(
 						'EventType',
@@ -49,7 +50,7 @@ class CanRegisterComponent extends Object
 				$this->controller->Session->setFlash(__('Failed to parse the rule', true), 'default', array('class' => 'error'));
 			}
 
-			$rule_allowed = $rule_obj->evaluate ($this->person, null, $strict);
+			$rule_allowed = $rule_obj->evaluate($event['Event']['affiliate_id'], $this->person, null, $strict);
 		}
 
 		// Find the registration cap and how many are already registered.

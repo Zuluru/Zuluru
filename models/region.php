@@ -3,6 +3,16 @@ class Region extends AppModel {
 	var $name = 'Region';
 	var $displayField = 'name';
 
+	var $belongsTo = array(
+		'Affiliate' => array(
+			'className' => 'Affiliate',
+			'foreignKey' => 'affiliate_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
+		),
+	);
+
 	var $hasMany = array(
 		'Facility' => array(
 			'className' => 'Facility',

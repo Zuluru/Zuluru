@@ -17,6 +17,11 @@ $this->Html->addCrumb (__('Preview', true));
 			<?php echo $newsletter['Newsletter']['text']; ?>
 			&nbsp;
 		</dd>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Mailing List'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo $this->Html->link($newsletter['MailingList']['name'], array('controller' => 'mailing_lists', 'action' => 'view', 'mailing_list' => $newsletter['MailingList']['id'])); ?>
+			&nbsp;
+		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Target'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $newsletter['Newsletter']['target']; ?>

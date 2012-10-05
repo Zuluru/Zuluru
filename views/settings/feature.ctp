@@ -25,6 +25,16 @@ $this->Html->addCrumb (__('Feature', true));
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'feature',
+		'name' => 'affiliates',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'label' => 'Enable affiliates',
+			'after' => sprintf('Allow configuration of multiple affiliated organizations.'),
+		),
+	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
 		'name' => 'registration',
 		'options' => array(
 			'type' => 'radio',
@@ -131,6 +141,16 @@ $this->Html->addCrumb (__('Feature', true));
 			'options' => Configure::read('options.enable'),
 			'label' => 'Automatically approve new user accounts',
 			'after' => 'By enabling this, you reduce administrative work and minimize delays for users. However, you also lose the ability to detect and eliminate duplicate accounts. <span class="warning-message">Use of this feature is recommended only for brand new sites wanting to ease the transition for their members.</span>',
+		),
+	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
+		'name' => 'multiple_affiliates',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'label' => 'Enable joining multiple affiliates',
+			'after' => sprintf('Allow users to join multiple affiliates (only applicable if affiliates are enabled above).'),
 		),
 	));
 	echo $this->element('settings/input', array(

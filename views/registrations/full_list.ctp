@@ -44,11 +44,7 @@ foreach ($registrations as $registration):
 		<td>
 			<?php
 			$order = sprintf (Configure::read('registration.order_id_format'), $registration['Registration']['id']);
-			if ($is_admin) {
-				echo $this->Html->link ($order, array('controller' => 'registrations', 'action' => 'view', 'registration' => $registration['Registration']['id']));
-			} else {
-				echo $order;
-			}
+			echo $this->Html->link ($order, array('controller' => 'registrations', 'action' => 'view', 'registration' => $registration['Registration']['id']));
 			?>
 		</td>
 		<td>

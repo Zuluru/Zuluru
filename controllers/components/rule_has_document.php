@@ -19,7 +19,7 @@ class RuleHasDocumentComponent extends RuleComponent
 	}
 
 	// Check if the user has uploaded the required document
-	function evaluate($params, $team, $strict, $text_reason) {
+	function evaluate($affiliate, $params, $team, $strict, $text_reason) {
 		$matches = Set::extract ("/Upload[type_id={$this->config[0]}]", $params);
 		$unapproved = Set::extract ('/Upload[approved=0]', $matches);
 
@@ -49,9 +49,10 @@ class RuleHasDocumentComponent extends RuleComponent
 		return false;
 	}
 
-	function query() {
+	function query($affiliate) {
 		$date = date('Y-m-d', strtotime ($this->config[1]));
 		return $this->_execute_query(
+			$affiliate,
 			array(
 				'Upload.type_id' => $this->config[0],
 				'Upload.approved' => true,

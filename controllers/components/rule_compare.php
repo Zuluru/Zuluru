@@ -43,12 +43,12 @@ class RuleCompareComponent extends RuleComponent
 		return true;
 	}
 
-	function evaluate($params, $team, $strict, $text_reason, $complete) {
+	function evaluate($affiliate, $params, $team, $strict, $text_reason, $complete) {
 		if (count ($this->rule) != 2 || empty($this->config)) {
 			return null;
 		}
-		$left = $this->rule[0]->evaluate($params, $team, $strict, $text_reason, $complete);
-		$right = $this->rule[1]->evaluate($params, $team, $strict, $text_reason, $complete);
+		$left = $this->rule[0]->evaluate($affiliate, $params, $team, $strict, $text_reason, $complete);
+		$right = $this->rule[1]->evaluate($affiliate, $params, $team, $strict, $text_reason, $complete);
 		$prefix = '';
 		switch ($this->config) {
 			case '<':
@@ -88,14 +88,14 @@ class RuleCompareComponent extends RuleComponent
 		return $success;
 	}
 
-	function query() {
+	function query($affiliate) {
 		if (count ($this->rule) != 2 || empty($this->config)) {
 			return null;
 		}
 
 		$fields = $joins = array();
-		$left = $this->rule[0]->build_query($joins, $fields);
-		$right = $this->rule[1]->build_query($joins, $fields);
+		$left = $this->rule[0]->build_query($affiliate, $joins, $fields);
+		$right = $this->rule[1]->build_query($affiliate, $joins, $fields);
 		if ($left === false || $right === false) {
 			return false;
 		}
@@ -128,7 +128,7 @@ class RuleCompareComponent extends RuleComponent
 			$conditions = array("$left {$this->config}" => $right);
 		}
 
-		return $this->_execute_query($conditions, $joins, $fields, $group);
+		return $this->_execute_query($affiliate, $conditions, $joins, $fields, $group);
 	}
 }
 

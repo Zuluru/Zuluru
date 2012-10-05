@@ -43,6 +43,9 @@ This process retains all historical information (team history, registrations, et
 <li>Player: A typical player.</li>
 <li>Volunteer: A more advanced user who can be given special access to limited areas of the system.
 Currently, the only such option is as division coordinators; only volunteers can be given this role.</li>
+<li>Manager: An even more advanced user who has access to almost every area of the system.
+Managers cannot edit global system configuration.
+If the affiliates feature is enabled, they cannot create or edit affiliates, and they will only have manager-level access to specific affiliates; in this situation, they can be thought of as "local administrators".</li>
 <li>Administrator: A super-user with the authority to access any area of the system.
 The only limitation placed on administrators is that they do not have permission to violate roster rules and deadlines for team that they are on;
 if this is required, another administrator will have to do it instead.

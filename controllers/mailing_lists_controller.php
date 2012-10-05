@@ -3,13 +3,61 @@ class MailingListsController extends AppController {
 
 	var $name = 'MailingLists';
 
+	var $paginate = array(
+		'contain' => array('Affiliate'),
+	);
+
 	function publicActions() {
 		return array('unsubscribe');
 	}
 
+	function isAuthorized() {
+		if ($this->is_manager) {
+			// Managers can perform these operations
+			if (in_array ($this->params['action'], array(
+					'index',
+					'add',
+			)))
+			{
+				// If an affiliate id is specified, check if we're a manager of that affiliate
+				$affiliate = $this->_arg('affiliate');
+				if (!$affiliate) {
+					// If there's no affiliate id, this is a top-level operation that all managers can perform
+					return true;
+				} else if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					return true;
+				}
+			}
+
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'view',
+					'edit',
+					'delete',
+			)))
+			{
+				// If a list id is specified, check if we're a manager of that list's affiliate
+				$list = $this->_arg('mailing_list');
+				if ($list) {
+					$affiliate = $this->MailingList->field('affiliate_id', array('MailingList.id' => $list));
+					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
 	function index() {
-		$this->MailingList->recursive = 0;
+		$affiliates = $this->_applicableAffiliateIDs(true);
+
+		$this->paginate['conditions'] = array(
+			'MailingList.affiliate_id' => $affiliates,
+		);
 		$this->set('mailingLists', $this->paginate());
+		$this->set(compact('affiliates'));
 	}
 
 	function view() {
@@ -18,7 +66,11 @@ class MailingListsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('mailing list', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->MailingList->contain(array('Affiliate', 'Newsletter'));
 		$this->set('mailingList', $this->MailingList->read(null, $id));
+
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->set(compact('affiliates'));
 	}
 
 	function add() {
@@ -31,6 +83,8 @@ class MailingListsController extends AppController {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('mailing list', true)), 'default', array('class' => 'warning'));
 			}
 		}
+
+		$this->set('affiliates', $this->_applicableAffiliates(true));
 		$this->set('add', true);
 		$this->render ('edit');
 	}
@@ -52,6 +106,8 @@ class MailingListsController extends AppController {
 		if (empty($this->data)) {
 			$this->data = $this->MailingList->read(null, $id);
 		}
+
+		$this->set('affiliates', $this->_applicableAffiliates(true));
 	}
 
 	function delete() {

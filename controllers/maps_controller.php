@@ -8,16 +8,42 @@ class MapsController extends AppController {
 		return array('index', 'view');
 	}
 
+	function isAuthorized() {
+		if ($this->is_manager) {
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'edit',
+			)))
+			{
+				// If a field id is specified, check if we're a manager of that field's affiliate
+				$field = $this->_arg('field');
+				if ($field) {
+					$facility = $this->Field->field('facility_id', array('Field.id' => $field));
+					$region = $this->Field->Facility->field('region_id', array('Facility.id' => $facility));
+					$affiliate = $this->Field->Facility->Region->field('affiliate_id', array('Region.id' => $region));
+					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
 	function index() {
 		if ($this->is_admin) {
 			$closed = $this->_arg('closed');
 		} else {
 			$closed = false;
 		}
-		$conditions = array('Field.latitude !=' => NULL);
+		$field_conditions = array('Field.latitude !=' => NULL);
 		if (!$closed) {
-			$conditions['Field.is_open'] = true;
+			$field_conditions['Field.is_open'] = true;
 		}
+
+		$affiliates = $this->_applicableAffiliateIDs();
+		$region_conditions = array('Region.affiliate_id' => $affiliates);
 
 		$regions = $this->Field->Facility->Region->find('all', array(
 			'contain' => array(
@@ -26,13 +52,15 @@ class MapsController extends AppController {
 						'Facility.is_open' => true,
 					),
 					'order' => 'Facility.name',
-					'Field' => compact('conditions'),
+					'Field' => array('conditions' => $field_conditions),
 				),
+				'Affiliate',
 			),
+			'conditions' => $region_conditions,
 			'order' => 'Region.id',
 		));
 
-		$this->set(compact('regions', 'closed'));
+		$this->set(compact('regions', 'closed', 'affiliates'));
 
 		$this->layout = 'map';
 	}
