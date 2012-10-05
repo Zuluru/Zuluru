@@ -79,7 +79,7 @@ class ZuluruSchema extends CakeSchema {
 		'league_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
 		'open' => array('type' => 'date', 'null' => false, 'default' => NULL),
 		'close' => array('type' => 'date', 'null' => false, 'default' => NULL),
-		'ratio' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 8),
+		'ratio' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 32),
 		'current_round' => array('type' => 'string', 'null' => false, 'default' => '1', 'length' => 10),
 		'roster_deadline' => array('type' => 'date', 'null' => true, 'default' => NULL),
 		'roster_method' => array('type' => 'string', 'null' => false, 'default' => 'invite', 'length' => 6),

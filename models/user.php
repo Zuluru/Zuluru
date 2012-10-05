@@ -328,7 +328,7 @@ class User extends AppModel {
 			'group_id' => 1,	// TODO: Assumed this is the Player group
 		);
 		foreach ($field_map as $new => $old) {
-			$save[$new] = $data[$this->alias][$old];
+			$save[$new] = trim($data[$this->alias][$old]);
 		}
 		if (!empty($save['first_name']) && empty($save['last_name']) && strpos($save['first_name'], ' ') !== false) {
 			list($save['first_name'], $save['last_name']) =
