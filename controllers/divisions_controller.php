@@ -1114,7 +1114,9 @@ class DivisionsController extends AppController {
 			$division['Team'][$key]['rating'] = $affiliate['Team']['rating'];
 
 			$this->Division->Team->id = $team['id'];
-			if (!$this->Division->Team->saveField('rating', $affiliate['Team']['rating'])) {
+			if (!$this->Division->Team->saveField('rating', $affiliate['Team']['rating']) ||
+				!$this->Division->Team->saveField('initial_rating', $affiliate['Team']['rating']))
+			{
 				$this->Session->setFlash(__('Failed to update team rating', true), 'default', array('class' => 'warning'));
 				$this->redirect(array('action' => 'view', 'division' => $id));
 			}
