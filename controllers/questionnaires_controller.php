@@ -49,7 +49,7 @@ class QuestionnairesController extends AppController {
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->paginate['conditions'] = array(
-			'active' => true,
+			'Questionnaire.active' => true,
 			'Questionnaire.affiliate_id' => $affiliates,
 		);
 
@@ -63,7 +63,7 @@ class QuestionnairesController extends AppController {
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->paginate['conditions'] = array(
-			'active' => false,
+			'Questionnaire.active' => false,
 			'Questionnaire.affiliate_id' => $affiliates,
 		);
 
@@ -82,9 +82,9 @@ class QuestionnairesController extends AppController {
 		$this->Questionnaire->contain(array(
 				'Question' => array(
 					'Answer' => array(
-						'conditions' => array('active' => true),
+						'conditions' => array('Answer.active' => true),
 					),
-					'conditions' => array('active' => true),
+					'conditions' => array('Question.active' => true),
 				),
 				'Event',
 				'Affiliate',
@@ -144,7 +144,7 @@ class QuestionnairesController extends AppController {
 		$this->set($this->params['named']);
 		$name = $this->Questionnaire->field('name', array('id' => $questionnaire));
 
-		$success = $this->Questionnaire->updateAll (array('active' => true), array(
+		$success = $this->Questionnaire->updateAll (array('Questionnaire.active' => true), array(
 				'Questionnaire.id' => $questionnaire,
 		));
 		$this->set(compact('success', 'name'));
@@ -158,7 +158,7 @@ class QuestionnairesController extends AppController {
 		$this->set($this->params['named']);
 		$name = $this->Questionnaire->field('name', array('id' => $questionnaire));
 
-		$success = $this->Questionnaire->updateAll (array('active' => 0), array(
+		$success = $this->Questionnaire->updateAll (array('Questionnaire.active' => 0), array(
 				'Questionnaire.id' => $questionnaire,
 		));
 		$this->set(compact('success', 'name'));
