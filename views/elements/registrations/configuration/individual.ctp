@@ -4,6 +4,7 @@ $division = ClassRegistry::init ('Division');
 $divisions = $division->find('all', array(
 		'conditions' => array(
 			'Division.close > NOW()',
+			'League.affiliate_id' => array_keys($affiliates),
 		),
 		'contain' => 'League',
 ));
