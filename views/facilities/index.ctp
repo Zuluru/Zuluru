@@ -19,7 +19,7 @@ if ($is_manager) {
 <div class="facilities index">
 <h2><?php __($closed ? 'Closed Facilities List' : 'Facilities List');?></h2>
 <?php
-if ($is_admin) {
+if ($is_admin || $is_manager) {
 	$set_to_test = Set::extract('/Facility/id', $regions);
 } else {
 	$set_to_test = $facilities_with_fields;
@@ -54,7 +54,7 @@ $affiliate_id = null;
 foreach ($regions as $region):
 	$is_manager = in_array($region['Region']['affiliate_id'], $mine);
 	$ids = Set::extract('/Facility/id', $region);
-	if (!$is_admin || $is_manager) {
+	if (!$is_admin && !$is_manager) {
 		// We only want to list facilities without fields for administrators
 		foreach ($ids as $key => $id) {
 			if (!array_key_exists($id, $facilities_with_fields)) {
