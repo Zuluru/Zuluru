@@ -44,6 +44,9 @@ function season($indoor) {
 	// Build the list of applicable seasons
 	$seasons = Configure::read('options.season');
 	unset($seasons['None']);
+	if (empty($seasons)) {
+		return 'None';
+	}
 	foreach (array_keys($seasons) as $season) {
 		$season_indoor = Configure::read("season_is_indoor.$season");
 		if ($indoor != $season_indoor) {
