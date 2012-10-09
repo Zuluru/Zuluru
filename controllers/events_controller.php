@@ -180,11 +180,14 @@ class EventsController extends AppController {
 			));
 		}
 
+		$affiliates = $this->_applicableAffiliates(true);
 		$this->set('eventTypes', $this->Event->EventType->find('list'));
-		$this->set('questionnaires', $this->Event->Questionnaire->find('list'));
-
+		$this->set('questionnaires', $this->Event->Questionnaire->find('list', array('conditions' => array(
+				'Questionnaire.active' => true,
+				'Questionnaire.affiliate_id' => array_keys($affiliates),
+		))));
 		$this->set('event_obj', $this->_getComponent ('EventType', $this->data['EventType']['type'], $this));
-		$this->set('affiliates', $this->_applicableAffiliates(true));
+		$this->set(compact('affiliates'));
 		$this->set('add', true);
 
 		if (Configure::read('feature.tiny_mce')) {
@@ -223,12 +226,14 @@ class EventsController extends AppController {
 			$this->data = $this->Event->read(null, $id);
 		}
 
+		$affiliates = $this->_applicableAffiliates(true);
 		$this->set('eventTypes', $this->Event->EventType->find('list'));
 		$this->set('questionnaires', $this->Event->Questionnaire->find('list', array('conditions' => array(
 				'Questionnaire.active' => true,
+				'Questionnaire.affiliate_id' => array_keys($affiliates),
 		))));
 		$this->set('event_obj', $this->_getComponent ('EventType', $this->data['EventType']['type'], $this));
-		$this->set('affiliates', $this->_applicableAffiliates(true));
+		$this->set(compact('affiliates'));
 
 		if (Configure::read('feature.tiny_mce')) {
 			$this->helpers[] = 'TinyMce.TinyMce';
@@ -243,6 +248,7 @@ class EventsController extends AppController {
 		));
 		$type = $this->Event->EventType->read(null, $this->params['url']['data']['Event']['event_type_id']);
 		$this->set('event_obj', $this->_getComponent ('EventType', $type['EventType']['type'], $this));
+		$this->set('affiliates', $this->_applicableAffiliates(true));
 	}
 
 	function delete() {
