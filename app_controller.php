@@ -1217,8 +1217,12 @@ class AppController extends Controller {
 		}
 		$model_obj = $this->{$model};
 
+		// Match people in the affiliate, or admins who are effectively in all
 		if ($affiliate_model && array_key_exists('affiliate_id', $params)) {
-			$conditions["$affiliate_model.affiliate_id"] = $params['affiliate_id'];
+			$conditions['OR'] = array(
+				"$affiliate_model.affiliate_id" => $params['affiliate_id'],
+				'Person.group_id' => 3,
+			);
 		}
 
 		foreach ($params as $field => $value) {
