@@ -67,9 +67,12 @@ class LeaguesController extends AppController {
 		$this->League->Division->addPlayoffs($divisions);
 
 		// Find any newly created leagues with no divisions, for administrators
-		if ($this->is_admin) {
+		if ($this->is_admin || $this->is_manager) {
 			$leagues = $this->League->find('all', array(
-				'conditions' => array('open' => '0000-00-00'),
+				'conditions' => array(
+					'League.open' => '0000-00-00',
+					'League.affiliate_id' => $this->_applicableAffiliateIDs(true),
+				),
 				'contain' => array('Affiliate'),
 			));
 			// Re-jig the array format
