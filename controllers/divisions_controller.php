@@ -18,6 +18,16 @@ class DivisionsController extends AppController {
 			return true;
 		}
 
+		// Managers and coordinators can perform these operations
+		if (in_array ($this->params['action'], array(
+				'scheduling_fields',
+		)))
+		{
+			if ($this->Session->read('Zuluru.DivisionIDs') || $this->is_manager) {
+				return true;
+			}
+		}
+
 		// People can perform these operations on divisions they coordinate
 		if (in_array ($this->params['action'], array(
 				'edit',
@@ -56,6 +66,19 @@ class DivisionsController extends AppController {
 
 			if (in_array ($this->params['action'], array(
 					'add',
+			)))
+			{
+				// If a league id is specified, check if we're a manager of that league's affiliate
+				$league = $this->_arg('league');
+				if ($league) {
+					$affiliate = $this->Division->League->field('affiliate_id', array('id' => $league));
+					if ($affiliate && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+
+			if (in_array ($this->params['action'], array(
 					'edit',
 					'add_coordinator',
 					'delete',
