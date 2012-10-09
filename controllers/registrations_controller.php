@@ -205,6 +205,7 @@ class RegistrationsController extends AppController {
 					'YEAR(Event.open)' => $year,
 					'YEAR(Event.close)' => $year,
 				),
+				'Event.affiliate_id' => $affiliates,
 			),
 			'group' => 'Event.id',
 			'order' => array('Event.event_type_id', 'Event.open' => 'DESC', 'Event.close' => 'DESC', 'Event.id'),
