@@ -24,6 +24,7 @@ class LeaguesController extends AppController {
 			if (in_array ($this->params['action'], array(
 					'edit',
 					'delete',
+					'participation',
 			)))
 			{
 				// If a league id is specified, check if we're a manager of that league's affiliate
