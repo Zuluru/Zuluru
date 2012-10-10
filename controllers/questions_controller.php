@@ -228,7 +228,7 @@ class QuestionsController extends AppController {
 			'Question.active' => true,
 		);
 		$affiliate = $this->_arg('affiliate');
-		if ($affiliate && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+		if ($affiliate && ($this->is_admin || in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs')))) {
 			$conditions['Question.affiliate_id'] = $affiliate;
 
 			$this->set('questions', $this->Question->find('all', array(
