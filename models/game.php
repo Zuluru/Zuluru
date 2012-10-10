@@ -479,7 +479,7 @@ class Game extends AppModel {
 				'conditions' => array_merge($conditions, array(
 					'team_id' => $team_id,
 					'team_event_id' => null,
-					'person_id NOT' => Set::extract('/Person/id', $attendance),
+					'NOT' => array('person_id' => Set::extract('/Person/id', $attendance)),
 				)),
 		));
 
