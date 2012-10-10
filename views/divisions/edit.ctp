@@ -130,7 +130,7 @@ if (isset ($add)) {
 		}
 		$this->Js->get('#DivisionScheduleType')->event('change', $this->Js->request(
 				array('action' => 'scheduling_fields'),
-				array('update' => '#SchedulingFields', 'dataExpression' => true, 'data' => '$("#DivisionScheduleType").get()')
+				array('update' => '#SchedulingFields', 'dataExpression' => true, 'data' => 'jQuery("#DivisionScheduleType").get()')
 		));
 		?>
 		</div>

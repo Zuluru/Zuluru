@@ -38,6 +38,7 @@
 			echo $this->ZuluruHtml->script(array(
 					'http://cdn.jquerytools.org/1.2.6/jquery.tools.min.js',
 			));
+			echo $this->Html->scriptBlock('jQuery.noConflict();');
 		}
 		echo $scripts_for_layout;
 	?>

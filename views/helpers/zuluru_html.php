@@ -174,13 +174,13 @@ class ZuluruHtmlHelper extends HtmlHelper {
 		if (!isset ($this->dialogHandlerOutput)) {
 			$help .= $view->Html->scriptBlock ("
 function show_help(id, link) {
-	$('#' + id + '_div').dialog({
+	jQuery('#' + id + '_div').dialog({
 		buttons: {
 			'Close': function() {
-				$('#' + id + '_div').dialog('close');
+				jQuery('#' + id + '_div').dialog('close');
 			},
 			'Open this help page in a new window': function() {
-				$('#' + id + '_div').dialog('close');
+				jQuery('#' + id + '_div').dialog('close');
 				window.open(link, '_blank');
 			}
 		},

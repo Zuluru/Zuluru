@@ -99,14 +99,14 @@ if (isset ($add)) {
 <?php
 echo $this->Html->scriptBlock('
 function expiry_type_changed() {
-	$("#start_and_end_options").find("select").attr("disabled", true);
-	$("#start_and_end_options").find("input").attr("disabled", true);
-	$("#start_and_end_options").children("div").css("display", "none");
+	jQuery("#start_and_end_options").find("select").attr("disabled", true);
+	jQuery("#start_and_end_options").find("input").attr("disabled", true);
+	jQuery("#start_and_end_options").children("div").css("display", "none");
 
-	var div = $("#WaiverExpiryType").val() + "_options";
-	$("#" + div).find("select").attr("disabled", false);
-	$("#" + div).find("input").attr("disabled", false);
-	$("#" + div).css("display", "");
+	var div = jQuery("#WaiverExpiryType").val() + "_options";
+	jQuery("#" + div).find("select").attr("disabled", false);
+	jQuery("#" + div).find("input").attr("disabled", false);
+	jQuery("#" + div).css("display", "");
 }
 ');
 $this->Js->get('#WaiverExpiryType')->event('change', 'expiry_type_changed();');

@@ -54,7 +54,7 @@ $this->Html->addCrumb (__('Confirm', true));
 
 <?php
 echo $this->Html->scriptBlock("
-$(document).ready(function() {
+jQuery(document).ready(function($) {
 	$('.hidden').hide();
 
 	// When the name of a field is clicked, toggle display of game slots for that field.

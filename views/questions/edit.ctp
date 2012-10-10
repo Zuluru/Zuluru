@@ -76,7 +76,7 @@ $this->Html->addCrumb (__('Edit', true));
 echo $this->ZuluruHtml->script (array('jquery.tableSort', 'questionnaire'), array('inline' => false));
 $url = $this->Html->url (array('controller' => 'questions', 'action' => 'add_answer'));
 $this->Js->buffer ("
-	$('.sortable').tableSort(tableReorder);
+	jQuery('.sortable').tableSort(tableReorder);
 ");
 echo $this->Html->scriptBlock("
 	var last_index = $i;

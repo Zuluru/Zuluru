@@ -44,15 +44,15 @@ foreach ($questions as $group_label => $group_questions) {
 
 <?php
 echo $this->Html->scriptBlock ("
-$('#rating_dialog').dialog({
+jQuery('#rating_dialog').dialog({
 	autoOpen: false,
 	buttons: {
 		'Cancel': function() {
-			$('#rating_dialog').dialog('close');
+			jQuery('#rating_dialog').dialog('close');
 		},
 		'Calculate': function() {
 			if (calculate_rating()) {
-				$('#rating_dialog').dialog('close');
+				jQuery('#rating_dialog').dialog('close');
 			}
 		}
 	},
@@ -70,12 +70,12 @@ function calculate_rating() {
 
 	// Check for skipped questions and show error
 	var okay = true;
-	$('form[name=rating] div.radio').each(function() {
-		if ($(this).children('input:checked').size() == 0) {
-			$(this).addClass('error');
+	jQuery('form[name=rating] div.radio').each(function() {
+		if (jQuery(this).children('input:checked').size() == 0) {
+			jQuery(this).addClass('error');
 			okay = false;
 		} else {
-			$(this).removeClass('error');
+			jQuery(this).removeClass('error');
 		}
 	});
 	if (!okay) {
@@ -84,8 +84,8 @@ function calculate_rating() {
 	}
 
 	// Sum up all selected answers
-	$('form[name=rating] input:checked').each(function() {
-		sum += parseInt($(this).val());
+	jQuery('form[name=rating] input:checked').each(function() {
+		sum += parseInt(jQuery(this).val());
 	});
 
 	// Move the sum so the average is zero
@@ -98,12 +98,12 @@ function calculate_rating() {
 	rating = Math.round(rating);
 
 	// put the result into the text box
-	$('$field').val(rating);
+	jQuery('$field').val(rating);
 	return true;
 }
 
 function dorating() {
-	$('#rating_dialog').dialog('open');
+	jQuery('#rating_dialog').dialog('open');
 }
 ");
 ?>

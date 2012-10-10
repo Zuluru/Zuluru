@@ -29,14 +29,14 @@ if (!empty($notice)):
 <?php
 	// Make the remind and close links in the Notice div do their jobs
 	$url = $this->Html->url(array('controller' => 'notices', 'action' => 'viewed', $notice['Notice']['id']));
-	$this->Js->buffer('$("#Close").click(function() { notice_click(false); return false; });');
-	$this->Js->buffer('$("#Remind").click(function() { notice_click(true); return false; });');
+	$this->Js->buffer('jQuery("#Close").click(function() { notice_click(false); return false; });');
+	$this->Js->buffer('jQuery("#Remind").click(function() { notice_click(true); return false; });');
 	echo $this->Html->scriptBlock("
 function notice_click(remind) {
-	$('#SystemNotice').hide('slow');
+	jQuery('#SystemNotice').hide('slow');
 	var url = '$url';
 	if (remind) { url = url + '/1'; }
-	$.ajax({
+	jQuery.ajax({
 		dataType:'html',
 		url:url
 	});

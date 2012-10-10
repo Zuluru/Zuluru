@@ -4,7 +4,7 @@ if ($success) {
 			array('action' => 'close', 'field' => $field, 'id' => $id),
 			array('update' => "#temp_update")
 	);
-	echo $this->Html->scriptBlock ("$('#$id').html('$content')");
+	echo $this->Html->scriptBlock ("jQuery('#$id').html('$content')");
 } else {
 	$field = Configure::read('ui.field');
 	echo $this->Html->scriptBlock ("alert('Failed to open $field \'$name\'.')");

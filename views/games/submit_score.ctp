@@ -233,70 +233,70 @@ $win = Configure::read('scoring.default_winning_score');
 $lose = Configure::read('scoring.default_losing_score');
 echo $this->Html->scriptBlock("
 function statusChanged() {
-	if ($('#Status').val() == 'home_default') {
-		$('#ScoreHome').val($lose);
-		$('#ScoreAway').val($win);
+	if (jQuery('#Status').val() == 'home_default') {
+		jQuery('#ScoreHome').val($lose);
+		jQuery('#ScoreAway').val($win);
 		disableCommon();
 		enableScores();
-	} else if ($('#Status').val() == 'away_default') {
-		$('#ScoreHome').val($win);
-		$('#ScoreAway').val($lose);
+	} else if (jQuery('#Status').val() == 'away_default') {
+		jQuery('#ScoreHome').val($win);
+		jQuery('#ScoreAway').val($lose);
 		disableCommon();
 		enableScores();
-	} else if ($('#Status').val() == 'normal') {
+	} else if (jQuery('#Status').val() == 'normal') {
 		enableCommon();
 		enableScores();
 	} else {
-		$('#ScoreHome').val(0);
-		$('#ScoreAway').val(0);
+		jQuery('#ScoreHome').val(0);
+		jQuery('#ScoreAway').val(0);
 		disableCommon();
 		disableScores();
 	}
 }
 
 function disableScores() {
-	$('#Scores').css('display', 'none');
+	jQuery('#Scores').css('display', 'none');
 }
 
 function enableScores() {
-	$('#Scores').css('display', '');
+	jQuery('#Scores').css('display', '');
 }
 
 function disableCommon() {
-	$('input:text').attr('disabled', 'disabled');
-	$('#GameIncident').attr('disabled', 'disabled');
-	$('#IncidentWrapper').css('display', 'none');
-	$('#GameAllstar').attr('disabled', 'disabled');
-	$('#AllstarWrapper').css('display', 'none');
+	jQuery('input:text').attr('disabled', 'disabled');
+	jQuery('#GameIncident').attr('disabled', 'disabled');
+	jQuery('#IncidentWrapper').css('display', 'none');
+	jQuery('#GameAllstar').attr('disabled', 'disabled');
+	jQuery('#AllstarWrapper').css('display', 'none');
 	if (typeof window.disableSpirit == 'function') {
 		disableSpirit();
 	}
 }
 
 function enableCommon() {
-	$('input:text').removeAttr('disabled');
-	$('#GameIncident').removeAttr('disabled');
-	$('#IncidentWrapper').css('display', '');
-	$('#GameAllstar').removeAttr('disabled');
-	$('#AllstarWrapper').css('display', '');
+	jQuery('input:text').removeAttr('disabled');
+	jQuery('#GameIncident').removeAttr('disabled');
+	jQuery('#IncidentWrapper').css('display', '');
+	jQuery('#GameAllstar').removeAttr('disabled');
+	jQuery('#AllstarWrapper').css('display', '');
 	if (typeof window.enableSpirit == 'function') {
 		enableSpirit();
 	}
 }
 
 function incidentCheckboxChanged() {
-	if ($('#GameIncident').attr('checked')) {
-		$('#IncidentDetails').css('display', '');
+	if (jQuery('#GameIncident').attr('checked')) {
+		jQuery('#IncidentDetails').css('display', '');
 	} else {
-		$('#IncidentDetails').css('display', 'none');
+		jQuery('#IncidentDetails').css('display', 'none');
 	}
 }
 
 function allstarCheckboxChanged() {
-	if ($('#GameAllstar').attr('checked')) {
-		$('.AllstarDetails').css('display', '');
+	if (jQuery('#GameAllstar').attr('checked')) {
+		jQuery('.AllstarDetails').css('display', '');
 	} else {
-		$('.AllstarDetails').css('display', 'none');
+		jQuery('.AllstarDetails').css('display', 'none');
 	}
 }
 ");
@@ -308,9 +308,9 @@ function allstarCheckboxChanged() {
 // but maybe something in the future. Cost to do this is
 // extremely minimal.
 $this->Js->buffer('
-$("#Status").change(function(){statusChanged();});
-$("#GameIncident").change(function(){incidentCheckboxChanged();});
-$("#GameAllstar").change(function(){allstarCheckboxChanged();});
+jQuery("#Status").change(function(){statusChanged();});
+jQuery("#GameIncident").change(function(){incidentCheckboxChanged();});
+jQuery("#GameAllstar").change(function(){allstarCheckboxChanged();});
 statusChanged();
 incidentCheckboxChanged();
 ');

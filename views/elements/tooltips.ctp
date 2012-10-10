@@ -8,7 +8,7 @@ if (!Configure::read('tooltips_added')) {
 
 	// Add the "dynamic" tooltip effect
 	$this->Js->buffer('
-$.tools.tooltip.addEffect("dynamic",
+jQuery.tools.tooltip.addEffect("dynamic",
 	// show function
 	function(done) {
 		// The tooltip will not actually be shown until the load completes
@@ -29,8 +29,8 @@ $.tools.tooltip.addEffect("dynamic",
 		// Mobile devices don't have "hover" semantics, so instead
 		// we'll add a bunch of separate icons to toggle tooltips.
 		$this->Js->buffer("
-$('.trigger').before('" . $this->ZuluruHtml->icon('popup_16.png', array('class' => 'popup_toggle')) . " ');
-$('.popup_toggle').tooltip({
+jQuery('.trigger').before('" . $this->ZuluruHtml->icon('popup_16.png', array('class' => 'popup_toggle')) . " ');
+jQuery('.popup_toggle').tooltip({
 	effect: 'dynamic',
 	relative: true,
 	tip: '#tooltip',
@@ -56,7 +56,7 @@ $('.popup_toggle').tooltip({
 	} else {
 		// Add the standard tooltip handler
 		$this->Js->buffer("
-$('.trigger').tooltip({
+jQuery('.trigger').tooltip({
 	effect: 'dynamic',
 	relative: true,
 	tip: '#tooltip',

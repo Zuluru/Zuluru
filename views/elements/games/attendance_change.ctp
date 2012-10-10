@@ -54,7 +54,7 @@ if ($team['track_attendance']) {
 		$comment = addslashes($comment);
 		echo $this->Html->link($short, $url, array(
 			'escape' => false,
-			'onClick' => "return attendance_status('$url_string', $option_string, $(this), $dedicated, $future, '$comment');",
+			'onClick' => "return attendance_status('$url_string', $option_string, jQuery(this), $dedicated, $future, '$comment');",
 		));
 	} else if (!$future_only) {
 		echo $short;

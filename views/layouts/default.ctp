@@ -42,6 +42,7 @@
 					//'http://jquery-ui.googlecode.com/svn/tags/latest/external/jquery.bgiframe-2.1.1.js',
 					'tooltip.js',
 			));
+			echo $this->Html->scriptBlock('jQuery.noConflict();');
 		}
 		echo $scripts_for_layout;
 	?>

@@ -69,10 +69,10 @@ $this->Html->addCrumb (__('Add Teams', true));
 if (Configure::read('feature.attendance')) {
 	echo $this->Html->scriptBlock("
 function attendanceCheckboxChanged() {
-	if ($('#Team0TrackAttendance').attr('checked')) {
-		$('#AttendanceDetails').css('display', '');
+	if (jQuery('#Team0TrackAttendance').attr('checked')) {
+		jQuery('#AttendanceDetails').css('display', '');
 	} else {
-		$('#AttendanceDetails').css('display', 'none');
+		jQuery('#AttendanceDetails').css('display', 'none');
 	}
 }
 ");

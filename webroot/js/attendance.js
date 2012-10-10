@@ -3,7 +3,7 @@
  **/
 
 function attendance_status(url, options, container_div, dedicated, future, comment) {
-	var div = $('#attendance_options');
+	var div = jQuery('#attendance_options');
 
 	// Find the new position, relative to the clicked button
 	var offset = container_div.offset();
@@ -22,11 +22,11 @@ function attendance_status(url, options, container_div, dedicated, future, comme
 
 	// Hide the invalid options, add onclick handlers to valid ones
 	div.children('div').each(function(item) {
-		var id = $(this).attr('id');
+		var id = jQuery(this).attr('id');
 		var pos = id.lastIndexOf('_');
 		var status = id.substr(pos+1);
 		var func = func_map[status];
-		window[func_map[status]](url, status, options, container_div, $(this), dedicated, future, comment);
+		window[func_map[status]](url, status, options, container_div, jQuery(this), dedicated, future, comment);
 	});
 
 	// Show the div and move it. Seems it has to be in that order. :-(
@@ -37,13 +37,13 @@ function attendance_status(url, options, container_div, dedicated, future, comme
 
 	var now = new Date();
 	var start_time = now.getTime();
-	$('body').bind('click', function (event) {
+	jQuery('body').bind('click', function (event) {
 		var now = new Date();
 		if (now.getTime() > start_time + 25) {
 			attendance_close_status();
 		}
 	});
-	$('body').bind('keyup', function(event) {
+	jQuery('body').bind('keyup', function(event) {
 		if (event.keyCode == 27) {
 			attendance_close_status();
 		}
@@ -60,7 +60,7 @@ function attendance_prepare_player(url, status, options, container_div, option_d
 	} else {
 		option_div.show();
 		option_div.bind('click', function (event) {
-			$.ajax({
+			jQuery.ajax({
 				dataType: 'html',
 				type: 'POST',
 				data: {
@@ -69,7 +69,7 @@ function attendance_prepare_player(url, status, options, container_div, option_d
 				},
 				context: container_div,
 				success: function (data, textStatus) {
-					$(this).replaceWith(data);
+					jQuery(this).replaceWith(data);
 				},
 				url: url
 			});
@@ -95,39 +95,39 @@ function attendance_prepare_sub(url, status, options, container_div, option_div,
 }
 
 function attendance_handle_sub(url, status, container_div, dedicated) {
-	$('#comment').val('');
-	$('#comment_to_captain').hide();
-	$('#comment_to_player').show();
+	jQuery('#comment').val('');
+	jQuery('#comment_to_captain').hide();
+	jQuery('#comment_to_player').show();
 
-	$('#attendance_comment_div').dialog({
+	jQuery('#attendance_comment_div').dialog({
 		buttons: {
 			'Cancel': function() {
-				$('#attendance_comment_div').dialog('close');
+				jQuery('#attendance_comment_div').dialog('close');
 			},
 			'Save': function() {
-				$.ajax({
+				jQuery.ajax({
 					dataType: 'html',
 					type: 'POST',
 					data: {
 						'data[Person][status]': status,
-						'data[Person][note]': $('#comment').val(),
+						'data[Person][note]': jQuery('#comment').val(),
 						'data[dedicated]': dedicated
 					},
 					context: container_div,
 					success: function (data, textStatus) {
-						$(this).replaceWith(data);
+						jQuery(this).replaceWith(data);
 					},
 					url: url
 				});
 				container_div.html('...');
-				$('#attendance_comment_div').dialog('close');
+				jQuery('#attendance_comment_div').dialog('close');
 			}
 		},
 		modal: true,
 		resizable: false,
 		width: 480
 	});
-	$('#comment').focus();
+	jQuery('#comment').focus();
 }
 
 function attendance_prepare_comment(url, status, options, container_div, option_div, dedicated, future, comment) {
@@ -144,46 +144,46 @@ function attendance_prepare_comment(url, status, options, container_div, option_
 }
 
 function attendance_handle_comment(url, container_div, dedicated, comment) {
-	$('#comment').val(comment);
-	$('#comment_to_captain').show();
-	$('#comment_to_player').hide();
+	jQuery('#comment').val(comment);
+	jQuery('#comment_to_captain').show();
+	jQuery('#comment_to_player').hide();
 
-	$('#attendance_comment_div').dialog({
+	jQuery('#attendance_comment_div').dialog({
 		buttons: {
 			'Cancel': function() {
-				$('#attendance_comment_div').dialog('close');
+				jQuery('#attendance_comment_div').dialog('close');
 			},
 			'Save': function() {
-				$.ajax({
+				jQuery.ajax({
 					dataType: 'html',
 					type: 'POST',
 					data: {
-						'data[Person][comment]': $('#comment').val(),
+						'data[Person][comment]': jQuery('#comment').val(),
 						'data[dedicated]': dedicated
 					},
 					context: container_div,
 					success: function (data, textStatus) {
-						$(this).replaceWith(data);
+						jQuery(this).replaceWith(data);
 					},
 					url: url
 				});
 				container_div.html('...');
-				$('#attendance_comment_div').dialog('close');
+				jQuery('#attendance_comment_div').dialog('close');
 			}
 		},
 		modal: true,
 		resizable: false,
 		width: 480
 	});
-	$('#comment').focus();
+	jQuery('#comment').focus();
 }
 
 function attendance_close_status() {
-	var div = $('#attendance_options');
+	var div = jQuery('#attendance_options');
 	div.children('div').each(function(item) {
-		$(this).unbind('click');
+		jQuery(this).unbind('click');
 	});
 	div.css('display', 'none');
-	$('body').unbind('click');
-	$('body').unbind('keyup');
+	jQuery('body').unbind('click');
+	jQuery('body').unbind('keyup');
 }

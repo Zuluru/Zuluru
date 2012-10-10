@@ -31,7 +31,7 @@
 class AppController extends Controller {
 	var $components = array('Session', 'Auth', 'Cookie', 'RequestHandler');
 	var $uses = array('Person', 'Configuration');
-	var $helpers = array('Session', 'Html', 'ZuluruHtml', 'Form', 'ZuluruForm', 'Time', 'ZuluruTime', 'Number', 'Text', 'Js');
+	var $helpers = array('Session', 'Html', 'ZuluruHtml', 'Form', 'ZuluruForm', 'Time', 'ZuluruTime', 'Number', 'Text', 'Js' => array('ZuluruJquery'));
 	var $view = 'Theme';
 
 	var $menu_items = array();

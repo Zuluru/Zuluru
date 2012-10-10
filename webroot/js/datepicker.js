@@ -1,4 +1,4 @@
-$(document).ready(function() {
+jQuery(document).ready(function($) {
 	$('div.date').each(function() {
 		$(this).children('select').last().after('<input class="datepicker" type="hidden"/>');
 	});

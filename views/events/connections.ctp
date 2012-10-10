@@ -82,5 +82,5 @@ $this->Html->addCrumb (__('Connections', true));
 <?php
 $this->ZuluruHtml->css('jquery.asmselect', null, array('inline' => false));
 $this->ZuluruHtml->script('jquery.asmselect', array('inline' => false));
-$this->Js->buffer('$("select[multiple]").asmSelect();');
+$this->Js->buffer('jQuery("select[multiple]").asmSelect();');
 ?>

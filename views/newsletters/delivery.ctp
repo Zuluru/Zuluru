@@ -60,13 +60,13 @@ function compareName($a, $b) {
 <?php
 echo $this->Html->scriptBlock('
 function display_letter(id) {
-	$(".letter").css("display", "none");
-	$("." + id).css("display", "");
+	jQuery(".letter").css("display", "none");
+	jQuery("." + id).css("display", "");
 }
 ');
 
 $this->Js->buffer('
 display_letter("letter_A");
-$(".letter_link").bind("click", function(){display_letter($(this).attr("id")); return false;});
+jQuery(".letter_link").bind("click", function(){display_letter(jQuery(this).attr("id")); return false;});
 ');
 ?>

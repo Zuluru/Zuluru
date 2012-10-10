@@ -7,14 +7,14 @@ function loadTooltip(base, trigger) {
 	var id = trigger.attr('id');
 	if (tooltip_text[id] == undefined) {
 		var params = id.split('_');
-		$.ajax({
+		jQuery.ajax({
 			type: 'GET',
 			url: base + params[0] + '/tooltip/' + params[1] + ':' + params[2],
 			success: function(data){
 				tooltip_text[id] = data;
 				if (!tooltip_cancelled) {
-					$('#tooltip').html(data);
-					$('#tooltip').show();
+					jQuery('#tooltip').html(data);
+					jQuery('#tooltip').show();
 				}
 			},
 			error: function(message){
@@ -26,7 +26,7 @@ function loadTooltip(base, trigger) {
 			}
 		});
 	} else {
-		$('#tooltip').html(tooltip_text[id]);
-		$('#tooltip').show();
+		jQuery('#tooltip').html(tooltip_text[id]);
+		jQuery('#tooltip').show();
 	}
 }

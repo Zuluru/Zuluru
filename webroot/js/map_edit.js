@@ -93,7 +93,7 @@ function selectField(id)
 	current = id;
 
 	// Update the display with data about the selected field
-	$('#show_num').html(fields[id].num + ' (id ' + id + ')');
+	jQuery('#show_num').html(fields[id].num + ' (id ' + id + ')');
 	updateForm();
 
 	// Add selection colouring and listener to the new field
@@ -196,7 +196,7 @@ function addParking()
 		google.maps.event.removeListener(parking_listener);
 	}
 
-	//$('#map').css('cursor','crosshair');
+	//jQuery('#map').css('cursor','crosshair');
 	parking_listener = google.maps.event.addListener(map, 'click', function(event) {
 		addParkingClick(event);
 	});
@@ -209,7 +209,7 @@ function addParkingClick(event)
 {
 	google.maps.event.removeListener(parking_listener);
 	parking_listener = null;
-	//$('#map').css('cursor','auto');
+	//jQuery('#map').css('cursor','auto');
 
 	++ lastParkingId;
 	var marker = showParking (event.latLng);
@@ -237,7 +237,7 @@ function addEntrance()
 		google.maps.event.removeListener(entrance_listener);
 	}
 
-	//$('#map').css('cursor','crosshair');
+	//jQuery('#map').css('cursor','crosshair');
 	entrance_listener = google.maps.event.addListener(map, 'click', function(event) {
 		addEntranceClick(event);
 	});
@@ -250,7 +250,7 @@ function addEntranceClick(event)
 {
 	google.maps.event.removeListener(entrance_listener);
 	entrance_listener = null;
-	//$('#map').css('cursor','auto');
+	//jQuery('#map').css('cursor','auto');
 
 	++ lastEntranceId;
 	var marker = showEntrance (event.latLng);
@@ -282,14 +282,14 @@ function check()
 	saveField();
 	for (var id in fields)
 	{
-		$('#Field' + id + 'Zoom').val(map.getZoom());
+		jQuery('#Field' + id + 'Zoom').val(map.getZoom());
 		if (fields[id].length != 0) {
-			$('#Field' + id + 'Angle').val(fields[id].angle);
-			$('#Field' + id + 'Width').val(fields[id].width);
-			$('#Field' + id + 'Length').val(fields[id].length);
+			jQuery('#Field' + id + 'Angle').val(fields[id].angle);
+			jQuery('#Field' + id + 'Width').val(fields[id].width);
+			jQuery('#Field' + id + 'Length').val(fields[id].length);
 		}
-		$('#Field' + id + 'Latitude').val(fields[id].marker.getPosition().lat());
-		$('#Field' + id + 'Longitude').val(fields[id].marker.getPosition().lng());
+		jQuery('#Field' + id + 'Latitude').val(fields[id].marker.getPosition().lat());
+		jQuery('#Field' + id + 'Longitude').val(fields[id].marker.getPosition().lng());
 	}
 
 	// Combine the parking details
@@ -303,7 +303,7 @@ function check()
 		}
 	}
 	parkingString = parkingString.substring(0, parkingString.length - 1);
-	$('#FacilityParking').val(parkingString);
+	jQuery('#FacilityParking').val(parkingString);
 
 	// Combine the entrance details
 	var entranceString = '';
@@ -316,5 +316,5 @@ function check()
 		}
 	}
 	entranceString = entranceString.substring(0, entranceString.length - 1);
-	$('#FacilityEntrances').val(entranceString);
+	jQuery('#FacilityEntrances').val(entranceString);
 }

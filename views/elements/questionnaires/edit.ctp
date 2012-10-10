@@ -48,17 +48,17 @@ $add_question_url = $this->Html->url (array('controller' => 'questionnaires', 'a
 $auto_complete_url = $this->Html->url (array('controller' => 'questions', 'action' => 'autocomplete', 'affiliate' => $questionnaire['Questionnaire']['affiliate_id']));
 $this->Js->buffer ("
 	var last_index = $i;
-	$('.sortable').tableSort(tableReorder);
+	jQuery('.sortable').tableSort(tableReorder);
 
-	$('#AddQuestionDiv').dialog({
+	jQuery('#AddQuestionDiv').dialog({
 		autoOpen: false,
-		buttons: { 'Cancel': function() { $(this).dialog('close'); } },
+		buttons: { 'Cancel': function() { jQuery(this).dialog('close'); } },
 		modal: true,
 		resizable: false,
 		width: 500
 	});
 
-	$('#AddQuestion').autocomplete('$auto_complete_url',
+	jQuery('#AddQuestion').autocomplete('$auto_complete_url',
 	{
 		mustMatch: true,
 		width: 470,
@@ -68,7 +68,7 @@ $this->Js->buffer ("
 		if (data !== undefined)
 		{
 			addQuestionFinish('$add_question_url', data, ++last_index);
-			$('#AddQuestionDiv').dialog('close');
+			jQuery('#AddQuestionDiv').dialog('close');
 		}
 	});
 ");

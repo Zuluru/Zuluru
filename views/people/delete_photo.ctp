@@ -1,6 +1,6 @@
 <?php
 if ($success) {
-	echo $this->Html->scriptBlock ("$('#$row').remove()");
+	echo $this->Html->scriptBlock ("jQuery('#$row').remove()");
 } else {
 	echo $this->Html->scriptBlock ("alert('Failed to delete the photo.')");
 }

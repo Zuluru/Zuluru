@@ -13,6 +13,6 @@
 	echo $this->Form->input("$model.remember_me", array('type' => 'checkbox', 'tabindex' => 1));
 	echo $this->Form->submit(__('Login', true), array('tabindex' => 1));
 	echo $this->Form->end();
-	$this->Js->buffer('$("#UserName").focus()');
+	$this->Js->buffer('jQuery("#UserName").focus()');
 ?>
 </div>

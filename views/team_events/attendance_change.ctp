@@ -60,10 +60,10 @@ echo $this->Form->end(__('Submit', true));
 $invited = ATTENDANCE_INVITED;
 echo $this->Html->scriptBlock("
 function statusChanged() {
-	if ($('#PersonStatus$invited').attr('checked')) {
-		$('#PersonNote').closest('div').show();
+	if (jQuery('#PersonStatus$invited').attr('checked')) {
+		jQuery('#PersonNote').closest('div').show();
 	} else {
-		$('#PersonNote').closest('div').hide();
+		jQuery('#PersonNote').closest('div').hide();
 	}
 }
 ");

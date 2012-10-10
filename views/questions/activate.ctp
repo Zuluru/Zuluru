@@ -4,7 +4,7 @@ if ($success) {
 			array('action' => 'deactivate', 'question' => $question, 'id' => $id),
 			array('update' => "#temp_update")
 	);
-	echo $this->Html->scriptBlock ("$('#$id').html('$content')");
+	echo $this->Html->scriptBlock ("jQuery('#$id').html('$content')");
 } else {
 	echo $this->Html->scriptBlock ("alert('Failed to activate question \'$name\'.')");
 }

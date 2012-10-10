@@ -56,18 +56,18 @@ function inlinePositions(id)
 
 function updateForm()
 {
-	$('#show_angle').html(fields[current].angle);
-	$('#show_width').html(fields[current].width);
-	$('#show_length').html(fields[current].length);
-	$('#show_field').html(fieldLength(fields[current].length));
-	$('#show_endzone').html(endzoneLength(fields[current].length));
+	jQuery('#show_angle').html(fields[current].angle);
+	jQuery('#show_width').html(fields[current].width);
+	jQuery('#show_length').html(fields[current].length);
+	jQuery('#show_field').html(fieldLength(fields[current].length));
+	jQuery('#show_endzone').html(endzoneLength(fields[current].length));
 }
 
 function saveField()
 {
 	if (current != 0) {
-		fields[current].angle = parseInt ($('#show_angle').html());
-		fields[current].width = parseInt ($('#show_width').html());
-		fields[current].length = parseInt ($('#show_length').html());
+		fields[current].angle = parseInt (jQuery('#show_angle').html());
+		fields[current].width = parseInt (jQuery('#show_width').html());
+		fields[current].length = parseInt (jQuery('#show_length').html());
 	}
 }

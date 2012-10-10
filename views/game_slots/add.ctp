@@ -126,7 +126,7 @@ $url = $this->Html->url (array('controller' => 'divisions', 'action' => 'select'
 // Add JavaScript functions for "select all" buttons, hiding blocks of fields, and populating the division list
 // TODO: Make hideFieldset and selectAll more generic and move to a .js file
 echo $this->Html->scriptBlock("
-$(document).ready(function() {
+jQuery(document).ready(function($) {
 	update_divisions();
 	$('select[id*=GameSlotGameDate]').change(function(){update_divisions();});
 	$('.hidden').hide();
@@ -146,13 +146,13 @@ $(document).ready(function() {
 });
 
 function update_divisions(){
-	var date = $('#GameSlotGameDateYear').val() + '-' + $('#GameSlotGameDateMonth').val() + '-' + $('#GameSlotGameDateDay').val();
+	var date = jQuery('#GameSlotGameDateYear').val() + '-' + jQuery('#GameSlotGameDateMonth').val() + '-' + jQuery('#GameSlotGameDateDay').val();
 
-	$.ajax({
+	jQuery.ajax({
 		type: 'GET',
 		url: '$url/' + date,
 		success: function(divisions){
-			$('#division_list').html(divisions);
+			jQuery('#division_list').html(divisions);
 		},
 		error: function(message){
 			alert(message);
@@ -161,28 +161,28 @@ function update_divisions(){
 }
 
 function hideFieldset(index) {
-	var label = $('#hide' + index).text();
+	var label = jQuery('#hide' + index).text();
 	if (label.substr(0,4) == 'Hide') {
-		$('#region' + index).css('display', 'none');
-		$('#hide' + index).text('Show' + label.substr(4));
+		jQuery('#region' + index).css('display', 'none');
+		jQuery('#hide' + index).text('Show' + label.substr(4));
 	} else {
-		$('#region' + index).css('display', '');
-		$('#hide' + index).text('Hide' + label.substr(4));
+		jQuery('#region' + index).css('display', '');
+		jQuery('#hide' + index).text('Hide' + label.substr(4));
 	}
 }
 
 function selectAll(index) {
-	var label = $('#select' + index).text();
+	var label = jQuery('#select' + index).text();
 	var check = true;
 	if (label.substr(0,6) == 'Select') {
-		$('#select' + index).text('Unselect all');
+		jQuery('#select' + index).text('Unselect all');
 	} else {
-		$('#select' + index).text('Select all');
+		jQuery('#select' + index).text('Select all');
 		check = false;
 	}
 
-	$('#region' + index + ' :checkbox').each(function () {
-		$(this).attr('checked', check);
+	jQuery('#region' + index + ' :checkbox').each(function () {
+		jQuery(this).attr('checked', check);
 	});
 }
 ");

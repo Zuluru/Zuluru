@@ -293,46 +293,46 @@ $win = Configure::read('scoring.default_winning_score');
 $lose = Configure::read('scoring.default_losing_score');
 echo $this->Html->scriptBlock("
 function statusChanged() {
-	if ($('#Status').val() == 'home_default') {
-		$('#ScoreHome').val($lose);
-		$('#ScoreAway').val($win);
+	if (jQuery('#Status').val() == 'home_default') {
+		jQuery('#ScoreHome').val($lose);
+		jQuery('#ScoreAway').val($win);
 		disableCommon();
 		enableScores();
-	} else if ($('#Status').val() == 'away_default') {
-		$('#ScoreHome').val($win);
-		$('#ScoreAway').val($lose);
+	} else if (jQuery('#Status').val() == 'away_default') {
+		jQuery('#ScoreHome').val($win);
+		jQuery('#ScoreAway').val($lose);
 		disableCommon();
 		enableScores();
-	} else if ($('#Status').val() == 'normal') {
+	} else if (jQuery('#Status').val() == 'normal') {
 		enableCommon();
 		enableScores();
 	} else {
-		$('#ScoreHome').val(0);
-		$('#ScoreAway').val(0);
+		jQuery('#ScoreHome').val(0);
+		jQuery('#ScoreAway').val(0);
 		disableCommon();
 		disableScores();
 	}
 }
 
 function disableScores() {
-	$('#Scores').css('display', 'none');
+	jQuery('#Scores').css('display', 'none');
 }
 
 function enableScores() {
-	$('#Scores').css('display', '');
+	jQuery('#Scores').css('display', '');
 }
 
 function disableCommon() {
-	$('input:text').attr('disabled', 'disabled');
-	$('.AllstarDetails').css('display', 'none');
+	jQuery('input:text').attr('disabled', 'disabled');
+	jQuery('.AllstarDetails').css('display', 'none');
 	if (typeof window.disableSpirit == 'function') {
 		disableSpirit();
 	}
 }
 
 function enableCommon() {
-	$('input:text').removeAttr('disabled');
-	$('.AllstarDetails').css('display', '');
+	jQuery('input:text').removeAttr('disabled');
+	jQuery('.AllstarDetails').css('display', '');
 	if (typeof window.enableSpirit == 'function') {
 		enableSpirit();
 	}
@@ -346,7 +346,7 @@ function enableCommon() {
 // but maybe something in the future. Cost to do this is
 // extremely minimal.
 $this->Js->buffer('
-$("#Status").change(function(){statusChanged();});
+jQuery("#Status").change(function(){statusChanged();});
 statusChanged();
 ');
 

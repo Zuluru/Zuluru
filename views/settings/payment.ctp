@@ -108,7 +108,7 @@ $this->Html->addCrumb (__('Online Payments', true));
 	echo $this->element('payments/settings/' . Configure::read('payment.payment_implementation'));
 	$this->Js->get('#PaymentProvider')->event('change', $this->Js->request(
 			array('action' => 'payment_provider_fields'),
-			array('update' => '#PaymentProviderFields', 'dataExpression' => true, 'data' => '$("#PaymentProvider").get()')
+			array('update' => '#PaymentProviderFields', 'dataExpression' => true, 'data' => 'jQuery("#PaymentProvider").get()')
 	));
 	?>
 	</div>

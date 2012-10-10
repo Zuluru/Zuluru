@@ -115,11 +115,11 @@ echo $this->Form->end(__('Submit', true));
 
 echo $this->Html->scriptBlock ('
 function compare(id) {
-	$("td[class^=player_id_]").css("display", "none");
-	$("td[class^=player_id_" + id + "]").css("display", "");
+	jQuery("td[class^=player_id_]").css("display", "none");
+	jQuery("td[class^=player_id_" + id + "]").css("display", "");
 	return false;
 }
-$(document).ready(function() {
+jQuery(document).ready(function() {
 	compare(0);
 });
 ');

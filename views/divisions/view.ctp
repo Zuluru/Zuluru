@@ -19,7 +19,7 @@ if ($is_manager && !in_array($division['League']['affiliate_id'], $this->Session
 			<?php
 			echo $this->Html->link($division['League']['full_name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $division['League']['id']));
 			echo $this->ZuluruHtml->iconLink('view_24.png', array('controller' => 'leagues', 'action' => 'view', 'league' => $division['League']['id']), array('id' => 'LeagueDetailsIcon'));
-			$this->Js->get('#LeagueDetailsIcon')->event('click', '$("#LeagueDetails").toggle();');
+			$this->Js->get('#LeagueDetailsIcon')->event('click', 'jQuery("#LeagueDetails").toggle();');
 			?>
 
 		</dd>

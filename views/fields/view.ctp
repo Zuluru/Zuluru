@@ -12,7 +12,7 @@ $this->Html->addCrumb (__('View', true));
 			<?php
 			echo $this->Html->link($field['Facility']['name'], array('controller' => 'facilities', 'action' => 'view', 'facility' => $field['Facility']['id']));
 			echo $this->ZuluruHtml->iconLink('view_24.png', array('controller' => 'facilities', 'action' => 'view', 'facility' => $field['Facility']['id']), array('id' => 'FacilityDetailsIcon'));
-			$this->Js->get('#FacilityDetailsIcon')->event('click', '$("#FacilityDetails").toggle();');
+			$this->Js->get('#FacilityDetailsIcon')->event('click', 'jQuery("#FacilityDetails").toggle();');
 			?>
 
 		</dd>

@@ -61,7 +61,7 @@ echo $this->Form->end();
 echo $this->Html->scriptBlock('
 function adjust(id, add)
 {
-	var element = $("#Team" + id + "InitialRating");
+	var element = jQuery("#Team" + id + "InitialRating");
 	var val = parseInt (element.val()) + add;
 	if (val < 0) val = 0;
 	element.val(val);
