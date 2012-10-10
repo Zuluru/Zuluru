@@ -1376,13 +1376,6 @@ class TeamsController extends AppController {
 		$this->Team->Division->addPlayoffs($team);
 		$this->_limitOverride($id);
 
-		// Only include people that aren't yet on the new roster
-		$current = Set::extract('/Person/id', $team);
-		if (count ($current) == 1) {
-			$conditions = array('Person.id !=' => array_shift ($current));
-		} else {
-			$conditions = array('Person.id NOT' => $current);
-		}
 		// Read the old team roster
 		$this->Team->contain(array (
 			'Division' => 'League',
@@ -1395,7 +1388,8 @@ class TeamsController extends AppController {
 				'order' => array(
 					'Person.gender DESC', 'Person.last_name', 'Person.first_name',
 				),
-				'conditions' => $conditions,
+				// Only include people that aren't yet on the new roster
+				'conditions' => array('NOT' => array('Person.id' => Set::extract('/Person/id', $team))),
 			),
 		));
 		$old_team = $this->Team->read(null, $this->data['team']);
