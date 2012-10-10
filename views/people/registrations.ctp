@@ -73,7 +73,7 @@ foreach ($registrations as $registration):
 		<td>
 			<?php echo $registration['Registration']['payment']; ?>
 		</td>
-		<td>
+		<td class="actions">
 			<?php
 			if ($is_admin) {
 				echo $this->Html->link (__('View', true), array('controller' => 'registrations', 'action' => 'view', 'registration' => $registration['Registration']['id']));
