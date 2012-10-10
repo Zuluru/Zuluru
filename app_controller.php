@@ -222,6 +222,7 @@ class AppController extends Controller {
 					'active' => true,
 					'NOT' => array('id' => $this->Session->read('Zuluru.ManagedAffiliateIDs')),
 				),
+				'contain' => array(),
 		));
 		$affiliates = Set::combine($affiliates, '{n}.Affiliate.id', '{n}.Affiliate.name');
 
