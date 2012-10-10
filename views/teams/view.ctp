@@ -258,7 +258,10 @@ $this->Html->addCrumb (__('View', true));
 		<th><?php __('Gender'); ?></th>
 		<?php if (Configure::read('profile.skill_level')): ?>
 		<th><?php __('Rating'); ?></th>
-		<?php endif; ?>
+		<?php
+			++$cols;
+		endif;
+		?>
 		<?php if (Configure::read('profile.shirt_size') && ($is_admin || $is_coordinator)): ?>
 		<th><?php __('Shirt Size'); ?></th>
 		<?php
