@@ -1288,7 +1288,8 @@ class PeopleController extends AppController {
 		$params = $url = $this->_extractSearchParams();
 		if (!empty($params)) {
 			$test = trim (@$params['first_name'], ' *') . trim (@$params['last_name'], ' *');
-			if (strlen ($test) < 2) {
+			$min = ($this->is_admin || $this->is_manager) ? 1 : 2;
+			if (strlen ($test) < $min) {
 				$this->set('short', true);
 			} else {
 				$this->_mergePaginationParams();
