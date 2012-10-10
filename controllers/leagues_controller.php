@@ -153,6 +153,29 @@ class LeaguesController extends AppController {
 		$this->_addLeagueMenuItems ($this->League->data);
 	}
 
+	function participation() {
+		$id = $this->_arg('league');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$this->League->contain (array(
+			'Division' => array('Team' => array('Person')),
+		));
+		$league = $this->League->read(null, $id);
+		if ($league === false) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+		}
+
+		if ($this->params['url']['ext'] == 'csv') {
+			$this->set('download_file_name', "Participation - {$league['League']['full_name']}");
+			Configure::write ('debug', 0);
+		}
+		$this->set(compact('league'));
+	}
+
 	function add() {
 		if (!empty($this->data)) {
 			$this->League->create();

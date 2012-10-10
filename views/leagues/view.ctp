@@ -124,6 +124,8 @@ $this->Html->addCrumb (__('View', true));
 				array('action' => 'delete', 'league' => $league['League']['id']),
 				array('alt' => __('Delete', true), 'title' => __('Delete League', true)),
 				array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $league['League']['id']))));
+			echo $this->Html->tag ('li', $this->Html->link(__('Participation', true),
+				array('action' => 'participation', 'league' => $league['League']['id'])));
 		?>
 	</ul>
 </div>

@@ -61,6 +61,7 @@ foreach ($divisions as $division):
 					array('action' => 'delete', 'league' => $division['League']['id']),
 					array('alt' => __('Delete', true), 'title' => __('Delete League', true)),
 					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $division['League']['id'])));
+				echo $this->Html->link(__('Participation', true), array('action' => 'participation', 'league' => $division['League']['id']));
 			?>
 		</th>
 		<?php endif; ?>
