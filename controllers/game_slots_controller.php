@@ -226,7 +226,7 @@ class GameSlotsController extends AppController {
 		$divisions = $this->GameSlot->Game->Division->readByDate($this->data['GameSlot']['game_date'], $affiliate);
 		$divisions = Set::combine($divisions, '{n}.Division.id', '{n}.Division.full_league_name');
 		$this->data['GameSlot']['division_id'] = Set::extract ('/DivisionGameslotAvailability/division_id', $this->data);
-		$this->set(compact('divisions'));
+		$this->set(compact('affiliate', 'divisions'));
 	}
 
 	function delete() {
