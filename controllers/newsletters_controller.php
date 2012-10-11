@@ -113,7 +113,7 @@ class NewslettersController extends AppController {
 			}
 			$mailingLists = $names;
 		} else {
-			$mailingLists = Set::combine($mailingLists, '{n}.MailinstList.id', '{n}.MailinstList.name');
+			$mailingLists = Set::combine($mailingLists, '{n}.MailingList.id', '{n}.MailingList.name');
 		}
 		$this->set(compact('mailingLists'));
 
