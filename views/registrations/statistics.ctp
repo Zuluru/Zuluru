@@ -15,8 +15,6 @@ foreach ($events as $event) {
 		$rows[] = array(array($this->Html->tag('h3', $event['Affiliate']['name']), array('class' => 'affiliate', 'colspan' => 2)));
 	}
 
-	$group = null;
-
 	if ($event['EventType']['name'] != $group) {
 		$group = $event['EventType']['name'];
 		$rows[] = array(array($this->Html->tag('h4', $group), array('colspan' => 2)));
