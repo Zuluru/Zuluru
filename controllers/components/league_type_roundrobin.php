@@ -254,14 +254,19 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 		}
 
 		// Schedule both halves.
-		return ($this->createFullRoundrobin($date, $top_half) &&
+		// TODO: We should create the games for each half and combine them before allocating fields,
+		// to be better at accomodating home field and regional requests. Otherwise, a team in the
+		// "bottom half" might have their best option already allocated to a game in the "top half".
+		// Low priority, as it's only an issue when scheduling half round robins when there are
+		// home field or regional preferences.
+		return ($this->createFullRoundrobin($date, $top_half, 2) &&
 				$this->createFullRoundrobin($date, $bottom_half));
 	}
 
 	/*
 	 * Create a full round-robin for this division.
 	 */
-	function createFullRoundrobin($date, $teams = null) {
+	function createFullRoundrobin($date, $teams = null, $repeats = 1) {
 		if (is_null($teams)) {
 			$teams = $this->division['Team'];
 		}
@@ -288,7 +293,7 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 		$iterations_remaining = $num_teams - 1;
 
 		// and so we need n-1 days worth of gameslots
-		$day_count = $this->countAvailableGameslotDays($date);
+		$day_count = $this->countAvailableGameslotDays($date, $num_teams / 2 * $repeats);
 
 		if ($day_count < $iterations_remaining) {
 			$this->_controller->Session->setFlash(sprintf (__('Need %s weeks of gameslots, yet only %s are available. Add more gameslots.', true), $iterations_remaining, $day_count), 'default', array('class' => 'warning'));
@@ -307,7 +312,7 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 			}
 
 			// b. schedule them
-			if (!$this->assignFields($date, $set_teams)) {
+			if (!$this->assignFields($date, $set_teams, $num_teams / 2 * ($repeats - 1))) {
 				$this->_controller->Session->setFlash(sprintf (__('Had to stop with %s sets left to schedule: could not assign %s', true), $iterations_remaining, Configure::read('sport.fields')), 'default', array('class' => 'error'));
 				return false;
 			}
@@ -317,7 +322,7 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 			$teams = $this->rotateAllExceptFirst($teams);
 
 			// Now, move the date forward to next available game date
-			$date = $this->nextGameslotDay($date);
+			$date = $this->nextGameslotDay($date, $num_teams / 2 * ($repeats - 1));
 		}
 
 		return true;

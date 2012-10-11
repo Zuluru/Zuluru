@@ -351,6 +351,7 @@ class LeagueTypeComponent extends Object
 			$field_contain = array();
 		}
 		$this->_controller->Division->contain (array (
+			'Day',
 			'Team' => array(
 				'order' => 'Team.name',
 				'conditions' => array('NOT' => array('id' => $exclude_teams)),
@@ -395,7 +396,7 @@ class LeagueTypeComponent extends Object
 
 			if ($regions) {
 				$team = array_pop (Set::extract ("/Team[id={$game['home_team']}]/.", $this->division));
-				if ($team['region_preference'] && $team['region_preference'] == $game['GameSlot']['Field']['region_id']) {
+				if ($team['region_preference'] && $team['region_preference'] == $game['GameSlot']['Field']['Facility']['region_id']) {
 					if (!array_key_exists ($game['home_team'], $this->preferred_games)) {
 						$this->preferred_games[$game['home_team']] = 1;
 					} else {
@@ -404,7 +405,7 @@ class LeagueTypeComponent extends Object
 				}
 
 				$team = array_pop (Set::extract ("/Team[id={$game['away_team']}]/.", $this->division));
-				if ($team['region_preference'] && $team['region_preference'] == $game['GameSlot']['Field']['region_id']) {
+				if ($team['region_preference'] && $team['region_preference'] == $game['GameSlot']['Field']['Facility']['region_id']) {
 					if (!array_key_exists ($game['away_team'], $this->preferred_games)) {
 						$this->preferred_games[$game['away_team']] = 1;
 					} else {
@@ -517,10 +518,11 @@ class LeagueTypeComponent extends Object
 	 *
 	 * @param mixed $date The date of the games
 	 * @param mixed $teams List of teams, sorted into pairs by matchup
+	 * @param mixed $remaining The number of other games still to be scheduled after this set
 	 * @return boolean indication of success
 	 *
 	 */
-	function assignFields($date, $teams) {
+	function assignFields($date, $teams, $remaining = 0) {
 		// We build a temporary array of games, and add them to the completed list when they're ready
 		$games = array();
 
@@ -530,7 +532,7 @@ class LeagueTypeComponent extends Object
 		}
 
 		// Iterate over all newly-created games, and assign fields based on region preference.
-		if (!$this->assignFieldsByPreferences($date, $games)) {
+		if (!$this->assignFieldsByPreferences($date, $games, $remaining)) {
 			return false;
 		}
 
@@ -617,7 +619,7 @@ class LeagueTypeComponent extends Object
 	 * select_weighted_gameslot(), which takes region preference into account.
 	 *
 	 */
-	function assignFieldsByPreferences($date, $games) {
+	function assignFieldsByPreferences($date, $games, $remaining = 0) {
 		/*
 		 * We sort by ratio of getting their preference, from lowest to
 		 * highest, so that teams who received their field preference least
@@ -627,7 +629,7 @@ class LeagueTypeComponent extends Object
 		usort($games, array($this, 'comparePreferredFieldRatio'));
 
 		while($game = array_shift($games)) {
-			$slot_id = $this->selectWeightedGameslot($game, $date);
+			$slot_id = $this->selectWeightedGameslot($game, $date, count($games) + 1 + $remaining);
 			if (!$slot_id) {
 				return false;
 			}
@@ -707,15 +709,27 @@ class LeagueTypeComponent extends Object
 	/**
 	 * Select a random gameslot
 	 *
-	 * @param mixed $date The date of the game
+	 * @param mixed $date The possible dates of the game
+	 * @param mixed $remaining The number of games still to be scheduled, including this one
 	 * @return mixed The id of the selected slot
 	 *
 	 */
-	function selectRandomGameslot($date) {
-		if (is_numeric ($date)) {
-			$date = date('Y-m-d', $date);
+	function selectRandomGameslot($dates, $remaining = 1) {
+		if (!is_array($dates)) {
+			$dates = array($dates);
 		}
-		$slots = Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date]/id", $this->division);
+
+		$slots = array();
+		foreach ($dates as $date) {
+			if (is_numeric ($date)) {
+				$date = date('Y-m-d', $date);
+			}
+			$slots = array_merge($slots, Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date]/id", $this->division));
+			if (count($slots) >= $remaining) {
+				break;
+			}
+		}
+
 		if (empty ($slots)) {
 			App::import('Helper', 'Html');
 			$html = new HtmlHelper();
@@ -744,10 +758,11 @@ class LeagueTypeComponent extends Object
 	 *
 	 * @param mixed $game Array of game details (e.g. home_team, away_team)
 	 * @param mixed $date The date of the game
+	 * @param mixed $remaining The number of games still to be scheduled, including this one
 	 * @return mixed The id of the selected slot
 	 *
 	 */
-	function selectWeightedGameslot($game, $date)
+	function selectWeightedGameslot($game, $date, $remaining)
 	{
 		if (is_numeric ($date)) {
 			$date = date('Y-m-d', $date);
@@ -757,42 +772,54 @@ class LeagueTypeComponent extends Object
 		$home = $this->division['Team'][$game['home_team']];
 		$away = $this->division['Team'][$game['away_team']];
 
+		$days = Set::extract('/Day/id', $this->division);
+		$match_dates = Game::_matchDates($date, $days);
+
 		if (Configure::read('feature.home_field')) {
 			// Try to adhere to the home team's home field
 			if ($home['home_field']) {
-				$slots = Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date][field_id={$home['home_field']}]/id", $this->division);
+				$slots = $this->matchingSlots("[field_id={$home['home_field']}]", 'id', $match_dates, $remaining);
 			}
 
 			// If not available, try the away team's home field
 			if (empty ($slots) && $away['home_field']) {
-				$slots = Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date][field_id={$away['home_field']}]/id", $this->division);
+				$slots = $this->matchingSlots("[field_id={$away['home_field']}]", 'id', $match_dates, $remaining);
 			}
 		}
 
 		// Maybe try region preferences
 		if (Configure::read('feature.region_preference')) {
 			if (empty ($slots) && $home['region_preference']) {
-				// TODO: Test this once fields are fixed
-				$slots = Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date]/Field[region_id={$home['region_preference']}]/..", $this->division);
+				$slots = $this->matchingSlots("/Field/Facility[region_id={$home['region_preference']}]", '../..', $match_dates, $remaining);
 				$slots = Set::extract('/GameSlot/id', $slots);
 			}
 
 			if (empty ($slots) && $away['region_preference']) {
-				// TODO: Test this once fields are fixed
-				$slots = Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date]/Field[region_id={$away['region_preference']}]/..", $this->division);
+				$slots = $this->matchingSlots("/Field/Facility[region_id={$away['region_preference']}]", '../..', $match_dates, $remaining);
 				$slots = Set::extract('/GameSlot/id', $slots);
 			}
 		}
 
 		// If still nothing can be found, last try is just random
 		if (empty ($slots)) {
-			return $this->selectRandomGameslot($date);
+			return $this->selectRandomGameslot($match_dates, $remaining);
 		}
 
 		shuffle ($slots);
 		$slot_id = $slots[0];
 		$this->removeGameslot($slot_id);
 		return $slot_id;
+	}
+
+	function matchingSlots($criteria, $path, $dates, $remaining) {
+		$matches = array();
+		foreach ($dates as $date) {
+			$matches = array_merge($matches, Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date]$criteria/$path", $this->division));
+			if (count($matches) >= $remaining) {
+				break;
+			}
+		}
+		return $matches;
 	}
 
 	/**
@@ -805,6 +832,7 @@ class LeagueTypeComponent extends Object
 		foreach ($this->division['DivisionGameslotAvailability'] as $key => $slot) {
 			if ($slot['game_slot_id'] == $slot_id) {
 				unset ($this->division['DivisionGameslotAvailability'][$key]);
+				return;
 			}
 		}
 	}
@@ -813,12 +841,22 @@ class LeagueTypeComponent extends Object
 	 * Count how many distinct gameslot days are availabe from $date onwards
 	 *
 	 */
-	function countAvailableGameslotDays($date) {
+	function countAvailableGameslotDays($date, $slots_per_day) {
 		if (is_numeric ($date)) {
 			$date = date('Y-m-d', $date);
 		}
-		$dates = array_unique (Set::extract("/DivisionGameslotAvailability/GameSlot[game_date>=$date]/game_date", $this->division));
-		return count($dates);
+		$dates = array_unique(Set::extract("/DivisionGameslotAvailability/GameSlot[game_date>=$date]/game_date", $this->division));
+		sort($dates);
+
+		$available = $slots = 0;
+		foreach ($dates as $date) {
+			$slots += count(Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date]", $this->division));
+			if ($slots >= $slots_per_day) {
+				++$available;
+				$slots = 0;
+			}
+		}
+		return $available;
 	}
 
 	/**
@@ -826,12 +864,23 @@ class LeagueTypeComponent extends Object
 	 *
 	 * value returned is a UNIX timestamp for the game day.
 	 */
-	function nextGameslotDay($date) {
+	function nextGameslotDay($date, $skip) {
 		if (is_numeric ($date)) {
 			$date = date('Y-m-d', $date);
 		}
-		$dates = array_unique (Set::extract("/DivisionGameslotAvailability/GameSlot[game_date>$date]/game_date", $this->division));
-		return min($dates);
+
+		if (!$skip) {
+			$dates = array_unique(Set::extract("/DivisionGameslotAvailability/GameSlot[game_date>$date]/game_date", $this->division));
+			return min($dates);
+		}
+
+		$dates = array_unique(Set::extract("/DivisionGameslotAvailability/GameSlot[game_date>=$date]/game_date", $this->division));
+		sort($dates);
+		while ($skip > 0 && !empty($dates)) {
+			$date = array_shift($dates);
+			$skip -= count(Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date]", $this->division));
+		}
+		return array_shift($dates);
 	}
 }
 

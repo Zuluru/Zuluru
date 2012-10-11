@@ -47,6 +47,7 @@ class AllController extends AppController {
 					'AwayTeam.id', 'AwayTeam.name',
 				),
 				'contain' => array(
+					'Division' => array('Day'),
 					'GameSlot' => array('Field' => 'Facility'),
 					'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $team_ids)),
 					'HomeTeam',
@@ -71,11 +72,11 @@ class AllController extends AppController {
 			foreach ($future_games as $game) {
 				if (empty ($game['Attendance'])) {
 					if ($game['HomeTeam']['track_attendance'] && in_array($game['HomeTeam']['id'], $team_ids)) {
-						$attendance = $this->Game->_read_attendance($game['HomeTeam']['id'], $game['Game']['id']);
+						$attendance = $this->Game->_read_attendance($game['HomeTeam']['id'], Set::extract('/Division/Day/id', $game), $game['Game']['id']);
 						$reread = true;
 					}
 					if ($game['AwayTeam']['track_attendance'] && in_array($game['AwayTeam']['id'], $team_ids)) {
-						$attendance = $this->Game->_read_attendance($game['AwayTeam']['id'], $game['Game']['id']);
+						$attendance = $this->Game->_read_attendance($game['AwayTeam']['id'], Set::extract('/Division/Day/id', $game), $game['Game']['id']);
 						$reread = true;
 					}
 				}

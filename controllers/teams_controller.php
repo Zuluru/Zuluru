@@ -1202,13 +1202,14 @@ class TeamsController extends AppController {
 
 		$dates = array();
 		$days = Set::extract('/Division/Day/id', $team);
+		$play_day = min($days);
 		for ($date = strtotime ($team['Division']['open']); $date <= strtotime ($team['Division']['close']) + DAY - 1; $date += DAY) {
 			$day = date('w', $date) + 1;
-			if (in_array ($day, $days) && !array_key_exists(date('Y-m-d', $date), $holidays)) {
+			if ($day == $play_day && !array_key_exists(date('Y-m-d', $date), $holidays)) {
 				$dates[] = date('Y-m-d', $date);
 			}
 		}
-		$attendance = $this->Team->Division->Game->_read_attendance($team, null, $dates);
+		$attendance = $this->Team->Division->Game->_read_attendance($team, $days, null, $dates);
 		$event_attendance = $this->Team->TeamEvent->_read_attendance($team);
 
 		$this->Team->Division->Game->contain(array(
@@ -1227,7 +1228,7 @@ class TeamsController extends AppController {
 				'order' => array('GameSlot.game_date', 'GameSlot.game_start'),
 		));
 
-		$this->set(compact('team', 'attendance', 'event_attendance', 'dates', 'games'));
+		$this->set(compact('team', 'attendance', 'event_attendance', 'dates', 'days', 'games'));
 		$this->set('is_captain', in_array($id, $this->Session->read('Zuluru.OwnedTeamIDs')));
 	}
 

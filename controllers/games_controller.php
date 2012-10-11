@@ -591,7 +591,7 @@ class GamesController extends AppController {
 		}
 
 		$this->Game->contain(array(
-			'Division' => array('League'),
+			'Division' => array('Day', 'League'),
 			'HomeTeam',
 			'AwayTeam',
 			'GameSlot' => array('Field' => 'Facility'),
@@ -613,7 +613,7 @@ class GamesController extends AppController {
 			$this->redirect('/');
 		}
 
-		$attendance = $this->Game->_read_attendance($team_id, $id);
+		$attendance = $this->Game->_read_attendance($team_id, Set::extract('/Division/Day/id', $game), $id);
 		$this->set(compact('game', 'team', 'opponent', 'attendance'));
 		$this->set('is_captain', in_array($team_id, $this->Session->read('Zuluru.OwnedTeamIDs')));
 	}
@@ -1628,6 +1628,7 @@ class GamesController extends AppController {
 		// Find all of the games that might have players that need to be reminded about attendance
 		// TODO: Do we need to do something to handle games that aren't yet scheduled?
 		$this->Game->contain(array(
+			'Division' => array('Day'),
 			'GameSlot' => array('Field' => 'Facility'),
 			'HomeTeam',
 			'AwayTeam',
@@ -1670,6 +1671,7 @@ class GamesController extends AppController {
 		// Find all of the games that might have captains that need attendance summaries
 		// TODO: Do we need to do something to handle games that aren't yet scheduled?
 		$this->Game->contain(array(
+			'Division' => array('Day'),
 			'GameSlot' => array('Field' => 'Facility'),
 			// Get the list of captains for each team, we may need to email them
 			'HomeTeam' => array(
@@ -1731,7 +1733,7 @@ class GamesController extends AppController {
 		// Read the attendance records for this game and team.
 		// We have to do it this way, not as a contain on the main find,
 		// so that any missing records are created for us.
-		$attendance = $this->Game->_read_attendance($team['id'], $game['Game']['id']);
+		$attendance = $this->Game->_read_attendance($team['id'], Set::extract('/Division/Day/id', $game), $game['Game']['id']);
 		$sent = 0;
 		foreach ($attendance['Person'] as $person) {
 			$regular = in_array($person['TeamsPerson']['position'], Configure::read('playing_roster_positions'));
@@ -1780,7 +1782,7 @@ class GamesController extends AppController {
 		// Read the attendance records for this game and team.
 		// We have to do it this way, not as a contain on the main find,
 		// so that any missing records are created for us.
-		$attendance = $this->Game->_read_attendance($team['id'], $game['Game']['id']);
+		$attendance = $this->Game->_read_attendance($team['id'], Set::extract('/Division/Day/id', $game), $game['Game']['id']);
 
 		// Summarize by attendance status
 		$summary = array_fill_keys(array_keys(Configure::read('attendance')),

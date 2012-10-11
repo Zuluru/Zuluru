@@ -9,12 +9,22 @@ $this->Html->addCrumb ($team['Team']['name']);
 <?php
 $all_games = array();
 
+if (count($days) > 1) {
+	$prefix = __('Week of', true) . ' ';
+} else {
+	$prefix = null;
+}
+
 foreach ($dates as $date) {
-	$games_on_date = Set::extract("/GameSlot[game_date=$date]/..", $games);
+	$games_on_date = array();
+	$match_dates = Game::_matchDates($date, $days);
+	foreach ($match_dates as $match_date) {
+		$games_on_date = array_merge($games_on_date, Set::extract("/GameSlot[game_date=$match_date]/..", $games));
+	}
 	if (!empty($games_on_date)) {
 		foreach ($games_on_date as $game) {
 			$all_games[] = array(
-				'date' => $date, 'time' => $game['GameSlot']['game_start'],
+				'date' => $game['GameSlot']['game_date'], 'time' => $game['GameSlot']['game_start'],
 				'condition' => "game_id={$game['Game']['id']}",
 				'header' => $this->element('games/block', array('game' => $game)),
 			);
@@ -23,7 +33,7 @@ foreach ($dates as $date) {
 		$all_games[] = array(
 			'date' => $date, 'time' => '00:00:00',
 			'condition' => "game_date=$date",
-			'header' => $this->ZuluruTime->date($date),
+			'header' => $prefix . $this->ZuluruTime->date($date),
 		);
 	}
 }

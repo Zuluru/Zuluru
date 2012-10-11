@@ -410,12 +410,13 @@ class Game extends AppModel {
 	 * This will also create any missing records, with "unknown" status.
 	 *
 	 * @param mixed $team The team to read attendance for.
+	 * @param mixed $days The days on which the division operates.
 	 * @param mixed $game_id The game id, if known.
 	 * @param mixed $date The date of the game, or an array of dates.
 	 * @return mixed List of attendance records.
 	 *
 	 */
-	function _read_attendance($team, $game_id, $dates = null) {
+	function _read_attendance($team, $days, $game_id, $dates = null) {
 		// We accept either a pre-read team array with roster info, or just an id
 		if (!is_array($team)) {
 			$team_id = $team;
@@ -434,15 +435,15 @@ class Game extends AppModel {
 		// Make sure that all required records exist
 		if (is_array($dates)) {
 			foreach ($dates as $date) {
-				$this->_create_attendance($team, null, $date);
+				$this->_create_attendance($team, $days, null, $date);
 			}
-			$conditions = array('game_date' => $dates);
+			$conditions = array('game_date' => Game::_matchDates($dates, $days));
 		} else {
-			$this->_create_attendance($team, $game_id, $dates);
+			$this->_create_attendance($team, $days, $game_id, $dates);
 			if ($game_id !== null) {
 				$conditions = array('game_id' => $game_id);
 			} else {
-				$conditions = array('game_date' => $dates);
+				$conditions = array('game_date' => Game::_matchDates($dates, $days));
 			}
 		}
 
@@ -500,7 +501,7 @@ class Game extends AppModel {
 		return $attendance;
 	}
 
-	function _create_attendance($team, $game_id, $date) {
+	function _create_attendance($team, $days, $game_id, $date) {
 		if (array_key_exists ('id', $team)) {
 			$team_id = $team['id'];
 		} else {
@@ -531,13 +532,15 @@ class Game extends AppModel {
 			));
 
 			if (empty ($attendance)) {
+				$match_dates = Game::_matchDates($date, $days);
+
 				// There might be no attendance records because of a schedule change.
 				// Check for other attendance records for this team on the same date.
 				$attendance = $this->Attendance->find('all', array(
 					'contain' => false,
 					'conditions' => array(
 							'team_id' => $team_id,
-							'game_date' => $date,
+							'game_date' => $match_dates,
 							'team_event_id' => null,
 					),
 				));
@@ -551,7 +554,7 @@ class Game extends AppModel {
 									'Game.home_team' => $team_id,
 									'Game.away_team' => $team_id,
 									),
-								'GameSlot.game_date' => $date,
+								'GameSlot.game_date' => $match_dates,
 								'Game.id !=' => $game_id,
 								),
 							'order' => 'GameSlot.game_start',
@@ -578,6 +581,8 @@ class Game extends AppModel {
 				}
 			}
 		} else if ($date !== null) {
+			$match_dates = Game::_matchDates($date, $days);
+
 			$this->contain('GameSlot');
 			$games = $this->find('all', array(
 					'conditions' => array(
@@ -585,7 +590,7 @@ class Game extends AppModel {
 							'Game.home_team' => $team_id,
 							'Game.away_team' => $team_id,
 						),
-						'GameSlot.game_date' => $date,
+						'GameSlot.game_date' => $match_dates,
 						'Game.published' => true,
 					),
 					'order' => 'GameSlot.game_start',
@@ -596,13 +601,13 @@ class Game extends AppModel {
 					'contain' => false,
 					'conditions' => array(
 						'team_id' => $team_id,
-						'game_date' => $date,
+						'game_date' => $match_dates,
 						'team_event_id' => null,
 					),
 				));
 			} else {
 				foreach ($games as $game) {
-					$this->_create_attendance($team, $game['Game']['id'], $date);
+					$this->_create_attendance($team, $days, $game['Game']['id'], $date);
 				}
 				return;
 			}
@@ -639,6 +644,7 @@ class Game extends AppModel {
 					$update = array(
 						'id' => $record[0]['id'],
 						'game_id' => $game_id,
+						'game_date' => $date,
 						// Preserve the last update time, don't overwrite with "now"
 						'updated' => $record[0]['updated'],
 					);
@@ -661,6 +667,22 @@ class Game extends AppModel {
 		if (!empty ($attendance_update)) {
 			$this->Attendance->saveAll($attendance_update);
 		}
+	}
+
+	static function _matchDates($dates, $days) {
+		if (!is_array($dates)) {
+			$dates = array($dates);
+		}
+
+		$match_dates = array();
+		foreach ($dates as $date) {
+			$date_time = strtotime($date . ' 12:00:00');
+			$date_day = date('w', $date_time) + 1;
+			foreach ($days as $day) {
+				$match_dates[] = date('Y-m-d', $date_time + ($day - $date_day) * DAY);
+			}
+		}
+		return $match_dates;
 	}
 
 	static function _attendanceOptions($team_id, $position, $status, $past = false, $is_captain = null) {
