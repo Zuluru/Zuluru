@@ -9,6 +9,14 @@ class EventsController extends AppController {
 	}
 
 	function isAuthorized() {
+		// Anyone that's logged in can perform these operations
+		if (in_array ($this->params['action'], array(
+				'count',
+		)))
+		{
+			return true;
+		}
+
 		if ($this->is_manager) {
 			// Managers can perform these operations
 			if (in_array ($this->params['action'], array(
@@ -359,6 +367,31 @@ class EventsController extends AppController {
 		$event_types = $this->Event->EventType->find('list');
 
 		$this->set(compact('events', 'event_types'));
+	}
+
+	function count($membership = false) {
+		if (!Configure::read('feature.registration')) {
+			return 0;
+		}
+
+		$conditions = array(
+			'open < CURDATE()',
+			'close > CURDATE()',
+			'affiliate_id' => $this->_applicableAffiliateIDs(),
+		);
+		$membership_types = $this->Event->EventType->find('list', array(
+			'conditions' => array('type' => 'membership'),
+		));
+		if ($membership) {
+			$conditions['event_type_id'] = array_keys($membership_types);
+		} else {
+			$conditions['NOT'] = array('event_type_id' => array_keys($membership_types));
+		}
+
+		return $this->Event->find('count', array(
+				'conditions' => $conditions,
+				'contain' => array(),
+		));
 	}
 }
 ?>

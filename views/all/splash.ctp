@@ -1,34 +1,44 @@
 <?php
 $this->Html->addCrumb (__('Home', true));
-$this->Html->addCrumb ($name);
+$this->Html->addCrumb ($this->Session->read('Zuluru.Person.full_name'));
 ?>
 
 <div class="all splash">
-<?php echo $this->Html->tag('h2', $name); ?>
+<?php echo $this->Html->tag('h2', $this->Session->read('Zuluru.Person.full_name')); ?>
 
 <?php
 if ($is_admin) {
 	echo $this->element('version_check');
 }
 
-if (!$is_admin && empty($unpaid) && empty($teams) && empty($divisions)):
+// We already have a lot of the information we need, stored from when we built the menu
+$teams = $this->Session->read('Zuluru.Teams');
+$divisions = $this->Session->read('Zuluru.Divisions');
+$unpaid = $this->Session->read('Zuluru.Unpaid');
+$past_teams = $this->requestAction(array('controller' => 'teams', 'action' => 'past_count'));
+
+// If the user has nothing going on, pull some more details to allow us to help them get started
+if (!$is_admin && !$is_manager && empty($teams) && empty($divisions) && empty($unpaid)):
+	$membership_events = $this->requestAction(array('controller' => 'events', 'action' => 'count'), array('pass' => array(true)));
+	$non_membership_events = $this->requestAction(array('controller' => 'events', 'action' => 'count'));
+	$open_teams = $this->requestAction(array('controller' => 'teams', 'action' => 'open_count'));
+	$open_leagues = $this->requestAction(array('controller' => 'leagues', 'action' => 'open_count'));
+
 ?>
 <div id="kick_start">
 <h3><?php __('You are not yet on any teams.'); ?></h3>
 <?php
-	$actions = array();
+	$options = array();
+	if ($membership_events) {
+		$options[] = 'membership';
+	}
+	if ($non_membership_events) {
+		$options[] = 'an event';
+	}
 
-	if (Configure::read('feature.registration')) {
-		$options = array();
-		if ($membership_events) {
-			$options[] = 'membership';
-		}
-		if ($non_membership_events) {
-			$options[] = 'an event';
-		}
-		if (!empty($options)) {
-			$actions[] = $this->Html->link ('Register for ' . implode(' or ', $options), array('controller' => 'events', 'action' => 'wizard'));
-		}
+	$actions = array();
+	if (!empty($options)) {
+		$actions[] = $this->Html->link ('Register for ' . implode(' or ', $options), array('controller' => 'events', 'action' => 'wizard'));
 	}
 
 	if ($open_teams) {
@@ -166,7 +176,10 @@ foreach ($divisions as $division):
 </table>
 <?php endif; ?>
 
-<?php if (!empty($games)): ?>
+<?php
+$games = array_merge ($this->requestAction(array('controller' => 'games', 'action' => 'past')), $this->requestAction(array('controller' => 'games', 'action' => 'future')));
+if (!empty($games)):
+?>
 <table class="list">
 <tr>
 	<th colspan="3"><?php
@@ -243,6 +256,7 @@ foreach ($games as $game):
 </table>
 
 <p><?php
+$id = $this->requestAction(array('controller' => 'users', 'action' => 'id'));
 if (Configure::read('personal.enable_ical')) {
 	__('Get your personal schedule in ');
 	// TODOIMG: Better image locations, alt text

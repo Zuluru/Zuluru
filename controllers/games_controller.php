@@ -18,6 +18,8 @@ class GamesController extends AppController {
 				'ratings_table',
 				'note',
 				'delete_note',
+				'past',
+				'future',
 		)))
 		{
 			return true;
@@ -1551,6 +1553,100 @@ class GamesController extends AppController {
 			));
 		}
 		return true;
+	}
+
+	function past() {
+		$team_ids = $this->Session->read('Zuluru.TeamIDs');
+		if (empty ($team_ids)) {
+			return array();
+		}
+
+		return array_reverse ($this->Game->find ('all', array(
+			'limit' => 4,
+			'conditions' => array(
+				'OR' => array(
+					'HomeTeam.id' => $team_ids,
+					'AwayTeam.id' => $team_ids,
+				),
+				'Game.published' => true,
+				'GameSlot.game_date < CURDATE()',
+			),
+			'fields' => array(
+				'Game.id', 'Game.home_team', 'Game.home_score', 'Game.away_team', 'Game.away_score', 'Game.status', 'Game.division_id',
+				'Game.home_dependency_type', 'Game.home_dependency_id', 'Game.away_dependency_type', 'Game.away_dependency_id',
+				'GameSlot.game_date', 'GameSlot.game_start', 'GameSlot.game_end',
+				'HomeTeam.id', 'HomeTeam.name',
+				'AwayTeam.id', 'AwayTeam.name',
+			),
+			'contain' => array(
+				'Division' => array('Day'),
+				'GameSlot' => array('Field' => 'Facility'),
+				'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $team_ids)),
+				'HomeTeam',
+				'AwayTeam',
+				'Attendance' => array(
+					'conditions' => array('Attendance.person_id' => $this->Auth->user('id')),
+				),
+			),
+			'order' => 'GameSlot.game_date DESC, GameSlot.game_start DESC',
+		)));
+	}
+
+	function future() {
+		$team_ids = $this->Session->read('Zuluru.TeamIDs');
+		if (empty ($team_ids)) {
+			return array();
+		}
+
+		$games = $this->Game->find ('all', array(
+			'limit' => 4,
+			'conditions' => array(
+				'OR' => array(
+					'HomeTeam.id' => $team_ids,
+					'AwayTeam.id' => $team_ids,
+				),
+				'Game.published' => true,
+				'GameSlot.game_date >= CURDATE()',
+			),
+			'fields' => array(
+				'Game.id', 'Game.home_team', 'Game.home_score', 'Game.away_team', 'Game.away_score', 'Game.status', 'Game.division_id',
+				'Game.home_dependency_type', 'Game.home_dependency_id', 'Game.away_dependency_type', 'Game.away_dependency_id',
+				'GameSlot.game_date', 'GameSlot.game_start', 'GameSlot.game_end',
+				'HomeTeam.id', 'HomeTeam.name',
+				'AwayTeam.id', 'AwayTeam.name',
+			),
+			'contain' => array(
+				'Division' => array('Day'),
+				'GameSlot' => array('Field' => 'Facility'),
+				'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $team_ids)),
+				'HomeTeam',
+				'AwayTeam',
+				'Attendance' => array(
+					'conditions' => array('Attendance.person_id' => $this->Auth->user('id')),
+				),
+			),
+			'order' => 'GameSlot.game_date ASC, GameSlot.game_start ASC',
+		));
+
+		// Check if we need to update attendance records for any upcoming games
+		$reread = false;
+		foreach ($games as $game) {
+			if (empty ($game['Attendance'])) {
+				if ($game['HomeTeam']['track_attendance'] && in_array($game['HomeTeam']['id'], $team_ids)) {
+					$attendance = $this->Game->_read_attendance($game['HomeTeam']['id'], Set::extract('/Division/Day/id', $game), $game['Game']['id']);
+					$reread = true;
+				}
+				if ($game['AwayTeam']['track_attendance'] && in_array($game['AwayTeam']['id'], $team_ids)) {
+					$attendance = $this->Game->_read_attendance($game['AwayTeam']['id'], Set::extract('/Division/Day/id', $game), $game['Game']['id']);
+					$reread = true;
+				}
+			}
+		}
+
+		if ($reread) {
+			return $this->future();
+		}
+		return $games;
 	}
 
 	function cron() {

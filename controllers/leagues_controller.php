@@ -10,6 +10,14 @@ class LeaguesController extends AppController {
 	}
 
 	function isAuthorized() {
+		// Anyone that's logged in can perform these operations
+		if (in_array ($this->params['action'], array(
+				'open_count',
+		)))
+		{
+			return true;
+		}
+
 		if ($this->is_manager) {
 			// Managers can perform these operations
 			if (in_array ($this->params['action'], array(
@@ -242,6 +250,19 @@ class LeaguesController extends AppController {
 		}
 		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('League', true)), 'default', array('class' => 'warning'));
 		$this->redirect(array('action' => 'index'));
+	}
+
+	function open_count() {
+		return $this->League->find('count', array(
+			'conditions' => array(
+				'affiliate_id' => $this->_applicableAffiliateIDs(),
+				'OR' => array(
+					'League.is_open',
+					'League.open > CURDATE()',
+				),
+			),
+			'contain' => array(),
+		));
 	}
 
 	function cron() {

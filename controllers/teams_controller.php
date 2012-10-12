@@ -18,6 +18,8 @@ class TeamsController extends AppController {
 				'join',
 				'note',
 				'delete_note',
+				'past_count',
+				'open_count',
 		)))
 		{
 			return true;
@@ -2425,6 +2427,43 @@ class TeamsController extends AppController {
 		$this->set ('captains', implode (', ', Set::extract ('/Person/first_name', $captains)));
 
 		return $captains;
+	}
+
+	function past_count() {
+		return $this->Team->TeamsPerson->find('count', array(
+				'conditions' => array('person_id' => $this->Auth->user('id')),
+				'contain' => array(),
+		)) - count($this->Session->read('Zuluru.TeamIDs'));
+	}
+
+	function open_count() {
+		return $this->Team->find('count', array(
+			'conditions' => array(
+				'League.affiliate_id' => $this->_applicableAffiliateIDs(),
+				'Team.open_roster' => true,
+				'OR' => array(
+					'Division.is_open',
+					'Division.open > CURDATE()',
+				),
+			),
+			'contain' => array(),
+			'joins' => array(
+				array(
+					'table' => "{$this->Team->tablePrefix}divisions",
+					'alias' => 'Division',
+					'type' => 'LEFT',
+					'foreignKey' => false,
+					'conditions' => 'Team.division_id = Division.id',
+				),
+				array(
+					'table' => "{$this->Team->tablePrefix}leagues",
+					'alias' => 'League',
+					'type' => 'LEFT',
+					'foreignKey' => false,
+					'conditions' => 'Division.league_id = League.id',
+				),
+			),
+		));
 	}
 
 	function cron() {
