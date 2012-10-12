@@ -43,6 +43,7 @@ class Zuluru31Schema extends CakeSchema {
 	var $affiliates = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 32),
+		'active' => array('type' => 'boolean', 'null' => false, 'default' => '1'),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
@@ -50,6 +51,7 @@ class Zuluru31Schema extends CakeSchema {
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'affiliate_id' => array('type' => 'integer', 'null' => false, 'default' => '1', 'key' => 'index'),
 		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'position' => array('type' => 'string', 'null' => true, 'default' => 'player', 'length' => 64),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'affiliate' => array('column' => 'affiliate_id', 'unique' => 0), 'full' => array('column' => array('affiliate_id', 'person_id'), 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
