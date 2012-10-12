@@ -15,7 +15,7 @@ echo $text;
 <?php endif; ?>
 
 <p>You have received this message because you are on the <?php
-if (Configure::read('feature.affiliates') {
+if (Configure::read('feature.affiliates')) {
 	echo $newsletter['MailingList']['Affiliate']['name'];
 } else {
 	echo Configure::read('organization.name');
