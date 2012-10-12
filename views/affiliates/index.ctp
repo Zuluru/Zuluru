@@ -8,6 +8,10 @@ $this->Html->addCrumb (__('List', true));
 <table class="list">
 	<tr>
 		<th><?php __('Name'); ?></th>
+		<?php if ($is_admin): ?>
+		<th><?php __('Active'); ?></th>
+		<th><?php __('Managers'); ?></th>
+		<?php endif; ?>
 		<th class="actions"><?php __('Actions'); ?></th>
 	</tr>
 	<?php
@@ -19,7 +23,21 @@ $this->Html->addCrumb (__('List', true));
 		}
 	?>
 	<tr<?php echo $class;?>>
-		<td><?php echo $affiliate['Affiliate']['name']; ?>&nbsp;</td>
+		<td><?php echo $affiliate['Affiliate']['name']; ?></td>
+		<?php if ($is_admin): ?>
+		<td><?php __($affiliate['Affiliate']['active'] ? 'Yes' : 'No'); ?></td>
+		<td><?php
+		$managers = array();
+		foreach ($affiliate['Person'] as $person) {
+			$managers[] = $this->element('people/block', compact('person'));
+		}
+		if (!empty($managers)) {
+			echo implode(', ', $managers);
+		} else {
+			__('None');
+		}
+		?></td>
+		<?php endif; ?>
 		<td class="actions">
 		<?php
 		echo $this->ZuluruHtml->iconLink('view_24.png',
