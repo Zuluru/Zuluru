@@ -50,22 +50,35 @@ class EventsController extends AppController {
 
 	function index() {
 		if ($this->is_admin || $this->is_manager) {
+			// Admins and managers see things that have recently close, or open far in the future
 			$close = 'DATE_ADD(CURDATE(), INTERVAL -30 DAY)';
+			$open = 'DATE_ADD(CURDATE(), INTERVAL 180 DAY)';
 		} else {
 			$close = 'CURDATE()';
+			$open = 'DATE_ADD(CURDATE(), INTERVAL 30 DAY)';
 		}
-		$affiliates = $this->_applicableAffiliateIDs();
 
-		$this->set('events', $this->Event->find('all', array(
+		if (empty($this->params['requested'])) {
+			$affiliates = $this->_applicableAffiliateIDs();
+		} else {
+			$affiliates = $this->_applicableAffiliateIDs(true);
+		}
+
+		$events = $this->Event->find('all', array(
 			'conditions' => array(
-				'Event.open < DATE_ADD(CURDATE(), INTERVAL 30 DAY)',
+				"Event.open < $open",
 				"Event.close > $close",
 				'Event.affiliate_id' => $affiliates,
 			),
 			'order' => array('Affiliate.name', 'Event.event_type_id', 'Event.open', 'Event.close', 'Event.id'),
 			'contain' => array('EventType', 'Affiliate'),
-		)));
-		$this->set(compact('affiliates'));
+		));
+
+		if (!empty($this->params['requested'])) {
+			return $events;
+		}
+
+		$this->set(compact('affiliates', 'events'));
 	}
 
 	function wizard($step = null) {

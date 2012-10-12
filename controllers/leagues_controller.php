@@ -10,14 +10,6 @@ class LeaguesController extends AppController {
 	}
 
 	function isAuthorized() {
-		// Anyone that's logged in can perform these operations
-		if (in_array ($this->params['action'], array(
-				'open_count',
-		)))
-		{
-			return true;
-		}
-
 		if ($this->is_manager) {
 			// Managers can perform these operations
 			if (in_array ($this->params['action'], array(
@@ -63,7 +55,11 @@ class LeaguesController extends AppController {
 		}
 
 		$affiliate = $this->_arg('affiliate');
-		$affiliates = $this->_applicableAffiliateIDs();
+		if (empty($this->params['requested'])) {
+			$affiliates = $this->_applicableAffiliateIDs();
+		} else {
+			$affiliates = $this->_applicableAffiliateIDs(true);
+		}
 		$conditions['League.affiliate_id'] = $affiliates;
 
 		$divisions = $this->League->Division->find('all', array(
@@ -94,6 +90,10 @@ class LeaguesController extends AppController {
 
 		usort ($divisions, array('League', 'compareLeagueAndDivision'));
 		$this->set(compact('divisions', 'affiliate', 'affiliates', 'sport'));
+
+		if (!empty($this->params['requested'])) {
+			return $divisions;
+		}
 
 		$this->set('years', $this->League->find('all', array(
 			'fields' => 'DISTINCT YEAR(League.open) AS year',
@@ -250,19 +250,6 @@ class LeaguesController extends AppController {
 		}
 		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('League', true)), 'default', array('class' => 'warning'));
 		$this->redirect(array('action' => 'index'));
-	}
-
-	function open_count() {
-		return $this->League->find('count', array(
-			'conditions' => array(
-				'affiliate_id' => $this->_applicableAffiliateIDs(),
-				'OR' => array(
-					'League.is_open',
-					'League.open > CURDATE()',
-				),
-			),
-			'contain' => array(),
-		));
 	}
 
 	function cron() {

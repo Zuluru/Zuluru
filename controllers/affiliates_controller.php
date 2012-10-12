@@ -4,15 +4,18 @@ class AffiliatesController extends AppController {
 	var $name = 'Affiliates';
 
 	function index() {
-		if ($this->is_admin) {
+		if ($this->is_admin && empty($this->params['requested'])) {
 			$conditions = array();
+			$contain = array('Person' => array('conditions' => array('AffiliatesPerson.position' => 'manager')));
 		} else {
 			$conditions = array('active' => true);
+			$contain = array();
 		}
-		$this->set('affiliates', $this->Affiliate->find('all', array(
-				'contain' => array(),
-				'conditions' => $conditions,
-		)));
+		$affiliates = $this->Affiliate->find('all', compact('contain', 'conditions'));
+		if (!empty($this->params['requested'])) {
+			return $affiliates;
+		}
+		$this->set(compact('affiliates'));
 	}
 
 	function view() {
@@ -177,5 +180,25 @@ class AffiliatesController extends AppController {
 		$this->redirect(array('action' => 'view', 'affiliate' => $id));
 	}
 
+	function unmanaged() {
+		if (!Configure::read('feature.affiliates')) {
+			return array();
+		}
+
+		$affiliates = $this->Affiliate->find('all', array(
+			'conditions' => array(
+				'Affiliate.active' => true,
+			),
+			'contain' => array('Person' => array('conditions' => array('AffiliatesPerson.position' => 'manager'))),
+		));
+		foreach ($affiliates as $key => $affiliate) {
+			if (!empty($affiliate['Person'])) {
+				unset($affiliates[$key]);
+			} else {
+				unset($affiliates[$key]['Person']);
+			}
+		}
+		return $affiliates;
+	}
 }
 ?>

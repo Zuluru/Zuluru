@@ -7,57 +7,220 @@ $this->Html->addCrumb ($this->Session->read('Zuluru.Person.full_name'));
 <?php echo $this->Html->tag('h2', $this->Session->read('Zuluru.Person.full_name')); ?>
 
 <?php
-if ($is_admin) {
-	echo $this->element('version_check');
-}
-
 // We already have a lot of the information we need, stored from when we built the menu
 $teams = $this->Session->read('Zuluru.Teams');
 $divisions = $this->Session->read('Zuluru.Divisions');
 $unpaid = $this->Session->read('Zuluru.Unpaid');
 $past_teams = $this->requestAction(array('controller' => 'teams', 'action' => 'past_count'));
+?>
 
-// If the user has nothing going on, pull some more details to allow us to help them get started
-if (!$is_admin && !$is_manager && empty($teams) && empty($divisions) && empty($unpaid)):
-	$membership_events = $this->requestAction(array('controller' => 'events', 'action' => 'count'), array('pass' => array(true)));
-	$non_membership_events = $this->requestAction(array('controller' => 'events', 'action' => 'count'));
-	$open_teams = $this->requestAction(array('controller' => 'teams', 'action' => 'open_count'));
-	$open_leagues = $this->requestAction(array('controller' => 'leagues', 'action' => 'open_count'));
+<div id="kick_start">
+<?php
+if ($is_admin) {
+	echo $this->element('version_check');
+
+	if (Configure::read('feature.affiliates')) {
+		$affiliates = $this->requestAction(array('controller' => 'affiliates', 'action' => 'index'));
+		if (empty($affiliates)) {
+			echo $this->Html->para('warning-message', __('You have enabled the affiliate option, but have not yet created any affiliates. ', true) .
+				$this->Html->link(__('Create one now!', true), array('controller' => 'affiliates', 'action' => 'add', 'return' => true)));
+		} else {
+			$unmanaged = $this->requestAction(array('controller' => 'affiliates', 'action' => 'unmanaged'));
+			if (!empty($unmanaged)):
+?>
+<p class="warning-message">The following affiliates do not yet have managers assigned to them:</p>
+<table class="list">
+<tr>
+	<th><?php __('Affiliate'); ?></th>
+	<th><?php __('Actions'); ?></th>
+</tr>
+<?php
+				$i = 0;
+				foreach ($unmanaged as $affiliate):
+					$class = null;
+					if ($i++ % 2 == 0) {
+						$class = ' class="altrow"';
+					}
+?>
+	<tr<?php echo $class;?>>
+		<td class="splash_item"><?php echo $affiliate['Affiliate']['name']; ?></td>
+		<td class="actions">
+			<?php
+					echo $this->ZuluruHtml->iconLink('edit_24.png',
+						array('controller' => 'affiliates', 'action' => 'edit', 'affiliate' => $affiliate['Affiliate']['id'], 'return' => true),
+						array('alt' => __('Edit', true), 'title' => __('Edit', true)));
+					echo $this->ZuluruHtml->iconLink('coordinator_add_24.png',
+						array('controller' => 'affiliates', 'action' => 'add_manager', 'affiliate' => $affiliate['Affiliate']['id'], 'return' => true),
+						array('alt' => __('Add Manager', true), 'title' => __('Add Manager', true)));
+					echo $this->ZuluruHtml->iconLink('delete_24.png',
+						array('controller' => 'affiliates', 'action' => 'delete', 'affiliate' => $affiliate['Affiliate']['id'], 'return' => true),
+						array('alt' => __('Delete', true), 'title' => __('Delete', true)),
+						array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $affiliate['Affiliate']['id'])));
+			?>
+		</td>
+	</tr>
+<?php endforeach; ?>
+</table>
+<?php
+			endif;
+		}
+	}
+}
+
+if ($is_manager) {
+	$affiliates = $this->Session->read('Zuluru.ManagedAffiliates');
+	if (!empty($affiliates)) {
+		$facilities = $this->requestAction(array('controller' => 'facilities', 'action' => 'index'));
+		$facilities = Set::extract('/Facility[id>0]', $facilities);
+		if (empty($facilities)) {
+			echo $this->Html->para('warning-message', __('You have no open facilities. ', true) .
+				$this->Html->link(__('Create one now!', true), array('controller' => 'facilities', 'action' => 'add', 'return' => true)));
+		} else {
+			// Eliminate any open facilities that have fields, and check if there's anything left that we need to warn about
+			foreach ($facilities as $key => $facility) {
+				if (!empty($facility['Facility']['Field'])) {
+					unset($facilities[$key]);
+				}
+			}
+			if (!empty($facilities)):
+?>
+<p class="warning-message">The following facilities do not yet have <?php echo Configure::read('ui.fields'); ?>:</p>
+<table class="list">
+<tr>
+	<th><?php __('Facility'); ?></th>
+	<th><?php __('Actions'); ?></th>
+</tr>
+<?php
+				$i = 0;
+				foreach ($facilities as $facility):
+					$class = null;
+					if ($i++ % 2 == 0) {
+						$class = ' class="altrow"';
+					}
+?>
+	<tr<?php echo $class;?>>
+		<td class="splash_item"><?php echo $facility['Facility']['name']; ?></td>
+		<td class="actions">
+			<?php
+					echo $this->ZuluruHtml->iconLink('edit_24.png',
+						array('controller' => 'facilities', 'action' => 'edit', 'facility' => $facility['Facility']['id'], 'return' => true),
+						array('alt' => __('Edit', true), 'title' => __('Edit Facility', true)));
+					echo $this->ZuluruHtml->iconLink('add_24.png',
+						array('controller' => 'fields', 'action' => 'add', 'facility' => $facility['Facility']['id'], 'return' => true),
+						array('alt' => sprintf(__('Add %s', true), __(Configure::read('ui.field'), true)), 'title' => sprintf(__('Add %s', true), __(Configure::read('ui.field'), true))));
+					echo $this->ZuluruHtml->iconLink('delete_24.png',
+						array('controller' => 'facilities', 'action' => 'delete', 'facility' => $facility['Facility']['id'], 'return' => true),
+						array('alt' => __('Delete', true), 'title' => __('Delete Facility', true)),
+						array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $facility['Facility']['id'])));
+			?>
+		</td>
+	</tr>
+<?php endforeach; ?>
+</table>
+<?php
+			endif;
+		}
+
+		$leagues = $this->requestAction(array('controller' => 'leagues', 'action' => 'index'));
+		if (empty($leagues)) {
+			echo $this->Html->para('warning-message', __('You have no current or upcoming leagues. ', true) .
+				$this->Html->link(__('Create one now!', true), array('controller' => 'leagues', 'action' => 'add', 'return' => true)));
+		} else {
+			// Eliminate any open leagues that have divisions, and check if there's anything left that we need to warn about
+			foreach ($leagues as $key => $league) {
+				if (!empty($league['Division'])) {
+					unset($leagues[$key]);
+				}
+			}
+			if (!empty($leagues)):
+?>
+<p class="warning-message">The following leagues do not yet have divisions:</p>
+<table class="list">
+<tr>
+	<th><?php __('League'); ?></th>
+	<th><?php __('Actions'); ?></th>
+</tr>
+<?php
+				$i = 0;
+				foreach ($leagues as $league):
+					$class = null;
+					if ($i++ % 2 == 0) {
+						$class = ' class="altrow"';
+					}
+?>
+	<tr<?php echo $class;?>>
+		<td class="splash_item"><?php echo $league['League']['full_name']; ?></td>
+		<td class="actions">
+			<?php
+					echo $this->ZuluruHtml->iconLink('edit_24.png',
+						array('controller' => 'leagues', 'action' => 'edit', 'league' => $league['League']['id'], 'return' => true),
+						array('alt' => __('Edit', true), 'title' => __('Edit League', true)));
+					echo $this->ZuluruHtml->iconLink('league_clone_24.png',
+						array('controller' => 'leagues', 'action' => 'add', 'league' => $league['League']['id'], 'return' => true),
+						array('alt' => __('Clone League', true), 'title' => __('Clone League', true)));
+					echo $this->ZuluruHtml->iconLink('division_add_24.png',
+						array('controller' => 'divisions', 'action' => 'add', 'league' => $league['League']['id'], 'return' => true),
+						array('alt' => __('Add Division', true), 'title' => __('Add Division', true)));
+					echo $this->ZuluruHtml->iconLink('delete_24.png',
+						array('controller' => 'leagues', 'action' => 'delete', 'league' => $league['League']['id'], 'return' => true),
+						array('alt' => __('Delete', true), 'title' => __('Delete League', true)),
+						array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $league['League']['id'])));
+			?>
+		</td>
+	</tr>
+<?php endforeach; ?>
+</table>
+<?php
+			endif;
+		}
+
+		$events = $this->requestAction(array('controller' => 'events', 'action' => 'index'));
+		if (empty($events)) {
+			echo $this->Html->para('warning-message', __('You have no current or upcoming registration events. ', true) .
+				$this->Html->link(__('Create one now!', true), array('controller' => 'events', 'action' => 'add', 'return' => true)));
+		}
+	}
+} else {
+	// If the user has nothing going on, pull some more details to allow us to help them get started
+	if (empty($teams) && empty($divisions) && empty($unpaid)) {
+		$membership_events = $this->requestAction(array('controller' => 'events', 'action' => 'count'), array('pass' => array(true)));
+		$non_membership_events = $this->requestAction(array('controller' => 'events', 'action' => 'count'));
+		$open_teams = $this->requestAction(array('controller' => 'teams', 'action' => 'open_count'));
+		$leagues = $this->requestAction(array('controller' => 'leagues', 'action' => 'index'));
 
 ?>
-<div id="kick_start">
 <h3><?php __('You are not yet on any teams.'); ?></h3>
 <?php
-	$options = array();
-	if ($membership_events) {
-		$options[] = 'membership';
-	}
-	if ($non_membership_events) {
-		$options[] = 'an event';
-	}
+		$options = array();
+		if ($membership_events) {
+			$options[] = 'membership';
+		}
+		if ($non_membership_events) {
+			$options[] = 'an event';
+		}
 
-	$actions = array();
-	if (!empty($options)) {
-		$actions[] = $this->Html->link ('Register for ' . implode(' or ', $options), array('controller' => 'events', 'action' => 'wizard'));
-	}
+		$actions = array();
+		if (!empty($options)) {
+			$actions[] = $this->Html->link ('Register for ' . implode(' or ', $options), array('controller' => 'events', 'action' => 'wizard'));
+		}
 
-	if ($open_teams) {
-		$actions[] = $this->Html->link ('Join an existing team', array('controller' => 'teams', 'action' => 'join'));
-	}
+		if ($open_teams) {
+			$actions[] = $this->Html->link ('Join an existing team', array('controller' => 'teams', 'action' => 'join'));
+		}
 
-	if ($open_leagues) {
-		$actions[] = $this->Html->link ('Check out the leagues we are currently offering', array('controller' => 'leagues'));
-	}
+		if (!empty($leagues)) {
+			$actions[] = $this->Html->link ('Check out the leagues we are currently offering', array('controller' => 'leagues'));
+		}
 
-	if (!empty($actions)) {
-		echo $this->Html->tag('div', $this->Html->nestedList($actions), array('class' => 'actions'));
+		if (!empty($actions)) {
+			echo $this->Html->tag('div', $this->Html->nestedList($actions), array('class' => 'actions'));
+		}
 	}
+}
 ?>
 </div>
 
 <?php
-endif;
-
 if (!empty($unpaid)) {
 	echo $this->Html->para (null, sprintf (__('You currently have %s unpaid %s. %s to complete these registrations.', true),
 			count($unpaid),
@@ -256,8 +419,8 @@ foreach ($games as $game):
 </table>
 
 <p><?php
-$id = $this->requestAction(array('controller' => 'users', 'action' => 'id'));
 if (Configure::read('personal.enable_ical')) {
+	$id = $this->requestAction(array('controller' => 'users', 'action' => 'id'));
 	__('Get your personal schedule in ');
 	// TODOIMG: Better image locations, alt text
 	echo $this->ZuluruHtml->iconLink ('ical.gif',
