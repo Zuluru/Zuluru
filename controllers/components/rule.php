@@ -45,6 +45,7 @@ class RuleComponent extends Object
 		'have a full membership OR have an introductory membership' => 'have a valid membership',
 		'have a valid membership OR have a valid membership' => 'have a valid membership',
 		'not already have a valid membership AND not already have a valid membership' => 'not already have a valid membership',
+		'already have a valid membership OR already have a valid membership' => 'already have a valid membership',
 
 		'have a birthdate greater than or equal to'		=> 'have been born on or after',
 		'have a birthdate greater than'					=> 'have been born after',
@@ -55,6 +56,24 @@ class RuleComponent extends Object
 
 		'have previously registered for the prerequisite OR have previously registered for the prerequisite' => 'have previously registered for one of the prerequisites',
 		'have previously registered for one of the prerequisites OR have previously registered for the prerequisite' => 'have previously registered for one of the prerequisites',
+	);
+
+	/**
+	 * Less common string replacements to make reasons more readable, once consolidations have been done by $tr
+	 */
+	var $tr2 = array(
+		'not already have a valid membership AND already have a valid membership' => 'not be a past member but have a valid current membership',
+		'already have a valid membership AND not already have a valid membership' => 'not be a past member but have a valid current membership',
+	);
+
+	/**
+	 * Some strings to look for to allow links in reasons
+	 */
+	var $link_tr = array(
+		'have an introductory membership'				=> array('controller' => 'events', 'action' => 'wizard', 'membership'),
+		'have a full membership'						=> array('controller' => 'events', 'action' => 'wizard', 'membership'),
+		'have a valid membership'						=> array('controller' => 'events', 'action' => 'wizard', 'membership'),
+		'have a valid current membership'				=> array('controller' => 'events', 'action' => 'wizard', 'membership'),
 	);
 
 	function __construct(&$controller) {
@@ -162,6 +181,24 @@ class RuleComponent extends Object
 				break;
 			}
 			$this->reason = $new_reason;
+		}
+		while (true) {
+			$new_reason = strtr ($this->reason, $this->tr2);
+			if ($new_reason == $this->reason) {
+				break;
+			}
+			$this->reason = $new_reason;
+		}
+
+		// Maybe do link replacements to make the reason more easily understandable
+		if (!$text_reason) {
+			App::import('Helper', 'Html');
+			$html = new HtmlHelper();
+			foreach ($this->link_tr as $text => $url) {
+				if (stripos($this->reason, $text) !== false) {
+					$this->reason = str_replace ($text, $html->link($text, $url), $this->reason);
+				}
+			}
 		}
 
 		return $success;
