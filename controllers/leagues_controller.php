@@ -55,7 +55,11 @@ class LeaguesController extends AppController {
 		}
 
 		$affiliate = $this->_arg('affiliate');
-		$affiliates = $this->_applicableAffiliateIDs();
+		if (empty($this->params['requested'])) {
+			$affiliates = $this->_applicableAffiliateIDs();
+		} else {
+			$affiliates = $this->_applicableAffiliateIDs(true);
+		}
 		$conditions['League.affiliate_id'] = $affiliates;
 
 		$divisions = $this->League->Division->find('all', array(
@@ -86,6 +90,10 @@ class LeaguesController extends AppController {
 
 		usort ($divisions, array('League', 'compareLeagueAndDivision'));
 		$this->set(compact('divisions', 'affiliate', 'affiliates', 'sport'));
+
+		if (!empty($this->params['requested'])) {
+			return $divisions;
+		}
 
 		$this->set('years', $this->League->find('all', array(
 			'fields' => 'DISTINCT YEAR(League.open) AS year',

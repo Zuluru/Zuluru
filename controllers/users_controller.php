@@ -9,6 +9,14 @@ class UsersController extends AppController {
 	}
 
 	function isAuthorized() {
+		// Anyone that's logged in can perform these operations
+		if (in_array ($this->params['action'], array(
+				'id',
+		)))
+		{
+			return true;
+		}
+
 		// People can perform these operations on their own account
 		if (in_array ($this->params['action'], array(
 				'change_password',
@@ -273,6 +281,10 @@ class UsersController extends AppController {
 			$string .= $characters[mt_rand(0, $string_length)];
 		}
 		return $string;
+	}
+
+	function id() {
+		return $this->Auth->user('id');
 	}
 }
 ?>

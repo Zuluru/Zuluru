@@ -42,9 +42,13 @@ class FacilitiesController extends AppController {
 	}
 
 	function index() {
-		$affiliates = $this->_applicableAffiliateIDs();
+		if (empty($this->params['requested'])) {
+			$affiliates = $this->_applicableAffiliateIDs();
+		} else {
+			$affiliates = $this->_applicableAffiliateIDs(true);
+		}
 
-		$this->set('regions', $this->Facility->Region->find('all', array(
+		$regions = $this->Facility->Region->find('all', array(
 			'conditions' => array('Region.affiliate_id' => $affiliates),
 			'contain' => array(
 				'Facility' => array(
@@ -62,12 +66,17 @@ class FacilitiesController extends AppController {
 				'Affiliate',
 			),
 			'order' => 'Region.id',
-		)));
+		));
+
+		if (!empty($this->params['requested'])) {
+			return $regions;
+		}
+
 		$this->set('facilities_with_fields', $this->Facility->Field->find('list', array(
 			'fields' => array('facility_id', 'id'),
 		)));
 		$this->set('closed', false);
-		$this->set(compact('affiliates'));
+		$this->set(compact('affiliates', 'regions'));
 	}
 
 	function closed() {
