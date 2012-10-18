@@ -15,7 +15,7 @@ if (!empty($sport)) {
 <?php
 $affiliate_id = $league_id = null;
 foreach ($divisions as $division):
-	$is_manager = in_array($division['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+	$is_manager = $is_logged_in && in_array($division['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
 
 	if (count($affiliates) > 1 && $division['League']['affiliate_id'] != $affiliate_id):
 		$affiliate_id = $division['League']['affiliate_id'];
