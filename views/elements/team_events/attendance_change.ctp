@@ -25,12 +25,12 @@ if ($team['track_attendance']) {
 	if (!isset($future_only)) {
 		$future_only = false;
 	}
-	if (!isset($time)) {
-		$time = '00:00:00';
+	if (!isset($event_time)) {
+		$event_time = '00:00:00';
 	}
 
 	$recent = ($date >= date('Y-m-d', time() - 14 * 24 * 60 * 60));
-	$future = (strtotime("$date $time") + Configure::read('timezone.adjust') * 60 >= time() ? 1 : 0);
+	$future = (strtotime("$date $event_time") + Configure::read('timezone.adjust') * 60 >= time() ? 1 : 0);
 	$is_me = (!isset($person_id) || $person_id == $my_id);
 	if (($future || (!$future_only && $recent)) && ($is_me || $is_captain)) {
 		$url = array('controller' => 'team_events', 'action' => 'attendance_change', 'event' => $event_id);
