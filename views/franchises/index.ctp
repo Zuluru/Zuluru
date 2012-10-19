@@ -33,7 +33,7 @@ echo $this->Paginator->counter(array(
 $i = 0;
 $affiliate_id = null;
 foreach ($franchises as $franchise):
-	$is_manager = in_array($franchise['Franchise']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+	$is_manager = $is_logged_in && in_array($franchise['Franchise']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
 
 	if (count($affiliates) > 1 && $franchise['Franchise']['affiliate_id'] != $affiliate_id):
 		$affiliate_id = $franchise['Franchise']['affiliate_id'];
