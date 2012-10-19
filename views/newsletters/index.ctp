@@ -8,6 +8,7 @@ $this->Html->addCrumb (__('List', true));
 	<table class="list">
 	<tr>
 		<th><?php echo $this->Paginator->sort('name');?></th>
+		<th><?php echo $this->Paginator->sort('mailing_list_id');?></th>
 		<th><?php echo $this->Paginator->sort('subject');?></th>
 		<th><?php echo $this->Paginator->sort('target');?></th>
 		<th class="actions"><?php __('Actions');?></th>
@@ -34,6 +35,7 @@ $this->Html->addCrumb (__('List', true));
 	?>
 	<tr<?php echo $class;?>>
 		<td><?php echo $newsletter['Newsletter']['name']; ?>&nbsp;</td>
+		<td><?php echo $newsletter['MailingList']['name']; ?>&nbsp;</td>
 		<td><?php echo $newsletter['Newsletter']['subject']; ?>&nbsp;</td>
 		<td><?php echo $this->ZuluruTime->date($newsletter['Newsletter']['target']); ?>&nbsp;</td>
 		<td class="actions">
