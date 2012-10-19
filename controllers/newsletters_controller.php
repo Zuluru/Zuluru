@@ -70,7 +70,7 @@ class NewslettersController extends AppController {
 		$affiliates = $this->_applicableAffiliateIDs(true);
 
 		$this->paginate['conditions'] = array(
-			'Newsletter.affiliate_id' => $affiliates,
+			'MailingList.affiliate_id' => $affiliates,
 		);
 
 		$this->set('newsletters', $this->paginate('Newsletter'));
