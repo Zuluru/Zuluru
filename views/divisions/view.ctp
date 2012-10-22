@@ -32,6 +32,7 @@ if ($is_manager && !in_array($division['League']['affiliate_id'], $this->Session
 
 			</dd>
 			<?php if ($is_admin || $is_manager || $is_coordinator): ?>
+				<?php if (League::hasSpirit($division)): ?>
 				<dt<?php if ($j % 2 == 0) echo $class;?>><?php __('Spirit Questionnaire'); ?></dt>
 				<dd<?php if ($j++ % 2 == 0) echo $class;?>>
 					<?php __(Configure::read("options.spirit_questions.{$division['League']['sotg_questions']}")); ?>
@@ -52,6 +53,7 @@ if ($is_manager && !in_array($division['League']['affiliate_id'], $this->Session
 					<?php echo $division['League']['expected_max_score']; ?>
 
 				</dd>
+				<?php endif; ?>
 			<?php endif; ?>
 		</dl>
 		</fieldset>
