@@ -238,7 +238,7 @@ class Person extends User {
 		if (array_key_exists('AffiliatePerson', $person)) {
 			$affiliate = $person['AffiliatePerson']['affiliate_id'];
 		} else {
-			$affiliate = Set::extract('Affiliate/id', $person);
+			$affiliate = Set::extract('/Affiliate/id', $person);
 		}
 		return $this->find('all', array(
 				'joins' => array(
