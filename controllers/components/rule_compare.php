@@ -93,9 +93,9 @@ class RuleCompareComponent extends RuleComponent
 			return null;
 		}
 
-		$fields = $joins = array();
-		$left = $this->rule[0]->build_query($affiliate, $joins, $fields);
-		$right = $this->rule[1]->build_query($affiliate, $joins, $fields);
+		$fields = $joins = $conditions = array();
+		$left = $this->rule[0]->build_query($affiliate, $joins, $fields, $conditions);
+		$right = $this->rule[1]->build_query($affiliate, $joins, $fields, $conditions);
 		if ($left === false || $right === false) {
 			return false;
 		}
@@ -112,7 +112,7 @@ class RuleCompareComponent extends RuleComponent
 			}
 
 			$group = "{$this->rule[0]->query_having} {$this->config} $right";
-			$conditions = $left;
+			$conditions[] = $left;
 		} else if ($this->rule[1]->query_having) {
 			if ($this->config[0] == '>' ||
 				($this->config == '=' && $left == '0') ||
@@ -122,10 +122,10 @@ class RuleCompareComponent extends RuleComponent
 			}
 
 			$group = "{$this->rule[1]->query_having} {$this->reverse[$this->config]} $left";
-			$conditions = $right;
+			$conditions[] = $right;
 		} else {
 			$group = '';
-			$conditions = array("$left {$this->config}" => $right);
+			$conditions[] = array("$left {$this->config}" => $right);
 		}
 
 		return $this->_execute_query($affiliate, $conditions, $joins, $fields, $group);
