@@ -48,12 +48,12 @@ if ($is_manager && !in_array($division['League']['affiliate_id'], $this->Session
 					<?php __(Inflector::Humanize ($division['League']['display_sotg'])); ?>
 
 				</dd>
+				<?php endif; ?>
 				<dt<?php if ($j % 2 == 0) echo $class;?>><?php __('Expected Max Score'); ?></dt>
 				<dd<?php if ($j++ % 2 == 0) echo $class;?>>
 					<?php echo $division['League']['expected_max_score']; ?>
 
 				</dd>
-				<?php endif; ?>
 			<?php endif; ?>
 		</dl>
 		</fieldset>
