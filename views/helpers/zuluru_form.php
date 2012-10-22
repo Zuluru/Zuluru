@@ -48,7 +48,9 @@ class ZuluruFormHelper extends FormHelper {
 
 				if (array_key_exists ('options', $options) && count ($options['options']) == 1) {
 					$value = array_shift (array_keys ($options['options']));
-					return parent::hidden ($fieldName, array('value' => $value, /*'id' => null,*/ 'secure' => false));
+					if (!is_array($options['options'][$value])) {
+						return parent::hidden ($fieldName, array('value' => $value, /*'id' => null,*/ 'secure' => false));
+					}
 				}
 			}
 		}

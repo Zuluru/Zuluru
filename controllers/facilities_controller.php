@@ -141,9 +141,23 @@ class FacilitiesController extends AppController {
 		}
 
 		$affiliates = $this->_applicableAffiliates(true);
-		$regions = $this->Facility->Region->find('list', array(
+		$regions = $this->Facility->Region->find('all', array(
 				'conditions' => array('Region.affiliate_id' => array_keys($affiliates)),
+				'contain' => array('Affiliate'),
+				'order' => array('Affiliate.name', 'Region.name'),
 		));
+		if (empty($regions)) {
+			$this->Session->setFlash(__('You must first create at least one region for facilities to be located in.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		} else if (count($affiliates) > 1) {
+			$region_list = array();
+			foreach ($regions as $key => $region) {
+				$region_list[$region['Affiliate']['name']][$region['Region']['id']] = $region['Region']['name'];
+			}
+			$regions = $region_list;
+		} else {
+			$regions = Set::combine($regions, '{n}.Region.id', '{n}.Region.name');
+		}
 		$this->set(compact('regions', 'affiliates'));
 		$this->_loadAddressOptions();
 		$this->set('add', true);
