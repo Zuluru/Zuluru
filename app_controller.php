@@ -783,6 +783,12 @@ class AppController extends Controller {
 			}
 			$affiliates = $this->Affiliate->readByPlayerId ($my_id);
 
+			// If affiliates are disabled, make sure that they are in affiliate 1
+			if (empty($affiliates) && !Configure::read('feature.affiliates')) {
+				$this->Affiliate->AffiliatesPerson->save(array('person_id' => $my_id, 'affiliate_id' => 1));
+				$affiliates = $this->Affiliate->readByPlayerId ($my_id);
+			}
+
 			$this->Session->write ('Zuluru.Affiliates', $affiliates);
 			$this->Session->write ('Zuluru.AffiliateIDs', Set::extract ('/Affiliate/id', $affiliates));
 
