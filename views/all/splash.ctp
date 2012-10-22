@@ -12,6 +12,10 @@ $teams = $this->Session->read('Zuluru.Teams');
 $divisions = $this->Session->read('Zuluru.Divisions');
 $unpaid = $this->Session->read('Zuluru.Unpaid');
 $past_teams = $this->requestAction(array('controller' => 'teams', 'action' => 'past_count'));
+if (Configure::read('feature.affiliates')) {
+	$affiliates = $this->requestAction(array('controller' => 'affiliates', 'action' => 'index'));
+	AppModel::_reindexOuter($affiliates, 'Affiliate', 'id');
+}
 ?>
 
 <div id="kick_start">
@@ -20,7 +24,6 @@ if ($is_admin) {
 	echo $this->element('version_check');
 
 	if (Configure::read('feature.affiliates')) {
-		$affiliates = $this->requestAction(array('controller' => 'affiliates', 'action' => 'index'));
 		if (empty($affiliates)) {
 			echo $this->Html->para('warning-message', __('You have enabled the affiliate option, but have not yet created any affiliates. ', true) .
 				$this->Html->link(__('Create one now!', true), array('controller' => 'affiliates', 'action' => 'add', 'return' => true)));
@@ -68,8 +71,8 @@ if ($is_admin) {
 }
 
 if ($is_manager) {
-	$affiliates = $this->Session->read('Zuluru.ManagedAffiliates');
-	if (!empty($affiliates)) {
+	$my_affiliates = $this->Session->read('Zuluru.ManagedAffiliates');
+	if (!empty($my_affiliates)) {
 		$facilities = $this->requestAction(array('controller' => 'facilities', 'action' => 'index'));
 		$facilities = Set::extract('/Facility[id>0]', $facilities);
 		if (empty($facilities)) {
@@ -436,6 +439,36 @@ if (Configure::read('personal.enable_ical')) {
 	__(' to enable your personal iCal feed');
 }
 ?>. <?php echo $this->ZuluruHtml->help(array('action' => 'games', 'personal_feed')); ?></p>
+<?php endif; ?>
+
+<?php if (Configure::read('feature.affiliates') && count($affiliates) > 1): ?>
+<div id="affiliate_select">
+<?php
+	if ($this->Session->check('Zuluru.CurrentAffiliate')) {
+		echo $this->Html->para(null, sprintf(__('You are currently browsing the %s affiliate. You might want to %s or %s.', true),
+			$affiliates[$this->Session->read('Zuluru.CurrentAffiliate')]['Affiliate']['name'],
+			$this->Html->link(__('remove this restriction', true), array('controller' => 'affiliates', 'action' => 'view_all')),
+			$this->Html->link(__('select a different affiliate to view', true), array('controller' => 'affiliates', 'action' => 'select'))));
+	} else if (count($this->Session->read('Zuluru.AffiliateIDs')) != count($affiliates)) {
+		if ($is_admin) {
+			echo $this->Html->para(null, sprintf(__('This site has multiple affiliates. You might want to %s.', true),
+				$this->Html->link(__('select a specific affiliate to view', true), array('controller' => 'affiliates', 'action' => 'select'))));
+		} else if (Configure::read('feature.multiple_affiliates')) {
+			echo $this->Html->para(null, sprintf(__('This site has affiliates that you are not a member of. You might want to %s or %s.', true),
+				$this->Html->link(__('join other affiliates', true), array('controller' => 'people', 'action' => 'edit')),
+				$this->Html->link(__('select a specific affiliate to view', true), array('controller' => 'affiliates', 'action' => 'select'))));
+		} else {
+			echo $this->Html->para(null, sprintf(__('This site has affiliates that you are not a member of. You might want to %s or %s.', true),
+				$this->Html->link(__('change which affiliate you are a member of', true), array('controller' => 'people', 'action' => 'edit')),
+				$this->Html->link(__('select a specific affiliate to view', true), array('controller' => 'affiliates', 'action' => 'select'))));
+		}
+	} else {
+		echo $this->Html->para(null, sprintf(__('You are a member of all affiliates on this site. You might want to %s or %s.', true),
+			$this->Html->link(__('reduce your affiliations', true), array('controller' => 'people', 'action' => 'edit')),
+			$this->Html->link(__('select a specific affiliate to view', true), array('controller' => 'affiliates', 'action' => 'select'))));
+	}
+?>
+</div>
 <?php endif; ?>
 
 </div>

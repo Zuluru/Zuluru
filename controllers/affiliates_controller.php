@@ -3,6 +3,27 @@ class AffiliatesController extends AppController {
 
 	var $name = 'Affiliates';
 
+	function isAuthorized() {
+		// Anyone that's logged in can perform these operations
+		if (in_array ($this->params['action'], array(
+				'select',
+				'view_all',
+		)))
+		{
+			return true;
+		}
+
+		// Anyone that's logged in can perform these operations, but only through internal requests
+		if (in_array ($this->params['action'], array(
+				'index',
+		)))
+		{
+			return (array_key_exists('requested', $this->params) && $this->params['requested']);
+		}
+
+		return false;
+	}
+
 	function index() {
 		if ($this->is_admin && empty($this->params['requested'])) {
 			$conditions = array();
@@ -199,6 +220,23 @@ class AffiliatesController extends AppController {
 			}
 		}
 		return $affiliates;
+	}
+
+	function select() {
+		if (!empty($this->data)) {
+			$this->Session->write('Zuluru.CurrentAffiliate', $this->data['Affiliate']['affiliate']);
+			$this->redirect('/');
+		}
+		$affiliates = $this->Affiliate->find('list', array(
+				'contain' => array(),
+				'conditions' => array('active' => true),
+		));
+		$this->set(compact('affiliates'));
+	}
+
+	function view_all() {
+		$this->Session->delete('Zuluru.CurrentAffiliate');
+		$this->redirect('/');
 	}
 }
 ?>
