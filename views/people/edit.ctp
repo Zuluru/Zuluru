@@ -117,6 +117,7 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 		} else {
 			echo $this->ZuluruForm->input('Affiliate', array(
 				'empty' => '---',
+				'multiple' => false,
 			));
 		}
 	?>
