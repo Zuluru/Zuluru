@@ -138,7 +138,7 @@ $display_spirit = ($is_admin || $is_coordinator || $team['Division']['League']['
 			?></td>
 			<?php endif; ?>
 			<?php if ($annotate): ?>
-			<td><?php
+			<td class="actions"><?php
 			if (!$is_event) {
 				echo $this->Html->link(__('Add', true), array('controller' => 'games', 'action' => 'note', 'game' => $game['Game']['id']));
 			}
