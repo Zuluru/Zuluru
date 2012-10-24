@@ -25,7 +25,6 @@ class QuestionsController extends AppController {
 					'view',
 					'edit',
 					'add_answer',
-					'delete_answer',
 					'activate',
 					'deactivate',
 					'delete',
@@ -34,6 +33,21 @@ class QuestionsController extends AppController {
 				// If a question id is specified, check if we're a manager of that question's affiliate
 				$question = $this->_arg('question');
 				if ($question) {
+					$affiliate = $this->Question->field('affiliate_id', array('Question.id' => $question));
+					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+
+			if (in_array ($this->params['action'], array(
+					'delete_answer',
+			)))
+			{
+				// If an answer id is specified, check if we're a manager of that answer's affiliate
+				$answer = $this->_arg('answer');
+				if ($answer) {
+					$question = $this->Question->Answer->field('question_id', array('Answer.id' => $answer));
 					$affiliate = $this->Question->field('affiliate_id', array('Question.id' => $question));
 					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
@@ -80,7 +94,7 @@ class QuestionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('question', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
-		$this->Question->contain('Affiliate');
+		$this->Question->contain('Answer', 'Affiliate');
 		$this->set('question', $this->Question->read(null, $id));
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
@@ -178,10 +192,11 @@ class QuestionsController extends AppController {
 		$this->redirect(array('action' => 'index'));
 	}
 
-	function add_answer($id, $i) {
+	function add_answer($i) {
 		Configure::write ('debug', 0);
 		$this->layout = 'ajax';
 
+		$id = $this->_arg('question');
 		$this->Question->contain(array('Answer' => array('order' => 'Answer.sort')));
 		$question = $this->Question->read(null, $id);
 		$sort = max (Set::extract('/Answer/sort', $question)) + 1;
@@ -191,6 +206,7 @@ class QuestionsController extends AppController {
 		);
 		if ($this->Question->Answer->save ($answer)) {
 			$answer['id'] = $this->Question->Answer->id;
+			$answer['active'] = true;
 			$this->set(compact('answer', 'i'));
 		}
 	}

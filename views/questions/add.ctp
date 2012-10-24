@@ -7,6 +7,11 @@
 			'size' => 60,
 			'after' => $this->Html->para (null, __('A short name for this question, to be used as a heading in administrative reports.', true)),
 		));
+		echo $this->ZuluruForm->input('affiliate_id', array(
+			'options' => $affiliates,
+			'hide_single' => true,
+			'empty' => '---',
+		));
 		echo $this->ZuluruForm->input('question', array(
 			'cols' => 60,
 			'after' => $this->Html->para (null, __('The full text of the question, to be shown to users.', true)),

@@ -38,12 +38,12 @@ function addQuestionFinish(url, data, index) {
     jQuery.ajax(ajax);
 }
 
-function addAnswer(url, id, index) {
+function addAnswer(url, index) {
     var type = 'GET';
 
     var ajax = {
         type: type,
-        url: url + '/' + id + '/' + index,
+        url: url + '/' + index,
         success: function(row){
 			jQuery('#Answers > tbody:first').append(row);
 			tableReorder(jQuery('#Answers'));
