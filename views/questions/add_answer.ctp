@@ -1,5 +1,5 @@
 <?php
 if (isset ($answer)) {
-	echo $this->element('/question/edit_answer', compact('answer', 'i'));
+	echo $this->element('/questions/edit_answer', compact('answer', 'i'));
 }
 ?>
