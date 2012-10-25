@@ -23,6 +23,7 @@ class RegionsController extends AppController {
 
 			// Managers can perform these operations in affiliates they manage
 			if (in_array ($this->params['action'], array(
+					'view',
 					'edit',
 					'delete',
 			)))

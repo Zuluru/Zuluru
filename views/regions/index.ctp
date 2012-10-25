@@ -14,6 +14,8 @@ $this->Html->addCrumb (__('List', true));
 	$i = 0;
 	$affiliate_id = null;
 	foreach ($regions as $region):
+		$is_manager = $is_logged_in && in_array($region['Region']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+
 		if (count($affiliates) > 1 && $region['Region']['affiliate_id'] != $affiliate_id):
 			$affiliate_id = $region['Region']['affiliate_id'];
 	?>
@@ -37,7 +39,7 @@ $this->Html->addCrumb (__('List', true));
 		echo $this->ZuluruHtml->iconLink('view_24.png',
 			array('action' => 'view', 'region' => $region['Region']['id']),
 			array('alt' => __('View', true), 'title' => __('View', true)));
-		if ($is_admin) {
+		if ($is_admin || $is_manager) {
 			echo $this->ZuluruHtml->iconLink('edit_24.png',
 				array('action' => 'edit', 'region' => $region['Region']['id']),
 				array('alt' => __('Edit', true), 'title' => __('Edit', true)));
