@@ -28,9 +28,15 @@ $this->Html->addCrumb (__('Edit', true));
 		<legend><?php __('Make Gameslot Available To'); ?></legend>
 		<div id="division_list">
 		<?php
-		echo $this->ZuluruForm->input('division_id', array(
-				'multiple' => 'checkbox',
-		));
+		foreach ($divisions as $key => $division) {
+			$checked = Set::extract("/DivisionGameslotAvailability[division_id=$key]", $this->data);
+			echo $this->Form->input ("Division.{$key}", array(
+					'label' => $division,
+					'type' => 'checkbox',
+					'hiddenField' => false,
+					'checked' => !empty($checked),
+			));
+		}
 		?>
 		</div>
 	</fieldset>

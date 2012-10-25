@@ -192,27 +192,31 @@ class GameSlotsController extends AppController {
 			$this->GameSlot->set ($this->data);
 			$this->data = $this->GameSlot->data;
 
-			// The availability table isn't a standard HABTM, so we need to massage the
-			// data into the correct form
-			$this->data['DivisionGameslotAvailability'] = array();
-			foreach ($this->data['GameSlot']['division_id'] as $division_id) {
-				$this->data['DivisionGameslotAvailability'][] = array(
-					'game_slot_id' => $id,
-					'division_id' => $division_id,
-				);
-			}
-
-			// Wrap the whole thing in a transaction, for safety.
-			$transaction = new DatabaseTransaction($this->GameSlot);
-
-			if ($this->GameSlot->DivisionGameslotAvailability->deleteAll(array('game_slot_id' => $id))) {
-				if ($this->GameSlot->saveAll($this->data)) {
-					$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('game slot', true)), 'default', array('class' => 'success'));
-					$transaction->commit();
-					$this->redirect(array('action' => 'view', 'slot' => $id));
+			if (!array_key_exists('Division', $this->data)) {
+				$this->Session->setFlash(__('You must select at least one division!', true), 'default', array('class' => 'info'));
+			} else {
+				// The availability table isn't a standard HABTM, so we need to massage the
+				// data into the correct form
+				$this->data['DivisionGameslotAvailability'] = array();
+				foreach ($this->data['Division'] as $division_id) {
+					$this->data['DivisionGameslotAvailability'][] = array(
+						'game_slot_id' => $id,
+						'division_id' => $division_id,
+					);
 				}
+
+				// Wrap the whole thing in a transaction, for safety.
+				$transaction = new DatabaseTransaction($this->GameSlot);
+
+				if ($this->GameSlot->DivisionGameslotAvailability->deleteAll(array('game_slot_id' => $id))) {
+					if ($this->GameSlot->saveAll($this->data)) {
+						$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('game slot', true)), 'default', array('class' => 'success'));
+						$transaction->commit();
+						$this->redirect(array('action' => 'view', 'slot' => $id));
+					}
+				}
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('game slot', true)), 'default', array('class' => 'warning'));
 			}
-			$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('game slot', true)), 'default', array('class' => 'warning'));
 		}
 
 		if (empty($this->data)) {
@@ -228,7 +232,6 @@ class GameSlotsController extends AppController {
 		$affiliate = $this->GameSlot->Field->Facility->Region->field('affiliate_id', array('Region.id' => $region));
 		$divisions = $this->GameSlot->Game->Division->readByDate($this->data['GameSlot']['game_date'], $affiliate);
 		$divisions = Set::combine($divisions, '{n}.Division.id', '{n}.Division.full_league_name');
-		$this->data['GameSlot']['division_id'] = Set::extract ('/DivisionGameslotAvailability/division_id', $this->data);
 		$this->set(compact('affiliate', 'divisions'));
 	}
 
