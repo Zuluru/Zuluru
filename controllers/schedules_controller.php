@@ -46,7 +46,7 @@ class SchedulesController extends AppController {
 			'League',
 		));
 		$this->division = $this->Division->read(null, $id);
-		if ($this->division === false) {
+		if (!$this->division) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
@@ -400,7 +400,7 @@ class SchedulesController extends AppController {
 			),
 		));
 		$division = $this->Division->read(null, $id);
-		if ($division === false) {
+		if (!$division) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}

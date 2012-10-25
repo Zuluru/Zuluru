@@ -41,19 +41,32 @@ class PreregistrationsController extends AppController {
 		);
 		if ($this->_arg('event')) {
 			$id = $this->_arg('event');
+			if (!$id) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'events', 'action' => 'index'));
+			}
 			$this->paginate['Preregistration']['conditions']['event_id'] = $id;
 			$this->Preregistration->Event->contain('Affiliate');
-			$this->set('event', $this->Preregistration->Event->read(null, $id));
+			$event = $this->Preregistration->Event->read(null, $id);
+			if (!$event) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'events', 'action' => 'index'));
+			}
 		}
 		$this->set('preregistrations', $this->paginate('Preregistration'));
-		$this->set(compact('affiliates'));
+		$this->set(compact('event', 'affiliates'));
 	}
 
 	function add() {
 		$params = $url = $this->_extractSearchParams();
 		unset ($params['event']);
 		if (array_key_exists('event', $url)) {
+			$this->Preregistration->Event->contain();
 			$event = $this->Preregistration->Event->read(null, $url['event']);
+			if (!$event) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'events', 'action' => 'index'));
+			}
 		}
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
@@ -146,13 +159,13 @@ class PreregistrationsController extends AppController {
 		$id = $this->_arg('prereg');
 		if (!$id) {
 			$this->Session->setFlash(__('Invalid id for preregistration', true), 'default', array('class' => 'info'));
-			$this->redirect(array('action'=>'index'));
+			$this->redirect(array('action' => 'index'));
 		}
 		if ($this->Preregistration->delete($id)) {
-			$this->Session->setFlash(__('Preregistration deleted', true), 'default', array('class' => 'success'));
-			$this->redirect(array('action'=>'index'));
+			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Preregistration', true)), 'default', array('class' => 'success'));
+			$this->redirect(array('action' => 'index'));
 		}
-		$this->Session->setFlash(__('Preregistration was not deleted', true), 'default', array('class' => 'warning'));
+		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Preregistration', true)), 'default', array('class' => 'warning'));
 		$this->redirect(array('action' => 'index'));
 	}
 }

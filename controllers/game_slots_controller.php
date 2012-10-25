@@ -217,6 +217,10 @@ class GameSlotsController extends AppController {
 					'DivisionGameslotAvailability',
 			));
 			$this->data = $this->GameSlot->read(null, $id);
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game slot', true)), 'default', array('class' => 'info'));
+				$this->redirect('/');
+			}
 		}
 		$affiliate = $this->GameSlot->affiliate($id);
 		$divisions = $this->GameSlot->Game->Division->readByDate($this->data['GameSlot']['game_date'], $affiliate);

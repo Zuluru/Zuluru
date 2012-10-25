@@ -122,7 +122,7 @@ class DivisionsController extends AppController {
 			'Event' => 'EventType',
 		));
 		$division = $this->Division->read(null, $id);
-		if ($division === false) {
+		if (!$division) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
@@ -261,6 +261,10 @@ class DivisionsController extends AppController {
 		$league_id = $this->Division->field('league_id', array('id' => $id));
 		$this->Division->League->contain(array());
 		$league = $this->Division->League->read(null, $league_id);
+		if (!$league) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+		}
 		Configure::load("sport/{$league['League']['sport']}");
 
 		if (!empty($this->data)) {
@@ -305,7 +309,7 @@ class DivisionsController extends AppController {
 
 		$this->Division->contain('Person', 'League');
 		$division = $this->Division->read(null, $id);
-		if ($division === false) {
+		if (!$division) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
@@ -427,7 +431,7 @@ class DivisionsController extends AppController {
 		if (empty($this->data)) {
 			$this->Division->contain('Person', 'League');
 			$this->data = $this->Division->read(null, $id);
-			if ($this->data === false) {
+			if (!$this->data) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 			}
@@ -459,7 +463,7 @@ class DivisionsController extends AppController {
 			'League',
 		));
 		$division = $this->Division->read(null, $id);
-		if ($division === false) {
+		if (!$division) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
@@ -506,7 +510,7 @@ class DivisionsController extends AppController {
 			),
 		));
 		$division = $this->Division->read(null, $id);
-		if ($division === false) {
+		if (!$division) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
@@ -666,7 +670,7 @@ class DivisionsController extends AppController {
 			'League',
 		));
 		$division = $this->Division->read(null, $id);
-		if ($division === false) {
+		if (!$division) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
@@ -747,7 +751,7 @@ class DivisionsController extends AppController {
 			'League',
 		));
 		$division = $this->Division->read(null, $id);
-		if ($division === false) {
+		if (!$division) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
@@ -825,7 +829,7 @@ class DivisionsController extends AppController {
 			),
 		));
 		$division = $this->Division->read(null, $id);
-		if ($division === false) {
+		if (!$division) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
@@ -916,7 +920,7 @@ class DivisionsController extends AppController {
 
 		$this->Division->contain('League');
 		$division = $this->Division->read(null, $id);
-		if ($division === false) {
+		if (!$division) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
@@ -993,7 +997,7 @@ class DivisionsController extends AppController {
 
 		$this->Division->contain('League');
 		$division = $this->Division->read(null, $id);
-		if ($division === false) {
+		if (!$division) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
@@ -1032,7 +1036,7 @@ class DivisionsController extends AppController {
 			'League',
 		));
 		$division = $this->Division->read(null, $id);
-		if ($division === false) {
+		if (!$division) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
@@ -1053,7 +1057,7 @@ class DivisionsController extends AppController {
 			'League',
 		));
 		$division = $this->Division->read(null, $id);
-		if ($division === false) {
+		if (!$division) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
@@ -1098,7 +1102,7 @@ class DivisionsController extends AppController {
 
 		$this->Division->contain('League');
 		$division = $this->Division->read(null, $id);
-		if ($division === false) {
+		if (!$division) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
@@ -1161,7 +1165,7 @@ class DivisionsController extends AppController {
 			'League',
 		));
 		$division = $this->Division->read(null, $id);
-		if ($division === false) {
+		if (!$division) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
@@ -1221,7 +1225,7 @@ class DivisionsController extends AppController {
 			),
 		));
 		$division = $this->Division->read(null, $id);
-		if ($division === false) {
+		if (!$division) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}

@@ -118,7 +118,7 @@ class FacilitiesController extends AppController {
 		));
 
 		$facility = $this->Facility->read(null, $id);
-		if ($facility === false) {
+		if (!$facility) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('facility', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
@@ -188,6 +188,10 @@ class FacilitiesController extends AppController {
 		if (empty($this->data)) {
 			$this->Facility->contain();
 			$this->data = $this->Facility->read(null, $id);
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('facility', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'index'));
+			}
 		}
 
 		$affiliates = $this->_applicableAffiliates(true);

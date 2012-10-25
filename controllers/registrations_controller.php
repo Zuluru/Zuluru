@@ -91,7 +91,7 @@ class RegistrationsController extends AppController {
 			'Division' => 'League',
 		));
 		$event = $this->Registration->Event->read(null, $id);
-		if ($event === false) {
+		if (!$event) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'events', 'action' => 'index'));
 		}
@@ -108,6 +108,7 @@ class RegistrationsController extends AppController {
 			$this->set('download_file_name', "Registrations - {$event['Event']['name']}");
 			Configure::write ('debug', 0);
 		} else {
+			$this->paginate['Registration']['limit'] = Configure::read('feature.items_per_page');
 			$this->set('registrations', $this->paginate ('Registration', array('event_id' => $id)));
 		}
 		$this->set(compact('event'));
@@ -126,7 +127,7 @@ class RegistrationsController extends AppController {
 			'Division' => 'League',
 		));
 		$event = $this->Registration->Event->read(null, $id);
-		if ($event === false) {
+		if (!$event) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'events', 'action' => 'index'));
 		}
@@ -317,7 +318,7 @@ class RegistrationsController extends AppController {
 			'Division' => 'League',
 		));
 		$event = $this->Registration->Event->read(null, $id);
-		if ($event === false) {
+		if (!$event) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
@@ -698,7 +699,7 @@ class RegistrationsController extends AppController {
 			'Response',
 		));
 		$registration = $this->Registration->read(null, $id);
-		if ($registration === false) {
+		if (!$registration) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('registration', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}

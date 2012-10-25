@@ -66,10 +66,14 @@ class MailingListsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->MailingList->contain(array('Affiliate', 'Newsletter'));
-		$this->set('mailingList', $this->MailingList->read(null, $id));
+		$mailingList = $this->MailingList->read(null, $id);
+		if (!$mailingList) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('mailing list', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
-		$this->set(compact('affiliates'));
+		$this->set(compact('mailingList', 'affiliates'));
 	}
 
 	function add() {
@@ -104,6 +108,10 @@ class MailingListsController extends AppController {
 		}
 		if (empty($this->data)) {
 			$this->data = $this->MailingList->read(null, $id);
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('mailing list', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'index'));
+			}
 		}
 
 		$this->set('affiliates', $this->_applicableAffiliates(true));

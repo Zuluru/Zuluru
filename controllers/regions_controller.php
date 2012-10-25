@@ -59,10 +59,14 @@ class RegionsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->Region->contain(array('Affiliate', 'Facility'));
-		$this->set('region', $this->Region->read(null, $id));
+		$region = $this->Region->read(null, $id);
+		if (!$region) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('region', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
-		$this->set(compact('affiliates'));
+		$this->set(compact('region', 'affiliates'));
 	}
 
 	function add() {
@@ -97,7 +101,12 @@ class RegionsController extends AppController {
 			}
 		}
 		if (empty($this->data)) {
+			$this->Region->contain();
 			$this->data = $this->Region->read(null, $id);
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('region', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'index'));
+			}
 		}
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('affiliates'));

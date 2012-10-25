@@ -950,7 +950,7 @@ class PeopleController extends AppController {
 		$this->set($this->params['named']);
 
 		$photo = $this->Person->Upload->read(null, $id);
-		if (empty ($photo)) {
+		if (!$photo) {
 			$success = false;
 		} else {
 			$success = $this->Person->Upload->delete ($id);
@@ -1136,7 +1136,7 @@ class PeopleController extends AppController {
 		}
 
 		$document = $this->Person->Upload->read (null, $id);
-		if (empty ($document)) {
+		if (!$document) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('document', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
@@ -1180,7 +1180,7 @@ class PeopleController extends AppController {
 		}
 
 		$document = $this->Person->Upload->read (null, $id);
-		if (empty ($document)) {
+		if (!$document) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('document', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
@@ -1225,7 +1225,7 @@ class PeopleController extends AppController {
 		$this->set($this->params['named']);
 
 		$document = $this->Person->Upload->read (null, $id);
-		if (empty ($document)) {
+		if (!$document) {
 			$success = false;
 		} else if (!$this->is_admin && $document['Upload']['person_id'] != $this->Auth->user('id')) {
 			$success = false;

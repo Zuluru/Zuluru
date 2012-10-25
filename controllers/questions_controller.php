@@ -93,10 +93,14 @@ class QuestionsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->Question->contain('Answer', 'Affiliate');
-		$this->set('question', $this->Question->read(null, $id));
+		$question = $this->Question->read(null, $id);
+		if (!$question) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('question', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
-		$this->set(compact('affiliates'));
+		$this->set(compact('question', 'affiliates'));
 	}
 
 	function add() {
@@ -134,6 +138,10 @@ class QuestionsController extends AppController {
 		if (empty($this->data)) {
 			$this->Question->contain(array('Answer' => array('order' => 'Answer.sort')));
 			$this->data = $this->Question->read(null, $id);
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('question', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'index'));
+			}
 		}
 
 		$this->set('affiliates', $this->_applicableAffiliates(true));

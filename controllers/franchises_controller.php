@@ -130,7 +130,7 @@ class FranchisesController extends AppController {
 		));
 
 		$franchise = $this->Franchise->read(null, $id);
-		if ($franchise === false) {
+		if (!$franchise) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
@@ -168,13 +168,19 @@ class FranchisesController extends AppController {
 		if (!empty($this->data)) {
 			if ($this->Franchise->save($this->data)) {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('franchise', true)), 'default', array('class' => 'success'));
+				$this->_deleteFranchiseSessionData();
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('franchise', true)), 'default', array('class' => 'warning'));
 			}
 		}
 		if (empty($this->data)) {
+			$this->Franchise->contain ();
 			$this->data = $this->Franchise->read(null, $id);
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'index'));
+			}
 		}
 
 		$this->set('affiliates', $this->_applicableAffiliates(true));
@@ -209,7 +215,7 @@ class FranchisesController extends AppController {
 
 		$this->Franchise->contain('Team');
 		$franchise = $this->Franchise->read(null, $id);
-		if ($franchise === false) {
+		if (!$franchise) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
@@ -264,7 +270,7 @@ class FranchisesController extends AppController {
 
 		$this->Franchise->contain('Team');
 		$franchise = $this->Franchise->read(null, $id);
-		if ($franchise === false) {
+		if (!$franchise) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
@@ -283,7 +289,7 @@ class FranchisesController extends AppController {
 
 		$this->Franchise->Team->contain('Franchise');
 		$team = $this->Franchise->Team->read(null, $team_id);
-		if ($team === false) {
+		if (!$team) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'franchise' => $id));
 		}
@@ -326,8 +332,9 @@ class FranchisesController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 
+		$this->Franchise->contain ('Person');
 		$franchise = $this->Franchise->read(null, $id);
-		if ($franchise === false) {
+		if (!$franchise) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}

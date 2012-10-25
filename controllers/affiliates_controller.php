@@ -83,6 +83,10 @@ class AffiliatesController extends AppController {
 		if (empty($this->data)) {
 			$this->Affiliate->contain(array());
 			$this->data = $this->Affiliate->read(null, $id);
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('affiliate', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'index'));
+			}
 		}
 	}
 
@@ -114,7 +118,7 @@ class AffiliatesController extends AppController {
 
 		$this->Affiliate->contain(array('Person' => array('conditions' => array('AffiliatesPerson.position' => 'manager'))));
 		$affiliate = $this->Affiliate->read(null, $id);
-		if ($affiliate === false) {
+		if (!$affiliate) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('affiliate', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}

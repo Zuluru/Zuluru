@@ -100,10 +100,14 @@ class QuestionnairesController extends AppController {
 				'Event',
 				'Affiliate',
 		));
-		$this->set('questionnaire', $this->Questionnaire->read(null, $id));
+		$questionnaire = $this->Questionnaire->read(null, $id);
+		if (!$questionnaire) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('questionnaire', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
-		$this->set(compact('affiliates'));
+		$this->set(compact('questionnaire', 'affiliates'));
 	}
 
 	function add() {
@@ -140,6 +144,10 @@ class QuestionnairesController extends AppController {
 		if (empty($this->data)) {
 			$this->Questionnaire->contain(array('Question' => array('Answer')));
 			$this->data = $this->Questionnaire->read(null, $id);
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('questionnaire', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'index'));
+			}
 		}
 
 		$questions = $this->Questionnaire->Question->find('list');

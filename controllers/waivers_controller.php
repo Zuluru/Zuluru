@@ -61,10 +61,14 @@ class WaiversController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->Waiver->contain('Affiliate');
-		$this->set('waiver', $this->Waiver->read(null, $id));
+		$waiver = $this->Waiver->read(null, $id);
+		if (!$waiver) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('waiver', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
-		$this->set(compact('affiliates'));
+		$this->set(compact('waiver', 'affiliates'));
 	}
 
 	function add() {
@@ -113,6 +117,10 @@ class WaiversController extends AppController {
 		if (empty($this->data)) {
 			$this->Waiver->contain(array());
 			$this->data = $this->Waiver->read(null, $id);
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('waiver', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'index'));
+			}
 		}
 
 		$this->set('affiliates', $this->_applicableAffiliates(true));
@@ -149,7 +157,7 @@ class WaiversController extends AppController {
 
 		$this->Waiver->contain(array());
 		$waiver = $this->Waiver->read (null, $waiver_id);
-		if (empty ($waiver) || !$waiver['Waiver']['active']) {
+		if (!$waiver || !$waiver['Waiver']['active']) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('waiver', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}

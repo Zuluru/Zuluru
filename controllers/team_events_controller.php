@@ -65,7 +65,7 @@ class TeamEventsController extends AppController {
 		));
 
 		$event = $this->TeamEvent->read(null, $id);
-		if ($event === false) {
+		if (!$event) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team event', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
@@ -82,10 +82,10 @@ class TeamEventsController extends AppController {
 		if (!empty($this->data)) {
 			$this->TeamEvent->create();
 			if ($this->TeamEvent->save($this->data)) {
-				$this->Session->setFlash(__('The team event has been saved', true), 'default', array('class' => 'success'));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('team event', true)), 'default', array('class' => 'success'));
 				$this->redirect('/');
 			} else {
-				$this->Session->setFlash(__('The team event could not be saved. Please, try again.', true), 'default', array('class' => 'warning'));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('team event', true)), 'default', array('class' => 'warning'));
 			}
 		}
 
@@ -96,11 +96,11 @@ class TeamEventsController extends AppController {
 				$this->redirect('/');
 			}
 			$this->TeamEvent->Team->contain(array(
-				'Division' => array('League'),
+				'Division' => 'League',
 			));
 
 			$this->data = $this->TeamEvent->Team->read(null, $id);
-			if ($this->data === false) {
+			if (!$this->data) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 				$this->redirect('/');
 			}
@@ -121,15 +121,19 @@ class TeamEventsController extends AppController {
 		}
 		if (!empty($this->data)) {
 			if ($this->TeamEvent->save($this->data)) {
-				$this->Session->setFlash(__('The team event has been saved', true), 'default', array('class' => 'success'));
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('team event', true)), 'default', array('class' => 'success'));
 				$this->redirect('/');
 			} else {
-				$this->Session->setFlash(__('The team event could not be saved. Please, try again.', true), 'default', array('class' => 'warning'));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('team event', true)), 'default', array('class' => 'warning'));
 			}
 		}
 		if (empty($this->data)) {
 			$this->TeamEvent->contain('Team');
 			$this->data = $this->TeamEvent->read(null, $id);
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team event', true)), 'default', array('class' => 'info'));
+				$this->redirect('/');
+			}
 		}
 
 		$this->_loadAddressOptions();
@@ -168,7 +172,7 @@ class TeamEventsController extends AppController {
 
 		$team_id = $this->TeamEvent->field ('team_id', compact('id'));
 		if (!$team_id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team event', true)), 'default', array('class' => 'info'));
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
@@ -192,6 +196,10 @@ class TeamEventsController extends AppController {
 			),
 		));
 		$event = $this->TeamEvent->read(null, $id);
+		if (!$event) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team event', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
 		$date = $event['TeamEvent']['date'];
 		$past = ("{$event['TeamEvent']['date']} {$event['TeamEvent']['start']}" < date('Y-m-d H:i:s'));
 

@@ -124,7 +124,7 @@ class GamesController extends AppController {
 		}
 		$this->Game->contain ($contain);
 		$game = $this->Game->read(null, $id);
-		if ($game === false) {
+		if (!$game) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
@@ -150,7 +150,7 @@ class GamesController extends AppController {
 		));
 
 		$game = $this->Game->read(null, $id);
-		if ($game === false) {
+		if (!$game) {
 			return;
 		}
 		$this->set(compact('game'));
@@ -176,9 +176,14 @@ class GamesController extends AppController {
 			'HomeTeam',
 			'AwayTeam',
 		));
-		$this->set('game', $this->Game->read(null, $id));
-		$this->set('ratings_obj', $this->_getComponent ('Ratings', $this->Game->data['Division']['rating_calculator'], $this));
-		$this->set('max_score', $this->Game->data['Division']['League']['expected_max_score']);
+		$game = $this->Game->read(null, $id);
+		if (!$game) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$ratings_obj = $this->_getComponent ('Ratings', $this->Game->data['Division']['rating_calculator'], $this);
+		$max_score = $this->Game->data['Division']['League']['expected_max_score'];
+		$this->set(compact('game', 'ratings_obj', 'max_score'));
 	}
 
 	// This function takes the parameters the old-fashioned way, to try to be more third-party friendly
@@ -194,7 +199,7 @@ class GamesController extends AppController {
 			'GameSlot' => array('Field' => 'Facility'),
 		));
 		$game = $this->Game->read(null, $game_id);
-		if ($game === false || !$game['Game']['published'] ||
+		if (!$game || !$game['Game']['published'] ||
 			($team_id != $game['Game']['home_team'] && $team_id != $game['Game']['away_team']))
 		{
 			return;
@@ -242,6 +247,10 @@ class GamesController extends AppController {
 			'Incident',
 		));
 		$game = $this->Game->read(null, $id);
+		if (!$game) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
 		$this->Game->_adjustEntryIndices($game);
 		$this->Game->_readDependencies($game['Game']);
 
@@ -599,6 +608,10 @@ class GamesController extends AppController {
 			'GameSlot' => array('Field' => 'Facility'),
 		));
 		$game = $this->Game->read(null, $id);
+		if (!$game) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
 		if ($game['Game']['home_team'] == $team_id) {
 			$team = $game['HomeTeam'];
 			$opponent = $game['AwayTeam'];
@@ -674,6 +687,10 @@ class GamesController extends AppController {
 				),
 			));
 			$game = $this->Game->read(null, $id);
+			if (!$game) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
+				$this->redirect('/');
+			}
 			$date = $game['GameSlot']['game_date'];
 			$past = (strtotime("{$game['GameSlot']['game_date']} {$game['GameSlot']['game_start']}") + Configure::read('timezone.adjust') * 60 < time());
 
@@ -982,6 +999,10 @@ class GamesController extends AppController {
 
 		$this->Game->contain ($contain);
 		$game = $this->Game->read(null, $id);
+		if (!$game) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
 		Configure::load("sport/{$game['Division']['League']['sport']}");
 		$this->Game->_adjustEntryIndices($game);
 		if ($game['Game']['home_team'] == $team_id) {

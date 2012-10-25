@@ -108,7 +108,7 @@ class Field extends AppModel {
 
 		return $record;
 	}
-`
+
 	function affiliate($id) {
 		return $this->Facility->affiliate($this->field('facility_id', array('Field.id' => $id)));
 	}

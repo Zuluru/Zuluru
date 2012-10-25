@@ -61,10 +61,14 @@ class UploadTypesController extends AppController {
 				'Upload' => array('Person'),
 				'Affiliate',
 		));
-		$this->set('uploadType', $this->UploadType->read(null, $id));
+		$uploadType = $this->UploadType->read(null, $id);
+		if (!$uploadType) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('upload type', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
-		$this->set(compact('affiliates'));
+		$this->set(compact('uploadType', 'affiliates'));
 	}
 
 	function add() {
@@ -108,7 +112,12 @@ class UploadTypesController extends AppController {
 			}
 		}
 		if (empty($this->data)) {
+			$this->UploadType->contain();
 			$this->data = $this->UploadType->read(null, $id);
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('upload type', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'index'));
+			}
 		}
 
 		$this->set('affiliates', $this->_applicableAffiliates(true));

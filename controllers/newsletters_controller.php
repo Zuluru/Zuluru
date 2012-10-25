@@ -84,7 +84,12 @@ class NewslettersController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->Newsletter->contain('MailingList');
-		$this->set('newsletter', $this->Newsletter->read(null, $id));
+		$newsletter = $this->Newsletter->read(null, $id);
+		if (!$newsletter) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('newsletter', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+		$this->set(compact('newsletter'));
 	}
 
 	function add() {
@@ -141,6 +146,10 @@ class NewslettersController extends AppController {
 		if (empty($this->data)) {
 			$this->Newsletter->contain('MailingList');
 			$this->data = $this->Newsletter->read(null, $id);
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('newsletter', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'index'));
+			}
 			$affiliate = $this->data['MailingList']['affiliate_id'];
 		} else {
 			$affiliate = $this->Newsletter->affiliate($id);
@@ -181,6 +190,10 @@ class NewslettersController extends AppController {
 		}
 		$this->Newsletter->contain(array('Delivery'));
 		$newsletter = $this->Newsletter->read(null, $id);
+		if (!$newsletter) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('newsletter', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
 		$ids = Set::extract('/Delivery/person_id', $newsletter);
 		$person = ClassRegistry::init('Person');
 		$people = $person->find('all', array(
@@ -215,6 +228,10 @@ class NewslettersController extends AppController {
 				),
 			));
 			$newsletter = $this->Newsletter->read(null, $id);
+			if (!$newsletter) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('newsletter', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'index'));
+			}
 
 			// Handle the rule controlling mailing list membership
 			$rule_obj = AppController::_getComponent ('Rule', '', $this, true);
@@ -262,6 +279,10 @@ class NewslettersController extends AppController {
 				'MailingList' => 'Affiliate',
 			));
 			$newsletter = $this->Newsletter->read(null, $id);
+			if (!$newsletter) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('newsletter', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'index'));
+			}
 
 			if ($test) {
 				$this->Person->contain();

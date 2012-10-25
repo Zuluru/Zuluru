@@ -191,7 +191,7 @@ class UsersController extends AppController {
 			// Look up the provided code
 			$this->User->contain();
 			$matches = $this->User->read (null, $id);
-			if (empty ($matches) || substr ($matches['User']['password'], -8) != $code) {
+			if (!$matches || substr ($matches['User']['password'], -8) != $code) {
 				$this->Session->setFlash(__('The provided code is not valid!', true), 'default', array('class' => 'warning'));
 			} else {
 				if ($this->_email_new_password($matches['User'])) {

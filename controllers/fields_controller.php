@@ -75,7 +75,7 @@ class FieldsController extends AppController {
 		));
 
 		$field = $this->Field->read(null, $id);
-		if ($field === false) {
+		if (!$field) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'facilities', 'action' => 'index'));
 		}
@@ -97,7 +97,7 @@ class FieldsController extends AppController {
 		));
 
 		$field = $this->Field->read(null, $id);
-		if ($field === false) {
+		if (!$field) {
 			return;
 		}
 
@@ -126,6 +126,10 @@ class FieldsController extends AppController {
 		} else {
 			$this->Field->Facility->contain();
 			$this->data = $this->Field->Facility->read(null, $id);
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('facility', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'facilities', 'action' => 'index'));
+			}
 			$this->data['Field'] = array('facility_id' => $id);
 		}
 		$this->set('add', true);
@@ -151,6 +155,10 @@ class FieldsController extends AppController {
 		if (empty($this->data)) {
 			$this->Field->contain('Facility');
 			$this->data = $this->Field->read(null, $id);
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'facilities', 'action' => 'index'));
+			}
 		}
 
 		$this->_addFieldMenuItems ($this->data);
@@ -219,6 +227,10 @@ class FieldsController extends AppController {
 		));
 
 		$field = $this->Field->read(null, $id);
+		if (!$field) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'facilities', 'action' => 'index'));
+		}
 		$this->set(compact ('field'));
 	}
 }

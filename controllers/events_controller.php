@@ -151,7 +151,7 @@ class EventsController extends AppController {
 			'Affiliate',
 		));
 		$event = $this->Event->read(null, $id);
-		if ($event === false) {
+		if (!$event) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'wizard'));
 		}
@@ -180,7 +180,7 @@ class EventsController extends AppController {
 		if (!empty($this->data)) {
 			// Validation requires this information
 			$type = $this->Event->EventType->read(null, $this->data['Event']['event_type_id']);
-			if (empty ($type)) {
+			if (!$type) {
 				// We need something here to avoid errors
 				$type = array('EventType' => array('type' => null));
 			}
@@ -226,7 +226,7 @@ class EventsController extends AppController {
 		if (!empty($this->data)) {
 			// Validation requires this information
 			$type = $this->Event->EventType->read(null, $this->data['Event']['event_type_id']);
-			if (empty ($type)) {
+			if (!$type) {
 				// We need something here to avoid errors
 				$type = array('EventType' => array('type' => null));
 			}
@@ -244,6 +244,10 @@ class EventsController extends AppController {
 				'EventType',
 			));
 			$this->data = $this->Event->read(null, $id);
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'index'));
+			}
 		}
 
 		$affiliates = $this->_applicableAffiliates(true);
@@ -357,7 +361,7 @@ class EventsController extends AppController {
 				'SuccessorTo',
 			));
 			$this->data = $this->Event->read(null, $id);
-			if ($this->data === false) {
+			if (!$this->data) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}

@@ -641,7 +641,7 @@ class TeamsController extends AppController {
 		$this->Team->contain($contain);
 
 		$team = $this->Team->read(null, $id);
-		if ($team === false) {
+		if (!$team) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
@@ -782,7 +782,7 @@ class TeamsController extends AppController {
 		$this->Team->contain($contain);
 
 		$team = $this->Team->read(null, $id);
-		if ($team === false) {
+		if (!$team) {
 			return;
 		}
 		$this->set(compact('team'));
@@ -853,6 +853,10 @@ class TeamsController extends AppController {
 		}
 		if (empty($this->data)) {
 			$this->data = $this->Team->read(null, $id);
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'index'));
+			}
 		}
 		$division_id = $this->Team->field('division_id', array('id' => $id));
 		$league_id = $this->Team->Division->field('league_id', array('id' => $division_id));
@@ -922,6 +926,10 @@ class TeamsController extends AppController {
 			));
 
 			$this->data = $this->Team->read(null, $id);
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'index'));
+			}
 		}
 
 		if (Configure::read('feature.tiny_mce')) {
@@ -978,7 +986,7 @@ class TeamsController extends AppController {
 
 		$this->Team->contain(array ('Division' => array('League')));
 		$team = $this->Team->read(null, $id);
-		if ($team === false) {
+		if (!$team) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
@@ -1042,7 +1050,7 @@ class TeamsController extends AppController {
 
 		$this->Team->contain(array('Division' => 'League'));
 		$team = $this->Team->read(null, $id);
-		if ($team === false) {
+		if (!$team) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
@@ -1097,7 +1105,7 @@ class TeamsController extends AppController {
 
 		$this->Team->contain(array ('Division' => 'League'));
 		$team = $this->Team->read(null, $id);
-		if ($team === false) {
+		if (!$team) {
 			return;
 		}
 		$this->Team->Division->Game->contain(array(
@@ -1137,7 +1145,7 @@ class TeamsController extends AppController {
 
 		$this->Team->contain(array ('Division' => 'League'));
 		$team = $this->Team->read(null, $id);
-		if ($team === false) {
+		if (!$team) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
@@ -1249,7 +1257,7 @@ class TeamsController extends AppController {
 			),
 		));
 		$team = $this->Team->read(null, $id);
-		if ($team === false) {
+		if (!$team) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
@@ -1266,7 +1274,7 @@ class TeamsController extends AppController {
 
 		$this->Team->contain(array('Division' => 'League'));
 		$team = $this->Team->read(null, $id);
-		if ($team === false) {
+		if (!$team) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
@@ -1365,7 +1373,7 @@ class TeamsController extends AppController {
 			),
 		));
 		$team = $this->Team->read(null, $id);
-		if ($team === false) {
+		if (!$team) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
@@ -1389,7 +1397,7 @@ class TeamsController extends AppController {
 			),
 		));
 		$old_team = $this->Team->read(null, $this->data['team']);
-		if ($old_team === false) {
+		if (!$old_team) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
@@ -1441,7 +1449,7 @@ class TeamsController extends AppController {
 		// Read the event
 		$this->Team->Person->Registration->Event->contain();
 		$event = $this->Team->Person->Registration->Event->read(null, $this->data['event']);
-		if ($event === false) {
+		if (!$event) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
@@ -1454,7 +1462,7 @@ class TeamsController extends AppController {
 			),
 		));
 		$team = $this->Team->read(null, $id);
-		if ($team === false) {
+		if (!$team) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}

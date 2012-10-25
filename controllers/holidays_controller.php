@@ -71,6 +71,10 @@ class HolidaysController extends AppController {
 		}
 		if (empty($this->data)) {
 			$this->data = $this->Holiday->read(null, $id);
+			if (!$this->data) {
+				$this->Session->setFlash(__('Invalid holiday', true), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'index'));
+			}
 		}
 
 		$this->set('affiliates', $this->_applicableAffiliates(true));

@@ -137,7 +137,7 @@ class LeaguesController extends AppController {
 			'Affiliate',
 		));
 		$league = $this->League->read(null, $id);
-		if ($league === false) {
+		if (!$league) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
@@ -172,7 +172,7 @@ class LeaguesController extends AppController {
 			'Division' => array('Team' => array('Person')),
 		));
 		$league = $this->League->read(null, $id);
-		if ($league === false) {
+		if (!$league) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
@@ -226,6 +226,10 @@ class LeaguesController extends AppController {
 		if (empty($this->data)) {
 			$this->League->contain ();
 			$this->data = $this->League->read(null, $id);
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'index'));
+			}
 		}
 
 		$this->set('affiliates', $this->_applicableAffiliates(true));
