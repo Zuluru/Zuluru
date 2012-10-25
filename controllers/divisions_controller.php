@@ -679,19 +679,26 @@ class DivisionsController extends AppController {
 		// Find all games played by teams that are currently in this division,
 		// or tournament games for this division
 		$teams = Set::extract ('/Team/id', $division);
-		$this->Division->Game->contain (array('GameSlot', 'SpiritEntry'));
-		$division['Game'] = $this->Division->Game->find('all', array(
-				'conditions' => array(
-					'OR' => array(
-						'Game.home_team' => $teams,
-						'Game.away_team' => $teams,
-						'AND' => array(
-							'Game.division_id' => $id,
-							'Game.tournament' => true,
-						),
-					),
-					'NOT' => array('Game.status' => Configure::read('unplayed_status')),
+		if (empty($teams)) {
+			$conditions = array(
+				'Game.division_id' => $id,
+				'Game.tournament' => true,
+			);
+		} else {
+			$conditions = array('OR' => array(
+				'Game.home_team' => $teams,
+				'Game.away_team' => $teams,
+				'AND' => array(
+					'Game.division_id' => $id,
+					'Game.tournament' => true,
 				),
+			));
+		}
+		$conditions['NOT'] = array('Game.status' => Configure::read('unplayed_status'));
+
+		$division['Game'] = $this->Division->Game->find('all', array(
+				'conditions' => $conditions,
+				'contain' => array('GameSlot', 'SpiritEntry'),
 		));
 
 		if (empty ($division['Game'])) {
