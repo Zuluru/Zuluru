@@ -3,6 +3,19 @@ class GameSlot extends AppModel {
 	var $name = 'GameSlot';
 	var $displayField = 'game_date';
 
+	var $validate = array(
+		'game_date' => array(
+			'date' => array(
+				'rule' => array('date'),
+				'message' => 'You must provide a valid game date.',
+			),
+			'range' => array(
+				'rule' => array('indateconfig', 'gameslot'),
+				'message' => 'You must provide a valid game date.',
+			),
+		),
+	);
+
 	var $belongsTo = array(
 		'Field' => array(
 			'className' => 'Field',
