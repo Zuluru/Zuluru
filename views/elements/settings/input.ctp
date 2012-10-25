@@ -8,7 +8,7 @@ if (!isset ($options)) {
 // configuration. This allows us to create multiple records.
 $unused_id = Configure::read ('unused_id');
 if (! $unused_id) {
-	$unused_id = 1000000;
+	$unused_id = MIN_FAKE_ID;
 } else {
 	++ $unused_id;
 }
@@ -50,6 +50,25 @@ if (!array_key_exists ('type', $options)) {
 
 if ($options['type'] == 'radio') {
 	$options['legend'] = false;
+}
+
+if ($affiliate && $options['type'] != 'textarea') {
+	$default = array_shift(Set::extract("/Setting[category=$category][name=$name]/value", $defaults));
+	if ($options['type'] == 'date') {
+		$default = date('F j', strtotime($default));
+	} else if ($options['type'] == 'radio') {
+		$default = $options['options'][$default];
+		$options['options'][MIN_FAKE_ID] = 'Use default';
+		$options['default'] = MIN_FAKE_ID;
+	} else if ($options['type'] == 'select') {
+		$default = $options['options'][$default];
+	}
+	$default = '(' . __('Default', true) . ": $default)";
+	if (array_key_exists ('after', $options)) {
+		$options['after'] .= " $default";
+	} else {
+		$options['after'] = $default;
+	}
 }
 
 $help_file = VIEWS . 'elements' . DS . 'help' . DS . 'settings' . DS . $category . DS . $name . '.ctp';

@@ -141,6 +141,7 @@ class LeaguesController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($league['League']['affiliate_id']);
 		Configure::load("sport/{$league['League']['sport']}");
 
 		$this->set(compact ('league'));
@@ -176,6 +177,7 @@ class LeaguesController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($league['League']['affiliate_id']);
 
 		if ($this->params['url']['ext'] == 'csv') {
 			$this->set('download_file_name', "Participation - {$league['League']['full_name']}");
@@ -192,6 +194,7 @@ class LeaguesController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('league', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->data['League']['affiliate_id']);
 			}
 		} else if ($this->_arg('league')) {
 			// To clone a league, read the old one and remove the id
@@ -201,6 +204,7 @@ class LeaguesController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($this->data['League']['affiliate_id']);
 			unset($this->data['League']['id']);
 		}
 
@@ -221,6 +225,7 @@ class LeaguesController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('league', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->League->affiliate($id));
 			}
 		}
 		if (empty($this->data)) {
@@ -230,6 +235,7 @@ class LeaguesController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($this->data['League']['affiliate_id']);
 		}
 
 		$this->set('affiliates', $this->_applicableAffiliates(true));

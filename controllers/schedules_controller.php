@@ -50,6 +50,7 @@ class SchedulesController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($this->division['League']['affiliate_id']);
 
 		if ($this->_arg('playoff')) {
 			$this->league_obj = $this->_getComponent ('LeagueType', 'tournament', $this);
@@ -260,6 +261,7 @@ class SchedulesController extends AppController {
 	function _canSchedule($id) {
 		$this->Division->contain('League');
 		$division = $this->Division->read(null, $id);
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 
 		$this->Division->Game->contain ('GameSlot');
 		$games = $this->Division->Game->find ('count', array(
@@ -404,6 +406,7 @@ class SchedulesController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 		// TODO: The read will load a bunch of games with empty game slots because
 		// they don't match the provided date; need a custom join?
 		$division['Game'] = Set::extract ("/GameSlot[game_date=$date]/..", $division['Game']);

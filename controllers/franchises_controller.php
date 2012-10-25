@@ -134,6 +134,7 @@ class FranchisesController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($franchise['Franchise']['affiliate_id']);
 
 		$this->set('franchise', $franchise);
 
@@ -151,6 +152,7 @@ class FranchisesController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('franchise', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->data['Franchise']['affiliate_id']);
 			}
 		}
 
@@ -172,6 +174,7 @@ class FranchisesController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('franchise', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->Franchise->affiliate($id));
 			}
 		}
 		if (empty($this->data)) {
@@ -181,6 +184,7 @@ class FranchisesController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($this->data['Franchise']['affiliate_id']);
 		}
 
 		$this->set('affiliates', $this->_applicableAffiliates(true));
@@ -219,6 +223,7 @@ class FranchisesController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($franchise['Franchise']['affiliate_id']);
 
 		$this->set(compact('franchise'));
 		$existing_team_ids = Set::extract ('/Team/id', $franchise);
@@ -274,6 +279,7 @@ class FranchisesController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($franchise['Franchise']['affiliate_id']);
 
 		$team_id = $this->_arg('team');
 		if (!$team_id) {
@@ -338,6 +344,7 @@ class FranchisesController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($franchise['Franchise']['affiliate_id']);
 		$this->set(compact('franchise'));
 
 		$person_id = $this->_arg('person');

@@ -4,33 +4,48 @@ $this->Html->addCrumb (__('Feature', true));
 ?>
 
 <div class="settings form">
-<?php echo $this->Form->create('Settings', array('url' => array('feature')));?>
+<?php
+if ($affiliate) {
+	$defaults = array('empty' => 'Use default');
+} else {
+	$defaults = array('empty' => false);
+}
+echo $this->ZuluruForm->create('Settings', array(
+		'url' => Router::normalize($this->here),
+        'inputDefaults' => $defaults,
+));
+
+echo $this->element('settings/banner');
+?>
 	<fieldset>
  		<legend><?php __('Primary Options'); ?></legend>
 	<?php
-	echo $this->element('settings/input', array(
-		'category' => 'site',
-		'name' => 'name',
-		'options' => array(
-			'label' => 'Site Name',
-			'after' => 'The name this application will be known as to your users.',
-		),
-	));
+	if (!$affiliate) {
+		echo $this->element('settings/input', array(
+			'category' => 'site',
+			'name' => 'name',
+			'options' => array(
+				'label' => 'Site Name',
+				'after' => 'The name this application will be known as to your users.',
+			),
+		));
+		echo $this->element('settings/input', array(
+			'category' => 'feature',
+			'name' => 'affiliates',
+			'options' => array(
+				'type' => 'radio',
+				'options' => Configure::read('options.enable'),
+				'label' => 'Enable affiliates',
+				'after' => sprintf('Allow configuration of multiple affiliated organizations.'),
+			),
+		));
+	}
+
 	echo $this->element('settings/input', array(
 		'category' => 'feature',
 		'name' => 'items_per_page',
 		'options' => array(
 			'after' => 'The number of items that will be shown per page on search results and long reports.',
-		),
-	));
-	echo $this->element('settings/input', array(
-		'category' => 'feature',
-		'name' => 'affiliates',
-		'options' => array(
-			'type' => 'radio',
-			'options' => Configure::read('options.enable'),
-			'label' => 'Enable affiliates',
-			'after' => sprintf('Allow configuration of multiple affiliated organizations.'),
 		),
 	));
 	echo $this->element('settings/input', array(
@@ -53,16 +68,18 @@ $this->Html->addCrumb (__('Feature', true));
 			'after' => 'Enable or disable Spirit of the Game options. If enabled here, Spirit can still be disabled on a per-league basis.',
 		),
 	));
-	echo $this->element('settings/input', array(
-		'category' => 'feature',
-		'name' => 'tiny_mce',
-		'options' => array(
-			'type' => 'radio',
-			'label' => 'Use TinyMCE WYSIWYG editor',
-			'options' => Configure::read('options.enable'),
-			'after' => 'To use this, you need to separately install the TinyMCE plugin.',
-		),
-	));
+	if (!$affiliate) {
+		echo $this->element('settings/input', array(
+			'category' => 'feature',
+			'name' => 'tiny_mce',
+			'options' => array(
+				'type' => 'radio',
+				'label' => 'Use TinyMCE WYSIWYG editor',
+				'options' => Configure::read('options.enable'),
+				'after' => 'To use this, you need to separately install the TinyMCE plugin.',
+			),
+		));
+	}
 	?>
 	</fieldset>
 
@@ -143,16 +160,18 @@ $this->Html->addCrumb (__('Feature', true));
 			'after' => 'By enabling this, you reduce administrative work and minimize delays for users. However, you also lose the ability to detect and eliminate duplicate accounts. <span class="warning-message">Use of this feature is recommended only for brand new sites wanting to ease the transition for their members.</span>',
 		),
 	));
-	echo $this->element('settings/input', array(
-		'category' => 'feature',
-		'name' => 'multiple_affiliates',
-		'options' => array(
-			'type' => 'radio',
-			'options' => Configure::read('options.enable'),
-			'label' => 'Enable joining multiple affiliates',
-			'after' => sprintf('Allow users to join multiple affiliates (only applicable if affiliates are enabled above).'),
-		),
-	));
+	if (!$affiliate) {
+		echo $this->element('settings/input', array(
+			'category' => 'feature',
+			'name' => 'multiple_affiliates',
+			'options' => array(
+				'type' => 'radio',
+				'options' => Configure::read('options.enable'),
+				'label' => 'Enable joining multiple affiliates',
+				'after' => sprintf('Allow users to join multiple affiliates (only applicable if affiliates are enabled above).'),
+			),
+		));
+	}
 	echo $this->element('settings/input', array(
 		'category' => 'feature',
 		'name' => 'photos',

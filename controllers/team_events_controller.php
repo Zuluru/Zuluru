@@ -61,7 +61,10 @@ class TeamEventsController extends AppController {
 			$this->redirect('/');
 		}
 		$this->TeamEvent->contain(array(
-			'Team' => array('Person'),
+			'Team' => array(
+				'Person',
+				'Division' => 'League',
+			),
 		));
 
 		$event = $this->TeamEvent->read(null, $id);
@@ -69,6 +72,7 @@ class TeamEventsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team event', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
+		$this->Configuration->loadAffiliate($event['Team']['Division']['League']['affiliate_id']);
 
 		usort ($event['Team']['Person'], array('Team', 'compareRoster'));
 
@@ -86,6 +90,7 @@ class TeamEventsController extends AppController {
 				$this->redirect('/');
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('team event', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->TeamEvent->Team->affiliate($this->data['TeamEvent']['team_id']));
 			}
 		}
 
@@ -105,6 +110,7 @@ class TeamEventsController extends AppController {
 				$this->redirect('/');
 			}
 			$this->data['TeamEvent'] = array('team_id' => $id);
+			$this->Configuration->loadAffiliate($this->data['Division']['League']['affiliate_id']);
 		}
 
 		$this->_loadAddressOptions();
@@ -125,15 +131,21 @@ class TeamEventsController extends AppController {
 				$this->redirect('/');
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('team event', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->TeamEvent->Team->affiliate($this->data['TeamEvent']['team_id']));
 			}
 		}
 		if (empty($this->data)) {
-			$this->TeamEvent->contain('Team');
+			$this->TeamEvent->contain(array(
+				'Team' => array(
+					'Division' => 'League',
+				),
+			));
 			$this->data = $this->TeamEvent->read(null, $id);
 			if (!$this->data) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team event', true)), 'default', array('class' => 'info'));
 				$this->redirect('/');
 			}
+			$this->Configuration->loadAffiliate($this->data['Team']['Division']['League']['affiliate_id']);
 		}
 
 		$this->_loadAddressOptions();
@@ -183,6 +195,7 @@ class TeamEventsController extends AppController {
 					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
+				'Division' => 'League',
 			),
 			'Attendance' => array(
 				'conditions' => array(
@@ -200,6 +213,7 @@ class TeamEventsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team event', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
+		$this->Configuration->loadAffiliate($event['Team']['Division']['League']['affiliate_id']);
 		$date = $event['TeamEvent']['date'];
 		$past = ("{$event['TeamEvent']['date']} {$event['TeamEvent']['start']}" < date('Y-m-d H:i:s'));
 

@@ -98,6 +98,7 @@ class QuestionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('question', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($question['Question']['affiliate_id']);
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('question', 'affiliates'));
@@ -111,6 +112,7 @@ class QuestionsController extends AppController {
 				$this->redirect(array('action' => 'edit', 'question' => $this->Question->id));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('question', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->data['Question']['affiliate_id']);
 			}
 		}
 
@@ -133,6 +135,7 @@ class QuestionsController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('question', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->Question->affiliate($id));
 			}
 		}
 		if (empty($this->data)) {
@@ -142,6 +145,7 @@ class QuestionsController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('question', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($this->data['Question']['affiliate_id']);
 		}
 
 		$this->set('affiliates', $this->_applicableAffiliates(true));

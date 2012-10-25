@@ -52,7 +52,7 @@ class GameSlotsController extends AppController {
 			$this->redirect('/');
 		}
 		$this->GameSlot->contain(array(
-				'Field' => array('Facility'),
+				'Field' => array('Facility' => 'Region'),
 				'DivisionGameslotAvailability' => array('Division' => 'League'),
 		));
 		$gameSlot = $this->GameSlot->read(null, $id);
@@ -60,6 +60,7 @@ class GameSlotsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game slot', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
+		$this->Configuration->loadAffiliate($gameSlot['Field']['Facility']['Region']['affiliate_id']);
 		$this->set(compact('gameSlot'));
 	}
 
@@ -170,6 +171,7 @@ class GameSlotsController extends AppController {
 			));
 			$this->set(compact('regions'));
 		}
+		$this->Configuration->loadAffiliate($affiliate);
 		$this->set(compact('affiliate'));
 	}
 
@@ -223,6 +225,8 @@ class GameSlotsController extends AppController {
 			}
 		}
 		$affiliate = $this->GameSlot->affiliate($id);
+		$this->Configuration->loadAffiliate($affiliate);
+
 		$divisions = $this->GameSlot->Game->Division->readByDate($this->data['GameSlot']['game_date'], $affiliate);
 		$divisions = Set::combine($divisions, '{n}.Division.id', '{n}.Division.full_league_name');
 		$this->set(compact('affiliate', 'divisions'));

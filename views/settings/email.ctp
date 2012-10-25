@@ -4,31 +4,45 @@ $this->Html->addCrumb (__('Email', true));
 ?>
 
 <div class="settings form">
-<?php echo $this->Form->create('Settings', array('url' => array('email')));?>
+<?php
+if ($affiliate) {
+	$defaults = array('empty' => 'Use default');
+} else {
+	$defaults = array('empty' => false);
+}
+echo $this->ZuluruForm->create('Settings', array(
+		'url' => Router::normalize($this->here),
+        'inputDefaults' => $defaults,
+));
+
+echo $this->element('settings/banner');
+?>
 	<fieldset>
  		<legend><?php __('Sender'); ?></legend>
 	<?php
-	echo $this->element('settings/input', array(
-		'category' => 'email',
-		'name' => 'admin_name',
-		'options' => array(
-			'after' => 'The name (or descriptive role) of the system administrator. Mail from <?php echo ZULURU; ?> will come from this name.',
-		),
-	));
-	echo $this->element('settings/input', array(
-		'category' => 'email',
-		'name' => 'admin_email',
-		'options' => array(
-			'after' => 'The e-mail address of the system administrator. Mail from <?php echo ZULURU; ?> will come from this address.',
-		),
-	));
-	echo $this->element('settings/input', array(
-		'category' => 'email',
-		'name' => 'support_email',
-		'options' => array(
-			'after' => 'The e-mail address for system support. This address will be linked for bug reports, etc.',
-		),
-	));
+	if (!$affiliate) {
+		echo $this->element('settings/input', array(
+			'category' => 'email',
+			'name' => 'admin_name',
+			'options' => array(
+				'after' => 'The name (or descriptive role) of the system administrator. Mail from <?php echo ZULURU; ?> will come from this name.',
+			),
+		));
+		echo $this->element('settings/input', array(
+			'category' => 'email',
+			'name' => 'admin_email',
+			'options' => array(
+				'after' => 'The e-mail address of the system administrator. Mail from <?php echo ZULURU; ?> will come from this address.',
+			),
+		));
+		echo $this->element('settings/input', array(
+			'category' => 'email',
+			'name' => 'support_email',
+			'options' => array(
+				'after' => 'The e-mail address for system support. This address will be linked for bug reports, etc.',
+			),
+		));
+	}
 	if (Configure::read('scoring.incident_reports')) {
 		echo $this->element('settings/input', array(
 			'category' => 'email',

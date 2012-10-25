@@ -645,6 +645,8 @@ class TeamsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($team['Division']['League']['affiliate_id']);
+
 		$this->Team->Division->addPlayoffs($team);
 		$this->_limitOverride($id);
 		$team_days = Set::extract('/Division/Day/id', $team);
@@ -774,7 +776,7 @@ class TeamsController extends AppController {
 				'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
 				'fields' => array('id', 'first_name', 'last_name'),
 			),
-			'Division',
+			'Division' => array('League'),
 		);
 		if (Configure::read('feature.annotations') && $this->is_logged_in) {
 			$contain['Note'] = array('conditions' => array('created_person_id' => $this->Auth->user('id')));
@@ -785,6 +787,7 @@ class TeamsController extends AppController {
 		if (!$team) {
 			return;
 		}
+		$this->Configuration->loadAffiliate($team['Division']['League']['affiliate_id']);
 		$this->set(compact('team'));
 
 		Configure::write ('debug', 0);
@@ -812,6 +815,7 @@ class TeamsController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('team', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->data['Team']['affiliate_id']);
 			}
 		}
 		$affiliates = $this->_applicableAffiliates();
@@ -849,14 +853,17 @@ class TeamsController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('team', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->Team->affiliate($id));
 			}
 		}
 		if (empty($this->data)) {
+			$this->Team->contain(array('Division' => 'League'));
 			$this->data = $this->Team->read(null, $id);
 			if (!$this->data) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($this->data['Division']['League']['affiliate_id']);
 		}
 		$division_id = $this->Team->field('division_id', array('id' => $id));
 		$league_id = $this->Team->Division->field('league_id', array('id' => $division_id));
@@ -918,11 +925,13 @@ class TeamsController extends AppController {
 				$this->redirect(array('action' => 'view', 'team' => $id));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('note', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->Team->affiliate($id));
 			}
 		}
 		if (empty($this->data)) {
 			$this->Team->contain(array(
 					'Note' => array('conditions' => array('created_person_id' => $my_id)),
+					'Division' => 'League',
 			));
 
 			$this->data = $this->Team->read(null, $id);
@@ -930,6 +939,7 @@ class TeamsController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($this->data['Division']['League']['affiliate_id']);
 		}
 
 		if (Configure::read('feature.tiny_mce')) {
@@ -984,12 +994,13 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 
-		$this->Team->contain(array ('Division' => array('League')));
+		$this->Team->contain(array ('Division' => 'League'));
 		$team = $this->Team->read(null, $id);
 		if (!$team) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($team['Division']['League']['affiliate_id']);
 
 		if (!empty($this->data)) {
 			$this->Team->Division->contain('League');
@@ -1054,6 +1065,7 @@ class TeamsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($team['Division']['League']['affiliate_id']);
 		Configure::load("sport/{$team['Division']['League']['sport']}");
 		$this->Team->Division->Game->contain(array(
 				'GameSlot' => array('Field' => 'Facility'),
@@ -1108,6 +1120,7 @@ class TeamsController extends AppController {
 		if (!$team) {
 			return;
 		}
+		$this->Configuration->loadAffiliate($team['Division']['League']['affiliate_id']);
 		$this->Team->Division->Game->contain(array(
 				'GameSlot' => array('Field' => 'Facility'),
 				'HomeTeam',
@@ -1149,6 +1162,7 @@ class TeamsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($team['Division']['League']['affiliate_id']);
 		$this->Team->Division->Game->contain(array(
 				'GameSlot',
 				'HomeTeam',
@@ -1192,6 +1206,7 @@ class TeamsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
+		$this->Configuration->loadAffiliate($team['Division']['League']['affiliate_id']);
 
 		if (!$team['Team']['track_attendance']) {
 			$this->Session->setFlash(__('That team does not have attendance tracking enabled.', true), 'default', array('class' => 'info'));
@@ -1255,12 +1270,14 @@ class TeamsController extends AppController {
 					'TeamsPerson.status' => ROSTER_APPROVED,
 				),
 			),
+			'Division' => 'League',
 		));
 		$team = $this->Team->read(null, $id);
 		if (!$team) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($team['Division']['League']['affiliate_id']);
 
 		$this->set(compact('team'));
 	}
@@ -1278,6 +1295,7 @@ class TeamsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($team['Division']['League']['affiliate_id']);
 
 		// To avoid abuses, whether intentional or accidental, we limit the permissions
 		// of admins and coordinators when managing teams they are on.
@@ -1377,6 +1395,7 @@ class TeamsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($team['Division']['League']['affiliate_id']);
 		$this->Team->Division->addPlayoffs($team);
 		$this->_limitOverride($id);
 
@@ -1466,6 +1485,7 @@ class TeamsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($team['Division']['League']['affiliate_id']);
 		$this->Team->Division->addPlayoffs($team);
 		$this->_limitOverride($id);
 
@@ -1878,6 +1898,7 @@ class TeamsController extends AppController {
 			),
 		));
 		$team = $this->Team->read(null, $team_id);
+		$this->Configuration->loadAffiliate($team['Division']['League']['affiliate_id']);
 		$this->Team->Division->addPlayoffs($team);
 
 		// Pull out the player record from the team, and make

@@ -89,6 +89,7 @@ class NewslettersController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('newsletter', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($newsletter['MailingList']['affiliate_id']);
 		$this->set(compact('newsletter'));
 	}
 
@@ -100,6 +101,7 @@ class NewslettersController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('newsletter', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->Newsletter->MailingList->affiliate($this->data['Newsletter']['mailing_list_id']));
 			}
 		}
 
@@ -154,6 +156,7 @@ class NewslettersController extends AppController {
 		} else {
 			$affiliate = $this->Newsletter->affiliate($id);
 		}
+		$this->Configuration->loadAffiliate($affiliate);
 		$this->set('mailingLists', $this->Newsletter->MailingList->find('list', array(
 				'conditions' => array('affiliate_id' => $affiliate),
 		)));
@@ -188,12 +191,13 @@ class NewslettersController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('newsletter', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
-		$this->Newsletter->contain(array('Delivery'));
+		$this->Newsletter->contain(array('MailingList', 'Delivery'));
 		$newsletter = $this->Newsletter->read(null, $id);
 		if (!$newsletter) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('newsletter', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($newsletter['MailingList']['affiliate_id']);
 		$ids = Set::extract('/Delivery/person_id', $newsletter);
 		$person = ClassRegistry::init('Person');
 		$people = $person->find('all', array(
@@ -232,6 +236,7 @@ class NewslettersController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('newsletter', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($newsletter['MailingList']['affiliate_id']);
 
 			// Handle the rule controlling mailing list membership
 			$rule_obj = AppController::_getComponent ('Rule', '', $this, true);
@@ -283,6 +288,7 @@ class NewslettersController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('newsletter', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($newsletter['MailingList']['affiliate_id']);
 
 			if ($test) {
 				$this->Person->contain();

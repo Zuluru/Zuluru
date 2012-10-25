@@ -155,6 +155,7 @@ class EventsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'wizard'));
 		}
+		$this->Configuration->loadAffiliate($event['Event']['affiliate_id']);
 
 		// Extract some more details, if it's a division registration
 		if (!empty($event['Event']['division_id'])) {
@@ -192,6 +193,7 @@ class EventsController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('event', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->data['Event']['affiliate_id']);
 			}
 		} else {
 			// Set up defaults
@@ -237,6 +239,7 @@ class EventsController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('event', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->Event->affiliate($event));
 			}
 		}
 		if (empty($this->data)) {
@@ -248,6 +251,7 @@ class EventsController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($this->data['Event']['affiliate_id']);
 		}
 
 		$affiliates = $this->_applicableAffiliates(true);

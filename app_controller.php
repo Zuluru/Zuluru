@@ -60,6 +60,12 @@ class AppController extends Controller {
 		if (isset($this->Configuration) && !empty($this->Configuration->table))
 		{
 			$this->Configuration->load($this->Auth->user('id'));
+			if (Configure::read('feature.affiliates')) {
+				$affiliates = $this->_applicableAffiliateIDs();
+				if (count($affiliates) == 1) {
+					$this->Configuration->loadAffiliate(array_shift($affiliates));
+				}
+			}
 		}
 		if (Configure::read('feature.items_per_page')) {
 			$this->paginate['limit'] = Configure::read('feature.items_per_page');
@@ -668,7 +674,6 @@ class AppController extends Controller {
 			$this->_addMenuItem ('All newsletters', array('controller' => 'newsletters', 'action' => 'past'), 'Newsletters');
 		}
 
-		// TODO: Some settings should be per-affiliate
 		if ($this->is_admin) {
 			$this->_addMenuItem ('Organization', array('controller' => 'settings', 'action' => 'organization'), array('Configuration', 'Settings'));
 			$this->_addMenuItem ('Features', array('controller' => 'settings', 'action' => 'feature'), array('Configuration', 'Settings'));
@@ -684,6 +689,37 @@ class AppController extends Controller {
 
 			if (Configure::read('feature.affiliates')) {
 				$this->_addMenuItem ('Affiliates', array('controller' => 'affiliates', 'action' => 'index'), 'Configuration');
+			}
+		}
+
+		if (Configure::read('feature.affiliates') && $this->is_manager) {
+			if (count($affiliates) == 1 && !$this->is_admin) {
+				$affiliate = array_shift(array_keys($affiliates));
+				$this->_addMenuItem ('Organization', array('controller' => 'settings', 'action' => 'organization', 'affiliate' => $affiliate), array('Configuration', 'Settings'));
+				$this->_addMenuItem ('Features', array('controller' => 'settings', 'action' => 'feature', 'affiliate' => $affiliate), array('Configuration', 'Settings'));
+				$this->_addMenuItem ('Email', array('controller' => 'settings', 'action' => 'email', 'affiliate' => $affiliate), array('Configuration', 'Settings'));
+				$this->_addMenuItem ('Users', array('controller' => 'settings', 'action' => 'user', 'affiliate' => $affiliate), array('Configuration', 'Settings'));
+				$this->_addMenuItem ('Scoring', array('controller' => 'settings', 'action' => 'scoring', 'affiliate' => $affiliate), array('Configuration', 'Settings'));
+				if (Configure::read('feature.registration')) {
+					$this->_addMenuItem ('Registration', array('controller' => 'settings', 'action' => 'registration', 'affiliate' => $affiliate), array('Configuration', 'Settings'));
+					if (Configure::read('registration.online_payments')) {
+						$this->_addMenuItem ('Payment', array('controller' => 'settings', 'action' => 'payment', 'affiliate' => $affiliate), array('Configuration', 'Settings'));
+					}
+				}
+			} else {
+				foreach ($affiliates as $affiliate => $name) {
+					$this->_addMenuItem ($name, array('controller' => 'settings', 'action' => 'organization', 'affiliate' => $affiliate), array('Configuration', 'Settings', 'Organization'));
+					$this->_addMenuItem ($name, array('controller' => 'settings', 'action' => 'feature', 'affiliate' => $affiliate), array('Configuration', 'Settings', 'Features'));
+					$this->_addMenuItem ($name, array('controller' => 'settings', 'action' => 'email', 'affiliate' => $affiliate), array('Configuration', 'Settings', 'Email'));
+					$this->_addMenuItem ($name, array('controller' => 'settings', 'action' => 'user', 'affiliate' => $affiliate), array('Configuration', 'Settings', 'Users'));
+					$this->_addMenuItem ($name, array('controller' => 'settings', 'action' => 'scoring', 'affiliate' => $affiliate), array('Configuration', 'Settings', 'Scoring'));
+					if (Configure::read('feature.registration')) {
+						$this->_addMenuItem ($name, array('controller' => 'settings', 'action' => 'registration', 'affiliate' => $affiliate), array('Configuration', 'Settings', 'Registration'));
+						if (Configure::read('registration.online_payments')) {
+							$this->_addMenuItem ($name, array('controller' => 'settings', 'action' => 'payment', 'affiliate' => $affiliate), array('Configuration', 'Settings', 'Payment'));
+						}
+					}
+				}
 			}
 		}
 

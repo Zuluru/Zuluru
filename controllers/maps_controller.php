@@ -75,6 +75,7 @@ class MapsController extends AppController {
 					'Field.id !=' => $id,
 					'Field.is_open' => true,
 				)),
+				'Region',
 			),
 		));
 
@@ -87,6 +88,7 @@ class MapsController extends AppController {
 			$this->Session->setFlash(sprintf(__('That %s has not yet been laid out.', true), Configure::read('ui.field')), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'fields', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($field['Facility']['Region']['affiliate_id']);
 
 		$home_addr = '';
 		if ($this->Auth->user()) {
@@ -122,6 +124,7 @@ class MapsController extends AppController {
 					'Field.is_open' => true,
 					'Field.latitude !=' => null,
 				)),
+				'Region',
 			),
 		));
 
@@ -130,6 +133,7 @@ class MapsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'fields', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($field['Facility']['Region']['affiliate_id']);
 
 		// We use these as last-ditch emergency values, if the field has neither
 		// a valid lat/long or an address that Google can find.

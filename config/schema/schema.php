@@ -506,6 +506,7 @@ class ZuluruSchema extends CakeSchema {
 	);
 	var $settings = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'affiliate_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'person_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'category' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 32),
 		'name' => array('type' => 'string', 'null' => false, 'length' => 50),

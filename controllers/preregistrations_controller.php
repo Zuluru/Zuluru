@@ -52,6 +52,7 @@ class PreregistrationsController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('controller' => 'events', 'action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($event['Event']['affiliate_id']);
 		}
 		$this->set('preregistrations', $this->paginate('Preregistration'));
 		$this->set(compact('event', 'affiliates'));
@@ -67,6 +68,7 @@ class PreregistrationsController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('controller' => 'events', 'action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($event['Event']['affiliate_id']);
 		}
 
 		$affiliates = $this->_applicableAffiliateIDs(true);

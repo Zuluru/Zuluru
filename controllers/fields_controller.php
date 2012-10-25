@@ -79,6 +79,7 @@ class FieldsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'facilities', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($field['Facility']['Region']['affiliate_id']);
 
 		$this->set(compact ('field'));
 
@@ -100,6 +101,7 @@ class FieldsController extends AppController {
 		if (!$field) {
 			return;
 		}
+		$this->Configuration->loadAffiliate($field['Facility']['Region']['affiliate_id']);
 
 		$this->set(compact ('field'));
 
@@ -122,15 +124,17 @@ class FieldsController extends AppController {
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'warning'));
 				$this->data = $this->Field->_afterFind($this->data);
+				$this->Configuration->loadAffiliate($this->Field->Facility->affiliate($id));
 			}
 		} else {
-			$this->Field->Facility->contain();
+			$this->Field->Facility->contain(array('Region'));
 			$this->data = $this->Field->Facility->read(null, $id);
 			if (!$this->data) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('facility', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('controller' => 'facilities', 'action' => 'index'));
 			}
 			$this->data['Field'] = array('facility_id' => $id);
+			$this->Configuration->loadAffiliate($this->data['Region']['affiliate_id']);
 		}
 		$this->set('add', true);
 
@@ -150,15 +154,17 @@ class FieldsController extends AppController {
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'warning'));
 				$this->data = $this->Field->_afterFind($this->data);
+				$this->Configuration->loadAffiliate($this->Field->affiliate($id));
 			}
 		}
 		if (empty($this->data)) {
-			$this->Field->contain('Facility');
+			$this->Field->contain(array('Facility' => 'Region'));
 			$this->data = $this->Field->read(null, $id);
 			if (!$this->data) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'info'));
 				$this->redirect(array('controller' => 'facilities', 'action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($this->data['Facility']['Region']['affiliate_id']);
 		}
 
 		$this->_addFieldMenuItems ($this->data);
@@ -216,7 +222,7 @@ class FieldsController extends AppController {
 		// TODO: Is there a better condition to use? Some divisions wrap around a year boundary.
 		// Maybe get the Availability table involved?
 		$this->Field->contain (array (
-			'Facility',
+			'Facility' => 'Region',
 			'GameSlot' => array(
 				'Game' => array(
 					'Division' => 'League',
@@ -231,6 +237,7 @@ class FieldsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'facilities', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($field['Facility']['Region']['affiliate_id']);
 		$this->set(compact ('field'));
 	}
 }

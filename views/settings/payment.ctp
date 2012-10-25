@@ -4,54 +4,73 @@ $this->Html->addCrumb (__('Online Payments', true));
 ?>
 
 <div class="settings form">
-<?php echo $this->Form->create('Settings', array('url' => array('payment')));?>
+<?php
+if ($affiliate) {
+	$defaults = array('empty' => 'Use default');
+} else {
+	$defaults = array('empty' => false);
+}
+echo $this->ZuluruForm->create('Settings', array(
+		'url' => Router::normalize($this->here),
+        'inputDefaults' => $defaults,
+));
+
+echo $this->element('settings/banner');
+?>
 	<fieldset>
  		<legend><?php __('Common Options'); ?></legend>
 	<?php
-	echo $this->element('settings/input', array(
-		'category' => 'payment',
-		'name' => 'payment_implementation',
-		'options' => array(
-			'id' => 'PaymentProvider',
-			'type' => 'select',
-			'options' => Configure::read('options.payment_provider'),
-			'hide_single' => true,
-		),
-	));
-	echo $this->element('settings/input', array(
-		'category' => 'payment',
-		'name' => 'options',
-		'options' => array(
-			'type' => 'text',
-			'after' => 'List the payment options offered by your payment provider, or provide generic text.',
-		),
-	));
+	if (!$affiliate) {
+		echo $this->element('settings/input', array(
+			'category' => 'payment',
+			'name' => 'payment_implementation',
+			'options' => array(
+				'id' => 'PaymentProvider',
+				'type' => 'select',
+				'options' => Configure::read('options.payment_provider'),
+				'hide_single' => true,
+			),
+		));
+		echo $this->element('settings/input', array(
+			'category' => 'payment',
+			'name' => 'options',
+			'options' => array(
+				'type' => 'text',
+				'after' => 'List the payment options offered by your payment provider, or provide generic text.',
+			),
+		));
+	}
+
 	echo $this->element('settings/input', array(
 		'category' => 'payment',
 		'name' => 'popup',
 		'options' => array(
-			'type' => 'select',
+			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
 			'after' => 'Handle online payments in a popup window?',
 		),
 	));
-	echo $this->element('settings/input', array(
-		'category' => 'payment',
-		'name' => 'invoice_implementation',
-		'options' => array(
-			'type' => 'select',
-			'options' => Configure::read('options.invoice'),
-			'hide_single' => true,
-		),
-	));
-	echo $this->element('settings/input', array(
-		'category' => 'payment',
-		'name' => 'reg_id_format',
-		'options' => array(
-			'label' => 'Event ID format string',
-			'after' => 'sprintf format string for the event ID, sent to the payment processor as the item number.',
-		),
-	));
+
+	if (!$affiliate) {
+		echo $this->element('settings/input', array(
+			'category' => 'payment',
+			'name' => 'invoice_implementation',
+			'options' => array(
+				'type' => 'select',
+				'options' => Configure::read('options.invoice'),
+				'hide_single' => true,
+			),
+		));
+		echo $this->element('settings/input', array(
+			'category' => 'payment',
+			'name' => 'reg_id_format',
+			'options' => array(
+				'label' => 'Event ID format string',
+				'after' => 'sprintf format string for the event ID, sent to the payment processor as the item number.',
+			),
+		));
+	}
+
 	echo $this->element('settings/input', array(
 		'category' => 'payment',
 		'name' => 'test_payments',
@@ -103,6 +122,7 @@ $this->Html->addCrumb (__('Online Payments', true));
 	));
 	?>
 	</fieldset>
+	<?php if (!$affiliate): ?>
 	<div id="PaymentProviderFields">
 	<?php
 	echo $this->element('payments/settings/' . Configure::read('payment.payment_implementation'));
@@ -112,6 +132,7 @@ $this->Html->addCrumb (__('Online Payments', true));
 	));
 	?>
 	</div>
+	<?php endif; ?>
 
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>

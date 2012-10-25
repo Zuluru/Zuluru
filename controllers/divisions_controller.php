@@ -126,6 +126,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 		$this->Division->addPlayoffs($division);
 		Configure::load("sport/{$division['League']['sport']}");
 
@@ -186,6 +187,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($this->League->affiliate($league_id));
 		$sport = $this->Division->League->field('sport', array('id' => $league_id));
 		Configure::load("sport/$sport");
 
@@ -265,6 +267,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($league['League']['affiliate_id']);
 		Configure::load("sport/{$league['League']['sport']}");
 
 		if (!empty($this->data)) {
@@ -313,6 +316,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 		Configure::load("sport/{$division['League']['sport']}");
 
 		$this->set(compact('division'));
@@ -417,6 +421,8 @@ class DivisionsController extends AppController {
 				$this->redirect(array('action' => 'view', 'division' => $id));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('teams', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->Division->affiliate($id));
+
 				// Adjust validation errors; some might really refer to the shared "0" key
 				foreach ($this->Division->Team->validationErrors as $errors) {
 					foreach ($errors as $field => $error) {
@@ -435,6 +441,7 @@ class DivisionsController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($this->data['League']['affiliate_id']);
 		}
 	}
 
@@ -467,6 +474,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 
 		$this->set(compact ('division'));
 		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
@@ -518,6 +526,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(__('This division has no games scheduled yet.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 		Configure::load("sport/{$division['League']['sport']}");
 
 		$is_coordinator = in_array($id, $this->Session->read('Zuluru.DivisionIDs'));
@@ -674,6 +683,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 		Configure::load("sport/{$division['League']['sport']}");
 
 		// Find all games played by teams that are currently in this division,
@@ -762,6 +772,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 
 		// Find all games played by teams that are currently in this division,
 		// or tournament games for this division
@@ -844,6 +855,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(__('This division has no games scheduled yet.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 		Configure::load("sport/{$division['League']['sport']}");
 		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
 		$league_obj->sort($division);
@@ -931,6 +943,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 		Configure::load("sport/{$division['League']['sport']}");
 
 		$this->Division->DivisionGameslotAvailability->GameSlot->contain();
@@ -1008,6 +1021,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 
 		$allstars = $this->Division->Game->Allstar->find ('all', array(
 				'fields' => array(
@@ -1047,6 +1061,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 		$this->set(compact('division'));
 
 		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
@@ -1068,6 +1083,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 		$teams = Set::extract('/Team/id', $division);
 		$this->Division->Game->contain(array (
 			'GameSlot',
@@ -1113,6 +1129,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 
 		$this->Division->Game->contain (array (
 			// Get the list of captains for each team, for building the email link
@@ -1176,6 +1193,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 		$this->Division->addPlayoffs($division);
 
 		if (!$division['Division']['is_playoff']) {
@@ -1236,6 +1254,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 
 		$count = $this->Division->Game->find('count', array('conditions' => array(
 				'Game.division_id' => $id,

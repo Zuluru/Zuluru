@@ -66,6 +66,7 @@ class UploadTypesController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('upload type', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($uploadType['UploadType']['affiliate_id']);
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('uploadType', 'affiliates'));
@@ -84,6 +85,7 @@ class UploadTypesController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('team', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->data['UploadType']['affiliate_id']);
 			}
 		}
 
@@ -109,6 +111,7 @@ class UploadTypesController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('team', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->UploadType->affiliate($id));
 			}
 		}
 		if (empty($this->data)) {
@@ -118,6 +121,7 @@ class UploadTypesController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('upload type', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($this->data['UploadType']['affiliate_id']);
 		}
 
 		$this->set('affiliates', $this->_applicableAffiliates(true));

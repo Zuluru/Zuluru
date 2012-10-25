@@ -4,17 +4,32 @@ $this->Html->addCrumb (__('Organization', true));
 ?>
 
 <div class="settings form">
-<?php echo $this->Form->create('Settings', array('url' => array('organization')));?>
+<?php
+if ($affiliate) {
+	$defaults = array('empty' => 'Use default');
+} else {
+	$defaults = array('empty' => false);
+}
+echo $this->ZuluruForm->create('Settings', array(
+		'url' => Router::normalize($this->here),
+        'inputDefaults' => $defaults,
+));
+
+echo $this->element('settings/banner');
+?>
 	<fieldset>
  		<legend><?php __('Organization'); ?></legend>
 	<?php
-	echo $this->element('settings/input', array(
-		'category' => 'organization',
-		'name' => 'name',
-		'options' => array(
-			'after' => 'Your organization\'s full name.',
-		),
-	));
+	if (!$affiliate) {
+		echo $this->element('settings/input', array(
+			'category' => 'organization',
+			'name' => 'name',
+			'options' => array(
+				'after' => 'Your organization\'s full name.',
+			),
+		));
+	}
+
 	echo $this->element('settings/input', array(
 		'category' => 'organization',
 		'name' => 'short_name',

@@ -4,18 +4,33 @@ $this->Html->addCrumb (__('Registration', true));
 ?>
 
 <div class="settings form">
-<?php echo $this->Form->create('Settings', array('url' => array('registration')));?>
+<?php
+if ($affiliate) {
+	$defaults = array('empty' => 'Use default');
+} else {
+	$defaults = array('empty' => false);
+}
+echo $this->ZuluruForm->create('Settings', array(
+		'url' => Router::normalize($this->here),
+        'inputDefaults' => $defaults,
+));
+
+echo $this->element('settings/banner');
+?>
 	<fieldset>
  		<legend><?php __('Registration Configuration'); ?></legend>
 	<?php
-	echo $this->element('settings/input', array(
-		'category' => 'registration',
-		'name' => 'order_id_format',
-		'options' => array(
-			'label' => 'Order ID format string',
-			'after' => 'sprintf format string for the unique order ID.',
-		),
-	));
+	if (!$affiliate) {
+		echo $this->element('settings/input', array(
+			'category' => 'registration',
+			'name' => 'order_id_format',
+			'options' => array(
+				'label' => 'Order ID format string',
+				'after' => 'sprintf format string for the unique order ID.',
+			),
+		));
+	}
+
 	echo $this->element('settings/input', array(
 		'category' => 'registration',
 		'name' => 'allow_tentative',
@@ -36,15 +51,19 @@ $this->Html->addCrumb (__('Registration', true));
 			'after' => 'By enabling this, you will allow users to register for events directly from the wizard or event list, without going through the "view details" page. If you have various similar events, you should disable this so that people must see the description instead of just the name, decreasing confusion and incorrect registrations.',
 		),
 	));
-	echo $this->element('settings/input', array(
-		'category' => 'registration',
-		'name' => 'online_payments',
-		'options' => array(
-			'type' => 'radio',
-			'options' => Configure::read('options.enable'),
-			'after' => 'Do we handle online payments?',
-		),
-	));
+
+	if (!$affiliate) {
+		echo $this->element('settings/input', array(
+			'category' => 'registration',
+			'name' => 'online_payments',
+			'options' => array(
+				'type' => 'radio',
+				'options' => Configure::read('options.enable'),
+				'after' => 'Do we handle online payments?',
+			),
+		));
+	}
+
 	echo $this->element('settings/input', array(
 		'category' => 'registration',
 		'name' => 'refund_policy_text',

@@ -105,6 +105,7 @@ class QuestionnairesController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('questionnaire', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($questionnaire['Questionnaire']['affiliate_id']);
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('questionnaire', 'affiliates'));
@@ -118,6 +119,7 @@ class QuestionnairesController extends AppController {
 				$this->redirect(array('action' => 'edit', 'questionnaire' => $this->Questionnaire->id));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('questionnaire', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->data['Questionnaire']['affiliate_id']);
 			}
 		}
 
@@ -139,6 +141,7 @@ class QuestionnairesController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('questionnaire', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->Questionnaire->affiliate($id));
 			}
 		}
 		if (empty($this->data)) {
@@ -148,6 +151,7 @@ class QuestionnairesController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('questionnaire', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($this->data['Questionnaire']['affiliate_id']);
 		}
 
 		$questions = $this->Questionnaire->Question->find('list');

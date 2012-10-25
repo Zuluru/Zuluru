@@ -67,6 +67,11 @@ if (!defined('VISIBILITY_PRIVATE')) {
 	define('VISIBILITY_PUBLIC', 4);
 }
 
+// Minimum "fake id" to use for setting edit pages
+if (!defined('MIN_FAKE_ID')) {
+	define('MIN_FAKE_ID', 1000000000);
+}
+
 if (!defined('ZULURU')) {
 	// This changes the name under which Zuluru presents itself.
 	// It can only be changed if you are also making substantial

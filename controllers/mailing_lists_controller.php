@@ -71,6 +71,7 @@ class MailingListsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('mailing list', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($mailingList['MailingList']['affiliate_id']);
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('mailingList', 'affiliates'));
@@ -84,6 +85,7 @@ class MailingListsController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('mailing list', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->data['MailingList']['affiliate_id']);
 			}
 		}
 
@@ -104,6 +106,7 @@ class MailingListsController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('mailing list', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->MailingList->affiliate($id));
 			}
 		}
 		if (empty($this->data)) {
@@ -112,6 +115,7 @@ class MailingListsController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('mailing list', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($this->data['MailingList']['affiliate_id']);
 		}
 
 		$this->set('affiliates', $this->_applicableAffiliates(true));
@@ -142,6 +146,7 @@ class MailingListsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('mailing list', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
+		$this->Configuration->loadAffiliate($this->MailingList->affiliate($list_id));
 
 		$person_id = $this->_arg('person');
 		$my_id = $this->Auth->user('id');

@@ -72,6 +72,7 @@ class AffiliatesController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('affiliate', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($id);
 		if (!empty($this->data)) {
 			if ($this->Affiliate->save($this->data)) {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('affiliate', true)), 'default', array('class' => 'success'));

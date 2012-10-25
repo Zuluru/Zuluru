@@ -66,6 +66,7 @@ class WaiversController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('waiver', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($waiver['Waiver']['affiliate_id']);
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('waiver', 'affiliates'));
@@ -79,6 +80,7 @@ class WaiversController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('waiver', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->data['Waiver']['affiliate_id']);
 			}
 		}
 		$this->set('affiliates', $this->_applicableAffiliates(true));
@@ -112,6 +114,7 @@ class WaiversController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('waiver', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->Waiver->affiliate($id));
 			}
 		}
 		if (empty($this->data)) {
@@ -121,6 +124,7 @@ class WaiversController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('waiver', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($this->data['Waiver']['affiliate_id']);
 		}
 
 		$this->set('affiliates', $this->_applicableAffiliates(true));
@@ -161,6 +165,7 @@ class WaiversController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('waiver', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
+		$this->Configuration->loadAffiliate($waiver['Waiver']['affiliate_id']);
 
 		// Make sure they're waivering for a valid date
 		$date = $this->_arg('date');
@@ -218,6 +223,7 @@ class WaiversController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('waiver', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
+		$this->Configuration->loadAffiliate($waiver['Waiver']['affiliate_id']);
 		$conditions = array('Waiver.id' => $waiver_id);
 
 		$date = $this->_arg('date');

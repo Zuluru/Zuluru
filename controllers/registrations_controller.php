@@ -95,6 +95,7 @@ class RegistrationsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'events', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($event['Event']['affiliate_id']);
 
 		$event_obj = $this->_getComponent ('EventType', $event['EventType']['type'], $this);
 		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], null, true);
@@ -131,6 +132,7 @@ class RegistrationsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'events', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($event['Event']['affiliate_id']);
 
 		$event_obj = $this->_getComponent ('EventType', $event['EventType']['type'], $this);
 		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], null, true);
@@ -292,6 +294,7 @@ class RegistrationsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('registration', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'events', 'action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($registration['Event']['affiliate_id']);
 
 		$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
 		$this->_mergeAutoQuestions ($registration, $event_obj, $registration['Event']['Questionnaire'], $registration['Person']['id'], true);
@@ -322,6 +325,7 @@ class RegistrationsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
+		$this->Configuration->loadAffiliate($event['Event']['affiliate_id']);
 
 		// Re-do "can register" checks to make sure someone hasn't hand-fed us a URL
 		$test = $this->CanRegister->test ($this->Auth->user('id'), $event);
@@ -502,6 +506,8 @@ class RegistrationsController extends AppController {
 		// Reset the array to 0-indexed keys
 		$registrations = array_values ($registrations);
 
+		$this->Configuration->loadAffiliate($affiliate);
+
 		$payment_obj = $this->_getComponent ('payment', Configure::read('payment.payment_implementation'), $this);
 
 		$this->set(compact ('registrations', 'full', 'person', 'payment_obj'));
@@ -540,6 +546,7 @@ class RegistrationsController extends AppController {
 			$this->Session->setFlash(__('You may only unregister from events that you have registered for!', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'checkout'));
 		}
+		$this->Configuration->loadAffiliate($registration['Event']['affiliate_id']);
 
 		// Wrap the rest in a transaction, for safety.
 		$transaction = new DatabaseTransaction($this->Registration);
@@ -624,6 +631,8 @@ class RegistrationsController extends AppController {
 			$registrations = $this->Registration->find ('all', array(
 				'conditions' => array('Registration.id' => $registration_ids),
 			));
+			$this->Configuration->loadAffiliate($registrations[0]['Event']['affiliate_id']);
+
 			if (!$this->Registration->updateAll (
 				array('Registration.payment' => '"Paid"'),
 				array('Registration.id' => $registration_ids)
@@ -703,6 +712,7 @@ class RegistrationsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('registration', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
+		$this->Configuration->loadAffiliate($registration['Event']['affiliate_id']);
 
 		$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
 		$this->_mergeAutoQuestions ($registration, $event_obj, $registration['Event']['Questionnaire'], $registration['Person']['id']);

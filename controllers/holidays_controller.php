@@ -47,6 +47,7 @@ class HolidaysController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(__('The holiday could not be saved. Please, try again.', true), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->data['Holiday']['affiliate_id']);
 			}
 		}
 
@@ -67,6 +68,7 @@ class HolidaysController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(__('The holiday could not be saved. Please, try again.', true), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->Holiday->affiliate($id));
 			}
 		}
 		if (empty($this->data)) {
@@ -75,6 +77,7 @@ class HolidaysController extends AppController {
 				$this->Session->setFlash(__('Invalid holiday', true), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($this->data['Holiday']['affiliate_id']);
 		}
 
 		$this->set('affiliates', $this->_applicableAffiliates(true));

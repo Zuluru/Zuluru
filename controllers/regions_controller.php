@@ -64,6 +64,7 @@ class RegionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('region', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($region['Region']['affiliate_id']);
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('region', 'affiliates'));
@@ -77,6 +78,7 @@ class RegionsController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('region', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->data['Region']['affiliate_id']);
 			}
 		}
 		$affiliates = $this->_applicableAffiliates(true);
@@ -98,6 +100,7 @@ class RegionsController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('region', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->Region->affiliate($id));
 			}
 		}
 		if (empty($this->data)) {
@@ -107,6 +110,7 @@ class RegionsController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('region', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($this->data['Region']['affiliate_id']);
 		}
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('affiliates'));

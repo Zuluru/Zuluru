@@ -122,6 +122,7 @@ class FacilitiesController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('facility', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->Configuration->loadAffiliate($facility['Region']['affiliate_id']);
 
 		$this->set(compact ('facility'));
 	}
@@ -135,6 +136,7 @@ class FacilitiesController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('facility', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->Facility->Region->affiliate($this->data['Facility']['region_id']));
 			}
 		}
 
@@ -183,15 +185,17 @@ class FacilitiesController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('facility', true)), 'default', array('class' => 'warning'));
+				$this->Configuration->loadAffiliate($this->Facility->affiliate($id));
 			}
 		}
 		if (empty($this->data)) {
-			$this->Facility->contain();
+			$this->Facility->contain('Region');
 			$this->data = $this->Facility->read(null, $id);
 			if (!$this->data) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('facility', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($this->data['Region']['affiliate_id']);
 		}
 
 		$affiliates = $this->_applicableAffiliates(true);
