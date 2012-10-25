@@ -25,7 +25,7 @@ function addQuestionFinish(url, data, index) {
 
     var ajax = {
         type: type,
-        url: url + '/' + data[1] + '/' + index,
+        url: url + '/question:' + data[1] + '/' + index,
         success: function(row){
 			jQuery('#Questions > tbody:first').append(row);
 			tableReorder(jQuery('#Questions'));

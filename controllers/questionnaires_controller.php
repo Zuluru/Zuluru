@@ -23,7 +23,6 @@ class QuestionnairesController extends AppController {
 			if (in_array ($this->params['action'], array(
 					'view',
 					'edit',
-					'add_question',
 					'remove_question',
 					'activate',
 					'deactivate',
@@ -34,6 +33,20 @@ class QuestionnairesController extends AppController {
 				$questionnaire = $this->_arg('questionnaire');
 				if ($questionnaire) {
 					$affiliate = $this->Questionnaire->field('affiliate_id', array('Questionnaire.id' => $questionnaire));
+					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+
+			if (in_array ($this->params['action'], array(
+					'add_question',
+			)))
+			{
+				// If a question id is specified, check if we're a manager of that question's affiliate
+				$question = $this->_arg('question');
+				if ($question) {
+					$affiliate = $this->Questionnaire->Question->field('affiliate_id', array('Question.id' => $question));
 					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
@@ -183,9 +196,11 @@ class QuestionnairesController extends AppController {
 		$this->redirect(array('action' => 'index'));
 	}
 
-	function add_question($id, $i) {
+	function add_question($i) {
 		Configure::write ('debug', 0);
 		$this->layout = 'ajax';
+
+		$id = $this->_arg('question');
 		$this->Questionnaire->Question->contain();
 		$question = $this->Questionnaire->Question->read(null, $id);
 		$question = $question['Question'];
