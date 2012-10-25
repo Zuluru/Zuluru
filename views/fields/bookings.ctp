@@ -7,6 +7,10 @@ $this->Html->addCrumb ($field['Field']['long_name']);
 <div class="fields bookings">
 <h2><?php echo __('Availability and Bookings', true) . ': ' . $field['Field']['long_name'];?></h2>
 
+<?php
+$is_manager = in_array($field['Facility']['Region']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+?>
+
 <table class="list">
 	<thead>
 		<tr>
@@ -14,7 +18,7 @@ $this->Html->addCrumb ($field['Field']['long_name']);
 			<th><?php __('Start'); ?></th>
 			<th><?php __('End'); ?></th>
 			<th><?php __('Booking'); ?></th>
-			<?php if ($is_admin): ?>
+			<?php if ($is_admin || $is_manager): ?>
 			<th><?php __('Actions'); ?></th>
 			<?php endif; ?>
 		</tr>
@@ -23,7 +27,7 @@ $this->Html->addCrumb ($field['Field']['long_name']);
 <?php foreach ($field['GameSlot'] as $slot): ?>
 		<tr>
 			<td><?php echo $this->ZuluruTime->date ($slot['game_date']); ?></td>
-			<?php if ($is_admin): ?>
+			<?php if ($is_admin || $is_manager): ?>
 			<td><?php echo $this->Html->link ($this->ZuluruTime->time ($slot['game_start']),
 						array('controller' => 'game_slots', 'action' => 'view', 'slot' => $slot['id'])); ?></td>
 			<?php else: ?>
@@ -36,7 +40,7 @@ $this->Html->addCrumb ($field['Field']['long_name']);
 						array('controller' => 'games', 'action' => 'view', 'game' => $slot['Game']['id']));
 			}
 			?></td>
-			<?php if ($is_admin): ?>
+			<?php if ($is_admin || $is_manager): ?>
 			<td class="actions"><?php
 				echo $this->Html->link (__('Edit', true),
 						array('controller' => 'game_slots', 'action' => 'edit', 'slot' => $slot['id'], 'return' => true));

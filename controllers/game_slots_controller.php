@@ -35,10 +35,13 @@ class GameSlotsController extends AppController {
 					'delete',
 			)))
 			{
-				// If a questionnaire id is specified, check if we're a manager of that questionnaire's affiliate
-				$questionnaire = $this->_arg('questionnaire');
-				if ($questionnaire) {
-					$affiliate = $this->Questionnaire->field('affiliate_id', array('Questionnaire.id' => $questionnaire));
+				// If a game slot id is specified, check if we're a manager of that game slot's affiliate
+				$slot = $this->_arg('slot');
+				if ($slot) {
+					$field = $this->GameSlot->field('field_id', array('GameSlot.id' => $slot));
+					$facility = $this->GameSlot->Field->field('facility_id', array('Field.id' => $field));
+					$region = $this->GameSlot->Field->Facility->field('region_id', array('Facility.id' => $facility));
+					$affiliate = $this->GameSlot->Field->Facility->Region->field('affiliate_id', array('Region.id' => $region));
 					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
