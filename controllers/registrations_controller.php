@@ -469,6 +469,7 @@ class RegistrationsController extends AppController {
 		$person = $this->Registration->Person->read (null, $this->Auth->user('id'));
 
 		$full = array();
+		$affiliate = $this->_arg('affiliate');
 		foreach ($registrations as $key => $registration) {
 			// Find the registration cap and how many are already registered.
 			$conditions = array(
@@ -486,6 +487,14 @@ class RegistrationsController extends AppController {
 					unset ($registrations[$key]);
 					continue;
 				}
+			}
+
+			// Don't allow the user to pay for things from multiple affiliates at the same time
+			if (!$affiliate) {
+				$affiliate = $registration['Event']['affiliate_id'];
+			} else if ($affiliate != $registration['Event']['affiliate_id']) {
+				unset ($registrations[$key]);
+				continue;
 			}
 
 			// Set the description for the invoice
