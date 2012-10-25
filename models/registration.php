@@ -60,5 +60,8 @@ class Registration extends AppModel {
 		)
 	);
 
+	function affiliate($id) {
+		return $this->Event->affiliate($this->field('event_id', array('Registration.id' => $id)));
+	}
 }
 ?>

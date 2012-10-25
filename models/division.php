@@ -388,5 +388,9 @@ class Division extends AppModel {
 	static function rosterDeadlinePassed($division) {
 		return (Division::rosterDeadline($division) < date('Y-m-d'));
 	}
+
+	function affiliate($id) {
+		return $this->League->affiliate($this->field('league_id', array('Division.id' => $id)));
+	}
 }
 ?>

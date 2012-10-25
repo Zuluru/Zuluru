@@ -42,4 +42,8 @@ class Holiday extends AppModel {
 			'order' => ''
 		),
 	);
+
+	function affiliate($id) {
+		return $this->field('affiliate_id', array('Holiday.id' => $id));
+	}
 }

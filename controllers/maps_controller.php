@@ -18,10 +18,7 @@ class MapsController extends AppController {
 				// If a field id is specified, check if we're a manager of that field's affiliate
 				$field = $this->_arg('field');
 				if ($field) {
-					$facility = $this->Field->field('facility_id', array('Field.id' => $field));
-					$region = $this->Field->Facility->field('region_id', array('Facility.id' => $facility));
-					$affiliate = $this->Field->Facility->Region->field('affiliate_id', array('Region.id' => $region));
-					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Field->affiliate($field), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}

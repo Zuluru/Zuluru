@@ -37,8 +37,7 @@ class EventsController extends AppController {
 				// If an event id is specified, check if we're a manager of that event's affiliate
 				$event = $this->_arg('event');
 				if ($event) {
-					$affiliate = $this->Event->field('affiliate_id', array('Event.id' => $event));
-					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Event->affiliate($event), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}

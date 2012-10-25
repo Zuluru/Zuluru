@@ -312,5 +312,15 @@ class Team extends AppModel {
 			return -1;
 		}
 	}
+
+	function affiliate($id) {
+		// Teams may be unassigned
+		$division = $this->field('division_id', array('Team.id' => $id));
+		if ($division) {
+			return $this->Division->affiliate($division);
+		} else {
+			return $this->field('affiliate_id', array('Team.id' => $id));
+		}
+	}
 }
 ?>

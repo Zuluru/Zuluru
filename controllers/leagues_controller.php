@@ -30,8 +30,7 @@ class LeaguesController extends AppController {
 				// If a league id is specified, check if we're a manager of that league's affiliate
 				$league = $this->_arg('league');
 				if ($league) {
-					$affiliate = $this->League->field('affiliate_id', array('League.id' => $league));
-					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->League->affiliate($league), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}

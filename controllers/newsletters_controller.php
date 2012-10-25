@@ -41,9 +41,7 @@ class NewslettersController extends AppController {
 				// If a newsletter id is specified, check if we're a manager of that newsletter's affiliate
 				$newsletter = $this->_arg('newsletter');
 				if ($newsletter) {
-					$mailingList = $this->Newsletter->field('mailing_list_id', array('Newsletter.id' => $newsletter));
-					$affiliate = $this->Newsletter->MailingList->field('affiliate_id', array('MailingList.id' => $mailingList));
-					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Newsletter->affiliate($newsletter), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -145,8 +143,7 @@ class NewslettersController extends AppController {
 			$this->data = $this->Newsletter->read(null, $id);
 			$affiliate = $this->data['MailingList']['affiliate_id'];
 		} else {
-			$mailingList = $this->Newsletter->field('mailing_list_id', array('Newsletter.id' => $id));
-			$affiliate = $this->Newsletter->MailingList->field('affiliate_id', array('MailingList.id' => $mailingList));
+			$affiliate = $this->Newsletter->affiliate($id);
 		}
 		$this->set('mailingLists', $this->Newsletter->MailingList->find('list', array(
 				'conditions' => array('affiliate_id' => $affiliate),

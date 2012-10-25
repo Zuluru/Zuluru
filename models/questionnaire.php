@@ -59,5 +59,9 @@ class Questionnaire extends AppModel {
 			'insertQuery' => ''
 		)
 	);
+
+	function affiliate($id) {
+		return $this->field('affiliate_id', array('Questionnaire.id' => $id));
+	}
 }
 ?>

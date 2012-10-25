@@ -111,14 +111,7 @@ class TeamsController extends AppController {
 				// If a team id is specified, check if we're a manager of that team's affiliate
 				$team = $this->_arg('team');
 				if ($team) {
-					$division = $this->Team->field('division_id', array('id' => $team));
-					if ($division) {
-						$league = $this->Team->Division->field('league_id', array('id' => $division));
-						$affiliate = $this->Team->Division->League->field('affiliate_id', array('id' => $league));
-					} else {
-						$affiliate = $this->Team->field('affiliate_id', array('id' => $team));
-					}
-					if ($affiliate && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Team->affiliate($team), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}

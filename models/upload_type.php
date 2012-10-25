@@ -48,5 +48,9 @@ class UploadType extends AppModel {
 			'counterQuery' => ''
 		),
 	);
+
+	function affiliate($id) {
+		return $this->field('affiliate_id', array('UploadType.id' => $id));
+	}
 }
 ?>

@@ -89,5 +89,9 @@ class Question extends AppModel {
 		}
 		return $name;
 	}
+
+	function affiliate($id) {
+		return $this->field('affiliate_id', array('Question.id' => $id));
+	}
 }
 ?>

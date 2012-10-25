@@ -325,5 +325,9 @@ class Event extends AppModel {
 		}
 		return parent::getColumnType($column);
 	}
+
+	function affiliate($id) {
+		return $this->field('affiliate_id', array('Event.id' => $id));
+	}
 }
 ?>

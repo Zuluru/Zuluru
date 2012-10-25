@@ -135,5 +135,9 @@ class Waiver extends AppModel {
 				return array($date, $date);
 		}
 	}
+
+	function affiliate($id) {
+		return $this->field('affiliate_id', array('Waiver.id' => $id));
+	}
 }
 ?>

@@ -25,9 +25,7 @@ class FieldsController extends AppController {
 				// If a facility id is specified, check if we're a manager of that facility's affiliate
 				$facility = $this->_arg('facility');
 				if ($facility) {
-					$region = $this->Field->Facility->field('region_id', array('id' => $facility));
-					$affiliate = $this->Field->Facility->Region->field('affiliate_id', array('id' => $region));
-					if ($affiliate && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Field->Facility->affiliate($facility), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -44,10 +42,7 @@ class FieldsController extends AppController {
 				// If a field id is specified, check if we're a manager of that field's affiliate
 				$field = $this->_arg('field');
 				if ($field) {
-					$facility = $this->Field->field('facility_id', array('id' => $field));
-					$region = $this->Field->Facility->field('region_id', array('id' => $facility));
-					$affiliate = $this->Field->Facility->Region->field('affiliate_id', array('id' => $region));
-					if ($affiliate && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Field->affiliate($field), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}

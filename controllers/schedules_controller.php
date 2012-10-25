@@ -25,9 +25,7 @@ class SchedulesController extends AppController {
 
 			// If a division id is specified, check if we're a manager of that division's affiliate
 			if ($this->is_manager && $division) {
-				$league = $this->Division->field('league_id', array('id' => $division));
-				$affiliate = $this->Division->League->field('affiliate_id', array('id' => $league));
-				if ($affiliate && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+				if (in_array($this->Division->affiliate($division), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 					return true;
 				}
 			}

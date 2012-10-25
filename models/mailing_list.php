@@ -49,5 +49,9 @@ class MailingList extends AppModel {
 			'dependent' => true,
 		),
 	);
+
+	function affiliate($id) {
+		return $this->field('affiliate_id', array('MailingList.id' => $id));
+	}
 }
 ?>

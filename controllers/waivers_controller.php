@@ -37,8 +37,7 @@ class WaiversController extends AppController {
 				// If a waiver id is specified, check if we're a manager of that waiver's affiliate
 				$waiver = $this->_arg('waiver');
 				if ($waiver) {
-					$affiliate = $this->Waiver->field('affiliate_id', array('Waiver.id' => $waiver));
-					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Waiver->affiliate($waiver), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}

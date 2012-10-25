@@ -99,5 +99,8 @@ class Newsletter extends AppModel {
 		),
 	);
 
+	function affiliate($id) {
+		return $this->MailingList->affiliate($this->field('mailing_list_id', array('Newsletter.id' => $id)));
+	}
 }
 ?>

@@ -39,8 +39,7 @@ class MailingListsController extends AppController {
 				// If a list id is specified, check if we're a manager of that list's affiliate
 				$list = $this->_arg('mailing_list');
 				if ($list) {
-					$affiliate = $this->MailingList->field('affiliate_id', array('MailingList.id' => $list));
-					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->MailingList->affiliate($list), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}

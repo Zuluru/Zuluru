@@ -66,5 +66,9 @@ class Facility extends AppModel {
 			'counterQuery' => ''
 		)
 	);
+
+	function affiliate($id) {
+		return $this->Region->affiliate($this->field('region_id', array('Facility.id' => $id)));
+	}
 }
 ?>

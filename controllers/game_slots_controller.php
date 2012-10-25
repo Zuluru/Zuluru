@@ -19,10 +19,7 @@ class GameSlotsController extends AppController {
 				// If a field id is specified, check if we're a manager of that field
 				$field = $this->_arg('field');
 				if ($field) {
-					$facility = $this->GameSlot->Field->field('facility_id', array('Field.id' => $field));
-					$region = $this->GameSlot->Field->Facility->field('region_id', array('Facility.id' => $facility));
-					$affiliate = $this->GameSlot->Field->Facility->Region->field('affiliate_id', array('Region.id' => $region));
-					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->GameSlot->Field->affiliate($field), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -38,11 +35,7 @@ class GameSlotsController extends AppController {
 				// If a game slot id is specified, check if we're a manager of that game slot's affiliate
 				$slot = $this->_arg('slot');
 				if ($slot) {
-					$field = $this->GameSlot->field('field_id', array('GameSlot.id' => $slot));
-					$facility = $this->GameSlot->Field->field('facility_id', array('Field.id' => $field));
-					$region = $this->GameSlot->Field->Facility->field('region_id', array('Facility.id' => $facility));
-					$affiliate = $this->GameSlot->Field->Facility->Region->field('affiliate_id', array('Region.id' => $region));
-					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->GameSlot->affiliate($slot), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -225,11 +218,7 @@ class GameSlotsController extends AppController {
 			));
 			$this->data = $this->GameSlot->read(null, $id);
 		}
-
-		$field = $this->GameSlot->field('field_id', array('GameSlot.id' => $id));
-		$facility = $this->GameSlot->Field->field('facility_id', array('Field.id' => $field));
-		$region = $this->GameSlot->Field->Facility->field('region_id', array('Facility.id' => $facility));
-		$affiliate = $this->GameSlot->Field->Facility->Region->field('affiliate_id', array('Region.id' => $region));
+		$affiliate = $this->GameSlot->affiliate($id);
 		$divisions = $this->GameSlot->Game->Division->readByDate($this->data['GameSlot']['game_date'], $affiliate);
 		$divisions = Set::combine($divisions, '{n}.Division.id', '{n}.Division.full_league_name');
 		$this->set(compact('affiliate', 'divisions'));

@@ -31,8 +31,7 @@ class RegionsController extends AppController {
 				// If a region id is specified, check if we're a manager of that region's affiliate
 				$region = $this->_arg('region');
 				if ($region) {
-					$affiliate = $this->Region->field('affiliate_id', array('Region.id' => $region));
-					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Region->affiliate($region), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}

@@ -28,5 +28,9 @@ class Region extends AppModel {
 			'counterQuery' => ''
 		)
 	);
+
+	function affiliate($id) {
+		return $this->field('affiliate_id', array('Region.id' => $id));
+	}
 }
 ?>

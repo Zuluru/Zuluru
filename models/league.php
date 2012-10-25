@@ -255,5 +255,9 @@ class League extends AppModel {
 		usort ($games, array ('Game', 'compareDateAndField'));
 		return $games;
 	}
+
+	function affiliate($id) {
+		return $this->field('affiliate_id', array('League.id' => $id));
+	}
 }
 ?>

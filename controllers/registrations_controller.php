@@ -53,8 +53,7 @@ class RegistrationsController extends AppController {
 				// If an event id is specified, check if we're a manager of that event's affiliate
 				$event = $this->_arg('event');
 				if ($event) {
-					$affiliate = $this->Registration->Event->field('affiliate_id', array('Event.id' => $event));
-					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Registration->Event->affiliate($event), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -69,9 +68,7 @@ class RegistrationsController extends AppController {
 				// If an event id is specified, check if we're a manager of that event's affiliate
 				$registration = $this->_arg('registration');
 				if ($registration) {
-					$event = $this->Registration->field('event_id', array('Registration.id' => $registration));
-					$affiliate = $this->Registration->Event->field('affiliate_id', array('Event.id' => $event));
-					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Registration->affiliate($registration), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}

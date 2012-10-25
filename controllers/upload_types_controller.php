@@ -24,8 +24,7 @@ class UploadTypesController extends AppController {
 				// If an upload type id is specified, check if we're a manager of that upload type's affiliate
 				$type = $this->_arg('type');
 				if ($type) {
-					$affiliate = $this->UploadType->field('affiliate_id', array('UploadType.id' => $type));
-					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->UploadType->affiliate($type), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}

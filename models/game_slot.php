@@ -89,5 +89,9 @@ class GameSlot extends AppModel {
 
 		return $game_slots;
 	}
+
+	function affiliate($id) {
+		return $this->Field->affiliate($this->field('field_id', array('GameSlot.id' => $id)));
+	}
 }
 ?>

@@ -15,8 +15,7 @@ class PreregistrationsController extends AppController {
 				// If an event id is specified, check if we're a manager of that event's affiliate
 				$event = $this->_arg('event');
 				if ($event) {
-					$affiliate = $this->Preregistration->Event->field('affiliate_id', array('Event.id' => $event));
-					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Preregistration->Event->affiliate($event), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				} else {

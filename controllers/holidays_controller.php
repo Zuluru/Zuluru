@@ -23,8 +23,7 @@ class HolidaysController extends AppController {
 				// If a holiday id is specified, check if we're a manager of that holiday's affiliate
 				$holiday = $this->_arg('holiday');
 				if ($holiday) {
-					$affiliate = $this->Holiday->field('affiliate_id', array('Holiday.id' => $holiday));
-					if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Holiday->affiliate($holiday), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}

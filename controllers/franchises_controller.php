@@ -36,8 +36,7 @@ class FranchisesController extends AppController {
 
 			// Managers can perform these operations in affiliates they manage
 			if ($franchise && $this->is_manager) {
-				$affiliate = $this->Franchise->field('affiliate_id', array('Franchise.id' => $franchise));
-				if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+				if (in_array($this->Franchise->affiliate($franchise), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 					return true;
 				}
 			}

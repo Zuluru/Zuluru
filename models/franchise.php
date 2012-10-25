@@ -85,5 +85,9 @@ class Franchise extends AppModel {
 
 		return $person['Franchise'];
 	}
+
+	function affiliate($id) {
+		return $this->field('affiliate_id', array('Franchise.id' => $id));
+	}
 }
 ?>

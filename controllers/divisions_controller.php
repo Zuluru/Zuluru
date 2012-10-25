@@ -71,8 +71,7 @@ class DivisionsController extends AppController {
 				// If a league id is specified, check if we're a manager of that league's affiliate
 				$league = $this->_arg('league');
 				if ($league) {
-					$affiliate = $this->Division->League->field('affiliate_id', array('id' => $league));
-					if ($affiliate && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Division->League->affiliate($league), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -98,9 +97,7 @@ class DivisionsController extends AppController {
 				// If a division id is specified, check if we're a manager of that division's affiliate
 				$division = $this->_arg('division');
 				if ($division) {
-					$league = $this->Division->field('league_id', array('id' => $division));
-					$affiliate = $this->Division->League->field('affiliate_id', array('id' => $league));
-					if ($affiliate && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Division->affiliate($division), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -635,9 +632,7 @@ class DivisionsController extends AppController {
 			}
 		}
 
-		$league = $this->Division->field('league_id', array('id' => $this->_arg('division')));
-		$affiliate = $this->Division->League->field('affiliate_id', array('id' => $league));
-		if (!$this->Lock->lock ('scheduling', $affiliate, 'schedule creation or edit')) {
+		if (!$this->Lock->lock ('scheduling', $this->Division->affiliate($this->_arg('division')), 'schedule creation or edit')) {
 			return false;
 		}
 		if (!$this->Division->Game->_saveGames($this->data['Game'], $publish)) {

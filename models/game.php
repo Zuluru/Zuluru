@@ -725,5 +725,9 @@ class Game extends AppModel {
 
 		return $options;
 	}
+
+	function affiliate($id) {
+		return $this->Division->affiliate($this->field('division_id', array('Game.id' => $id)));
+	}
 }
 ?>
