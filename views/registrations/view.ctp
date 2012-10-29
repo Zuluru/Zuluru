@@ -66,67 +66,67 @@ if ($is_manager) {
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Response Code');?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $registration['RegistrationAudit']['response_code'];?>
-
+			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('ISO Code');?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $registration['RegistrationAudit']['iso_code'];?>
-
+			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Date');?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $registration['RegistrationAudit']['date'];?>
-
+			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Time');?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $registration['RegistrationAudit']['time'];?>
-
+			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Transaction Id');?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $registration['RegistrationAudit']['transaction_id'];?>
-
+			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Approval Code');?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $registration['RegistrationAudit']['approval_code'];?>
-
+			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Transaction Name');?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $registration['RegistrationAudit']['transaction_name'];?>
-
+			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Charge Total');?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $registration['RegistrationAudit']['charge_total'];?>
-
+			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Cardholder');?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $registration['RegistrationAudit']['cardholder'];?>
-
+			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Expiry');?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $registration['RegistrationAudit']['expiry'];?>
-
+			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('F4L4');?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $registration['RegistrationAudit']['f4l4'];?>
-
+			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Card');?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $registration['RegistrationAudit']['card'];?>
-
+			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Message');?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $registration['RegistrationAudit']['message'];?>
-
+			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Issuer');?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
@@ -156,6 +156,7 @@ if ($is_manager) {
 	</div>
 </fieldset>
 <?php endif; ?>
+</div>
 
 <div class="actions">
 	<ul>
