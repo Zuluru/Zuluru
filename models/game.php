@@ -179,6 +179,8 @@ class Game extends AppModel {
 	static function _readDependencies (&$record) {
 		if (array_key_exists('home_dependency_type', $record) && !empty($record['home_dependency_type'])) {
 			Game::_readDependency ($record, 'home');
+		}
+		if (array_key_exists('away_dependency_type', $record) && !empty($record['away_dependency_type'])) {
 			Game::_readDependency ($record, 'away');
 		}
 	}
