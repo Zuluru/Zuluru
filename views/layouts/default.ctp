@@ -41,6 +41,7 @@
 					'jquery-ui-1.8.1.custom.min.js',
 					//'http://jquery-ui.googlecode.com/svn/tags/latest/external/jquery.bgiframe-2.1.1.js',
 					'tooltip.js',
+					'placeholder.js',
 			));
 			echo $this->Html->scriptBlock('jQuery.noConflict();');
 		}
