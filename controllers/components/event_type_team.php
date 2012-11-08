@@ -219,7 +219,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 				'track_attendance' => TRACK_ATTENDANCE,
 			))
 		);
-		if (Configure::read('feature.attendance') && $team['track_attendance']) {
+		if (Configure::read('feature.attendance') && !empty($team['track_attendance'])) {
 			// Add some default values, chosen based on averages found in the TUC database so far
 			$team += array(
 				'attendance_reminder' => 3,
