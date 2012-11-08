@@ -747,9 +747,11 @@ class DivisionsController extends AppController {
 				$more_after = true; // we never need to know how many after
 			}
 
-			$division['Team'] = array_slice ($division['Team'], $first, $last + 1 - $first);
+			$show_teams = array_slice ($division['Team'], $first, $last + 1 - $first);
+		} else {
+			$show_teams = $division['Team'];
 		}
-		$this->set(compact ('division', 'league_obj', 'spirit_obj', 'teamid', 'showall', 'more_before', 'more_after'));
+		$this->set(compact ('division', 'league_obj', 'spirit_obj', 'teamid', 'show_teams', 'more_before', 'more_after'));
 		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.DivisionIDs')));
 
 		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);

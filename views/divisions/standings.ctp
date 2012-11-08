@@ -25,7 +25,7 @@ if (!empty($division['Team']) && !empty($season)):?>
 	} else {
 		$seed = 0;
 	}
-	foreach ($division['Team'] as $team) {
+	foreach ($show_teams as $team) {
 		$classes = array();
 		if (floor ($seed++ / 8) % 2 == 1) {
 			if (++$i % 2 == 0) {
