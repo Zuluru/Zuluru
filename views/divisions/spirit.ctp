@@ -201,9 +201,17 @@ if ($division['League']['numeric_sotg']) {
 $header = array(__('Spirit score', true), __('Number of teams', true), __('Percentage of division', true));
 
 $max = $spirit_obj->max();
-$rows = array(array ($max, @$bins[$max], floor (@$bins[$max] / $team_count * 100)));
+if (array_key_exists($max, $bins)) {
+	$rows = array(array ($max, $bins[$max], floor ($bins[$max] / $team_count * 100)));
+} else {
+	$rows = array(array ($max, '', 0));
+}
 for ($i = $max-1; $i >= 0; --$i) {
-	$rows[] = array ($i . '-' . ($i + 1), @$bins[$i], floor (@$bins[$i] / $team_count * 100));
+	if (array_key_exists($i, $bins)) {
+		$rows[] = array ($i . '-' . ($i + 1), $bins[$i], floor ($bins[$i] / $team_count * 100));
+	} else {
+		$rows[] = array ($i . '-' . ($i + 1), '', 0);
+	}
 }
 
 echo $this->Html->tag ('table', $this->Html->tableHeaders ($header) . $this->Html->tableCells ($rows, array(), array('class' => 'altrow')), array('class' => 'list'));
