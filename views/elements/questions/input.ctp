@@ -14,8 +14,8 @@ if (array_key_exists ('Question', $question)) {
 }
 
 $options = array(
-	'label' => @$details['question'],
-	'required' => @$details['required'] || @$question['QuestionnairesQuestion']['required'],
+	'label' => $details['question'],
+	'required' => !empty($details['required']) || !empty($question['QuestionnairesQuestion']['required']),
 	'type' => $details['type'],
 );
 if (array_key_exists ('after', $details)) {
