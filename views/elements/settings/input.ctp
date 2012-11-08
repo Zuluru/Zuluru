@@ -52,7 +52,7 @@ if ($options['type'] == 'radio') {
 	$options['legend'] = false;
 }
 
-if ($affiliate && $options['type'] != 'textarea') {
+if (isset($affiliate) && $affiliate && $options['type'] != 'textarea') {
 	$default = array_shift(Set::extract("/Setting[category=$category][name=$name]/value", $defaults));
 	if ($options['type'] == 'date') {
 		$default = date('F j', strtotime($default));
