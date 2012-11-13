@@ -486,7 +486,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
-		$dependencies = $this->Division->dependencies($id);
+		$dependencies = $this->Division->dependencies($id, array('Day'));
 		if ($dependencies !== false) {
 			$this->Session->setFlash(__('The following records reference this division, so it cannot be deleted.', true) . '<br>' . $dependencies, 'default', array('class' => 'warning'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
