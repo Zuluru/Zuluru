@@ -79,38 +79,42 @@ class AppModel extends Model {
 	//
 	// Use model associations to determine whether a record can be deleted.
 	//
-	function dependencies($id) {
+	function dependencies($id, $ignore = array()) {
 		$dependencies = array();
 
 		foreach ($this->hasMany as $class => $association) {
-			$conditions = array("$class.{$association['foreignKey']}" => $id);
-			if (!empty($association['conditions'])) {
-				$conditions += $association['conditions'];
-			}
+			if (!in_array($class, $ignore)) {
+				$conditions = array("$class.{$association['foreignKey']}" => $id);
+				if (!empty($association['conditions'])) {
+					$conditions += $association['conditions'];
+				}
 
-			$dependent = $this->$class->find('count', array(
-					'conditions' => $conditions,
-					'contain' => false,
-			));
-			if ($dependent > 0) {
-				$dependencies[] = __(Inflector::pluralize($class), true) . ': ' . $dependent;
+				$dependent = $this->$class->find('count', array(
+						'conditions' => $conditions,
+						'contain' => false,
+				));
+				if ($dependent > 0) {
+					$dependencies[] = __(Inflector::pluralize($class), true) . ': ' . $dependent;
+				}
 			}
 		}
 
-		foreach ($this->hasAndBelongsToMany as $association) {
-			$class = $association['with'];
+		foreach ($this->hasAndBelongsToMany as $class => $association) {
+			if (!in_array($class, $ignore)) {
+				$class = $association['with'];
 
-			$conditions = array("$class.{$association['foreignKey']}" => $id);
-			if (!empty($association['conditions'])) {
-				$conditions += $association['conditions'];
-			}
+				$conditions = array("$class.{$association['foreignKey']}" => $id);
+				if (!empty($association['conditions'])) {
+					$conditions += $association['conditions'];
+				}
 
-			$dependent = $this->$class->find('count', array(
-					'conditions' => $conditions,
-					'contain' => false,
-			));
-			if ($dependent > 0) {
-				$dependencies[] = __(Inflector::pluralize($association['className']), true) . ': ' . $dependent;
+				$dependent = $this->$class->find('count', array(
+						'conditions' => $conditions,
+						'contain' => false,
+				));
+				if ($dependent > 0) {
+					$dependencies[] = __(Inflector::pluralize($association['className']), true) . ': ' . $dependent;
+				}
 			}
 		}
 
