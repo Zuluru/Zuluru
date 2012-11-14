@@ -78,4 +78,5 @@ foreach ($registrations as $registration):
 	</ul>
 </div>
 
+</div>
 <?php endif; ?>
