@@ -566,6 +566,8 @@ class PeopleController extends AppController {
 					// Manually select all affiliates the user is a manager of
 					if (is_array($this->data['Affiliate']['Affiliate'])) {
 						$this->data['Affiliate']['Affiliate'] = array_merge($this->data['Affiliate']['Affiliate'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+					} else if (!empty($this->data['Affiliate']['Affiliate'])) {
+						$this->data['Affiliate']['Affiliate'] = array_merge(array($this->data['Affiliate']['Affiliate']), $this->Session->read('Zuluru.ManagedAffiliateIDs'));
 					} else {
 						$this->data['Affiliate']['Affiliate'] = $this->Session->read('Zuluru.ManagedAffiliateIDs');
 					}
