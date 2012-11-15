@@ -321,8 +321,12 @@ class LeaguesController extends AppController {
 
 		$this->set(compact('to_close', 'to_open'));
 
-		$this->League->Division->updateAll (array('Division.is_open' => 0), array('Division.id' => Set::extract('/Division/id', $to_close)));
-		$this->League->Division->updateAll (array('Division.is_open' => true), array('Division.id' => Set::extract('/Division/id', $to_open)));
+		if (!empty($to_close)) {
+			$this->League->Division->updateAll (array('Division.is_open' => 0), array('Division.id' => Set::extract('/Division/id', $to_close)));
+		}
+		if (!empty($to_open)) {
+			$this->League->Division->updateAll (array('Division.is_open' => true), array('Division.id' => Set::extract('/Division/id', $to_open)));
+		}
 
 		// Update any league open and close dates that have changed because of divisions
 		// being added or edited and then the is_open status
@@ -369,8 +373,12 @@ class LeaguesController extends AppController {
 				'contain' => false,
 		));
 
-		$this->League->updateAll (array('League.is_open' => 0), array('League.id' => Set::extract('/League/id', $to_close)));
-		$this->League->updateAll (array('League.is_open' => true), array('League.id' => Set::extract('/League/id', $to_open)));
+		if (!empty($to_close)) {
+			$this->League->updateAll (array('League.is_open' => 0), array('League.id' => Set::extract('/League/id', $to_close)));
+		}
+		if (!empty($to_open)) {
+			$this->League->updateAll (array('League.is_open' => true), array('League.id' => Set::extract('/League/id', $to_open)));
+		}
 
 		$this->Lock->unlock();
 	}
