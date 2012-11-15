@@ -120,7 +120,7 @@ echo $person['Person']['full_name'];
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Birthdate'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php echo $this->ZuluruTime->date($person['Person']['birthdate']); ?>
-
+				&nbsp;
 			</dd>
 			<?php endif; ?>
 		<?php endif; ?>

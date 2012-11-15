@@ -63,6 +63,13 @@ class ZuluruTimeHelper extends TimeHelper {
 		}
 		return $this->format("$day_format, Y $time_format", $date);
 	}
+
+	function format($format, $date) {
+		if (empty($date)) {
+			return null;
+		}
+		return parent::format($format, $date);
+	}
 }
 
 ?>
