@@ -52,6 +52,7 @@ class PeopleController extends AppController {
 					'statistics',
 					'participation',
 					'retention',
+					'rule_search',
 			)))
 			{
 				// If an affiliate id is specified, check if we're a manager of that affiliate
@@ -1288,33 +1289,89 @@ class PeopleController extends AppController {
 
 	function search() {
 		$params = $url = $this->_extractSearchParams();
+		$affiliates = $this->_applicableAffiliates();
+		$this->set(compact('url', 'affiliates'));
+
 		if (!empty($params)) {
 			$test = trim (@$params['first_name'], ' *') . trim (@$params['last_name'], ' *');
 			$min = ($this->is_admin || $this->is_manager) ? 1 : 2;
 			if (strlen ($test) < $min) {
-				$this->set('short', true);
-			} else {
+				$this->set('error', 'The search terms used are too general. Please be more specific.');
+				return;
+			}
+
+			$this->_mergePaginationParams();
+			$this->paginate['Person'] = array(
+				'conditions' => $this->_generateSearchConditions($params, null, 'AffiliatePerson'),
+				'contain' => array(
+					'Note' => array('conditions' => array('created_person_id' => $this->Auth->user('id'))),
+					'Affiliate',
+				),
+				'limit' => Configure::read('feature.items_per_page'),
+				'joins' => array(array(
+					'table' => "{$this->Person->tablePrefix}affiliates_people",
+					'alias' => 'AffiliatePerson',
+					'type' => 'LEFT',
+					'foreignKey' => false,
+					'conditions' => 'AffiliatePerson.person_id = Person.id',
+				)),
+			);
+			$this->set('people', $this->paginate('Person'));
+		}
+	}
+
+	function rule_search() {
+		$params = $url = $this->_extractSearchParams();
+		$affiliates = $this->_applicableAffiliates();
+		$this->set(compact('url', 'affiliates'));
+
+		if (array_key_exists('rule64', $params)) {
+			// Base 64 input must have a length that's a multiple of 4, add = to pad it out
+			while (strlen ($params['rule64']) % 4)
+			{
+				$params['rule64'] .= '=';
+			}
+
+			// Base 64 decode to recover the original input
+			$params['rule'] = base64_decode ($params['rule64']);
+		}
+
+		if (array_key_exists('rule', $params)) {
+			// Handle the rule
+			$rule_obj = AppController::_getComponent ('Rule', '', $this, true);
+			if (!$rule_obj->init ($params['rule'])) {
+				$this->set('error', 'Failed to parse the rule.');
+				return;
+			}
+			if (!array_key_exists('rule64', $params)) {
+				// Base 64 encode the rule for easy URL manipulation, trim any = from the end
+				$url['rule64'] = base64_encode ($url['rule']);
+				$url['rule64'] = trim ($url['rule64'], '=');
+				unset($url['rule']);
+			}
+			$this->set(compact('url'));
+
+			$people = $rule_obj->query($params['rule']);
+			if ($people === null) {
+				$this->set('error', 'The syntax of the rule is valid, but it is not possible to build a query which will return the expected results. See the "rules engine" help for suggestions.');
+				return;
+			}
+
+			if (!empty($people)) {
 				$this->_mergePaginationParams();
-				$this->paginate['Person'] = array(
-					'conditions' => $this->_generateSearchConditions($params, null, 'AffiliatePerson'),
-					'contain' => array(
-						'Note' => array('conditions' => array('created_person_id' => $this->Auth->user('id'))),
-						'Affiliate',
-					),
-					'limit' => Configure::read('feature.items_per_page'),
-					'joins' => array(array(
-						'table' => "{$this->Person->tablePrefix}affiliates_people",
-						'alias' => 'AffiliatePerson',
-						'type' => 'LEFT',
-						'foreignKey' => false,
-						'conditions' => 'AffiliatePerson.person_id = Person.id',
-					)),
-				);
+				$this->paginate = array('Person' => array(
+						'contain' => array(),
+						'conditions' => array(
+							'Person.id' => $people,
+						),
+						'fields' => array(
+							'Person.id', 'Person.email', 'Person.first_name', 'Person.last_name',
+						),
+						'limit' => Configure::read('feature.items_per_page'),
+				));
 				$this->set('people', $this->paginate('Person'));
 			}
 		}
-		$affiliates = $this->_applicableAffiliates();
-		$this->set(compact('url', 'affiliates'));
 	}
 
 	function list_new() {

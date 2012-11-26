@@ -1,5 +1,5 @@
-<?php if (isset ($short)): ?>
-<p class="error-message"><?php __('The search terms used are too general. Please be more specific.'); ?></p>
+<?php if (isset ($error)): ?>
+<p class="error-message"><?php __($error); ?></p>
 
 <?php elseif (isset ($people) && empty ($people)): ?>
 <p class="error-message"><?php __('No matches found!'); ?></p>

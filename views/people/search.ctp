@@ -10,6 +10,10 @@ $this->Html->addCrumb (__('Search', true));
 
 <?php echo $this->element('people/search_form'); ?>
 
+<?php if ($is_admin || $is_manager): ?>
+<p>Alternately, you may <?php echo $this->Html->link(__('enter a rule and find people who match', true), array('action' => 'rule_search')); ?>.
+<?php endif; ?>
+
 <?php endif; ?>
 
 <?php echo $this->element('people/search_results'); ?>
