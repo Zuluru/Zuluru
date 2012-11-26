@@ -1359,15 +1359,29 @@ class PeopleController extends AppController {
 
 			if (!empty($people)) {
 				$this->_mergePaginationParams();
+
+				$conditions = array('Person.id' => $people);
+				if (array_key_exists('affiliate_id', $params)) {
+					$conditions['OR'] = array(
+						"AffiliatePerson.affiliate_id" => $params['affiliate_id'],
+						'Person.group_id' => 3,
+					);
+				}
+
 				$this->paginate = array('Person' => array(
-						'contain' => array(),
-						'conditions' => array(
-							'Person.id' => $people,
-						),
-						'fields' => array(
-							'Person.id', 'Person.email', 'Person.first_name', 'Person.last_name',
+						'conditions' => $conditions,
+						'contain' => array(
+							'Note' => array('conditions' => array('created_person_id' => $this->Auth->user('id'))),
+							'Affiliate',
 						),
 						'limit' => Configure::read('feature.items_per_page'),
+						'joins' => array(array(
+							'table' => "{$this->Person->tablePrefix}affiliates_people",
+							'alias' => 'AffiliatePerson',
+							'type' => 'LEFT',
+							'foreignKey' => false,
+							'conditions' => 'AffiliatePerson.person_id = Person.id',
+						)),
 				));
 				$this->set('people', $this->paginate('Person'));
 			}
