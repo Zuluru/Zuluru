@@ -1715,11 +1715,11 @@ class GamesController extends AppController {
 		$reread = false;
 		foreach ($games as $game) {
 			if (empty ($game['Attendance'])) {
-				if ($game['HomeTeam']['track_attendance'] && in_array($game['HomeTeam']['id'], $team_ids)) {
+				if (!empty($game['HomeTeam']) && $game['HomeTeam']['track_attendance'] && in_array($game['HomeTeam']['id'], $team_ids)) {
 					$attendance = $this->Game->_read_attendance($game['HomeTeam']['id'], Set::extract('/Division/Day/id', $game), $game['Game']['id']);
 					$reread = true;
 				}
-				if ($game['AwayTeam']['track_attendance'] && in_array($game['AwayTeam']['id'], $team_ids)) {
+				if (!empty($game['AwayTeam']) && $game['AwayTeam']['track_attendance'] && in_array($game['AwayTeam']['id'], $team_ids)) {
 					$attendance = $this->Game->_read_attendance($game['AwayTeam']['id'], Set::extract('/Division/Day/id', $game), $game['Game']['id']);
 					$reread = true;
 				}
