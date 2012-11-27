@@ -982,8 +982,6 @@ class GamesController extends AppController {
 						'conditions' => array('TeamsPerson.position' => Configure::read('extended_playing_roster_positions')),
 						'fields' => array(
 							'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.gender',
-							'Person.home_phone', 'Person.work_phone', 'Person.work_ext', 'Person.mobile_phone',
-							'Person.publish_email', 'Person.publish_home_phone', 'Person.publish_work_phone', 'Person.publish_mobile_phone',
 						),
 					),
 				),
@@ -992,8 +990,6 @@ class GamesController extends AppController {
 						'conditions' => array('TeamsPerson.position' => Configure::read('extended_playing_roster_positions')),
 						'fields' => array(
 							'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.gender',
-							'Person.home_phone', 'Person.work_phone', 'Person.work_ext', 'Person.mobile_phone',
-							'Person.publish_email', 'Person.publish_home_phone', 'Person.publish_work_phone', 'Person.publish_mobile_phone',
 						),
 					),
 				),
@@ -1001,8 +997,22 @@ class GamesController extends AppController {
 			));
 		} else {
 			$contain = array_merge($contain, array(
-				'HomeTeam',
-				'AwayTeam',
+				'HomeTeam' => array(
+					'Person' => array(
+						'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+						'fields' => array(
+							'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.gender',
+						),
+					),
+				),
+				'AwayTeam' => array(
+					'Person' => array(
+						'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+						'fields' => array(
+							'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.gender',
+						),
+					),
+				),
 			));
 		}
 
@@ -1016,8 +1026,10 @@ class GamesController extends AppController {
 		Configure::load("sport/{$game['Division']['League']['sport']}");
 		$this->Game->_adjustEntryIndices($game);
 		if ($game['Game']['home_team'] == $team_id) {
+			$team = $game['HomeTeam'];
 			$opponent = $game['AwayTeam'];
 		} else {
+			$team = $game['AwayTeam'];
 			$opponent = $game['HomeTeam'];
 		}
 
@@ -1176,17 +1188,53 @@ class GamesController extends AppController {
 				// Check if the opponent has an entry
 				if (!$this->Game->_get_score_entry($game, $opponent['id'])) {
 					// No, so we just mention that it's been saved and move on
-					if (in_array($this->data['ScoreEntry'][$team_id]['status'], Configure::read('unplayed_status'))) {
-						$status = __($this->data['ScoreEntry'][$team_id]['status'], true);
-					} else if ($this->data['ScoreEntry'][$team_id]['score_for'] > $this->data['ScoreEntry'][$team_id]['score_against']) {
-						$status = __('a win for your team', true);
-					} else if ($this->data['ScoreEntry'][$team_id]['score_for'] < $this->data['ScoreEntry'][$team_id]['score_against']) {
-						$status = __('a loss for your team', true);
+					$status = $this->data['ScoreEntry'][$team_id]['status'];
+					if (in_array($status, Configure::read('unplayed_status'))) {
+						$team_status = $opponent_status = __($status, true);
 					} else {
-						$status = __('a tie', true);
+						$score_for = $this->data['ScoreEntry'][$team_id]['score_for'];
+						$score_against = $this->data['ScoreEntry'][$team_id]['score_against'];
+						$default = (strpos($status, 'default') !== false);
+						if ($score_for > $score_against) {
+							$team_status = __('a win for your team', true);
+							if ($default) {
+								$opponent_status = __('a default loss for your team', true);
+							} else {
+								$opponent_status = sprintf(__('a %s-%s loss for your team', true), $score_for, $score_against);
+							}
+						} else if ($score_for < $score_against) {
+							$team_status = __('a loss for your team', true);
+							if ($default) {
+								$opponent_status = __('a default win for your team', true);
+							} else {
+								$opponent_status = sprintf(__('a %s-%s win for your team', true), $score_against, $score_for);
+							}
+						} else {
+							$team_status = __('a tie', true);
+							$opponent_status = sprintf(__('a %s-%s tie', true), $score_for, $score_against);
+						}
 					}
-					$resultMessage = sprintf(__('This score has been saved. Once your opponent has entered their score, it will be officially posted.<br/><br/>The score you have submitted indicates that this game was %s. If this is incorrect, you can edit the score to correct it.', true), $status);
+					$resultMessage = sprintf(__('This score has been saved. Once your opponent has entered their score, it will be officially posted.<br/><br/>The score you have submitted indicates that this game was %s. If this is incorrect, you can edit the score to correct it.', true), $team_status);
 					$resultClass = 'success';
+
+					// Email opposing captains with this score and an easy link					
+					$captains = array();
+					foreach (Configure::read('privileged_roster_positions') as $position) {
+						$captains = array_merge($captains, Set::extract ("/Person/TeamsPerson[position=$position]/..", $opponent));
+					}
+					if (!empty($captains)) {
+						$division = $game['Division'];
+						// We need to swap the for and against scores to reflect the opponent's view
+						list($score_against, $score_for) = array($score_for, $score_against);
+						$this->set(compact ('division', 'game', 'status', 'opponent_status', 'score_for', 'score_against', 'team', 'opponent', 'captains'));
+						$this->_sendMail (array (
+								'to' => $captains,
+								'from' => $this->Session->read('Zuluru.Person.email_formatted'),
+								'subject' => 'Opponent score submission',
+								'template' => 'score_submission',
+								'sendAs' => 'both',
+						));
+					}
 				} else {
 					// Otherwise, both teams have an entry.  So, attempt to finalize using
 					// this information.
@@ -1209,7 +1257,7 @@ class GamesController extends AppController {
 					$this->set(compact ('game', 'incident'));
 					if ($this->_sendMail (array (
 							'to' => "Incident Manager <$addr>",
-							'from' => $this->Session->read('Zuluru.Person.full_name') . ' <' . $this->Session->read('Zuluru.Person.email') . '>',
+							'from' => $this->Session->read('Zuluru.Person.email_formatted'),
 							'subject' => "Incident report: {$incident['type']}",
 							'template' => 'incident_report',
 							'sendAs' => 'html',
@@ -1236,6 +1284,9 @@ class GamesController extends AppController {
 			}
 		} else {
 			$this->data = $game;
+			if (array_key_exists('status', $this->params['named'])) {
+				$this->data['ScoreEntry'][$team_id] = $this->params['named'];
+			}
 		}
 
 		$this->set(compact ('game', 'team_id', 'spirit_obj'));
