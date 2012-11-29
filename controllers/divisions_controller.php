@@ -187,7 +187,7 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
-		$this->Configuration->loadAffiliate($this->League->affiliate($league_id));
+		$this->Configuration->loadAffiliate($this->Division->League->affiliate($league_id));
 		$sport = $this->Division->League->field('sport', array('id' => $league_id));
 		Configure::load("sport/$sport");
 
