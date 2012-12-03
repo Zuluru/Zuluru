@@ -1,5 +1,5 @@
 <li><span class="name"><?php echo $facility['name'] . ' ' . $field['num']; ?></span>
-<div class="hidden">
+<div<?php if (!isset($expanded) || !$expanded) echo ' class="hidden"'; ?>>
 <?php
 foreach ($weeks as $key => $week) {
 	echo $this->Form->input("GameSlot.Create.{$field['id']}.$key", array(

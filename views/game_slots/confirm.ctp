@@ -32,22 +32,26 @@ $this->Html->addCrumb (__('Confirm', true));
 		if (!empty($skipped)) {
 			echo $this->Html->para(null, __('Game slots will not be created on the following holidays:', true) . $this->Html->nestedList ($skipped));
 		}
-		?>
 
+		if (isset($field)):
+			echo $this->element ('game_slots/confirm', array('facility' => $field['Facility'], 'field' => $field['Field'], 'weeks' => $weeks, 'expanded' => true));
+		else:
+		?>
 		<p>Click a <?php __(Configure::read('ui.field')); ?> name below to edit the list of game slots that will be created for that <?php __(Configure::read('ui.field')); ?>.</p>
 		<ul>
 		<?php
-		foreach ($regions as $region) {
-			foreach ($region['Facility'] as $facility) {
-				foreach ($facility['Field'] as $field) {
-					if (array_key_exists ($field['id'], $this->data['Field'])) {
-						echo $this->element ('game_slots/confirm', array('facility' => $facility, 'field' => $field, 'weeks' => $weeks));
+			foreach ($regions as $region) {
+				foreach ($region['Facility'] as $facility) {
+					foreach ($facility['Field'] as $field) {
+						if (array_key_exists ($field['id'], $this->data['Field'])) {
+							echo $this->element ('game_slots/confirm', compact('facility', 'field', 'weeks'));
+						}
 					}
 				}
 			}
-		}
 		?>
 		</ul>
+		<?php endif; ?>
 	</fieldset>
 <?php echo $this->Form->end(__('Create Slots', true));?>
 </div>
