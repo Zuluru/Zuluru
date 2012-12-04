@@ -56,9 +56,12 @@ $this->Html->addCrumb (__('Unpaid', true));
 	<?php endif; ?>
 	<tr><td colspan="5">&nbsp;</td></tr>
 	<?php
-	$total[$registration['Registration']['payment']] ++;
-}
+		$total[$registration['Registration']['payment']] ++;
+	}
+	?>
+</table>
 
+<?php
 $total_rows = array();
 foreach ($total as $key => $value) {
 	$total_rows[] = array ($key, $value);
