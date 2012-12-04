@@ -72,79 +72,6 @@ class GameSlotsController extends AppController {
 			$this->redirect('/');
 		}
 
-		if (!empty($this->data)) {
-			// Find the list of holidays to avoid
-			$holiday = ClassRegistry::init('Holiday');
-			$holidays = $holiday->find('list', array('fields' => array('Holiday.date', 'Holiday.name')));
-			$this->set(compact('holidays'));
-
-			if (array_key_exists ('confirm', $this->data['GameSlot'])) {
-				if (!array_key_exists ('Create', $this->data['GameSlot'])) {
-					$this->Session->setFlash(__('You must select at least one game slot!', true), 'default', array('class' => 'info'));
-					$this->action = 'confirm';
-				} else {
-					// Build the list of dates to re-use
-					$weeks = array();
-					// Use noon as the time, to avoid problems when we switch between DST and non-DST dates
-					$date = strtotime ($this->data['GameSlot']['game_date'] . ' 12:00:00');
-					while (count($weeks) < $this->data['GameSlot']['weeks']) {
-						if (!array_key_exists(date ('Y-m-d', $date), $holidays)) {
-							$weeks[] = date ('Y-m-d', $date);
-						}
-						$date += WEEK;
-					}
-
-					// saveAll handles hasMany relations OR multiple records, but not both,
-					// so we have to save each slot separately. Wrap the whole thing in a
-					// transaction, for safety.
-					$transaction = new DatabaseTransaction($this->GameSlot);
-					$success = true;
-
-					$game_end = (empty ($this->data['GameSlot']['game_end']) ? null : $this->data['GameSlot']['game_end']);
-					foreach ($this->data['GameSlot']['Create'] as $field_id => $field_dates) {
-						foreach (array_keys ($field_dates) as $date) {
-							$slot = array(
-								'GameSlot' => array(
-									'field_id' => $field_id,
-									'game_date' => $weeks[$date],
-									'game_start' => $this->data['GameSlot']['game_start'],
-									'game_end' => $game_end,
-								),
-								'DivisionGameslotAvailability' => array(),
-							);
-							foreach (array_keys ($this->data['Division']) as $division_id) {
-								$slot['DivisionGameslotAvailability'][] = array('division_id' => $division_id);
-							}
-							// Try to save; if it fails, we need to break out of two levels of foreach
-							if (!$this->GameSlot->saveAll($slot)) {
-								$success = false;
-							}
-						}
-					}
-
-					if ($success && $transaction->commit() !== false) {
-						$this->Session->setFlash(sprintf(__('The %s have been saved', true), __('game slots', true)), 'default', array('class' => 'success'));
-						// We intentionally don't redirect here, leaving the user back on the
-						// original "add" form, with the last game date/start/end/weeks options
-						// already selected. Fields and divisions are NOT selected, because those
-						// are no longer in $this->data, but that's more of a feature than a bug.
-					} else {
-						$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('game slots', true)), 'default', array('class' => 'warning'));
-					}
-				}
-			// Validate the input
-			} else if (!array_key_exists('Field', $this->data)) {
-				$this->Session->setFlash(sprintf(__('You must select at least one %s!', true), Configure::read('ui.field')), 'default', array('class' => 'info'));
-			} else if (!array_key_exists('Division', $this->data)) {
-				$this->Session->setFlash(__('You must select at least one division!', true), 'default', array('class' => 'info'));
-			} else {
-				// By calling 'set', we deconstruct the dates from arrays to more useful strings
-				$this->GameSlot->set ($this->data);
-				$this->data = $this->GameSlot->data;
-				$this->action = 'confirm';
-			}
-		}
-
 		if ($field) {
 			$this->GameSlot->Field->contain (array('Facility' => 'Region'));
 			$field = $this->GameSlot->Field->read(null, $field);
@@ -173,6 +100,115 @@ class GameSlotsController extends AppController {
 		}
 		$this->Configuration->loadAffiliate($affiliate);
 		$this->set(compact('affiliate'));
+
+		if (!empty($this->data)) {
+			// Find the list of holidays to avoid
+			$holiday = ClassRegistry::init('Holiday');
+			$holidays = $holiday->find('list', array('fields' => array('Holiday.date', 'Holiday.name')));
+			$this->set(compact('holidays'));
+
+			if (array_key_exists ('confirm', $this->data['GameSlot'])) {
+				if (!array_key_exists ('Create', $this->data['GameSlot'])) {
+					$this->Session->setFlash(__('You must select at least one game slot!', true), 'default', array('class' => 'info'));
+					$this->action = 'confirm';
+				} else {
+					// Build the list of dates to re-use
+					$weeks = array();
+					// Use noon as the time, to avoid problems when we switch between DST and non-DST dates
+					$date = strtotime ($this->data['GameSlot']['game_date'] . ' 12:00:00');
+					while (count($weeks) < $this->data['GameSlot']['weeks']) {
+						if (!array_key_exists(date ('Y-m-d', $date), $holidays)) {
+							$weeks[] = date ('Y-m-d', $date);
+						}
+						$date += WEEK;
+					}
+
+					// saveAll handles hasMany relations OR multiple records, but not both,
+					// so we have to save each slot separately. Wrap the whole thing in a
+					// transaction, for safety.
+					$transaction = new DatabaseTransaction($this->GameSlot);
+
+					$game_end = (empty ($this->data['GameSlot']['game_end']) ? null : $this->data['GameSlot']['game_end']);
+					foreach ($this->data['GameSlot']['Create'] as $field_id => $field_dates) {
+						foreach (array_keys ($field_dates) as $date) {
+							$actual_game_end = (empty ($this->data['GameSlot']['game_end']) ? local_sunset_for_date($weeks[$date]) : $this->data['GameSlot']['game_end']);
+
+							// Validate the end time
+							if ($actual_game_end < $this->data['GameSlot']['game_start']) {
+								$this->Session->setFlash(sprintf(__('Game end time of %s is before game start time of %s!', true), $actual_game_end, $this->data['GameSlot']['game_start']), 'default', array('class' => 'error'));
+								return;
+							}
+
+							$overlap = $this->GameSlot->find('count', array(
+									'contain' => array(),
+									'conditions' => array(
+										'field_id' => $field_id,
+										'game_date' => $weeks[$date],
+										'OR' => array(
+											array(
+												'game_start >=' => $this->data['GameSlot']['game_start'],
+												'game_start <' => $actual_game_end,
+											),
+											array(
+												'game_start <' => $this->data['GameSlot']['game_start'],
+												'game_end >=' => $this->data['GameSlot']['game_start'],
+											),
+										),
+									),
+							));
+							if ($overlap) {
+								if (!isset($field)) {
+									$this->GameSlot->Field->contain('Facility');
+									$field = $this->GameSlot->Field->read(null, $field_id);
+								}
+								$name = "{$field['Facility']['name']} {$field['Field']['num']}";
+								$this->Session->setFlash(sprintf(__('Detected a pre-existing conflict with the game slot to be created at %s on %s at %s. Unable to continue. (There may be more conflicts; this is only the first one detected.)', true), $this->data['GameSlot']['game_start'], $weeks[$date], $name), 'default', array('class' => 'error'));
+								return;
+							}
+
+							$slot = array(
+								'GameSlot' => array(
+									'field_id' => $field_id,
+									'game_date' => $weeks[$date],
+									'game_start' => $this->data['GameSlot']['game_start'],
+									'game_end' => $game_end,
+								),
+								'DivisionGameslotAvailability' => array(),
+							);
+							foreach (array_keys ($this->data['Division']) as $division_id) {
+								$slot['DivisionGameslotAvailability'][] = array('division_id' => $division_id);
+							}
+
+							// Try to save
+							if (!$this->GameSlot->saveAll($slot)) {
+								$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('game slots', true)), 'default', array('class' => 'warning'));
+								return;
+							}
+						}
+					}
+
+					if ($transaction->commit() !== false) {
+						$this->Session->setFlash(sprintf(__('The %s have been saved', true), __('game slots', true)), 'default', array('class' => 'success'));
+						// We intentionally don't redirect here, leaving the user back on the
+						// original "add" form, with the last game date/start/end/weeks options
+						// already selected. Fields and divisions are NOT selected, because those
+						// are no longer in $this->data, but that's more of a feature than a bug.
+					} else {
+						$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('game slots', true)), 'default', array('class' => 'warning'));
+					}
+				}
+			// Validate the input
+			} else if (!array_key_exists('Field', $this->data)) {
+				$this->Session->setFlash(sprintf(__('You must select at least one %s!', true), Configure::read('ui.field')), 'default', array('class' => 'info'));
+			} else if (!array_key_exists('Division', $this->data)) {
+				$this->Session->setFlash(__('You must select at least one division!', true), 'default', array('class' => 'info'));
+			} else {
+				// By calling 'set', we deconstruct the dates from arrays to more useful strings
+				$this->GameSlot->set ($this->data);
+				$this->data = $this->GameSlot->data;
+				$this->action = 'confirm';
+			}
+		}
 	}
 
 	function edit() {
