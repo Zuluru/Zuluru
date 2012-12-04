@@ -246,9 +246,8 @@ class PeopleController extends AppController {
 		$event_names = array();
 
 		for ($year = $this->data['start']; $year <= $this->data['end']; ++ $year) {
-			// This report covers membership years, not calendar years
-			$start = date('Y-m-d', strtotime('tomorrow', strtotime($this->membershipEnd($year-1))));
-			$end = $this->membershipEnd($year);
+			$start = "$year-01-01";
+			$end = "$year-12-31";
 
 			// We are interested in teams in divisions that operated this year
 			$divisions = $this->Division->find('all', array(
@@ -315,8 +314,8 @@ class PeopleController extends AppController {
 					'OR' => array(
 						'Event.id' => $membership_event_ids,
 						'AND' => array(
-							'Event.close >' => $this->membershipEnd($year-1),
-							'Event.close <' => $this->membershipEnd($year),
+							'Event.close >=' => "$year-01-01",
+							'Event.close <' => $year + 1 . '-12-31',
 							// TODO: Fix or remove these hard-coded values
 							'Event.event_type_id' => array(5,6,7),
 						),
@@ -386,8 +385,8 @@ class PeopleController extends AppController {
 			'order' => array('Event.open', 'Event.close', 'Event.id'),
 		));
 
-		$start = date('Y-m-d', strtotime('tomorrow', strtotime($this->membershipEnd($this->data['start'] - 1))));
-		$end = $this->membershipEnd($this->data['end']);
+		$start = "{$this->data['start']}-01-01";
+		$end = "{$this->data['end']}-12-31";
 
 		$past_events = array();
 		foreach ($event_list as $key => $event) {
