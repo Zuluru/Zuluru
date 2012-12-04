@@ -30,6 +30,11 @@ if ($is_manager && !in_array($event['Event']['affiliate_id'], $this->Session->re
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $event['Event']['description']; ?>
 		</dd>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Event Type'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php __($event['EventType']['name']); ?>
+
+		</dd>
 <?php if (!empty ($event['Event']['level_of_play'])): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Level of Play'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
@@ -93,11 +98,19 @@ if ($is_manager && !in_array($event['Event']['affiliate_id'], $this->Session->re
 		</dd>
 <?php endif; ?>
 
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Event Type'); ?></dt>
+<?php if (!empty ($event['Event']['membership_begins'])): ?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Membership Begins'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php __($event['EventType']['name']); ?>
+			<?php echo $this->ZuluruTime->date($event['Event']['membership_begins']); ?>
 
 		</dd>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Membership Ends'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo $this->ZuluruTime->date($event['Event']['membership_ends']); ?>
+
+		</dd>
+<?php endif; ?>
+
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Cost'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php
