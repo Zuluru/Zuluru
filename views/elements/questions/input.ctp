@@ -13,13 +13,15 @@ if (array_key_exists ('Question', $question)) {
 	$details = $question;
 }
 
-$options = array(
-	'label' => $details['question'],
-	'required' => !empty($details['required']) || !empty($question['QuestionnairesQuestion']['required']),
-	'type' => $details['type'],
-);
-if (array_key_exists ('after', $details)) {
-	$options['after'] = $this->Html->para (null, $details['after']);
+if (array_key_exists('question', $details)) {
+	$options = array(
+		'label' => $details['question'],
+		'required' => !empty($details['required']) || !empty($question['QuestionnairesQuestion']['required']),
+		'type' => $details['type'],
+	);
+	if (array_key_exists ('after', $details)) {
+		$options['after'] = $this->Html->para (null, $details['after']);
+	}
 }
 
 if (isset ($this->data) && array_key_exists ('Response', $this->data)) {
