@@ -17,7 +17,7 @@ $create = ($is_tournament ? 'tournament' : 'game(s)');
 <?php
 echo $this->Form->create ('Game', array('url' => Router::normalize($this->here)));
 $this->data['Game']['step'] = 'type';
-$this->data['Game']['overflow_type'] = '';
+$this->data['Game']['bracket_type'] = $this->data['Game']['overflow_type'] = '';
 echo $this->element('hidden', array('fields' => $this->data));
 ?>
 

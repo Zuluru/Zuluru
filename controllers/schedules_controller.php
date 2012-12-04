@@ -117,12 +117,38 @@ class SchedulesController extends AppController {
 			if (!array_key_exists ($this->data['Game']['type'], $types)) {
 				$this->Session->setFlash(__('Select the type of game or games to add.', true), 'default', array('class' => 'info'));
 			} else {
-				return $this->_overflow_type($id);
+				return $this->_bracket_type($id);
 			}
 		}
 
 		$this->set(compact('types'));
 		$this->render('type');
+	}
+
+	function _bracket_type($id) {
+		// Some bracket sizes might require additional input to define their schedule
+		if (substr($this->data['Game']['type'], 0, 12) != 'brackets_of_') {
+			return $this->_date($id);
+		}
+
+		$size = substr($this->data['Game']['type'], 12);
+		if (in_array($size, array(2, 4, 8))) {
+			return $this->_overflow_type($id);
+		}
+
+		$types = $this->league_obj->scheduleOptions($size, false);
+
+		// Validate any data posted to us
+		if ($this->data['Game']['step'] == 'bracket_type') {
+			if (!array_key_exists ($this->data['Game']['bracket_type'], $types)) {
+				$this->Session->setFlash(__('Select the type of game or games to add.', true), 'default', array('class' => 'info'));
+			} else {
+				return $this->_overflow_type($id);
+			}
+		}
+
+		$this->set(compact('types'));
+		$this->render('bracket_type');
 	}
 
 	function _overflow_type($id) {
@@ -137,7 +163,7 @@ class SchedulesController extends AppController {
 		if (!$r) {
 			return $this->_names($id);
 		}
-		$types = $this->league_obj->scheduleOptions($r);
+		$types = $this->league_obj->scheduleOptions($r, false);
 
 		// Validate any data posted to us
 		if ($this->data['Game']['step'] == 'overflow_type') {
@@ -174,10 +200,7 @@ class SchedulesController extends AppController {
 			}
 		}
 
-		if ($r > 0) {
-			$types = $this->league_obj->scheduleOptions($r);
-		}
-		$this->set(compact('size', 'x', 'r', 'types'));
+		$this->set(compact('size', 'x', 'r'));
 		$this->render('names');
 	}
 
@@ -205,7 +228,7 @@ class SchedulesController extends AppController {
 			}
 		}
 
-		$num_fields = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams(), $this->data['Game']['overflow_type']);
+		$num_fields = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams(), $this->data['Game']['bracket_type'], $this->data['Game']['overflow_type']);
 		$desc = $this->league_obj->scheduleDescription ($this->data['Game']['type'], $this->_numTeams());
 
 		$this->set(compact('dates', 'num_fields', 'desc'));
@@ -243,7 +266,7 @@ class SchedulesController extends AppController {
 			$names = null;
 		}
 		if ($this->league_obj->createSchedule ($id, $exclude_teams, $this->data['Game']['type'],
-				$this->data['Game']['start_date'], $this->data['Game']['publish'], $this->data['Game']['overflow_type'], $names))
+				$this->data['Game']['start_date'], $this->data['Game']['publish'], $this->data['Game']['bracket_type'], $this->data['Game']['overflow_type'], $names))
 		{
 			$this->Lock->unlock ();
 			$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
@@ -280,7 +303,7 @@ class SchedulesController extends AppController {
 
 		// The requirements may come back from this as an array for each schedule block.
 		// For our check here, we want them as a single array, ordered by round number.
-		$num_fields = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams(), $this->data['Game']['overflow_type']);
+		$num_fields = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams(), $this->data['Game']['bracket_type'], $this->data['Game']['overflow_type']);
 		if (is_array(current($num_fields))) {
 			$temp = array();
 			foreach ($num_fields as $rounds) {
