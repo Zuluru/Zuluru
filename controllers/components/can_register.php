@@ -6,7 +6,7 @@ class CanRegisterComponent extends Object
 		$this->controller =& $controller;
 	}
 
-	function test($user_id, $event, $ignore_date = false, $strict = true) {
+	function test($user_id, $event, $ignore_date = false, $strict = true, $waiting = false) {
 		if (!isset ($this->Html)) {
 			App::import ('helper', 'Html');
 			$this->Html = new HtmlHelper();
@@ -89,6 +89,8 @@ class CanRegisterComponent extends Object
 		if ($is_registered) {
 			if ($registrations[0]['payment'] == 'Paid' ) {
 				$messages[] = array('text' => __('You have already registered and paid for this event.', true), 'class' => 'open');
+			} else if ($registrations[0]['payment'] == 'Waiting' ) {
+				$messages[] = array('text' => __('You have already been added to the waiting list for this event.', true), 'class' => 'open');
 			} else {
 				$messages[] = array('text' => __('You have already registered for this event, but not yet paid.', true), 'class' => 'warning-message');
 
@@ -139,15 +141,13 @@ class CanRegisterComponent extends Object
 				// 0 means that nobody of this gender is allowed.
 				$messages[] = array('text' => __('This event is for the opposite gender only.', true), 'class' => 'error-message');
 				$continue = false;
-			} else if ($cap > 0) {
+			} else if ($cap > 0 && !$waiting) {
 				// Check if this event is already full
 				// -1 means there is no cap, so don't check in that case.
 				if ($paid >= $cap) {
-					// TODO: Allow people to put themselves on a waiting list
-					$admin_name = Configure::read('email.admin_name');
-					$admin_addr = Configure::read('email.admin_email');
-					$messages[] = array('text' => sprintf (__('This event is already full.  You may email the %s or phone the head office to be put on a waiting list in case others drop out.', true),
-							$this->Html->link ($admin_name, "mailto:$admin_addr")), 'class' => 'highlight-message');
+					$messages[] = array('text' => sprintf (__('This event is already full.  You may however %s to be put on a waiting list in case others drop out.', true),
+							$this->Html->link (__('continue with registration', true), array('controller' => 'registrations', 'action' => 'register', 'event' => $event['Event']['id'], 'waiting' => true))),
+							'class' => 'highlight-message');
 					$continue = false;
 				}
 			}

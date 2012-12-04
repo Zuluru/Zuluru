@@ -102,6 +102,7 @@ $config['options'] = array(
 		'Pending',
 		'Paid',
 		'Refunded',
+		'Waiting',
 	)),
 
 	'incident_types'		=> make_options(array(

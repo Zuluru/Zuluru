@@ -48,6 +48,7 @@ class RegistrationsController extends AppController {
 			if (in_array ($this->params['action'], array(
 					'summary',
 					'full_list',
+					'waiting',
 			)))
 			{
 				// If an event id is specified, check if we're a manager of that event's affiliate
@@ -65,7 +66,7 @@ class RegistrationsController extends AppController {
 					'edit',
 			)))
 			{
-				// If an event id is specified, check if we're a manager of that event's affiliate
+				// If a registration id is specified, check if we're a manager of that registration's event's affiliate
 				$registration = $this->_arg('registration');
 				if ($registration) {
 					if (in_array($this->Registration->affiliate($registration), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
@@ -328,7 +329,8 @@ class RegistrationsController extends AppController {
 		$this->Configuration->loadAffiliate($event['Event']['affiliate_id']);
 
 		// Re-do "can register" checks to make sure someone hasn't hand-fed us a URL
-		$test = $this->CanRegister->test ($this->Auth->user('id'), $event);
+		$waiting = $this->_arg('waiting');
+		$test = $this->CanRegister->test ($this->Auth->user('id'), $event, false, true, $waiting);
 		if (!$test['allowed']) {
 			if ($this->is_logged_in && !empty($test['redirect'])) {
 				$this->redirect(array_merge($test['redirect'], array('return' => true)), $this->here);
@@ -344,7 +346,7 @@ class RegistrationsController extends AppController {
 
 		$event_obj = $this->_getComponent ('EventType', $event['EventType']['type'], $this);
 		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], $this->Auth->user('id'));
-		$this->set(compact ('id', 'event', 'event_obj'));
+		$this->set(compact ('id', 'event', 'event_obj', 'waiting'));
 
 		// Wrap the whole thing in a transaction, for safety.
 		$transaction = new DatabaseTransaction($this->Registration);
@@ -389,7 +391,11 @@ class RegistrationsController extends AppController {
 			$data = array('Registration' => array(), 'Response' => array());
 
 			// Set the flash message that will be used, if there are no errors
-			$this->Session->setFlash(__('Your registration for this event has been confirmed.', true), 'default', array('class' => 'success'));
+			if ($waiting) {
+				$this->Session->setFlash(__('You have been added to the waiting list for this event.', true), 'default', array('class' => 'success'));
+			} else {
+				$this->Session->setFlash(__('Your registration for this event has been confirmed.', true), 'default', array('class' => 'success'));
+			}
 			$save = true;
 		}
 
@@ -406,8 +412,10 @@ class RegistrationsController extends AppController {
 				$data['Response'] = array_merge($data['Response'], $result);
 			}
 
-			// Free events may need even more processing
-			if ($event['Event']['cost'] == 0) {
+			if ($waiting) {
+				$data['Registration']['payment'] = 'Waiting';
+			} else if ($event['Event']['cost'] == 0) {
+				// Free events may need even more processing
 				$result = $event_obj->paid($event, $data);
 				if ($result === false) {
 					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
@@ -853,6 +861,35 @@ class RegistrationsController extends AppController {
 		));
 
 		$this->set(compact('registrations', 'affiliates'));
+	}
+
+	function waiting() {
+		$id = $this->_arg('event');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
+		}
+
+		$this->Registration->Event->contain ();
+		$event = $this->Registration->Event->read(null, $id);
+		if (!$event) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'events', 'action' => 'index'));
+		}
+		$this->Configuration->loadAffiliate($event['Event']['affiliate_id']);
+
+		$registrations = $this->Registration->find('all', array(
+			'conditions' => array(
+				'Registration.payment' => array('Waiting'),
+				'Registration.event_id' => $id,
+			),
+			'contain' => array(
+				'Person',
+			),
+			'order' => array('Registration.created'),
+		));
+
+		$this->set(compact('event', 'registrations'));
 	}
 
 	function _mergeAutoQuestions($event, $event_obj, &$questionnaire, $user_id = null, $for_output = false) {

@@ -10,6 +10,10 @@ $this->Html->addCrumb (__('Preferences', true));
 <?php
 echo $this->element ('registrations/notice');
 
+if ($waiting) {
+	echo $this->Html->para('warning-message', __('Note that you are only adding yourself to the waiting list for this event. You will be contacted if a space opens up at a later time.', true));
+}
+
 echo $this->Form->create('Response', array('url' => Router::normalize($this->here)));
 
 echo $this->element ('questionnaires/input', array('questionnaire' => $event['Questionnaire']));
