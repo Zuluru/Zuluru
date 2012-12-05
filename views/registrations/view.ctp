@@ -1,5 +1,7 @@
 <?php
 $this->Html->addCrumb (__('Registrations', true));
+$this->Html->addCrumb ($registration['Person']['full_name']);
+$this->Html->addCrumb ($registration['Event']['name']);
 $this->Html->addCrumb (__('View', true));
 ?>
 
