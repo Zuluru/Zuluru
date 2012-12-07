@@ -12,7 +12,6 @@ echo $this->element('help/topics', array(
 			'registered' => 'REGISTERED',
 			'signed_waiver' => 'SIGNED_WAIVER',
 			'has_document' => 'HAS_DOCUMENT',
-			'tuc_playoffs' => 'TUC_PLAYOFFS',
 			'compare' => 'COMPARE',
 			'and' => 'AND',
 			'or' => 'OR',
