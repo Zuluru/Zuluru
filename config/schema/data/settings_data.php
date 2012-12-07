@@ -108,6 +108,11 @@ class SettingsData {
 		),
 		array(
 			'category' => 'feature',
+			'name' => 'annotations',
+			'value' => '1',
+		),
+		array(
+			'category' => 'feature',
 			'name' => 'shirt_colour',
 			'value' => '1',
 		),
@@ -125,6 +130,11 @@ class SettingsData {
 			'category' => 'feature',
 			'name' => 'approve_photos',
 			'value' => '1',
+		),
+		array(
+			'category' => 'feature',
+			'name' => 'documents',
+			'value' => '0',
 		),
 		array(
 			'category' => 'feature',
@@ -275,6 +285,16 @@ class SettingsData {
 			'category' => 'email',
 			'name' => 'incident_report_email',
 			'value' => 'incidents@example.com',
+		),
+		array(
+			'category' => 'email',
+			'name' => 'support_email',
+			'value' => 'support@example.com',
+		),
+		array(
+			'category' => 'email',
+			'name' => 'emogrifier',
+			'value' => '0',
 		),
 		array(
 			'category' => 'registration',
