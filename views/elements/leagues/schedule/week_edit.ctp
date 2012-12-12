@@ -59,7 +59,15 @@ foreach ($division['Game'] as $game):
 	?></td>
 	<td><?php
 	if ($is_tournament) {
-		echo $game['home_dependency'];
+		if (empty ($game['HomeTeam'])) {
+			if (array_key_exists ('home_dependency', $game)) {
+				echo $game['home_dependency'];
+			} else {
+				__('Unassigned');
+			}
+		} else {
+			echo $this->element('teams/block', array('team' => $game['HomeTeam'], 'options' => array('max_length' => 16)));
+		}
 	} else {
 		echo $this->Form->input ("Game.{$game['id']}.home_team", array(
 				'div' => false,
@@ -72,7 +80,15 @@ foreach ($division['Game'] as $game):
 	?></td>
 	<td><?php
 	if ($is_tournament) {
-		echo $game['away_dependency'];
+		if (empty ($game['AwayTeam'])) {
+			if (array_key_exists ('away_dependency', $game)) {
+				echo $game['away_dependency'];
+			} else {
+				__('Unassigned');
+			}
+		} else {
+			echo $this->element('teams/block', array('team' => $game['AwayTeam'], 'options' => array('max_length' => 16)));
+		}
 	} else {
 		echo $this->Form->input ("Game.{$game['id']}.away_team", array(
 				'div' => false,
