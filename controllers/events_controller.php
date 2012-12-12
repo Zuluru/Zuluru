@@ -116,7 +116,7 @@ class EventsController extends AppController {
 
 		// Prune out the events that are not possible
 		foreach ($events as $key => $event) {
-			$test = $this->CanRegister->test ($id, $event, false, false);
+			$test = $this->CanRegister->test ($id, $event, false, false, true);
 			if (!$test['allowed']) {
 				unset ($events[$key]);
 			}
