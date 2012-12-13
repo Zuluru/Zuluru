@@ -897,6 +897,11 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		} else if ($a['round'] < $b['round']) {
 			return -1;
 		}
+		if ($a['tournament_pool'] > $b['tournament_pool']) {
+			return 1;
+		} else if ($a['tournament_pool'] < $b['tournament_pool']) {
+			return -1;
+		}
 		if ($a['name'] > $b['name']) {
 			return 1;
 		} else if ($a['name'] < $b['name']) {

@@ -219,7 +219,11 @@ class Game extends AppModel {
 
 		// Find the "most important" remaining game to start the bracket
 		// TODO: Add some kind of "bracket sort" field and use that instead
-		$names = array_unique(Set::extract('/Game/name', $games));
+		$pools = array_unique(Set::extract('/Game/tournament_pool', $games));
+		sort($pools);
+		$pool = array_shift($pools);
+
+		$names = array_unique(Set::extract("/Game[tournament_pool=$pool]/name", $games));
 		usort($names, array('Game', 'compare_game_name'));
 		$name = array_shift($names);
 		$final = array_shift(Set::extract("/Game[name=$name]/..", $games));
