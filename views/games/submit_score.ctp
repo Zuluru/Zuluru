@@ -103,9 +103,9 @@ if (League::hasSpirit($game['Division']['League'])) {
 }
 ?>
 
+<?php if (Configure::read('scoring.incident_reports')): ?>
 <div id="IncidentWrapper">
 <?php
-if (Configure::read('scoring.incident_reports')):
 	echo $this->Form->input('Game.incident', array(
 			'type' => 'checkbox',
 			'value' => '1',
@@ -126,9 +126,10 @@ echo $this->Form->input("Incident.$team_id.details", array(
 ));
 ?>
 </fieldset>
-<?php endif; ?>
 </div>
+<?php endif; ?>
 
+<?php if ($game['Division']['allstars'] != 'never'): ?>
 <div id="AllstarWrapper">
 <?php
 if ($game['Division']['allstars'] == 'optional') {
@@ -138,14 +139,14 @@ if ($game['Division']['allstars'] == 'optional') {
 			'label' => 'I want to nominate an all-star',
 	));
 }
-if ($game['Division']['allstars'] != 'never'):
-	if ($game['Division']['ratio'] == 'womens') {
-		$genders = 'one female';
-	} else if ($game['Division']['ratio'] == 'mens') {
-		$genders = 'one male';
-	} else {
-		$genders = 'one male and/or one female';
-	}
+
+if ($game['Division']['ratio'] == 'womens') {
+	$genders = 'one female';
+} else if ($game['Division']['ratio'] == 'mens') {
+	$genders = 'one male';
+} else {
+	$genders = 'one male and/or one female';
+}
 ?>
 <fieldset class="AllstarDetails">
 <legend>Allstar Nominations</legend>
@@ -212,8 +213,8 @@ if (! empty ($game['Division']['League']['coord_list'])) {
 
 <p>If you feel strongly about nominating a second male or female please contact your <?php echo $coordinator; ?>.</p>
 </fieldset>
-<?php endif; ?>
 </div>
+<?php endif; ?>
 
 <div class="submit">
 <?php echo $this->Form->submit('Submit', array('div' => false)); ?>
