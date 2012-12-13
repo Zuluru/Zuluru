@@ -223,6 +223,7 @@ if (! empty ($game['Division']['League']['coord_list'])) {
 
 <?php echo $this->Form->end(); ?>
 </div>
+</div>
 
 <?php
 // There is no harm in calling jQuery functions on empty lists, so we don't
