@@ -22,6 +22,14 @@ class ZuluruFormHelper extends FormHelper {
 		$model = Inflector::tableize($this->model());
 		$shortFieldName = $this->field();
 
+		// Check for HTML5 field types, and revert them to text.
+		// TODO: CakePHP 2 should handle this natively; remove return value mangling too.
+		$html5types = array('number', 'email', 'tel', 'url');
+		if (array_key_exists ('type', $options) && in_array($options['type'], $html5types)) {
+			$html5type = $options['type'];
+			$options['type'] = 'text';
+		}
+
 		// If no options were provided, check if there's some configured
 		if (!array_key_exists ('type', $options) && !array_key_exists ('options', $options) &&
 			Configure::read("options.$model.$shortFieldName") !== null)
@@ -114,7 +122,11 @@ class ZuluruFormHelper extends FormHelper {
 			}
 		}
 
-		return parent::input ($fieldName, $options);
+		$ret = parent::input ($fieldName, $options);
+		if (isset($html5type)) {
+			$ret = str_replace('type="text"', "type=\"$html5type\"", $ret);
+		}
+		return $ret;
 	}
 }
 
