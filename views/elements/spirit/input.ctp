@@ -20,13 +20,14 @@ if ($game['Division']['League']['numeric_sotg']) {
 	}
 
 	$opts = array_merge(array(
-			'size' => 2,
+			'size' => 3,
 			'label' => 'Spirit',
+			'type' => 'number',
 			'div' => false,
 		'after' => '&nbsp;' . sprintf (__('(between 0 and %d)', true), $spirit_obj->max()) . $suggest,
 	), $opts);
 
-	$spirit .= $this->Form->input("SpiritEntry.$team_id.entered_sotg", $opts);
+	$spirit .= $this->ZuluruForm->input("SpiritEntry.$team_id.entered_sotg", $opts);
 	echo $this->ZuluruHtml->script ('spirit', array('inline' => false));
 
 	// Don't show this when submitting scores, just when editing. We don't need

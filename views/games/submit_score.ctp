@@ -64,11 +64,12 @@ if (array_key_exists ($team_id, $game['ScoreEntry'])) {
 </tr>
 <tr>
 	<td><?php echo $this_team['name']; ?></td>
-	<td><?php echo $this->Form->input("ScoreEntry.$team_id.score_for", array(
+	<td><?php echo $this->ZuluruForm->input("ScoreEntry.$team_id.score_for", array(
 			'div' => false,
 			'id' => ($team_id == $game['HomeTeam']['id'] ? 'ScoreHome' : 'ScoreAway'),
 			'label' => false,
-			'size' => 2,
+			'type' => 'number',
+			'size' => 3,
 	)); ?></td>
 	<td><?php
 	if ($opponent_score) {
@@ -80,11 +81,12 @@ if (array_key_exists ($team_id, $game['ScoreEntry'])) {
 </tr>
 <tr>
 	<td><?php echo $opponent['name']; ?></td>
-	<td><?php echo $this->Form->input("ScoreEntry.$team_id.score_against", array(
+	<td><?php echo $this->ZuluruForm->input("ScoreEntry.$team_id.score_against", array(
 			'div' => false,
 			'id' => ($team_id == $game['HomeTeam']['id'] ? 'ScoreAway' : 'ScoreHome'),
 			'label' => false,
-			'size' => 2,
+			'type' => 'number',
+			'size' => 3,
 	)); ?></td>
 	<td><?php
 	if ($opponent_score) {
