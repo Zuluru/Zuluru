@@ -1417,12 +1417,14 @@ class GamesController extends AppController {
 					$data['Game']['home_score'] = $data['Game']['away_score'] = null;
 					break;
 			}
-			$penalty = Configure::read('scoring.missing_score_spirit_penalty');
-			$data['SpiritEntry'][$game['Game']['away_team']] = array(
-				'id' => $game['SpiritEntry'][$game['Game']['away_team']]['id'],
-				'entered_sotg' => max (0, $game['SpiritEntry'][$game['Game']['away_team']]['entered_sotg'] - $penalty),
-				'score_entry_penalty' => -$penalty,
-			);
+			if (!in_array($home_entry['status'], Configure::read('unplayed_status'))) {
+				$penalty = Configure::read('scoring.missing_score_spirit_penalty');
+				$data['SpiritEntry'][$game['Game']['away_team']] = array(
+					'id' => $game['SpiritEntry'][$game['Game']['away_team']]['id'],
+					'entered_sotg' => max (0, $game['SpiritEntry'][$game['Game']['away_team']]['entered_sotg'] - $penalty),
+					'score_entry_penalty' => -$penalty,
+				);
+			}
 			$data['Game']['approved_by'] = APPROVAL_AUTOMATIC_HOME;
 			$this->_remindTeam($game, $game['AwayTeam'], $game['HomeTeam'], 'score_approval', 'notification of score approval', false);
 		} else if ( !$home_entry && $away_entry ) {
@@ -1443,12 +1445,14 @@ class GamesController extends AppController {
 					$this->_spiritMerge ($game['Game']['away_team'], $spirit_obj->expected(), $data);
 					break;
 			}
-			$penalty = Configure::read('scoring.missing_score_spirit_penalty');
-			$data['SpiritEntry'][$game['Game']['home_team']] = array(
-				'id' => $game['SpiritEntry'][$game['Game']['home_team']]['id'],
-				'entered_sotg' => max (0, $game['SpiritEntry'][$game['Game']['home_team']]['entered_sotg'] - $penalty),
-				'score_entry_penalty' => -$penalty,
-			);
+			if (!in_array($away_entry['status'], Configure::read('unplayed_status'))) {
+				$penalty = Configure::read('scoring.missing_score_spirit_penalty');
+				$data['SpiritEntry'][$game['Game']['home_team']] = array(
+					'id' => $game['SpiritEntry'][$game['Game']['home_team']]['id'],
+					'entered_sotg' => max (0, $game['SpiritEntry'][$game['Game']['home_team']]['entered_sotg'] - $penalty),
+					'score_entry_penalty' => -$penalty,
+				);
+			}
 			$data['Game']['approved_by'] = APPROVAL_AUTOMATIC_AWAY;
 			$this->_remindTeam($game, $game['HomeTeam'], $game['AwayTeam'], 'score_approval', 'notification of score approval', false);
 		} else if ( !$home_entry && !$away_entry ) {
