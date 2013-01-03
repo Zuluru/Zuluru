@@ -19,22 +19,60 @@ $rows = array(
 	'user_name' => array('name' => 'System Username'),
 	'id' => array('name' => 'Website User ID'),
 	'email',
-	'home_phone',
-	'work_phone',
-	'work_ext',
-	'mobile_phone',
-	'addr_street' => array('name' => 'Address'),
-	'addr_city' => array('name' => 'City'),
-	'addr_prov' => array('name' => 'Province'),
-	'addr_postalcode' => array('name' => 'Postal Code'),
-	'birthdate' => array('func' => 'date'),
-	'height' => array('func' => 'height'),
-	'gender',
-	'shirt_size',
-	'skill_level',
-	'year_started',
-	'status' => array('name' => 'Account Status'),
 );
+
+if (Configure::read('profile.home_phone')) {
+	$rows[] = 'home_phone';
+}
+
+if (Configure::read('profile.work_phone')) {
+	$rows[] = 'work_phone';
+	$rows[] = 'work_ext';
+}
+
+if (Configure::read('profile.mobile_phone')) {
+	$rows[] = 'mobile_phone';
+}
+
+if (Configure::read('profile.addr_street')) {
+	$rows['addr_street'] = array('name' => 'Address');
+}
+
+if (Configure::read('profile.addr_city')) {
+	$rows['addr_city'] = array('name' => 'City');
+}
+
+if (Configure::read('profile.addr_prov')) {
+	$rows['addr_prov'] = array('name' => 'Province');
+}
+
+if (Configure::read('profile.addr_postalcode')) {
+	$rows['addr_postalcode'] = array('name' => 'Postal Code');
+}
+
+if (Configure::read('profile.birthdate')) {
+	$rows['birthdate'] = array('func' => 'date');
+}
+
+if (Configure::read('profile.height')) {
+	$rows['height'] = array('func' => 'height');
+}
+
+$rows[] = 'gender';
+
+if (Configure::read('profile.shirt_size')) {
+	$rows[] = 'shirt_size';
+}
+
+if (Configure::read('profile.skill_level')) {
+	$rows[] = 'skill_level';
+}
+
+$rows[] = 'year_started';
+
+if (Configure::read('profile.birthdate')) {
+	$rows['status'] = array('name' => 'Account Status');
+}
 
 $cols = array('name' => array(), 'person' => array());
 foreach ($rows as $key => $data) {
