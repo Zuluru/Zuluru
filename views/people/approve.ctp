@@ -150,7 +150,10 @@ echo $this->Form->input ('disposition', array(
 		'empty' => '---',
 ));
 echo $this->Form->end(__('Submit', true));
+?>
+</div>
 
+<?php
 echo $this->Html->scriptBlock ('
 function compare(id) {
 	jQuery("td[class^=player_id_]").css("display", "none");
