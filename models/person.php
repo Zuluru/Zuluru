@@ -240,6 +240,44 @@ class Person extends User {
 		} else {
 			$affiliate = Set::extract('/Affiliate/id', $person);
 		}
+
+		$conditions = array(
+			'Person.id !=' => $person['Person']['id'],
+			'AffiliatePerson.affiliate_id' => $affiliate,
+			'OR' => array(
+				'Person.email' => $person['Person']['email'],
+				array(
+					'Person.first_name' => $person['Person']['first_name'],
+					'Person.last_name' => $person['Person']['last_name'],
+				),
+			),
+		);
+
+		if (Configure::read('profile.home_phone')) {
+			$conditions['OR'][] = array(
+				'Person.home_phone' => $person['Person']['home_phone'],
+				'Person.home_phone !=' => '',
+				array('Person.home_phone !=' => null),
+			);
+		}
+		if (Configure::read('profile.work_phone')) {
+			$conditions['OR'][] = array(
+				'Person.work_phone' => $person['Person']['work_phone'],
+				'Person.work_phone !=' => '',
+				array('Person.work_phone !=' => null),
+			);
+		}
+		if (Configure::read('profile.mobile_phone')) {
+			$conditions['OR'][] = array(
+				'Person.mobile_phone' => $person['Person']['mobile_phone'],
+				'Person.mobile_phone !=' => '',
+				array('Person.mobile_phone !=' => null),
+			);
+		}
+		if (Configure::read('profile.addr_street')) {
+			$conditions['OR']['Person.addr_street'] = $person['Person']['addr_street'];
+		}
+
 		return $this->find('all', array(
 				'joins' => array(
 					array(
@@ -250,33 +288,7 @@ class Person extends User {
 						'conditions' => 'AffiliatePerson.person_id = Person.id',
 					),
 				),
-				'conditions' => array(
-					'Person.id !=' => $person['Person']['id'],
-					'AffiliatePerson.affiliate_id' => $affiliate,
-					'OR' => array(
-						'Person.email' => $person['Person']['email'],
-						array(
-							'Person.home_phone' => $person['Person']['home_phone'],
-							'Person.home_phone !=' => '',
-							array('Person.home_phone !=' => null),
-						),
-						array(
-							'Person.work_phone' => $person['Person']['work_phone'],
-							'Person.work_phone !=' => '',
-							array('Person.work_phone !=' => null),
-						),
-						array(
-							'Person.mobile_phone' => $person['Person']['mobile_phone'],
-							'Person.mobile_phone !=' => '',
-							array('Person.mobile_phone !=' => null),
-						),
-						'Person.addr_street' => $person['Person']['addr_street'],
-						array(
-							'Person.first_name' => $person['Person']['first_name'],
-							'Person.last_name' => $person['Person']['last_name'],
-						),
-					),
-				),
+				'conditions' => $conditions,
 				'contain' => array(),
 		));
 	}
