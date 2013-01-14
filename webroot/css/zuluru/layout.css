@@ -473,6 +473,16 @@ div.related
 	padding: 25px;
 	z-index: 900;
 }
+#zuluru .tooltip.bottom
+{
+	padding: 50px 25px 0;
+}
+#zuluru #tooltip_content
+{
+	height: 156px;
+	width: 320px;
+	overflow: auto;
+}
 #zuluru #tooltip h2
 {
 	margin: 0;

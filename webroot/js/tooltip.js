@@ -2,6 +2,7 @@
 
 var tooltip_text = new Array();
 var tooltip_cancelled = false;
+var tooltip_loaded = false;
 
 function loadTooltip(base, trigger) {
 	var id = trigger.attr('id');
@@ -25,8 +26,9 @@ function loadTooltip(base, trigger) {
 				}
 			}
 		});
+		tooltip_loaded = false;
 	} else {
 		jQuery('#tooltip').html(tooltip_text[id]);
-		jQuery('#tooltip').show();
+		tooltip_loaded = true;
 	}
 }

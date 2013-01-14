@@ -6,9 +6,9 @@ if (!Configure::read('tooltips_added')) {
 	// Add the div we'll use to load tooltip content into
 	$this->ZuluruHtml->buffer ('<div id="tooltip" class="tooltip" style="display: none;"></div>');
 
-	// Add the "dynamic" tooltip effect
+	// Add the "on demand" tooltip effect
 	$this->Js->buffer('
-jQuery.tools.tooltip.addEffect("dynamic",
+jQuery.tools.tooltip.addEffect("on_demand",
 	// show function
 	function(done) {
 		// The tooltip will not actually be shown until the load completes
@@ -31,7 +31,7 @@ jQuery.tools.tooltip.addEffect("dynamic",
 		$this->Js->buffer("
 jQuery('.trigger').before('" . $this->ZuluruHtml->icon('popup_16.png', array('class' => 'popup_toggle')) . " ');
 jQuery('.popup_toggle').tooltip({
-	effect: 'dynamic',
+	effect: 'on_demand',
 	relative: true,
 	tip: '#tooltip',
 	events:{
@@ -57,7 +57,7 @@ jQuery('.popup_toggle').tooltip({
 		// Add the standard tooltip handler
 		$this->Js->buffer("
 jQuery('.trigger').tooltip({
-	effect: 'dynamic',
+	effect: 'on_demand',
 	relative: true,
 	tip: '#tooltip',
 	cancelDefault: false,
@@ -65,8 +65,13 @@ jQuery('.trigger').tooltip({
 	predelay: 1000,
 	onBeforeShow: function() {
 		loadTooltip('" . $this->Html->url('/') . "', this.getTrigger());
+	},
+	onShow: function() {
+		if (tooltip_loaded) {
+			jQuery('#tooltip').show();
+		}
 	}
-});
+}).dynamic({ left: { offset: [ 0, -50 ] }, right: { offset: [ 0, 50 ] } });
 		");
 	}
 }

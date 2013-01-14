@@ -252,7 +252,7 @@ dl .altrow
 /* Tooltip styling. By default the element to be styled is .tooltip  */
 #zuluru .tooltip
 {
-	background: transparent url(images/tooltip/white_arrow_big.png);
+	background: transparent url(images/tooltip/white_arrow_big_top.png);
 	font-size: 11px;
 	height: 166px;
 	width: 320px;
@@ -260,6 +260,26 @@ dl .altrow
 	float: none;
 	border: 0;
 	max-width: inherit;
+}
+#zuluru .tooltip.right
+{
+	background: transparent url(images/tooltip/white_arrow_big_top_right.png);
+}
+#zuluru .tooltip.left
+{
+	background: transparent url(images/tooltip/white_arrow_big_top_left.png);
+}
+#zuluru .tooltip.bottom
+{
+	background: transparent url(images/tooltip/white_arrow_big_bottom.png);
+}
+#zuluru .tooltip.bottom.right
+{
+	background: transparent url(images/tooltip/white_arrow_big_bottom_right.png);
+}
+#zuluru .tooltip.bottom.left
+{
+	background: transparent url(images/tooltip/white_arrow_big_bottom_left.png);
 }
 
 /* Tournament bracket styling. */
