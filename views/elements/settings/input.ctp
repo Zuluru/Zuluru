@@ -6,13 +6,7 @@ if (!isset ($options)) {
 
 // Temporarily store an ID which is unlikely to ever be used in the
 // configuration. This allows us to create multiple records.
-$unused_id = Configure::read ('unused_id');
-if (! $unused_id) {
-	$unused_id = MIN_FAKE_ID;
-} else {
-	++ $unused_id;
-}
-Configure::write ('unused_id', $unused_id);
+$unused_id = fake_id();
 
 $id = false;
 if (isset ($this->data) && is_array ($this->data)) {

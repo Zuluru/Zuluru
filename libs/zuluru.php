@@ -120,6 +120,17 @@ function ordinal($val) {
 	return $val . $ord;
 }
 
+function fake_id() {
+	$unused_id = Configure::read ('unused_id');
+	if (! $unused_id) {
+		$unused_id = MIN_FAKE_ID;
+	} else {
+		++ $unused_id;
+	}
+	Configure::write ('unused_id', $unused_id);
+	return $unused_id;
+}
+
 function ical_encode($text) {
 	$text = strtr ($text, array(
 		'\\' => '\\\\',
