@@ -37,7 +37,7 @@
 
 		if (isset ($this->Js)) {
 			echo $this->ZuluruHtml->script(array(
-					'http://cdn.jquerytools.org/1.2.6/jquery.tools.min.js',
+					'http://cdn.jquerytools.org/1.2.7/full/jquery.tools.min.js',
 					'jquery-ui-1.8.1.custom.min.js',
 					//'http://jquery-ui.googlecode.com/svn/tags/latest/external/jquery.bgiframe-2.1.1.js',
 			));
