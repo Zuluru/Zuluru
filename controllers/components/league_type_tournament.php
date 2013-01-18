@@ -160,7 +160,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			case 'semis_complete_six':
 				return array(3, 3, 3);
 			case 'semis_consolation_six':
-				return array(2, 3, 2);
+				return array(2, 2, 3);
 			case 'semis_minimal_six':
 				return array(3, 3);
 			case 'quarters_consolation_seven':
@@ -480,17 +480,15 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		$success = $this->createTournamentGame (1, 1, 'A', 'seed', 4, 'seed', 6);
 		$success &= $this->createTournamentGame (2, 1, 'B', 'seed', 3, 'seed', 5);
 
-		// Round 2: 1 vs Winner A, 2 vs Winner B, optional Loser A vs Loser B 5th/6th Place
+		// Round 2: 1 vs Winner A, 2 vs Winner B
 		$success &= $this->createTournamentGame (3, 2, 'C', 'seed', 1, 'game_winner', 1);
 		$success &= $this->createTournamentGame (4, 2, 'D', 'seed', 2, 'game_winner', 2);
-		if ($consolation) {
-			$success &= $this->createTournamentGame (5, 2, ordinal($this->first_team + 5), 'game_loser', 1, 'game_loser', 2);
-		}
 
-		// Round 3: Winner C vs Winner D 1st/2nd Place, optional Loser C vs Loser D 3rd/4th Place
-		$success &= $this->createTournamentGame (6, 3, ordinal($this->first_team + 1), 'game_winner', 3, 'game_winner', 4);
+		// Round 3: Winner C vs Winner D 1st/2nd Place, optional Loser C vs Loser D 3rd/4th Place and Loser A vs Loser B 5th/6th Place
+		$success &= $this->createTournamentGame (5, 3, ordinal($this->first_team + 1), 'game_winner', 3, 'game_winner', 4);
 		if ($consolation) {
-			$success &= $this->createTournamentGame (7, 3, ordinal($this->first_team + 3), 'game_loser', 3, 'game_loser', 4);
+			$success &= $this->createTournamentGame (6, 3, ordinal($this->first_team + 3), 'game_loser', 3, 'game_loser', 4);
+			$success &= $this->createTournamentGame (7, 3, ordinal($this->first_team + 5), 'game_loser', 1, 'game_loser', 2);
 		}
 
 		return $success;
