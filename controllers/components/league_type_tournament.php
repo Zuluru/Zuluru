@@ -476,9 +476,9 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 	}
 
 	function createSemisSix($consolation) {
-		// Round 1: 4 vs 6, 3 vs 5
-		$success = $this->createTournamentGame (1, 1, 'A', 'seed', 4, 'seed', 6);
-		$success &= $this->createTournamentGame (2, 1, 'B', 'seed', 3, 'seed', 5);
+		// Round 1: 4 vs 5, 3 vs 6
+		$success = $this->createTournamentGame (1, 1, 'A', 'seed', 4, 'seed', 5);
+		$success &= $this->createTournamentGame (2, 1, 'B', 'seed', 3, 'seed', 6);
 
 		// Round 2: 1 vs Winner A, 2 vs Winner B
 		$success &= $this->createTournamentGame (3, 2, 'C', 'seed', 1, 'game_winner', 1);
