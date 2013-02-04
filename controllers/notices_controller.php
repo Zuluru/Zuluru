@@ -26,6 +26,15 @@ class NoticesController extends AppController {
 				'created < DATE_SUB(NOW(), INTERVAL 1 MONTH)',
 		));
 
+		// Delete any annual recurring notices that are too old
+		$annual = $this->Notice->find('list', array(
+				'conditions' => array('Notice.repeat' => 'annual'),
+		));
+		$this->Notice->NoticesPerson->deleteAll(array(
+				'created < DATE_SUB(NOW(), INTERVAL 1 YEAR)',
+				'notice_id' => array_keys($annual),
+		));
+
 		// Find the list of all notices the user has seen
 		$notices = $this->Notice->NoticesPerson->find('all', array(
 				'conditions' => array(
@@ -66,32 +75,9 @@ class NoticesController extends AppController {
 					'display_to' => $display_to,
 					'NOT' => array('id' => $notice_ids),
 				),
+				'contain' => array(),
 				'order' => 'id',
 		));
-
-		// See if we can find one with annual repetition, and the user hasn't seen it in the past year
-		if (empty($notice)) {
-			$notice = $this->Notice->find('first', array(
-					'joins' => array(
-						array(
-							'table' => "{$this->Notice->tablePrefix}notices_people",
-							'alias' => 'NoticesPerson',
-							'type' => 'LEFT',
-							'foreignKey' => false,
-							'conditions' => 'Notice.id = NoticesPerson.notice_id',
-						),
-					),
-					'conditions' => array(
-						'Notice.active' => true,
-						'Notice.effective_date <= NOW()',
-						'Notice.display_to' => $display_to,
-						'Notice.repeat' => 'annual',
-						'NoticesPerson.person_id' => $this->Auth->user('id'),
-						'NoticesPerson.created < DATE_SUB(NOW(), INTERVAL 1 YEAR)',
-					),
-					'order' => 'id',
-			));
-		}
 
 		// Use current user record to do replacements in notice text
 		if (!empty($notice)) {
