@@ -748,6 +748,7 @@ class GamesController extends AppController {
 
 		$is_me = ($person_id == $this->Auth->user('id'));
 		$is_captain = in_array ($team_id, $this->Session->read('Zuluru.OwnedTeamIDs'));
+		$is_coordinator = in_array ($team['division_id'], $this->Session->read('Zuluru.DivisionIDs'));
 
 		// We must do other permission checks here, because we allow non-logged-in users to accept
 		// through email links
@@ -772,8 +773,8 @@ class GamesController extends AppController {
 			// Fake the posted data array with the status from the URL
 			$this->data = array('Person' => array('status' => $this->_arg('status')));
 		} else {
-			// Players can change their own attendance, captains can change any attendance on their teams
-			if (!$is_me && !$is_captain) {
+			// Players can change their own attendance, captains and coordinators can change any attendance on their teams
+			if (!$is_me && !$is_captain && !$is_coordinator) {
 				$this->Session->setFlash(__('You are not allowed to change this attendance record.', true), 'default', array('class' => 'info'));
 				$this->redirect('/');
 			}
