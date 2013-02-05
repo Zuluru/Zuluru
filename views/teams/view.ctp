@@ -175,74 +175,16 @@ $this->Html->addCrumb (__('View', true));
 	</dl>
 </div>
 <div class="actions">
-	<ul>
-		<?php
-		if ($team['Division']['id']) {
-			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('schedule_32.png',
-				array('action' => 'schedule', 'team' => $team['Team']['id']),
-				array('alt' => __('Schedule', true), 'title' => __('View Team Schedule', true))));
-			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('standings_32.png',
-				array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Division']['id'], 'team' => $team['Team']['id']),
-				array('alt' => __('Standings', true), 'title' => __('View Team Standings', true))));
-		}
-		if (Configure::read('feature.attendance') && $team['Team']['track_attendance']) {
-			if ($is_captain) {
-				echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('team_event_add_32.png',
-					array('controller' => 'team_events', 'action' => 'add', 'team' => $team['Team']['id']),
-					array('alt' => __('Team Event', true), 'title' => __('Add a Team Event', true))));
-			}
-
-			if (in_array($my_id, Set::extract('/Person/id', $team))) {
-				echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('attendance_32.png',
-					array('action' => 'attendance', 'team' => $team['Team']['id']),
-					array('alt' => __('Attendance', true), 'title' => __('View Season Attendance Report', true))));
-			}
-		}
-		if ($is_logged_in && $team['Team']['open_roster'] && !Division::rosterDeadlinePassed($team['Division']) &&
-			!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
-		{
-			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('roster_add_32.png',
-				array('action' => 'roster_request', 'team' => $team['Team']['id']),
-				array('alt' => __('Join Team', true), 'title' => __('Join Team', true))));
-		}
-		if ($is_admin || $is_captain) {
-			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('edit_32.png',
-				array('action' => 'edit', 'team' => $team['Team']['id']),
-				array('alt' => __('Edit Team', true), 'title' => __('Edit Team', true))));
-			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('email_32.png',
-				array('action' => 'emails', 'team' => $team['Team']['id']),
-				array('alt' => __('Player Emails', true), 'title' => __('Player Emails', true))));
-		}
-		if ($is_admin || (($is_captain || $is_coordinator) && !Division::rosterDeadlinePassed($team['Division']))) {
-			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('roster_add_32.png',
-				array('action' => 'add_player', 'team' => $team['Team']['id']),
-				array('alt' => __('Add Player', true), 'title' => __('Add Player', true))));
-		}
-		if (($is_admin || $is_coordinator) && League::hasSpirit($team)) {
-			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('spirit_32.png',
-				array('action' => 'spirit', 'team' => $team['Team']['id']),
-				array('alt' => __('Spirit', true), 'title' => __('See Team Spirit Report', true))));
-		}
-		if ($is_admin) {
-			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('move_32.png',
-				array('action' => 'move', 'team' => $team['Team']['id']),
-				array('alt' => __('Move Team', true), 'title' => __('Move Team', true))));
-			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('delete_32.png',
-				array('action' => 'delete', 'team' => $team['Team']['id']),
-				array('alt' => __('Delete', true), 'title' => __('Delete Team', true)),
-				array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $team['Team']['id']))));
-		}
-		if ($is_logged_in && Configure::read('feature.annotations')) {
-			if (!empty($team['Note'])) {
-				echo $this->Html->tag ('li', $this->Html->link(__('Delete Note', true), array('action' => 'delete_note', 'team' => $team['Team']['id'])));
-				$link = 'Edit Note';
-			} else {
-				$link = 'Add Note';
-			}
-			echo $this->Html->tag ('li', $this->Html->link(__($link, true), array('action' => 'note', 'team' => $team['Team']['id'])));
-		}
-		?>
-	</ul>
+	<?php
+	if ($is_captain && Configure::read('scoring.stat_tracking') && League::hasStats($team['Division']['League'])) {
+		$extra = $this->ZuluruHtml->iconLink('pdf_32.png',
+				array('action' => 'stat_sheet', 'team' => $team['Team']['id']),
+				array('alt' => __('Stat Sheet', true), 'title' => __('Stat Sheet', true)));
+	} else {
+		$extra = null;
+	}
+	echo $this->element('teams/actions', array('team' => $team['Team'], 'division' => $team['Division'], 'league' => $team['Division']['League'], 'format' => 'list', 'extra' => $extra));
+	?>
 </div>
 
 <?php if ($is_logged_in):?>

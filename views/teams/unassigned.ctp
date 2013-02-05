@@ -29,11 +29,7 @@ foreach ($teams as $team):
 			<?php echo $this->Html->link($team['Team']['name'], array('action' => 'view', 'team' => $team['Team']['id'])); ?>
 		</td>
 		<td class="actions">
-			<?php
-			echo $this->Html->link(__('Edit', true), array('action' => 'edit', 'team' => $team['Team']['id'], 'return' => true));
-			echo $this->Html->link(__('Delete', true), array('action' => 'delete', 'team' => $team['Team']['id'], 'return' => true), null, sprintf(__('Are you sure you want to delete # %s?', true), $team['Team']['id']));
-			echo $this->Html->link(__('Move', true), array('action' => 'move', 'team' => $team['Team']['id'], 'return' => true));
-			?>
+			<?php echo $this->element('teams/actions', array('team' => $team['Team'], 'format' => 'links')); ?>
 		</td>
 	</tr>
 <?php endforeach; ?>

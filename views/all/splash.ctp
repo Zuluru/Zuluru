@@ -258,32 +258,7 @@ foreach ($teams as $team):
 		<td class="actions splash_action">
 			<?php
 			$is_captain = in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs'));
-			if (!Division::rosterDeadlinePassed($team['Division']) && $is_captain) {
-				echo $this->ZuluruHtml->iconLink('roster_add_24.png',
-					array('controller' => 'teams', 'action' => 'add_player', 'team' => $team['Team']['id']),
-					array('alt' => __('Add Player', true), 'title' => __('Add Player', true)));
-			}
-			if ($team['Team']['track_attendance']) {
-				if ($is_captain) {
-					echo $this->ZuluruHtml->iconLink('team_event_add_24.png',
-						array('controller' => 'team_events', 'action' => 'add', 'team' => $team['Team']['id']),
-						array('alt' => __('Team Event', true), 'title' => __('Add a Team Event', true)));
-				}
-				echo $this->ZuluruHtml->iconLink('attendance_24.png',
-					array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['Team']['id']),
-					array('alt' => __('Attendance', true), 'title' => __('View Season Attendance Report', true)));
-			}
-			echo $this->ZuluruHtml->iconLink('schedule_24.png',
-				array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['Team']['id']),
-				array('alt' => __('Schedule', true), 'title' => __('View Team Schedule', true)));
-			echo $this->ZuluruHtml->iconLink('standings_24.png',
-				array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Division']['id'], 'team' => $team['Team']['id']),
-				array('alt' => __('Standings', true), 'title' => __('View Team Standings', true)));
-			if ($is_admin || $is_captain) {
-				echo $this->ZuluruHtml->iconLink('edit_24.png',
-					array('controller' => 'teams', 'action' => 'edit', 'team' => $team['Team']['id']),
-					array('alt' => __('Edit', true), 'title' => __('Edit Team', true)));
-			}
+			echo $this->element('teams/actions', array('team' => $team['Team'], 'division' => $team['Division'], 'league' => $team['Division']['League'], 'is_captain' => $is_captain, 'format' => 'links'));
 			?>
 		</td>
 	</tr>

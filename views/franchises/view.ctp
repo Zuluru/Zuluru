@@ -107,7 +107,7 @@ if ($is_manager && !in_array($franchise['Franchise']['affiliate_id'], $this->Ses
 				array(),
 				sprintf(__('Are you sure you want to remove this %s?', true), __('team', true)));
 		}
-		echo $this->element('teams/actions', array('team' => $team, 'division' => $team, 'is_manager' => $is_manager));
+		echo $this->element('teams/actions', array('team' => $team, 'division' => $team['Division'], 'league' => $team['Division']['League'], 'is_manager' => $is_manager));
 		?>
 		</td>
 	</tr>

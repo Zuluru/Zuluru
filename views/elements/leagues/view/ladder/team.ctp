@@ -12,9 +12,9 @@ if (count ($classes)) {
 	<td><?php echo $team['rating']; ?></td>
 	<?php if ($is_logged_in): ?>
 	<td><?php
-	$roster_required = Configure::read("sport.roster_requirements.{$division['Division']['ratio']}");
+	$roster_required = Configure::read("sport.roster_requirements.{$division['ratio']}");
 	$count = $team['roster_count'];
-	if (($is_admin || $is_manager || $is_coordinator) && $team['roster_count'] < $roster_required && $division['Division']['roster_deadline'] !== null) {
+	if (($is_admin || $is_manager || $is_coordinator) && $team['roster_count'] < $roster_required && $division['roster_deadline'] !== null) {
 		echo $this->Html->tag ('span', $count, array('class' => 'warning-message'));
 	} else {
 		echo $count;
@@ -24,7 +24,7 @@ if (count ($classes)) {
 	<td><?php echo $team['average_skill']; ?></td>
 	<?php endif; ?>
 	<td class="actions">
-	<?php echo $this->element('teams/actions', compact('team', 'is_manager')); ?>
+	<?php echo $this->element('teams/actions', compact('team', 'division', 'league', 'is_manager')); ?>
 	</td>
 	<?php endif; ?>
 </tr>

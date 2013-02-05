@@ -198,15 +198,7 @@ usort ($all_games, 'compareDateAndTime');
 </div>
 
 <div class="actions">
-	<ul>
-		<?php
-		if ($is_captain) {
-			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('team_event_add_32.png',
-				array('controller' => 'team_events', 'action' => 'add', 'team' => $team['Team']['id']),
-				array('alt' => __('Team Event', true), 'title' => __('Add a Team Event', true))));
-		}
-		?>
-	</ul>
+	<?php echo $this->element('teams/actions', array('team' => $team['Team'], 'division' => $team['Division'], 'league' => $team['Division']['League'], 'format' => 'list')); ?>
 </div>
 
 <?php echo $this->element('games/attendance_div'); ?>

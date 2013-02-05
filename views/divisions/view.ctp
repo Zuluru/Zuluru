@@ -270,8 +270,7 @@ if ($is_manager && !in_array($division['League']['affiliate_id'], $this->Session
 	<?php if (!empty($division['Team'])):?>
 	<table class="list">
 	<?php
-	echo $this->element("leagues/view/{$league_obj->render_element}/heading",
-			compact ('is_admin', 'is_manager', 'is_coordinator'));
+	echo $this->element("leagues/view/{$league_obj->render_element}/heading", compact ('is_manager'));
 	$seed = $i = 0;
 	foreach ($division['Team'] as $team) {
 		$is_captain = in_array($team['id'], $this->Session->read('Zuluru.OwnedTeamIDs'));
@@ -289,7 +288,7 @@ if ($is_manager && !in_array($division['League']['affiliate_id'], $this->Session
 		}
 		Team::consolidateRoster ($team);
 		echo $this->element("leagues/view/{$league_obj->render_element}/team",
-				compact ('is_admin', 'is_manager', 'is_coordinator', 'is_captain', 'division', 'team', 'seed', 'classes'));
+				array('is_manager' => $is_manager, 'team' => $team, 'division' => $division['Division'], 'league' => $division['League'], 'seed' => $seed, 'classes' => $classes));
 	}
 	?>
 	</table>
