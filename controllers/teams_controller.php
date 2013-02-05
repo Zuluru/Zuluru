@@ -629,14 +629,16 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		$contain = array(
-			'Person',
 			'Division' => array('Day', 'League'),
 			'Franchise',
 			'Region',
 			'Field' => array('Facility'),
 		);
-		if (Configure::read('feature.annotations') && $this->is_logged_in) {
-			$contain['Note'] = array('conditions' => array('created_person_id' => $this->Auth->user('id')));
+		if ($this->is_logged_in) {
+			$contain[] = 'Person';
+			if (Configure::read('feature.annotations')) {
+				$contain['Note'] = array('conditions' => array('created_person_id' => $this->Auth->user('id')));
+			}
 		}
 		$this->Team->contain($contain);
 
@@ -645,6 +647,7 @@ class TeamsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+
 		$this->Configuration->loadAffiliate($team['Division']['League']['affiliate_id']);
 
 		$this->Team->Division->addPlayoffs($team);
@@ -658,97 +661,98 @@ class TeamsController extends AppController {
 			}
 		}
 
-		$playing_roster_positions = Configure::read('playing_roster_positions');
-
-		foreach ($team['Person'] as $key => $person) {
-			// Get everything from the user record that the rule might need
-			$this->Team->Person->contain(array(
-				'Registration' => array(
-					'Event' => array(
-						'EventType',
+		if ($this->is_logged_in) {
+			foreach ($team['Person'] as $key => $person) {
+				// Get everything from the user record that the rule might need
+				$this->Team->Person->contain(array(
+					'Registration' => array(
+						'Event' => array(
+							'EventType',
+						),
+						'conditions' => array('Registration.payment' => 'paid'),
 					),
-					'conditions' => array('Registration.payment' => 'paid'),
-				),
-				'Team' => array(
-					'Division' => array('Day', 'League'),
-					'TeamsPerson',
-					'conditions' => array('Team.id !=' => $id),
-				),
-				'Waiver',
-			));
-			$full_person = $this->Team->Person->read(null, $person['id']);
+					'Team' => array(
+						'Division' => array('Day', 'League'),
+						'TeamsPerson',
+						'conditions' => array('Team.id !=' => $id),
+					),
+					'Waiver',
+				));
+				$full_person = $this->Team->Person->read(null, $person['id']);
 
-			if ($person['TeamsPerson']['status'] == ROSTER_APPROVED) {
-				$team['Person'][$key]['can_add'] = true;
-			} else {
-				$team['Person'][$key]['can_add'] = $this->_canAdd ($full_person, $team, $person['TeamsPerson']['position'], $person['TeamsPerson']['status'], true, true);
-			}
-
-			// Check if the player is a member, so we can highlight any that aren't
-			if (isset ($member_rule)) {
-				$rule_obj = AppController::_getComponent ('Rule');
-				if (!$rule_obj->init ($member_rule)) {
-					return __('Failed to parse the rule', true);
+				if ($person['TeamsPerson']['status'] == ROSTER_APPROVED) {
+					$team['Person'][$key]['can_add'] = true;
+				} else {
+					$team['Person'][$key]['can_add'] = $this->_canAdd ($full_person, $team, $person['TeamsPerson']['position'], $person['TeamsPerson']['status'], true, true);
 				}
-				$team['Person'][$key]['is_a_member'] = $rule_obj->evaluate($team['Division']['League']['affiliate_id'], $full_person, $team);
-			} else {
-				// Ensure there's no warnings
-				$team['Person'][$key]['is_a_member'] = true;
-			}
 
-			// Check for any roster conflicts
-			$team['Person'][$key]['roster_conflict'] = $team['Person'][$key]['schedule_conflict'] = false;
-			foreach ($full_person['Team'] as $other_team) {
-				if (in_array($person['TeamsPerson']['position'], $playing_roster_positions)) {
-					// If this player is on a roster of another team in the same league...
-					if (array_key_exists('league_id', $other_team['Division']) &&
-						$team['Division']['league_id'] == $other_team['Division']['league_id'] &&
-						// and they're a regular player...
-						in_array($other_team['TeamsPerson']['position'], $playing_roster_positions))
-					{
-						$connected = false;
-						if (array_key_exists('season_divisions', $team['Division']) &&
-							in_array($other_team['Division']['id'], $team['Division']['season_divisions'])
-						)
-						{
-							$connected = true;
-						}
-						if (array_key_exists('playoff_divisions', $team['Division']) &&
-							in_array($other_team['Division']['id'], $team['Division']['playoff_divisions'])
-						)
-						{
-							$connected = true;
-						}
+				// Check if the player is a member, so we can highlight any that aren't
+				if (isset ($member_rule)) {
+					$rule_obj = AppController::_getComponent ('Rule');
+					if (!$rule_obj->init ($member_rule)) {
+						return __('Failed to parse the rule', true);
+					}
+					$team['Person'][$key]['is_a_member'] = $rule_obj->evaluate($team['Division']['League']['affiliate_id'], $full_person, $team);
+				} else {
+					// Ensure there's no warnings
+					$team['Person'][$key]['is_a_member'] = true;
+				}
 
-						// and that division doesn't have a regular season/playoff connection with this one...
-						if (!$connected) {
-							// ... then there's a roster conflict!
-							$team['Person'][$key]['roster_conflict'] = true;
+				// Check for any roster conflicts
+				$team['Person'][$key]['roster_conflict'] = $team['Person'][$key]['schedule_conflict'] = false;
+				$playing_roster_positions = Configure::read('playing_roster_positions');
+				foreach ($full_person['Team'] as $other_team) {
+					if (in_array($person['TeamsPerson']['position'], $playing_roster_positions)) {
+						// If this player is on a roster of another team in the same league...
+						if (array_key_exists('league_id', $other_team['Division']) &&
+							$team['Division']['league_id'] == $other_team['Division']['league_id'] &&
+							// and they're a regular player...
+							in_array($other_team['TeamsPerson']['position'], $playing_roster_positions))
+						{
+							$connected = false;
+							if (array_key_exists('season_divisions', $team['Division']) &&
+								in_array($other_team['Division']['id'], $team['Division']['season_divisions'])
+							)
+							{
+								$connected = true;
+							}
+							if (array_key_exists('playoff_divisions', $team['Division']) &&
+								in_array($other_team['Division']['id'], $team['Division']['playoff_divisions'])
+							)
+							{
+								$connected = true;
+							}
+
+							// and that division doesn't have a regular season/playoff connection with this one...
+							if (!$connected) {
+								// ... then there's a roster conflict!
+								$team['Person'][$key]['roster_conflict'] = true;
+							}
 						}
 					}
-				}
 
-				// If this player is on a roster of a team in another league...
-				if (array_key_exists('league_id', $other_team['Division']) &&
-					!empty ($team_days) && $team['Division']['league_id'] != $other_team['Division']['league_id'])
-				{
-					// that has a schedule which at least partially overlaps with this division...
-					if (($other_team['Division']['open'] <= $team['Division']['open'] && $other_team['Division']['close'] >= $team['Division']['open']) ||
-						($team['Division']['open'] <= $other_team['Division']['open'] && $team['Division']['close'] >= $other_team['Division']['open']))
+					// If this player is on a roster of a team in another league...
+					if (array_key_exists('league_id', $other_team['Division']) &&
+						!empty ($team_days) && $team['Division']['league_id'] != $other_team['Division']['league_id'])
 					{
-						$other_team_days = Set::extract('/Division/Day/id', $other_team);
-						$overlap = array_intersect($team_days, $other_team_days);
-						// and they play on the same day of the week...
-						if (!empty($overlap)) {
-							// ... then there's a possible schedule conflict!
-							$team['Person'][$key]['schedule_conflict'] = true;
-						}
-					}   
+						// that has a schedule which at least partially overlaps with this division...
+						if (($other_team['Division']['open'] <= $team['Division']['open'] && $other_team['Division']['close'] >= $team['Division']['open']) ||
+							($team['Division']['open'] <= $other_team['Division']['open'] && $team['Division']['close'] >= $other_team['Division']['open']))
+						{
+							$other_team_days = Set::extract('/Division/Day/id', $other_team);
+							$overlap = array_intersect($team_days, $other_team_days);
+							// and they play on the same day of the week...
+							if (!empty($overlap)) {
+								// ... then there's a possible schedule conflict!
+								$team['Person'][$key]['schedule_conflict'] = true;
+							}
+						}   
+					}
 				}
 			}
-		}
 
-		usort ($team['Person'], array('Team', 'compareRoster'));
+			usort ($team['Person'], array('Team', 'compareRoster'));
+		}
 
 		$this->set('team', $team);
 		$this->set('is_captain', in_array($id, $this->Session->read('Zuluru.OwnedTeamIDs')));
