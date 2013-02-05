@@ -78,23 +78,14 @@ class Team extends AppModel {
 		'Division' => array(
 			'className' => 'Division',
 			'foreignKey' => 'division_id',
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
 		),
 		'Field' => array(
 			'className' => 'Field',
 			'foreignKey' => 'home_field',
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
 		),
 		'Region' => array(
 			'className' => 'Region',
 			'foreignKey' => 'region_preference',
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
 		),
 	);
 
@@ -103,53 +94,21 @@ class Team extends AppModel {
 			'className' => 'Attendance',
 			'foreignKey' => 'team_id',
 			'dependent' => true,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 		'Incident' => array(
 			'className' => 'Incident',
 			'foreignKey' => 'team_id',
 			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 		'TeamEvent' => array(
 			'className' => 'TeamEvent',
 			'foreignKey' => 'team_id',
 			'dependent' => true,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 		'Note' => array(
 			'className' => 'Note',
 			'foreignKey' => 'team_id',
 			'dependent' => true,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 	);
 
@@ -161,14 +120,7 @@ class Team extends AppModel {
 			'foreignKey' => 'team_id',
 			'associationForeignKey' => 'person_id',
 			'unique' => true,
-			'conditions' => '',
-			'fields' => '',
 			'order' => 'Person.gender DESC, Person.last_name, Person.first_name',
-			'limit' => '',
-			'offset' => '',
-			'finderQuery' => '',
-			'deleteQuery' => '',
-			'insertQuery' => ''
 		),
 		'Franchise' => array(
 			'className' => 'Franchise',
@@ -177,14 +129,7 @@ class Team extends AppModel {
 			'foreignKey' => 'team_id',
 			'associationForeignKey' => 'franchise_id',
 			'unique' => true,
-			'conditions' => '',
-			'fields' => '',
 			'order' => 'Franchise.name',
-			'limit' => '',
-			'offset' => '',
-			'finderQuery' => '',
-			'deleteQuery' => '',
-			'insertQuery' => ''
 		)
 	);
 
