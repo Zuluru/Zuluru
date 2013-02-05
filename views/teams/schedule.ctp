@@ -104,7 +104,7 @@ $display_spirit = ($is_admin || $is_coordinator || $team['Division']['League']['
 			?></td>
 			<td class="actions"><?php
 			if (!$is_event) {
-				echo $this->ZuluruGame->displayScore ($game, $team['Team']['id']);
+				echo $this->ZuluruGame->displayScore ($game, $team['Division']['League'], $team['Team']['id']);
 			}
 			?></td>
 			<?php if ($display_spirit): ?>

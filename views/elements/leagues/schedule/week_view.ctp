@@ -114,7 +114,7 @@ foreach ($division['Game'] as $game):
 		echo $this->element('teams/block', array('team' => $game['AwayTeam'], 'options' => array('max_length' => 16)));
 	}
 	?></td>
-	<td class="actions"><?php echo $this->ZuluruGame->displayScore ($game); ?></td>
+	<td class="actions"><?php echo $this->ZuluruGame->displayScore ($game, $division['League']); ?></td>
 </tr>
 
 <?php

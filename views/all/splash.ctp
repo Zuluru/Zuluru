@@ -411,7 +411,7 @@ foreach ($games as $game):
 			}
 		}
 
-		echo $this->ZuluruGame->displayScore ($game);
+		echo $this->ZuluruGame->displayScore ($game, $game['Division']['League']);
 
 		if (Configure::read('feature.annotations')) {
 			echo $this->Html->link(__('Add Note', true), array('controller' => 'games', 'action' => 'note', 'game' => $game['Game']['id']));

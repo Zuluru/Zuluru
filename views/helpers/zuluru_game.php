@@ -3,7 +3,7 @@
 class ZuluruGameHelper extends Helper {
 	var $helpers = array('Html', 'ZuluruHtml', 'Session');
 
-	function displayScore($game, $show_score_for_team = false) {
+	function displayScore($game, $league, $show_score_for_team = false) {
 		// Data may come in one of two forms.
 		if (array_key_exists ('Game', $game)) {
 			// Either all the models are at the same level in the array...
@@ -13,6 +13,11 @@ class ZuluruGameHelper extends Helper {
 			$details = $game;
 		}
 		$score_entry = $game['ScoreEntry'];
+
+		$view =& ClassRegistry::getObject('view');
+		$is_admin = $view->viewVars['is_admin'];
+		$is_manager = $view->viewVars['is_manager'] && in_array($league['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+		$is_coordinator = in_array ($details['division_id'], $this->Session->read('Zuluru.DivisionIDs'));
 
 		// Calculate the game end time stamp
 		$end_time = strtotime("{$game['GameSlot']['game_date']} {$game['GameSlot']['display_game_end']}") +
@@ -97,9 +102,8 @@ class ZuluruGameHelper extends Helper {
 			}
 		}
 
-		// Give admins and coordinators the option to edit games
-		$view =& ClassRegistry::getObject('view');
-		if ($view->viewVars['is_admin'] || in_array ($details['division_id'], $this->Session->read('Zuluru.DivisionIDs'))) {
+		// Give admins, managers and coordinators the option to edit games
+		if ($is_admin || $is_manager || $is_coordinator) {
 			echo $this->ZuluruHtml->iconLink('edit_24.png',
 				array('controller' => 'games', 'action' => 'edit', 'game' => $details['id'], 'return' => true),
 				array('alt' => __('Edit', true), 'title' => __('Edit', true)));
