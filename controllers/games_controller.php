@@ -339,17 +339,12 @@ class GamesController extends AppController {
 					$this->redirect(array('action' => 'view', 'game' => $id));
 				} else {
 					$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('game', true)), 'default', array('class' => 'warning'));
-					// Save the validation errors, as they get reset by the read() below
-					$validationErrors = $this->Game->validationErrors;
 				}
 			}
 		}
 
 		if (empty($this->data)) {
 			$this->data = $game;
-		} else {
-			// If we have data, and we haven't redirected, it's because there was an error in the data
-			$this->Game->validationErrors = $validationErrors;
 		}
 
 		// To maximize shared code between the edit and view templates, we'll
