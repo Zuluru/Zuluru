@@ -218,6 +218,18 @@ if (! empty ($game['Division']['League']['coord_list'])) {
 </div>
 <?php endif; ?>
 
+<?php if (League::hasStats($game['Division']['League'])): ?>
+<div id="StatsWrapper">
+<?php
+	echo $this->Form->input('Game.collect_stats', array(
+			'type' => 'checkbox',
+			'value' => '1',
+			'label' => 'I want to enter stats for this game (if you don\'t do it now, you can do it later)',
+	));
+?>
+</div>
+<?php endif; ?>
+
 <div class="submit">
 <?php echo $this->Form->submit('Submit', array('div' => false)); ?>
 

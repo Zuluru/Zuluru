@@ -290,7 +290,14 @@ class ZuluruSchema extends CakeSchema {
 		'sotg_questions' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 32),
 		'numeric_sotg' => array('type' => 'boolean', 'null' => true, 'default' => NULL),
 		'expected_max_score' => array('type' => 'integer', 'null' => false, 'default' => NULL),
+		'stat_tracking' => array('type' => 'string', 'null' => false, 'default' => 'never', 'length' => 32),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
+	var $leagues_stat_types = array(
+		'league_id' => array('type' => 'integer', 'null' => false, 'default' => NULL),
+		'stat_type_id' => array('type' => 'integer', 'null' => false, 'default' => NULL),
+		'indexes' => array(),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $locks = array(
@@ -534,6 +541,29 @@ class ZuluruSchema extends CakeSchema {
 		'q10' => array('type' => 'integer', 'null' => false, 'default' => '0'),
 		'comments' => array('type' => 'text', 'null' => true, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'team' => array('column' => array('team_id', 'game_id'), 'unique' => 0), 'created' => array('column' => array('created_team_id', 'game_id'), 'unique' => 0)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
+	var $stats = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'game_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'team_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'stat_type_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'value' => array('type' => 'integer', 'null' => false),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'game' => array('column' => 'game_id', 'unique' => 0), 'person' => array('column' => 'person_id', 'unique' => 0)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
+	var $stat_types = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'sport' => array('type' => 'string', 'null' => false, 'default' => 'ultimate', 'length' => 32),
+		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 128),
+		'abbr' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 8),
+		'sort' => array('type' => 'integer', 'null' => false),
+		'class' => array('type' => 'string', 'null' => false, 'default' => null, 'length' => 32),
+		'type' => array('type' => 'string', 'null' => false, 'default' => null, 'length' => 16),
+		'base' => array('type' => 'string', 'null' => false, 'default' => null, 'length' => 32),
+		'handler' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 128),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $subscriptions = array(

@@ -1,5 +1,5 @@
 <?php
-if ($team['track_attendance']) {
+if ($team['track_attendance'] || (isset($force) && $force)) {
 	$long = Configure::read("attendance.$status");
 	$low = Inflector::slug(low($long));
 
@@ -32,7 +32,7 @@ if ($team['track_attendance']) {
 	$recent = ($game_date >= date('Y-m-d', time() - 14 * 24 * 60 * 60));
 	$future = (strtotime("$game_date $game_time") + Configure::read('timezone.adjust') * 60 >= time() ? 1 : 0);
 	$is_me = (!isset($person_id) || $person_id == $my_id);
-	if (($future || (!$future_only && $recent)) && ($is_me || $is_captain)) {
+	if (($future || (!$future_only && $recent)) && ($is_me || $is_captain) && $team['track_attendance']) {
 		$url = array('controller' => 'games', 'action' => 'attendance_change', 'team' => $team['id']);
 		if (isset ($game_id) && $game_id) {
 			$url['game'] = $game_id;
@@ -54,10 +54,11 @@ if ($team['track_attendance']) {
 		$comment = addslashes($comment);
 		echo $this->Html->link($short, $url, array(
 			'escape' => false,
+			'class' => "attendance_status_$status",
 			'onClick' => "return attendance_status('$url_string', $option_string, jQuery(this), $dedicated, $future, '$comment');",
 		));
 	} else if (!$future_only) {
-		echo $short;
+		echo $this->Html->tag('span', $short, array('class' => "attendance_status_$status"));
 	}
 }
 

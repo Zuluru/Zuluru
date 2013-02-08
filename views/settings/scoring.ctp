@@ -116,6 +116,16 @@ echo $this->element('settings/banner');
 			'after' => 'If enabled, captains will be allowed to file incident reports when submitting scores.',
 		),
 	));
+	echo $this->element('settings/input', array(
+		'category' => 'scoring',
+		'name' => 'stat_tracking',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'label' => 'Handle stat submission and tracking as part of game scoring',
+			'after' => 'Enable or disable stat tracking options. If enabled here, stats can still be disabled on a per-league basis.',
+		),
+	));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>

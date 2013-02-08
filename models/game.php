@@ -130,6 +130,11 @@ class Game extends AppModel {
 			'conditions' => '',
 			'order' => 'Note.created',
 		),
+		'Stat' => array(
+			'className' => 'Stat',
+			'foreignKey' => 'game_id',
+			'dependent' => true,
+		),
 	);
 
 	static function compareDateAndField ($a, $b) {
@@ -419,23 +424,45 @@ class Game extends AppModel {
 	 * @param mixed $days The days on which the division operates.
 	 * @param mixed $game_id The game id, if known.
 	 * @param mixed $date The date of the game, or an array of dates.
+	 * @param mixed $force If true, teams without attendance tracking will have a "default" attendance array generated; otherwise, they will get an empty array
 	 * @return mixed List of attendance records.
 	 *
 	 */
-	function _read_attendance($team, $days, $game_id, $dates = null) {
+	function _read_attendance($team, $days, $game_id, $dates = null, $force = false) {
 		// We accept either a pre-read team array with roster info, or just an id
 		if (!is_array($team)) {
 			$team_id = $team;
 			$this->Attendance->Team->contain (array(
 				'Person' => array(
-					'fields' => array('Person.id'),
+					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name', 'Person.gender'),
 				),
 			));
 			$team = $this->Attendance->Team->read(null, $team_id);
+			$track_attendance = $team['Team']['track_attendance'];
 		} else if (array_key_exists ('id', $team)) {
 			$team_id = $team['id'];
+			$track_attendance = $team['track_attendance'];
 		} else {
 			$team_id = $team['Team']['id'];
+			$track_attendance = $team['Team']['track_attendance'];
+		}
+
+		if (!$track_attendance) {
+			// Teams without attendance tracking may get no data.
+			// This shouldn't actually ever happen, and is really only in
+			// place to help detect coding errors elsewhere.
+			if (!$force) {
+				return array();
+			}
+
+			// Make up data that looks like what we'd have if tracking was enabled.
+			if (is_array($dates)) {
+				trigger_error('Forcing attendance records for multiple dates for teams without attendance tracking enabled is not yet supported.', E_USER_ERROR);
+			} else if (!$game_id) {
+				trigger_error('Forcing attendance records for unscheduled games for teams without attendance tracking enabled is not yet supported.', E_USER_ERROR);
+			} else {
+				return $this->_forced_attendance($team, $game_id);
+			}
 		}
 
 		// Make sure that all required records exist
@@ -673,6 +700,46 @@ class Game extends AppModel {
 		if (!empty ($attendance_update)) {
 			$this->Attendance->saveAll($attendance_update);
 		}
+	}
+
+	function _forced_attendance($team, $game_id) {
+		if (array_key_exists ('id', $team)) {
+			$team_id = $team['id'];
+		} else {
+			$team_id = $team['Team']['id'];
+		}
+
+		// Find game details
+		$this->contain ();
+		$game = $this->read(null, $game_id);
+		if (!$game) {
+			return array();
+		}
+		if ($game['Game']['home_team'] != $team_id && $game['Game']['away_team'] != $team_id) {
+			return array();
+		}
+
+		// Go through the roster and make fake records for all players on this date.
+		$player_positions = Configure::read('regular_roster_positions');
+		foreach ($team['Person'] as $key => $person) {
+			if ($person['TeamsPerson']['status'] == ROSTER_APPROVED) {
+				if (in_array($person['TeamsPerson']['position'], $player_positions)) {
+					$status = ATTENDANCE_ATTENDING;
+				} else {
+					$status = ATTENDANCE_UNKNOWN;
+				}
+				$team['Person'][$key]['Attendance'] = array(array(
+					'team_id' => $team_id,
+					'game_id' => $game_id,
+					'person_id' => $person['id'],
+					'status' => $status,
+					'comment' => null,
+				));
+			}
+		}
+
+		usort ($team['Person'], array('Team', 'compareRoster'));
+		return $team;
 	}
 
 	static function _matchDates($dates, $days) {

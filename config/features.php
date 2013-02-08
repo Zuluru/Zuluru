@@ -130,6 +130,19 @@ $config['unplayed_status'] = array(
 	'rescheduled',
 );
 
+// List of stat types for various displays
+$config['stat_types'] = array(
+	'game' => array(
+		'entered',
+		'game_calc',
+	),
+	'team' => array(
+		'season_total',
+		'season_avg',
+		'season_calc',
+	),
+);
+
 $config['approved_by'] = array(
 	APPROVAL_AUTOMATIC			=> 'automatic approval',
 	APPROVAL_AUTOMATIC_HOME		=> 'automatic approval using home submission',

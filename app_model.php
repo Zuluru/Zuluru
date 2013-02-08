@@ -282,6 +282,14 @@ class AppModel extends Model {
 		return ($Validation->date ($date) && $Validation->time ($time));
 	}
 
+	function positive($check) {
+		// $check array is passed using the form field name as the key
+		// have to extract the value to make the function generic
+		$value = array_values($check);
+		$value = $value[0];
+		return (is_numeric($value) && $value >= 0);
+	}
+
 	function inquery($check, $model, $field, $conditions = array()) {
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic

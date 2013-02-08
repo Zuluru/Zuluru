@@ -48,6 +48,13 @@ $this->Html->addCrumb (__('View', true));
 
 			</dd>
 		<?php endif; ?>
+		<?php if (Configure::read('scoring.stat_tracking')): ?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Stat Tracking'); ?></dt>
+			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+				<?php __(Inflector::Humanize ($league['League']['stat_tracking'])); ?>
+
+			</dd>
+		<?php endif; ?>
 	</dl>
 </div>
 

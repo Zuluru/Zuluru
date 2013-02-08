@@ -5,6 +5,23 @@ class GamesController extends AppController {
 	var $helpers = array('ZuluruGame');
 	var $components = array('Lock');
 
+	// The PDFize plugin is optional, so we can't rely on it being present and put it in the components array.
+	// But, because of how it functions, it does need to be initialized during the __construct phase.
+	function __construct(){
+		// But, at this time, the configuration hasn't been read from the database yet, so we can't use the
+		// feature.pdfize setting to determine whether to include it. So, we check for existence of the file
+		// and load it if it's there.
+		if (file_exists(APP . 'plugins' . DS . 'pdfize' . DS . 'controllers' . DS . 'components' . DS . 'pdf.php')){
+			$this->components['Pdfize.Pdf'] = array(
+				'actions' => array(),
+				'debug' => false,
+				'size' => 'letter',
+				'orientation' => 'portrait',
+			);
+		}
+		parent::__construct();
+	}
+
 	function publicActions() {
 		return array('cron', 'view', 'tooltip', 'ical',
 			// Attendance updates may come from emailed links; people might not be logged in
@@ -20,6 +37,7 @@ class GamesController extends AppController {
 				'delete_note',
 				'past',
 				'future',
+				'stats',
 		)))
 		{
 			return true;
@@ -38,7 +56,9 @@ class GamesController extends AppController {
 
 		// Captains are permitted to perform these operations for their teams
 		if (in_array ($this->params['action'], array(
+				'stat_sheet',
 				'submit_score',
+				'submit_stats',
 		)))
 		{
 			// If a team id is specified, check if it belongs to the logged-in user
@@ -52,6 +72,8 @@ class GamesController extends AppController {
 		if (in_array ($this->params['action'], array(
 				'edit',
 				'delete',
+				'stat_sheet',
+				'submit_stats',
 		)))
 		{
 			$game = $this->_arg('game');
@@ -947,6 +969,72 @@ class GamesController extends AppController {
 		return true;
 	}
 
+	function stat_sheet() {
+		$id = $this->_arg('game');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$team_id = $this->_arg('team');
+		if (!$team_id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$this->Game->contain(array(
+			'Division' => array(
+				'League' => array('StatType' => array('conditions' => array('StatType.type' => 'entered'))),
+				'Day',
+			),
+			'HomeTeam',
+			'AwayTeam',
+			'GameSlot' => array('Field' => 'Facility'),
+		));
+		$game = $this->Game->read(null, $id);
+		if (!$game) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		if (!League::hasStats($game['Division']['League'])) {
+			$this->Session->setFlash(__('This league does not have stat tracking enabled.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$this->Configuration->loadAffiliate($game['Division']['League']['affiliate_id']);
+		$this->Game->_readDependencies($game['Game']);
+		if ($game['Game']['home_team'] == $team_id) {
+			$team = $game['HomeTeam'];
+			if ($game['Game']['away_team'] === null) {
+				$opponent = array('name' => $game['Game']['away_dependency']);
+			} else {
+				$opponent = $game['AwayTeam'];
+			}
+		} else if ($game['Game']['away_team'] == $team_id) {
+			$team = $game['AwayTeam'];
+			if ($game['Game']['home_team'] === null) {
+				$opponent = array('name' => $game['Game']['home_dependency']);
+			} else {
+				$opponent = $game['HomeTeam'];
+			}
+		} else {
+			$this->Session->setFlash(__('That team is not playing in this game.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		if (!$team['track_attendance']) {
+			$this->Session->setFlash(__('That team does not have attendance tracking enabled.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		if (Configure::read('feature.pdfize') && isset($this->Pdf)) {
+			$this->Pdf->actionsToPdf = array($this->action);
+		}
+
+		$attendance = $this->Game->_read_attendance($team_id, Set::extract('/Division/Day/id', $game), $id);
+		$this->set(compact('game', 'team', 'opponent', 'attendance'));
+		$this->set('is_captain', in_array($team_id, $this->Session->read('Zuluru.OwnedTeamIDs')));
+	}
+
 	function submit_score() {
 		$id = $this->_arg('game');
 		if (!$id) {
@@ -1274,7 +1362,12 @@ class GamesController extends AppController {
 				if ($resultMessage) {
 					$this->Session->setFlash($resultMessage, 'default', array('class' => $resultClass));
 				}
-				$this->redirect('/');
+
+				if (League::hasStats($game['Division']['League']) && $this->data['Game']['collect_stats']) {
+					$this->redirect(array('action' => 'submit_stats', 'game' => $id, 'team' => $team_id));
+				} else {
+					$this->redirect('/');
+				}
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('game results', true)), 'default', array('class' => 'warning'));
 			}
@@ -1287,6 +1380,167 @@ class GamesController extends AppController {
 
 		$this->set(compact ('game', 'team_id', 'spirit_obj'));
 		$this->set('is_coordinator', in_array ($game['Division']['id'], $this->Session->read('Zuluru.DivisionIDs')));
+	}
+
+	function submit_stats() {
+		$id = $this->_arg('game');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$this->Game->contain (array (
+			'Division' => array(
+				'League' => array('StatType' => array('conditions' => array('StatType.type' => 'entered'))),
+				'Day',
+			),
+			'GameSlot' => array('Field' => 'Facility'),
+			'ScoreEntry',
+			'HomeTeam',
+			'AwayTeam',
+		));
+
+		$game = $this->Game->read(null, $id);
+		if (!$game) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$this->Configuration->loadAffiliate($game['Division']['League']['affiliate_id']);
+		Configure::load("sport/{$game['Division']['League']['sport']}");
+
+		$team_id = $this->_arg('team');
+		if (!$team_id && !in_array($game['Division']['id'], $this->Session->read('Zuluru.DivisionIDs'))) {
+			$this->Session->setFlash(__('You must provide a team ID.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		if (!League::hasSpirit($game['Division']['League'])) {
+			$this->Session->setFlash(__('That league does not have stat tracking enabled!', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		if ($team_id && $team_id != $game['Game']['home_team'] && $team_id != $game['Game']['away_team']) {
+			$this->Session->setFlash(__('That team did not play in that game!', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		if (!Game::_is_finalized($game)) {
+			$this->Game->_adjustEntryIndices($game);
+			if ($team_id && !array_key_exists($team_id, $game['ScoreEntry'])) {
+				$this->Session->setFlash(__('You must submit a score for this game before you can submit stats.', true), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'submit_score', 'game' => $id, 'team' => $team_id));
+			}
+		}
+
+		$end_time = strtotime("{$game['GameSlot']['game_date']} {$game['GameSlot']['display_game_end']}") +
+				Configure::read('timezone.adjust') * 60;
+		if ($end_time - 60 * 60 > time()) {
+			$this->Session->setFlash(__('That game has not yet occurred!', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		// Remove any empty stats. We DON'T remove '0' stats, as that's still a stat.
+		$teams = array_unique(Set::extract('/Stat/team_id', $this->data));
+		$entry_stats = Set::extract('/StatType/id', $game['Division']['League']);
+		if (!empty($this->data)) {
+			$had_data = true;
+			foreach ($this->data['Stat'] as $key => $datum) {
+				if ($datum['value'] === '' || !in_array($datum['stat_type_id'], $entry_stats)) {
+					unset($this->data['Stat'][$key]);
+				}
+			}
+
+			// Locate existing records that we want to delete
+			$to_delete = $this->Game->Stat->find('list', array(
+					'conditions' => array(
+						'game_id' => $id,
+						'team_id' => $teams,
+						'NOT' => array('id' => Set::extract('/Stat/id', $this->data)),
+					),
+					'contain' => array(),
+			));
+		}
+
+		if (!empty($to_delete) || !empty($this->data['Stat'])) {
+			$transaction = new DatabaseTransaction($this->Game->Stat);
+		}
+
+		if (!empty($to_delete)) {
+			if (!$this->Game->Stat->deleteAll(array('Stat.id' => $to_delete))) {
+				$this->Session->setFlash(sprintf(__('Failed to delete previously saved %s', true), __('stats', true)), 'default', array('class' => 'error'));
+				unset($transaction);
+			} else {
+				// This will be overridden, unless the user erased all previous stats and didn't enter new ones
+				$this->Session->setFlash(sprintf(__('The previously saved %s have been removed.', true), __('stats', true)), 'default', array('class' => 'success'));
+			}
+		}
+
+		if (!empty($this->data['Stat'])) {
+			if (isset($transaction)) {
+				// Add calculated stats to the array to be saved. We will have deleted any prior calculated stats above.
+				$calc_stats = $this->Game->Division->League->StatType->find('list', array(
+						'contain' => array(),
+						'conditions' => array(
+							'StatType.type' => 'game_calc',
+							'StatType.sport' => $game['Division']['League']['sport'],
+						),
+						'fields' => array('id', 'handler'),
+				));
+				$sport_obj = $this->_getComponent ('Sport', $game['Division']['League']['sport'], $this);
+				foreach ($calc_stats as $stat_type_id => $handler) {
+					$func = "{$handler}_game";
+					if (method_exists($sport_obj, $func)) {
+						$sport_obj->$func($stat_type_id, $game, $game['Division']['League'], $this->data);
+					} else {
+						trigger_error("Game stat handler $handler was not found in the {$game['Division']['League']['sport']} component!", E_USER_ERROR);
+					}
+				}
+
+				if ($this->Game->Stat->saveAll($this->data['Stat'], array('validate' => 'first'))) {
+					$this->Session->setFlash(sprintf(__('The %s have been saved', true), __('stats', true)), 'default', array('class' => 'success'));
+					$transaction->commit();
+					$this->redirect(array('action' => 'view', 'game' => $id));
+				} else {
+					$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('stats', true)), 'default', array('class' => 'warning'));
+				}
+			} else {
+				// The deletion above failed, so we don't want to try to save the other data,
+				// but let's validate it anyway, in case there's errors we can report.
+				$this->Game->Stat->saveAll($this->data['Stat'], array('validate' => 'only'));
+			}
+		} else {
+			if (isset($transaction)) {
+				// This will happen if stats were previously saved but all were erased in the input form.
+				// Since there was no new data to save, commit the deletions.
+				$transaction->commit();
+				$this->redirect(array('action' => 'view', 'game' => $id));
+			} else if (isset($had_data)) {
+				// This will happen if an empty form was submitted.
+				$this->Session->setFlash(__('You did not submit any stats. You can return to complete this at any time.', true), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'view', 'game' => $id));
+			}
+
+			$this->data = $this->Game->Stat->find('all', array(
+					'contain' => array(),
+					'conditions' => array('game_id' => $id),
+			));
+			// Reformat the data into the form needed for saving multiple records,
+			// which is the same form the display expects, in case errors cause it
+			// to be redisplayed.
+			$this->data = array('Stat' => Set::extract('/Stat/.', $this->data));
+		}
+
+		if ($team_id) {
+			$attendance = $this->Game->_read_attendance($team_id, Set::extract('/Division/Day/id', $game), $id, null, true);
+			usort ($attendance['Person'], array('Person', 'comparePerson'));
+		} else {
+			$home_attendance = $this->Game->_read_attendance($game['Game']['home_team'], Set::extract('/Division/Day/id', $game), $id, null, true);
+			usort ($home_attendance['Person'], array('Person', 'comparePerson'));
+			$away_attendance = $this->Game->_read_attendance($game['Game']['away_team'], Set::extract('/Division/Day/id', $game), $id, null, true);
+			usort ($away_attendance['Person'], array('Person', 'comparePerson'));
+		}
+
+		$this->set(compact('game', 'team_id', 'attendance', 'home_attendance', 'away_attendance'));
 	}
 
 	function _spiritTeams($to, $from, &$data) {
@@ -1638,6 +1892,93 @@ class GamesController extends AppController {
 		return true;
 	}
 
+	function stats() {
+		$id = $this->_arg('game');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$team_id = $this->_arg('team');
+		if ($team_id) {
+			$stat_conditions = array('Stat.team_id' => $team_id);
+		} else {
+			$stat_conditions = array();
+		}
+		$this->Game->contain(array(
+			'Division' => array(
+				'League' => array('StatType' => array('conditions' => array('StatType.type' => Configure::read('stat_types.game')))),
+			),
+			'HomeTeam',
+			'AwayTeam',
+			'GameSlot' => array('Field' => 'Facility'),
+			'ScoreEntry',
+			'Stat' => array('conditions' => $stat_conditions),
+		));
+		$game = $this->Game->read(null, $id);
+		if (!$game) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		if (!League::hasStats($game['Division']['League'])) {
+			$this->Session->setFlash(__('This league does not have stat tracking enabled.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'game' => $id));
+		}
+
+		if ("{$game['GameSlot']['game_date']} {$game['GameSlot']['game_start']}" > date('Y-m-d H:i:s')) {
+			$this->Session->setFlash(__('This game has not yet started.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'game' => $id));
+		}
+
+		if (empty($game['Stat'])) {
+			$this->Session->setFlash(__('No stats have been entered for this game.', true), 'default', array('class' => 'info'));
+			// Redirect coordinators to the stats entry page with whatever parameters were used here
+			if (in_array($game['Division']['id'], $this->Session->read('Zuluru.DivisionIDs'))) {
+				$this->redirect(array('action' => 'submit_stats', 'game' => $id, 'team' => $team_id));
+			}
+			// If there was no team ID given, check if one of the two teams is captained by the current user
+			if (!$team_id) {
+				$teams = array_intersect (array($game['Game']['home_team'], $game['Game']['away_team']), $this->Session->read('Zuluru.OwnedTeamIDs'));
+				$team_id = array_pop ($teams);
+			}
+			// If we have a team ID and we're a captain of that team, go to the stats entry page
+			if ($team_id && in_array($team_id, $this->Session->read('Zuluru.OwnedTeamIDs'))) {
+				$this->redirect(array('action' => 'submit_stats', 'game' => $id, 'team' => $team_id));
+			}
+			$this->redirect(array('action' => 'view', 'game' => $id));
+		}
+
+		$this->Configuration->loadAffiliate($game['Division']['League']['affiliate_id']);
+
+		// Team rosters may have changed since the game was played, so use the list of people with stats instead
+		foreach (array('HomeTeam', 'AwayTeam') as $key) {
+			$people = array_unique(Set::extract("/Stat[team_id={$game[$key]['id']}]/person_id", $game));
+			$game[$key]['Person'] = $this->Game->HomeTeam->Person->find('all', array(
+					'contain' => array(),
+					'conditions' => array('Person.id' => $people),
+			));
+			usort ($game[$key]['Person'], array('Person', 'comparePerson'));
+		}
+
+		if ($game['Game']['home_team'] == $team_id || $team_id === null) {
+			$team = $game['HomeTeam'];
+			$opponent = $game['AwayTeam'];
+		} else if ($game['Game']['away_team'] == $team_id) {
+			$team = $game['AwayTeam'];
+			$opponent = $game['HomeTeam'];
+		} else {
+			$this->Session->setFlash(__('That team is not playing in this game.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'game' => $id));
+		}
+
+		$this->set(compact('game', 'team_id', 'team', 'opponent'));
+
+		if ($this->params['url']['ext'] == 'csv') {
+			$this->set('download_file_name', "Stats - Game {$game['Game']['id']}");
+			Configure::write ('debug', 0);
+		}
+	}
+
 	function past() {
 		$team_ids = $this->Session->read('Zuluru.TeamIDs');
 		if (empty ($team_ids)) {
@@ -1662,7 +2003,7 @@ class GamesController extends AppController {
 				'AwayTeam.id', 'AwayTeam.name',
 			),
 			'contain' => array(
-				'Division' => array('Day'),
+				'Division' => array('Day', 'League'),
 				'GameSlot' => array('Field' => 'Facility'),
 				'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $team_ids)),
 				'HomeTeam',
@@ -1699,7 +2040,7 @@ class GamesController extends AppController {
 				'AwayTeam.id', 'AwayTeam.name',
 			),
 			'contain' => array(
-				'Division' => array('Day'),
+				'Division' => array('Day', 'League'),
 				'GameSlot' => array('Field' => 'Facility'),
 				'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $team_ids)),
 				'HomeTeam',

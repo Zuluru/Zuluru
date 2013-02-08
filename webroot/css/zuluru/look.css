@@ -292,3 +292,27 @@ dl .altrow
 {
 	color: red;
 }
+
+/* Stat page styling. */
+#zuluru .stat_games
+{
+}
+
+#zuluru .stat_game
+{
+}
+
+#zuluru .stat_total
+{
+	background-color: #fce5cd !important;
+}
+
+#zuluru .stat_per_game
+{
+	background-color: #cfe2f3 !important;
+}
+
+#zuluru .stat_season
+{
+	background-color: #d9ead3 !important;
+}

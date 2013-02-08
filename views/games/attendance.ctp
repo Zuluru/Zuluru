@@ -66,7 +66,13 @@ $can_annotate = Configure::read('feature.annotations') && in_array($team['id'], 
 <div class="actions">
 	<ul>
 		<?php if ($can_annotate): ?>
-		<li><?php echo $this->Html->link(__('Add Note', true), array('action' => 'note', 'game' => $game['Game']['id'])); ?> </li>
+		<li><?php echo $this->Html->link(__('Add Note', true), array('action' => 'note', 'game' => $game['Game']['id'])); ?></li>
+		<?php endif; ?>
+		<?php if ($is_captain && Configure::read('scoring.stat_tracking') && League::hasStats($game['Division']['League'])): ?>
+		<li><?php echo $this->ZuluruHtml->iconLink('pdf_32.png',
+					array('controller' => 'games', 'action' => 'stat_sheet', 'team' => $team['id'], 'game' => $game['Game']['id']),
+					array('alt' => __('Stat Sheet', true), 'title' => __('Stat Sheet', true)),
+					array('confirm' => __('This stat sheet will only include players who have indicated that they are playing, plus a couple of blank lines.\n\nFor a stat sheet with your full roster, use the link from the team view page.', true))); ?> </li>
 		<?php endif; ?>
 	</ul>
 </div>

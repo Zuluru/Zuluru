@@ -976,6 +976,10 @@ class AppController extends Controller {
 		if (($this->is_admin || $is_manager) && League::hasSpirit($team)) {
 			$this->_addMenuItem ('Spirit', array('controller' => 'teams', 'action' => 'spirit', 'team' => $team['Team']['id']), array('Teams', $key));
 		}
+		if ($this->is_logged_in && League::hasStats($team)) {
+			$this->_addMenuItem ('Stats', array('controller' => 'teams', 'action' => 'stats', 'team' => $team['Team']['id']), array('Teams', $key));
+			$this->_addMenuItem ('Download', array('controller' => 'teams', 'action' => 'stats', 'team' => $team['Team']['id'], 'ext' => 'csv'), array('Teams', $key, 'Stats'));
+		}
 	}
 
 	/**

@@ -33,6 +33,10 @@ class ZuluruGameHelper extends Helper {
 			$second_score = $details['away_score'];
 		}
 
+		// Check if one of the teams involved in the game is a team the current user is a captain of
+		$teams = array_intersect (array($details['home_team'], $details['away_team']), $this->Session->read('Zuluru.OwnedTeamIDs'));
+		$team_id = array_pop ($teams);
+
 		$links = array();
 		if (Game::_is_finalized($details)) {
 			if (in_array($details['status'], Configure::read('unplayed_status'))) {
@@ -43,11 +47,20 @@ class ZuluruGameHelper extends Helper {
 					echo ' (' . __('default', true) . ')';
 				}
 			}
-		} else {
-			// Check if one of the teams involved in the game is a team the current user is a captain of
-			$teams = array_intersect (array($details['home_team'], $details['away_team']), $this->Session->read('Zuluru.OwnedTeamIDs'));
-			$team_id = array_pop ($teams);
 
+			if (League::hasStats($league)) {
+				if ($team_id || $is_coordinator) {
+					$links[] = $this->Html->link(
+							__('Submit Stats', true),
+							array('controller' => 'games', 'action' => 'submit_stats', 'game' => $details['id'], 'team' => $team_id));
+				}
+				if ($this->params['controller'] != 'games' || $this->params['action'] != 'stats') {
+					$links[] = $this->ZuluruHtml->iconLink('stats_24.png',
+							array('controller' => 'games', 'action' => 'stats', 'game' => $details['id'], 'team' => $show_score_for_team),
+							array('alt' => __('Game Stats', true), 'title' => __('Game Stats', true)));
+				}
+			}
+		} else {
 			if (!empty ($score_entry)) {
 				$score_entry = array_shift ($score_entry);
 				if (in_array($score_entry['status'], Configure::read('unplayed_status'))) {

@@ -28,6 +28,9 @@
 			$this->Html->link(__('Schedule', true), array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['Team']['id'])) .
 			' / ' .
 			$this->Html->link(__('Standings', true), array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Team']['division_id'], 'team' => $team['Team']['id']));
+	if ($is_logged_in && Configure::read('scoring.stat_tracking') && League::hasStats($team['Division']['League'])) {
+		echo ' / ' . $this->Html->link(__('Stats', true), array('controller' => 'teams', 'action' => 'stats', 'team' => $team['Team']['id']));
+	}
 	if (Configure::read('feature.urls') && !empty ($team['Team']['website'])) {
 		echo ' / ' . $this->Html->link(__('Website', true), $team['Team']['website']);
 	}

@@ -74,6 +74,17 @@ class League extends AppModel {
 		)
 	);
 
+	var $hasAndBelongsToMany = array(
+		'StatType' => array(
+			'className' => 'StatType',
+			'joinTable' => 'leagues_stat_types',
+			'foreignKey' => 'league_id',
+			'associationForeignKey' => 'stat_type_id',
+			'unique' => true,
+			'order' => 'StatType.sort',
+		),
+	);
+
 	function _afterFind ($record) {
 		$this->_addNames($record[$this->alias]);
 		return $record;
@@ -231,6 +242,21 @@ class League extends AppModel {
 			}
 		}
 		return ($league['numeric_sotg'] || $league['sotg_questions'] != 'none');
+	}
+
+	static function hasStats($league) {
+		if (!Configure::read('scoring.stat_tracking')) {
+			return false;
+		} else if (array_key_exists('League', $league)) {
+			$league = $league['League'];
+		} else if (array_key_exists('Division', $league)) {
+			if (array_key_exists('League', $league['Division'])) {
+				$league = $league['Division']['League'];
+			} else {
+				return false;
+			}
+		}
+		return ($league['stat_tracking'] != 'never');
 	}
 
 	function readFinalizedGames($league) {

@@ -55,6 +55,11 @@ class Person extends User {
 			'foreignKey' => 'person_id',
 			'dependent' => true,
 		),
+		'Stat' => array(
+			'className' => 'Stat',
+			'foreignKey' => 'person_id',
+			'dependent' => true,
+		),
 	);
 
 	var $hasAndBelongsToMany = array(

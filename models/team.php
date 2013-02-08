@@ -110,6 +110,11 @@ class Team extends AppModel {
 			'foreignKey' => 'team_id',
 			'dependent' => true,
 		),
+		'Stat' => array(
+			'className' => 'Stat',
+			'foreignKey' => 'team_id',
+			'dependent' => true,
+		),
 	);
 
 	var $hasAndBelongsToMany = array(

@@ -79,6 +79,16 @@ echo $this->element('settings/banner');
 				'after' => 'To use this, you need to separately install the TinyMCE plugin.',
 			),
 		));
+		echo $this->element('settings/input', array(
+			'category' => 'feature',
+			'name' => 'pdfize',
+			'options' => array(
+				'type' => 'radio',
+				'label' => 'Use PDFize PDF converter plugin',
+				'options' => Configure::read('options.enable'),
+				'after' => 'To use this, you need to separately install the PDFize plugin.',
+			),
+		));
 	}
 	?>
 	</fieldset>

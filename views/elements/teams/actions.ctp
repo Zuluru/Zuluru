@@ -34,6 +34,13 @@ if ($team['division_id']) {
 			array('controller' => 'divisions', 'action' => 'standings', 'division' => $division['id'], 'team' => $team['id']),
 			array('alt' => __('Standings', true), 'title' => __('Standings', true)));
 	}
+	if ($this->params['controller'] != 'teams' || $this->params['action'] != 'stats') {
+		if ($is_logged_in && Configure::read('scoring.stat_tracking') && isset($league) && League::hasStats($league)) {
+			$links[] = $this->ZuluruHtml->iconLink("summary_{$size}.png",
+				array('controller' => 'teams', 'action' => 'stats', 'team' => $team['id']),
+				array('alt' => __('Stats', true), 'title' => __('View Team Stats', true)));
+		}
+	}
 }
 if (Configure::read('feature.attendance') && $team['track_attendance']) {
 	if ($is_captain) {

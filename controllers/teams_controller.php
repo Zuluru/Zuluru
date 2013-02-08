@@ -5,6 +5,23 @@ class TeamsController extends AppController {
 	var $helpers = array('ZuluruGame', 'Ajax');
 	var $components = array('Lock');
 
+	// The PDFize plugin is optional, so we can't rely on it being present and put it in the components array.
+	// But, because of how it functions, it does need to be initialized during the __construct phase.
+	function __construct(){
+		// But, at this time, the configuration hasn't been read from the database yet, so we can't use the
+		// feature.pdfize setting to determine whether to include it. So, we check for existence of the file
+		// and load it if it's there.
+		if (file_exists(APP . 'plugins' . DS . 'pdfize' . DS . 'controllers' . DS . 'components' . DS . 'pdf.php')){
+			$this->components['Pdfize.Pdf'] = array(
+				'actions' => array(),
+				'debug' => false,
+				'size' => 'letter',
+				'orientation' => 'portrait',
+			);
+		}
+		parent::__construct();
+	}
+
 	function publicActions() {
 		return array('cron', 'index', 'add', 'letter', 'view', 'tooltip', 'schedule', 'ical',
 			// Roster updates may come from emailed links; people might not be logged in
@@ -18,6 +35,7 @@ class TeamsController extends AppController {
 				'join',
 				'note',
 				'delete_note',
+				'stats',
 				'past_count',
 				'open_count',
 		)))
@@ -34,6 +52,7 @@ class TeamsController extends AppController {
 				'roster_position',
 				'roster_add',
 				'emails',
+				'stat_sheet',
 		)))
 		{
 			// If a team id is specified, check if we're a captain of that team
@@ -103,6 +122,7 @@ class TeamsController extends AppController {
 				'roster_request',
 				'roster_add',
 				'emails',
+				'stat_sheet',
 				'attendance',
 				'spirit',
 				'move',
@@ -137,6 +157,7 @@ class TeamsController extends AppController {
 		// People can perform these operations on divisions they coordinate
 		if (in_array ($this->params['action'], array(
 				'spirit',
+				'stat_sheet',
 		)))
 		{
 			// If a team id is specified, check if we're a coordinator of that team's division
@@ -767,6 +788,125 @@ class TeamsController extends AppController {
 				$this->set(compact('affiliate'));
 			}
 		}
+	}
+
+	function stats() {
+		$id = $this->_arg('team');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+		$contain = array(
+			'Division' => array(
+				'League' => array('StatType' => array('conditions' => array('StatType.type' => Configure::read('stat_types.team')))),
+				'Day',
+			),
+			'Person',
+		);
+		if (Configure::read('feature.annotations') && $this->params['url']['ext'] != 'csv') {
+			$contain['Note'] = array('conditions' => array('created_person_id' => $this->Auth->user('id')));
+		}
+		$this->Team->contain($contain);
+
+		$team = $this->Team->read(null, $id);
+		if (!$team) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+
+		if (!League::hasStats($team['Division']['League'])) {
+			$this->Session->setFlash(__('This league does not have stat tracking enabled.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'team' => $id));
+		}
+
+		$this->Configuration->loadAffiliate($team['Division']['League']['affiliate_id']);
+
+		$this->_limitOverride($id);
+
+		if (!empty($team['Team']['division_id'])) {
+			Configure::load("sport/{$team['Division']['League']['sport']}");
+		}
+
+		// Calculate some stats. We need to get stats from any team in this
+		// division, so that it properly handles subs and people who move teams.
+		$teams = $this->Team->find('list', array(
+				'conditions' => array('division_id' => $team['Division']['id']),
+		));
+		$stats = $this->Team->Stat->find('all', array(
+				'conditions' => array(
+					'person_id' => Set::extract('/Person/id', $team),
+					'team_id' => array_keys($teams),
+				),
+				'contain' => array(),
+		));
+		$team['Stat'] = array();
+		foreach ($stats as $stat) {
+			$team['Stat'][] = $stat['Stat'];
+		}
+
+		$sport_obj = $this->_getComponent ('Sport', $team['Division']['League']['sport'], $this);
+		foreach ($team['Division']['League']['StatType'] as $stat_type) {
+			switch ($stat_type['type']) {
+				case 'season_total':
+					$sport_obj->_season_total($stat_type, $team);
+					break;
+				case 'season_avg':
+					$sport_obj->_season_avg($stat_type, $team);
+					break;
+				case 'season_calc':
+					$func = "{$stat_type['handler']}_season";
+					if (method_exists($sport_obj, $func)) {
+						$sport_obj->$func($stat_type['id'], $team);
+					} else {
+						trigger_error("Season stat handler {$stat_type['handler']} was not found in the {$stat_type['sport']} component!", E_USER_ERROR);
+					}
+					break;
+			}
+		}
+
+		usort ($team['Person'], array('Team', 'compareRoster'));
+
+		$this->set('team', $team);
+		$this->set('is_captain', in_array($id, $this->Session->read('Zuluru.OwnedTeamIDs')));
+		$this->set('is_coordinator', in_array($team['Team']['division_id'], $this->Session->read('Zuluru.DivisionIDs')));
+		$this->_addTeamMenuItems ($team);
+
+		if ($this->params['url']['ext'] == 'csv') {
+			$this->set('download_file_name', "Stats - {$team['Team']['name']}");
+			Configure::write ('debug', 0);
+		}
+	}
+
+	function stat_sheet() {
+		$id = $this->_arg('team');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+		$contain = array(
+			'Division' => array(
+				'League' => array('StatType' => array('conditions' => array('StatType.type' => 'entered'))),
+			),
+			'Person',
+		);
+		$this->Team->contain($contain);
+
+		$team = $this->Team->read(null, $id);
+		if (!$team) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+
+		if (!League::hasStats($team['Division']['League'])) {
+			$this->Session->setFlash(__('This league does not have stat tracking enabled.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'team' => $id));
+		}
+
+		if (Configure::read('feature.pdfize') && isset($this->Pdf)) {
+			$this->Pdf->actionsToPdf = array($this->action);
+		}
+
+		$this->set(compact('team'));
 	}
 
 	function tooltip() {

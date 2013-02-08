@@ -123,6 +123,11 @@ class SettingsData {
 		),
 		array(
 			'category' => 'feature',
+			'name' => 'stat_tracking',
+			'value' => '0',
+		),
+		array(
+			'category' => 'feature',
 			'name' => 'photos',
 			'value' => '1',
 		),
@@ -169,6 +174,11 @@ class SettingsData {
 		array(
 			'category' => 'feature',
 			'name' => 'tiny_mce',
+			'value' => '0',
+		),
+		array(
+			'category' => 'feature',
+			'name' => 'pdfize',
 			'value' => '0',
 		),
 		array(

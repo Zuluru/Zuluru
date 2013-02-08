@@ -97,6 +97,12 @@ $config['options'] = array(
 		'always',
 	)),
 
+	'stat_tracking'			=> make_options(array(
+		'never',
+		'optional',
+		'always',
+	)),
+
 	'payment'				=> make_options(array(
 		'Unpaid',
 		'Pending',

@@ -686,3 +686,17 @@ div.help_dialog p
 	right: 5px;
 	font-size: 80%;
 }
+
+/* Stat sheet styling. */
+#zuluru .stat_sheet table
+{
+	border-collapse: collapse;
+	width: 100%;
+	margin-bottom: 1em;
+}
+
+#zuluru .stat_sheet th, #zuluru .stat_sheet td
+{
+	border: 1px solid #ccc !important;
+	background: transparent !important;
+}

@@ -90,7 +90,62 @@ if (isset ($add)) {
 			'default' => 17,
 			'after' => $this->Html->para (null, __('Used as the size of the ratings table.', true)),
 		));
+		if (Configure::read('scoring.stat_tracking')) {
+			echo $this->ZuluruForm->input('stat_tracking', array(
+				'options' => Configure::read('options.stat_tracking'),
+				'empty' => '---',
+				'after' => $this->Html->para (null, __('When to ask captains for game stats.', true)),
+			));
+?>
+		<div id="StatDetails">
+<?php
+			$entered = Set::extract('/StatType[type=entered]', $stat_types);
+			$entered = Set::combine($entered, '{n}.StatType.id', '{n}.StatType.name');
+
+			$game_calc = Set::extract('/StatType[type=game_calc]', $stat_types);
+			$game_calc = Set::combine($game_calc, '{n}.StatType.id', '{n}.StatType.name');
+
+			$season_total = Set::extract('/StatType[type=season_total]', $stat_types);
+			$season_total = Set::combine($season_total, '{n}.StatType.id', '{n}.StatType.name');
+
+			$season_avg = Set::extract('/StatType[type=season_avg]', $stat_types);
+			$season_avg = Set::combine($season_avg, '{n}.StatType.id', '{n}.StatType.name');
+
+			$season_calc = Set::extract('/StatType[type=season_calc]', $stat_types);
+			$season_calc = Set::combine($season_calc, '{n}.StatType.id', '{n}.StatType.name');
+
+			echo $this->ZuluruForm->input('StatType', array(
+				'label' => false,
+				'multiple' => 'checkbox',
+				'options' => array(
+					'Stats to enter' => $entered,
+					'Per-game calculated stats to display' => $game_calc,
+					'Stats to display season totals of' => $season_total,
+					'Stats to display season averages of' => $season_avg,
+					'Stats to display season calculated values for' => $season_calc,
+				),
+			));
+		}
 	?>
+		</div>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
+
+<?php
+echo $this->Html->scriptBlock("
+function trackingCheckboxChanged() {
+	setting = jQuery('#LeagueStatTracking').val();
+	if (setting == '' || setting == 'never') {
+		jQuery('#StatDetails').css('display', 'none');
+	} else {
+		jQuery('#StatDetails').css('display', '');
+	}
+}
+");
+
+$this->Js->buffer('
+jQuery("#LeagueStatTracking").change(function(){trackingCheckboxChanged();});
+trackingCheckboxChanged();
+');
+?>

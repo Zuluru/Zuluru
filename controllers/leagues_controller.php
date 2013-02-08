@@ -208,6 +208,17 @@ class LeaguesController extends AppController {
 			unset($this->data['League']['id']);
 		}
 
+		$sports = Configure::read('options.sport');
+		if (count($sports) == 1) {
+			$sport = array_shift(array_keys($sports));
+			$this->set('stat_types', $this->League->StatType->find('all', array(
+				'conditions' => array(
+					'sport' => $sport,
+				)
+			)));
+		} else {
+			// TODO: Limit by sport, presumably with JavaScript later on
+		}
 		$this->set('affiliates', $this->_applicableAffiliates(true));
 		$this->set('add', true);
 		$this->render ('edit');
@@ -229,7 +240,7 @@ class LeaguesController extends AppController {
 			}
 		}
 		if (empty($this->data)) {
-			$this->League->contain ();
+			$this->League->contain(array('StatType'));
 			$this->data = $this->League->read(null, $id);
 			if (!$this->data) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
@@ -238,6 +249,11 @@ class LeaguesController extends AppController {
 			$this->Configuration->loadAffiliate($this->data['League']['affiliate_id']);
 		}
 
+		$this->set('stat_types', $this->League->StatType->find('all', array(
+			'conditions' => array(
+				'sport' => $this->data['League']['sport'],
+			)
+		)));
 		$this->set('affiliates', $this->_applicableAffiliates(true));
 		$this->_addLeagueMenuItems ($this->League->data);
 	}
