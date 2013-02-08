@@ -33,6 +33,7 @@ class ZuluruGameHelper extends Helper {
 			$second_score = $details['away_score'];
 		}
 
+		$links = array();
 		if (Game::_is_finalized($details)) {
 			if (in_array($details['status'], Configure::read('unplayed_status'))) {
 				__($details['status']);
@@ -67,14 +68,14 @@ class ZuluruGameHelper extends Helper {
 				}
 
 				if ($team_id) {
-					echo $this->Html->link(
+					$links[] = $this->Html->link(
 							__('Edit score', true),
 							array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $team_id));
 
 					// Check if someone is a captain on both teams that played each other
 					$team_id = array_pop ($teams);
 					if ($team_id) {
-						echo $this->Html->link(
+						$links[] = $this->Html->link(
 								__('Submit', true),
 								array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $team_id));
 					}
@@ -85,7 +86,7 @@ class ZuluruGameHelper extends Helper {
 				// Allow score submissions up to an hour before scheduled game end time.
 				// Some people like to submit via mobile phone immediately, and games can end early.
 				if ($team_id) {
-					echo $this->Html->link(
+					$links[] = $this->Html->link(
 							__('Submit', true),
 							array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $team_id));
 				} else {
@@ -95,7 +96,7 @@ class ZuluruGameHelper extends Helper {
 				// Check if one of the teams involved in the game is a team the current user is on
 				$team_id = array_pop (array_intersect (array($details['home_team'], $details['away_team']), $this->Session->read('Zuluru.TeamIDs')));
 				if ($team_id) {
-					echo $this->Html->link(
+					$links[] = $this->Html->link(
 							__('iCal', true),
 							array('controller' => 'games', 'action' => 'ical', $details['id'], $team_id, 'game.ics'));
 				}
@@ -104,10 +105,13 @@ class ZuluruGameHelper extends Helper {
 
 		// Give admins, managers and coordinators the option to edit games
 		if ($is_admin || $is_manager || $is_coordinator) {
-			echo $this->ZuluruHtml->iconLink('edit_24.png',
+			$links[] = $this->ZuluruHtml->iconLink('edit_24.png',
 				array('controller' => 'games', 'action' => 'edit', 'game' => $details['id'], 'return' => true),
 				array('alt' => __('Edit', true), 'title' => __('Edit', true)));
 		}
+
+		echo $this->Html->tag('span', implode('', $links), array('class' => 'actions'));
+
 	}
 }
 
