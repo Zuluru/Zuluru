@@ -32,7 +32,7 @@ echo $this->element('teams/block', array('team' => $opponent, 'show_shirt' => fa
 <p><?php
 if (Game::_is_finalized($game)) {
 	$msg = 'The score for this game has been confirmed as %s %d, %s %d.';
-	if ($team_id == $game['HomeTeam']['id']) {
+	if ($team_id === null || $team_id == $game['HomeTeam']['id']) {
 		$this_team['score'] = $game['Game']['home_score'];
 		$opponent['score'] = $game['Game']['away_score'];
 	} else {
