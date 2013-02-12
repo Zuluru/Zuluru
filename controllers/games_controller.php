@@ -1490,7 +1490,7 @@ class GamesController extends AppController {
 				foreach ($calc_stats as $stat_type_id => $handler) {
 					$func = "{$handler}_game";
 					if (method_exists($sport_obj, $func)) {
-						$sport_obj->$func($stat_type_id, $game, $game['Division']['League'], $this->data);
+						$sport_obj->$func($stat_type_id, $game, $this->data);
 					} else {
 						trigger_error("Game stat handler $handler was not found in the {$game['Division']['League']['sport']} component!", E_USER_ERROR);
 					}
