@@ -21,6 +21,10 @@ function roster_position(url, options, container_div, position) {
 		} else {
 			jQuery(this).show();
 			jQuery(this).bind('click', function (event) {
+				roster_close_position();
+				if (!confirm('Are you sure? Not all roster changes are reversible.')) {
+					return false;
+				}
 				jQuery.ajax({
 					dataType: 'html',
 					type: 'POST',
@@ -34,7 +38,6 @@ function roster_position(url, options, container_div, position) {
 					url: url
 				});
 				container_div.html('...');
-				roster_close_position();
 				return false;
 			});
 		}
