@@ -456,3 +456,4 @@ if (Configure::read('personal.enable_ical')) {
 </div>
 
 <?php echo $this->element('games/attendance_div'); ?>
+<?php echo $this->element('people/roster_div'); ?>

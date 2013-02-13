@@ -45,3 +45,5 @@ endforeach;
 		<li><?php echo $this->Html->link(sprintf(__('Download %s List', true), __('Participation', true)), array('action' => 'participation', 'league' => $league['League']['id'], 'ext' => 'csv')); ?> </li>
 	</ul>
 </div>
+
+<?php echo $this->element('people/roster_div'); ?>

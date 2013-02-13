@@ -346,3 +346,4 @@ $this->Html->addCrumb (__('View', true));
 <?php endif; ?>
 
 <?php echo $this->element('people/number_div'); ?>
+<?php echo $this->element('people/roster_div'); ?>

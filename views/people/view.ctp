@@ -442,3 +442,5 @@ echo $person['Person']['full_name'];
 	</div>
 </div>
 <?php endif; ?>
+
+<?php echo $this->element('people/roster_div'); ?>

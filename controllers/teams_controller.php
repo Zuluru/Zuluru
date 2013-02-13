@@ -1823,14 +1823,25 @@ class TeamsController extends AppController {
 		list ($team, $person) = $this->_initTeamForRosterChange($person_id);
 		$team_id = $team['Team']['id'];
 
+		if ($this->RequestHandler->isAjax()) {
+			$this->action = 'roster_position_ajax';
+			$this->set('success', false);
+		}
+
 		if (empty ($person)) {
 			$this->Session->setFlash(__('This player is not on this team.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
 		$position = $person['Person']['TeamsPerson']['position'];
+		$roster_options = $this->_rosterOptions ($position, $team, $person_id);
+		$this->set(compact('person', 'team', 'position', 'roster_options'));
+
 		if ($person['Person']['TeamsPerson']['status'] != ROSTER_APPROVED) {
 			$this->Session->setFlash(__('A player\'s position on a team cannot be changed until they have been approved on the roster.', true), 'default', array('class' => 'info'));
+			if ($this->RequestHandler->isAjax()) {
+				return;
+			}
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
@@ -1838,11 +1849,12 @@ class TeamsController extends AppController {
 		if ($position == 'captain') {
 			if (count (Set::extract ('/Person/TeamsPerson[position=captain][status=' . ROSTER_APPROVED . ']', $team)) == 1) {
 				$this->Session->setFlash(__('All teams must have at least one player as captain.', true), 'default', array('class' => 'info'));
+			if ($this->RequestHandler->isAjax()) {
+				return;
+			}
 				$this->redirect(array('action' => 'view', 'team' => $team_id));
 			}
 		}
-
-		$roster_options = $this->_rosterOptions ($position, $team, $person_id);
 
 		if (!empty($this->data)) {
 			if (!array_key_exists ($this->data['Person']['position'], $roster_options)) {
@@ -1852,12 +1864,19 @@ class TeamsController extends AppController {
 					if ($person_id == $my_id) {
 						$this->_deleteTeamSessionData();
 					}
-					$this->redirect(array('action' => 'view', 'team' => $team['Team']['id']));
+					if ($this->RequestHandler->isAjax()) {
+						$this->set(array(
+							'success' => true,
+							'position' => $this->data['Person']['position'],
+						));
+						// These get overwritten by _setRosterPosition and needs to be reset
+						$this->set(compact('person', 'team'));
+					} else {
+						$this->redirect(array('action' => 'view', 'team' => $team['Team']['id']));
+					}
 				}
 			}
 		}
-
-		$this->set(compact('person', 'team', 'position', 'roster_options'));
 	}
 
 	function roster_add() {

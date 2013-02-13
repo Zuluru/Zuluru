@@ -3,7 +3,7 @@
 // of admins when managing teams they are on.
 $effective_admin = false;
 if ($is_admin) {
-	$on_team = in_array ($roster['team_id'], $this->Session->read('Zuluru.TeamIDs'));
+	$on_team = $this->Session->check('Zuluru.TeamIDs') && in_array ($roster['team_id'], $this->Session->read('Zuluru.TeamIDs'));
 	if (!$on_team) {
 		$effective_admin = true;
 	}
@@ -20,12 +20,24 @@ $permission = ($effective_admin ||
 $approved = ($roster['status'] == ROSTER_APPROVED);
 
 if ($permission && $approved) {
-	echo $this->Html->link(__(Configure::read("options.roster_position.{$roster['position']}"), true), array(
-			'controller' => 'teams',
-			'action' => 'roster_position',
-			'team' => $roster['team_id'],
-			'person' => $roster['person_id'],
-			'return' => true,
+	$url = array(
+		'controller' => 'teams',
+		'action' => 'roster_position',
+		'team' => $roster['team_id'],
+		'person' => $roster['person_id'],
+		'return' => true,
+	);
+	$url_string = Router::url($url);
+
+	$options = Configure::read('options.roster_position');
+	$option_strings = array();
+	foreach ($options as $key => $value) {
+		$option_strings[] = "$key: '$value'";
+	}
+	$option_string = '{' . implode(', ', $option_strings) . '}';
+
+	echo $this->Html->link(__(Configure::read("options.roster_position.{$roster['position']}"), true), $url, array(
+		'onClick' => "return roster_position('$url_string', $option_string, jQuery(this), '{$roster['position']}');",
 	));
 } else {
 	__(Configure::read("options.roster_position.{$roster['position']}"));

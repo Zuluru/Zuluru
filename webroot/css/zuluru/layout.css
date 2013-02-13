@@ -452,8 +452,8 @@ div.related
 	float: right;
 }
 
-/* Attendance styling. */
-#attendance_options
+/* Attendance and roster change styling. */
+#attendance_options, #roster_options
 {
 	cursor: pointer;
 	position: absolute;
@@ -461,7 +461,7 @@ div.related
 	padding: 0 1px;
 	border: 1px solid black;
 }
-#attendance_options div:hover
+#attendance_options div:hover, #roster_options div:hover
 {
 	background-color: #cccccc;
 }
