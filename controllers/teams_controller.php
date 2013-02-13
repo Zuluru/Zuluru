@@ -51,6 +51,7 @@ class TeamsController extends AppController {
 				'add_from_team',
 				'roster_position',
 				'roster_add',
+				'numbers',
 				'emails',
 				'stat_sheet',
 		)))
@@ -66,6 +67,7 @@ class TeamsController extends AppController {
 		if (in_array ($this->params['action'], array(
 				'roster_position',
 				'roster_request',
+				'numbers',
 		)))
 		{
 			// If a player id is specified, check if it's the logged-in user
@@ -121,6 +123,7 @@ class TeamsController extends AppController {
 				'roster_position',
 				'roster_request',
 				'roster_add',
+				'numbers',
 				'emails',
 				'stat_sheet',
 				'attendance',
@@ -144,6 +147,7 @@ class TeamsController extends AppController {
 				'add_from_event',
 				'roster_add',
 				'roster_position',
+				'numbers',
 		)))
 		{
 			// If a team id is specified, check if we're a coordinator of that team's division
@@ -788,6 +792,95 @@ class TeamsController extends AppController {
 				$this->set(compact('affiliate'));
 			}
 		}
+	}
+
+	function numbers() {
+		if (!Configure::read('feature.shirt_numbers')) {
+			$this->Session->setFlash(__('Shirt numbers are not enabled on this system.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+
+		$id = $this->_arg('team');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+		$this->Team->contain(array(
+			'Division' => array('League'),
+			'Person',
+		));
+
+		$team = $this->Team->read(null, $id);
+		if (!$team) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+		$is_captain = in_array($id, $this->Session->read('Zuluru.OwnedTeamIDs'));
+
+		$person_id = $this->_arg('person');
+		if ($person_id) {
+			$person = Set::extract("/Person[id=$person_id]/.", $team);
+			if (empty($person)) {
+				$this->Session->setFlash(__('That player is not on this team.', true), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'view', 'team' => $id));
+			}
+			$person = array_shift($person);
+		} else if (!$this->effective_admin && !$this->effective_coordinator && !$is_captain) {
+			$this->Session->setFlash(__('You do not have permission to set shirt numbers for this team.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'team' => $id));
+		}
+
+		$this->_limitOverride($id);
+		usort ($team['Person'], array('Team', 'compareRoster'));
+
+		$this->set(compact('team', 'is_captain', 'person_id', 'person'));
+
+		if (!empty($this->data)) {
+			if ($this->RequestHandler->isAjax()) {
+				$this->action = 'numbers_ajax';
+			}
+
+			// Find the database IDs that go with the specified people. We don't trust putting
+			// them in the form, as data could be spoofed to override other numbers.
+			foreach ($this->data['TeamsPerson'] as $key => $record) {
+				if ($person_id) {
+					$roster_id = Set::extract("/Person/TeamsPerson[person_id={$person_id}]/id", $team);
+				} else {
+					$roster_id = Set::extract("/Person/TeamsPerson[person_id={$record['person_id']}]/id", $team);
+				}
+				if (empty($roster_id)) {
+					$this->Session->setFlash(__('You cannot set shirt numbers for someone not on this team.', true), 'default', array('class' => 'info'));
+					if ($this->RequestHandler->isAjax()) {
+						return;
+					}
+					$this->redirect(array('action' => 'view', 'team' => $id));
+				}
+				$this->data['TeamsPerson'][$key]['id'] = $roster_id[0];
+			}
+			if ($this->Team->TeamsPerson->saveAll($this->data['TeamsPerson'], array('validate' => 'first'))) {
+				if ($this->RequestHandler->isAjax()) {
+					$this->set('number', $this->data['TeamsPerson'][0]['number']);
+					return;
+				}
+				if ($person_id) {
+					$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('number', true)), 'default', array('class' => 'success'));
+				} else {
+					$this->Session->setFlash(sprintf(__('The %s have been saved', true), __('numbers', true)), 'default', array('class' => 'success'));
+				}
+				$this->redirect(array('action' => 'view', 'team' => $id));
+			} else {
+				if ($this->RequestHandler->isAjax()) {
+					return;
+				}
+				if ($person_id) {
+					$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('number', true)), 'default', array('class' => 'warning'));
+				} else {
+					$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('numbers', true)), 'default', array('class' => 'warning'));
+				}
+			}
+		}
+
+		$this->_addTeamMenuItems ($team);
 	}
 
 	function stats() {

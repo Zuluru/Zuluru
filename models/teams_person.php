@@ -2,6 +2,14 @@
 class TeamsPerson extends AppModel {
 	var $name = 'TeamsPerson';
 
+	var $validate = array(
+		'name' => array(
+			'notempty' => array(
+				'rule' => array('numeric'),
+			),
+		),
+	);
+
 	var $belongsTo = array(
 		'Team' => array(
 			'className' => 'Team',

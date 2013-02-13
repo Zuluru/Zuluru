@@ -176,12 +176,20 @@ $this->Html->addCrumb (__('View', true));
 </div>
 <div class="actions">
 	<?php
+	$extra = array();
 	if ($is_captain && Configure::read('scoring.stat_tracking') && League::hasStats($team['Division']['League'])) {
-		$extra = $this->ZuluruHtml->iconLink('pdf_32.png',
+		$extra[] = $this->ZuluruHtml->iconLink('pdf_32.png',
 				array('action' => 'stat_sheet', 'team' => $team['Team']['id']),
 				array('alt' => __('Stat Sheet', true), 'title' => __('Stat Sheet', true)));
-	} else {
-		$extra = null;
+	}
+
+	$has_numbers = false;
+	$numbers = array_unique(Set::extract('/Person/TeamsPerson/number', $team));
+	if (Configure::read('feature.shirt_numbers') && count($numbers) > 1 && $numbers[0] !== null) {
+		$has_numbers = true;
+	}
+	if (Configure::read('feature.shirt_numbers') && !$has_numbers && ($is_effective_admin || $is_effective_coordinator || $is_captain)) {
+		$extra[] = $this->ZuluruHtml->link(__('Jersey Numbers', true), array('action' => 'numbers', 'team' => $team['Team']['id']));
 	}
 	echo $this->element('teams/actions', array('team' => $team['Team'], 'division' => $team['Division'], 'league' => $team['Division']['League'], 'format' => 'list', 'extra' => $extra));
 	?>
@@ -195,6 +203,12 @@ $this->Html->addCrumb (__('View', true));
 	?>
 	<table class="list">
 	<tr>
+		<?php if ($has_numbers): ?>
+		<th><?php __('Number'); ?></th>
+		<?php
+			++$cols;
+		endif;
+		?>
 		<th><?php __('Name'); ?></th>
 		<th><?php __('Position'); ?></th>
 		<th><?php __('Gender'); ?></th>
@@ -271,6 +285,9 @@ $this->Html->addCrumb (__('View', true));
 			}
 	?>
 	<tr<?php echo $class;?>>
+		<?php if ($has_numbers): ?>
+		<td><?php echo $this->element('people/number', compact('person')); ?></td>
+		<?php endif; ?>
 		<td><?php
 		echo $this->element('people/block', compact('person'));
 		if (!empty ($conflicts)) {
@@ -305,13 +322,16 @@ $this->Html->addCrumb (__('View', true));
 		}
 	?>
 	<tr<?php echo $class;?>>
+		<?php if ($has_numbers): ?>
+		<td></td>
+		<?php endif; ?>
 		<td colspan="3"><?php __('Average Skill Rating') ?></td>
 		<td><?php printf("%.2f", $skill_total / $skill_count) ?></td>
 		<?php if ($is_admin || $is_coordinator) echo '<td></td>'; ?>
 		<td></td>
 	</tr>
 	<?php endif; ?>
-</table>
+	</table>
 
 	<?php if (($is_admin || $is_coordinator || $is_captain) && $roster_count < $roster_required && !Division::rosterDeadlinePassed($team['Division'])):?>
 	<p class="warning-message">
@@ -324,3 +344,5 @@ $this->Html->addCrumb (__('View', true));
 
 </div>
 <?php endif; ?>
+
+<?php echo $this->element('people/number_div'); ?>

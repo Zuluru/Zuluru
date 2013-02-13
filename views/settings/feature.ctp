@@ -118,6 +118,15 @@ echo $this->element('settings/banner');
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'feature',
+		'name' => 'shirt_numbers',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'after' => 'Enable or disable everything to do with shirt numbers. If enabled here, teams can still opt not to use this feature.',
+		),
+	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
 		'name' => 'attendance',
 		'options' => array(
 			'type' => 'radio',

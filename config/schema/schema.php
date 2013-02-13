@@ -616,6 +616,7 @@ class ZuluruSchema extends CakeSchema {
 		'team_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
 		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
 		'position' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 16),
+		'number' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'status' => array('type' => 'integer', 'null' => false, 'default' => '0'),
 		'created' => array('type' => 'date', 'null' => true, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'full' => array('column' => array('team_id', 'person_id'), 'unique' => 0)),
