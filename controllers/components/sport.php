@@ -11,6 +11,10 @@ class SportComponent extends Object
 	var $rosters = null;
 	var $stat_types = null;
 
+	function __construct(&$controller) {
+		$this->_controller =& $controller;
+	}
+
 	function _init_rosters($stats) {
 		if ($this->rosters) {
 			return;
@@ -143,6 +147,15 @@ class SportComponent extends Object
 		}
 	}
 
+	function wins_game_recalc($stat_type_id, $data) {
+		foreach (array('home', 'away') as $team) {
+			$this->_controller->Game->Stat->updateAll(
+					array('Stat.value' => $this->_is_win($data, $data['Game']["{$team}_team"])),
+					array('Stat.stat_type_id' => $stat_type_id, 'Stat.game_id' => $data['Game']['id'], 'Stat.team_id' => $data['Game']["{$team}_team"])
+			);
+		}
+	}
+
 	function wins_season($stat_type_id, &$stats) {
 		$win_id = $this->_stat_type_id('Wins');
 		$tie_id = $this->_stat_type_id('Ties');
@@ -177,10 +190,24 @@ class SportComponent extends Object
 			} else {
 				return 0;
 			}
+		} else if (array_key_exists($team_id, $game['ScoreEntry'])) {
+			// Use our score entry
+			if ($game['ScoreEntry'][$team_id]['score_for'] > $game['ScoreEntry'][$team_id]['score_against']) {
+				return 1;
+			} else {
+				return 0;
+			}
+		} else if (!empty($game['ScoreEntry'])) {
+			// Must be an entry from the other team
+			$entry = array_shift($game['ScoreEntry']);
+			if ($entry['score_for'] < $entry['score_against']) {
+				return 1;
+			} else {
+				return 0;
+			}
 		} else {
-			pr($team_id);
-			pr($game['ScoreEntry']);
-			trigger_error('Handle score entries', E_USER_ERROR);
+			// Return a 0 and trust that it will be corrected later
+			return 0;
 		}
 	}
 
@@ -200,6 +227,15 @@ class SportComponent extends Object
 		}
 	}
 
+	function losses_game_recalc($stat_type_id, $data) {
+		foreach (array('home', 'away') as $team) {
+			$this->_controller->Game->Stat->updateAll(
+					array('Stat.value' => $this->_is_loss($data, $data['Game']["{$team}_team"])),
+					array('Stat.stat_type_id' => $stat_type_id, 'Stat.game_id' => $data['Game']['id'], 'Stat.team_id' => $data['Game']["{$team}_team"])
+			);
+		}
+	}
+
 	function _is_loss($game, $team_id) {
 		if (Game::_is_finalized($game)) {
 			if (($team_id == $game['Game']['home_team'] && $game['Game']['home_score'] < $game['Game']['away_score']) ||
@@ -209,10 +245,24 @@ class SportComponent extends Object
 			} else {
 				return 0;
 			}
+		} else if (array_key_exists($team_id, $game['ScoreEntry'])) {
+			// Use our score entry
+			if ($game['ScoreEntry'][$team_id]['score_for'] < $game['ScoreEntry'][$team_id]['score_against']) {
+				return 1;
+			} else {
+				return 0;
+			}
+		} else if (!empty($game['ScoreEntry'])) {
+			// Must be an entry from the other team
+			$entry = array_shift($game['ScoreEntry']);
+			if ($entry['score_for'] > $entry['score_against']) {
+				return 1;
+			} else {
+				return 0;
+			}
 		} else {
-			pr($team_id);
-			pr($game['ScoreEntry']);
-			trigger_error('Handle score entries', E_USER_ERROR);
+			// Return a 0 and trust that it will be corrected later
+			return 0;
 		}
 	}
 
@@ -232,6 +282,15 @@ class SportComponent extends Object
 		}
 	}
 
+	function ties_game_recalc($stat_type_id, $data) {
+		foreach (array('home', 'away') as $team) {
+			$this->_controller->Game->Stat->updateAll(
+				array('Stat.value' => $this->_is_tie($data, $data['Game']["{$team}_team"])),
+					array('Stat.stat_type_id' => $stat_type_id, 'Stat.game_id' => $data['Game']['id'], 'Stat.team_id' => $data['Game']["{$team}_team"])
+			);
+		}
+	}
+
 	function _is_tie($game, $team_id) {
 		if (Game::_is_finalized($game)) {
 			if ($game['Game']['home_score'] == $game['Game']['away_score']) {
@@ -239,10 +298,16 @@ class SportComponent extends Object
 			} else {
 				return 0;
 			}
+		} else if (!empty($game['ScoreEntry'])) {
+			$entry = array_shift($game['ScoreEntry']);
+			if ($entry['score_for'] == $entry['score_against']) {
+				return 1;
+			} else {
+				return 0;
+			}
 		} else {
-			pr($team_id);
-			pr($game['ScoreEntry']);
-			trigger_error('Handle score entries', E_USER_ERROR);
+			// Return a 0 and trust that it will be corrected later
+			return 0;
 		}
 	}
 }

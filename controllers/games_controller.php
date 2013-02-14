@@ -345,10 +345,10 @@ class GamesController extends AppController {
 				}
 			}
 
-			$this->_adjustScoreAndRatings($game, $this->data);
-
 			// Wrap the whole thing in a transaction, for safety.
 			$transaction = new DatabaseTransaction($this->Game);
+
+			$this->_adjustScoreAndRatings($game, $this->data);
 
 			if ($this->Game->Allstar->deleteAll(array('game_id' => $id))) {
 				if ($this->Game->saveAll($this->data, array('validate' => 'first'))) {
@@ -1780,6 +1780,35 @@ class GamesController extends AppController {
 		// Finalize the rating change if we've just updated the score
 		if ($data['Game']['home_score'] != $game['Game']['home_score'] || $data['Game']['away_score'] != $game['Game']['away_score']) {
 			$this->_modifyTeamRatings($game, $data);
+
+			// If this league has stat tracking, we may need to update some calculated stats
+			if (League::hasStats($game)) {
+				if (($game['Game']['home_score'] < $game['Game']['away_score'] && $data['Game']['home_score'] >= $data['Game']['away_score']) ||
+					($game['Game']['home_score'] > $game['Game']['away_score'] && $data['Game']['home_score'] <= $data['Game']['away_score']) ||
+					($game['Game']['home_score'] == $game['Game']['away_score'] && $data['Game']['home_score'] != $data['Game']['away_score']))
+				{
+					$calc_stats = $this->Game->Division->League->StatType->find('list', array(
+							'contain' => array(),
+							'conditions' => array(
+								'StatType.type' => 'game_calc',
+								'StatType.sport' => $game['Division']['League']['sport'],
+							),
+							'fields' => array('id', 'handler'),
+					));
+					$sport_obj = $this->_getComponent ('Sport', $game['Division']['League']['sport'], $this);
+
+					// Need to copy a bit of data around in the submitted array to match function expectations
+					$data['Game']['home_team'] = $data['HomeTeam']['id'];
+					$data['Game']['away_team'] = $data['AwayTeam']['id'];
+
+					foreach ($calc_stats as $stat_type_id => $handler) {
+						$func = "{$handler}_game_recalc";
+						if (method_exists($sport_obj, $func)) {
+							$sport_obj->$func($stat_type_id, $data);
+						}
+					}
+				}
+			}
 		}
 	}
 
