@@ -123,8 +123,8 @@ function centerByAddress(id, result, status)
 
 	fields[id].latitude = position.lat();
 	fields[id].longitude = position.lng();
-	fields[id].length = maxLength();
-	fields[id].width = maxWidth();
+	fields[id].length = defaultLength();
+	fields[id].width = defaultWidth();
 	fields[id].angle = 0;
 
 	map.setCenter(position);
@@ -138,16 +138,21 @@ function centerByAddress(id, result, status)
 function redraw()
 {
 	fields[current].field_outline.setPath(outlinePositions(current));
-	fields[current].field_inline.setPath(inlinePositions(current));
+	// Assumption here is that we're always dealing with the same
+	// types of fields and hence the same number of inlines
+	var inlines = inlinePositions(current);
+	for (var i = 0; i < inlines.length; i++) {
+		fields[current].field_inlines[i].setPath(inlines[i]);
+	}
 }
 
 function updateAngle(val)
 {
 	fields[current].angle += val;
-	if (fields[current].angle <= -90)
-		fields[current].angle += 180;
-	if (fields[current].angle > 90)
-		fields[current].angle -= 180;
+	if (fields[current].angle <= -180)
+		fields[current].angle += 360;
+	if (fields[current].angle > 180)
+		fields[current].angle -= 360;
 	redraw();
 
 	updateForm();

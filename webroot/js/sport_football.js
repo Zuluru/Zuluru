@@ -1,11 +1,13 @@
 //
-// Ultimate-specific functions
+// Football-specific functions
+//
+// This uses CFL dimensions; need a clean way to differentiate from NFL
 //
 
-function maxLength() { return 120; }
+function maxLength() { return 150; }
 function defaultLength() { return maxLength(); }
 function minLength() { return 50; }
-function maxWidth() { return 40; }
+function maxWidth() { return 65; }
 function defaultWidth() { return maxWidth(); }
 function minWidth() { return 25; }
 
@@ -16,7 +18,7 @@ function fieldLength(length)
 
 function endzoneLength(length)
 {
-	return Math.floor(length * 50 / 120 / 2);
+	return Math.floor(length * 40 / 150 / 2);
 }
 
 function layoutText(id)
@@ -25,7 +27,7 @@ function layoutText(id)
 		return null;
 	}
 	return '<p>Field width: ' + fields[id].width + ' yards' +
-			'<br>Playing Field Proper length: ' + fieldLength(fields[id].length) + ' yards' +
+			'<br>Playing Field length: ' + fieldLength(fields[id].length) + ' yards' +
 			'<br>End Zone length: ' + endzoneLength(fields[id].length) + ' yards';
 }
 
@@ -55,8 +57,12 @@ function inlinePositions(id)
 	bb[0][1] = makePosition(bb[0][0], fields[id].width, 0 - fields[id].angle);
 
 	bb[1] = new Array;
-	bb[1][0] = makePosition(side, length / 2, 90 - fields[id].angle);
+	bb[1][0] = side;
 	bb[1][1] = makePosition(bb[1][0], fields[id].width, 0 - fields[id].angle);
+
+	bb[2] = new Array;
+	bb[2][0] = makePosition(side, length / 2, 90 - fields[id].angle);
+	bb[2][1] = makePosition(bb[2][0], fields[id].width, 0 - fields[id].angle);
 
 	return bb;
 }

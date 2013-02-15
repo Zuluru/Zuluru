@@ -1,9 +1,9 @@
 <?php echo $this->element('maps/edit/common', array('even_length' => true)); ?>
 
-<p>Playing Field Proper:
+<p>Field of Play:
 <span id="show_field"></span>
 </p>
 
-<p>End zone:
-<span id="show_endzone"></span>
+<p>In Goal Area:
+<span id="show_ingoal"></span>
 </p>

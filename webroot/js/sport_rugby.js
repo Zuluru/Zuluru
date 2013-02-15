@@ -1,22 +1,25 @@
 //
-// Ultimate-specific functions
+// Rugby-specific functions
 //
 
-function maxLength() { return 120; }
+function maxLength() { return 134; }
 function defaultLength() { return maxLength(); }
-function minLength() { return 50; }
-function maxWidth() { return 40; }
+function minLength() { return 60; }
+function maxWidth() { return 74; }
 function defaultWidth() { return maxWidth(); }
-function minWidth() { return 25; }
+function minWidth() { return 35; }
 
 function fieldLength(length)
 {
-	return length - endzoneLength(length) * 2;
+	return length - inGoalLength(length) * 2;
 }
 
-function endzoneLength(length)
+function inGoalLength(length)
 {
-	return Math.floor(length * 50 / 120 / 2);
+	if (length >= 122) {
+		return Math.floor((length - 110) / 2);
+	}
+	return 6;
 }
 
 function layoutText(id)
@@ -25,8 +28,8 @@ function layoutText(id)
 		return null;
 	}
 	return '<p>Field width: ' + fields[id].width + ' yards' +
-			'<br>Playing Field Proper length: ' + fieldLength(fields[id].length) + ' yards' +
-			'<br>End Zone length: ' + endzoneLength(fields[id].length) + ' yards';
+			'<br>Field of Play length: ' + fieldLength(fields[id].length) + ' yards' +
+			'<br>In Goal Area length: ' + inGoalLength(fields[id].length) + ' yards';
 }
 
 function outlinePositions(id)
@@ -67,7 +70,7 @@ function updateForm()
 	jQuery('#show_width').html(fields[current].width);
 	jQuery('#show_length').html(fields[current].length);
 	jQuery('#show_field').html(fieldLength(fields[current].length));
-	jQuery('#show_endzone').html(endzoneLength(fields[current].length));
+	jQuery('#show_ingoal').html(inGoalLength(fields[current].length));
 }
 
 function saveField()
