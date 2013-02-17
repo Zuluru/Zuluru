@@ -25,7 +25,6 @@ function attendance_status(url, options, container_div, dedicated, future, comme
 		var id = jQuery(this).attr('id');
 		var pos = id.lastIndexOf('_');
 		var status = id.substr(pos+1);
-		var func = func_map[status];
 		window[func_map[status]](url, status, options, container_div, jQuery(this), dedicated, future, comment);
 	});
 
