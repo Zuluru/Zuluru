@@ -13,6 +13,17 @@ $config['sport'] = array(
 		'co-ed'	=> 8,
 	),
 
+	'positions' => array(
+		'unspecified' => 'Unspecified',
+		'Guard' => 'Guard',
+		'Forward' => 'Forward',
+		'Center' => 'Center',
+		'Point Guard' => 'Point Guard',
+		'Shooting Guard' => 'Shooting Guard',
+		'Small Forward' => 'Small Forward',
+		'Power Forward' => 'Power Forward',
+	),
+
 	'rating_questions' => false,
 );
 

@@ -50,6 +50,7 @@ class TeamsController extends AppController {
 				'add_player',
 				'add_from_team',
 				'roster_role',
+				'roster_position',
 				'roster_add',
 				'numbers',
 				'emails',
@@ -66,6 +67,7 @@ class TeamsController extends AppController {
 		// People can perform these operations on their own account
 		if (in_array ($this->params['action'], array(
 				'roster_role',
+				'roster_position',
 				'roster_request',
 				'numbers',
 		)))
@@ -121,6 +123,7 @@ class TeamsController extends AppController {
 				'add_from_team',
 				'add_from_event',
 				'roster_role',
+				'roster_position',
 				'roster_request',
 				'roster_add',
 				'numbers',
@@ -147,6 +150,7 @@ class TeamsController extends AppController {
 				'add_from_event',
 				'roster_add',
 				'roster_role',
+				'roster_position',
 				'numbers',
 		)))
 		{
@@ -1874,6 +1878,63 @@ class TeamsController extends AppController {
 					} else {
 						$this->redirect(array('action' => 'view', 'team' => $team['Team']['id']));
 					}
+				}
+			}
+		}
+	}
+
+	function roster_position() {
+		$person_id = $this->_arg('person');
+		$my_id = $this->Auth->user('id');
+		if (!$person_id) {
+			$person_id = $my_id;
+			if (!$person_id) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('player', true)), 'default', array('class' => 'info'));
+				$this->redirect('/');
+			}
+		}
+
+		list ($team, $person) = $this->_initTeamForRosterChange($person_id);
+		$team_id = $team['Team']['id'];
+
+		if ($this->RequestHandler->isAjax()) {
+			$this->action = 'roster_position_ajax';
+			$this->set('success', false);
+		}
+
+		if (empty ($person)) {
+			$this->Session->setFlash(__('This player is not on this team.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'team' => $team_id));
+		}
+
+		if (!empty($team['Team']['division_id'])) {
+			Configure::load("sport/{$team['Division']['League']['sport']}");
+		}
+		$position = $person['Person']['TeamsPerson']['position'];
+		$roster_position_options = Configure::read('sport.positions');
+		$this->set(compact('person', 'team', 'position', 'roster_position_options'));
+
+		if (!empty($this->data)) {
+			if (!array_key_exists ($this->data['Person']['position'], $roster_position_options)) {
+				$this->Session->setFlash(__('That is not a valid position.', true), 'default', array('class' => 'info'));
+			} else {
+				$this->Roster = ClassRegistry::init ('TeamsPerson');
+				$this->Roster->id = $person['Person']['TeamsPerson']['id'];
+				if ($this->Roster->saveField ('position', $this->data['Person']['position'])) {
+					if (in_array ($team_id, $this->Session->read('Zuluru.TeamIDs'))) {
+						$this->_deleteTeamSessionData();
+					}
+					if ($this->RequestHandler->isAjax()) {
+						$this->set(array(
+							'success' => true,
+							'position' => $this->data['Person']['position'],
+						));
+					} else {
+						$this->Session->setFlash(__('Changed the player\'s position.', true), 'default', array('class' => 'success'));
+						$this->redirect(array('action' => 'view', 'team' => $team['Team']['id']));
+					}
+				} else {
+					$this->Session->setFlash(__('Failed to change the player\'s position.', true), 'default', array('class' => 'warning'));
 				}
 			}
 		}

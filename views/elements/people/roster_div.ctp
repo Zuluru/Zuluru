@@ -7,6 +7,14 @@ foreach ($roles as $key => $role) {
 }
 ?>
 </div>
+<div id="roster_position_options" style="display: none;">
+<?php
+$positions = Configure::read('sport.positions');
+foreach ($positions as $key => $position) {
+	echo $this->Html->tag('div', __($position, true), array('id' => "roster_position_option_$key"));
+}
+?>
+</div>
 
 <?php
 $this->ZuluruHtml->script ('roster', array('inline' => false));

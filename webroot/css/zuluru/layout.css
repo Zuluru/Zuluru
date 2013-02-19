@@ -453,7 +453,7 @@ div.related
 }
 
 /* Attendance and roster change styling. */
-#attendance_options, #roster_role_options
+#attendance_options, #roster_role_options, #roster_position_options
 {
 	cursor: pointer;
 	position: absolute;
@@ -461,7 +461,7 @@ div.related
 	padding: 0 1px;
 	border: 1px solid black;
 }
-#attendance_options div:hover, #roster_role_options div:hover
+#attendance_options div:hover, #roster_role_options div:hover, #roster_position_options div:hover
 {
 	background-color: #cccccc;
 }

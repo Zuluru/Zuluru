@@ -200,6 +200,7 @@ $this->Html->addCrumb (__('View', true));
 	<?php
 	$cols = 4;
 	$warning = false;
+	$positions = Configure::read('sport.positions');
 	?>
 	<table class="list">
 	<tr>
@@ -211,6 +212,9 @@ $this->Html->addCrumb (__('View', true));
 		?>
 		<th><?php __('Name'); ?></th>
 		<th><?php __('Role'); ?></th>
+		<?php if (!empty($positions)): ?>
+		<th><?php __('Position'); ?></th>
+		<?php endif; ?>
 		<th><?php __('Gender'); ?></th>
 		<?php if (Configure::read('profile.skill_level')): ?>
 		<th><?php __('Rating'); ?></th>
@@ -302,6 +306,11 @@ $this->Html->addCrumb (__('View', true));
 			echo ' ' . $this->ZuluruHtml->icon('help_16.png', array('title' => $person['can_add'], 'alt' => '?'));
 		}
 		?></td>
+		<?php if (!empty($positions)): ?>
+		<td><?php
+		echo $this->element('people/roster_position', array('roster' => $person['TeamsPerson'], 'division' => $team['Division']));
+		?></td>
+		<?php endif; ?>
 		<td><?php __($person['gender']);?></td>
 		<?php if (Configure::read('profile.skill_level')): ?>
 		<td><?php echo $person['skill_level'];?></td>

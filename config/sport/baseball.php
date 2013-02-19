@@ -13,6 +13,22 @@ $config['sport'] = array(
 		'co-ed'	=> 12,
 	),
 
+	'positions' => array(
+		'unspecified' => 'Unspecified',
+		'pitcher' => 'Pitcher',
+		'catcher' => 'Catcher',
+		'firstbase' => 'First Base',
+		'secondbase' => 'Second Base',
+		'shortstop' => 'Shortstop',
+		'thirdbase' => 'Third Base',
+		'rightfielder' => 'Right Fielder',
+		'centerfielder' => 'Center Fielder',
+		'leftfielder' => 'Left Fielder',
+		'utilityinfielder' => 'Utility Infielder',
+		'utilityoutfielder' => 'Utility Outfielder',
+		'designatedhitter' => 'Designated Hitter',
+	),
+
 	'rating_questions' => false,
 );
 

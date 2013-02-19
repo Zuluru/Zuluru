@@ -21,6 +21,25 @@ $config['sport'] = array(
 		'co-ed 12s'	=> 18,
 	),
 
+	'positions' => array(
+		'unspecified' => 'Unspecified',
+		'quarterback' => 'Quarterback',
+		'center' => 'Center',
+		'tackle' => 'Tackle',
+		'guard' => 'Guard',
+		'tightend' => 'Tight End',
+		'halfback' => 'Halfback',
+		'fullback' => 'Fullback',
+		'runningback' => 'Running Back',
+		'widereceiver' => 'Wide Receiver',
+		'linebacker' => 'Linebacker',
+		'middlelinebacker' => 'Middle Linebacker',
+		'outsidelinebacker' => 'Outside Linebacker',
+		'end' => 'End',
+		'cornerback' => 'Cornerback',
+		'safety' => 'Safety',
+	),
+
 	'rating_questions' => false,
 );
 

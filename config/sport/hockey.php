@@ -13,6 +13,16 @@ $config['sport'] = array(
 		'co-ed'	=> 10,
 	),
 
+	'positions' => array(
+		'unspecified' => 'Unspecified',
+		'goalie' => 'Goalie',
+		'defence' => 'Defence',
+		'forward' => 'Forward',
+		'leftwinger' => 'Left Winger',
+		'center' => 'Center',
+		'rightwinger' => 'Right Winger',
+	),
+
 	'rating_questions' => false,
 );
 

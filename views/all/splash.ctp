@@ -254,6 +254,13 @@ foreach ($teams as $team):
 		echo $this->element('teams/block', array('team' => $team['Team'])) .
 				' (' . $this->Html->link ($team['Division']['league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])) . ')' .
 				' (' . $this->element('people/roster_role', array('roster' => $team['TeamsPerson'], 'division' => $team['Division'])) . ')';
+		if (!empty($team['Team']['division_id'])) {
+			Configure::load("sport/{$team['Division']['League']['sport']}");
+			$positions = Configure::read('sport.positions');
+			if (!empty($positions)) {
+				echo ' (' . $this->element('people/roster_position', array('roster' => $team['TeamsPerson'], 'division' => $team['Division'])) . ')';
+			}
+		}
 		?></td>
 		<td class="actions splash_action">
 			<?php

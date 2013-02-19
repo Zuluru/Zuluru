@@ -11,6 +11,9 @@ $config['sport'] = array(
 		'6 (min 2 women)'       => 6,
 	),
 
+	'positions' => array(
+	),
+
 	'rating_questions' => false,
 );
 

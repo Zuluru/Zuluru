@@ -13,6 +13,24 @@ $config['sport'] = array(
 		'co-ed'	=> 18,
 	),
 
+	'positions' => array(
+		'unspecified' => 'Unspecified',
+		'looseheadprop' => 'Loosehead Prop',
+		'hooker' => 'Hooker',
+		'tightheadprop' => 'Tighthead Prop',
+		'secondrower' => 'Second Rower',
+		'blindsideflanker' => 'Blindside Flanker',
+		'opensideflanker' => 'Openside Flanker',
+		'number8' => 'Number 8',
+		'scrumhalf' => 'Scrumhalf',
+		'flyhalf' => 'Flyhalf',
+		'weaksidewinger' => 'Weak Side Winger',
+		'insidecenter' => 'Inside Center',
+		'outsidecenter' => 'Outside Center',
+		'strongsidewinger' => 'Strong Side Winger',
+		'fullback' => 'Fullback',
+	),
+
 	'rating_questions' => false,
 );
 

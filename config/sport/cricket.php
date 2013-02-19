@@ -13,6 +13,14 @@ $config['sport'] = array(
 		'co-ed'	=> 16,
 	),
 
+	'positions' => array(
+		'unspecified' => 'Unspecified',
+		'bowler' => 'Bowler',
+		'batter' => 'Batter',
+		'wicketkeeper' => 'Wicketkeeper',
+		'allrounder' => 'All Rounder',
+	),
+
 	'rating_questions' => false,
 );
 

@@ -17,6 +17,18 @@ $config['sport'] = array(
 		'open'	=> 10,
 	),
 
+	'positions' => array(
+		'unspecified' => 'Unspecified',
+		'hitter' => 'Hitter',
+		'attacker' => 'Attacker',
+		'setter' => 'Setter',
+		'blocker' => 'Blocker',
+		'middleblocker' => 'Middle Blocker',
+		'outsidehitter' => 'Outside Hitter',
+		'weaksidehitter' => 'Weakside Hitter',
+		'liberos' => 'Liberos',
+	),
+
 	'rating_questions' => false,
 );
 

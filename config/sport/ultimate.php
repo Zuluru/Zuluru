@@ -19,6 +19,19 @@ $config['sport'] = array(
 		'open'	=> 12,
 	),
 
+	'positions' => array(
+		'unspecified' => 'Unspecified',
+		'handler' => 'Handler',
+		'cutter' => 'Cutter',
+		'strike' => 'Striker',
+		'olinehandler' => 'O Line Handler',
+		'olinecutter' => 'O Line Cutter',
+		'olinestriker' => 'O Line Striker',
+		'dlinehandler' => 'D Line Handler',
+		'dlinecutter' => 'D Line Cutter',
+		'dlinestriker' => 'D Line Striker',
+	),
+
 	'rating_questions' => array(
 		'Skill' => array(
 			'Compared to other players of the same sex as you, would you consider yourself:' => array(

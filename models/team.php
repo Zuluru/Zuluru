@@ -188,7 +188,7 @@ class Team extends AppModel {
 				),
 				'fields' => array(
 					'Team.*',
-					'TeamsPerson.person_id', 'TeamsPerson.team_id', 'TeamsPerson.role', 'TeamsPerson.status',
+					'TeamsPerson.person_id', 'TeamsPerson.team_id', 'TeamsPerson.role', 'TeamsPerson.position', 'TeamsPerson.number', 'TeamsPerson.status',
 				),
 				'joins' => array(
 					array(

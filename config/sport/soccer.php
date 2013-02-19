@@ -13,6 +13,30 @@ $config['sport'] = array(
 		'co-ed'	=> 16,
 	),
 
+	'positions' => array(
+		'unspecified' => 'Unspecified',
+		'goalkeeper' => 'Goalkeeper',
+		'fullback' => 'Fullback',
+		'midfielder' => 'Midfielder',
+		'attacker' => 'Attacker',
+		'sweeper' => 'Sweeper',
+		'centerfullback' => 'Center Fullback',
+		'leftfullback' => 'Left Fullback',
+		'rightfullback' => 'Right Fullback',
+		'leftwingback' => 'Left Wingback',
+		'wingback' => 'Wingback',
+		'rightwingback' => 'Right Wingback',
+		'leftmidfielder' => 'Left Midfielder',
+		'defensivemidfielder' => 'Defensive Midfielder',
+		'attackingmidfielder' => 'Attacking Midfielder',
+		'rightmidfielder' => 'Right Midfielder',
+		'leftwinger' => 'Left Winger',
+		'striker' => 'Striker',
+		'secondstriker' => 'Second Striker',
+		'centerforward' => 'Center Forward',
+		'rightwinger' => 'Right Winger',
+	),
+
 	'rating_questions' => false,
 );
 

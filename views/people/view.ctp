@@ -243,6 +243,13 @@ echo $person['Person']['full_name'];
 				' ' . __('on', true) . ' ' .
 				$this->element('teams/block', array('team' => $team['Team'])) .
 				' (' . $this->Html->link($team['Division']['long_league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])) . ')';
+			if (!empty($team['Team']['division_id'])) {
+				Configure::load("sport/{$team['Division']['League']['sport']}");
+				$positions = Configure::read('sport.positions');
+				if (!empty($positions)) {
+					echo ' (' . $this->element('people/roster_position', array('roster' => $team['TeamsPerson'], 'division' => $team['Division'])) . ')';
+				}
+			}
 			?></td>
 		</tr>
 		<?php endforeach; ?>
