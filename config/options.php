@@ -146,7 +146,7 @@ $config['options'] = array(
 		'1'					=> '1: Absolute Beginner',
 	),
 
-	'roster_position' => array(
+	'roster_role' => array(
 		'captain'			=> 'Captain',
 		'assistant'			=> 'Assistant captain',
 		'coach'				=> 'Non-playing coach',

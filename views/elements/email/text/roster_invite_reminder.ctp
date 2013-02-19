@@ -2,7 +2,7 @@ Dear <?php echo $person['first_name']; ?>,
 
 This is a reminder that you have been invited to join the roster of the <?php
 echo Configure::read('organization.name'); ?> team <?php echo $team['name']; ?> as a <?php
-echo Configure::read("options.roster_position.${roster['position']}"); ?>.
+echo Configure::read("options.roster_role.${roster['role']}"); ?>.
 
 <?php echo $team['name']; ?> plays in the <?php echo $this->element('email/division'); ?>.
 

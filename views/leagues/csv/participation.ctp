@@ -20,7 +20,7 @@ $header = array(
 		__('Height', true),
 		__('Skill Level', true),
 		__('Shirt Size', true),
-		__('Position', true),
+		__('Role', true),
 		__('Added', true),
 );
 fputcsv($fp, $header);
@@ -29,14 +29,14 @@ foreach ($league['Division'] as $division) {
 	foreach ($division['Team'] as $team) {
 		usort ($team['Person'], array('Team', 'compareRoster'));
 		foreach ($team['Person'] as $person) {
-			$position = __(Configure::read("options.roster_position.{$person['TeamsPerson']['position']}"), true);
+			$role = __(Configure::read("options.roster_role.{$person['TeamsPerson']['role']}"), true);
 			switch ($person['TeamsPerson']['status']) {
 				case ROSTER_INVITED:
-					$position .= ' (' . __('invited', true) . ')';
+					$role .= ' (' . __('invited', true) . ')';
 					break;
 
 				case ROSTER_REQUESTED:
-					$position .= ' (' . __('requested', true) . ')';
+					$role .= ' (' . __('requested', true) . ')';
 					break;
 			}
 
@@ -60,7 +60,7 @@ foreach ($league['Division'] as $division) {
 				$person['height'],
 				$person['skill_level'],
 				$person['shirt_size'],
-				$position,
+				$role,
 				$person['TeamsPerson']['created'],
 			);
 			fputcsv($fp, $row);

@@ -29,12 +29,12 @@ if ($can_add !== true) {
 		__('This player can still be invited to join, but will not be allowed to accept the invitation or play with your team until this is resolved.', true));
 }
 
-echo $this->Html->para(null, __('Possible roster positions are:', true));
+echo $this->Html->para(null, __('Possible roster roles are:', true));
 echo $this->Form->create('Person', array('url' => array('controller' => 'teams', 'action' => 'roster_add', 'team' => $team['Team']['id'], 'person' => $person['Person']['id'])));
-echo $this->Form->input('position', array(
+echo $this->Form->input('role', array(
 		'legend' => false,
 		'type' => 'radio',
-		'options' => $roster_options,
+		'options' => $roster_role_options,
 ));
 echo $this->Form->end(__('Submit', true));
 ?>

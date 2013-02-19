@@ -2,7 +2,7 @@
 $args = array(
 	'team' => $team,
 	'person_id' => $person['id'],
-	'position' => $person['Team'][0]['TeamsPerson']['position'],
+	'role' => $person['Team'][0]['TeamsPerson']['role'],
 	'status' => $status,
 	'comment' => $comment,
 	'event_id' => $event['TeamEvent']['id'],

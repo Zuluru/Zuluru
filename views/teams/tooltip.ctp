@@ -7,11 +7,11 @@
 
 <?php if ($is_logged_in && !empty ($team['Person'])):
 	$links = array();
-	foreach (Configure::read('privileged_roster_positions') as $position) {
-		$captains = Set::extract ("/Person/TeamsPerson[position=$position]/..", $team);
+	foreach (Configure::read('privileged_roster_roles') as $role) {
+		$captains = Set::extract ("/Person/TeamsPerson[role=$role]/..", $team);
 		foreach ($captains as $captain) {
 			$link = $this->Html->link($captain['Person']['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $captain['Person']['id']));
-			if ($position == 'assistant') {
+			if ($role == 'assistant') {
 				$link .= ' (A)';
 			}
 			$links[] = $link;

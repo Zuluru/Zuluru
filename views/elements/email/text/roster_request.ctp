@@ -2,7 +2,7 @@ Dear <?php echo $captains; ?>,
 
 <?php echo $person['full_name']; ?> has requested to join the roster of the <?php
 echo Configure::read('organization.name'); ?> team <?php echo $team['name']; ?> as a <?php
-echo Configure::read("options.roster_position.$position"); ?>.
+echo Configure::read("options.roster_role.$role"); ?>.
 
 The <?php echo $team['name']; ?> roster may be accessed at
 <?php echo Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']), true); ?>
@@ -12,7 +12,7 @@ You need to be logged into the website to update this.
 We ask that you please accept or decline this request at your earliest convenience. The request will expire after a couple of weeks.
 
 If you accept the invitation, <?php echo $person['first_name']; ?> will be added to the team's roster as a <?php
-echo Configure::read("options.roster_position.$position"); ?>. You have the option of changing their position on the team afterwards.
+echo Configure::read("options.roster_role.$role"); ?>. You have the option of changing their role on the team afterwards.
 
 Accept the invitation here:
 <?php echo Router::url(array('controller' => 'teams', 'action' => 'roster_accept', 'team' => $team['id'], 'person' => $person['id'], 'code' => $code), true); ?>

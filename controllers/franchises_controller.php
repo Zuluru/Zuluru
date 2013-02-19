@@ -232,7 +232,7 @@ class FranchisesController extends AppController {
 			'Team' => array(
 				'Division' => 'League',
 				'conditions' => array(
-					'TeamsPerson.position' => Configure::read('privileged_roster_positions'),
+					'TeamsPerson.role' => Configure::read('privileged_roster_roles'),
 					'NOT' => array(
 						'Team.id' => $existing_team_ids,
 					),

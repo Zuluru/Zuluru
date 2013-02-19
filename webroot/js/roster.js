@@ -2,10 +2,14 @@
  * Functions for doing in-place roster changes
  **/
 
-function roster_position(url, options, container_div, position) {
-	var div = jQuery('#roster_options');
+/**
+ * Functions for doing in-place roster changes
+ **/
 
-	// Find the new position, relative to the clicked button
+function roster_role(url, options, container_div, role) {
+	var div = jQuery('#roster_role_options');
+
+	// Find the new role, relative to the clicked button
 	var offset = container_div.offset();
 	offset.top += 16;
 	offset.left += 10;
@@ -14,14 +18,14 @@ function roster_position(url, options, container_div, position) {
 	div.children('div').each(function(item) {
 		var id = jQuery(this).attr('id');
 		var pos = id.lastIndexOf('_');
-		var position = id.substr(pos+1);
-		var opt = options[position];
+		var role = id.substr(pos+1);
+		var opt = options[role];
 		if (opt == undefined) {
 			 jQuery(this).hide();
 		} else {
 			jQuery(this).show();
 			jQuery(this).bind('click', function (event) {
-				roster_close_position();
+				roster_close_role();
 				if (!confirm('Are you sure? Not all roster changes are reversible.')) {
 					return false;
 				}
@@ -29,7 +33,7 @@ function roster_position(url, options, container_div, position) {
 					dataType: 'html',
 					type: 'POST',
 					data: {
-						'data[Person][position]': position,
+						'data[Person][role]': role,
 					},
 					context: container_div,
 					success: function (data, textStatus) {
@@ -54,12 +58,12 @@ function roster_position(url, options, container_div, position) {
 	jQuery('body').bind('click', function (event) {
 		var now = new Date();
 		if (now.getTime() > start_time + 25) {
-			roster_close_position();
+			roster_close_role();
 		}
 	});
 	jQuery('body').bind('keyup', function(event) {
 		if (event.keyCode == 27) {
-			roster_close_position();
+			roster_close_role();
 		}
 	});
 
@@ -67,8 +71,8 @@ function roster_position(url, options, container_div, position) {
 	return false;
 }
 
-function roster_close_position() {
-	var div = jQuery('#roster_options');
+function roster_close_role() {
+	var div = jQuery('#roster_role_options');
 	div.children('div').each(function(item) {
 		jQuery(this).unbind('click');
 	});

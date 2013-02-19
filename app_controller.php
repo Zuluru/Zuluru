@@ -843,10 +843,10 @@ class AppController extends Controller {
 			$this->Session->write ('Zuluru.Teams', $teams);
 			$this->Session->write ('Zuluru.TeamIDs', Set::extract ('/Team/id', $teams));
 
-			$positions = Configure::read('privileged_roster_positions');
+			$roles = Configure::read('privileged_roster_roles');
 			$owned_teams = array();
 			foreach ($teams as $team) {
-				if (in_array ($team['TeamsPerson']['position'], $positions) &&
+				if (in_array ($team['TeamsPerson']['role'], $roles) &&
 					$team['TeamsPerson']['status'] == ROSTER_APPROVED)
 				{
 					$owned_teams[] = $team;

@@ -22,25 +22,25 @@ $approved = ($roster['status'] == ROSTER_APPROVED);
 if ($permission && $approved) {
 	$url = array(
 		'controller' => 'teams',
-		'action' => 'roster_position',
+		'action' => 'roster_role',
 		'team' => $roster['team_id'],
 		'person' => $roster['person_id'],
 		'return' => true,
 	);
 	$url_string = Router::url($url);
 
-	$options = Configure::read('options.roster_position');
+	$options = Configure::read('options.roster_role');
 	$option_strings = array();
 	foreach ($options as $key => $value) {
 		$option_strings[] = "$key: '$value'";
 	}
 	$option_string = '{' . implode(', ', $option_strings) . '}';
 
-	echo $this->Html->link(__(Configure::read("options.roster_position.{$roster['position']}"), true), $url, array(
-		'onClick' => "return roster_position('$url_string', $option_string, jQuery(this), '{$roster['position']}');",
+	echo $this->Html->link(__(Configure::read("options.roster_role.{$roster['role']}"), true), $url, array(
+		'onClick' => "return roster_role('$url_string', $option_string, jQuery(this), '{$roster['role']}');",
 	));
 } else {
-	__(Configure::read("options.roster_position.{$roster['position']}"));
+	__(Configure::read("options.roster_role.{$roster['role']}"));
 }
 
 if (!$approved) {

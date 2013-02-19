@@ -109,13 +109,13 @@ class GamesController extends AppController {
 			// Get the list of captains for each team, we may need to email them
 			'HomeTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
 			'AwayTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
@@ -256,13 +256,13 @@ class GamesController extends AppController {
 			'GameSlot' => array('Field' => 'Facility'),
 			'HomeTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.position' => Configure::read('extended_playing_roster_positions')),
+					'conditions' => array('TeamsPerson.role' => Configure::read('extended_playing_roster_roles')),
 					'fields' => array('id', 'first_name', 'last_name', 'gender', 'email'),
 				),
 			),
 			'AwayTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.position' => Configure::read('extended_playing_roster_positions')),
+					'conditions' => array('TeamsPerson.role' => Configure::read('extended_playing_roster_roles')),
 					'fields' => array('id', 'first_name', 'last_name', 'gender', 'email'),
 				),
 			),
@@ -290,13 +290,13 @@ class GamesController extends AppController {
 			// Get the list of captains for each team, for the email link
 			'HomeTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
 			'AwayTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
@@ -440,16 +440,16 @@ class GamesController extends AppController {
 				if (empty($this->data['Note']['id'])) {
 					switch ($this->data['Note']['visibility']) {
 						case VISIBILITY_CAPTAINS:
-							$positions = Configure::read('privileged_roster_positions');
+							$roles = Configure::read('privileged_roster_roles');
 							break;
 						case VISIBILITY_TEAM:
-							$positions = Configure::read('regular_roster_positions');
+							$roles = Configure::read('regular_roster_roles');
 							break;
 					}
-					if (isset($positions)) {
+					if (isset($roles)) {
 						$this->Game->Division->Team->contain(array(
 							'Person' => array('conditions' => array(
-									'TeamsPerson.position' => $positions,
+									'TeamsPerson.role' => $roles,
 									'Person.id !=' => $my_id,
 							)),
 						));
@@ -687,13 +687,13 @@ class GamesController extends AppController {
 				// Get the list of captains for each team, we may need to email them
 				'HomeTeam' => array(
 					'Person' => array(
-						'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+						'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 						'fields' => array('id', 'first_name', 'last_name', 'email'),
 					),
 				),
 				'AwayTeam' => array(
 					'Person' => array(
-						'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+						'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 						'fields' => array('id', 'first_name', 'last_name', 'email'),
 					),
 				),
@@ -802,8 +802,8 @@ class GamesController extends AppController {
 			}
 		}
 
-		$position = $person['Team'][0]['TeamsPerson']['position'];
-		$attendance_options = $this->Game->_attendanceOptions ($team_id, $position, $attendance['status'], $past, $is_captain);
+		$role = $person['Team'][0]['TeamsPerson']['role'];
+		$attendance_options = $this->Game->_attendanceOptions ($team_id, $role, $attendance['status'], $past, $is_captain);
 		$this->set(compact('game', 'date', 'team', 'opponent', 'person', 'status', 'attendance', 'attendance_options', 'is_captain', 'is_me'));
 
 		if (!empty ($this->data)) {
@@ -881,7 +881,7 @@ class GamesController extends AppController {
 
 		// Maybe send some emails, only if the game is in the future
 		if (!$past) {
-			$position = $person['Team'][0]['TeamsPerson']['position'];
+			$role = $person['Team'][0]['TeamsPerson']['role'];
 
 			// Send email from the player to the captain if it's within the configured date range
 			if ($is_me && $team['attendance_notification'] >= $days_to_game) {
@@ -906,14 +906,14 @@ class GamesController extends AppController {
 			// Always send an email from the captain to substitute players. It will likely
 			// be an invitation to play or a response to a request or cancelling attendance
 			// if another player is available. Regardless, we need to communicate this.
-			else if ($is_captain && !in_array($position, Configure::read('playing_roster_positions'))) {
+			else if ($is_captain && !in_array($role, Configure::read('playing_roster_roles'))) {
 				$captain = $this->Session->read('Zuluru.Person.full_name');
 				if (!$captain) {
 					$captain = __('A captain', true);
 				}
 				$this->set(compact('captain'));
 				$this->set('player_options',
-					$this->Game->_attendanceOptions ($team['id'], $position, $status, $past, false));
+					$this->Game->_attendanceOptions ($team['id'], $role, $status, $past, false));
 				$this->set('code', $this->_hash ($attendance));
 				if (array_key_exists('note', $this->data['Person']) && !empty($this->data['Person']['note'])) {
 					$this->set('note', $this->data['Person']['note']);
@@ -1063,7 +1063,7 @@ class GamesController extends AppController {
 			$contain = array_merge($contain, array(
 				'HomeTeam' => array(
 					'Person' => array(
-						'conditions' => array('TeamsPerson.position' => Configure::read('extended_playing_roster_positions')),
+						'conditions' => array('TeamsPerson.role' => Configure::read('extended_playing_roster_roles')),
 						'fields' => array(
 							'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.gender',
 						),
@@ -1071,7 +1071,7 @@ class GamesController extends AppController {
 				),
 				'AwayTeam' => array(
 					'Person' => array(
-						'conditions' => array('TeamsPerson.position' => Configure::read('extended_playing_roster_positions')),
+						'conditions' => array('TeamsPerson.role' => Configure::read('extended_playing_roster_roles')),
 						'fields' => array(
 							'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.gender',
 						),
@@ -1083,7 +1083,7 @@ class GamesController extends AppController {
 			$contain = array_merge($contain, array(
 				'HomeTeam' => array(
 					'Person' => array(
-						'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+						'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 						'fields' => array(
 							'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.gender',
 						),
@@ -1091,7 +1091,7 @@ class GamesController extends AppController {
 				),
 				'AwayTeam' => array(
 					'Person' => array(
-						'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+						'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 						'fields' => array(
 							'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.gender',
 						),
@@ -1303,8 +1303,8 @@ class GamesController extends AppController {
 
 					// Email opposing captains with this score and an easy link					
 					$captains = array();
-					foreach (Configure::read('privileged_roster_positions') as $position) {
-						$captains = array_merge($captains, Set::extract ("/Person/TeamsPerson[position=$position]/..", $opponent));
+					foreach (Configure::read('privileged_roster_roles') as $role) {
+						$captains = array_merge($captains, Set::extract ("/Person/TeamsPerson[role=$role]/..", $opponent));
 					}
 					if (!empty($captains)) {
 						$division = $game['Division'];
@@ -1564,13 +1564,13 @@ class GamesController extends AppController {
 			// Get the list of captains for each team, we may need to email them
 			'HomeTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
 			'AwayTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
@@ -2120,13 +2120,13 @@ class GamesController extends AppController {
 			// Get the list of captains for each team, we may need to email them
 			'HomeTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
 			'AwayTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
@@ -2225,13 +2225,13 @@ class GamesController extends AppController {
 			// Get the list of captains for each team, we may need to email them
 			'HomeTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
 			'AwayTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
@@ -2285,8 +2285,8 @@ class GamesController extends AppController {
 		$attendance = $this->Game->_read_attendance($team['id'], Set::extract('/Division/Day/id', $game), $game['Game']['id']);
 		$sent = 0;
 		foreach ($attendance['Person'] as $person) {
-			$regular = in_array($person['TeamsPerson']['position'], Configure::read('playing_roster_positions'));
-			$sub = (!$regular && in_array($person['TeamsPerson']['position'], Configure::read('extended_playing_roster_positions')));
+			$regular = in_array($person['TeamsPerson']['role'], Configure::read('playing_roster_roles'));
+			$sub = (!$regular && in_array($person['TeamsPerson']['role'], Configure::read('extended_playing_roster_roles')));
 			$always = (!empty($person['Setting']) && $person['Setting'][0]['value'] != false);
 			if (!is_array($reminded) || !in_array($person['id'], $reminded)) {
 				if (($regular && $person['Attendance'][0]['status'] == ATTENDANCE_UNKNOWN) ||
@@ -2299,7 +2299,7 @@ class GamesController extends AppController {
 
 					if ($this->_sendMail (array (
 							'to' => $person,
-							// Attendance array is sorted by position, so the first one is the captain
+							// Attendance array is sorted by role, so the first one is the captain
 							'replyTo' => $attendance['Person'][0],
 							'subject' => "{$team['name']} attendance reminder",
 							'template' => 'attendance_reminder',

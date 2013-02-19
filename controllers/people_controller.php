@@ -236,7 +236,7 @@ class PeopleController extends AppController {
 				'tournament' => 0,
 		));
 
-		$captains = Configure::read('privileged_roster_positions');
+		$captains = Configure::read('privileged_roster_roles');
 
 		$membership_event_list = $this->Person->Registration->Event->find('all', array(
 			// TODO: Fix or remove these hard-coded values
@@ -258,7 +258,7 @@ class PeopleController extends AppController {
 				'contain' => array(
 					'Team' => array(
 						'Person' => array('conditions' => array(
-							'TeamsPerson.position' => Configure::read('playing_roster_positions'),
+							'TeamsPerson.role' => Configure::read('playing_roster_roles'),
 							'TeamsPerson.status' => 1,
 						)),
 					),
@@ -283,7 +283,7 @@ class PeopleController extends AppController {
 						} else {
 							$key = 'season';
 						}
-						if (in_array($person['TeamsPerson']['position'], $captains)) {
+						if (in_array($person['TeamsPerson']['role'], $captains)) {
 							$pos = 'captain';
 						} else {
 							$pos = 'player';
@@ -495,12 +495,12 @@ class PeopleController extends AppController {
 		$connections['is_captain'] = !empty ($on_my_teams);
 
 		// Check if the current user is a coordinator of a division the viewed player is a captain in
-		$positions = Configure::read('privileged_roster_positions');
+		$roles = Configure::read('privileged_roster_roles');
 		$my_division_ids = $this->Session->read('Zuluru.DivisionIDs');
 		$division_ids = array();
-		foreach ($positions as $position) {
+		foreach ($roles as $role) {
 			$division_ids = array_merge ($division_ids,
-				Set::extract ("/Team/TeamsPerson[position=$position]/../Team/division_id", $person)
+				Set::extract ("/Team/TeamsPerson[role=$role]/../Team/division_id", $person)
 			);
 		}
 		$in_my_divisions = array_intersect ($my_division_ids, $division_ids);
@@ -510,7 +510,7 @@ class PeopleController extends AppController {
 		$captain_in_division_ids = Set::extract ('/Team/division_id', $this->Session->read('Zuluru.OwnedTeams'));
 		$opponent_captain_in_division_ids = array();
 		foreach ($person['Team'] as $team) {
-			if (in_array ($team['TeamsPerson']['position'], $positions)) {
+			if (in_array ($team['TeamsPerson']['role'], $roles)) {
 				$opponent_captain_in_division_ids[] = $team['Team']['division_id'];
 			}
 		}
@@ -520,7 +520,7 @@ class PeopleController extends AppController {
 		// Check if the current user is on a team the viewed player is a captain of
 		$connections['is_my_captain'] = false;
 		foreach ($person['Team'] as $team) {
-			if (in_array ($team['TeamsPerson']['position'], $positions) &&
+			if (in_array ($team['TeamsPerson']['role'], $roles) &&
 				in_array ($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs'))
 			) {
 				$connections['is_my_captain'] = true;

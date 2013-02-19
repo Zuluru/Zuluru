@@ -5,7 +5,7 @@ So, rather than hoping that all of the players eventually figure out how to requ
 <p>To get started, look for the <?php echo $this->ZuluruHtml->icon('roster_add_24.png'); ?> "Add Player" links.
 This page will give you two options.</p>
 <p>For brand new teams, you'll probably be stuck doing a bunch of individual searches (see below).
-Click "Add to team" in the search results, and you will be asked what position the player should have.</p>
+Click "Add to team" in the search results, and you will be asked what role the player should have.</p>
 <p>For teams where some of the players have played with you before, you can save yourself time by selecting a team from your history.
 When you click "Show roster", it will give you a list of all the people from that team who are not already on your new team, allowing you to select those you want to add.</p>
 <p>When you "add" someone, it will send them an invitation which they must accept before they are considered to be on your team.

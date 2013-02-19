@@ -18,15 +18,15 @@ class RuleLeagueTeamCountComponent extends RuleComponent
 	// question is a sub on the current team, we'll just return 0.
 	function evaluate($affiliate, $params, $team) {
 		$count = 0;
-		$positions = Configure::read('playing_roster_positions');
+		$roles = Configure::read('playing_roster_roles');
 
-		$position = Set::extract("/Person[id={$params['Person']['id']}]", $team);
-		if (!empty($position) && !array_key_exists($position[0]['Person']['TeamsPerson']['position'], $positions)) {
+		$role = Set::extract("/Person[id={$params['Person']['id']}]", $team);
+		if (!empty($role) && !array_key_exists($role[0]['Person']['TeamsPerson']['role'], $roles)) {
 			return 0;
 		}
 
 		foreach ($params['Team'] as $team) {
-			if (in_array($team['TeamsPerson']['position'], $positions) &&
+			if (in_array($team['TeamsPerson']['role'], $roles) &&
 				$team['TeamsPerson']['status'] == ROSTER_APPROVED &&
 				in_array($team['Division']['League']['id'], $this->config))
 			{
@@ -61,7 +61,7 @@ class RuleLeagueTeamCountComponent extends RuleComponent
 		);
 		return array(
 			'Division.league_id' => $this->config,
-			'TeamsPerson.position' => Configure::read('playing_roster_positions'),
+			'TeamsPerson.role' => Configure::read('playing_roster_roles'),
 			'TeamsPerson.status' => ROSTER_APPROVED,
 		);
 	}

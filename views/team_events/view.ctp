@@ -111,7 +111,7 @@ $this->Html->addCrumb (__('View', true));
 	<thead>
 	<tr>
 		<th><?php __('Name'); ?></th>
-		<th><?php __('Position'); ?></th>
+		<th><?php __('Role'); ?></th>
 		<th><?php __('Gender'); ?></th>
 		<th><?php __('Rating'); ?></th>
 		<th><?php __('Attendance'); ?></th>
@@ -131,7 +131,7 @@ $this->Html->addCrumb (__('View', true));
 	?>
 	<tr<?php echo $class;?>>
 		<td><?php echo $this->element('people/block', compact('person')); ?></td>
-		<td><?php __(Configure::read("options.roster_position.{$person['TeamsPerson']['position']}")); ?></td>
+		<td><?php __(Configure::read("options.roster_role.{$person['TeamsPerson']['role']}")); ?></td>
 		<td><?php __($person['gender']);?></td>
 		<td><?php echo $person['skill_level'];?></td>
 		<td class="<?php echo low($statuses[$status]);?>"><?php
@@ -141,7 +141,7 @@ $this->Html->addCrumb (__('View', true));
 				'date' => $event['TeamEvent']['date'],
 				'time' => $event['TeamEvent']['start'],
 				'person_id' => $person['id'],
-				'position' => $person['TeamsPerson']['position'],
+				'role' => $person['TeamsPerson']['role'],
 				'status' => $status,
 				'comment' => $record['comment'],
 				'dedicated' => true,

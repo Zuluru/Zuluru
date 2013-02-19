@@ -4,7 +4,7 @@ echo Configure::read('organization.name'); ?> team <?php
 $url = Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']), true);
 echo $this->Html->link($team['name'], $url);
 ?> as a <?php
-echo Configure::read("options.roster_position.${roster['position']}"); ?>.</p>
+echo Configure::read("options.roster_role.${roster['role']}"); ?>.</p>
 <p><?php echo $team['name']; ?> plays in the <?php echo $this->element('email/division'); ?>.</p>
 <p>We ask that you please accept or decline this invitation at your earliest convenience. The invitation will expire <?php echo $days; ?> days from now.</p>
 <p>If you accept the invitation, you will be added to the team's roster and your contact information will be made available to the team captain.</p>

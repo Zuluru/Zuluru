@@ -192,7 +192,7 @@ class TeamEventsController extends AppController {
 			// Get the list of captains, for the team pop-up
 			'Team' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 				'Division' => 'League',
@@ -265,8 +265,8 @@ class TeamEventsController extends AppController {
 			}
 		}
 
-		$position = $person['Team'][0]['TeamsPerson']['position'];
-		$attendance_options = Game::_attendanceOptions ($team['id'], $position, $attendance['status'], $past, $is_captain);
+		$role = $person['Team'][0]['TeamsPerson']['role'];
+		$attendance_options = Game::_attendanceOptions ($team['id'], $role, $attendance['status'], $past, $is_captain);
 		$this->set(compact('event', 'date', 'team', 'person', 'status', 'attendance', 'attendance_options', 'is_captain', 'is_me'));
 
 		if (!empty ($this->data)) {
@@ -342,7 +342,7 @@ class TeamEventsController extends AppController {
 
 		// Maybe send some emails, only if the event is in the future
 		if (!$past) {
-			$position = $person['Team'][0]['TeamsPerson']['position'];
+			$role = $person['Team'][0]['TeamsPerson']['role'];
 
 			// Send email from the player to the captain if it's within the configured date range
 			if ($is_me && $team['attendance_notification'] >= $days_to_event) {
@@ -367,14 +367,14 @@ class TeamEventsController extends AppController {
 			// Always send an email from the captain to substitute players. It will likely
 			// be an invitation to play or a response to a request or cancelling attendance
 			// if another player is available. Regardless, we need to communicate this.
-			else if ($is_captain && !in_array($position, Configure::read('playing_roster_positions'))) {
+			else if ($is_captain && !in_array($role, Configure::read('playing_roster_roles'))) {
 				$captain = $this->Session->read('Zuluru.Person.full_name');
 				if (!$captain) {
 					$captain = __('A captain', true);
 				}
 				$this->set(compact('captain'));
 				$this->set('player_options',
-					Game::_attendanceOptions ($team['id'], $position, $status, $past, false));
+					Game::_attendanceOptions ($team['id'], $role, $status, $past, false));
 				$this->set('code', $this->_hash ($attendance));
 				if (array_key_exists('note', $this->data['Person']) && !empty($this->data['Person']['note'])) {
 					$this->set('note', $this->data['Person']['note']);
@@ -519,8 +519,8 @@ class TeamEventsController extends AppController {
 
 		foreach ($attendance['Attendance'] as $record) {
 			$person = array_shift (Set::extract("/Person[id={$record['person_id']}]/.", $team));
-			$regular = in_array($person['TeamsPerson']['position'], Configure::read('playing_roster_positions'));
-			$sub = (!$regular && in_array($person['TeamsPerson']['position'], Configure::read('extended_playing_roster_positions')));
+			$regular = in_array($person['TeamsPerson']['role'], Configure::read('playing_roster_roles'));
+			$sub = (!$regular && in_array($person['TeamsPerson']['role'], Configure::read('extended_playing_roster_roles')));
 			$always = (!empty($person['Setting']) && $person['Setting'][0]['value'] != false);
 			if (!is_array($reminded) || !in_array($person['id'], $reminded)) {
 				if (($regular && $record['status'] == ATTENDANCE_UNKNOWN) ||
@@ -533,7 +533,7 @@ class TeamEventsController extends AppController {
 
 					if ($this->_sendMail (array (
 							'to' => $person,
-							// Team array is sorted by position, so the first one is the captain
+							// Team array is sorted by role, so the first one is the captain
 							'replyTo' => $team['Person'][0],
 							'subject' => "{$team['name']} attendance reminder",
 							'template' => 'event_attendance_reminder',
@@ -575,7 +575,7 @@ class TeamEventsController extends AppController {
 		foreach ($attendance['Attendance'] as $record) {
 			$person = array_shift (Set::extract("/Person[id={$record['person_id']}]/.", $team));
 			$summary[$record['status']][$person['gender']][] = $person['full_name'];
-			if (in_array($person['TeamsPerson']['position'], Configure::read('privileged_roster_positions'))) {
+			if (in_array($person['TeamsPerson']['role'], Configure::read('privileged_roster_roles'))) {
 				$captains[] = $person;
 			}
 		}

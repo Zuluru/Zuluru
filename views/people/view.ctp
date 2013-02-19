@@ -239,7 +239,7 @@ echo $person['Person']['full_name'];
 		?>
 		<tr<?php echo $class;?>>
 			<td><?php
-			echo $this->element('people/roster', array('roster' => $team['TeamsPerson'], 'division' => $team['Division'])) .
+			echo $this->element('people/roster_role', array('roster' => $team['TeamsPerson'], 'division' => $team['Division'])) .
 				' ' . __('on', true) . ' ' .
 				$this->element('teams/block', array('team' => $team['Team'])) .
 				' (' . $this->Html->link($team['Division']['long_league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])) . ')';

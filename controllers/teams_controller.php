@@ -49,7 +49,7 @@ class TeamsController extends AppController {
 				'delete',
 				'add_player',
 				'add_from_team',
-				'roster_position',
+				'roster_role',
 				'roster_add',
 				'numbers',
 				'emails',
@@ -65,7 +65,7 @@ class TeamsController extends AppController {
 
 		// People can perform these operations on their own account
 		if (in_array ($this->params['action'], array(
-				'roster_position',
+				'roster_role',
 				'roster_request',
 				'numbers',
 		)))
@@ -120,7 +120,7 @@ class TeamsController extends AppController {
 				'add_player',
 				'add_from_team',
 				'add_from_event',
-				'roster_position',
+				'roster_role',
 				'roster_request',
 				'roster_add',
 				'numbers',
@@ -146,7 +146,7 @@ class TeamsController extends AppController {
 				'add_player',
 				'add_from_event',
 				'roster_add',
-				'roster_position',
+				'roster_role',
 				'numbers',
 		)))
 		{
@@ -414,7 +414,7 @@ class TeamsController extends AppController {
 				),
 				'conditions' => array(
 					'Team.division_id' => array_keys($divisions),
-					'TeamsPerson.position' => Configure::read('playing_roster_positions'),
+					'TeamsPerson.role' => Configure::read('playing_roster_roles'),
 				),
 				'contain' => false,
 				'group' => 'Team.id HAVING count < 12',
@@ -423,7 +423,7 @@ class TeamsController extends AppController {
 			$shorts[$key][0]['subs'] = $this->Team->TeamsPerson->find('count', array(
 					'conditions' => array(
 						'TeamsPerson.team_id' => $short['Team']['id'],
-						'TeamsPerson.position' => 'substitute',
+						'TeamsPerson.role' => 'substitute',
 					),
 			));
 			$shorts[$key] += $divisions[$short['Team']['division_id']];
@@ -708,7 +708,7 @@ class TeamsController extends AppController {
 				if ($person['TeamsPerson']['status'] == ROSTER_APPROVED) {
 					$team['Person'][$key]['can_add'] = true;
 				} else {
-					$team['Person'][$key]['can_add'] = $this->_canAdd ($full_person, $team, $person['TeamsPerson']['position'], $person['TeamsPerson']['status'], true, true);
+					$team['Person'][$key]['can_add'] = $this->_canAdd ($full_person, $team, $person['TeamsPerson']['role'], $person['TeamsPerson']['status'], true, true);
 				}
 
 				// Check if the player is a member, so we can highlight any that aren't
@@ -725,14 +725,14 @@ class TeamsController extends AppController {
 
 				// Check for any roster conflicts
 				$team['Person'][$key]['roster_conflict'] = $team['Person'][$key]['schedule_conflict'] = false;
-				$playing_roster_positions = Configure::read('playing_roster_positions');
+				$playing_roster_roles = Configure::read('playing_roster_roles');
 				foreach ($full_person['Team'] as $other_team) {
-					if (in_array($person['TeamsPerson']['position'], $playing_roster_positions)) {
+					if (in_array($person['TeamsPerson']['role'], $playing_roster_roles)) {
 						// If this player is on a roster of another team in the same league...
 						if (array_key_exists('league_id', $other_team['Division']) &&
 							$team['Division']['league_id'] == $other_team['Division']['league_id'] &&
 							// and they're a regular player...
-							in_array($other_team['TeamsPerson']['position'], $playing_roster_positions))
+							in_array($other_team['TeamsPerson']['role'], $playing_roster_roles))
 						{
 							$connected = false;
 							if (array_key_exists('season_divisions', $team['Division']) &&
@@ -1010,7 +1010,7 @@ class TeamsController extends AppController {
 		$contain = array(
 			// Get the list of captains
 			'Person' => array(
-				'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+				'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 				'fields' => array('id', 'first_name', 'last_name'),
 			),
 			'Division' => array('League'),
@@ -1042,7 +1042,7 @@ class TeamsController extends AppController {
 			if (!$this->is_admin && (!empty($this->data['Team']['affiliate_id']) && !in_array($this->data['Team']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs')))) {
 				$this->data['Person'] = array(array(
 					'person_id' => $this->Auth->user('id'),
-					'position' => 'captain',
+					'role' => 'captain',
 					'status' => ROSTER_APPROVED,
 				));
 			}
@@ -1500,7 +1500,7 @@ class TeamsController extends AppController {
 					'Person.first_name', 'Person.last_name', 'Person.email',
 				),
 				'order' => array(
-					'TeamsPerson.position', 'Person.gender DESC', 'Person.last_name', 'Person.first_name',
+					'TeamsPerson.role', 'Person.gender DESC', 'Person.last_name', 'Person.first_name',
 				),
 				'conditions' => array(
 					'Person.id !=' => $this->Auth->User('id'),
@@ -1658,13 +1658,13 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 
-		// If this is a form submission, set the position to 'player' for each player
+		// If this is a form submission, set the role to 'player' for each player
 		if (array_key_exists ('player', $this->data)) {
 			$success = $failure = array();
 			foreach ($this->data['player'] as $player => $bool) {
 				$person = array_shift (Set::extract("/Person[id=$player]", $old_team));
 				unset ($person['Person']['TeamsPerson']);
-				if ($this->_setRosterPosition ($person, $team, 'player', ROSTER_INVITED)) {
+				if ($this->_setRosterRole ($person, $team, 'player', ROSTER_INVITED)) {
 					$success[] = $person['Person']['full_name'];
 				} else {
 					$failure[] = $person['Person']['full_name'];
@@ -1768,7 +1768,7 @@ class TeamsController extends AppController {
 		));
 		usort ($event['Registration'], array('Person', 'comparePerson'));
 
-		// If this is a form submission, set the position to 'player' for each player
+		// If this is a form submission, set the role to 'player' for each player
 		if (array_key_exists ('player', $this->data)) {
 			$success = $failure = array();
 			foreach ($this->data['player'] as $player => $bool) {
@@ -1776,9 +1776,9 @@ class TeamsController extends AppController {
 				unset ($person['Person']['TeamsPerson']);
 				// Only admins have this option, typically used for building hat teams,
 				// so their adds are always approved
-				if ($this->_setRosterPosition ($person, $team, 'player', ROSTER_APPROVED)) {
+				if ($this->_setRosterRole ($person, $team, 'player', ROSTER_APPROVED)) {
 					$success[] = $person['Person']['full_name'];
-				} else if ($this->_setRosterPosition ($person, $team, 'player', ROSTER_INVITED)) {
+				} else if ($this->_setRosterRole ($person, $team, 'player', ROSTER_INVITED)) {
 					$success[] = $person['Person']['full_name'];
 				} else {
 					$failure[] = $person['Person']['full_name'];
@@ -1809,7 +1809,7 @@ class TeamsController extends AppController {
 		$this->set(compact('team', 'event'));
 	}
 
-	function roster_position() {
+	function roster_role() {
 		$person_id = $this->_arg('person');
 		$my_id = $this->Auth->user('id');
 		if (!$person_id) {
@@ -1824,7 +1824,7 @@ class TeamsController extends AppController {
 		$team_id = $team['Team']['id'];
 
 		if ($this->RequestHandler->isAjax()) {
-			$this->action = 'roster_position_ajax';
+			$this->action = 'roster_role_ajax';
 			$this->set('success', false);
 		}
 
@@ -1833,12 +1833,12 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
-		$position = $person['Person']['TeamsPerson']['position'];
-		$roster_options = $this->_rosterOptions ($position, $team, $person_id);
-		$this->set(compact('person', 'team', 'position', 'roster_options'));
+		$role = $person['Person']['TeamsPerson']['role'];
+		$roster_role_options = $this->_rosterRoleOptions ($role, $team, $person_id);
+		$this->set(compact('person', 'team', 'role', 'roster_role_options'));
 
 		if ($person['Person']['TeamsPerson']['status'] != ROSTER_APPROVED) {
-			$this->Session->setFlash(__('A player\'s position on a team cannot be changed until they have been approved on the roster.', true), 'default', array('class' => 'info'));
+			$this->Session->setFlash(__('A player\'s role on a team cannot be changed until they have been approved on the roster.', true), 'default', array('class' => 'info'));
 			if ($this->RequestHandler->isAjax()) {
 				return;
 			}
@@ -1846,8 +1846,8 @@ class TeamsController extends AppController {
 		}
 
 		// Check if this user is the only approved captain on the team
-		if ($position == 'captain') {
-			if (count (Set::extract ('/Person/TeamsPerson[position=captain][status=' . ROSTER_APPROVED . ']', $team)) == 1) {
+		if ($role == 'captain') {
+			if (count (Set::extract ('/Person/TeamsPerson[role=captain][status=' . ROSTER_APPROVED . ']', $team)) == 1) {
 				$this->Session->setFlash(__('All teams must have at least one player as captain.', true), 'default', array('class' => 'info'));
 			if ($this->RequestHandler->isAjax()) {
 				return;
@@ -1857,19 +1857,19 @@ class TeamsController extends AppController {
 		}
 
 		if (!empty($this->data)) {
-			if (!array_key_exists ($this->data['Person']['position'], $roster_options)) {
-				$this->Session->setFlash(__('You do not have permission to set that position.', true), 'default', array('class' => 'info'));
+			if (!array_key_exists ($this->data['Person']['role'], $roster_role_options)) {
+				$this->Session->setFlash(__('You do not have permission to set that role.', true), 'default', array('class' => 'info'));
 			} else {
-				if ($this->_setRosterPosition ($person, $team, $this->data['Person']['position'], ROSTER_APPROVED)) {
+				if ($this->_setRosterRole ($person, $team, $this->data['Person']['role'], ROSTER_APPROVED)) {
 					if ($person_id == $my_id) {
 						$this->_deleteTeamSessionData();
 					}
 					if ($this->RequestHandler->isAjax()) {
 						$this->set(array(
 							'success' => true,
-							'position' => $this->data['Person']['position'],
+							'role' => $this->data['Person']['role'],
 						));
-						// These get overwritten by _setRosterPosition and needs to be reset
+						// These get overwritten by _setRosterRole and need to be reset
 						$this->set(compact('person', 'team'));
 					} else {
 						$this->redirect(array('action' => 'view', 'team' => $team['Team']['id']));
@@ -1898,12 +1898,12 @@ class TeamsController extends AppController {
 		$this->Team->Person->contain();
 		$person = $this->Team->Person->read(null, $person_id);
 
-		// If a position was submitted, try to set it. Whether it succeeds or fails,
+		// If a role was submitted, try to set it. Whether it succeeds or fails,
 		// we'll go back to the team view page, and the flash message will tell the
 		// user why. It should only fail in the case of malicious form tinkering, so
 		// we don't try hard to let them correct the error.
 		if (!empty($this->data)) {
-			$this->_setRosterPosition ($person, $team, $this->data['Person']['position'], ROSTER_INVITED);
+			$this->_setRosterRole ($person, $team, $this->data['Person']['role'], ROSTER_INVITED);
 			$this->redirect(array('action' => 'view', 'team' => $team['Team']['id']));
 		}
 
@@ -1918,11 +1918,11 @@ class TeamsController extends AppController {
 			}
 		}
 
-		$roster_options = $this->_rosterOptions ('none', $team, $person_id);
+		$roster_role_options = $this->_rosterRoleOptions ('none', $team, $person_id);
 		$adding = ($can_add === true &&
 			($team['Division']['roster_method'] == 'add' || $this->effective_admin));
 
-		$this->set(compact('person', 'team', 'roster_options', 'can_add', 'adding'));
+		$this->set(compact('person', 'team', 'roster_role_options', 'can_add', 'adding'));
 	}
 
 	function roster_request() {
@@ -1950,20 +1950,20 @@ class TeamsController extends AppController {
 		// We're not already on this team, so the "effective" calculations won't
 		// have blocked us, but we still don't want to give overrides for joining.
 		$this->effective_admin = $this->effective_coordinator = false;
-		$roster_options = $this->_rosterOptions ('none', $team, $my_id);
+		$roster_role_options = $this->_rosterRoleOptions ('none', $team, $my_id);
 
 		if (!empty($this->data)) {
-			if (!array_key_exists ($this->data['Person']['position'], $roster_options)) {
-				$this->Session->setFlash(__('You are not allowed to request that position.', true), 'default', array('class' => 'info'));
+			if (!array_key_exists ($this->data['Person']['role'], $roster_role_options)) {
+				$this->Session->setFlash(__('You are not allowed to request that role.', true), 'default', array('class' => 'info'));
 			} else {
-				if ($this->_setRosterPosition ($person, $team, $this->data['Person']['position'], ROSTER_REQUESTED)) {
+				if ($this->_setRosterRole ($person, $team, $this->data['Person']['role'], ROSTER_REQUESTED)) {
 					$this->_deleteTeamSessionData();
 					$this->redirect(array('action' => 'view', 'team' => $team['Team']['id']));
 				}
 			}
 		}
 
-		$this->set(compact('person', 'team', 'roster_options'));
+		$this->set(compact('person', 'team', 'roster_role_options'));
 	}
 
 	function roster_accept() {
@@ -2019,7 +2019,7 @@ class TeamsController extends AppController {
 		}
 
 		// Check if this person can even be added
-		$can_add = $this->_canAdd ($person, $team, $person['Person']['TeamsPerson']['position'], $person['Person']['TeamsPerson']['status']);
+		$can_add = $this->_canAdd ($person, $team, $person['Person']['TeamsPerson']['role'], $person['Person']['TeamsPerson']['status']);
 		if ($can_add !== true) {
 			if ($this->is_logged_in && !empty($this->can_add_rule_obj->redirect)) {
 				$this->redirect(array_merge($this->can_add_rule_obj->redirect, array('return' => true)), $this->here);
@@ -2037,7 +2037,7 @@ class TeamsController extends AppController {
 
 			// Send email to the affected people
 			if (Configure::read('feature.generate_roster_email')) {
-				$this->_sendAccept($person, $team, $person['Person']['TeamsPerson']['position'], $person['Person']['TeamsPerson']['status']);
+				$this->_sendAccept($person, $team, $person['Person']['TeamsPerson']['role'], $person['Person']['TeamsPerson']['status']);
 			}
 
 			if ($person_id == $my_id) {
@@ -2111,7 +2111,7 @@ class TeamsController extends AppController {
 
 			// Send email to the affected people
 			if (Configure::read('feature.generate_roster_email')) {
-				$this->_sendDecline($person, $team, $person['Person']['TeamsPerson']['position'], $person['Person']['TeamsPerson']['status']);
+				$this->_sendDecline($person, $team, $person['Person']['TeamsPerson']['role'], $person['Person']['TeamsPerson']['status']);
 			}
 
 			if ($person_id == $my_id) {
@@ -2176,35 +2176,35 @@ class TeamsController extends AppController {
 		return array($team, $person);
 	}
 
-	function _rosterOptions ($position, $team, $person_id) {
+	function _rosterRoleOptions ($role, $team, $person_id) {
 		// Some special handling for playoff teams
 		if ($team['Division']['is_playoff']) {
-			$roster_options = $this->_playoffRosterOptions ($position, $team, $person_id);
+			$roster_role_options = $this->_playoffRosterRoleOptions ($role, $team, $person_id);
 		} else {
-			$roster_options = Configure::read('options.roster_position');
+			$roster_role_options = Configure::read('options.roster_role');
 		}
 
 		// People that aren't on the team can't be "changed to" not on the team
-		if ($position == 'none' || $position === null) {
-			unset ($roster_options['none']);
+		if ($role == 'none' || $role === null) {
+			unset ($roster_role_options['none']);
 		}
 
 		// Admins, coordinators and captains can make anyone anything
 		if ($this->effective_admin || $this->effective_coordinator ||
 			in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs')))
 		{
-			return $roster_options;
+			return $roster_role_options;
 		}
 
 		// Non-captains are not allowed to promote themselves to captainly roles
-		foreach (Configure::read('privileged_roster_positions') as $cap) {
-			unset ($roster_options[$cap]);
+		foreach (Configure::read('privileged_roster_roles') as $cap) {
+			unset ($roster_role_options[$cap]);
 		}
 
-		switch ($position) {
+		switch ($role) {
 			case 'substitute':
 				// Subs can't make themselves regular players
-				unset ($roster_options['player']);
+				unset ($roster_role_options['player']);
 				break;
 
 			case 'none':
@@ -2215,11 +2215,11 @@ class TeamsController extends AppController {
 		}
 
 		// Whatever is left is okay
-		return $roster_options;
+		return $roster_role_options;
 	}
 
-	function _playoffRosterOptions ($position, $team, $person_id) {
-		$roster_options = Configure::read('options.roster_position');
+	function _playoffRosterRoleOptions ($role, $team, $person_id) {
+		$roster_role_options = Configure::read('options.roster_role');
 
 		$affiliate_id = $this->_getAffiliateId($team['Division'], $team);
 		if ($affiliate_id !== null) {
@@ -2229,23 +2229,23 @@ class TeamsController extends AppController {
 			$affiliate = $this->Team->read(null, $affiliate_id);
 
 			// If the person wasn't on the affiliated team roster, then
-			// they cannot take a "normal" position on the playoff roster.
+			// they cannot take a "normal" role on the playoff roster.
 			if (empty ($affiliate['Person'])) {
-				foreach (Configure::read('playing_roster_positions') as $position) {
-					unset ($roster_options[$position]);
+				foreach (Configure::read('playing_roster_roles') as $role) {
+					unset ($roster_role_options[$role]);
 				}
 			}
 		}
-		return $roster_options;
+		return $roster_role_options;
 	}
 
-	function _setRosterPosition ($person, $team, $position, $status) {
+	function _setRosterRole ($person, $team, $role, $status) {
 		if (!isset($this->Roster)) {
 			$this->Roster = ClassRegistry::init ('TeamsPerson');
 		}
 
 		// We can always remove people from rosters
-		if ($position == 'none') {
+		if ($role == 'none') {
 			$transaction = new DatabaseTransaction($this->Roster);
 			if ($this->Roster->delete ($person['Person']['TeamsPerson']['id'])) {
 				// Delete any future attendance records
@@ -2267,25 +2267,25 @@ class TeamsController extends AppController {
 			return false;
 		}
 
-		$can_add = $this->_canAdd ($person, $team, $position, $status);
+		$can_add = $this->_canAdd ($person, $team, $role, $status);
 		if ($can_add === true) {
 			// Under certain circumstances, an invite is changed to an add
 			if ($status === ROSTER_INVITED &&
 				($team['Division']['roster_method'] == 'add' || $this->effective_admin) &&
 				// TODO: Rather than this, maybe somehow check if they were on the affiliate roster
-				in_array($position, Configure::read('playing_roster_positions')))
+				in_array($role, Configure::read('playing_roster_roles')))
 			{
 				$status = ROSTER_APPROVED;
 			}
 		} else {
 			if ($status === ROSTER_INVITED) {
 				// Redo the test, without being strict
-				$can_add = $this->_canAdd ($person, $team, $position, $status, false);
+				$can_add = $this->_canAdd ($person, $team, $role, $status, false);
 
 				if ($can_add !== true) {
 					// Set the reason that they can't be added for the email
 					$this->set('accept_warning', $can_add);
-					$can_add = $this->_canInvite ($person, $team, $position);
+					$can_add = $this->_canInvite ($person, $team, $role);
 				}
 			}
 			if ($can_add !== true) {
@@ -2303,7 +2303,7 @@ class TeamsController extends AppController {
 		$success = $this->Roster->save (array(
 				'team_id' => $team['Team']['id'],
 				'person_id' => $person['Person']['id'],
-				'position' => $position,
+				'role' => $role,
 				'status' => $status,
 		));
 
@@ -2317,23 +2317,23 @@ class TeamsController extends AppController {
 					'id' => $this->Roster->id,
 					'team_id' => $team['Team']['id'],
 					'person_id' => $person['Person']['id'],
-					'position' => $position,
+					'role' => $role,
 					'created' => date('Y-m-d'),
 			)));
 
 			if (empty ($person['Person']['TeamsPerson'])) {
 				switch ($status) {
 					case ROSTER_APPROVED:
-						return $this->_sendAdd($person, $team, $position);
+						return $this->_sendAdd($person, $team, $role);
 
 					case ROSTER_INVITED;
-						return $this->_sendInvite($person, $team, $position);
+						return $this->_sendInvite($person, $team, $role);
 
 					case ROSTER_REQUESTED:
-						return $this->_sendRequest($person, $team, $position);
+						return $this->_sendRequest($person, $team, $role);
 				}
 			} else {
-				return $this->_sendChange($person, $team, $position);
+				return $this->_sendChange($person, $team, $role);
 			}
 		} else {
 			$this->Session->setFlash(__('Failed to set player to that state.', true), 'default', array('class' => 'warning'));
@@ -2341,7 +2341,7 @@ class TeamsController extends AppController {
 		}
 	}
 
-	function _canAdd ($person, $team, $position = null, $status = null, $strict = true, $text_reason = false) {
+	function _canAdd ($person, $team, $role = null, $status = null, $strict = true, $text_reason = false) {
 		if ($person['Person']['status'] != 'active') {
 			return __('New players must be approved by an administrator before they can be added to a team; this normally happens within one business day.', true);
 		}
@@ -2396,10 +2396,10 @@ class TeamsController extends AppController {
 			}
 		}
 
-		if ($position !== null && $status != ROSTER_INVITED) {
-			$roster_options = $this->_rosterOptions (null, $team, $person['Person']['id']);
-			if (!array_key_exists ($position, $roster_options)) {
-				return __('You are not allowed to invite someone to that position.', true);
+		if ($role !== null && $status != ROSTER_INVITED) {
+			$roster_role_options = $this->_rosterRoleOptions (null, $team, $person['Person']['id']);
+			if (!array_key_exists ($role, $roster_role_options)) {
+				return __('You are not allowed to invite someone to that role.', true);
 			}
 		}
 
@@ -2408,11 +2408,11 @@ class TeamsController extends AppController {
 
 	// TODO: Placeholder function for limiting who can even be invited onto rosters,
 	// for example denying non-members the ability to be invited onto rosters
-	function _canInvite ($person, $team, $position = null) {
-		if ($position !== null) {
-			$roster_options = $this->_rosterOptions (null, $team, $person['Person']['id']);
-			if (!array_key_exists ($position, $roster_options)) {
-				return __('You are not allowed to invite someone to that position.', true);
+	function _canInvite ($person, $team, $role = null) {
+		if ($role !== null) {
+			$roster_role_options = $this->_rosterRoleOptions (null, $team, $person['Person']['id']);
+			if (!array_key_exists ($role, $roster_role_options)) {
+				return __('You are not allowed to invite someone to that role.', true);
 			}
 		}
 		return true;
@@ -2420,15 +2420,15 @@ class TeamsController extends AppController {
 
 	function _hash ($roster, $salt = true) {
 		// Build a string of the inputs
-		$input = "{$roster['id']}:{$roster['team_id']}:{$roster['person_id']}:{$roster['position']}:{$roster['created']}";
+		$input = "{$roster['id']}:{$roster['team_id']}:{$roster['person_id']}:{$roster['role']}:{$roster['created']}";
 		if ($salt) {
 			$input = $input . ':' . Configure::read('Security.salt');
 		}
 		return md5($input);
 	}
 
-	function _sendAdd ($person, $team, $position) {
-		$this->_initRosterEmail($person, $team, $position);
+	function _sendAdd ($person, $team, $role) {
+		$this->_initRosterEmail($person, $team, $role);
 		$this->set (array(
 			'reply' => $this->Session->read('Zuluru.Person.email'),
 		));
@@ -2448,8 +2448,8 @@ class TeamsController extends AppController {
 		return true;
 	}
 
-	function _sendInvite ($person, $team, $position) {
-		$this->_initRosterEmail($person, $team, $position);
+	function _sendInvite ($person, $team, $role) {
+		$this->_initRosterEmail($person, $team, $role);
 		$this->set (array(
 			'captain' => $this->Session->read('Zuluru.Person.full_name'),
 		));
@@ -2469,8 +2469,8 @@ class TeamsController extends AppController {
 		return true;
 	}
 
-	function _sendRequest ($person, $team, $position) {
-		$this->_initRosterEmail($person, $team, $position);
+	function _sendRequest ($person, $team, $role) {
+		$this->_initRosterEmail($person, $team, $role);
 		$captains = $this->_initRosterCaptains ($team);
 
 		if (!$this->_sendMail (array (
@@ -2488,8 +2488,8 @@ class TeamsController extends AppController {
 		return true;
 	}
 
-	function _sendAccept ($person, $team, $position, $status) {
-		$this->_initRosterEmail($person, $team, $position);
+	function _sendAccept ($person, $team, $role, $status) {
+		$this->_initRosterEmail($person, $team, $role);
 
 		if ($status == ROSTER_INVITED) {
 			// A player has accepted an invitation
@@ -2527,8 +2527,8 @@ class TeamsController extends AppController {
 		return true;
 	}
 
-	function _sendDecline ($person, $team, $position, $status) {
-		$this->_initRosterEmail($person, $team, $position);
+	function _sendDecline ($person, $team, $role, $status) {
+		$this->_initRosterEmail($person, $team, $role);
 
 		if ($status == ROSTER_INVITED) {
 			$is_player = ($this->_arg('code') !== null || $person['Person']['id'] == $this->Auth->user('id'));
@@ -2588,15 +2588,15 @@ class TeamsController extends AppController {
 		return true;
 	}
 
-	function _sendChange ($person, $team, $position) {
-		if ($position == $person['Person']['TeamsPerson']['position']) {
+	function _sendChange ($person, $team, $role) {
+		if ($role == $person['Person']['TeamsPerson']['role']) {
 			return true;
 		}
-		$this->_initRosterEmail($person, $team, $position);
+		$this->_initRosterEmail($person, $team, $role);
 
 		$this->set (array(
 			'reply' => $this->Session->read('Zuluru.Person.email'),
-			'old_position' => $person['Person']['TeamsPerson']['position'],
+			'old_role' => $person['Person']['TeamsPerson']['role'],
 		));
 
 		if ($person['Person']['id'] == $this->Auth->user('id')) {
@@ -2606,7 +2606,7 @@ class TeamsController extends AppController {
 			if (!$this->_sendMail (array (
 					'to' => $captains,
 					'replyTo' => $person,
-					'subject' => "{$person['Person']['full_name']} position change on {$team['Team']['name']} roster",
+					'subject' => "{$person['Person']['full_name']} role change on {$team['Team']['name']} roster",
 					'template' => 'roster_change_by_player',
 					'sendAs' => 'both',
 			)))
@@ -2622,7 +2622,7 @@ class TeamsController extends AppController {
 			if (!$this->_sendMail (array (
 					'to' => $person,
 					'replyTo' => $this->Session->read('Zuluru.Person'),
-					'subject' => "Change of roster position on {$team['Team']['name']}",
+					'subject' => "Change of roster role on {$team['Team']['name']}",
 					'template' => 'roster_change_by_captain',
 					'sendAs' => 'both',
 			)))
@@ -2640,7 +2640,7 @@ class TeamsController extends AppController {
 
 		$this->set (array(
 			'reply' => $this->Session->read('Zuluru.Person.email'),
-			'old_position' => $person['Person']['TeamsPerson']['position'],
+			'old_role' => $person['Person']['TeamsPerson']['role'],
 		));
 
 		if ($person['Person']['id'] == $this->Auth->user('id')) {
@@ -2679,13 +2679,13 @@ class TeamsController extends AppController {
 		return true;
 	}
 
-	function _initRosterEmail ($person, $team, $position = null) {
+	function _initRosterEmail ($person, $team, $role = null) {
 		$this->set (array(
 			'person' => $person['Person'],
 			'team' => $team['Team'],
 			'division' => $team['Division'],
 			'league' => $team['Division']['League'],
-			'position' => $position,
+			'role' => $role,
 		));
 		Configure::load("sport/{$team['Division']['League']['sport']}");
 	}
@@ -2695,7 +2695,7 @@ class TeamsController extends AppController {
 		$this->Team->contain(array(
 			'Person' => array(
 				'conditions' => array(
-					'TeamsPerson.position' => Configure::read('privileged_roster_positions'),
+					'TeamsPerson.role' => Configure::read('privileged_roster_roles'),
 					'TeamsPerson.status' => ROSTER_APPROVED,
 				),
 				'fields' => array('id', 'first_name', 'last_name', 'email'),
@@ -2773,7 +2773,7 @@ class TeamsController extends AppController {
 								),
 							),
 							'Person' => array(
-								'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+								'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 								'fields' => array('Person.id', 'Person.first_name', 'Person.last_name', 'Person.email'),
 								'order' => 'TeamsPerson.id',
 							),

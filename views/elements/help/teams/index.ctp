@@ -11,7 +11,7 @@ echo $this->element('help/topics', array(
 				'title' => 'Add Player',
 				'image' => 'roster_add_32.png',
 			),
-			'roster_position',
+			'roster_role',
 		),
 ));
 ?>

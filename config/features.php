@@ -93,31 +93,31 @@ $config['season_is_indoor'] = array(
 	'Fall Indoor'	=> true,
 );
 
-// List of roster positions which denote player status on a roster.
-$config['playing_roster_positions'] = array(
+// List of roster roles which denote player status on a roster.
+$config['playing_roster_roles'] = array(
 	'captain',
 	'assistant',
 	'player',
 );
 
-$config['extended_playing_roster_positions'] = array(
+$config['extended_playing_roster_roles'] = array(
 	'captain',
 	'assistant',
 	'player',
 	'substitute',
 );
 
-// List of roster positions which denote a full-time member on a roster.
-$config['regular_roster_positions'] = array(
+// List of roster roles which denote a full-time member on a roster.
+$config['regular_roster_roles'] = array(
 	'coach',
 	'captain',
 	'assistant',
 	'player',
 );
 
-// List of roster positions which confer additional permissions such as viewing
+// List of roster roles which confer additional permissions such as viewing
 // of contact information and updating a team roster.
-$config['privileged_roster_positions'] = array(
+$config['privileged_roster_roles'] = array(
 	'coach',
 	'captain',
 	'assistant',

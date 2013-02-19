@@ -4,7 +4,7 @@ echo Configure::read('organization.name'); ?> team <?php
 $url = Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']), true);
 echo $this->Html->link($team['name'], $url);
 ?>. They were previously listed as a <?php
-echo Configure::read("options.roster_position.$old_position"); ?>.</p>
+echo Configure::read("options.roster_role.$old_role"); ?>.</p>
 <p>This is a notification only, there is no action required on your part.</p>
 <p>If you believe that this has happened in error, please contact <?php echo $reply; ?>.</p>
 <p>Thanks,

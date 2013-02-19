@@ -4,11 +4,11 @@ echo Configure::read('organization.name'); ?> team <?php
 $url = Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']), true);
 echo $this->Html->link($team['name'], $url);
 ?> as a <?php
-echo Configure::read("options.roster_position.${roster['position']}"); ?>.</p>
+echo Configure::read("options.roster_role.${roster['role']}"); ?>.</p>
 <p>You need to be logged into the website to update this.</p>
 <p>We ask that you please accept or decline this request at your earliest convenience. The request will expire <?php echo $days; ?> days from now.</p>
 <p>If you accept the request, <?php echo $person['first_name']; ?> will be added to the team's roster as a <?php
-echo Configure::read("options.roster_position.${roster['position']}"); ?>. You have the option of changing their position on the team afterwards.</p>
+echo Configure::read("options.roster_role.${roster['role']}"); ?>. You have the option of changing their role on the team afterwards.</p>
 <p><?php
 $url = Router::url(array('controller' => 'teams', 'action' => 'roster_accept', 'team' => $team['id'], 'person' => $person['id'], 'code' => $code), true);
 echo $this->Html->link(__('Accept the request', true), $url);

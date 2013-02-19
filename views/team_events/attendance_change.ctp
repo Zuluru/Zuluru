@@ -29,10 +29,10 @@ $this->Html->addCrumb ($team['name']);
 
 <?php
 $status_descriptions = Configure::read('attendance');
-$roster_descriptions = Configure::read('options.roster_position');
+$roster_descriptions = Configure::read('options.roster_role');
 echo $this->Html->para(null, __('You are attempting to change attendance for', true) . ' ' .
 	$this->element('people/block', compact('person')) .
-	' (' . $roster_descriptions[$person['Team'][0]['TeamsPerson']['position']] . ').');
+	' (' . $roster_descriptions[$person['Team'][0]['TeamsPerson']['role']] . ').');
 echo $this->Html->para(null, __('Current status:', true) . ' ' .
 	$this->Html->tag('strong', __($status_descriptions[$attendance['status']], true)));
 

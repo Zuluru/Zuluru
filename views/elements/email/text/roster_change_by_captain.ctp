@@ -1,9 +1,9 @@
 Dear <?php echo $person['first_name']; ?>,
 
-<?php echo $captain; ?> has changed your position on the roster of the <?php
+<?php echo $captain; ?> has changed your role on the roster of the <?php
 echo Configure::read('organization.name'); ?> team <?php echo $team['name']; ?> from <?php
-echo Configure::read("options.roster_position.$old_position"); ?> to <?php
-echo Configure::read("options.roster_position.$position"); ?>.
+echo Configure::read("options.roster_role.$old_role"); ?> to <?php
+echo Configure::read("options.roster_role.$role"); ?>.
 
 This is a notification only, there is no action required on your part.
 

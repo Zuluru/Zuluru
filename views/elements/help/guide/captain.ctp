@@ -19,7 +19,7 @@
 					'title' => 'Adding Players',
 					'image' => 'roster_add_32.png',
 				),
-				'roster_position' => 'Promoting/Demoting/Removing Players',
+				'roster_role' => 'Promoting/Demoting/Removing Players',
 			),
 	));
 

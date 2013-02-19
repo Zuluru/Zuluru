@@ -210,7 +210,7 @@ $this->Html->addCrumb (__('View', true));
 		endif;
 		?>
 		<th><?php __('Name'); ?></th>
-		<th><?php __('Position'); ?></th>
+		<th><?php __('Role'); ?></th>
 		<th><?php __('Gender'); ?></th>
 		<?php if (Configure::read('profile.skill_level')): ?>
 		<th><?php __('Rating'); ?></th>
@@ -260,7 +260,7 @@ $this->Html->addCrumb (__('View', true));
 			if ($i++ % 2 == 0) {
 				$class = ' class="altrow"';
 			}
-			if (in_array ($person['TeamsPerson']['position'], Configure::read('playing_roster_positions')) &&
+			if (in_array ($person['TeamsPerson']['role'], Configure::read('playing_roster_roles')) &&
 				$person['TeamsPerson']['status'] == ROSTER_APPROVED)
 			{
 				++ $roster_count;
@@ -297,7 +297,7 @@ $this->Html->addCrumb (__('View', true));
 		}
 		?></td>
 		<td<?php if ($warning) echo ' class="warning-message"';?>><?php
-		echo $this->element('people/roster', array('roster' => $person['TeamsPerson'], 'division' => $team['Division']));
+		echo $this->element('people/roster_role', array('roster' => $person['TeamsPerson'], 'division' => $team['Division']));
 		if ($person['can_add'] !== true) {
 			echo ' ' . $this->ZuluruHtml->icon('help_16.png', array('title' => $person['can_add'], 'alt' => '?'));
 		}

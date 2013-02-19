@@ -523,7 +523,7 @@ class Game extends AppModel {
 			if (!array_key_exists($person['Person']['id'], $new)) {
 				$new[$person['Person']['id']] = array_merge ($person['Person'], array(
 					'Attendance' => array(),
-					'TeamsPerson' => array('position' => 'none', 'status' => ROSTER_APPROVED),
+					'TeamsPerson' => array('role' => 'none', 'status' => ROSTER_APPROVED),
 				));
 			}
 			$new[$person['Person']['id']]['Attendance'][] = $person['Attendance'];
@@ -720,10 +720,10 @@ class Game extends AppModel {
 		}
 
 		// Go through the roster and make fake records for all players on this date.
-		$player_positions = Configure::read('regular_roster_positions');
+		$player_roles = Configure::read('regular_roster_roles');
 		foreach ($team['Person'] as $key => $person) {
 			if ($person['TeamsPerson']['status'] == ROSTER_APPROVED) {
-				if (in_array($person['TeamsPerson']['position'], $player_positions)) {
+				if (in_array($person['TeamsPerson']['role'], $player_roles)) {
 					$status = ATTENDANCE_ATTENDING;
 				} else {
 					$status = ATTENDANCE_UNKNOWN;
@@ -758,11 +758,11 @@ class Game extends AppModel {
 		return $match_dates;
 	}
 
-	static function _attendanceOptions($team_id, $position, $status, $past = false, $is_captain = null) {
+	static function _attendanceOptions($team_id, $role, $status, $past = false, $is_captain = null) {
 		if ($is_captain === null) {
 			$is_captain = in_array($team_id, CakeSession::read('Zuluru.OwnedTeamIDs'));
 		}
-		$is_regular = in_array($position, Configure::read('playing_roster_positions'));
+		$is_regular = in_array($role, Configure::read('playing_roster_roles'));
 		$options = Configure::read('attendance');
 
 		// Only a captain can mark someone as a no show for a past game

@@ -253,7 +253,7 @@ foreach ($teams as $team):
 		<td class="splash_item"><?php
 		echo $this->element('teams/block', array('team' => $team['Team'])) .
 				' (' . $this->Html->link ($team['Division']['league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])) . ')' .
-				' (' . $this->element('people/roster', array('roster' => $team['TeamsPerson'], 'division' => $team['Division'])) . ')';
+				' (' . $this->element('people/roster_role', array('roster' => $team['TeamsPerson'], 'division' => $team['Division'])) . ')';
 		?></td>
 		<td class="actions splash_action">
 			<?php
@@ -368,13 +368,13 @@ foreach ($games as $game):
 			$team = $game['AwayTeam'];
 		}
 		if ($team['track_attendance']) {
-			$position = Set::extract("/TeamsPerson[team_id={$team['id']}]/position", $teams);
+			$role = Set::extract("/TeamsPerson[team_id={$team['id']}]/role", $teams);
 			echo $this->element('games/attendance_change', array(
 				'team' => $team,
 				'game_id' => $game['Game']['id'],
 				'game_date' => $game['GameSlot']['game_date'],
 				'game_time' => $game['GameSlot']['game_start'],
-				'position' => $position[0],
+				'role' => $role[0],
 				'status' => (array_key_exists (0, $game['Attendance']) ? $game['Attendance'][0]['status'] : ATTENDANCE_UNKNOWN),
 				'comment' => (array_key_exists (0, $game['Attendance']) ? $game['Attendance'][0]['comment'] : null),
 				'future_only' => true,

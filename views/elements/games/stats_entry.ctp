@@ -36,7 +36,7 @@ foreach ($attendance['Person'] as $person):
 			'game_date' => $game['GameSlot']['game_date'],
 			'game_time' => $game['GameSlot']['game_start'],
 			'person_id' => $person['id'],
-			'position' => $person['TeamsPerson']['position'],
+			'role' => $person['TeamsPerson']['role'],
 			'status' => $record['status'],
 			'comment' => $record['comment'],
 			'dedicated' => true,

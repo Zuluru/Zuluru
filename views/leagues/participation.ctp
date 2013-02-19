@@ -11,7 +11,7 @@ $this->Html->addCrumb (__('Participation', true));
 <tr>
 	<th><?php __('Team');?></th>
 	<th><?php __('Person'); ?></th>
-	<th><?php __('Position'); ?></th>
+	<th><?php __('Role'); ?></th>
 	<th><?php __('Date');?></th>
 </tr>
 <?php foreach ($league['Division'] as $division): ?>
@@ -27,7 +27,7 @@ $this->Html->addCrumb (__('Participation', true));
 	<tr>
 		<td><?php echo $team_name; ?></td>
 		<td><?php echo $this->element('people/block', compact('person')); ?></td>
-		<td><?php echo $this->element('people/roster', array('roster' => $person['TeamsPerson'], 'division' => $division)); ?></td>
+		<td><?php echo $this->element('people/roster_role', array('roster' => $person['TeamsPerson'], 'division' => $division)); ?></td>
 		<td><?php echo $this->ZuluruTime->date($person['TeamsPerson']['created']); ?></td>
 	</tr>
 <?php

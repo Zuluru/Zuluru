@@ -17,9 +17,9 @@ class RuleTeamCountComponent extends RuleComponent
 	function evaluate($affiliate, $params) {
 		$date = strtotime ($this->config);
 		$count = 0;
-		$positions = Configure::read('playing_roster_positions');
+		$roles = Configure::read('playing_roster_roles');
 		foreach ($params['Team'] as $team) {
-			if (in_array($team['TeamsPerson']['position'], $positions) &&
+			if (in_array($team['TeamsPerson']['role'], $roles) &&
 				$team['TeamsPerson']['status'] == ROSTER_APPROVED &&
 				$team['Division']['League']['affiliate_id'] == $affiliate &&
 				strtotime ($team['Division']['open']) <= $date &&
@@ -58,7 +58,7 @@ class RuleTeamCountComponent extends RuleComponent
 		$query = array(
 			'Division.open <=' => $date,
 			'Division.close >=' => $date,
-			'TeamsPerson.position' => Configure::read('playing_roster_positions'),
+			'TeamsPerson.role' => Configure::read('playing_roster_roles'),
 			'TeamsPerson.status' => ROSTER_APPROVED,
 		);
 

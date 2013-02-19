@@ -1052,7 +1052,7 @@ class DivisionsController extends AppController {
 		$this->Division->contain(array (
 			'Team' => array (
 				'Person' => array(
-					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
@@ -1137,13 +1137,13 @@ class DivisionsController extends AppController {
 			// Get the list of captains for each team, for building the email link
 			'HomeTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
 			'AwayTeam' => array(
 				'Person' => array(
-					'conditions' => array('TeamsPerson.position' => Configure::read('privileged_roster_positions')),
+					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),

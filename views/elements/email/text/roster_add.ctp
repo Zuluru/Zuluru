@@ -2,7 +2,7 @@ Dear <?php echo $person['first_name']; ?>,
 
 You have been added to the roster of the <?php
 echo Configure::read('organization.name'); ?> team <?php echo $team['name']; ?> as a <?php
-echo Configure::read("options.roster_position.$position"); ?>.
+echo Configure::read("options.roster_role.$role"); ?>.
 
 <?php echo $team['name']; ?> plays in the <?php echo $this->element('email/division'); ?>.
 

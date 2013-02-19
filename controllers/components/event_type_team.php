@@ -246,7 +246,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 			if (!$roster->save (array(
 				'team_id' => $this->_controller->Team->id,
 				'person_id' => $captain_id,
-				'position' => 'captain',
+				'role' => 'captain',
 				'status' => ROSTER_APPROVED,
 			)))
 			{

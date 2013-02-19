@@ -188,7 +188,7 @@ class Team extends AppModel {
 				),
 				'fields' => array(
 					'Team.*',
-					'TeamsPerson.person_id', 'TeamsPerson.team_id', 'TeamsPerson.position', 'TeamsPerson.status',
+					'TeamsPerson.person_id', 'TeamsPerson.team_id', 'TeamsPerson.role', 'TeamsPerson.status',
 				),
 				'joins' => array(
 					array(
@@ -209,7 +209,7 @@ class Team extends AppModel {
 		if (array_key_exists ('Person', $team)) {
 			$roster_count = $skill_total = 0;
 			foreach ($team['Person'] as $person) {
-				if (in_array ($person['TeamsPerson']['position'], Configure::read('playing_roster_positions')) &&
+				if (in_array ($person['TeamsPerson']['role'], Configure::read('playing_roster_roles')) &&
 					$person['TeamsPerson']['status'] == ROSTER_APPROVED)
 				{
 					++$roster_count;
@@ -228,7 +228,7 @@ class Team extends AppModel {
 	static function compareRoster($a, $b) {
 		static $rosterMap = null;
 		if ($rosterMap == null) {
-			$rosterMap = array_flip(array_keys(Configure::read('options.roster_position')));
+			$rosterMap = array_flip(array_keys(Configure::read('options.roster_role')));
 		}
 
 		// Sort eligible from non-eligible
@@ -244,9 +244,9 @@ class Team extends AppModel {
 			return -1;
 		} else if ($a['TeamsPerson']['status'] != ROSTER_APPROVED && $b['TeamsPerson']['status'] == ROSTER_APPROVED) {
 			return 1;
-		} else if ($rosterMap[$a['TeamsPerson']['position']] > $rosterMap[$b['TeamsPerson']['position']]) {
+		} else if ($rosterMap[$a['TeamsPerson']['role']] > $rosterMap[$b['TeamsPerson']['role']]) {
 			return 1;
-		} else if ($rosterMap[$a['TeamsPerson']['position']] < $rosterMap[$b['TeamsPerson']['position']]) {
+		} else if ($rosterMap[$a['TeamsPerson']['role']] < $rosterMap[$b['TeamsPerson']['role']]) {
 			return -1;
 		} else if ($a['gender'] < $b['gender']) {
 			return 1;

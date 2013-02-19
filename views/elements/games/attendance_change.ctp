@@ -44,7 +44,7 @@ if ($team['track_attendance'] || (isset($force) && $force)) {
 			$url['person'] = $person_id;
 		}
 
-		$options = Game::_attendanceOptions($team['id'], $position, $status, !$future);
+		$options = Game::_attendanceOptions($team['id'], $role, $status, !$future);
 		$option_strings = array();
 		foreach ($options as $key => $value) {
 			$option_strings[] = "$key: '$value'";
