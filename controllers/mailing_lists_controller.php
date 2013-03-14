@@ -33,6 +33,7 @@ class MailingListsController extends AppController {
 			if (in_array ($this->params['action'], array(
 					'view',
 					'edit',
+					'preview',
 					'delete',
 			)))
 			{
@@ -75,6 +76,57 @@ class MailingListsController extends AppController {
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('mailingList', 'affiliates'));
+	}
+
+	function preview() {
+		$id = $this->_arg('mailing_list');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('mailing list', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+		$this->MailingList->contain(array(
+				'Affiliate',
+				'Subscription' => array(
+					'conditions' => array('subscribed' => 0),
+				),
+		));
+		$mailingList = $this->MailingList->read(null, $id);
+		if (!$mailingList) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('mailing list', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+		$this->Configuration->loadAffiliate($mailingList['MailingList']['affiliate_id']);
+
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->set(compact('mailingList', 'affiliates'));
+
+		// Handle the rule controlling mailing list membership
+		$rule_obj = AppController::_getComponent ('Rule', '', $this, true);
+		if (!$rule_obj->init ($mailingList['MailingList']['rule'])) {
+			$this->Session->setFlash(__('Failed to parse the rule', true), 'default', array('class' => 'error'));
+			$this->redirect(array('action' => 'view', 'mailing_list' => $id));
+		}
+
+		$people = $rule_obj->query($mailingList['MailingList']['affiliate_id']);
+		if ($people === null) {
+			$this->Session->setFlash(__('The syntax of the mailing list rule is valid, but it is not possible to build a query which will return the expected results. See the "rules engine" help for suggestions.', true), 'default', array('class' => 'error'));
+			$this->redirect(array('action' => 'view', 'newsletter' => $id));
+		}
+
+		if (!empty($people)) {
+			$unsubscribed_ids = Set::extract('/MailingList/Subscription/person_id', $mailingList);
+			$people = array_diff($people, $unsubscribed_ids);
+			$this->paginate = array('Person' => array(
+					'conditions' => array(
+						'Person.id' => $people,
+					),
+					'contain' => array(),
+					'fields' => array('Person.id', 'Person.first_name','Person.last_name'),
+					'order' => array('Person.first_name','Person.last_name'),
+					'limit' => 100,
+			));
+		}
+		$this->set('people', $this->paginate('Person'));
 	}
 
 	function add() {

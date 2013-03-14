@@ -33,6 +33,9 @@ $this->Html->addCrumb (__('View', true));
 		<li><?php echo $this->ZuluruHtml->iconLink('edit_32.png',
 					array('action' => 'edit', 'mailing_list' => $mailingList['MailingList']['id'], 'return' => true),
 					array('alt' => __('Edit', true), 'title' => __('Edit', true))); ?></li>
+		<li><?php echo $this->ZuluruHtml->iconLink('email_32.png',
+					array('action' => 'preview', 'mailing_list' => $mailingList['MailingList']['id']),
+					array('alt' => __('Preview', true), 'title' => __('Preview', true))); ?></li>
 		<li><?php echo $this->ZuluruHtml->iconLink('delete_32.png',
 					array('action' => 'delete', 'mailing_list' => $mailingList['MailingList']['id']),
 					array('alt' => __('Delete', true), 'title' => __('Delete Mailing List', true)),
