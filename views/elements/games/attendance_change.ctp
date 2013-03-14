@@ -51,7 +51,7 @@ if ($team['track_attendance'] || (isset($force) && $force)) {
 		}
 		$option_string = '{' . implode(', ', $option_strings) . '}';
 		$url_string = Router::url($url);
-		$comment = addslashes($comment);
+		$comment = addslashes(htmlentities($comment));
 		echo $this->Html->link($short, $url, array(
 			'escape' => false,
 			'class' => "attendance_status_$status",
