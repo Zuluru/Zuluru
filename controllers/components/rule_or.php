@@ -30,16 +30,18 @@ class RuleOrComponent extends RuleComponent
 		$status = false;
 		foreach ($this->rule as $rule) {
 			if ($rule->evaluate ($affiliate, $params, $team, $strict, $text_reason, $complete)) {
+				if (empty($reasons) || $complete) {
+					$reasons[] = $rule->reason;
+					$this->reason_type = $rule->reason_type;
+				}
+				$status = true;
+			} else {
 				$reasons[] = $rule->reason;
+				// This isn't ideal, but will do until we find a test case demands something better
 				$this->reason_type = $rule->reason_type;
 				if (!$this->redirect) {
 					$this->redirect = $rule->redirect;
 				}
-				$status = true;
-			} else if ($complete) {
-				$reasons[] = $rule->reason;
-				// This isn't ideal, but will do until we find a test case demands something better
-				$this->reason_type = $rule->reason_type;
 			}
 		}
 		$this->reason = implode (__(' OR ', true), $reasons);
