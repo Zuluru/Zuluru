@@ -68,3 +68,14 @@ function saveField()
 		fields[current].length = parseInt (jQuery('#show_length').html());
 	}
 }
+
+// Handler for summing innings pitched on the stats entry page
+function innings_sum(total, value)
+{
+	var innings = Math.floor(total) + Math.floor(value);
+	var outs = Math.round((total + value - innings) * 10);
+	innings += Math.floor(outs / 3);
+	outs %= 3;
+	innings += outs / 10;
+	return innings;
+}

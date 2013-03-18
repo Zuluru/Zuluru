@@ -12,61 +12,114 @@ $this->Html->addCrumb (__('Stats', true));
 </div>
 
 <div class="related">
-	<table class="list tablesorter">
-	<thead>
-	<tr>
-		<th><?php __('Name'); ?></th>
-		<th><?php __('Gender'); ?></th>
-<?php foreach ($team['Division']['League']['StatType'] as $stat_type): ?>
-		<th class="<?php echo $stat_type['class']; ?>"><?php echo $this->Html->tag('span', __($stat_type['abbr'], true), array('title' => $stat_type['name'])); ?></th>
-<?php endforeach; ?>
-	</tr>
-	</thead>
-	<tbody>
-	<?php
-		$totals = array_fill_keys(Set::extract('/Division/League/StatType[type=season_total]/id', $team), 0);
-		foreach ($team['Person'] as $person):
-	?>
-	<tr>
-		<td><?php echo $this->element('people/block', compact('person')); ?></td>
-		<td><?php __($person['gender']); ?></td>
-<?php foreach ($team['Division']['League']['StatType'] as $stat_type): ?>
-		<td class="<?php echo $stat_type['class']; ?>"><?php
-			if (!empty($team['Calculated'][$person['id']][$stat_type['id']])) {
-				echo $team['Calculated'][$person['id']][$stat_type['id']];
-				if (array_key_exists($stat_type['id'], $totals)) {
-					$totals[$stat_type['id']] += $team['Calculated'][$person['id']][$stat_type['id']];
-				}
+<?php
+$na = __('N/A', true);
+
+// Sort the stats into groups for display
+$tables = array();
+foreach ($team['Division']['League']['StatType'] as $stat_type) {
+	if (!array_key_exists($stat_type['positions'], $tables)) {
+		$tables[$stat_type['positions']] = array(
+			'headers' => array(
+				$this->Html->tag('th', __('Name', true)),
+				$this->Html->tag('th', __('Gender', true)),
+			),
+			'rows' => array(),
+			'totals' => array(__('Total', true), ''),
+		);
+	}
+
+	$tables[$stat_type['positions']]['headers'][] = $this->Html->tag('th',
+		$this->Html->tag('span', __($stat_type['abbr'], true), array('title' => $stat_type['name'])),
+		array('class' => $stat_type['class'])
+	);
+	$total = array();
+
+	foreach ($team['Person'] as $person) {
+		if (!array_key_exists($person['id'], $tables[$stat_type['positions']]['rows'])) {
+			$tables[$stat_type['positions']]['rows'][$person['id']] = array(
+				$this->element('people/block', compact('person')),
+				__($person['gender'], true),
+			);
+		}
+		if (array_key_exists($person['id'], $team['Calculated']) &&
+			array_key_exists($stat_type['id'], $team['Calculated'][$person['id']]))
+		{
+			$value = $team['Calculated'][$person['id']][$stat_type['id']];
+			if ($stat_type['type'] == 'season_total') {
+				$total[] = $team['Calculated'][$person['id']][$stat_type['id']];
+			}
+		} else {
+			if ($stat_type['type'] == 'season_calc') {
+				$value = $na;
 			} else {
-				if ($stat_type['type'] == 'season_calc') {
-					__('N/A');
-				} else {
-					echo 0;
+				$value = 0;
+			}
+		}
+		if (!empty($stat_type['formatter_function'])) {
+			$value = $sport_obj->{$stat_type['formatter_function']}($value);
+		}
+		$tables[$stat_type['positions']]['rows'][$person['id']][] = array($value, array('class' => $stat_type['class']));
+	}
+
+	if ($stat_type['type'] == 'season_total') {
+		if (empty($stat_type['sum_function'])) {
+			$total = array_sum($total);
+		} else {
+			$total = $sport_obj->{$stat_type['sum_function']}($total);
+		}
+		if (!empty($stat_type['formatter_function'])) {
+			$total = $sport_obj->{$stat_type['formatter_function']}($total);
+		}
+	} else {
+		$total = '';
+	}
+	$tables[$stat_type['positions']]['totals'][] = $total;
+}
+
+foreach ($tables as $positions => $table):
+	// Maybe prune out rows that are all zeroes; don't do it for the main stats block for all positions
+	if (!empty($positions)) {
+		foreach ($table['rows'] as $key => $row) {
+			$remove = true;
+
+			// Skip name and gender columns
+			array_shift($row);
+			array_shift($row);
+
+			while (!empty($row)) {
+				$value = array_shift($row);
+				if ($value[0] != 0 && $value[0] != $na) {
+					$remove = false;
+					break;
 				}
 			}
-		?></td>
-<?php endforeach; ?>
-	</tr>
-	<?php endforeach; ?>
-	</tbody>
-	<tfoot>
-	<tr>
-		<td><?php __('Total'); ?></td>
-		<td></td>
-<?php foreach ($team['Division']['League']['StatType'] as $stat_type): ?>
-		<td><?php
-			if (array_key_exists($stat_type['id'], $totals)) {
-				if (!empty($totals[$stat_type['id']])) {
-					echo $totals[$stat_type['id']];
-				} else {
-					echo 0;
-				}
+			if ($remove) {
+				unset($table['rows'][$key]);
 			}
-		?></td>
+		}
+	}
+
+	if (empty($table['rows'])) {
+		continue;
+	}
+?>
+	<table class="list tablesorter">
+		<thead>
+		<tr>
+			<?php echo implode('', $table['headers']); ?>
+		</tr>
+		</thead>
+		<tbody>
+			<?php echo $this->Html->tableCells(array_values($table['rows'])); ?>
+		</tbody>
+		<tfoot>
+		<tr>
+			<?php echo $this->Html->tableHeaders($table['totals']); ?>
+		</tr>
+		</tfoot>
+	</table>
 <?php endforeach; ?>
-	</tr>
-	</tfoot>
-</table>
 
 </div>
 

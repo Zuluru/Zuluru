@@ -549,20 +549,25 @@ class ZuluruSchema extends CakeSchema {
 		'team_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
 		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
 		'stat_type_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
-		'value' => array('type' => 'integer', 'null' => false),
+		'value' => array('type' => 'float', 'null' => false),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'game' => array('column' => 'game_id', 'unique' => 0), 'person' => array('column' => 'person_id', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $stat_types = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'sport' => array('type' => 'string', 'null' => false, 'default' => 'ultimate', 'length' => 32),
+		'positions' => array('type' => 'text', 'null' => true, 'default' => NULL),
 		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 128),
 		'abbr' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 8),
+		'internal_name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 128),
 		'sort' => array('type' => 'integer', 'null' => false),
 		'class' => array('type' => 'string', 'null' => false, 'default' => null, 'length' => 32),
 		'type' => array('type' => 'string', 'null' => false, 'default' => null, 'length' => 16),
-		'base' => array('type' => 'string', 'null' => false, 'default' => null, 'length' => 32),
-		'handler' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 128),
+		'base' => array('type' => 'string', 'null' => true, 'default' => null, 'length' => 128),
+		'handler' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 128),
+		'sum_function' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 128),
+		'formatter_function' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 128),
+		'validation' => array('type' => 'string', 'null' => true, 'default' => null, 'length' => 128),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
@@ -616,7 +621,7 @@ class ZuluruSchema extends CakeSchema {
 		'team_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
 		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
 		'role' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 16),
-		'position' => array('type' => 'string', 'null' => false, 'default' => 'unspeficied', 'length' => 32),
+		'position' => array('type' => 'string', 'null' => false, 'default' => 'unspecified', 'length' => 32),
 		'number' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'status' => array('type' => 'integer', 'null' => false, 'default' => '0'),
 		'created' => array('type' => 'date', 'null' => true, 'default' => NULL),

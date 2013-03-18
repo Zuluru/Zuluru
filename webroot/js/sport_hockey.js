@@ -9,15 +9,18 @@ function maxWidth() { return 33; }
 function defaultWidth() { return 28; }
 function minWidth() { return 14; }
 
-function cornerRadius(width) {
+function cornerRadius(width)
+{
 	return width / 3;
 }
 
-function blueLine(length) {
+function blueLine(length)
+{
 	return length * 0.3 / 2;
 }
 
-function goalLine(length) {
+function goalLine(length)
+{
 	return length * 0.9 / 2;
 }
 

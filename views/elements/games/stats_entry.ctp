@@ -68,7 +68,13 @@ foreach ($attendance['Person'] as $person):
 			echo $this->ZuluruForm->hidden("Stat.$i.team_id", array('value' => $stat_record['team_id']));
 			echo $this->ZuluruForm->hidden("Stat.$i.person_id", array('value' => $stat_record['person_id']));
 			echo $this->ZuluruForm->hidden("Stat.$i.stat_type_id", array('value' => $stat_record['stat_type_id']));
-			echo $this->ZuluruForm->input("Stat.$i.value", array('div' => false, 'label' => false, 'size' => 3, 'type' => 'number', 'class' => "stat_{$stat['id']}", 'value' => $stat_record['value']));
+
+			if (Stat::applicable($stat, $person['TeamsPerson']['position']) || !empty($stat_record['value'])) {
+				$class = '';
+			} else {
+				$class = ' unapplicable';
+			}
+			echo $this->ZuluruForm->input("Stat.$i.value", array('div' => false, 'label' => false, 'size' => 3, 'type' => 'number', 'class' => "stat_{$stat['id']}$class", 'value' => $stat_record['value']));
 ?>
 </td>
 <?php endforeach; ?>
@@ -128,7 +134,7 @@ echo $this->Html->link(__('Add a sub', true),
 <?php endif; ?>
 <?php
 foreach ($stats as $stat) {
-	echo $this->Html->tag('th', 0, array('class' => "stat_{$stat['id']}"));
+	echo $this->Html->tag('th', 0, array('class' => "stat_{$stat['id']}", 'data-handler' => $stat['sum_function'], 'data-formatter' => $stat['formatter_function']));
 }
 ?>
 </tr>

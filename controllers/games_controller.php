@@ -1405,8 +1405,6 @@ class GamesController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
-		$this->Configuration->loadAffiliate($game['Division']['League']['affiliate_id']);
-		Configure::load("sport/{$game['Division']['League']['sport']}");
 
 		$team_id = $this->_arg('team');
 		if (!$team_id && !in_array($game['Division']['id'], $this->Session->read('Zuluru.DivisionIDs'))) {
@@ -1438,6 +1436,10 @@ class GamesController extends AppController {
 			$this->Session->setFlash(__('That game has not yet occurred!', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
+
+		$this->Configuration->loadAffiliate($game['Division']['League']['affiliate_id']);
+		Configure::load("sport/{$game['Division']['League']['sport']}");
+		$sport_obj = $this->_getComponent ('Sport', $game['Division']['League']['sport'], $this);
 
 		// Remove any empty stats. We DON'T remove '0' stats, as that's still a stat.
 		$teams = array_unique(Set::extract('/Stat/team_id', $this->data));
@@ -1478,7 +1480,7 @@ class GamesController extends AppController {
 		if (!empty($this->data['Stat'])) {
 			if (isset($transaction)) {
 				// Add calculated stats to the array to be saved. We will have deleted any prior calculated stats above.
-				$calc_stats = $this->Game->Division->League->StatType->find('list', array(
+				$calc_stats = $this->Game->Division->League->StatType->find('all', array(
 						'contain' => array(),
 						'conditions' => array(
 							'StatType.type' => 'game_calc',
@@ -1486,13 +1488,12 @@ class GamesController extends AppController {
 						),
 						'fields' => array('id', 'handler'),
 				));
-				$sport_obj = $this->_getComponent ('Sport', $game['Division']['League']['sport'], $this);
-				foreach ($calc_stats as $stat_type_id => $handler) {
-					$func = "{$handler}_game";
+				foreach ($calc_stats as $stat_type) {
+					$func = "{$stat_type['StatType']['handler']}_game";
 					if (method_exists($sport_obj, $func)) {
-						$sport_obj->$func($stat_type_id, $game, $this->data);
+						$sport_obj->$func($stat_type['StatType'], $game, $this->data);
 					} else {
-						trigger_error("Game stat handler $handler was not found in the {$game['Division']['League']['sport']} component!", E_USER_ERROR);
+						trigger_error("Game stat handler {$stat_type['StatType']['handler']} was not found in the {$game['Division']['League']['sport']} component!", E_USER_ERROR);
 					}
 				}
 
@@ -1540,7 +1541,7 @@ class GamesController extends AppController {
 			usort ($away_attendance['Person'], array('Person', 'comparePerson'));
 		}
 
-		$this->set(compact('game', 'team_id', 'attendance', 'home_attendance', 'away_attendance'));
+		$this->set(compact('game', 'team_id', 'attendance', 'home_attendance', 'away_attendance', 'sport_obj'));
 	}
 
 	function _spiritTeams($to, $from, &$data) {
@@ -1787,7 +1788,7 @@ class GamesController extends AppController {
 					($game['Game']['home_score'] > $game['Game']['away_score'] && $data['Game']['home_score'] <= $data['Game']['away_score']) ||
 					($game['Game']['home_score'] == $game['Game']['away_score'] && $data['Game']['home_score'] != $data['Game']['away_score']))
 				{
-					$calc_stats = $this->Game->Division->League->StatType->find('list', array(
+					$calc_stats = $this->Game->Division->League->StatType->find('all', array(
 							'contain' => array(),
 							'conditions' => array(
 								'StatType.type' => 'game_calc',
@@ -1801,10 +1802,10 @@ class GamesController extends AppController {
 					$data['Game']['home_team'] = $data['HomeTeam']['id'];
 					$data['Game']['away_team'] = $data['AwayTeam']['id'];
 
-					foreach ($calc_stats as $stat_type_id => $handler) {
-						$func = "{$handler}_game_recalc";
+					foreach ($calc_stats as $stat_type) {
+						$func = "{$stat_type['StatType']['handler']}_game_recalc";
 						if (method_exists($sport_obj, $func)) {
-							$sport_obj->$func($stat_type_id, $data);
+							$sport_obj->$func($stat_type['StatType'], $data);
 						}
 					}
 				}
@@ -1978,6 +1979,7 @@ class GamesController extends AppController {
 		}
 
 		$this->Configuration->loadAffiliate($game['Division']['League']['affiliate_id']);
+		$sport_obj = $this->_getComponent ('Sport', $game['Division']['League']['sport'], $this);
 
 		// Team rosters may have changed since the game was played, so use the list of people with stats instead
 		foreach (array('HomeTeam', 'AwayTeam') as $key) {
@@ -2000,7 +2002,7 @@ class GamesController extends AppController {
 			$this->redirect(array('action' => 'view', 'game' => $id));
 		}
 
-		$this->set(compact('game', 'team_id', 'team', 'opponent'));
+		$this->set(compact('game', 'team_id', 'team', 'opponent', 'sport_obj'));
 
 		if ($this->params['url']['ext'] == 'csv') {
 			$this->set('download_file_name', "Stats - Game {$game['Game']['id']}");

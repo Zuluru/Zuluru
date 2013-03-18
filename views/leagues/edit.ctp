@@ -96,9 +96,14 @@ if (isset ($add)) {
 				'empty' => '---',
 				'after' => $this->Html->para (null, __('When to ask captains for game stats.', true)),
 			));
-?>
+	?>
 		<div id="StatDetails">
-<?php
+	<?php
+			echo $this->Html->link('Select all stats', '#', array(
+					'id' => "selectAll",
+					'onclick' => "selectAll('StatDetails'); return false;",
+			));
+
 			$entered = Set::extract('/StatType[type=entered]', $stat_types);
 			$entered = Set::combine($entered, '{n}.StatType.id', '{n}.StatType.name');
 
@@ -133,6 +138,8 @@ if (isset ($add)) {
 </div>
 
 <?php
+// Add JavaScript functions for "select all" buttons and hiding blocks of fields
+
 echo $this->Html->scriptBlock("
 function trackingCheckboxChanged() {
 	setting = jQuery('#LeagueStatTracking').val();
@@ -141,6 +148,21 @@ function trackingCheckboxChanged() {
 	} else {
 		jQuery('#StatDetails').css('display', '');
 	}
+}
+
+function selectAll(id) {
+	var label = jQuery('#selectAll').text();
+	var check = true;
+	if (label.substr(0,6) == 'Select') {
+		jQuery('#selectAll').text('Unselect all stats');
+	} else {
+		jQuery('#selectAll').text('Select all stats');
+		check = false;
+	}
+
+	jQuery('#' + id + ' :checkbox').each(function () {
+		jQuery(this).attr('checked', check);
+	});
 }
 ");
 

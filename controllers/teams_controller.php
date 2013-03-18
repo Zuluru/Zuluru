@@ -953,7 +953,7 @@ class TeamsController extends AppController {
 				case 'season_calc':
 					$func = "{$stat_type['handler']}_season";
 					if (method_exists($sport_obj, $func)) {
-						$sport_obj->$func($stat_type['id'], $team);
+						$sport_obj->$func($stat_type, $team);
 					} else {
 						trigger_error("Season stat handler {$stat_type['handler']} was not found in the {$stat_type['sport']} component!", E_USER_ERROR);
 					}
@@ -963,7 +963,7 @@ class TeamsController extends AppController {
 
 		usort ($team['Person'], array('Team', 'compareRoster'));
 
-		$this->set('team', $team);
+		$this->set(compact('team', 'sport_obj'));
 		$this->set('is_captain', in_array($id, $this->Session->read('Zuluru.OwnedTeamIDs')));
 		$this->set('is_coordinator', in_array($team['Team']['division_id'], $this->Session->read('Zuluru.DivisionIDs')));
 		$this->_addTeamMenuItems ($team);

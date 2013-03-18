@@ -4,8 +4,8 @@ class Stat extends AppModel {
 	var $validate = array(
 		'value' => array(
 			'numeric' => array(
-				'rule' => array('positive'),
-				'message' => 'Stats cannot be negative',
+				'rule' => array('numeric'),
+				'message' => 'Stats must be numeric',
 			),
 		),
 	);
@@ -40,5 +40,36 @@ class Stat extends AppModel {
 			'order' => ''
 		)
 	);
+
+	static function applicable($stat_type, $position) {
+		// If there's nothing specified, it's for everyone
+		if (empty($stat_type['positions'])) {
+			return true;
+		}
+
+		$positions = explode(',', $stat_type['positions']);
+		$good = $bad = array();
+		foreach ($positions as $p) {
+			if ($p[0] == '!') {
+				$bad[] = $p;
+			} else {
+				$good[] = $p;
+			}
+		}
+
+		// If the player is one of the specified positions, it's for them
+		if (in_array($position, $good)) {
+			return true;
+		}
+
+		// If exclusions are specified and the player is NOT one of them,
+		// if's for them
+		if (!empty($bad) && !in_array("!$position", $bad)) {
+			return true;
+		}
+
+		// It's not for them
+		return false;
+	}
 }
 ?>
