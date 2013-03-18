@@ -50,7 +50,7 @@ class RuleRegisteredComponent extends RuleComponent
 			$affiliate,
 			array(
 				'Registration.event_id' => $this->config,
-				'Registration.payment' => 'Paid',
+				'Registration.payment' => array('Paid', 'Pending'),
 			),
 			array('Registration' => array(
 				'table' => 'registrations',
