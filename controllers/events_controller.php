@@ -239,7 +239,7 @@ class EventsController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('event', true)), 'default', array('class' => 'warning'));
-				$this->Configuration->loadAffiliate($this->Event->affiliate($event));
+				$this->Configuration->loadAffiliate($this->Event->affiliate($id));
 			}
 		}
 		if (empty($this->data)) {
