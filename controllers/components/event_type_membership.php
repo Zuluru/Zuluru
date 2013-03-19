@@ -27,6 +27,10 @@ class EventTypeMembershipComponent extends EventTypeComponent
 					'rule' => array('date'),
 					'message' => 'You must select a valid ending date.',
 				),
+				'greater' => array(
+					'rule' => array('greaterdate', 'membership_begins'),
+					'message' => 'The membership ends date must be after the membership begins date.',
+				),
 			),
 			'membership_type' => array(
 				'inlist' => array(
