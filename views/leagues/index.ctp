@@ -17,8 +17,10 @@ $affiliate_id = $league_id = null;
 foreach ($divisions as $division):
 	$is_manager = $is_logged_in && in_array($division['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
 
-	if (count($affiliates) > 1 && $division['League']['affiliate_id'] != $affiliate_id):
+	if ($division['League']['affiliate_id'] != $affiliate_id):
 		$affiliate_id = $division['League']['affiliate_id'];
+		$season = null;
+		if (count($affiliates) > 1):
 ?>
 	<tr>
 		<th<?php if (!$is_admin) echo ' colspan="2"'; ?>>
@@ -32,7 +34,17 @@ foreach ($divisions as $division):
 					array('alt' => __('Edit', true), 'title' => __('Edit Affiliate', true)));
 			?>
 		</th>
+			<?php endif; ?>
 		<?php endif; ?>
+	</tr>
+<?php
+	endif;
+
+	if ($division['League']['long_season'] != $season):
+		$season = $division['League']['long_season'];
+?>
+	<tr>
+		<th colspan="2"><?php echo $season; ?></th>
 	</tr>
 <?php
 	endif;
@@ -43,7 +55,7 @@ foreach ($divisions as $division):
 ?>
 	<tr>
 		<th<?php if (!($is_admin || $is_manager)) echo ' colspan="2"'; ?>>
-			<?php echo $this->Html->link($division['League']['full_name'], array('action' => 'view', 'league' => $division['League']['id'])); ?>
+			<?php echo $this->Html->link($division['League']['name'], array('action' => 'view', 'league' => $division['League']['id'])); ?>
 		</th>
 		<?php if ($is_admin || $is_manager): ?>
 		<th class="actions">
