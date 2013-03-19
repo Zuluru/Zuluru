@@ -334,7 +334,7 @@ $this->Html->addCrumb (__('View', true));
 		<?php if ($has_numbers): ?>
 		<td></td>
 		<?php endif; ?>
-		<td colspan="3"><?php __('Average Skill Rating') ?></td>
+		<td colspan="<?php echo 3 + (!empty($positions)); ?>"><?php __('Average Skill Rating') ?></td>
 		<td><?php printf("%.2f", $skill_total / $skill_count) ?></td>
 		<?php if ($is_admin || $is_coordinator) echo '<td></td>'; ?>
 		<td></td>
