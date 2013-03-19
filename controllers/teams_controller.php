@@ -642,10 +642,18 @@ class TeamsController extends AppController {
 			return -1;
 		}
 
-		if ($a['Team']['name'] > $b['Team']['name']) {
-			return 1;
-		} else if ($a['Team']['name'] < $b['Team']['name']) {
-			return -1;
+		if (array_key_exists('name', $a[0])) {
+			if ($a[0]['name'] > $b[0]['name']) {
+				return 1;
+			} else if ($a[0]['name'] < $b[0]['name']) {
+				return -1;
+			}
+		} else {
+			if ($a['Team']['name'] > $b['Team']['name']) {
+				return 1;
+			} else if ($a['Team']['name'] < $b['Team']['name']) {
+				return -1;
+			}
 		}
 
 		return 0;
