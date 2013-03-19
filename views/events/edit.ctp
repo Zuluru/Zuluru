@@ -26,6 +26,8 @@ if (isset ($add)) {
 				'hide_single' => true,
 				'empty' => '---',
 			));
+		} else {
+			echo $this->ZuluruForm->hidden('affiliate_id');
 		}
 		echo $this->ZuluruForm->input('description', array(
 			'cols' => 70,
