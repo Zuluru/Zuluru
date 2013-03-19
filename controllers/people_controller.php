@@ -1089,7 +1089,7 @@ class PeopleController extends AppController {
 			{
 				$file_dir = Configure::read('folders.uploads');
 				$file_ext = substr($this->data['document']['name'], strrpos($this->data['document']['name'], '.') + 1);
-				$upload_target = $file_dir . DS . $person['id'] . '_' . $this->Person->Upload->id . '.' . $file_ext;
+				$upload_target = $file_dir . DS . $person['id'] . '_' . $this->Person->Upload->id . '.' . low($file_ext);
 				move_uploaded_file($this->data['document']['tmp_name'], $upload_target);
 				chmod ($upload_target, 0644);
 
