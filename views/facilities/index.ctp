@@ -106,13 +106,13 @@ foreach ($regions as $region):
 			}
 			?>
 		<?php if ($is_admin || $is_manager): ?>
-			<?php echo $this->ZuluruHtml->iconLink('edit_32.png',
+			<?php echo $this->ZuluruHtml->iconLink('edit_24.png',
 					array('action' => 'edit', 'facility' => $facility['id'], 'return' => true),
 					array('alt' => __('Edit', true), 'title' => __('Edit', true))); ?>
-			<?php echo $this->ZuluruHtml->iconLink('add_32.png',
+			<?php echo $this->ZuluruHtml->iconLink('add_24.png',
 					array('controller' => 'fields', 'action' => 'add', 'facility' => $facility['id'], 'return' => true),
 					array('alt' => sprintf(__('Add %s', true), __(Configure::read('ui.field'), true)), 'title' => sprintf(__('Add %s', true), __(Configure::read('ui.field'), true)))); ?>
-			<?php echo $this->ZuluruHtml->iconLink('delete_32.png',
+			<?php echo $this->ZuluruHtml->iconLink('delete_24.png',
 					array('action' => 'delete', 'facility' => $facility['id'], 'return' => true),
 					array('alt' => __('Delete', true), 'title' => __('Delete', true)),
 					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $facility['id']))); ?>
