@@ -15,6 +15,21 @@ class SportComponent extends Object
 		$this->_controller =& $controller;
 	}
 
+	/*
+	 * Default functions for how many points the various outcomes are worth.
+	 */
+	function winValue() {
+		return 2;
+	}
+
+	function tieValue() {
+		return 1;
+	}
+
+	function lossValue() {
+		return 0;
+	}
+
 	function _init_rosters($stats) {
 		if ($this->rosters) {
 			return;

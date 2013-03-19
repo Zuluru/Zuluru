@@ -96,17 +96,20 @@ class LeagueTypeComponent extends Object
 	}
 
 	function addGameResult ($division, &$results, $team, $opp, $round, $score_for, $score_against, $spirit_for, $spirit_obj, $default) {
+		if (!isset($this->sport_obj)) {
+			$this->sport_obj = $this->_controller->_getComponent ('Sport', $division['League']['sport'], $this->_controller);
+		}
+
 		// What type of result was this?
 		if ($score_for > $score_against) {
 			$type = 'W';
-			// TODO: points for wins, losses and ties configurable?
-			$points = 2;
+			$points = $this->sport_obj->winValue();
 		} else if ($score_for < $score_against) {
 			$type = 'L';
-			$points = 0;
+			$points = $this->sport_obj->lossValue();
 		} else {
 			$type = 'T';
-			$points = 1;
+			$points = $this->sport_obj->tieValue();
 		}
 
 		// Make sure the team record exists in the results

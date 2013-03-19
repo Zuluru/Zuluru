@@ -7,6 +7,11 @@ class SportSoccerComponent extends SportComponent
 {
 	var $sport = 'soccer';
 
+	// In soccer, a win is worth 3 points, not 2.
+	function winValue() {
+		return 3;
+	}
+
 	function points_game($stat_type, $game, &$stats) {
 		$this->_init_rosters($stats);
 
