@@ -174,17 +174,6 @@ class League extends AppModel {
 			return -1;
 		}
 
-		// If the league open dates are far apart, we use that
-		$a_open = strtotime ($a_league['open']);
-		$b_open = strtotime ($b_league['open']);
-		if (abs ($a_open - $b_open) > 5 * WEEK) {
-			if ($a_open > $b_open) {
-				return 1;
-			} else if ($a_open < $b_open) {
-				return -1;
-			}
-		}
-
 		if (array_key_exists('Division', $a)) {
 			if (array_key_exists('season_days', $a['Division'])) {
 				$a_days = $a['Division']['season_days'];
@@ -221,6 +210,16 @@ class League extends AppModel {
 			} else if ($a_min < $b_min) {
 				return -1;
 			}
+		}
+
+		// If the league open dates don't match, we use that
+		if ($a_league['open'] > $b_league['open']) {
+			return 1;
+		} else if ($a_league['open'] < $b_league['open']) {
+			return -1;
+		}
+
+		if (array_key_exists('Division', $a)) {
 			// Divisions on the same day use the id to sort. Assumption is that
 			// higher-level divisions are created first.
 			return $a['Division']['id'] > $b['Division']['id'];
