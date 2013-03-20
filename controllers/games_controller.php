@@ -1134,6 +1134,11 @@ class GamesController extends AppController {
 			$this->redirect('/');
 		}
 
+		if (empty($game['Game']['home_team']) || empty($game['Game']['away_team'])) {
+			$this->Session->setFlash(__('The opponent for that game has not been determined, so a score cannot yet be submitted.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
 		if ($this->Game->_get_score_entry ($game, $team_id)) {
 			// We have to use string 1 and 0 here, as that's what the
 			// form helper checkbox function compares against, using ===
@@ -2087,11 +2092,11 @@ class GamesController extends AppController {
 		$reread = false;
 		foreach ($games as $game) {
 			if (empty ($game['Attendance'])) {
-				if (!empty($game['HomeTeam']) && $game['HomeTeam']['track_attendance'] && in_array($game['HomeTeam']['id'], $team_ids)) {
+				if (!empty($game['HomeTeam']['id']) && $game['HomeTeam']['track_attendance'] && in_array($game['HomeTeam']['id'], $team_ids)) {
 					$attendance = $this->Game->_read_attendance($game['HomeTeam']['id'], Set::extract('/Division/Day/id', $game), $game['Game']['id']);
 					$reread = true;
 				}
-				if (!empty($game['AwayTeam']) && $game['AwayTeam']['track_attendance'] && in_array($game['AwayTeam']['id'], $team_ids)) {
+				if (!empty($game['AwayTeam']['id']) && $game['AwayTeam']['track_attendance'] && in_array($game['AwayTeam']['id'], $team_ids)) {
 					$attendance = $this->Game->_read_attendance($game['AwayTeam']['id'], Set::extract('/Division/Day/id', $game), $game['Game']['id']);
 					$reread = true;
 				}
