@@ -1134,6 +1134,11 @@ class GamesController extends AppController {
 			$this->redirect('/');
 		}
 
+		if (empty($game['Game']['home_team']) || empty($game['Game']['away_team'])) {
+			$this->Session->setFlash(__('The opponent for that game has not been determined, so a score cannot yet be submitted.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
 		if ($this->Game->_get_score_entry ($game, $team_id)) {
 			// We have to use string 1 and 0 here, as that's what the
 			// form helper checkbox function compares against, using ===
