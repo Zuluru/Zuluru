@@ -283,12 +283,6 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 			return false;
 		}
 
-		// TODO: Temporary check to make sure that inputs are valid
-		if (!array_key_exists (0, $teams)) {
-			$this->_controller->Session->setFlash(__('Teams array must be zero-indexed', true), 'default', array('class' => 'warning'));
-			return false;
-		}
-
 		// For n-1 iterations, generate games by pairing up teams
 		$iterations_remaining = $num_teams - 1;
 
