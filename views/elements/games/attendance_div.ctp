@@ -14,7 +14,7 @@ echo $this->Html->tag('div', __('Comment', true), array('id' => "attendance_comm
 <br /><?php
 echo $this->Form->input('comment', array(
 		'label' => false,
-		'size' => 80,
+		'size' => 70,
 ));
 ?>
 </div>
