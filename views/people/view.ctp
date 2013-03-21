@@ -450,4 +450,4 @@ echo $person['Person']['full_name'];
 </div>
 <?php endif; ?>
 
-<?php echo $this->element('people/roster_div'); ?>
+<?php if (!empty($teams)) echo $this->element('people/roster_div'); ?>
