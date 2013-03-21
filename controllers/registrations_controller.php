@@ -250,7 +250,7 @@ class RegistrationsController extends AppController {
 
 		$conditions = array(
 			'Registration.created >=' => $start_date,
-			'Registration.created <=' => $end_date,
+			'Registration.created <=' => "$end_date 23:59:59",
 			'Event.affiliate_id' => $affiliates,
 		);
 
