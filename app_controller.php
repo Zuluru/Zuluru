@@ -858,8 +858,7 @@ class AppController extends Controller {
 		}
 
 		$franchises = $this->Session->read('Zuluru.Franchises');
-		// TODO: Remove this temporary check for single-owner formatted franchise data
-		if (empty($franchises) || array_key_exists('Franchise', $franchises[0])) {
+		if (empty($franchises)) {
 			if (!isset ($this->Franchise)) {
 				if (!class_exists ('Franchise')) {
 					App::import ('Model', 'Franchise');
