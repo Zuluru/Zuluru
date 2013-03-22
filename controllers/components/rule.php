@@ -94,6 +94,10 @@ class RuleComponent extends Object
 	}
 
 	function parse($config) {
+		if (empty($config)) {
+			$this->log('Got an empty rule', 'rules');
+			return false;
+		}
 		list ($this->rule, $config) = $this->parseOneRule ($config);
 		return (empty ($config) && $this->rule != null);
 	}
