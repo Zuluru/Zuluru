@@ -1,7 +1,6 @@
 <?php
 $this->Html->addCrumb (__('Players', true));
-// TODO: simulate the name virtual field
-$this->Html->addCrumb ("{$this->data['Person']['first_name']} {$this->data['Person']['last_name']}");
+$this->Html->addCrumb ($this->Form->value('Person.first_name') . ' ' . $this->Form->value('Person.last_name'));
 $this->Html->addCrumb (__('Edit', true));
 
 $short = Configure::read('organization.short_name');

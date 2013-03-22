@@ -3,7 +3,7 @@ $this->Html->addCrumb (__('Holiday', true));
 if (isset ($add)) {
 	$this->Html->addCrumb (__('Create', true));
 } else {
-	$this->Html->addCrumb ($this->data['Holiday']['name']);
+	$this->Html->addCrumb ($this->Form->value('Holiday.name'));
 	$this->Html->addCrumb (__('Edit', true));
 }
 ?>

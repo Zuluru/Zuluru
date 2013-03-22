@@ -3,7 +3,7 @@ $this->Html->addCrumb (__('Questionnaire', true));
 if (isset ($add)) {
 	$this->Html->addCrumb (__('Create', true));
 } else {
-	$this->Html->addCrumb ($this->data['Questionnaire']['name']);
+	$this->Html->addCrumb ($this->Form->value('Questionnaire.name'));
 	$this->Html->addCrumb (__('Edit', true));
 }
 ?>

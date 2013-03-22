@@ -3,10 +3,10 @@ $this->Html->addCrumb (__('Divisions', true));
 if (isset ($add)) {
 	$this->Html->addCrumb (__('Create', true));
 } else {
-	$this->Html->addCrumb ($this->data['League']['name']);
-	// TODO: simulate the full_name virtual field
-	if (!empty($this->data['Division']['name'])) {
-		$this->Html->addCrumb ($this->data['Division']['name']);
+	$this->Html->addCrumb ($this->Form->value('League.name'));
+	$division_name = $this->Form->value('Division.name');
+	if (!empty($division_name)) {
+		$this->Html->addCrumb ($division_name);
 	}
 	$this->Html->addCrumb (__('Edit', true));
 }

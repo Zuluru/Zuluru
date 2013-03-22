@@ -3,7 +3,7 @@ $this->Html->addCrumb (__('Events', true));
 if (isset ($add)) {
 	$this->Html->addCrumb (__('Create', true));
 } else {
-	$this->Html->addCrumb ($this->data['Event']['name']);
+	$this->Html->addCrumb ($this->Form->value('Event.name'));
 	$this->Html->addCrumb (__('Edit', true));
 }
 ?>
@@ -87,7 +87,7 @@ if (isset ($add)) {
 		<div id="EventTypeFields">
 		<?php
 		if (!isset($add)) {
-			$affiliates = array($this->data['Event']['affiliate_id'] => $affiliates[$this->data['Event']['affiliate_id']]);
+			$affiliates = array($this->Form->value('Event.affiliate_id') => $affiliates[$this->Form->value('Event.affiliate_id')]);
 		}
 		echo $this->element('registrations/configuration/' . $event_obj->configurationFieldsElement(), compact('affiliates'));
 		$this->Js->get('#EventEventTypeId')->event('change', $this->Js->request(
@@ -112,7 +112,7 @@ if (isset ($add)) {
 		<li><?php
 		$alt = sprintf(__('Manage %s', true), __('Connections', true));
 		echo $this->ZuluruHtml->iconLink('connections_24.png',
-			array('action' => 'connections', 'event' => $this->data['Event']['id']),
+			array('action' => 'connections', 'event' => $this->Form->value('Event.id')),
 			array('alt' => $alt, 'title' => $alt));
 		?> </li>
 	</ul>

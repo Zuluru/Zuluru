@@ -3,7 +3,7 @@ $this->Html->addCrumb (__('Mailing List', true));
 if (isset ($add)) {
 	$this->Html->addCrumb (__('Create', true));
 } else {
-	$this->Html->addCrumb ($this->data['MailingList']['name']);
+	$this->Html->addCrumb ($this->Form->value('MailingList.name'));
 	$this->Html->addCrumb (__('Edit', true));
 }
 ?>

@@ -3,7 +3,7 @@ $this->Html->addCrumb (__('Newsletter', true));
 if (isset ($add)) {
 	$this->Html->addCrumb (__('Create', true));
 } else {
-	$this->Html->addCrumb ($this->data['Newsletter']['name']);
+	$this->Html->addCrumb ($this->Form->value('Newsletter.name'));
 	$this->Html->addCrumb (__('Edit', true));
 }
 ?>

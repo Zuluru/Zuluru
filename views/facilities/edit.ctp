@@ -3,7 +3,7 @@ $this->Html->addCrumb (__('Facilities', true));
 if (isset ($add)) {
 	$this->Html->addCrumb (__('Create', true));
 } else {
-	$this->Html->addCrumb ($this->data['Facility']['name']);
+	$this->Html->addCrumb ($this->Form->value('Facility.name'));
 	$this->Html->addCrumb (__('Edit', true));
 }
 ?>
@@ -47,7 +47,7 @@ if (isset ($add)) {
 <?php if (!isset ($add)): ?>
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Html->link(sprintf(__('Add %s', true), __(Configure::read('ui.field_cap'), true)), array('controller' => 'fields', 'action' => 'add', 'facility' => $this->data['Facility']['id']));?></li>
+		<li><?php echo $this->Html->link(sprintf(__('Add %s', true), __(Configure::read('ui.field_cap'), true)), array('controller' => 'fields', 'action' => 'add', 'facility' => $this->Form->value('Facility.id')));?></li>
 	</ul>
 </div>
 <?php endif; ?>

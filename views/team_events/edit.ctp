@@ -1,10 +1,10 @@
 <?php
 $this->Html->addCrumb (__('Team Events', true));
-$this->Html->addCrumb ($this->data['Team']['name']);
+$this->Html->addCrumb ($this->Form->value('Team.name'));
 if (isset ($add)) {
 	$this->Html->addCrumb (__('Create', true));
 } else {
-	$this->Html->addCrumb ($this->data['TeamEvent']['name']);
+	$this->Html->addCrumb ($this->Form->value('TeamEvent.name'));
 	$this->Html->addCrumb (__('Edit', true));
 }
 ?>

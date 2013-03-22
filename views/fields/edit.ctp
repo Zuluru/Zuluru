@@ -1,6 +1,6 @@
 <?php
 $this->Html->addCrumb (__(Configure::read('ui.fields_cap'), true));
-$this->Html->addCrumb ($this->data['Facility']['name']);
+$this->Html->addCrumb ($this->Form->value('Facility.name'));
 if (isset ($add)) {
 	$this->Html->addCrumb (__('Create', true));
 } else {
@@ -38,8 +38,8 @@ if (isset ($add)) {
 <?php if (!isset ($add)): ?>
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Facility', true)), array('controller' => 'facilities', 'action' => 'edit', 'facility' => $this->data['Field']['facility_id'], 'return' => true));?></li>
-		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Layout', true)), array('controller' => 'maps', 'action' => 'edit', 'field' => $this->data['Field']['id'], 'return' => true));?></li>
+		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Facility', true)), array('controller' => 'facilities', 'action' => 'edit', 'facility' => $this->Form->value('Field.facility_id'), 'return' => true));?></li>
+		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Layout', true)), array('controller' => 'maps', 'action' => 'edit', 'field' => $this->Form->value('Field.id'), 'return' => true));?></li>
 	</ul>
 </div>
 <?php endif; ?>
