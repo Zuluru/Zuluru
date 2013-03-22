@@ -30,16 +30,12 @@ if (isset ($add)) {
 		}
 
 		$sports = Configure::read('options.sport');
-		if (count($sports) > 1) {
-			echo $this->ZuluruForm->input('sport', array(
-				'options' => $sports,
-				'hide_single' => true,
-				'empty' => '---',
-				'after' => $this->Html->para (null, __('Sport played in this league.', true)),
-			));
-		} else if (isset($add)) {
-			echo $this->ZuluruForm->hidden('sport', array('value' => array_shift(array_keys($sports))));
-		}
+		echo $this->ZuluruForm->input('sport', array(
+			'options' => $sports,
+			'hide_single' => true,
+			'empty' => '---',
+			'after' => $this->Html->para (null, __('Sport played in this league.', true)),
+		));
 
 		echo $this->ZuluruForm->input('season', array(
 			'options' => Configure::read('options.season'),
