@@ -84,7 +84,7 @@ class UploadTypesController extends AppController {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('upload type', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('team', true)), 'default', array('class' => 'warning'));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('upload type', true)), 'default', array('class' => 'warning'));
 				$this->Configuration->loadAffiliate($this->data['UploadType']['affiliate_id']);
 			}
 		}
@@ -110,7 +110,7 @@ class UploadTypesController extends AppController {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('upload type', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('team', true)), 'default', array('class' => 'warning'));
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('upload type', true)), 'default', array('class' => 'warning'));
 				$this->Configuration->loadAffiliate($this->UploadType->affiliate($id));
 			}
 		}
