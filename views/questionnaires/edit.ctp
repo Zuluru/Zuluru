@@ -25,6 +25,7 @@ if (isset ($add)) {
 			));
 		} else {
 			echo $this->ZuluruForm->input('active');
+			echo $this->ZuluruForm->hidden('affiliate_id');
 		}
 	?>
 	</fieldset>

@@ -10,8 +10,8 @@
 <?php $i = 0; ?>
 <?php
 foreach ($questionnaire['Question'] as $question) {
-	++$i;
 	echo $this->element('questionnaires/edit_question', compact('questionnaire', 'question', 'i'));
+	++$i;
 }
 ?>
 

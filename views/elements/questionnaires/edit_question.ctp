@@ -7,18 +7,21 @@ $tr_id = 'tr_' . mt_rand();
 ?>
 <tr id="<?php echo $tr_id; ?>"<?php echo $class;?>>
 	<td class="handle"><?php
-	echo $this->Form->hidden("Question.$i.question_id", array('value' => $question['id']));
-	echo $this->Form->hidden("Question.$i.sort", array('value' => $i));
+	echo $this->Form->hidden("Question.$i.id");
+	echo $this->Form->hidden("Question.$i.question");
+	echo $this->Form->hidden("Question.$i.type");
+	echo $this->Form->hidden("Question.$i.active");
+	echo $this->Form->hidden("Question.$i.anonymous");
+	echo $this->Form->hidden("Question.$i.QuestionnairesQuestion.question_id");
+	echo $this->Form->hidden("Question.$i.QuestionnairesQuestion.sort");
 	echo $question['question'] . ' (' . $question['type'] . ')' .
 		($question['anonymous'] ? (' (' . __('anonymous', true) . ')') : '');
 	?></td>
 	<td><?php
-	$checked = (array_key_exists ('QuestionnairesQuestion', $question) ? $question['QuestionnairesQuestion']['required'] : false);
-	echo $this->Form->input("Question.$i.required", array(
+	echo $this->Form->input("Question.$i.QuestionnairesQuestion.required", array(
 			'div' => false,
 			'label' => false,
 			'type' => 'checkbox',
-			'checked' => $checked ? 'checked' : false,
 	));
 	?></td>
 	<td class="actions"><?php
