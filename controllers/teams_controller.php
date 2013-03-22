@@ -1929,8 +1929,9 @@ class TeamsController extends AppController {
 				$this->Roster = ClassRegistry::init ('TeamsPerson');
 				$this->Roster->id = $person['Person']['TeamsPerson']['id'];
 				if ($this->Roster->saveField ('position', $this->data['Person']['position'])) {
-					if (in_array ($team_id, $this->Session->read('Zuluru.TeamIDs'))) {
+					if ($person_id == $my_id) {
 						$this->_deleteTeamSessionData();
+						$this->_initSessionData($my_id);
 					}
 					if ($this->RequestHandler->isAjax()) {
 						$this->set(array(
