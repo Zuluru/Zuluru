@@ -98,31 +98,7 @@ class PreregistrationsController extends AppController {
 				$this->Session->setFlash(__('The preregistration could not be saved. Please, try again.', true), 'default', array('class' => 'warning'));
 			}
 		} else {
-			if (!empty($params)) {
-				$test = trim (@$params['first_name'], ' *') . trim (@$params['last_name'], ' *');
-				$min = ($this->is_admin || $this->is_manager) ? 1 : 2;
-				if (strlen ($test) < $min) {
-					$this->set('short', true);
-				} else {
-					// This pagination needs the model at the top level
-					$this->Person = $this->Preregistration->Person;
-					$this->_mergePaginationParams();
-					$this->paginate['Person'] = array(
-						'conditions' => $this->_generateSearchConditions($params, 'Person', 'AffiliatePerson'),
-						'contain' => array('Affiliate'),
-						'limit' => Configure::read('feature.items_per_page'),
-						'joins' => array(array(
-							'table' => "{$this->Person->tablePrefix}affiliates_people",
-							'alias' => 'AffiliatePerson',
-							'type' => 'LEFT',
-							'foreignKey' => false,
-							'conditions' => 'AffiliatePerson.person_id = Person.id',
-						)),
-					);
-					$this->set('people', $this->paginate('Person'));
-				}
-			}
-			$this->set(compact('url'));
+			$this->_handlePersonSearch($params, $url, $this->Preregistration->Person);
 			if (!empty($url['event'])) {
 				$this->set(compact('event'));
 				$this->render('add_to_event');

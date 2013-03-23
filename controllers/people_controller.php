@@ -1289,34 +1289,8 @@ class PeopleController extends AppController {
 	function search() {
 		$params = $url = $this->_extractSearchParams();
 		$affiliates = $this->_applicableAffiliates();
-		$this->set(compact('url', 'affiliates'));
-
-		if (!empty($params)) {
-			$test = trim (@$params['first_name'], ' *') . trim (@$params['last_name'], ' *');
-			$min = ($this->is_admin || $this->is_manager) ? 1 : 2;
-			if (strlen ($test) < $min) {
-				$this->set('error', 'The search terms used are too general. Please be more specific.');
-				return;
-			}
-
-			$this->_mergePaginationParams();
-			$this->paginate['Person'] = array(
-				'conditions' => $this->_generateSearchConditions($params, null, 'AffiliatePerson'),
-				'contain' => array(
-					'Note' => array('conditions' => array('created_person_id' => $this->Auth->user('id'))),
-					'Affiliate',
-				),
-				'limit' => Configure::read('feature.items_per_page'),
-				'joins' => array(array(
-					'table' => "{$this->Person->tablePrefix}affiliates_people",
-					'alias' => 'AffiliatePerson',
-					'type' => 'LEFT',
-					'foreignKey' => false,
-					'conditions' => 'AffiliatePerson.person_id = Person.id',
-				)),
-			);
-			$this->set('people', $this->paginate('Person'));
-		}
+		$this->set(compact('affiliates'));
+		$this->_handlePersonSearch($params, $url);
 	}
 
 	function rule_search() {

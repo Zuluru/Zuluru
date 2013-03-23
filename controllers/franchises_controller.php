@@ -368,31 +368,7 @@ class FranchisesController extends AppController {
 		$params = $url = $this->_extractSearchParams();
 		unset ($params['franchise']);
 		unset ($params['person']);
-		if (!empty($params)) {
-			$test = trim (@$params['first_name'], ' *') . trim (@$params['last_name'], ' *');
-			$min = ($this->is_admin || $this->is_manager) ? 1 : 2;
-			if (strlen ($test) < $min) {
-				$this->set('short', true);
-			} else {
-				// This pagination needs the model at the top level
-				$this->Person = $this->Franchise->Person;
-				$this->_mergePaginationParams();
-				$this->paginate['Person'] = array(
-					'conditions' => $this->_generateSearchConditions($params, 'Person', 'AffiliatePerson'),
-					'contain' => array('Affiliate'),
-					'limit' => Configure::read('feature.items_per_page'),
-					'joins' => array(array(
-						'table' => "{$this->Franchise->Person->tablePrefix}affiliates_people",
-						'alias' => 'AffiliatePerson',
-						'type' => 'LEFT',
-						'foreignKey' => false,
-						'conditions' => 'AffiliatePerson.person_id = Person.id',
-					)),
-				);
-				$this->set('people', $this->paginate('Person'));
-			}
-		}
-		$this->set(compact('url'));
+		$this->_handlePersonSearch($params, $url, $this->Franchise->Person);
 	}
 }
 ?>

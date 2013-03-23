@@ -1234,6 +1234,48 @@ class AppController extends Controller {
 		}
 	}
 
+	function _handlePersonSearch($params, &$url, $person_model = null, $conditions = array()) {
+		if (!empty($params)) {
+			$names = array();
+			foreach (array('first_name', 'last_name') as $field) {
+				if (!empty($params[$field])) {
+					$names[] = trim ($params[$field], ' *');
+				}
+			}
+			$test = implode('', $names);
+			$min = ($this->is_admin || $this->is_manager) ? 1 : 2;
+			if (strlen ($test) < $min) {
+				$this->set('error', 'The search terms used are too general. Please be more specific.');
+			} else {
+				// This pagination needs the model at the top level
+				if (!isset($this->Person)) {
+					$this->Person = $person_model;
+				}
+				$this->_mergePaginationParams();
+				$this->paginate['Person'] = array(
+					'conditions' => array_merge(
+						$this->_generateSearchConditions($params, 'Person', 'AffiliatePerson'),
+						$conditions
+					),
+					'contain' => array(
+						'Group',
+						'Affiliate',
+					),
+					'limit' => Configure::read('feature.items_per_page'),
+					'joins' => array(array(
+						'table' => "{$this->Person->tablePrefix}affiliates_people",
+						'alias' => 'AffiliatePerson',
+						'type' => 'LEFT',
+						'foreignKey' => false,
+						'conditions' => 'AffiliatePerson.person_id = Person.id',
+					)),
+				);
+				$this->set('people', $this->paginate('Person'));
+			}
+		}
+		$this->set(compact('url'));
+	}
+
 	function _extractSearchParams() {
 		if (is_array($this->data)) {
 			$params = array_merge ($this->data, $this->params['named']);
