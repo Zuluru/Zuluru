@@ -20,8 +20,7 @@ enforce gender limits, and indicate whether an individual may register for an ev
 
 <h4>Waivers</h4>
 <p>You will typically want everyone to accept a waiver of liability before participating in games that you offer.
-Each event can optionally require that the user accept a click-through waiver before registering.
-Currently, apart from using the registration system, there is no way to enforce that users agree to these waivers.</p>
+You can optionally require that the user accept a click-through waiver before registering or joining a team by using the SIGNED_WAIVER rule.</p>
 
 <h4>Questionnaires</h4>
 <p>If desired, you can define a questionnaire that will be used during registration.
@@ -58,9 +57,3 @@ You don't want to change the open or close date, because this allows anyone to r
 To allow this, you can add a "pre-registration" for a user, allowing them to register normally outside of the public date range;
 the process for them is exactly the same as it would be otherwise, including any required questionnaire and/or waiver, and acceptance of online payments.
 Note that adding a pre-registration does <strong>not</strong> allow someone to violate the register rule or caps.</p>
-
-<h3>Recommendations</h3>
-<p>Typical usage is to have an annual membership event.
-This event can be free, but it gives you the opportunity to require each member to accept the "membership" waiver.
-By including membership checks in the rules for team and individual events, you can thereby be sure that everyone registering for these items has accepted the waiver, without requiring it with every registration.
-If you also offer tournaments or other game-play events to non-members, you can use the "event" waiver for those.</p>
