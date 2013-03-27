@@ -385,9 +385,9 @@ body.map
 	padding: 0 0 0.5em 0;
 	line-height: 2em;
 }
-#zuluru div.actions li
+#zuluru div.actions ul li
 {
-	list-style-type: none;
+	list-style: none;
 	white-space: nowrap;
 	float: left;
 }
@@ -417,7 +417,7 @@ body.map
 	text-align: right;
 }
 
-#kick_start div.actions li
+#kick_start div.actions ul li
 {
 	float: none;
 	font-size: 150%;

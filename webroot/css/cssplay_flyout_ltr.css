@@ -27,14 +27,15 @@ way to fit your requirements.
   list-style-type:none;
 }
 /* style the list items */
-.cssplay_fly li {
+.cssplay_fly ul li {
   background:#b9d3fb; /* #d4d8bd url(images/cssplay_flyout/shade.gif); */
   height:18px;
   margin:0;
+  list-style:none;
   /* for IE7 */
   float:left;
 }
-.cssplay_fly li.sub {
+.cssplay_fly ul li.sub {
   background:#b9d3fb url(images/cssplay_flyout/sub.gif) no-repeat right center;
 }
 
@@ -73,7 +74,7 @@ way to fit your requirements.
   text-decoration:none;
 }
 
-.cssplay_fly li:hover {
+.cssplay_fly ul li:hover {
   position:relative;
 }
 
@@ -84,24 +85,24 @@ way to fit your requirements.
 }
 
 /* retain the hover and selected colors for each sublevel IE7 and Firefox etc */
-.cssplay_fly li:hover > a, .cssplay_fly li.selected > a {
+.cssplay_fly ul li:hover > a, .cssplay_fly ul li.selected > a {
   color:#efa;
   background:#3a93d2;
 }
-.cssplay_fly li.sub > a {
+.cssplay_fly ul li.sub > a {
   background:#b9d3fb url(images/cssplay_flyout/sub.gif) no-repeat right center;
 }
-.cssplay_fly li:hover.sub > a {
+.cssplay_fly ul li:hover.sub > a {
   color:#efa;
   background:#3a93d2 url(images/cssplay_flyout/sub.gif) no-repeat right center;
 }
-.cssplay_fly li.sub.selected > a {
+.cssplay_fly ul li.sub.selected > a {
   color:#efa;
   background:#3a93d2 url(images/cssplay_flyout/sub.gif) no-repeat right center;
 }
  
 /* hide the sub levels and give them a positon absolute so that they take up no room */
-.cssplay_fly li ul {
+.cssplay_fly ul li ul {
   visibility:hidden;
   position:absolute;
   top:-30px;
@@ -114,7 +115,7 @@ way to fit your requirements.
 }
 
 /* for browsers that understand this is all you need for the flyouts */
-.cssplay_fly li:hover > ul {
+.cssplay_fly ul li:hover > ul {
   visibility:visible;
 }
 
@@ -133,7 +134,7 @@ way to fit your requirements.
   visibility:visible;
 }
 
-li.vertsubseparator {
+ul li.vertsubseparator {
   border-top:1px solid #bbb;
   border-bottom:1px solid white;
   height:0;
