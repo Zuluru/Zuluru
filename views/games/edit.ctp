@@ -12,13 +12,20 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 <?php echo $this->Form->create('Game', array('url' => Router::normalize($this->here)));?>
 <?php
 	echo $this->Form->input('id');
+	$division_count = $this->requestAction(array('controller' => 'leagues', 'action' => 'division_count'),
+			array('named' => array('league' => $game['Division']['League']['id'])));
 ?>
 <dl><?php $i = 0; $class = ' class="altrow"';?>
-	<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo __('League', true) . '/' . __('Division', true); ?></dt>
-	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-		<?php echo $this->Html->link($game['Division']['League']['full_name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $game['Division']['League']['id'])); ?>
+	<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo __('League', true); ?></dt>
+	<dd<?php if ($i++ % 2 == 0) echo $class;?>><?php echo $this->element('leagues/block', array('league' => $game['Division']['League'])); ?>
 
 	</dd>
+	<?php if ($division_count != 1): ?>
+	<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo __('Division', true); ?></dt>
+	<dd<?php if ($i++ % 2 == 0) echo $class;?>><?php echo $this->element('divisions/block', array('league' => $game['Division']['League'], 'division' => $game['Division'])); ?>
+
+	</dd>
+	<?php endif; ?>
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Home Team'); ?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php
