@@ -11,6 +11,7 @@ $collapse = !empty($this->data['Division']['id']);
 
 <div class="leagues form">
 <?php echo $this->Form->create('League', array('url' => Router::normalize($this->here)));?>
+<p><a class="show_advanced basic" href="#">Show advanced configuration</a><a class="show_basic advanced" href="#">Show basic configuration</a></p>
 	<fieldset>
  		<legend><?php __('League Information'); ?></legend>
 	<?php
@@ -52,11 +53,13 @@ $collapse = !empty($this->data['Division']['id']);
 
 		if ($collapse) {
 			echo $this->ZuluruForm->input('Division.coord_list', array(
+				'div' => 'input advanced',
 				'label' => __('Coordinator Email List', true),
 				'size' => 70,
 				'after' => $this->Html->para (null, __('An email alias for all coordinators of this division (can be a comma separated list of individual email addresses).', true)),
 			));
 			echo $this->ZuluruForm->input('Division.capt_list', array(
+				'div' => 'input advanced',
 				'label' => __('Captain Email List', true),
 				'size' => 70,
 				'after' => $this->Html->para (null, __('An email alias for all captains of this division.', true)),
@@ -105,6 +108,7 @@ $collapse = !empty($this->data['Division']['id']);
 			'after' => $this->Html->para (null, __('Day, or days, on which this division will play.', true)),
 		));
 		echo $this->ZuluruForm->input('Division.ratio', array(
+			'div' => 'input advanced',
 			'label' => __('Gender Ratio', true),
 			'options' => Configure::read('sport.ratio'),
 			'hide_single' => true,
@@ -112,33 +116,38 @@ $collapse = !empty($this->data['Division']['id']);
 			'after' => $this->Html->para (null, __('Gender format for the division.', true)),
 		));
 		echo $this->Form->input('Division.roster_rule', array(
+			'div' => 'input advanced',
 			'cols' => 70,
 			'after' => $this->Html->para (null, __('Rules that must be passed to allow a player to be added to the roster of a team in this division.', true) .
 				' ' . $this->ZuluruHtml->help(array('action' => 'rules', 'rules'))),
 		));
 		echo $this->ZuluruForm->input('Division.roster_method', array(
+			'div' => 'input advanced',
 			'options' => Configure::read('options.roster_methods'),
 			'empty' => '---',
 			'after' => $this->Html->para (null, __('Do players need to accept invitations, or can they just be added? The latter has privacy policy implications and should be used only when necessary.', true)),
 		));
 		if (Configure::read('feature.registration')) {
 			echo $this->ZuluruForm->input('Division.flag_membership', array(
+				'div' => 'input advanced',
 				'options' => Configure::read('options.enable'),
 				'empty' => '---',
 			));
 		}
 		echo $this->ZuluruForm->input('Division.flag_roster_conflict', array(
+			'div' => 'input advanced',
 			'options' => Configure::read('options.enable'),
 			'empty' => '---',
 		));
 		echo $this->ZuluruForm->input('Division.flag_schedule_conflict', array(
+			'div' => 'input advanced',
 			'options' => Configure::read('options.enable'),
 			'empty' => '---',
 		));
 	?>
 	</fieldset>
 	<?php endif; ?>
-	<fieldset>
+	<fieldset<?php if (!$collapse) echo ' class="advanced"'; ?>>
  		<legend><?php __('Scheduling'); ?></legend>
 	<?php
 		if ($collapse) {
@@ -163,6 +172,7 @@ $collapse = !empty($this->data['Division']['id']);
 		</div>
 	<?php
 			echo $this->ZuluruForm->input('Division.exclude_teams', array(
+				'div' => 'input advanced',
 				'options' => Configure::read('options.enable'),
 				'empty' => '---',
 				'after' => $this->Html->para (null, __('Allows coordinators to exclude teams from schedule generation.', true)),
@@ -170,6 +180,7 @@ $collapse = !empty($this->data['Division']['id']);
 		}
 
 		echo $this->ZuluruForm->input('schedule_attempts', array(
+			'div' => 'input advanced',
 			'size' => 5,
 			'default' => 100,
 			'after' => $this->Html->para (null, __('Number of attempts to generate a schedule, before taking the best option.', true)),
@@ -196,6 +207,7 @@ $collapse = !empty($this->data['Division']['id']);
 				'after' => $this->Html->para (null, __('Enable or disable the entry of a numeric spirit score, independent of the questionnaire selected above.', true)),
 			));
 			echo $this->ZuluruForm->input('display_sotg', array(
+				'div' => 'input advanced',
 				'options' => Configure::read('options.sotg_display'),
 				'empty' => '---',
 				'label' => 'Spirit Display',
@@ -222,6 +234,7 @@ $collapse = !empty($this->data['Division']['id']);
 			));
 			if (Configure::read('scoring.allstars')) {
 				echo $this->ZuluruForm->input('Division.allstars', array(
+					'div' => 'input advanced',
 					'options' => Configure::read('options.allstar'),
 					'empty' => '---',
 					'after' => $this->Html->para (null, __('When to ask captains for allstar nominations.', true)),
@@ -230,6 +243,7 @@ $collapse = !empty($this->data['Division']['id']);
 		}
 
 		echo $this->ZuluruForm->input('expected_max_score', array(
+			'div' => 'input advanced',
 			'size' => 5,
 			'default' => 17,
 			'after' => $this->Html->para (null, __('Used as the size of the ratings table.', true)),
@@ -313,8 +327,11 @@ function selectAll(id) {
 if ($collapse) {
 	echo $this->ZuluruHtml->script ('datepicker', array('inline' => false));
 }
+$this->Js->get('.show_advanced')->event('click', 'jQuery(".advanced").show(); jQuery(".basic").hide();');
+$this->Js->get('.show_basic')->event('click', 'jQuery(".advanced").hide(); jQuery(".basic").show();');
 $this->Js->get('#LeagueStatTracking')->event('change', 'trackingCheckboxChanged();');
 $this->Js->buffer('
+jQuery(".advanced").hide();
 trackingCheckboxChanged();
 ');
 ?>
