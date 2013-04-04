@@ -6,7 +6,7 @@ class DivisionsController extends AppController {
 	var $components = array('Lock', 'CanRegister');
 
 	function publicActions() {
-		return array('view', 'schedule', 'standings');
+		return array('view', 'schedule', 'standings', 'tooltip');
 	}
 
 	function isAuthorized() {
@@ -172,10 +172,37 @@ class DivisionsController extends AppController {
 			}
 		}
 
+		if (!empty($this->params['requested'])) {
+			return array($division, $league_obj);
+		}
+
 		$this->set(compact ('division', 'league_obj'));
 		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.DivisionIDs')));
 
 		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
+	}
+
+	function tooltip() {
+		$id = $this->_arg('division');
+		if (!$id) {
+			return;
+		}
+		$this->Division->contain(array (
+			'Person',
+			'Day' => array('order' => 'day_id'),
+			'Team',
+			'League',
+		));
+		$division = $this->Division->read(null, $id);
+		if (!$division) {
+			return;
+		}
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
+		Configure::load("sport/{$division['League']['sport']}");
+		$this->set(compact('division'));
+
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
 	}
 
 	function add() {

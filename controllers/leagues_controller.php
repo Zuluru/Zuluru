@@ -6,7 +6,7 @@ class LeaguesController extends AppController {
 	var $components = array('Lock');
 
 	function publicActions() {
-		return array('cron', 'index', 'view', 'division_count');
+		return array('cron', 'index', 'view', 'tooltip', 'division_count');
 	}
 
 	function isAuthorized() {
@@ -129,11 +129,7 @@ class LeaguesController extends AppController {
 		}
 
 		$this->League->contain(array(
-			'Division' => array(
-				'Person',
-				'Day' => array('order' => 'day_id'),
-				'Team' => array ('Person', 'Franchise'),
-			),
+			'Division',
 			'Affiliate',
 		));
 		$league = $this->League->read(null, $id);
@@ -144,7 +140,17 @@ class LeaguesController extends AppController {
 		$this->Configuration->loadAffiliate($league['League']['affiliate_id']);
 		Configure::load("sport/{$league['League']['sport']}");
 
-		$this->set(compact ('league'));
+		if (count($league['Division']) == 1) {
+			list($division, $league_obj) = $this->requestAction(array('controller' => 'divisions', 'action' => 'view'),
+					array('named' => array('division' => $league['Division'][0]['id'])));
+
+			// Put the requested division information into a form that matches what's expected here
+			$league['Division'][0] = $division['Division'];
+			unset($division['Division']);
+			$league['Division'][0] += $division;
+		}
+
+		$this->set(compact ('league', 'league_obj'));
 
 		$this->set('is_manager', $this->is_manager && in_array($league['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs')));
 
@@ -159,7 +165,31 @@ class LeaguesController extends AppController {
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('affiliates'));
 
-		$this->_addLeagueMenuItems ($this->League->data);
+		$this->_addLeagueMenuItems ($league);
+	}
+
+	function tooltip() {
+		$id = $this->_arg('league');
+		if (!$id) {
+			return;
+		}
+		$this->League->contain(array (
+			'Division' => array(
+				'Person',
+				'Day' => array('order' => 'day_id'),
+				'Team',
+			),
+		));
+		$league = $this->League->read(null, $id);
+		if (!$league) {
+			return;
+		}
+		$this->Configuration->loadAffiliate($league['League']['affiliate_id']);
+		Configure::load("sport/{$league['League']['sport']}");
+		$this->set(compact('league'));
+
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
 	}
 
 	function division_count() {
@@ -242,7 +272,13 @@ class LeaguesController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		if (!empty($this->data)) {
-			if ($this->League->saveAll($this->data)) {
+			$this->Configuration->loadAffiliate($this->data['League']['affiliate_id']);
+			Configure::load("sport/{$this->data['League']['sport']}");
+			if (array_key_exists('Day', $this->data['League'])) {
+				$this->data['Division']['Day'] = $this->data['League']['Day'];
+			}
+			$this->data['Day'] = $this->data['Division']['Day'];
+			if ($this->League->save($this->data) && $this->League->Division->saveAll($this->data)) {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('league', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
@@ -251,15 +287,31 @@ class LeaguesController extends AppController {
 			}
 		}
 		if (empty($this->data)) {
-			$this->League->contain(array('StatType'));
+			$this->League->contain(array(
+				'Division' => array(
+					'Person',
+					'Day' => array('order' => 'day_id'),
+				),
+				'StatType',
+			));
 			$this->data = $this->League->read(null, $id);
 			if (!$this->data) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
 			$this->Configuration->loadAffiliate($this->data['League']['affiliate_id']);
+			Configure::load("sport/{$this->data['League']['sport']}");
+			if (count($this->data['Division'] == 1)) {
+				// Adjust loaded data
+				$this->data['Division'] = array_pop($this->data['Division']);
+				$this->data['Day'] = $this->data['Division']['Day'];
+
+				$this->set('league_obj', $this->_getComponent ('LeagueType', $this->data['Division']['schedule_type'], $this));
+				$this->set('is_coordinator', false);
+			}
 		}
 
+		$this->set('days', $this->League->Division->Day->find('list'));
 		$this->set('stat_types', $this->League->StatType->find('all', array(
 			'conditions' => array(
 				'sport' => $this->data['League']['sport'],
