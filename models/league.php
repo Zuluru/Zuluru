@@ -175,6 +175,35 @@ class League extends AppModel {
 		}
 
 		if (array_key_exists('Division', $a)) {
+			if (array_key_exists('id', $a['Division'])) {
+				$a_schedule_type = Configure::read("schedule_type.{$a['Division']['schedule_type']}");
+				$b_schedule_type = Configure::read("schedule_type.{$b['Division']['schedule_type']}");
+			} else {
+				$a_schedule_type = $b_schedule_type = PHP_INT_MAX;
+				foreach ($a['Division'] as $division) {
+					$a_schedule_type = min($a_schedule_type, Configure::read("schedule_type.{$division['schedule_type']}"));
+				}
+				foreach ($b['Division'] as $division) {
+					$b_schedule_type = min($b_schedule_type, Configure::read("schedule_type.{$division['schedule_type']}"));
+				}
+			}
+
+			// Compare the schedule type, so "regular" leagues are grouped before tournaments
+			if ($a_schedule_type > $b_schedule_type) {
+				return 1;
+			} else if ($a_schedule_type < $b_schedule_type) {
+				return -1;
+			}
+
+			// For tournaments, use the league open date
+			if ($a_schedule_type == SCHEDULE_TYPE_TOURNAMENT) {
+				if ($a_league['open'] > $b_league['open']) {
+					return 1;
+				} else if ($a_league['open'] < $b_league['open']) {
+					return -1;
+				}
+			}
+
 			if (array_key_exists('season_days', $a['Division'])) {
 				$a_days = $a['Division']['season_days'];
 			} else if (array_key_exists('Day', $a)) {
@@ -184,6 +213,11 @@ class League extends AppModel {
 				$a_days = Set::extract('/id', $a['Day']);
 			} else {
 				$a_days = array();
+				foreach (Configure::read('schedule_type') as $schedule_type => $sort_order) {
+					if ($sort_order == SCHEDULE_TYPE_LEAGUE) {
+						$a_days = array_merge($a_days, Set::extract("/Division[schedule_type=$schedule_type]/Day/id", $a));
+					}
+				}
 			}
 
 			if (array_key_exists('season_days', $b['Division'])) {
@@ -192,6 +226,11 @@ class League extends AppModel {
 				$b_days = Set::extract('/id', $b['Day']);
 			} else {
 				$b_days = array();
+				foreach (Configure::read('schedule_type') as $schedule_type => $sort_order) {
+					if ($sort_order == 1) {
+						$b_days = array_merge($b_days, Set::extract("/Division[schedule_type=$schedule_type]/Day/id", $b));
+					}
+				}
 			}
 
 			if (empty ($a_days)) {
@@ -212,14 +251,13 @@ class League extends AppModel {
 			}
 		}
 
-		// If the league open dates don't match, we use that
-		if ($a_league['open'] > $b_league['open']) {
+		if ($a_league['name'] > $b_league['name']) {
 			return 1;
-		} else if ($a_league['open'] < $b_league['open']) {
+		} else if ($a_league['name'] < $b_league['name']) {
 			return -1;
 		}
 
-		if (array_key_exists('Division', $a)) {
+		if (!empty($a['Division']['id'])) {
 			// Divisions on the same day use the id to sort. Assumption is that
 			// higher-level divisions are created first.
 			return $a['Division']['id'] > $b['Division']['id'];

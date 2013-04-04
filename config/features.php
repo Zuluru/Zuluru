@@ -67,6 +67,12 @@ if (!defined('VISIBILITY_PRIVATE')) {
 	define('VISIBILITY_PUBLIC', 4);
 }
 
+if (!defined('SCHEDULE_TYPE_LEAGUE')) {
+	define('SCHEDULE_TYPE_LEAGUE', 1);
+	define('SCHEDULE_TYPE_TOURNAMENT', 2);
+	define('SCHEDULE_TYPE_NONE', 3);
+}
+
 // Minimum "fake id" to use for setting edit pages
 if (!defined('MIN_FAKE_ID')) {
 	define('MIN_FAKE_ID', 1000000000);
@@ -212,6 +218,13 @@ $config['automatic_team_colours'] = array(
 	'Green',
 	'Purple',
 	'Orange',
+);
+
+$config['schedule_type'] = array(
+	'roundrobin' => SCHEDULE_TYPE_LEAGUE,
+	'ratings_ladder' => SCHEDULE_TYPE_LEAGUE,
+	'tournament' => SCHEDULE_TYPE_TOURNAMENT,
+	'none' => SCHEDULE_TYPE_NONE,
 );
 
 // MIME definitions for document types that CakePHP doesn't support
