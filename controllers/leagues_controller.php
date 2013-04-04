@@ -43,14 +43,12 @@ class LeaguesController extends AppController {
 	function index() {
 		$year = $this->_arg('year');
 		if ($year === null) {
-			$conditions = array('Division.is_open' => true);
+			$conditions = array('OR' => array(
+				'League.is_open' => true,
+				'League.open > CURDATE()',
+			));
 		} else {
-			$conditions = array('YEAR(Division.open)' => $year);
-		}
-
-		$sport = $this->_arg('sport');
-		if ($sport) {
-			$conditions['League.sport'] = $sport;
+			$conditions = array('YEAR(League.open)' => $year);
 		}
 
 		$affiliate = $this->_arg('affiliate');
@@ -61,37 +59,36 @@ class LeaguesController extends AppController {
 		}
 		$conditions['League.affiliate_id'] = $affiliates;
 
-		$divisions = $this->League->Division->find('all', array(
-			'conditions' => $conditions,
-			'contain' => array(
-				'League' => array('Affiliate'),
-				'Day',
-			),
-		));
-		$this->League->Division->addPlayoffs($divisions);
-
-		// Find any newly created leagues with no divisions, for administrators
+		// Include any newly created leagues with no divisions, for administrators
 		if ($this->is_admin || $this->is_manager) {
-			$leagues = $this->League->find('all', array(
-				'conditions' => array(
+			$conditions = array('OR' => array(
+				$conditions,
+				array(
 					'League.open' => '0000-00-00',
 					'League.affiliate_id' => $this->_applicableAffiliateIDs(true),
 				),
-				'contain' => array('Affiliate'),
 			));
-			// Re-jig the array format
-			foreach (array_keys($leagues) as $key) {
-				$leagues[$key]['League']['Affiliate'] = $leagues[$key]['Affiliate'];
-				unset($leagues[$key]['Affiliate']);
-			}
-			$divisions = array_merge($divisions, $leagues);
 		}
 
-		usort ($divisions, array('League', 'compareLeagueAndDivision'));
-		$this->set(compact('divisions', 'affiliate', 'affiliates', 'sport'));
+		$sport = $this->_arg('sport');
+		if ($sport) {
+			$conditions['League.sport'] = $sport;
+		}
+
+		$leagues = $this->League->find('all', array(
+			'conditions' => $conditions,
+			'contain' => array(
+				'Affiliate',
+				'Division' => array('Day'),
+			),
+		));
+		$this->League->Division->addPlayoffs($leagues);
+
+		usort ($leagues, array('League', 'compareLeagueAndDivision'));
+		$this->set(compact('leagues', 'affiliate', 'affiliates', 'sport'));
 
 		if (!empty($this->params['requested'])) {
-			return $divisions;
+			return $leagues;
 		}
 
 		$this->set('years', $this->League->find('all', array(

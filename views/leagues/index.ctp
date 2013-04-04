@@ -8,29 +8,29 @@ if (!empty($sport)) {
 
 <div class="leagues index">
 <h2><?php __('Leagues');?></h2>
-<?php if (empty($divisions)): ?>
+<?php if (empty($leagues)): ?>
 <p class="warning-message">There are no leagues currently active. Please check back periodically for updates<?php if (!empty($years)) echo ' or use the links below to review historical information'; ?>.</p>
 <?php else: ?>
 <table class="list">
 <?php
-$affiliate_id = $league_id = null;
-foreach ($divisions as $division):
-	$is_manager = $is_logged_in && in_array($division['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+$affiliate_id = null;
+foreach ($leagues as $league):
+	$is_manager = $is_logged_in && in_array($league['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
 
-	if ($division['League']['affiliate_id'] != $affiliate_id):
-		$affiliate_id = $division['League']['affiliate_id'];
+	if ($league['League']['affiliate_id'] != $affiliate_id):
+		$affiliate_id = $league['League']['affiliate_id'];
 		$season = null;
 		if (count($affiliates) > 1):
 ?>
 	<tr>
 		<th<?php if (!$is_admin) echo ' colspan="2"'; ?>>
-			<h3 class="affiliate"><?php echo $division['League']['Affiliate']['name']; ?></h3>
+			<h3 class="affiliate"><?php echo $league['League']['Affiliate']['name']; ?></h3>
 		</th>
 		<?php if ($is_admin): ?>
 		<th class="actions">
 			<?php
 				echo $this->ZuluruHtml->iconLink('edit_24.png',
-					array('controller' => 'affiliates', 'action' => 'edit', 'affiliate' => $division['League']['affiliate_id'], 'return' => true),
+					array('controller' => 'affiliates', 'action' => 'edit', 'affiliate' => $league['League']['affiliate_id'], 'return' => true),
 					array('alt' => __('Edit', true), 'title' => __('Edit Affiliate', true)));
 			?>
 		</th>
@@ -40,8 +40,8 @@ foreach ($divisions as $division):
 <?php
 	endif;
 
-	if ($division['League']['long_season'] != $season):
-		$season = $division['League']['long_season'];
+	if ($league['League']['long_season'] != $season):
+		$season = $league['League']['long_season'];
 ?>
 	<tr>
 		<th colspan="2"><?php echo $season; ?></th>
@@ -49,97 +49,48 @@ foreach ($divisions as $division):
 <?php
 	endif;
 
-	if ($division['League']['id'] != $league_id):
-		$league_id = $division['League']['id'];
-		Configure::load("sport/{$division['League']['sport']}");
+	Configure::load("sport/{$league['League']['sport']}");
+
+	// If the league has only a single division, we'll merge the details
+	$collapse = (count($league['Division']) == 1);
+	if ($collapse):
+		$class = 'inner-border';
+	else:
+		$class = '';
 ?>
 	<tr>
-		<th<?php if (!($is_admin || $is_manager)) echo ' colspan="2"'; ?>>
-			<?php echo $this->Html->link($division['League']['name'], array('action' => 'view', 'league' => $division['League']['id'])); ?>
-		</th>
+		<td<?php if (!($is_admin || $is_manager)) echo ' colspan="2"'; ?> class="inner-border">
+			<strong><?php echo $this->element('leagues/block', array('league' => $league['League'], 'field' => 'name')); ?></strong>
+		</td>
 		<?php if ($is_admin || $is_manager): ?>
-		<th class="actions">
-			<?php
-				echo $this->ZuluruHtml->iconLink('edit_24.png',
-					array('action' => 'edit', 'league' => $division['League']['id']),
-					array('alt' => __('Edit', true), 'title' => __('Edit League', true)));
-				echo $this->ZuluruHtml->iconLink('league_clone_24.png',
-					array('action' => 'add', 'league' => $division['League']['id']),
-					array('alt' => __('Clone League', true), 'title' => __('Clone League', true)));
-				echo $this->ZuluruHtml->iconLink('division_add_24.png',
-					array('controller' => 'divisions', 'action' => 'add', 'league' => $division['League']['id']),
-					array('alt' => __('Add Division', true), 'title' => __('Add Division', true)));
-				echo $this->ZuluruHtml->iconLink('delete_24.png',
-					array('action' => 'delete', 'league' => $division['League']['id']),
-					array('alt' => __('Delete', true), 'title' => __('Delete League', true)),
-					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $division['League']['id'])));
-				echo $this->Html->link(__('Participation', true), array('action' => 'participation', 'league' => $division['League']['id']));
-			?>
-		</th>
+		<td class="actions inner-border"><?php echo $this->element('leagues/actions', compact('league')); ?></td>
 		<?php endif; ?>
 	</tr>
 <?php
 	endif;
 
-	if (!empty($division['Division'])):
+	foreach ($league['Division'] as $division):
 ?>
 	<tr>
-		<td>
-			<?php echo $this->Html->link($division['Division']['name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $division['Division']['id'])); ?>
-		</td>
-		<td class="actions">
-			<?php
-			echo $this->ZuluruHtml->iconLink('view_24.png',
-				array('controller' => 'divisions', 'action' => 'view', 'division' => $division['Division']['id']),
-				array('alt' => __('Details', true), 'title' => __('View Division Details', true)));
-			echo $this->ZuluruHtml->iconLink('schedule_24.png',
-				array('controller' => 'divisions', 'action' => 'schedule', 'division' => $division['Division']['id']),
-				array('alt' => __('Schedule', true), 'title' => __('Schedule', true)));
-			echo $this->ZuluruHtml->iconLink('standings_24.png',
-				array('controller' => 'divisions', 'action' => 'standings', 'division' => $division['Division']['id']),
-				array('alt' => __('Standings', true), 'title' => __('Standings', true)));
-			if ($is_admin || $is_manager || in_array($division['Division']['id'], $this->Session->read('Zuluru.DivisionIDs'))) {
-				echo $this->ZuluruHtml->iconLink('edit_24.png',
-					array('controller' => 'divisions', 'action' => 'edit', 'division' => $division['Division']['id'], 'return' => true),
-					array('alt' => __('Edit', true), 'title' => __('Edit Division', true)));
-				echo $this->ZuluruHtml->iconLink('email_24.png',
-					array('controller' => 'divisions', 'action' => 'emails', 'division' => $division['Division']['id']),
-					array('alt' => __('Captain Emails', true), 'title' => __('Captain Emails', true)));
-				echo $this->ZuluruHtml->iconLink('score_approve_24.png',
-					array('controller' => 'divisions', 'action' => 'approve_scores', 'division' => $division['Division']['id']),
-					array('alt' => __('Approve scores', true), 'title' => __('Approve scores', true)));
-				echo $this->ZuluruHtml->iconLink('schedule_add_24.png',
-					array('controller' => 'divisions', 'controller' => 'schedules', 'action' => 'add', 'division' => $division['Division']['id']),
-					array('alt' => __('Add Games', true), 'title' => __('Add Games', true)));
-				if (League::hasSpirit($division)) {
-					echo $this->ZuluruHtml->iconLink('spirit_24.png',
-						array('controller' => 'divisions', 'action' => 'spirit', 'division' => $division['Division']['id']),
-						array('alt' => __('Spirit', true), 'title' => __('See Division Spirit Report', true)));
+		<td class="<?php echo $class;?>"><?php
+			if ($collapse) {
+				$name = $league['League']['name'];
+				if (!empty($division['name'])) {
+					$name .= " ({$division['name']})";
 				}
-				echo $this->ZuluruHtml->iconLink('field_report_24.png',
-					array('controller' => 'divisions', 'action' => 'fields', 'division' => $division['Division']['id']),
-					array('alt' => sprintf(__('%s Distribution', true), Configure::read('sport.field_cap')), 'title' => sprintf(__('%s Distribution Report', true), Configure::read('sport.field_cap'))));
+				echo $this->Html->tag('strong',
+					$this->element('leagues/block', array('league' => $league['League'], 'field' => 'name')));
+			} else {
+				echo '&nbsp;&nbsp;&nbsp;&nbsp;' .
+					$this->element('divisions/block', array('division' => $division));
 			}
-			if ($is_admin || $is_manager) {
-				echo $this->ZuluruHtml->iconLink('coordinator_add_24.png',
-					array('controller' => 'divisions', 'action' => 'add_coordinator', 'division' => $division['Division']['id']),
-					array('alt' => __('Add Coordinator', true), 'title' => __('Add Coordinator', true)));
-				echo $this->ZuluruHtml->iconLink('division_clone_24.png',
-					array('controller' => 'divisions', 'action' => 'add', 'league' => $division['League']['id'], 'division' => $division['Division']['id'], 'return' => true),
-					array('alt' => __('Clone Division', true), 'title' => __('Clone Division', true)));
-				if ($division['Division']['allstars'] != 'never') {
-					echo $this->Html->link(__('Allstars', true), array('controller' => 'divisions', 'action' => 'allstars', 'division' => $division['Division']['id']));
-				}
-				echo $this->ZuluruHtml->iconLink('delete_24.png',
-					array('controller' => 'divisions', 'action' => 'delete', 'division' => $division['Division']['id'], 'return' => true),
-					array('alt' => __('Delete', true), 'title' => __('Delete Division', true)),
-					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $division['Division']['id'])));
-			}
-			?>
+		?></td>
+		<td class="actions<?php echo " $class";?>">
+			<?php echo $this->element('divisions/actions', compact('division', 'league', 'is_manager', 'collapse')); ?>
 		</td>
 	</tr>
 <?php
-	endif;
+	endforeach;
 endforeach;
 ?>
 </table>

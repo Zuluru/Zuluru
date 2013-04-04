@@ -51,6 +51,11 @@
 	background: #f5f5f5;
 }
 
+#zuluru table td.inner-border
+{
+	border-top: 1px solid #ccc;
+}
+
 /** Paging **/
 div.paging
 {
