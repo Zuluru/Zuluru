@@ -335,42 +335,42 @@ class Division extends AppModel {
 	// but the required queries mess up containment and cause far too much data to
 	// be read. Revisit this limitation with a future version of Cake.
 	function addPlayoffs(&$data) {
-		if (array_key_exists('Division', $data)) {
-			if (array_key_exists ('current_round', $data['Division'])) {
-				$data['Division']['is_playoff'] = false;
+		if (array_key_exists ('current_round', $data)) {
+			$data['is_playoff'] = false;
 
-				$season_divisions = $this->find('all', array(
-						'conditions' => array(
-							'league_id' => $data['Division']['league_id'],
-							'current_round !=' => 'playoff',
-						),
-						'fields' => 'id',
-						'contain' => array('Day'),
-				));
+			$season_divisions = $this->find('all', array(
+					'conditions' => array(
+						'league_id' => $data['league_id'],
+						'current_round !=' => 'playoff',
+					),
+					'fields' => 'id',
+					'contain' => array('Day'),
+			));
 
-				$playoff_divisions = $this->find('all', array(
-						'conditions' => array(
-							'league_id' => $data['Division']['league_id'],
-							'current_round' => 'playoff',
-						),
-						'fields' => 'id',
-						'contain' => array('Day'),
-				));
+			$playoff_divisions = $this->find('all', array(
+					'conditions' => array(
+						'league_id' => $data['league_id'],
+						'current_round' => 'playoff',
+					),
+					'fields' => 'id',
+					'contain' => array('Day'),
+			));
 
-				if ($data['Division']['current_round'] == 'playoff') {
-					$data['Division']['sister_divisions'] = Set::extract('/Division/id', $playoff_divisions);
-					if (!empty($season_divisions)) {
-						$data['Division']['season_divisions'] = Set::extract('/Division/id', $season_divisions);
-						$data['Division']['season_days'] = array_unique(Set::extract('/Day/id', $season_divisions));
-						$data['Division']['is_playoff'] = true;
-					}
-				} else {
-					$data['Division']['sister_divisions'] = Set::extract('/Division/id', $season_divisions);
-					if (!empty($playoff_divisions)) {
-						$data['Division']['playoff_divisions'] = Set::extract('/Division/id', $playoff_divisions);
-					}
+			if ($data['current_round'] == 'playoff') {
+				$data['sister_divisions'] = Set::extract('/Division/id', $playoff_divisions);
+				if (!empty($season_divisions)) {
+					$data['season_divisions'] = Set::extract('/Division/id', $season_divisions);
+					$data['season_days'] = array_unique(Set::extract('/Day/id', $season_divisions));
+					$data['is_playoff'] = true;
+				}
+			} else {
+				$data['sister_divisions'] = Set::extract('/Division/id', $season_divisions);
+				if (!empty($playoff_divisions)) {
+					$data['playoff_divisions'] = Set::extract('/Division/id', $playoff_divisions);
 				}
 			}
+		} else if (array_key_exists('Division', $data)) {
+			$this->addPlayoffs($data['Division']);
 		} else {
 			foreach (array_keys($data) as $key) {
 				$this->addPlayoffs($data[$key]);
