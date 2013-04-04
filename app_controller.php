@@ -1015,11 +1015,22 @@ class AppController extends Controller {
 		$is_coordinator = in_array($division['id'], $this->Session->read('Zuluru.DivisionIDs'));
 		$is_manager = $this->is_manager && in_array($league['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
 
-		$this->_addMenuItem ($league['name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $league['id']), 'Leagues');
-		$path = array('Leagues', $league['name']);
-		if (!empty($division['name'])) {
-			$this->_addMenuItem ($division['name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $division['id']), $path);
-			$path[] = $division['name'];
+		if (array_key_exists('Division', $league)) {
+			$division_count = count($league['Division']);
+		} else {
+			$division_count = $this->requestAction(array('controller' => 'leagues', 'action' => 'division_count'),
+					array('named' => array('league' => $league['id'])));
+		}
+		if ($division_count == 1) {
+			$this->_addMenuItem ($division['league_name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $league['id']), 'Leagues');
+			$path = array('Leagues', $division['league_name']);
+		} else {
+			$this->_addMenuItem ($league['name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $league['id']), 'Leagues');
+			$path = array('Leagues', $league['name']);
+			if (!empty($division['name'])) {
+				$this->_addMenuItem ($division['name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $division['id']), $path);
+				$path[] = $division['name'];
+			}
 		}
 		$this->_addMenuItem ('Schedule', array('controller' => 'divisions', 'action' => 'schedule', 'division' => $division['id']), $path);
 		$this->_addMenuItem ('Standings', array('controller' => 'divisions', 'action' => 'standings', 'division' => $division['id']), $path);
@@ -1029,7 +1040,11 @@ class AppController extends Controller {
 		if ($this->is_admin || $is_manager || $is_coordinator) {
 			$this->_addMenuItem ('Add Games', array('controller' => 'schedules', 'action' => 'add', 'division' => $division['id']), array_merge($path, array('Schedule')));
 			$this->_addMenuItem ('Approve scores', array('controller' => 'divisions', 'action' => 'approve_scores', 'division' => $division['id']), $path);
-			$this->_addMenuItem ('Edit', array('controller' => 'divisions', 'action' => 'edit', 'division' => $division['id']), $path);
+			if ($division_count == 1) {
+				$this->_addMenuItem ('Edit', array('controller' => 'leagues', 'action' => 'edit', 'league' => $league['id']), $path);
+			} else {
+				$this->_addMenuItem ('Edit', array('controller' => 'divisions', 'action' => 'edit', 'division' => $division['id']), $path);
+			}
 			$this->_addMenuItem (Configure::read('ui.field_cap') . ' distribution', array('controller' => 'divisions', 'action' => 'fields', 'division' => $division['id']), $path);
 			$this->_addMenuItem (Configure::read('ui.field_cap') . ' availability', array('controller' => 'divisions', 'action' => 'slots', 'division' => $division['id']), $path);
 			$this->_addMenuItem ('Status report', array('controller' => 'divisions', 'action' => 'status', 'division' => $division['id']), $path);
