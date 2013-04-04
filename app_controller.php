@@ -75,7 +75,7 @@ class AppController extends Controller {
 		$this->theme = Configure::read('theme');
 
 		// Requests made through requestAction don't need any of the rest of this
-		if (array_key_exists('requested', $this->params) && $this->params['requested']) {
+		if (!empty($this->params['requested'])) {
 			return;
 		}
 
@@ -268,7 +268,7 @@ class AppController extends Controller {
 		// Perform any additional login processing that may be required;
 		// the Auth user information may be updated by this process
 		$login = $this->_getComponent ('Login', $auth->loginComponent, $this);
-		if ($login->expire() || !$user) {
+		if (empty($this->params['requested']) && ($login->expire() || !$user)) {
 			$this->Session->delete('Zuluru');
 			$login->login();
 			$user = $this->Auth->user();
