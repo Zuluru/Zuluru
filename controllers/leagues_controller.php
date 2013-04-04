@@ -6,7 +6,7 @@ class LeaguesController extends AppController {
 	var $components = array('Lock');
 
 	function publicActions() {
-		return array('cron', 'index', 'view');
+		return array('cron', 'index', 'view', 'division_count');
 	}
 
 	function isAuthorized() {
@@ -160,6 +160,17 @@ class LeaguesController extends AppController {
 		$this->set(compact('affiliates'));
 
 		$this->_addLeagueMenuItems ($this->League->data);
+	}
+
+	function division_count() {
+		$id = $this->_arg('league');
+		if (!$id) {
+			return 0;
+		}
+		return $this->League->Division->find('count', array(
+				'contain' => array(),
+				'conditions' => array('Division.league_id' => $id),
+		));
 	}
 
 	function participation() {
