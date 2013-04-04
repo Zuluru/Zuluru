@@ -36,8 +36,8 @@ $is_manager = in_array($field['Facility']['Region']['affiliate_id'], $this->Sess
 			<td><?php echo $this->ZuluruTime->time ($slot['display_game_end']); ?></td>
 			<td><?php
 			if (!empty ($slot['Game'])) {
-				echo $this->Html->link ($slot['Game']['Division']['league_name'],
-						array('controller' => 'games', 'action' => 'view', 'game' => $slot['Game']['id']));
+				echo $this->element('divisions/block', array('division' => $slot['Game']['Division'], 'field' => 'league_name',
+						'url' => array('controller' => 'games', 'action' => 'view', 'game' => $slot['Game']['id'])));
 			}
 			?></td>
 			<?php if ($is_admin || $is_manager): ?>

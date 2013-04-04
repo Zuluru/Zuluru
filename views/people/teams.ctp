@@ -20,7 +20,7 @@ foreach ($teams as $team) {
 	$rows[] = array($year,
 			$this->element('teams/block', compact('team')),
 			$team['TeamsPerson']['role'],
-			$this->Html->link ($team['Division']['full_league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])),
+			$this->element('divisions/block', array('division' => $team['Division'], 'field' => 'full_league_name')),
 	);
 }
 echo $this->Html->tag ('table', $this->Html->tableCells ($rows), array('class' => 'list'));

@@ -227,8 +227,7 @@ else:
 	<ul>
 	<?php
 		if (!empty($event['Event']['division_id'])) {
-			echo $this->Html->tag ('li', $this->Html->link(sprintf(__('View %s', true), __('Division', true)),
-					array('controller' => 'divisions', 'action' => 'view', 'division' => $event['Division']['id'])));
+		echo $this->Html->tag ('li', $this->element('divisions/block', array('division' => $event['Division'], 'link_text' => sprintf(__('View %s', true), __('Division', true)))));
 		}
 		if ($is_admin || $is_manager) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('edit_32.png',

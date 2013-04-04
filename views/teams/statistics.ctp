@@ -59,9 +59,7 @@ foreach ($counts as $division):
 			}
 			?>
 			</td>
-			<td><?php echo $this->Html->link ($division['Division']['name'],
-					array('controller' => 'divisions', 'action' => 'view', 'division' => $division['Division']['id']));
-			?></td>
+			<td><?php echo $this->element('divisions/block', array('division' => $division['Division'])); ?></td>
 			<td><?php echo $division[0]['count']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -97,8 +95,7 @@ foreach ($shorts as $team):
 <?php endif; ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
-			<td><?php echo $this->Html->link($team['Division']['full_league_name'],
-					array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])); ?></td>
+			<td><?php echo $this->element('divisions/block', array('division' => $team['Division'], 'field' => 'full_league_name')); ?></td>
 			<td><?php
 			echo $team[0]['count'];
 			if ($team[0]['subs'] > 0) {
@@ -135,8 +132,7 @@ foreach ($top_rating as $team):
 <?php endif; ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
-			<td><?php echo $this->Html->link($team['Division']['full_league_name'],
-					array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])); ?></td>
+			<td><?php echo $this->element('divisions/block', array('division' => $team['Division'], 'field' => 'full_league_name')); ?></td>
 			<td><?php echo $team['Team']['rating']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -168,8 +164,7 @@ foreach ($lowest_rating as $team):
 <?php endif; ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
-			<td><?php echo $this->Html->link($team['Division']['full_league_name'],
-					array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])); ?></td>
+			<td><?php echo $this->element('divisions/block', array('division' => $team['Division'], 'field' => 'full_league_name')); ?></td>
 			<td><?php echo $team['Team']['rating']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -202,8 +197,7 @@ foreach ($defaulting as $team):
 <?php endif; ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
-			<td><?php echo $this->Html->link($team['Division']['full_league_name'],
-					array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])); ?></td>
+			<td><?php echo $this->element('divisions/block', array('division' => $team['Division'], 'field' => 'full_league_name')); ?></td>
 			<td><?php echo $team['Team']['count']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -236,8 +230,7 @@ foreach ($no_scores as $team):
 <?php endif; ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
-			<td><?php echo $this->Html->link($team['Division']['full_league_name'],
-					array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])); ?></td>
+			<td><?php echo $this->element('divisions/block', array('division' => $team['Division'], 'field' => 'full_league_name')); ?></td>
 			<td><?php echo $team[0]['count']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -271,8 +264,7 @@ foreach ($top_spirit as $team):
 <?php endif; ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
-			<td><?php echo $this->Html->link($team['Division']['full_league_name'],
-					array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])); ?></td>
+			<td><?php echo $this->element('divisions/block', array('division' => $team['Division'], 'field' => 'full_league_name')); ?></td>
 			<td><?php echo $team[0]['avgspirit']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -304,8 +296,7 @@ foreach ($lowest_spirit as $team):
 <?php endif; ?>
 		<tr>
 			<td><?php echo $this->element('teams/block', compact('team')); ?></td>
-			<td><?php echo $this->Html->link($team['Division']['full_league_name'],
-					array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])); ?></td>
+			<td><?php echo $this->element('divisions/block', array('division' => $team['Division'], 'field' => 'full_league_name')); ?></td>
 			<td><?php echo $team[0]['avgspirit']; ?></td>
 		</tr>
 <?php endforeach; ?>

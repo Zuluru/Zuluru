@@ -93,7 +93,7 @@ if ($is_manager && !in_array($franchise['Franchise']['affiliate_id'], $this->Ses
 		<td><?php echo $this->element('teams/block', compact('team'));?></td>
 		<td><?php
 		if (array_key_exists('id', $team['Division'])) {
-			echo $this->Html->link($team['Division']['full_league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id']));
+			echo $this->element('divisions/block', array('division' => $team['Division'], 'field' => 'full_league_name'));
 		} else {
 			__('Unassigned');
 		}

@@ -153,23 +153,7 @@ if ($is_manager) {
 ?>
 	<tr<?php echo $class;?>>
 		<td class="splash_item"><?php echo $league['League']['full_name']; ?></td>
-		<td class="actions">
-			<?php
-					echo $this->ZuluruHtml->iconLink('edit_24.png',
-						array('controller' => 'leagues', 'action' => 'edit', 'league' => $league['League']['id'], 'return' => true),
-						array('alt' => __('Edit', true), 'title' => __('Edit League', true)));
-					echo $this->ZuluruHtml->iconLink('league_clone_24.png',
-						array('controller' => 'leagues', 'action' => 'add', 'league' => $league['League']['id'], 'return' => true),
-						array('alt' => __('Clone League', true), 'title' => __('Clone League', true)));
-					echo $this->ZuluruHtml->iconLink('division_add_24.png',
-						array('controller' => 'divisions', 'action' => 'add', 'league' => $league['League']['id'], 'return' => true),
-						array('alt' => __('Add Division', true), 'title' => __('Add Division', true)));
-					echo $this->ZuluruHtml->iconLink('delete_24.png',
-						array('controller' => 'leagues', 'action' => 'delete', 'league' => $league['League']['id'], 'return' => true),
-						array('alt' => __('Delete', true), 'title' => __('Delete League', true)),
-						array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $league['League']['id'])));
-			?>
-		</td>
+		<td class="actions"><?php echo $this->element('leagues/actions', array('league' => $league['League'], 'return' => true)); ?></td>
 	</tr>
 <?php endforeach; ?>
 </table>
@@ -252,7 +236,7 @@ foreach ($teams as $team):
 	<tr<?php echo $class;?>>
 		<td class="splash_item"><?php
 		echo $this->element('teams/block', array('team' => $team['Team'])) .
-				' (' . $this->Html->link ($team['Division']['league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])) . ')' .
+				' (' . $this->element('divisions/block', array('division' => $team['Division'], 'field' => 'league_name')) . ')' .
 				' (' . $this->element('people/roster_role', array('roster' => $team['TeamsPerson'], 'division' => $team['Division'])) . ')';
 		if (!empty($team['Team']['division_id'])) {
 			Configure::load("sport/{$team['Division']['League']['sport']}");
@@ -294,31 +278,8 @@ foreach ($divisions as $division):
 	}
 ?>
 	<tr<?php echo $class;?>>
-		<td class="splash_item"><?php
-			echo $this->ZuluruHtml->link($division['Division']['long_league_name'],
-					array('controller' => 'divisions', 'action' => 'view', 'division' => $division['Division']['id']));
-		?></td>
-		<td class="actions splash_action">
-			<?php
-			if ($division['Division']['schedule_type'] != 'none') {
-				echo $this->ZuluruHtml->iconLink('schedule_24.png',
-					array('controller' => 'divisions', 'action' => 'schedule', 'division' => $division['Division']['id']),
-					array('alt' => __('Schedule', true), 'title' => __('View Division Schedule', true)));
-				echo $this->ZuluruHtml->iconLink('standings_24.png',
-					array('controller' => 'divisions', 'action' => 'standings', 'division' => $division['Division']['id']),
-					array('alt' => __('Standings', true), 'title' => __('View Division Standings', true)));
-				echo $this->ZuluruHtml->iconLink('score_approve_24.png',
-					array('controller' => 'divisions', 'action' => 'approve_scores', 'division' => $division['Division']['id']),
-					array('alt' => __('Approve scores', true), 'title' => __('Approve scores', true)));
-				echo $this->ZuluruHtml->iconLink('schedule_add_24.png',
-					array('controller' => 'schedules', 'action' => 'add', 'division' => $division['Division']['id']),
-					array('alt' => __('Add games', true), 'title' => __('Add games', true)));
-			}
-			echo $this->ZuluruHtml->iconLink('edit_24.png',
-				array('controller' => 'divisions', 'action' => 'edit', 'division' => $division['Division']['id']),
-				array('alt' => __('Edit', true), 'title' => __('Edit Division', true)));
-			?>
-		</td>
+		<td class="splash_item"><?php echo $this->element('divisions/block', array('division' => $division['Division'], 'field' => 'long_league_name')); ?></td>
+		<td class="actions splash_action"><?php echo $this->element('divisions/actions', array('league' => $division['League'], 'division' => $division['Division'])); ?></td>
 	</tr>
 <?php endforeach; ?>
 </table>

@@ -27,7 +27,7 @@ $this->Html->addCrumb (__('View', true));
 		<?php if ($team['Division']['id']): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Division'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $this->Html->link($team['Division']['full_league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])); ?>
+			<?php echo $this->element('divisions/block', array('division' => $team['Division'], 'field' => 'full_league_name')); ?>
 
 		</dd>
 		<?php endif; ?>
@@ -159,7 +159,7 @@ $this->Html->addCrumb (__('View', true));
 			<?php
 			echo $this->Html->link($affiliate['Team']['name'], array('action' => 'view', 'team' => $affiliate['Team']['id'])) .
 				' (' .
-				$this->Html->link($affiliate['Division']['full_league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $affiliate['Division']['id'])) .
+				$this->element('divisions/block', array('division' => $affiliate['Division'], 'field' => 'full_league_name')) .
 				')';
 			?>
 

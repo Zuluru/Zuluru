@@ -57,7 +57,7 @@ foreach ($teams as $team):
 			<?php echo $this->element('teams/block', array('team' => $team['Team'])); ?>
 		</td>
 		<td>
-			<?php echo $this->Html->link($team['Division']['full_league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $team['Division']['id'])); ?>
+			<?php echo $this->element('divisions/block', array('division' => $team['Division'], 'field' => 'full_league_name')); ?>
 		</td>
 		<td class="actions">
 			<?php echo $this->element('teams/actions', array('team' => $team['Team'], 'division' => $team['Division'], 'league' => $team['League'], 'format' => 'links')); ?>

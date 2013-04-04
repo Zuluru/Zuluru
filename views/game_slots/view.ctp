@@ -52,7 +52,7 @@ $this->Html->addCrumb (__('View', true));
 			}
 		?>
 		<tr<?php echo $class;?>>
-			<td><?php echo $this->Html->link($division['Division']['full_league_name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $division['Division']['id']));?></td>
+			<td><?php echo $this->element('divisions/block', array('division' => $division['Division'], 'field' => 'full_league_name'));?></td>
 		</tr>
 		<?php endforeach; ?>
 	</table>
