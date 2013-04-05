@@ -9,7 +9,7 @@ foreach ($people as $person) {
 		$coordinator .= '&nbsp;' .
 			$this->Html->tag('span',
 				$this->ZuluruHtml->iconLink('coordinator_delete_24.png',
-					array('action' => 'remove_coordinator', 'division' => $division['id'], 'person' => $person['id']),
+					array('controller' => 'divisions', 'action' => 'remove_coordinator', 'division' => $division['id'], 'person' => $person['id']),
 					array('alt' => __('Remove', true), 'title' => __('Remove', true))),
 				array('class' => 'actions'));
 	}
