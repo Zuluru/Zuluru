@@ -330,13 +330,25 @@ foreach ($games as $game):
 			echo $this->element('fields/block', array('field' => $game['GameSlot']['Field']));
 		?></td>
 		<td class="actions splash_action"><?php
-		if (in_array ($game['HomeTeam']['id'], $this->Session->read('Zuluru.TeamIDs'))) {
+		if (in_array ($game['HomeTeam']['id'], $this->Session->read('Zuluru.TeamIDs')) && in_array ($game['AwayTeam']['id'], $this->Session->read('Zuluru.TeamIDs'))) {
+			// This person is on both teams; pick the one they're more important on...
+			// TODO: Better handling of this, as well as deal with game notes in such cases
+			$home_role = array_pop(Set::extract("/TeamsPerson[team_id={$game['HomeTeam']['id']}]/role", $teams));
+			$away_role = array_pop(Set::extract("/TeamsPerson[team_id={$game['AwayTeam']['id']}]/role", $teams));
+			$importance = array_flip(array_reverse(array_keys(Configure::read('options.roster_role'))));
+			if ($importance[$home_role] >= $importance[$away_role]) {
+				$team = $game['HomeTeam'];
+			} else {
+				$team = $game['AwayTeam'];
+			}
+		} else if (in_array ($game['HomeTeam']['id'], $this->Session->read('Zuluru.TeamIDs'))) {
 			$team = $game['HomeTeam'];
 		} else {
 			$team = $game['AwayTeam'];
 		}
 		if ($team['track_attendance']) {
 			$role = Set::extract("/TeamsPerson[team_id={$team['id']}]/role", $teams);
+			$is_captain = in_array($team['id'], $this->Session->read('Zuluru.OwnedTeamIDs'));
 			echo $this->element('games/attendance_change', array(
 				'team' => $team,
 				'game_id' => $game['Game']['id'],
