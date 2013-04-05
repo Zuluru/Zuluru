@@ -64,7 +64,7 @@ foreach ($people as $person):
 			<?php
 			if (!empty($extra_url)) {
 				foreach ($extra_url as $title => $url) {
-					$url = array_merge ($url, array('person' => $person['Person']['id'], 'return' => true));
+					$url = array_merge (array('person' => $person['Person']['id'], 'return' => true), $url);
 					echo $this->Html->link(__($title, true), $url);
 				}
 			}

@@ -24,7 +24,7 @@ if (!empty ($division['Person'])) {
 
 <?php endif; ?>
 
-<?php echo $this->element('people/search_results', array('extra_url' => array('Add as coordinator' => array('controller' => 'divisions', 'action' => 'add_coordinator', 'division' => $division['Division']['id'])))); ?>
+<?php echo $this->element('people/search_results', array('extra_url' => array('Add as coordinator' => array('controller' => 'divisions', 'action' => 'add_coordinator', 'division' => $division['Division']['id'], 'return' => false)))); ?>
 
 <?php if (!$this->params['isAjax']): ?>
 
