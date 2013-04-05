@@ -1310,6 +1310,22 @@ class DivisionsController extends AppController {
 	}
 
 	/**
+	 * Override the redirect function; if it's a view and there's only one division, view the league instead
+	 */
+	function redirect($url = null, $next = null) {
+		if (in_array($url['action'], array('edit', 'view')) && (!array_key_exists('controller', $url) || $url['controller'] == 'divisions')) {
+			$league = $this->Division->league($url['division']);
+			$division_count = $this->requestAction(array('controller' => 'leagues', 'action' => 'division_count'),
+					array('named' => compact('league')));
+			if ($division_count == 1) {
+				parent::redirect(array('controller' => 'leagues', 'action' => $url['action'], 'league' => $league), $next);
+			} else {
+				parent::redirect($url, $next);
+			}
+		}
+	}
+
+	/**
 	 * Ajax functionality
 	 */
 
