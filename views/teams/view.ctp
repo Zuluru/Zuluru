@@ -243,7 +243,7 @@ $this->Html->addCrumb (__('View', true));
 				}
 	?>
 	<tr<?php echo $class;?>>
-		<td colspan="<?php echo $cols; ?>"><strong>
+		<td colspan="<?php echo $cols + !empty($positions); ?>"><strong>
 			<?php
 			if ($team['Division']['is_playoff']) {
 				$typical_reason = 'the current roster does not meet the playoff roster rules';
