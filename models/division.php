@@ -390,7 +390,11 @@ class Division extends AppModel {
 	}
 
 	function affiliate($id) {
-		return $this->League->affiliate($this->field('league_id', array('Division.id' => $id)));
+		return $this->League->affiliate($this->league($id));
+	}
+
+	function league($id) {
+		return $this->field('league_id', array('Division.id' => $id));
 	}
 }
 ?>

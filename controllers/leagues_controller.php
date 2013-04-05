@@ -37,6 +37,26 @@ class LeaguesController extends AppController {
 			}
 		}
 
+		// Coordinators can perform these operations on leagues where they coordinate the only division
+		if (in_array ($this->params['action'], array(
+				'edit',
+		)))
+		{
+			// If a league id is specified, check if we're a coordinator of that league's only division
+			$league = $this->_arg('league');
+			if ($league) {
+				foreach ($this->Session->read('Zuluru.DivisionIDs') as $division) {
+					if ($this->League->Division->league($division) == $league &&
+						$this->requestAction(array('controller' => 'leagues', 'action' => 'division_count'),
+							array('named' => array('league' => $league))) == 1
+						)
+					{
+						return true;
+					}
+				}
+			}
+		}
+
 		return false;
 	}
 
