@@ -283,29 +283,39 @@ class LeaguesController extends AppController {
 				$this->Configuration->loadAffiliate($this->League->affiliate($id));
 			}
 		}
-		if (empty($this->data)) {
-			$this->League->contain(array(
-				'Division' => array(
-					'Person',
-					'Day' => array('order' => 'day_id'),
-				),
-				'StatType',
-			));
-			$this->data = $this->League->read(null, $id);
-			if (!$this->data) {
-				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-				$this->redirect(array('action' => 'index'));
-			}
-			$this->Configuration->loadAffiliate($this->data['League']['affiliate_id']);
-			Configure::load("sport/{$this->data['League']['sport']}");
-			if (count($this->data['Division'] == 1)) {
-				// Adjust loaded data
-				$this->data['Division'] = array_pop($this->data['Division']);
-				$this->data['Day'] = $this->data['Division']['Day'];
 
-				$this->set('league_obj', $this->_getComponent ('LeagueType', $this->data['Division']['schedule_type'], $this));
-				$this->set('is_coordinator', false);
-			}
+		// Very likely that we need to read existing league information for menu purposes
+		$this->League->contain(array(
+			'Division' => array(
+				'Person',
+				'Day' => array('order' => 'day_id'),
+			),
+			'StatType',
+		));
+		$this->League->read(null, $id);
+		if (!$this->League->data) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+
+		foreach (array_keys($this->League->data['Division']) as $key) {
+			Division::_addNames($this->League->data['Division'][$key], $this->League->data['League']);
+		}
+		$this->_addLeagueMenuItems ($this->League->data);
+
+		$this->Configuration->loadAffiliate($this->League->data['League']['affiliate_id']);
+		Configure::load("sport/{$this->League->data['League']['sport']}");
+		if (count($this->League->data['Division'] == 1)) {
+			// Adjust loaded data
+			$this->League->data['Division'] = array_pop($this->League->data['Division']);
+			$this->League->data['Day'] = $this->League->data['Division']['Day'];
+
+			$this->set('league_obj', $this->_getComponent ('LeagueType', $this->League->data['Division']['schedule_type'], $this));
+			$this->set('is_coordinator', false);
+		}
+
+		if (empty($this->data)) {
+			$this->data = $this->League->data;
 		}
 
 		$this->set('days', $this->League->Division->Day->find('list'));
@@ -315,7 +325,6 @@ class LeaguesController extends AppController {
 			)
 		)));
 		$this->set('affiliates', $this->_applicableAffiliates(true));
-		$this->_addLeagueMenuItems ($this->League->data);
 	}
 
 	function delete() {
