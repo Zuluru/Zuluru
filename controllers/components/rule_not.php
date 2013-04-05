@@ -11,6 +11,10 @@ class RuleNotComponent extends RuleComponent
 		$success = $this->rule->evaluate ($affiliate, $params, $team, $strict, $text_reason, $complete);
 		$this->reason = 'NOT ' . $this->rule->reason;
 		$this->reason_type = $this->rule->reason_type;
+
+		// If the thing we're negating can't change, then neither can we
+		$this->invariant = $this->rule->invariant;
+
 		return (! $success);
 	}
 

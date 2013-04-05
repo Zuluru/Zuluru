@@ -5,6 +5,10 @@
 
 class RuleAttributeComponent extends RuleComponent
 {
+	// We assume that attributes don't change.
+	// TODO: Should be safe for common ones (birthdate, gender), but make it handle everything.
+	var $invariant = true;
+
 	function parse($config) {
 		$this->config = trim ($config, '"\'');
 		return true;

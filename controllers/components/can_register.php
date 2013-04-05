@@ -6,6 +6,16 @@ class CanRegisterComponent extends Object
 		$this->controller =& $controller;
 	}
 
+	/**
+	 * Test whether a user is allowed to register for something
+	 *
+	 * @param mixed $user_id User id
+	 * @param mixed $event Event id
+	 * @param mixed $ignore_date When adding preregistrations, we must be able to ignore the date
+	 * @param mixed $strict If false, we will allow things with prerequisites that are not yet filled but can easily be
+	 * @param mixed $waiting If true, we will ignore the cap to allow waiting list registrations
+	 * @return mixed True if the user can register for the event
+	 */
 	function test($user_id, $event, $ignore_date = false, $strict = true, $waiting = false) {
 		if (!isset ($this->Html)) {
 			App::import ('helper', 'Html');
@@ -25,7 +35,7 @@ class CanRegisterComponent extends Object
 					'Event' => array(
 						'EventType',
 					),
-					'conditions' => array('payment !=' => 'Refunded'),
+					'conditions' => array('NOT' => array('payment' => array('Refunded', 'Waiting'))),
 					'order' => 'payment DESC',	// This only works because Unpaid > Pending > Paid
 				),
 				'Preregistration',
@@ -50,7 +60,7 @@ class CanRegisterComponent extends Object
 				$this->controller->Session->setFlash(__('Failed to parse the rule', true), 'default', array('class' => 'error'));
 			}
 
-			$rule_allowed = $rule_obj->evaluate($event['Event']['affiliate_id'], $this->person, null, $strict);
+			$rule_allowed = $rule_obj->evaluate($event['Event']['affiliate_id'], $this->person, null, $strict, false);
 		}
 
 		// Find the registration cap and how many are already registered.

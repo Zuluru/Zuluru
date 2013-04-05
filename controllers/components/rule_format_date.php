@@ -9,6 +9,10 @@ class RuleFormatDateComponent extends RuleComponent
 		if ($this->rule == null)
 			return null;
 		$date = $this->rule->evaluate($affiliate, $params);
+
+		// If the thing we're formatting can't change, then neither can we
+		$this->invariant = $this->rule->invariant;
+
 		return date ('Y-m-d', strtotime ($date));
 	}
 

@@ -5,23 +5,44 @@
 
 class RuleMemberTypeComponent extends RuleComponent
 {
+	var $desc = 'have a membership type';
+
 	function parse($config) {
 		$this->config = trim ($config, '"\'');
+		if ($this->config[0] == '<') {
+			$this->config = array('0000-00-00', substr($this->config, 1));
+		} else if ($this->config[0] == '>') {
+			$this->config = array(substr($this->config, 1), '9999-12-31');
+		} else if (strpos($this->config, ',') !== false) {
+			$this->config = explode(',', $this->config);
+		}
 		return true;
 	}
 
 	// Check if the user was a member on the configured date
 	function evaluate($affiliate, $params) {
-		$date = strtotime ($this->config);
+		if (is_array($this->config)) {
+			$date_from = strtotime ($this->config[0]);
+			$date_to = strtotime ($this->config[1]);
+		} else {
+			$date_from = $date_to = strtotime ($this->config);
+		}
+		$today = date('Y-m-d');
 		// TODO: A better way to rank membership types that handles more than just intro and full
 		$intro = false;
 		if (is_array($params) && array_key_exists ('Registration', $params)) {
 			foreach ($params['Registration'] as $reg) {
 				if (array_key_exists('membership_begins', $reg['Event']) &&
 					$reg['Event']['affiliate_id'] == $affiliate &&
-					strtotime ($reg['Event']['membership_begins']) <= $date &&
-					$date <= strtotime ($reg['Event']['membership_ends']))
+					strtotime ($reg['Event']['membership_begins']) <= $date_to &&
+					$date_from <= strtotime ($reg['Event']['membership_ends']))
 				{
+					if ($reg['Event']['membership_ends'] < $today) {
+						$this->desc = 'have a past membership type';
+					} else if ($reg['Event']['membership_begins'] > $today) {
+						$this->desc = 'have an upcoming membership type';
+					}
+
 					if ($reg['Event']['membership_type'] == 'full') {
 						return 'full';
 					} else if ($reg['Event']['membership_type'] == 'intro' || $reg['Event']['membership_type'] == 'junior_intro') {
@@ -36,7 +57,12 @@ class RuleMemberTypeComponent extends RuleComponent
 
 	function build_query($affiliate, &$joins, &$fields, &$conditions) {
 		if (!isset($this->events)) {
-			$date = date('Y-m-d', strtotime ($this->config));
+			if (is_array($this->config)) {
+				$date_from = strtotime ($this->config[0]);
+				$date_to = strtotime ($this->config[1]);
+			} else {
+				$date_from = $date_to = strtotime ($this->config);
+			}
 			$model = ClassRegistry::init('Event');
 			$types = $model->EventType->find('list', array(
 					'contain' => array(),
@@ -50,7 +76,7 @@ class RuleMemberTypeComponent extends RuleComponent
 					),
 			));
 			foreach ($events as $key => $event) {
-				if ($event['Event']['membership_begins'] > $date || $event['Event']['membership_ends'] < $date) {
+				if ($event['Event']['membership_begins'] > $date_to || $event['Event']['membership_ends'] < $date_from) {
 					unset($events[$key]);
 				}
 			}
@@ -89,11 +115,7 @@ class RuleMemberTypeComponent extends RuleComponent
 	}
 
 	function desc() {
-		App::import('helper', 'Time');
-		App::import('helper', 'ZuluruTime');
-		$ZuluruTime = new ZuluruTimeHelper();
-		$date = $ZuluruTime->date ($this->config);
-		return __('have a membership type', true);
+		return __($this->desc, true);
 	}
 }
 

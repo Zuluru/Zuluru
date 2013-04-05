@@ -6,6 +6,9 @@
 
 class RuleConstantComponent extends RuleComponent
 {
+	// Constants can never change, by definition
+	var $invariant = true;
+
 	function parse($config) {
 		$this->config = trim ($config, '"\'');
 		return true;

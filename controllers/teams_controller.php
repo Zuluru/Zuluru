@@ -2424,7 +2424,7 @@ class TeamsController extends AppController {
 
 				$person = $this->Team->Person->read(null, $person['Person']['id']);
 			}
-			if (!$this->can_add_rule_obj->evaluate($team['Division']['League']['affiliate_id'], $person, $team, $strict, $text_reason, false)) {
+			if (!$this->can_add_rule_obj->evaluate($team['Division']['League']['affiliate_id'], $person, $team, $strict, $text_reason)) {
 				switch ($this->can_add_rule_obj->reason_type) {
 					case REASON_TYPE_PLAYER_ACTIVE:
 						$prolog = 'To be added to this team, this player must first';

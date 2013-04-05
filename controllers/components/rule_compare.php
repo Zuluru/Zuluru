@@ -49,6 +49,10 @@ class RuleCompareComponent extends RuleComponent
 		}
 		$left = $this->rule[0]->evaluate($affiliate, $params, $team, $strict, $text_reason, $complete);
 		$right = $this->rule[1]->evaluate($affiliate, $params, $team, $strict, $text_reason, $complete);
+
+		// If neither thing we're comparing can change, then neither can we
+		$this->invariant = ($this->rule[0]->invariant && $this->rule[1]->invariant);
+
 		$prefix = '';
 		switch ($this->config) {
 			case '<':

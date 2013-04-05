@@ -24,6 +24,11 @@ class RuleComponent extends Object
 	var $reason_type = REASON_TYPE_PLAYER_ACTIVE;
 
 	/**
+	 * Indication of whether the rule can ever be expected to pass
+	 */
+	var $invariant = false;
+
+	/**
 	 * Where to redirect to for prerequisite completion, if applicable
 	 */
 	var $redirect = null;
@@ -41,11 +46,23 @@ class RuleComponent extends Object
 		'have a membership type of none'				=> 'not already have a valid membership',
 		'have a membership type of intro'				=> 'have an introductory membership',
 		'have a membership type of full'				=> 'have a full membership',
+
 		'have an introductory membership OR have a full membership' => 'have a valid membership',
 		'have a full membership OR have an introductory membership' => 'have a valid membership',
-		'have a valid membership OR have a valid membership' => 'have a valid membership',
-		'not already have a valid membership AND not already have a valid membership' => 'not already have a valid membership',
-		'already have a valid membership OR already have a valid membership' => 'already have a valid membership',
+
+		'have a past membership type of none'			=> 'not have been a member in the past',
+		'have a past membership type of intro'			=> 'have been an introductory member in the past',
+		'have a past membership type of full'			=> 'have been a full member in the past',
+
+		'have been an introductory member in the past OR have been a full member in the past' => 'have been a member in the past',
+		'have been a full member in the past OR have been an introductory member in the past' => 'have been a member in the past',
+
+		'have an upcoming membership type of none'		=> 'not have a membership for the upcoming year',
+		'have an upcoming membership type of intro'		=> 'have an introductory membership for the upcoming year',
+		'have an upcoming membership type of full'		=> 'have a full membership for the upcoming year',
+
+		'have an introductory membership for the upcoming year OR have a full membership for the upcoming year' => 'have a valid membership for the upcoming year',
+		'have a full membership for the upcoming year OR have an introductory membership for the upcoming year' => 'have a valid membership for the upcoming year',
 
 		'have a birthdate greater than or equal to'		=> 'have been born on or after',
 		'have a birthdate greater than'					=> 'have been born after',
@@ -53,17 +70,6 @@ class RuleComponent extends Object
 		'have a birthdate less than'					=> 'have been born before',
 
 		'have a team count of 0'						=> 'not be on another roster',
-
-		'have previously registered for the prerequisite OR have previously registered for the prerequisite' => 'have previously registered for one of the prerequisites',
-		'have previously registered for one of the prerequisites OR have previously registered for the prerequisite' => 'have previously registered for one of the prerequisites',
-	);
-
-	/**
-	 * Less common string replacements to make reasons more readable, once consolidations have been done by $tr
-	 */
-	var $tr2 = array(
-		'not already have a valid membership AND already have a valid membership' => 'not be a past member but have a valid current membership',
-		'already have a valid membership AND not already have a valid membership' => 'not be a past member but have a valid current membership',
 	);
 
 	/**
@@ -73,7 +79,6 @@ class RuleComponent extends Object
 		'have an introductory membership'				=> array('controller' => 'events', 'action' => 'wizard', 'membership'),
 		'have a full membership'						=> array('controller' => 'events', 'action' => 'wizard', 'membership'),
 		'have a valid membership'						=> array('controller' => 'events', 'action' => 'wizard', 'membership'),
-		'have a valid current membership'				=> array('controller' => 'events', 'action' => 'wizard', 'membership'),
 	);
 
 	function __construct(&$controller) {
@@ -166,6 +171,9 @@ class RuleComponent extends Object
 	 *
 	 * @param mixed $params An array with parameters used by the various rules
 	 * @param mixed $team An array with team information, if applicable
+	 * @param mixed $strict If false, we will allow things with prerequisites that are not yet filled but can easily be
+	 * @param mixed $text_reason If true, reasons returned will be only text, no links embedded
+	 * @param mixed $complete If true, the reason text will include everything, otherwise it will be situation-specific
 	 * @return mixed True if the rule check passes, false if it fails, null if
 	 * there is an error
 	 *
@@ -175,19 +183,15 @@ class RuleComponent extends Object
 			return null;
 		$success = $this->rule->evaluate($affiliate, $params, $team, $strict, $text_reason, $complete);
 		$this->reason = $this->rule->reason;
+		if ($this->reason[0] == '(' && $this->reason[strlen($this->reason) - 1] == ')') {
+			$this->reason = substr($this->reason, 1, -1);
+		}
 		$this->reason_type = $this->rule->reason_type;
 		$this->redirect = $this->rule->redirect;
 
 		// Do string replacements to make the reason more easily understandable
 		while (true) {
 			$new_reason = strtr ($this->reason, $this->tr);
-			if ($new_reason == $this->reason) {
-				break;
-			}
-			$this->reason = $new_reason;
-		}
-		while (true) {
-			$new_reason = strtr ($this->reason, $this->tr2);
 			if ($new_reason == $this->reason) {
 				break;
 			}

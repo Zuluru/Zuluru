@@ -34,9 +34,20 @@ class RuleOrComponent extends RuleComponent
 					$reasons[] = $rule->reason;
 					$this->reason_type = $rule->reason_type;
 				}
+
+				// If an invariant rule succeeds, then the OR can never fail
+				if ($rule->invariant) {
+					$this->invariant = true;
+				}
+
 				$status = true;
 			} else {
-				$reasons[] = $rule->reason;
+				// If an invariant rule fails, then we generally don't want to report it,
+				// since there's nothing the user can do
+				if (!$rule->invariant) {
+					$reasons[] = $rule->reason;
+				}
+
 				// This isn't ideal, but will do until we find a test case demands something better
 				$this->reason_type = $rule->reason_type;
 				if (!$this->redirect) {
@@ -44,7 +55,11 @@ class RuleOrComponent extends RuleComponent
 				}
 			}
 		}
+		$reasons = array_unique($reasons);
 		$this->reason = implode (__(' OR ', true), $reasons);
+		if (count($reasons) > 1) {
+			$this->reason = "({$this->reason})";
+		}
 		return $status;
 	}
 
