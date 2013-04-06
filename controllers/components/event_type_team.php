@@ -243,6 +243,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 			}
 
 			$roster = ClassRegistry::init ('TeamsPerson');
+			$roster->create();
 			if (!$roster->save (array(
 				'team_id' => $this->_controller->Team->id,
 				'person_id' => $captain_id,
