@@ -78,7 +78,7 @@ class EventTypeComponent extends Object
 	static function _extractAnswer($data, $question) {
 		$answer = Set::extract ("/Response[question_id=$question]/.", $data);
 		if (!empty ($answer)) {
-			if (array_key_exists('answer_id', $answer[0]) && !empty($answer[0]['answer_id'])) {
+			if (array_key_exists('answer_id', $answer[0]) && $answer[0]['answer_id'] !== null) {
 				return $answer[0]['answer_id'];
 			} else {
 				return $answer[0]['answer'];
