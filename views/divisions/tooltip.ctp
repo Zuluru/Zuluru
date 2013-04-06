@@ -7,8 +7,8 @@
 	}
 ?>
 <?php if (!empty ($division['Day'])): ?>
-	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __(count ($division['Day']) == 1 ? 'Day' : 'Days'); ?></dt>
-	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+	<dt><?php __(count ($division['Day']) == 1 ? 'Day' : 'Days'); ?></dt>
+	<dd>
 		<?php
 		$days = array();
 		foreach ($division['Day'] as $day) {
