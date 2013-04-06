@@ -1017,6 +1017,16 @@ class PeopleController extends AppController {
 			$this->redirect('/');
 		}
 
+		$file_dir = Configure::read('folders.uploads');
+		if (!is_dir($file_dir) || !is_writable($file_dir)) {
+			if ($this->is_admin) {
+				$this->Session->setFlash(sprintf(__('Your uploads folder %s does not exist or is not writable.', true), $file_dir), 'default', array('class' => 'error'));
+			} else {
+				$this->Session->setFlash(__('This system does not appear to be properly configured for document uploads. Please contact your administrator to have them correct this.', true), 'default', array('class' => 'error'));
+			}
+			$this->redirect('/');
+		}
+
 		$id = $this->_arg('person');
 		if ($id) {
 			$this->Person->contain();
@@ -1087,7 +1097,6 @@ class PeopleController extends AppController {
 					'type_id' => $this->data['document_type'],
 			)))
 			{
-				$file_dir = Configure::read('folders.uploads');
 				$file_ext = substr($this->data['document']['name'], strrpos($this->data['document']['name'], '.') + 1);
 				$upload_target = $file_dir . DS . $person['id'] . '_' . $this->Person->Upload->id . '.' . low($file_ext);
 				move_uploaded_file($this->data['document']['tmp_name'], $upload_target);
