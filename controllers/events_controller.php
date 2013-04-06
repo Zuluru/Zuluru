@@ -131,6 +131,19 @@ class EventsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'wizard'));
 		}
+
+		if ($is_manager && !in_array($this->Event->affiliate($id), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+			$is_manager = false;
+		}
+		if ($this->is_admin || $this->is_manager) {
+			// Admins and managers see things that have recently close, or open far in the future
+			$close = 'DATE_ADD(CURDATE(), INTERVAL -30 DAY)';
+			$open = 'DATE_ADD(CURDATE(), INTERVAL 180 DAY)';
+		} else {
+			$close = 'CURDATE()';
+			$open = 'DATE_ADD(CURDATE(), INTERVAL 30 DAY)';
+		}
+
 		$this->Event->contain (array(
 			'EventType',
 			'Division' => array(
@@ -147,6 +160,10 @@ class EventsController extends AppController {
 			),
 			'Alternate' => array(
 				'EventType',
+				'conditions' => array(
+					"Alternate.open < $open",
+					"Alternate.close > $close",
+				),
 			),
 			'Affiliate',
 		));
