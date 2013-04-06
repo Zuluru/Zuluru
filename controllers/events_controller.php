@@ -132,8 +132,8 @@ class EventsController extends AppController {
 			$this->redirect(array('action' => 'wizard'));
 		}
 
-		if ($is_manager && !in_array($this->Event->affiliate($id), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
-			$is_manager = false;
+		if ($this->is_manager && !in_array($this->Event->affiliate($id), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+			$this->is_manager = false;
 		}
 		if ($this->is_admin || $this->is_manager) {
 			// Admins and managers see things that have recently close, or open far in the future
