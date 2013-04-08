@@ -315,6 +315,7 @@ class GamesController extends AppController {
 			// We use the team_id as the array index, here and in the views,
 			// because order matters, and this is a good way to ensure that
 			// the correct data gets into the correct form.
+			// PLAYOFF TODO: Method of handling the various dependencies
 			$this->data['Game']['id'] = $id;
 			$this->data['Game']['approved_by'] = $this->Auth->user('id');
 			$this->data['SpiritEntry'][$game['Game']['home_team']]['team_id'] = $game['Game']['home_team'];
@@ -656,6 +657,9 @@ class GamesController extends AppController {
 		$attendance = $this->Game->_read_attendance($team_id, Set::extract('/Division/Day/id', $game), $id);
 		$this->set(compact('game', 'team', 'opponent', 'attendance'));
 		$this->set('is_captain', in_array($team_id, $this->Session->read('Zuluru.OwnedTeamIDs')));
+	}
+
+	function add_sub() {
 	}
 
 	function attendance_change() {
@@ -2052,7 +2056,7 @@ class GamesController extends AppController {
 		)));
 	}
 
-	function future() {
+	function future($recursive = false) {
 		$team_ids = $this->Session->read('Zuluru.TeamIDs');
 		if (empty ($team_ids)) {
 			return array();
@@ -2103,8 +2107,8 @@ class GamesController extends AppController {
 			}
 		}
 
-		if ($reread) {
-			return $this->future();
+		if ($reread && !$recursive) {
+			return $this->future(true);
 		}
 		return $games;
 	}
