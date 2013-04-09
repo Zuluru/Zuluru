@@ -50,6 +50,13 @@ class SportComponent extends Object
 					),
 					'fields' => array('person_id', 'position'),
 			));
+
+			// Add subs, if any, as unspecified positions
+			foreach ($players as $player) {
+				if (!array_key_exists($player, $this->rosters[$team])) {
+					$this->rosters[$team][$player] = 'unspecified';
+				}
+			}
 		}
 	}
 
