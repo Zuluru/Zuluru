@@ -96,7 +96,7 @@ foreach ($teams as $team):
 		$total = array();
 
 		foreach ($team['Person'] as $person) {
-			$person_stats = Set::extract("/Stat[person_id={$person['Person']['id']}]", $game);
+			$person_stats = Set::extract("/Stat[person_id={$person['Person']['id']}][team_id={$team['id']}]", $game);
 			if (empty($person_stats)) {
 				continue;
 			}
@@ -120,7 +120,7 @@ foreach ($teams as $team):
 			$tables[$stat_type['positions']]['rows'][$person['Person']['id']][] = array($value, array('class' => $stat_type['class']));
 		}
 
-		$person_stats = Set::extract('/Stat[person_id=0]', $game);
+		$person_stats = Set::extract("/Stat[person_id=0][team_id={$team['id']}]", $game);
 		if (!empty($person_stats)) {
 			if (!array_key_exists(0, $tables[$stat_type['positions']]['rows'])) {
 				$tables[$stat_type['positions']]['rows'][0] = array(

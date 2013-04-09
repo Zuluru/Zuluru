@@ -22,7 +22,7 @@ foreach ($teams as $team) {
 			$data[] = $team['name'];
 		}
 
-		$person_stats = Set::extract("/Stat[person_id={$person['Person']['id']}]", $game);
+		$person_stats = Set::extract("/Stat[person_id={$person['Person']['id']}][team_id={$team['id']}]", $game);
 
 		$data[] = $person['Person']['full_name'];
 		$data[] = $person['Person']['gender'];
