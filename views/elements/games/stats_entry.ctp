@@ -69,7 +69,7 @@ foreach ($attendance['Person'] as $person):
 			echo $this->ZuluruForm->hidden("Stat.$i.person_id", array('value' => $stat_record['person_id']));
 			echo $this->ZuluruForm->hidden("Stat.$i.stat_type_id", array('value' => $stat_record['stat_type_id']));
 
-			if (Stat::applicable($stat, $person['TeamsPerson']['position']) || !empty($stat_record['value'])) {
+			if (empty($person['TeamsPerson']['position']) || Stat::applicable($stat, $person['TeamsPerson']['position']) || !empty($stat_record['value'])) {
 				$class = '';
 			} else {
 				$class = ' unapplicable';
