@@ -1154,6 +1154,8 @@ class GamesController extends AppController {
 		$spirit_obj = $this->_getComponent ('Spirit', $game['Division']['League']['sotg_questions'], $this);
 
 		if (!empty ($this->data)) {
+			$transaction = new DatabaseTransaction($this->Game);
+
 			// We could put these as hidden fields in the form, but we'd need to
 			// validate them against the values from the URL anyway, so it's
 			// easier to just set them directly here.
@@ -1206,20 +1208,30 @@ class GamesController extends AppController {
 				}
 			}
 
-			// TODO: Validate that the all-star submissions are on the opposing roster
-
-			// Remove blank all-star fields, as they will cause insertion errors
 			if (Configure::read('scoring.allstars') &&
 				$game['Division']['allstars'] != 'never' &&
 				array_key_exists ('Allstar', $this->data))
 			{
+				if ($game['Division']['allstars_from'] == 'submitter') {
+					$roster = Set::extract('/Person/id', $team);
+				} else {
+					$roster = Set::extract('/Person/id', $opponent);
+				}
+
 				foreach ($this->data['Allstar'] as $key => $data) {
 					if (!$data['person_id']) {
 						// Delete any pre-existing nominations that have been removed
 						if (array_key_exists ('id', $data)) {
 							$this->Game->Allstar->delete ($data['id']);
 						}
+						// Remove blank all-star fields, as they will cause insertion errors
 						unset ($this->data['Allstar'][$key]);
+					} else {
+						// Validate that the all-star submissions are on the correct roster
+						if (!in_array($data['person_id'], $roster)) {
+							$this->Session->setFlash(__('You have tried to perform an invalid all-star nomination.', true), 'default', array('class' => 'error'));
+							$this->redirect('/');
+						}
 					}
 				}
 				if (empty ($this->data['Allstar'])) {
@@ -1269,7 +1281,6 @@ class GamesController extends AppController {
 			$this->Game->SpiritEntry->validate = $spirit_obj->getValidate($game['Division']['League']);
 
 			$resultMessage = null;
-			$transaction = new DatabaseTransaction($this->Game);
 			if ($this->Game->saveAll($this->data, array('validate' => 'first'))) {
 				// If the game was unplayed, and there's a spirit entry from a previous submission,
 				// we must delete that entry.
