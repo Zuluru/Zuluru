@@ -153,7 +153,7 @@ if ($game['Division']['ratio'] == 'womens') {
 <fieldset class="AllstarDetails">
 <legend>Allstar Nominations</legend>
 <p>You may select <?php echo $genders; ?> all-star from the list below<?php
-if ( $game['Division']['allstars'] == 'always' ) {
+if ($game['Division']['allstars'] == 'always') {
 	echo ', if you think they deserve to be nominated as an all-star.';
 }
 ?>.</p>
@@ -162,7 +162,14 @@ if ( $game['Division']['allstars'] == 'always' ) {
 // Build list of allstar options
 $players = array();
 $player_roles = Configure::read('playing_roster_roles');
-foreach ($opponent['Person'] as $person) {
+
+if ($game['Division']['allstars_from'] == 'submitter') {
+	$roster = $this_team['Person'];
+} else {
+	$roster = $opponent['Person'];
+}
+
+foreach ($roster as $person) {
 	$block = $this->element('people/block', array('person' => $person, 'link' => false));
 	if (!in_array($person['TeamsPerson']['role'], $player_roles)) {
 		$block .= ' (' . __('substitute', true) . ')';
@@ -172,7 +179,7 @@ foreach ($opponent['Person'] as $person) {
 
 // May need to tweak saved allstar data
 $male = $female = null;
-if (array_key_exists ('Allstar', $this->data)) {
+if (array_key_exists ('division_id', $this->data['Game']) && !empty($this->data['Allstar'])) {
 	$allstars = array();
 	foreach ($this->data['Allstar'] as $allstar) {
 		if (is_array ($players[$allstar['Person']['gender']])) {

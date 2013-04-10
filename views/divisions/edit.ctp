@@ -177,6 +177,12 @@ if (isset ($add)) {
 				'empty' => '---',
 				'after' => $this->Html->para (null, __('When to ask captains for allstar nominations.', true)),
 			));
+			echo $this->ZuluruForm->input('Division.allstars_from', array(
+				'div' => 'input advanced',
+				'options' => Configure::read('options.allstar_from'),
+				'empty' => '---',
+				'after' => $this->Html->para (null, __('Which team will allstar nominations come from? Ignored if the above field is set to "never".', true)),
+			));
 		}
 	?>
 	</fieldset>

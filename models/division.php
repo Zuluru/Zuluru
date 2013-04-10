@@ -61,6 +61,12 @@ class Division extends AppModel {
 				'message' => 'You must select a valid allstar entry option.',
 			),
 		),
+		'allstars_from' => array(
+			'inlist' => array(
+				'rule' => array('inconfig', 'options.allstar_from'),
+				'message' => 'You must select a valid allstar entry option.',
+			),
+		),
 		'exclude_teams' => array(
 			'inlist' => array(
 				'rule' => array('inconfig', 'options.enable'),

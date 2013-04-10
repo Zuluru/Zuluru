@@ -97,6 +97,11 @@ $config['options'] = array(
 		'always',
 	)),
 
+	'allstar_from'			=> make_options(array(
+		'opponent',
+		'submitter',
+	)),
+
 	'stat_tracking'			=> make_options(array(
 		'never',
 		'optional',
