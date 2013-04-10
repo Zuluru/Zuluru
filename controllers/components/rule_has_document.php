@@ -41,7 +41,7 @@ class RuleHasDocumentComponent extends RuleComponent
 
 		if (is_array($params) && array_key_exists ('Upload', $params)) {
 			$date = date('Y-m-d', strtotime ($this->config[1]));
-			$matches = Set::extract ("/Upload[type_i{$this->config[0]}][valid_from<=$date][valid_until>=$date]", $params);
+			$matches = Set::extract ("/Upload[type_id={$this->config[0]}][valid_from<=$date][valid_until>=$date]", $params);
 			if (!empty ($matches)) {
 				return true;
 			}
