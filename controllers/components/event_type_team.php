@@ -95,7 +95,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 				);
 			}
 
-			if (Configure::read('feature.region_preference') && array_key_exists ('ask_region', $event['Event']) && $event['Event']['ask_region']) {
+			if (Configure::read('feature.region_preference') && !empty($event['Event']['ask_region'])) {
 				// Could this model path be any more convoluted?
 				$regions = $this->_controller->Team->Division->Game->GameSlot->Field->Facility->Region->find('list');
 				$fields[] = array(
@@ -107,7 +107,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 				);
 			}
 
-			if (array_key_exists ('ask_status', $event['Event']) && $event['Event']['ask_status']) {
+			if (!empty($event['Event']['ask_status'])) {
 				$fields[] = array(
 					'id' => OPEN_ROSTER,
 					'type' => 'checkbox',
@@ -116,7 +116,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 				);
 			}
 
-			if (Configure::read('feature.attendance') && array_key_exists ('ask_attendance', $event['Event']) && $event['Event']['ask_status']) {
+			if (Configure::read('feature.attendance') && !empty($event['Event']['ask_status'])) {
 				$fields[] = array(
 					'id' => TRACK_ATTENDANCE,
 					'type' => 'checkbox',
