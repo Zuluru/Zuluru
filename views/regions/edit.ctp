@@ -36,7 +36,7 @@ if (isset ($add)) {
 				array('action' => 'delete', 'region' => $this->Form->value('Region.id')),
 				array('alt' => __('Delete', true), 'title' => __('Delete Region', true)),
 				array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $this->Form->value('Region.id')))); ?></li>
-		<li><?php echo $this->ZuluruHtml->iconLink('mailing_list_add_32.png',
+		<li><?php echo $this->ZuluruHtml->iconLink('add_32.png',
 					array('action' => 'add'),
 					array('alt' => __('New', true), 'title' => __('New', true))); ?></li>
 <?php endif; ?>
