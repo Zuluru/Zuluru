@@ -541,10 +541,9 @@ class SchedulesController extends AppController {
 					array('named' => compact('league')));
 			if ($division_count == 1) {
 				parent::redirect(array('controller' => 'leagues', 'action' => $url['action'], 'league' => $league), $next);
-			} else {
-				parent::redirect($url, $next);
 			}
 		}
+		parent::redirect($url, $next);
 	}
 }
 ?>
