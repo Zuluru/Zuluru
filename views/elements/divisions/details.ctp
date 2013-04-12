@@ -147,9 +147,11 @@ foreach ($fields as $field => $options):
 		<?php __(Inflector::Humanize ($division['allstars'])); ?>
 
 	</dd>
-	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('All-star nominations come from'); ?></dt>
+	<?php if ($division['allstars'] != 'never'): ?>
+	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('All-star nominations from'); ?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php __(Inflector::Humanize ($division['allstars_from'])); ?>
 
 	</dd>
+	<?php endif; ?>
 <?php endif; ?>
