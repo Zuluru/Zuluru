@@ -21,6 +21,13 @@ foreach ($division['Team'] as $team) {
 }
 
 echo $this->Form->end(__('Next step', true));
+
+$is_tournament = $division['Division']['schedule_type'] == 'tournament';
+if (!$is_tournament):
 ?>
+<p>Alternately, you can <?php echo $this->Html->link(__('create a playoff schedule', true), array('division' => $division['Division']['id'], 'playoff' => true)); ?>.
+<?php echo $this->ZuluruHtml->help(array('action' => 'schedules', 'playoffs')); ?>
+</p>
+<?php endif; ?>
 
 </div>
