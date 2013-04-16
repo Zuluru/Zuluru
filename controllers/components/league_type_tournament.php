@@ -12,12 +12,10 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 	var $render_element = 'tournament';
 
 	/**
-	 * Remember details about the round most recently scheduled, so that when
+	 * Remember details about the games already scheduled, so that when
 	 * we get to the next round we make sure to advance the time.
 	 */
-	var $last_round = 0;
-	var $last_date = null;
-	var $last_time = null;
+	var $pool_times = array();
 
 	/**
 	 * Remember details about the block of games currently being scheduled,
@@ -36,8 +34,14 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 	function scheduleOptions($num_teams, $allow_split = true) {
 		$types = array(
 			'single' => sprintf(__('single blank, unscheduled game (2 teams, one %s)', true), Configure::read('sport.field')),
-			'blankset' => "set of blank unscheduled games for all teams in the division ($num_teams teams, " . ($num_teams / 2) . " games)",
 		);
+
+		if ($num_teams % 2 == 0) {
+			$types['blankset'] = "set of blank unscheduled games for all teams in the division ($num_teams teams, " . ($num_teams / 2) . " games)";
+		} else {
+			$types['blankset_bye'] = "set of blank unscheduled games for all but one team in the division ($num_teams teams, " . (($num_teams - 1) / 2) . " games)";
+			$types['blankset_doubleheader'] = "set of blank unscheduled games for all teams in the division, one team will have a double-header ($num_teams teams, " . (($num_teams + 1) / 2) . " games)";
+		}
 
 		// Add more types, depending on the number of teams
 		switch ($num_teams) {
@@ -47,6 +51,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				break;
 
 			case 3:
+				$types['playin_three'] = 'play-in game for 2nd and 3rd; 1st gets a bye to the finals';
 				// Round-robin?
 				break;
 
@@ -78,6 +83,10 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 
 			case 7:
 				$types['quarters_consolation_seven'] = 'quarter-finals, semi-finals, finals, and all placement games, with a first-round bye for the top seed';
+				if ($allow_split) {
+					$types['brackets_of_4'] = 'seeded split into brackets of 4 and 3 teams';
+					$types['brackets_of_2'] = 'seeded split into 2 brackets of 2 teams plus a bracket of 3 teams';
+				}
 				break;
 
 			case 8:
@@ -144,9 +153,15 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				return array(1);
 			case 'blankset':
 				return array($num_teams / 2);
+			case 'blankset_bye':
+				return array(($num_teams - 1) / 2);
+			case 'blankset_doubleheader':
+				return array(($num_teams + 1) / 2);
 			case 'winner_take_all':
 				return array(1);
 			case 'home_and_home':
+				return array(1, 1);
+			case 'playin_three':
 				return array(1, 1);
 			case 'semis_consolation':
 				return array(2, 2);
@@ -183,14 +198,28 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				list ($x, $r) = $this->splitBrackets($num_teams, 2);
 				$req = array_fill (1, $x, array(1));
 				if (!empty ($overflow_type)) {
-					$req[] = $this->scheduleRequirements($overflow_type, 0);
+					$overflow_req = $this->scheduleRequirements($overflow_type, 0);
+					if (count($overflow_req) > 1) {
+						$req = array_reverse($req, true);
+						$req[] = $overflow_req;
+						$req = array_reverse($req, true);
+					} else {
+						$req[] = $overflow_req;
+					}
 				}
 				return $req;
 			case 'brackets_of_4':
 				list ($x, $r) = $this->splitBrackets($num_teams, 4);
 				$req = array_fill (1, $x, array(2, 2));
 				if (!empty ($overflow_type)) {
-					$req[] = $this->scheduleRequirements($overflow_type, 0);
+					$overflow_req = $this->scheduleRequirements($overflow_type, 0);
+					if (count($overflow_req) > 2) {
+						$req = array_reverse($req, true);
+						$req[] = $overflow_req;
+						$req = array_reverse($req, true);
+					} else {
+						$req[] = $overflow_req;
+					}
 				}
 				return $req;
 			case 'brackets_of_6':
@@ -198,14 +227,28 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				$bracket_req = $this->scheduleRequirements($bracket_type, 6);
 				$req = array_fill (1, $x, $bracket_req);
 				if (!empty ($overflow_type)) {
-					$req[] = $this->scheduleRequirements($overflow_type, 0);
+					$overflow_req = $this->scheduleRequirements($overflow_type, 0);
+					if (count($overflow_req) > count($bracket_req)) {
+						$req = array_reverse($req, true);
+						$req[] = $overflow_req;
+						$req = array_reverse($req, true);
+					} else {
+						$req[] = $overflow_req;
+					}
 				}
 				return $req;
 			case 'brackets_of_8':
 				list ($x, $r) = $this->splitBrackets($num_teams, 8);
 				$req = array_fill (1, $x, array(4, 4, 4));
 				if (!empty ($overflow_type)) {
-					$req[] = $this->scheduleRequirements($overflow_type, 0);
+					$overflow_req = $this->scheduleRequirements($overflow_type, 0);
+					if (count($overflow_req) > 3) {
+						$req = array_reverse($req, true);
+						$req[] = $overflow_req;
+						$req = array_reverse($req, true);
+					} else {
+						$req[] = $overflow_req;
+					}
 				}
 				return $req;
 		}
@@ -233,11 +276,22 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				// Create game for all teams in division
 				$ret = $this->createEmptySet($start_date);
 				break;
+			case 'blankset_bye':
+				// Create game for all teams in division
+				$ret = $this->createEmptySet($start_date, -1);
+				break;
+			case 'blankset_doubleheader':
+				// Create game for all teams in division
+				$ret = $this->createEmptySet($start_date, 1);
+				break;
 			case 'winner_take_all':
 				$ret = $this->createWinnerTakeAll();
 				break;
 			case 'home_and_home':
 				$ret = $this->createHomeAndHome();
+				break;
+			case 'playin_three':
+				$ret = $this->createPlayinThree();
 				break;
 			case 'semis_consolation':
 				$ret = $this->createSemis(true);
@@ -297,7 +351,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				}
 				// Also handle the overflow type, if any
 				if ($overflow_type) {
-					$ret &= $this->createScheduleBlock($division_id, $exclude_teams, $overflow_type, $start_date, $publish, null, null, $names[$i + 1], $i + 1, $i * 4);
+					$ret &= $this->createScheduleBlock($division_id, $exclude_teams, $overflow_type, $start_date, $publish, null, null, $names[$i + 1], $i + 1, $i * 2);
 				}
 				break;
 			case 'brackets_of_4':
@@ -346,8 +400,8 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 	/*
 	 * Create an empty set of games for this division
 	 */
-	function createEmptySet($date) {
-		$num_teams = count($this->division['Team']);
+	function createEmptySet($date, $team_adjustment = 0) {
+		$num_teams = count($this->division['Team']) + $team_adjustment;
 
 		if ($num_teams < 2) {
 			$this->_controller->Session->setFlash(__('Must have two teams', true), 'default', array('class' => 'warning'));
@@ -383,6 +437,16 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 
 		// Round 2: 2v1
 		$success &= $this->createTournamentGame (2, 2, 'B', 'seed', 2, 'seed', 1);
+
+		return $success;
+	}
+
+	function createPlayinThree() {
+		// Round 1: 2v3
+		$success = $this->createTournamentGame (1, 1, 'A', 'seed', 2, 'seed', 3);
+
+		// Round 2: 1 v winner
+		$success &= $this->createTournamentGame (2, 2, ordinal($this->first_team + 1), 'seed', 1, 'game_winner', 1);
 
 		return $success;
 	}
@@ -773,14 +837,64 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		return true;
 	}
 
+	function canSchedule($num_fields, $field_counts) {
+		// scheduleRequirements returns an array where the first element
+		// will always have the maximum number of rounds in it
+		$max_round = max(array_keys(current($num_fields)));
+
+		$this->pool_times = array();
+		for ($round = 0; $round <= $max_round; ++ $round) {
+			foreach ($num_fields as $pool => $rounds) {
+				if (array_key_exists($round, $rounds)) {
+					$required = $num_fields[$pool][$round];
+					while ($required--) {
+						if (!$this->canScheduleOne($pool, $round, $field_counts)) {
+							$this->Session->setFlash(sprintf(__('There are insufficient %s available to support the requested schedule.', true), Configure::read('sport.fields')), 'default', array('class' => 'info'));
+							return false;
+						}
+					}
+				}
+			}
+		}
+
+		return true;
+	}
+
+	function canScheduleOne($pool, $round, &$field_counts) {
+		if (empty($field_counts)) {
+			return false;
+		}
+
+		// If this pool has already had games scheduled, but not in this
+		// round, ignore any unused slots in the same time as games
+		// in the last round of this pool.
+		if (!empty($this->pool_times[$pool]) && empty($this->pool_times[$pool][$round])) {
+			$max_round = max(array_keys($this->pool_times[$pool]));
+			$slot_list = min(array_diff(array_keys($field_counts), $this->pool_times[$pool][$max_round]));
+		} else {
+			$slot_list = min(array_keys($field_counts));
+		}
+
+		-- $field_counts[$slot_list][0]['count'];
+		if ($field_counts[$slot_list][0]['count'] == 0) {
+			unset($field_counts[$slot_list]);
+		}
+		if (empty($this->pool_times[$pool][$round])) {
+			$this->pool_times[$pool][$round] = array();
+		}
+		$this->pool_times[$pool][$round][] = $slot_list;
+		return true;
+	}
+
 	function assignFieldsByRound() {
 		uasort($this->games, array($this, 'sortByRound'));
 		$rounds = count(array_unique(Set::extract('/round', $this->games)));
 		$dates = count(array_unique(Set::extract("/DivisionGameslotAvailability/GameSlot[game_date>={$this->start_date}]/game_date", $this->division)));
 		$separate_days = ($rounds <= $dates);
+		$this->pool_times = array();
 
 		foreach ($this->games as $key => $game) {
-			$game_slot_id = $this->selectRoundGameslot($this->start_date, $game['round'], $separate_days);
+			$game_slot_id = $this->selectRoundGameslot($this->start_date, $game['tournament_pool'], $game['round'], $separate_days);
 			if ($game_slot_id === false) {
 				return false;
 			}
@@ -793,7 +907,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		return true;
 	}
 
-	function selectRoundGameslot($date, $round, $separate_days) {
+	function selectRoundGameslot($date, $pool, $round, $separate_days) {
 		if (is_numeric ($date)) {
 			$date = date('Y-m-d', $date);
 		}
@@ -804,15 +918,20 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			usort($this->slots, array($this, 'sortByDateAndTime'));
 		}
 
-		// If we've gone to the next round, get rid of any unused slots in
-		// the same time as the last round. If we have at least as many
+		// If this pool has already had games scheduled, but not in this
+		// round, get rid of any unused slots in the same time as games
+		// in the last round of this pool. If we have at least as many
 		// days as rounds, get rid of everything on the same day.
-		if ($round != $this->last_round) {
-			$this->last_round = $round;
+		if (!empty($this->pool_times[$pool]) && empty($this->pool_times[$pool][$round])) {
+			$max_round = max(array_keys($this->pool_times[$pool]));
+			$used = $this->pool_times[$pool][$max_round];
 			foreach ($this->slots as $key => $slot) {
-				if ($slot['GameSlot']['game_date'] === $this->last_date &&
-					($separate_days || $slot['GameSlot']['game_start'] === $this->last_time))
-				{
+				if ($separate_days) {
+					$slot_key = $slot['GameSlot']['game_date'];
+				} else {
+					$slot_key = "{$slot['GameSlot']['game_date']} {$slot['GameSlot']['game_start']}";
+				}
+				if (in_array($slot_key, $used)) {
 					unset ($this->slots[$key]);
 				}
 			}
@@ -829,8 +948,14 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 
 		$slot = array_shift($this->slots);
 		$this->removeGameslot($slot['GameSlot']['id']);
-		$this->last_date = $slot['GameSlot']['game_date'];
-		$this->last_time = $slot['GameSlot']['game_start'];
+		if (empty($this->pool_times[$pool][$round])) {
+			$this->pool_times[$pool][$round] = array();
+		}
+		if ($separate_days) {
+			$this->pool_times[$pool][$round][] = $slot['GameSlot']['game_date'];
+		} else {
+			$this->pool_times[$pool][$round][] = "{$slot['GameSlot']['game_date']} {$slot['GameSlot']['game_start']}";
+		}
 
 		return $slot['GameSlot']['id'];
 	}
@@ -895,6 +1020,17 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		} else if ($a['round'] < $b['round']) {
 			return -1;
 		}
+
+		// If one pool has more rounds than the other, put the one with more rounds first,
+		// so it gets first crack at the earlier games
+		$a_rounds = Set::extract("/Game[tournament_pool={$a['tournament_pool']}]/round", array('Game' => $this->games));
+		$b_rounds = Set::extract("/Game[tournament_pool={$b['tournament_pool']}]/round", array('Game' => $this->games));
+		if ($a_rounds < $b_rounds) {
+			return 1;
+		} else if ($a_rounds > $b_rounds) {
+			return -1;
+		}
+
 		if ($a['tournament_pool'] > $b['tournament_pool']) {
 			return 1;
 		} else if ($a['tournament_pool'] < $b['tournament_pool']) {

@@ -301,23 +301,7 @@ class SchedulesController extends AppController {
 			return false;
 		}
 
-		// The requirements may come back from this as an array for each schedule block.
-		// For our check here, we want them as a single array, ordered by round number.
 		$num_fields = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams(), $this->data['Game']['bracket_type'], $this->data['Game']['overflow_type']);
-		if (is_array(current($num_fields))) {
-			$temp = array();
-			foreach ($num_fields as $rounds) {
-				foreach ($rounds as $round => $required) {
-					if (!array_key_exists($round, $temp)) {
-						$temp[$round] = $required;
-					} else {
-						$temp[$round] += $required;
-					}
-				}
-			}
-			$num_fields = $temp;
-		}
-
 		$field_counts = $this->Division->DivisionGameslotAvailability->find('all', array(
 				'fields' => array('count(GameSlot.id) AS count'),
 				'conditions' => array(
@@ -329,18 +313,7 @@ class SchedulesController extends AppController {
 				'order' => array('GameSlot.game_date', 'GameSlot.game_start'),
 		));
 
-		foreach ($num_fields as $required) {
-			while ($required > 0) {
-				if (empty($field_counts)) {
-					$this->Session->setFlash(sprintf(__('There are insufficient %s available to support the requested schedule.', true), Configure::read('sport.fields')), 'default', array('class' => 'info'));
-					return false;
-				}
-				$field_count = array_shift($field_counts);
-				$required -= $field_count[0]['count'];
-			}
-		}
-
-		return true;
+		return $this->league_obj->canSchedule($num_fields, $field_counts);
 	}
 
 	function _numTeams() {

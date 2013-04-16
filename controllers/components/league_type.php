@@ -341,6 +341,21 @@ class LeagueTypeComponent extends Object
 		return array();
 	}
 
+	function canSchedule($num_fields, $field_counts) {
+		foreach ($num_fields as $required) {
+			while ($required > 0) {
+				if (empty($field_counts)) {
+					$this->_controller->Session->setFlash(sprintf(__('There are insufficient %s available to support the requested schedule.', true), Configure::read('sport.fields')), 'default', array('class' => 'info'));
+					return false;
+				}
+				$field_count = array_shift($field_counts);
+				$required -= $field_count[0]['count'];
+			}
+		}
+
+		return true;
+	}
+
 	/**
 	 * Load everything required for scheduling.
 	 */
