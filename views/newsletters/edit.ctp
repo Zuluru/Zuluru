@@ -41,7 +41,7 @@ if (isset ($add)) {
 			'cols' => 60,
 			'rows' => 30,
 			'after' => $this->Html->para (null, __('The full text of the newsletter.', true)),
-			'class' => 'mceAdvanced',
+			'class' => 'mceNewsletter',
 		));
 		echo $this->ZuluruForm->input('target', array(
 			'minYear' => Configure::read('options.year.event.min'),
@@ -83,4 +83,4 @@ if (isset ($add)) {
 </div>
 
 <?php echo $this->ZuluruHtml->script ('datepicker', array('inline' => false)); ?>
-<?php if (Configure::read('feature.tiny_mce')) $this->TinyMce->editor('advanced'); ?>
+<?php if (Configure::read('feature.tiny_mce')) $this->TinyMce->editor('newsletter'); ?>
