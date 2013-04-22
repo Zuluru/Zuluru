@@ -7,12 +7,12 @@ $tr_id = 'tr_' . mt_rand();
 ?>
 <tr id="<?php echo $tr_id; ?>"<?php echo $class;?>>
 	<td class="handle"><?php
-	echo $this->Form->hidden("Question.$i.id");
-	echo $this->Form->hidden("Question.$i.question");
-	echo $this->Form->hidden("Question.$i.type");
+	echo $this->Form->hidden("Question.$i.id", array('value' => $question['id']));
+	echo $this->Form->hidden("Question.$i.question", array('value' => $question['question']));
+	echo $this->Form->hidden("Question.$i.type", array('value' => $question['type']));
 	echo $this->Form->hidden("Question.$i.active");
 	echo $this->Form->hidden("Question.$i.anonymous");
-	echo $this->Form->hidden("Question.$i.QuestionnairesQuestion.question_id");
+	echo $this->Form->hidden("Question.$i.QuestionnairesQuestion.question_id", array('value' => $question['id']));
 	echo $this->Form->hidden("Question.$i.QuestionnairesQuestion.sort");
 	echo $question['question'] . ' (' . $question['type'] . ')' .
 		($question['anonymous'] ? (' (' . __('anonymous', true) . ')') : '');

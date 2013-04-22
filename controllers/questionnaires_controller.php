@@ -214,7 +214,15 @@ class QuestionnairesController extends AppController {
 		$this->Questionnaire->Question->contain();
 		$question = $this->Questionnaire->Question->read(null, $id);
 		$question = $question['Question'];
-		$this->set(compact('question', 'i'));
+
+		$questionnaire_id = $this->_arg('questionnaire');
+		$this->Questionnaire->contain();
+		$questionnaire = $this->Questionnaire->read(null, $questionnaire_id);
+		if (!$questionnaire) {
+			return;
+		}
+
+		$this->set(compact('question', 'questionnaire', 'i'));
 	}
 
 	function remove_question() {
