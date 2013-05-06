@@ -19,7 +19,7 @@ class RuleHasDocumentComponent extends RuleComponent
 	}
 
 	// Check if the user has uploaded the required document
-	function evaluate($affiliate, $params, $team, $strict, $text_reason) {
+	function evaluate($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url) {
 		$matches = Set::extract ("/Upload[type_id={$this->config[0]}]", $params);
 		$unapproved = Set::extract ('/Upload[approved=0]', $matches);
 
@@ -29,7 +29,13 @@ class RuleHasDocumentComponent extends RuleComponent
 			} else {
 				App::import('Helper', 'Html');
 				$html = new HtmlHelper();
-				$this->reason = $html->link("have uploaded the {$this->document}", array('controller' => 'people', 'action' => 'document_upload', 'type' => $this->config[0], 'return' => true));
+				$url = array('controller' => 'people', 'action' => 'document_upload', 'type' => $this->config[0]);
+				if ($absolute_url) {
+					$url = $html->url($url, true);
+				} else {
+					$url['return'] = true;
+				}
+				$this->reason = $html->link("have uploaded the {$this->document}", $url);
 			}
 		} else {
 			$this->reason = "wait until your {$this->document} is approved";

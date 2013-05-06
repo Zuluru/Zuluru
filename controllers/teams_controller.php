@@ -2330,7 +2330,7 @@ class TeamsController extends AppController {
 		} else {
 			if ($status === ROSTER_INVITED) {
 				// Redo the test, without being strict
-				$can_add = $this->_canAdd ($person, $team, $role, $status, false);
+				$can_add = $this->_canAdd ($person, $team, $role, $status, false, false, true);
 
 				if ($can_add !== true) {
 					// Set the reason that they can't be added for the email
@@ -2391,7 +2391,7 @@ class TeamsController extends AppController {
 		}
 	}
 
-	function _canAdd ($person, $team, $role = null, $status = null, $strict = true, $text_reason = false) {
+	function _canAdd ($person, $team, $role = null, $status = null, $strict = true, $text_reason = false, $absolute_url = false) {
 		if ($person['Person']['status'] != 'active') {
 			return __('New players must be approved by an administrator before they can be added to a team; this normally happens within one business day.', true);
 		}
@@ -2428,7 +2428,7 @@ class TeamsController extends AppController {
 
 				$person = $this->Team->Person->read(null, $person['Person']['id']);
 			}
-			if (!$this->can_add_rule_obj->evaluate($team['Division']['League']['affiliate_id'], $person, $team, $strict, $text_reason)) {
+			if (!$this->can_add_rule_obj->evaluate($team['Division']['League']['affiliate_id'], $person, $team, $strict, $text_reason, true, $absolute_url)) {
 				switch ($this->can_add_rule_obj->reason_type) {
 					case REASON_TYPE_PLAYER_ACTIVE:
 						$prolog = 'To be added to this team, this player must first';

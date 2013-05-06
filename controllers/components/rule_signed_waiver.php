@@ -24,13 +24,19 @@ class RuleSignedWaiverComponent extends RuleComponent
 	}
 
 	// Check if the user has signed the required waiver
-	function evaluate($affiliate, $params, $team, $strict, $text_reason) {
+	function evaluate($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url) {
 		if ($text_reason) {
 			$this->reason = "have signed the {$this->waiver} waiver";
 		} else {
 			App::import('Helper', 'Html');
 			$html = new HtmlHelper();
-			$this->reason = $html->link("have signed the {$this->waiver} waiver", array('controller' => 'waivers', 'action' => 'sign', 'waiver' => $this->config[0], 'date' => $this->date, 'return' => true));
+			$url = array('controller' => 'waivers', 'action' => 'sign', 'waiver' => $this->config[0], 'date' => $this->date);
+			if ($absolute_url) {
+				$url = $html->url($url, true);
+			} else {
+				$url['return'] = true;
+			}
+			$this->reason = $html->link("have signed the {$this->waiver} waiver", $url);
 		}
 		$this->redirect = array('controller' => 'waivers', 'action' => 'sign', 'waiver' => $this->config[0], 'date' => $this->date);
 

@@ -174,14 +174,15 @@ class RuleComponent extends Object
 	 * @param mixed $strict If false, we will allow things with prerequisites that are not yet filled but can easily be
 	 * @param mixed $text_reason If true, reasons returned will be only text, no links embedded
 	 * @param mixed $complete If true, the reason text will include everything, otherwise it will be situation-specific
+	 * @param mixed $absolute_url If true, any links in the reason text will include the host and full path, for emails
 	 * @return mixed True if the rule check passes, false if it fails, null if
 	 * there is an error
 	 *
 	 */
-	function evaluate($affiliate, $params, $team = null, $strict = true, $text_reason = false, $complete = true) {
+	function evaluate($affiliate, $params, $team = null, $strict = true, $text_reason = false, $complete = true, $absolute_url = false) {
 		if ($this->rule == null)
 			return null;
-		$success = $this->rule->evaluate($affiliate, $params, $team, $strict, $text_reason, $complete);
+		$success = $this->rule->evaluate($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url);
 		$this->reason = $this->rule->reason;
 		if ($this->reason[0] == '(' && $this->reason[strlen($this->reason) - 1] == ')') {
 			$this->reason = substr($this->reason, 1, -1);
@@ -204,6 +205,11 @@ class RuleComponent extends Object
 			$html = new HtmlHelper();
 			foreach ($this->link_tr as $text => $url) {
 				if (stripos($this->reason, $text) !== false) {
+					if ($absolute_url) {
+						$url = $html->url($url, true);
+					} else {
+						$url['return'] = true;
+					}
 					$this->reason = str_replace ($text, $html->link($text, $url), $this->reason);
 				}
 			}

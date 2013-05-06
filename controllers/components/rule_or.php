@@ -23,13 +23,13 @@ class RuleOrComponent extends RuleComponent
 		return (count($this->rule) > 1);
 	}
 
-	function evaluate($affiliate, $params, $team, $strict, $text_reason, $complete) {
+	function evaluate($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url) {
 		if (empty ($this->rule))
 			return null;
 		$reasons = array();
 		$status = false;
 		foreach ($this->rule as $rule) {
-			if ($rule->evaluate ($affiliate, $params, $team, $strict, $text_reason, $complete)) {
+			if ($rule->evaluate ($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url)) {
 				if (empty($reasons) || $complete) {
 					$reasons[] = $rule->reason;
 					$this->reason_type = $rule->reason_type;

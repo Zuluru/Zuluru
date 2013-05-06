@@ -43,12 +43,12 @@ class RuleCompareComponent extends RuleComponent
 		return true;
 	}
 
-	function evaluate($affiliate, $params, $team, $strict, $text_reason, $complete) {
+	function evaluate($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url) {
 		if (count ($this->rule) != 2 || empty($this->config)) {
 			return null;
 		}
-		$left = $this->rule[0]->evaluate($affiliate, $params, $team, $strict, $text_reason, $complete);
-		$right = $this->rule[1]->evaluate($affiliate, $params, $team, $strict, $text_reason, $complete);
+		$left = $this->rule[0]->evaluate($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url);
+		$right = $this->rule[1]->evaluate($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url);
 
 		// If neither thing we're comparing can change, then neither can we
 		$this->invariant = ($this->rule[0]->invariant && $this->rule[1]->invariant);

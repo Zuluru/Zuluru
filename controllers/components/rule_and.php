@@ -23,13 +23,13 @@ class RuleAndComponent extends RuleComponent
 		return (count($this->rule) > 1);
 	}
 
-	function evaluate($affiliate, $params, $team, $strict, $text_reason, $complete) {
+	function evaluate($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url) {
 		if (empty ($this->rule))
 			return null;
 		$reasons = array();
 		$status = true;
 		foreach ($this->rule as $rule) {
-			if (!$rule->evaluate ($affiliate, $params, $team, $strict, $text_reason, $complete)) {
+			if (!$rule->evaluate ($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url)) {
 				// If an invariant rule fails, then we generally don't want to report it,
 				// since there's nothing the user can do
 				if (!$rule->invariant) {

@@ -20,7 +20,7 @@ class RuleRegisteredComponent extends RuleComponent
 	}
 
 	// Check if the user has registered for one of the specified events
-	function evaluate($affiliate, $params, $team, $strict, $text_reason) {
+	function evaluate($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url) {
 		$events = array();
 		if ($text_reason) {
 			foreach ($this->events as $event) {
@@ -30,7 +30,13 @@ class RuleRegisteredComponent extends RuleComponent
 			App::import('Helper', 'Html');
 			$html = new HtmlHelper();
 			foreach ($this->events as $event) {
-				$events[] = $html->link($event['Event']['name'], array('controller' => 'events', 'action' => 'view', 'event' => $event['Event']['id'], 'return' => true));
+				$url = array('controller' => 'events', 'action' => 'view', 'event' => $event['Event']['id']);
+				if ($absolute_url) {
+					$url = $html->url($url, true);
+				} else {
+					$url['return'] = true;
+				}
+				$events[] = $html->link($event['Event']['name'], $url);
 			}
 		}
 		$this->reason = __('have previously registered for the', true) . ' ' . implode(' ' . __('or', true) . ' ', $events);
