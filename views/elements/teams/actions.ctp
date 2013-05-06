@@ -77,9 +77,11 @@ if ($is_admin || $is_manager || $is_captain) {
 	}
 }
 if ($is_admin || $is_manager || (($is_captain || $is_coordinator) && !Division::rosterDeadlinePassed($division))) {
-	$links[] = $this->ZuluruHtml->iconLink("roster_add_{$size}.png",
-		array('controller' => 'teams', 'action' => 'add_player', 'team' => $team['id']),
-		array('alt' => __('Add Player', true), 'title' => __('Add Player', true)));
+	if ($this->params['controller'] != 'teams' || $this->params['action'] != 'add_player') {
+		$links[] = $this->ZuluruHtml->iconLink("roster_add_{$size}.png",
+			array('controller' => 'teams', 'action' => 'add_player', 'team' => $team['id']),
+			array('alt' => __('Add Player', true), 'title' => __('Add Player', true)));
+	}
 }
 if (($is_admin || $is_manager || $is_coordinator) && isset($league) && League::hasSpirit($league)) {
 	$links[] = $this->ZuluruHtml->iconLink("spirit_{$size}.png",

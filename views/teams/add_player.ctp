@@ -53,4 +53,8 @@ if (!empty ($events)) {
 }
 ?></p>
 </div>
+
+<div class="actions">
+	<?php echo $this->element('teams/actions', array('team' => $team['Team'], 'division' => $team['Division'], 'league' => $team['Division']['League'], 'format' => 'list')); ?>
+</div>
 <?php endif; ?>
