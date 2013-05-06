@@ -254,7 +254,7 @@ $collapse = !empty($this->data['Division']['id']);
 			'default' => 17,
 			'after' => $this->Html->para (null, __('Used as the size of the ratings table.', true)),
 		));
-		if (Configure::read('scoring.stat_tracking')) {
+		if (Configure::read('scoring.stat_tracking')):
 			echo $this->ZuluruForm->input('stat_tracking', array(
 				'options' => Configure::read('options.stat_tracking'),
 				'empty' => '---',
@@ -294,9 +294,9 @@ $collapse = !empty($this->data['Division']['id']);
 					'Stats to display season calculated values for' => $season_calc,
 				),
 			));
-		}
 	?>
 		</div>
+	<?php endif; ?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
