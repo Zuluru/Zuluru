@@ -1249,7 +1249,11 @@ class TeamsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
-		$this->Configuration->loadAffiliate($team['Division']['League']['affiliate_id']);
+		if (empty($team['Division']['id'])) {
+			$this->Configuration->loadAffiliate($team['Team']['affiliate_id']);
+		} else {
+			$this->Configuration->loadAffiliate($team['Division']['League']['affiliate_id']);
+		}
 
 		if (!empty($this->data)) {
 			$this->Team->Division->contain('League');
@@ -2885,9 +2889,11 @@ class TeamsController extends AppController {
 
 	function _rosterRemind($person, $captains, $team, $division, $roster, $second = false) {
 		$code = $this->_hash($roster);
-		$league = $division['League'];
-		// TODO: Does this work when we have multiple sports?
-		Configure::load("sport/{$league['sport']}");
+		if (!empty($division)) {
+			$league = $division['League'];
+			// TODO: Does this work when we have multiple sports?
+			Configure::load("sport/{$league['sport']}");
+		}
 		$this->set(compact('person', 'team', 'division', 'league', 'roster', 'code'));
 		$this->set ('captains', implode (', ', Set::extract ('/first_name', $captains)));
 		$this->set ('days', ($second ? 2 : 7));
