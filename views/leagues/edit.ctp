@@ -108,7 +108,6 @@ $collapse = !empty($this->data['Division']['id']);
 			'after' => $this->Html->para (null, __('Day, or days, on which this division will play.', true)),
 		));
 		echo $this->ZuluruForm->input('Division.ratio', array(
-			'div' => 'input advanced',
 			'label' => __('Gender Ratio', true),
 			'options' => Configure::read('sport.ratio'),
 			'hide_single' => true,
@@ -125,6 +124,7 @@ $collapse = !empty($this->data['Division']['id']);
 			'div' => 'input advanced',
 			'options' => Configure::read('options.roster_methods'),
 			'empty' => '---',
+			'default' => 'invite',
 			'after' => $this->Html->para (null, __('Do players need to accept invitations, or can they just be added? The latter has privacy policy implications and should be used only when necessary.', true)),
 		));
 		if (Configure::read('feature.registration')) {
@@ -132,17 +132,20 @@ $collapse = !empty($this->data['Division']['id']);
 				'div' => 'input advanced',
 				'options' => Configure::read('options.enable'),
 				'empty' => '---',
+				'default' => 0,
 			));
 		}
 		echo $this->ZuluruForm->input('Division.flag_roster_conflict', array(
 			'div' => 'input advanced',
 			'options' => Configure::read('options.enable'),
 			'empty' => '---',
+			'default' => true,
 		));
 		echo $this->ZuluruForm->input('Division.flag_schedule_conflict', array(
 			'div' => 'input advanced',
 			'options' => Configure::read('options.enable'),
 			'empty' => '---',
+			'default' => true,
 		));
 	?>
 	</fieldset>
@@ -175,6 +178,7 @@ $collapse = !empty($this->data['Division']['id']);
 				'div' => 'input advanced',
 				'options' => Configure::read('options.enable'),
 				'empty' => '---',
+				'default' => 0,
 				'after' => $this->Html->para (null, __('Allows coordinators to exclude teams from schedule generation.', true)),
 			));
 		}
@@ -237,12 +241,14 @@ $collapse = !empty($this->data['Division']['id']);
 					'div' => 'input advanced',
 					'options' => Configure::read('options.allstar'),
 					'empty' => '---',
+					'default' => 'never',
 					'after' => $this->Html->para (null, __('When to ask captains for allstar nominations.', true)),
 				));
 				echo $this->ZuluruForm->input('Division.allstars_from', array(
 					'div' => 'input advanced',
 					'options' => Configure::read('options.allstar_from'),
 					'empty' => '---',
+					'default' => 'opponent',
 					'after' => $this->Html->para (null, __('Which team will allstar nominations come from? Ignored if the above field is set to "never".', true)),
 				));
 			}
