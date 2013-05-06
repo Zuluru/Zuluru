@@ -4,12 +4,6 @@ class Division extends AppModel {
 	var $displayField = 'name';
 
 	var $validate = array(
-		'affiliate_id' => array(
-			'inlist' => array(
-				'rule' => array('inquery', 'Affiliate', 'id'),
-				'message' => 'You must select a valid affiliate.',
-			),
-		),
 		'open' => array(
 			'date' => array(
 				'rule' => array('date'),
@@ -41,6 +35,12 @@ class Division extends AppModel {
 				'required' => false,
 				'allowEmpty' => true,
 				'message' => 'There is an error in the rule syntax.',
+			),
+		),
+		'roster_method' => array(
+			'inlist' => array(
+				'rule' => array('inconfig', 'options.roster_methods'),
+				'message' => 'You must select a valid roster method.',
 			),
 		),
 		'schedule_type' => array(
