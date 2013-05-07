@@ -19,12 +19,12 @@ echo $this->ZuluruTime->date($event['TeamEvent']['date']);
 <?php if ($status == ATTENDANCE_AVAILABLE): ?>
 <p>If you would like <?php echo $person['first_name']; ?> to attend this event:
 <?php
-$url = Router::url(array('controller' => 'team_events', 'action' => 'attendance_change', $arg => $val, 'person' => $person['id'], 'code' => $code, 'status' => ATTENDANCE_ATTENDING), true);
+$url = Router::url(array('controller' => 'team_events', 'action' => 'attendance_change', 'event' => $event['TeamEvent']['id'], 'person' => $person['id'], 'code' => $code, 'status' => ATTENDANCE_ATTENDING), true);
 echo $this->Html->link($url, $url);
 ?></p>
 <p>If you know <b>for sure</b> that you don't want <?php echo $person['first_name']; ?> to attend this event:
 <?php
-$url = Router::url(array('controller' => 'team_events', 'action' => 'attendance_change', $arg => $val, 'person' => $person['id'], 'code' => $code, 'status' => ATTENDANCE_ABSENT), true);
+$url = Router::url(array('controller' => 'team_events', 'action' => 'attendance_change', 'event' => $event['TeamEvent']['id'], 'person' => $person['id'], 'code' => $code, 'status' => ATTENDANCE_ABSENT), true);
 echo $this->Html->link($url, $url);
 ?></p>
 <p>Either of these actions will generate an automatic email to <?php echo $person['first_name']; ?> indicating your selection. If you are unsure whether you will want <?php echo $person['first_name']; ?> to attend this event, it's best to leave <?php echo ($person['gender'] == 'Male' ? 'him' : 'her'); ?> listed as available, and take action later when you know for sure. You can always update <?php echo ($person['gender'] == 'Male' ? 'his' : 'her'); ?> status on the web site, there is no need to keep this email for that purpose.</p>

@@ -19,13 +19,13 @@ echo $this->ZuluruTime->date($event['TeamEvent']['date']);
 <?php if ($status == ATTENDANCE_AVAILABLE): ?>
 If you want <?php echo $person['first_name']; ?> to attend this event:
 <?php
-echo Router::url(array('controller' => 'team_events', 'action' => 'attendance_change', $arg => $val, 'person' => $person['id'], 'code' => $code, 'status' => ATTENDANCE_ATTENDING), true);
+echo Router::url(array('controller' => 'team_events', 'action' => 'attendance_change', 'event' => $event['TeamEvent']['id'], 'person' => $person['id'], 'code' => $code, 'status' => ATTENDANCE_ATTENDING), true);
 ?>
 
 
 If you know <b>for sure</b> that you don't want <?php echo $person['first_name']; ?> to attend this event:
 <?php
-echo Router::url(array('controller' => 'team_events', 'action' => 'attendance_change', $arg => $val, 'person' => $person['id'], 'code' => $code, 'status' => ATTENDANCE_ABSENT), true);
+echo Router::url(array('controller' => 'team_events', 'action' => 'attendance_change', 'event' => $event['TeamEvent']['id'], 'person' => $person['id'], 'code' => $code, 'status' => ATTENDANCE_ABSENT), true);
 ?>
 
 
