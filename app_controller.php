@@ -935,7 +935,12 @@ class AppController extends Controller {
 	 */
 	function _addTeamMenuItems($team) {
 		$is_captain = in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs'));
-		$is_manager = $this->is_manager && in_array($team['Division']['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+		if (empty($team['Division']['id'])) {
+			$affiliate_id = $team['Team']['affiliate_id'];
+		} else {
+			$affiliate_id = $team['Division']['League']['affiliate_id'];
+		}
+		$is_manager = $this->is_manager && in_array($affiliate_id, $this->Session->read('Zuluru.ManagedAffiliateIDs'));
 
 		$this->_limitOverride($team['Team']['id']);
 		$key = "{$team['Team']['name']}::{$team['Team']['id']}";

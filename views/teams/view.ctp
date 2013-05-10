@@ -191,7 +191,13 @@ $this->Html->addCrumb (__('View', true));
 	if (Configure::read('feature.shirt_numbers') && !$has_numbers && ($is_effective_admin || $is_effective_coordinator || $is_captain)) {
 		$extra[] = $this->ZuluruHtml->link(__('Jersey Numbers', true), array('action' => 'numbers', 'team' => $team['Team']['id']));
 	}
-	echo $this->element('teams/actions', array('team' => $team['Team'], 'division' => $team['Division'], 'league' => $team['Division']['League'], 'format' => 'list', 'extra' => $extra));
+
+	if (empty($team['Division']['id'])) {
+		$league = null;
+	} else {
+		$league = $team['Division']['League'];
+	}
+	echo $this->element('teams/actions', array('team' => $team['Team'], 'division' => $team['Division'], 'league' => $league, 'format' => 'list', 'extra' => $extra));
 	?>
 </div>
 
