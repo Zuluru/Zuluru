@@ -541,6 +541,7 @@ class ZuluruSchema extends CakeSchema {
 		'q9' => array('type' => 'integer', 'null' => false, 'default' => '0'),
 		'q10' => array('type' => 'integer', 'null' => false, 'default' => '0'),
 		'comments' => array('type' => 'text', 'null' => true, 'default' => NULL),
+		'highlights' => array('type' => 'text', 'null' => true, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'team' => array('column' => array('team_id', 'game_id'), 'unique' => 0), 'created' => array('column' => array('created_team_id', 'game_id'), 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);

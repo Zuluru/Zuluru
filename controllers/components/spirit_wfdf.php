@@ -154,7 +154,13 @@ class SpiritWfdfComponent extends SpiritComponent
 		),
 		'comments' => array(
 			'name' => 'Comments',
-			'text' => 'Do you have any comments on this game you would like to bring to the coordinator\'s attention?',
+			'text' => 'Do you have any concerns from this game that you would like to bring to the coordinator\'s attention? These will be kept confidential.',
+			'type' => 'text',
+			'restricted' => true,
+		),
+		'highlights' => array(
+			'name' => 'Highlights',
+			'text' => 'Do you have any spirit highlights from this game that you would like to bring to the coordinator\'s attention? These may be published.',
 			'type' => 'text',
 			'restricted' => true,
 		),

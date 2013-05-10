@@ -274,6 +274,12 @@ foreach ($division['Game'] as $game) {
 							array($entry['comments'], array('colspan' => $colcount - 2)),
 					);
 				}
+				if (!empty ($entry['highlights'])) {
+					$rows[] = array(
+							array(__('Highlight for entry above:', true), array('colspan' => 2)),
+							array($entry['highlights'], array('colspan' => $colcount - 2)),
+					);
+				}
 			}
 		}
 	}
