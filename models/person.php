@@ -114,6 +114,9 @@ class Person extends User {
 		$contain = array(
 			'Group',
 			'Setting',
+			'Waiver' => array(
+					'conditions' => array('WaiversPerson.valid_from <= CURDATE()', 'WaiversPerson.valid_until >= CURDATE()'),
+			),
 		);
 
 		// May need to include various types of uploads

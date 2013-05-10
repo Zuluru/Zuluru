@@ -397,6 +397,45 @@ echo $person['Person']['full_name'];
 <?php endif; ?>
 <?php endif; ?>
 
+<?php if (($is_admin || $is_me) && !empty($person['Waiver'])):?>
+<div class="related">
+	<h3><?php __('Waivers');?></h3>
+	<?php if (!empty($person['Waiver'])):?>
+	<table class="list">
+	<tr>
+		<th><?php __('Waiver');?></th>
+		<th><?php __('Signed');?></th>
+		<th><?php __('Valid From');?></th>
+		<th><?php __('Valid Until');?></th>
+		<th class="actions"><?php __('Actions');?></th>
+	</tr>
+	<?php
+		$i = 0;
+		foreach ($person['Waiver'] as $waiver):
+			$class = null;
+			if ($i++ % 2 == 0) {
+				$class = ' class="altrow"';
+			}
+		?>
+		<tr<?php echo $class;?>>
+			<td><?php echo $waiver['name']; ?></td>
+			<td><?php echo $this->ZuluruTime->fulldate($waiver['WaiversPerson']['created']); ?></td>
+			<td><?php echo $this->ZuluruTime->fulldate($waiver['WaiversPerson']['valid_from']); ?></td>
+			<td><?php echo $this->ZuluruTime->fulldate($waiver['WaiversPerson']['valid_until']); ?></td>
+			<td class="actions"><?php echo $this->ZuluruHtml->iconLink('view_24.png', array('controller' => 'waivers', 'action' => 'review', 'waiver' => $waiver['id'], 'date' => $waiver['WaiversPerson']['valid_from'])); ?></td>
+		</tr>
+		<?php endforeach; ?>
+	</table>
+	<?php endif; ?>
+
+	<div class="actions">
+		<ul>
+			<li><?php echo $this->Html->link(__('Show Waiver History', true), array('controller' => 'people', 'action' => 'waivers', 'person' => $person['Person']['id'])); ?> </li>
+		</ul>
+	</div>
+</div>
+<?php endif; ?>
+
 <?php if (Configure::read('feature.documents') && ($is_admin || $is_me)):?>
 <div class="related">
 	<h3><?php __('Documents');?></h3>
