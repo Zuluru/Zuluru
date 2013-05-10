@@ -365,6 +365,7 @@ class DivisionsController extends AppController {
 					$this->redirect(array('action' => 'view', 'division' => $id));
 				} else {
 					$this->Session->setFlash(__("Failed to add {$person['Person']['full_name']} as coordinator", true), 'default', array('class' => 'warning'));
+					$this->redirect(array('action' => 'add_coordinator', 'division' => $id));
 				}
 			}
 		}
