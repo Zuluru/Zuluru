@@ -229,11 +229,13 @@ class GameSlotsController extends AppController {
 				// The availability table isn't a standard HABTM, so we need to massage the
 				// data into the correct form
 				$this->data['DivisionGameslotAvailability'] = array();
-				foreach ($this->data['Division'] as $division_id) {
-					$this->data['DivisionGameslotAvailability'][] = array(
-						'game_slot_id' => $id,
-						'division_id' => $division_id,
-					);
+				foreach ($this->data['Division'] as $division_id => $value) {
+					if ($value) {
+						$this->data['DivisionGameslotAvailability'][] = array(
+							'game_slot_id' => $id,
+							'division_id' => $division_id,
+						);
+					}
 				}
 
 				// Wrap the whole thing in a transaction, for safety.
