@@ -323,9 +323,11 @@ class User extends AppModel {
  * don't yet have a Zuluru profile.
  */
 	function create_user_record($data, $field_map) {
+		$status = (Configure::read('feature.auto_approve') ? 'active' : 'new');
 		$save = array(
 			'id' => $data[$this->alias][$this->primaryKey],
 			'group_id' => 1,	// TODO: Assumed this is the Player group
+			'status' => $status,
 		);
 		foreach ($field_map as $new => $old) {
 			$save[$new] = trim($data[$this->alias][$old]);
