@@ -6,6 +6,9 @@ $this->Html->addCrumb (__('Waiver History', true));
 
 <div class="waivers index">
 <h2><?php echo __('Waiver History', true) . ': ' . $person['Person']['full_name'];?></h2>
+<?php if (empty($person['Waiver'])): ?>
+<p>This person has never signed a waiver.</p>
+<?php else: ?>
 
 <table class="list">
 	<tr>
@@ -44,4 +47,7 @@ $this->Html->addCrumb (__('Waiver History', true));
 	</tr>
 	<?php endforeach; ?>
 </table>
+
+<?php endif; ?>
+
 </div>
