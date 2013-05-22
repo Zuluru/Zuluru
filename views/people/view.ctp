@@ -7,13 +7,15 @@ $this->Html->addCrumb (__('View', true));
 <div class="people view">
 <h2><?php
 if ($is_logged_in) {
-	foreach ($person['Upload'] as $key => $upload) {
-		if ($upload['type_id'] === null) {
-			if ($upload['approved']) {
-				echo $this->element('people/player_photo', array('person' => $person['Person'], 'upload' => $upload));
+	if (!empty($person['Upload'])) {
+		foreach ($person['Upload'] as $key => $upload) {
+			if ($upload['type_id'] === null) {
+				if ($upload['approved']) {
+					echo $this->element('people/player_photo', array('person' => $person['Person'], 'upload' => $upload));
+				}
+				// Remove photos from the list of documents we'll show later
+				unset($person['Upload'][$key]);
 			}
-			// Remove photos from the list of documents we'll show later
-			unset($person['Upload'][$key]);
 		}
 	}
 }
