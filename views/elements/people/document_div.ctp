@@ -3,7 +3,7 @@
 <br /><?php
 echo $this->Form->input('comment', array(
 		'label' => false,
-		'size' => 80,
+		'size' => 70,
 ));
 ?>
 </div>
