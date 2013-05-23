@@ -63,6 +63,11 @@ $collapse = (count($league['Division']) == 1);
 
 			</dd>
 		<?php endif; ?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Tie Breaker'); ?></dt>
+			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+				<?php echo Configure::read("options.tie_breaker_spirit.{$league['League']['tie_breaker']}"); ?>
+
+			</dd>
 		<?php
 		if ($collapse) {
 			echo $this->element('divisions/details', array_merge(array(

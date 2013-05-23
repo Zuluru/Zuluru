@@ -73,6 +73,15 @@ if (!defined('SCHEDULE_TYPE_LEAGUE')) {
 	define('SCHEDULE_TYPE_NONE', 3);
 }
 
+if (!defined('TIE_BREAKER_HTH_HTHPM_PM_LOSS')) {
+	define('TIE_BREAKER_HTH_HTHPM_PM_GF_LOSS', 1);
+	define('TIE_BREAKER_HTH_HTHPM_PM_GF_LOSS_SPIRIT', 2);
+	define('TIE_BREAKER_SPIRIT_HTH_HTHPM_PM_GF_LOSS', 3);
+	define('TIE_BREAKER_PM_HTH_GF_LOSS', 4);
+	define('TIE_BREAKER_PM_HTH_GF_LOSS_SPIRIT', 5);
+	define('TIE_BREAKER_SPIRIT_PM_HTH_GF_LOSS', 6);
+}
+
 // Minimum "fake id" to use for setting edit pages
 if (!defined('MIN_FAKE_ID')) {
 	define('MIN_FAKE_ID', 1000000000);
@@ -225,6 +234,15 @@ $config['schedule_type'] = array(
 	'ratings_ladder' => SCHEDULE_TYPE_LEAGUE,
 	'tournament' => SCHEDULE_TYPE_TOURNAMENT,
 	'none' => SCHEDULE_TYPE_NONE,
+);
+
+$config['tie_breakers'] = array(
+	TIE_BREAKER_HTH_HTHPM_PM_GF_LOSS => array('hth', 'hthpm', 'pm', 'gf', 'loss'),
+	TIE_BREAKER_HTH_HTHPM_PM_GF_LOSS_SPIRIT => array('hth', 'hthpm', 'pm', 'gf', 'loss', 'spirit'),
+	TIE_BREAKER_SPIRIT_HTH_HTHPM_PM_GF_LOSS => array('spirit', 'hth', 'hthpm', 'pm', 'gf', 'loss'),
+	TIE_BREAKER_PM_HTH_GF_LOSS => array('pm', 'hth', 'gf', 'loss'),
+	TIE_BREAKER_PM_HTH_GF_LOSS_SPIRIT => array('pm', 'hth', 'gf', 'loss', 'spirit'),
+	TIE_BREAKER_SPIRIT_PM_HTH_GF_LOSS => array('spirit', 'pm', 'hth', 'gf', 'loss'),
 );
 
 // MIME definitions for document types that CakePHP doesn't support

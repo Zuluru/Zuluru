@@ -52,6 +52,7 @@ class LeagueTypeComponent extends Object
 	 *
 	 */
 	function presort(&$division, $spirit_obj) {
+		$this->division = $division;
 		if (array_key_exists ('Game', $division)) {
 			$season = $tournament = array();
 			foreach ($division['Game'] as $game) {
@@ -272,6 +273,79 @@ class LeagueTypeComponent extends Object
 		}
 
 		return $this->compareTeams($a, $b);
+	}
+
+	/**
+	 * Sort based on configured list of tie-breakers
+	 */
+	function compareTeamsTieBreakers($a, $b) {
+		if (array_key_exists ('results', $a))
+		{
+			if ($a['results']['pts'] < $b['results']['pts'])
+				return 1;
+			if ($a['results']['pts'] > $b['results']['pts'])
+				return -1;
+
+			if ($a['results']['W'] < $b['results']['W'])
+				return 1;
+			if ($a['results']['W'] > $b['results']['W'])
+				return -1;
+
+			$order = Configure::read("tie_breakers.{$this->division['League']['tie_breaker']}");
+			foreach ($order as $option) {
+				switch ($option) {
+					case 'hth':
+						if (array_key_exists ($b['id'], $a['results']['vs'])) {
+							// if b is in a's results, a must also exist in b's results, no point checking that
+							if ($a['results']['vs'][$b['id']] < $b['results']['vs'][$a['id']])
+								return 1;
+							if ($a['results']['vs'][$b['id']] > $b['results']['vs'][$a['id']])
+								return -1;
+						}
+						break;
+
+					case 'hthpm':
+						if (array_key_exists ($b['id'], $a['results']['vspm'])) {
+							// if b is in a's results, a must also exist in b's results, no point checking that
+							if ($a['results']['vspm'][$b['id']] < $b['results']['vspm'][$a['id']])
+								return 1;
+							if ($a['results']['vspm'][$b['id']] > $b['results']['vspm'][$a['id']])
+								return -1;
+						}
+						break;
+
+					case 'pm':
+						if ($a['results']['gf'] - $a['results']['ga'] < $b['results']['gf'] - $b['results']['ga'])
+							return 1;
+						if ($a['results']['gf'] - $a['results']['ga'] > $b['results']['gf'] - $b['results']['ga'])
+							return -1;
+						break;
+
+					case 'gf':
+						if ($a['results']['gf'] < $b['results']['gf'])
+							return 1;
+						if ($a['results']['gf'] > $b['results']['gf'])
+							return -1;
+						break;
+
+					case 'loss':
+						if ($a['results']['L'] > $b['results']['L'])
+							return 1;
+						if ($a['results']['L'] < $b['results']['L'])
+							return -1;
+						break;
+
+					case 'spirit':
+						if ($a['results']['spirit'] - $a['results']['games'] < $b['results']['spirit'] - $b['results']['games'])
+							return 1;
+						if ($a['results']['spirit'] - $a['results']['games'] > $b['results']['spirit'] - $b['results']['games'])
+							return -1;
+						break;
+				}
+			}
+		}
+
+		return 0;
 	}
 
 	/**

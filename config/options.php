@@ -91,6 +91,20 @@ $config['options'] = array(
 		'all',
 	)),
 
+	'tie_breaker'			=> array(
+		TIE_BREAKER_HTH_HTHPM_PM_GF_LOSS => __('Head-to-head > Head-to-head plus-minus > Plus-minus > Goals for > Losses', true),
+		TIE_BREAKER_PM_HTH_GF_LOSS => __('Plus-minus > Head-to-head > Goals for > Losses', true),
+	),
+
+	'tie_breaker_spirit'	=> array(
+		TIE_BREAKER_HTH_HTHPM_PM_GF_LOSS => __('Head-to-head > Head-to-head plus-minus > Plus-minus > Goals for > Losses', true),
+		TIE_BREAKER_HTH_HTHPM_PM_GF_LOSS_SPIRIT => __('Head-to-head > Head-to-head plus-minus > Plus-minus > Goals for > Losses > Spirit', true),
+		TIE_BREAKER_SPIRIT_HTH_HTHPM_PM_GF_LOSS => __('Spirit > Head-to-head > Head-to-head plus-minus > Plus-minus > Goals for > Losses', true),
+		TIE_BREAKER_PM_HTH_GF_LOSS => __('Plus-minus > Head-to-head > Goals for > Losses', true),
+		TIE_BREAKER_PM_HTH_GF_LOSS_SPIRIT => __('Plus-minus > Head-to-head > Goals for > Losses > Spirit', true),
+		TIE_BREAKER_SPIRIT_PM_HTH_GF_LOSS => __('Spirit > Plus-minus > Head-to-head > Goals for > Losses', true),
+	),
+
 	'allstar'				=> make_options(array(
 		'never',
 		'optional',

@@ -218,7 +218,19 @@ $collapse = !empty($this->data['Division']['id']);
 				'default' => 'all',
 				'after' => $this->Html->para (null, __('Control spirit display. "All" shows numeric scores and survey answers (if applicable) to any player. "Numeric" shows game scores but not survey answers. "Symbols Only" shows only star, check, and X, with no numeric values attached. "Coordinator Only" restricts viewing of any per-game information to coordinators only.', true)),
 			));
+
+			$tie_breaker_options = Configure::read('options.tie_breaker_spirit');
+		} else {
+			$tie_breaker_options = Configure::read('options.tie_breaker');
 		}
+		echo $this->ZuluruForm->input('tie_breaker', array(
+			'div' => 'input advanced',
+			'options' => $tie_breaker_options,
+			'hide_single' => true,
+			'empty' => '---',
+			'default' => TIE_BREAKER_HTH_HTHPM_PM_GF_LOSS,
+			'after' => $this->Html->para (null, __('Order of tie-breakers to use in standings.', true)),
+		));
 
 		if ($collapse) {
 			echo $this->ZuluruForm->input('Division.rating_calculator', array(

@@ -16,6 +16,7 @@ $this->Html->addCrumb (__('Summary', true));
 	<?php endif; ?>
 	<th><?php __('Max Score');?></th>
 	<th><?php __('Schedule Attempts');?></th>
+	<th><?php __('Tie Breaker');?></th>
 </tr>
 <?php
 $i = 0;
@@ -58,6 +59,7 @@ foreach ($divisions as $division):
 		<?php endif; ?>
 		<td><?php echo $division['League']['expected_max_score']; ?></td>
 		<td><?php echo $division['League']['schedule_attempts']; ?></td>
+		<td><?php echo Configure::read("options.tie_breaker_spirit.{$division['League']['tie_breaker']}"); ?></td>
 	</tr>
 <?php endforeach; ?>
 </table>

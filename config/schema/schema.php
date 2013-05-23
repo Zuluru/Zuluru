@@ -292,6 +292,7 @@ class ZuluruSchema extends CakeSchema {
 		'numeric_sotg' => array('type' => 'boolean', 'null' => true, 'default' => NULL),
 		'expected_max_score' => array('type' => 'integer', 'null' => false, 'default' => NULL),
 		'stat_tracking' => array('type' => 'string', 'null' => false, 'default' => 'never', 'length' => 32),
+		'tie_breaker' => array('type' => 'integer', 'null' => false, 'default' => '1'),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);

@@ -6,55 +6,8 @@
 
 class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 {
-	/**
-	 * Sort a round robin division by:
-	 * 1: Wins/ties
-	 * 2: Wins
-	 * 3: Head to head record
-	 * 4: Head to head +/-
-	 * 5: Spirit
-	 * 6: +/-
-	 * 7: Finally, check losses.  This ensures that teams with no record appear above teams who have losses.
-	 */
 	function compareTeams($a, $b) {
-		if (array_key_exists ('results', $a))
-		{
-			if ($a['results']['pts'] < $b['results']['pts'])
-				return 1;
-			if ($a['results']['pts'] > $b['results']['pts'])
-				return -1;
-
-			if ($a['results']['W'] < $b['results']['W'])
-				return 1;
-			if ($a['results']['W'] > $b['results']['W'])
-				return -1;
-
-			if (array_key_exists ($b['id'], $a['results']['vs'])) {
-				// if b is in a's results, a must also exist in b's results, no point checking that
-				if ($a['results']['vs'][$b['id']] < $b['results']['vs'][$a['id']])
-					return 1;
-				if ($a['results']['vs'][$b['id']] > $b['results']['vs'][$a['id']])
-					return -1;
-
-				if ($a['results']['vspm'][$b['id']] < $b['results']['vspm'][$a['id']])
-					return 1;
-				if ($a['results']['vspm'][$b['id']] > $b['results']['vspm'][$a['id']])
-					return -1;
-			}
-			// TODO: Compare spirit scores?
-
-			if ($a['results']['gf'] - $a['results']['ga'] < $b['results']['gf'] - $b['results']['ga'])
-				return 1;
-			if ($a['results']['gf'] - $a['results']['ga'] > $b['results']['gf'] - $b['results']['ga'])
-				return -1;
-
-			if ($a['results']['L'] > $b['results']['L'])
-				return 1;
-			if ($a['results']['L'] < $b['results']['L'])
-				return -1;
-		}
-
-		return 0;
+		return $this->compareTeamsTieBreakers($a, $b);
 	}
 
 	function schedulingFields($is_admin, $is_coordinator) {

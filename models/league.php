@@ -28,6 +28,12 @@ class League extends AppModel {
 				'message' => 'You must select a valid season.',
 			),
 		),
+		'schedule_attempts' => array(
+			'numeric' => array(
+				'rule' => array('numeric'),
+				'message' => 'Enter a valid number of schedules to try before picking the best.',
+			),
+		),
 		'display_sotg' => array(
 			'inlist' => array(
 				'rule' => array('inconfig', 'options.sotg_display'),
@@ -44,6 +50,18 @@ class League extends AppModel {
 			'inlist' => array(
 				'rule' => array('inconfig', 'options.enable'),
 				'message' => 'You must select whether or not numeric spirit entry is enabled.',
+			),
+		),
+		'expected_max_score' => array(
+			'numeric' => array(
+				'rule' => array('numeric'),
+				'message' => 'Enter the highest score that you expect the winning team to reasonably reach.',
+			),
+		),
+		'tie_breaker' => array(
+			'inlist' => array(
+				'rule' => array('inconfig', 'options.tie_breaker_spirit'),
+				'message' => 'You must select a valid tie breaker method.',
 			),
 		),
 	);

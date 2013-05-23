@@ -31,27 +31,7 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 		if ($a['rating'] > $b['rating'])
 			return -1;
 
-		// TODO: Compare spirit scores?
-
-		if (array_key_exists ('results', $a))
-		{
-			if ($a['results']['pts'] < $b['results']['pts'])
-				return 1;
-			if ($a['results']['pts'] > $b['results']['pts'])
-				return -1;
-
-			if ($a['results']['gf'] - $a['results']['ga'] < $b['results']['gf'] - $b['results']['ga'])
-				return 1;
-			if ($a['results']['gf'] - $a['results']['ga'] > $b['results']['gf'] - $b['results']['ga'])
-				return -1;
-
-			if ($a['results']['gf'] < $b['results']['gf'])
-				return 1;
-			if ($a['results']['gf'] > $b['results']['gf'])
-				return -1;
-		}
-
-		return 0;
+		return $this->compareTeamsTieBreakers($a, $b);
 	}
 
 	function schedulingFields($is_admin, $is_coordinator) {
