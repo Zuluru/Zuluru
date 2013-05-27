@@ -325,7 +325,7 @@ class LeaguesController extends AppController {
 
 		$this->Configuration->loadAffiliate($this->League->data['League']['affiliate_id']);
 		Configure::load("sport/{$this->League->data['League']['sport']}");
-		if (count($this->League->data['Division'] == 1)) {
+		if (count($this->League->data['Division']) == 1) {
 			// Adjust loaded data
 			$this->League->data['Division'] = array_pop($this->League->data['Division']);
 			$this->League->data['Day'] = $this->League->data['Division']['Day'];
