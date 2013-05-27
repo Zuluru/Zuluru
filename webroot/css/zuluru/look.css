@@ -258,10 +258,8 @@ dl .altrow
 #zuluru .tooltip
 {
 	background: transparent url(images/tooltip/white_arrow_big_top.png);
-	font-size: 11px;
 	height: 166px;
 	width: 320px;
-	color: #000;
 	float: none;
 	border: 0;
 	max-width: inherit;
@@ -285,6 +283,12 @@ dl .altrow
 #zuluru .tooltip.bottom.left
 {
 	background: transparent url(images/tooltip/white_arrow_big_bottom_left.png);
+}
+
+#zuluru #tooltip_content
+{
+	font-size: 11px;
+	color: #000;
 }
 
 /* Tournament bracket styling. */

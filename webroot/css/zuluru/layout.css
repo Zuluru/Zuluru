@@ -470,12 +470,12 @@ div.related
 #zuluru .tooltip
 {
 	display: none;
-	padding: 25px;
+	padding: 18px 25px 32px;
 	z-index: 900;
 }
 #zuluru .tooltip.bottom
 {
-	padding: 50px 25px 0;
+	padding: 42px 25px 8px;
 }
 #zuluru #tooltip_content
 {

@@ -4,7 +4,7 @@ if (!Configure::read('tooltips_added')) {
 	Configure::write('tooltips_added', true);
 
 	// Add the div we'll use to load tooltip content into
-	$this->ZuluruHtml->buffer ('<div id="tooltip" class="tooltip" style="display: none;"></div>');
+	$this->ZuluruHtml->buffer ('<div id="tooltip" class="tooltip" style="display: none;"><div id="tooltip_content"></div></div>');
 
 	// Add the "on demand" tooltip effect
 	$this->Js->buffer('
@@ -56,7 +56,7 @@ jQuery('.popup_toggle').tooltip({
 	} else {
 		// Add the standard tooltip handler
 		$this->Js->buffer("
-jQuery('.trigger').tooltip({
+jQuery('.trigger').not('.has_tooltip').tooltip({
 	effect: 'on_demand',
 	relative: true,
 	tip: '#tooltip',
@@ -72,6 +72,9 @@ jQuery('.trigger').tooltip({
 		}
 	}
 }).dynamic({ left: { offset: [ 0, -50 ] }, right: { offset: [ 0, 50 ] } });
+jQuery('.trigger').not('.has_tooltip').each(function() {
+	jQuery(this).addClass('has_tooltip');
+});
 		");
 	}
 }

@@ -14,7 +14,7 @@ function loadTooltip(base, trigger) {
 			success: function(data){
 				tooltip_text[id] = data;
 				if (!tooltip_cancelled) {
-					jQuery('#tooltip').html(data);
+					jQuery('#tooltip_content').html(data);
 					jQuery('#tooltip').show();
 				}
 			},
@@ -28,7 +28,7 @@ function loadTooltip(base, trigger) {
 		});
 		tooltip_loaded = false;
 	} else {
-		jQuery('#tooltip').html(tooltip_text[id]);
+		jQuery('#tooltip_content').html(tooltip_text[id]);
 		tooltip_loaded = true;
 	}
 }
