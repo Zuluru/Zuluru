@@ -123,13 +123,17 @@ class LeagueTypeComponent extends Object
 		// Make sure a record exists for the round in the results
 		// Some league types don't use rounds, but there's no real harm in calculating this
 		if (! array_key_exists ($round, $results[$team]['rounds'])) {
-			$results[$team]['rounds'][$round] = array('W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'gf' => 0, 'ga' => 0);
+			$results[$team]['rounds'][$round] = array('W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'gf' => 0, 'ga' => 0, 'vs' => array(), 'vspm' => array());
 		}
 
 		// Make sure a record exists for the opponent in the vs arrays
 		if (! array_key_exists ($opp, $results[$team]['vs'])) {
 			$results[$team]['vs'][$opp] = 0;
 			$results[$team]['vspm'][$opp] = 0;
+		}
+		if (! array_key_exists ($opp, $results[$team]['rounds'][$round]['vs'])) {
+			$results[$team]['rounds'][$round]['vs'][$opp] = 0;
+			$results[$team]['rounds'][$round]['vspm'][$opp] = 0;
 		}
 
 		if ($default) {
@@ -143,6 +147,7 @@ class LeagueTypeComponent extends Object
 		++ $results[$team][$type];
 		++ $results[$team]['rounds'][$round][$type];
 		$results[$team]['pts'] += $points;
+		$results[$team]['rounds'][$round]['pts'] += $points;
 		$results[$team]['gf'] += $score_for;
 		$results[$team]['rounds'][$round]['gf'] += $score_for;
 		$results[$team]['ga'] += $score_against;
@@ -160,7 +165,9 @@ class LeagueTypeComponent extends Object
 		}
 
 		$results[$team]['vs'][$opp] += $points;
+		$results[$team]['rounds'][$round]['vs'][$opp] += $points;
 		$results[$team]['vspm'][$opp] += $score_for - $score_against;
+		$results[$team]['rounds'][$round]['vspm'][$opp] += $score_for - $score_against;
 
 		// Add to the current streak, or reset it
 		if ($type == $results[$team]['str_type']) {
@@ -281,57 +288,74 @@ class LeagueTypeComponent extends Object
 	function compareTeamsTieBreakers($a, $b) {
 		if (array_key_exists ('results', $a))
 		{
-			if ($a['results']['pts'] < $b['results']['pts'])
+			$round = $this->division['Division']['current_round'];
+			if ($round != 1) {
+				if (array_key_exists($round, $a['results']['rounds'])) {
+					$a_results = $a['results']['rounds'][$round];
+				} else {
+					$a_results = array('W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'gf' => 0, 'ga' => 0, 'vs' => array(), 'vspm' => array());
+				}
+				if (array_key_exists($round, $b['results']['rounds'])) {
+					$b_results = $b['results']['rounds'][$round];
+				} else {
+					$b_results = array('W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'gf' => 0, 'ga' => 0, 'vs' => array(), 'vspm' => array());
+				}
+			} else {
+				$a_results = $a['results'];
+				$b_results = $b['results'];
+			}
+
+			if ($a_results['pts'] < $b_results['pts'])
 				return 1;
-			if ($a['results']['pts'] > $b['results']['pts'])
+			if ($a_results['pts'] > $b_results['pts'])
 				return -1;
 
-			if ($a['results']['W'] < $b['results']['W'])
+			if ($a_results['W'] < $b_results['W'])
 				return 1;
-			if ($a['results']['W'] > $b['results']['W'])
+			if ($a_results['W'] > $b_results['W'])
 				return -1;
 
 			$order = Configure::read("tie_breakers.{$this->division['League']['tie_breaker']}");
 			foreach ($order as $option) {
 				switch ($option) {
 					case 'hth':
-						if (array_key_exists ($b['id'], $a['results']['vs'])) {
+						if (array_key_exists ($b['id'], $a_results['vs'])) {
 							// if b is in a's results, a must also exist in b's results, no point checking that
-							if ($a['results']['vs'][$b['id']] < $b['results']['vs'][$a['id']])
+							if ($a_results['vs'][$b['id']] < $b_results['vs'][$a['id']])
 								return 1;
-							if ($a['results']['vs'][$b['id']] > $b['results']['vs'][$a['id']])
+							if ($a_results['vs'][$b['id']] > $b_results['vs'][$a['id']])
 								return -1;
 						}
 						break;
 
 					case 'hthpm':
-						if (array_key_exists ($b['id'], $a['results']['vspm'])) {
+						if (array_key_exists ($b['id'], $a_results['vspm'])) {
 							// if b is in a's results, a must also exist in b's results, no point checking that
-							if ($a['results']['vspm'][$b['id']] < $b['results']['vspm'][$a['id']])
+							if ($a_results['vspm'][$b['id']] < $b_results['vspm'][$a['id']])
 								return 1;
-							if ($a['results']['vspm'][$b['id']] > $b['results']['vspm'][$a['id']])
+							if ($a_results['vspm'][$b['id']] > $b_results['vspm'][$a['id']])
 								return -1;
 						}
 						break;
 
 					case 'pm':
-						if ($a['results']['gf'] - $a['results']['ga'] < $b['results']['gf'] - $b['results']['ga'])
+						if ($a_results['gf'] - $a_results['ga'] < $b_results['gf'] - $b_results['ga'])
 							return 1;
-						if ($a['results']['gf'] - $a['results']['ga'] > $b['results']['gf'] - $b['results']['ga'])
+						if ($a_results['gf'] - $a_results['ga'] > $b_results['gf'] - $b_results['ga'])
 							return -1;
 						break;
 
 					case 'gf':
-						if ($a['results']['gf'] < $b['results']['gf'])
+						if ($a_results['gf'] < $b_results['gf'])
 							return 1;
-						if ($a['results']['gf'] > $b['results']['gf'])
+						if ($a_results['gf'] > $b_results['gf'])
 							return -1;
 						break;
 
 					case 'loss':
-						if ($a['results']['L'] > $b['results']['L'])
+						if ($a_results['L'] > $b_results['L'])
 							return 1;
-						if ($a['results']['L'] < $b['results']['L'])
+						if ($a_results['L'] < $b_results['L'])
 							return -1;
 						break;
 

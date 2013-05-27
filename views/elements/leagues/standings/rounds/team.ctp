@@ -9,7 +9,23 @@ if (count ($classes)) {
 	<td><?php
 	echo $this->element('teams/block', array('team' => $team));
 	?></td>
-	<?php // TODO: current round ?>
+	<?php
+	if ($division['Division']['current_round'] != 1):
+		if (array_key_exists($division['Division']['current_round'], $team['results']['rounds'])) {
+			$round = $team['results']['rounds'][$division['Division']['current_round']];
+		} else {
+			$round = array('W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'gf' => 0, 'ga' => 0);
+		}
+	?>
+	<td><?php echo $round['W']; ?></td>
+	<td><?php echo $round['L']; ?></td>
+	<td><?php echo $round['T']; ?></td>
+	<td><?php echo $round['def']; ?></td>
+	<td><?php echo $round['pts']; ?></td>
+	<td><?php echo $round['gf']; ?></td>
+	<td><?php echo $round['ga']; ?></td>
+	<td><?php echo $round['gf'] - $round['ga']; ?></td>
+	<?php endif; ?>
 	<td><?php echo $team['results']['W']; ?></td>
 	<td><?php echo $team['results']['L']; ?></td>
 	<td><?php echo $team['results']['T']; ?></td>
