@@ -36,6 +36,9 @@ switch ($details['type'])
 		$key = Question::_formName($details);
 		$options['legend'] = false;
 		$options['options'] = Set::combine ($question['Answer'], '{n}.id', '{n}.answer');
+		if (array_key_exists('default', $details)) {
+			$options['default'] = $details['default'];
+		}
 		$item = $this->Html->tag('fieldset',
 			$this->Html->tag('legend', $details['name']) . $details['question'] .
 			$this->Form->hidden ("Response.$key.question_id", array('value' => $details['id'])) .
@@ -51,6 +54,9 @@ switch ($details['type'])
 			$options['options'] = Set::combine ($question['Answer'], '{n}.id', '{n}.answer');
 		}
 		$options['empty'] = '---';
+		if (array_key_exists('default', $details)) {
+			$options['default'] = $details['default'];
+		}
 		$item = $this->Form->hidden ("Response.$key.question_id", array('value' => $details['id'])) .
 			$this->Form->input ("Response.$key.{$field[$details['type']]}", $options);
 		break;
@@ -71,6 +77,9 @@ switch ($details['type'])
 			}
 		} else {
 			$key = Question::_formName($details);
+			if (!empty($details['default'])) {
+				$options['checked'] = true;
+			}
 			$item = $this->Form->hidden ("Response.$key.question_id", array('value' => $details['id'])) .
 				$this->Form->input ("Response.$key.{$field[$details['type']]}", $options);
 		}

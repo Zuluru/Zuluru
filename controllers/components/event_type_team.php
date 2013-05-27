@@ -121,6 +121,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 					'id' => TRACK_ATTENDANCE,
 					'type' => 'checkbox',
 					'question' => __('Attendance Tracking', true),
+					'default' => true,
 					'after' => __('Would you like to enable attendance tracking for this team?', true),
 				);
 			}
@@ -191,11 +192,20 @@ class EventTypeTeamComponent extends EventTypeComponent
 	// TODO: A site or per-league configuration controlling whether team records
 	// are created when registered or when paid
 	function paid($event, $data) {
-		return $this->_createTeam($event, $data);
+		$ret = $this->_createTeam($event, $data);
+		if (parent::paid($event, $data)) {
+			return $ret;
+		} else {
+			return false;
+		}
 	}
 
 	function unpaid($event, $data) {
-		return $this->_deleteTeam($event, $data);
+		if (parent::unpaid($event, $data)) {
+			return $this->_deleteTeam($event, $data);
+		} else {
+			return false;
+		}
 	}
 
 	function _createTeam($event, $data) {
@@ -242,9 +252,8 @@ class EventTypeTeamComponent extends EventTypeComponent
 				$captain_id = $this->_controller->Auth->user('id');
 			}
 
-			$roster = ClassRegistry::init ('TeamsPerson');
-			$roster->create();
-			if (!$roster->save (array(
+			$this->_controller->Team->TeamsPerson->create();
+			if (!$this->_controller->Team->TeamsPerson->save (array(
 				'team_id' => $this->_controller->Team->id,
 				'person_id' => $captain_id,
 				'role' => 'captain',
