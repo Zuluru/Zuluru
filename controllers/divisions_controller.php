@@ -318,10 +318,7 @@ class DivisionsController extends AppController {
 
 		$this->set('days', $this->Division->Day->find('list'));
 		$this->set('league_obj', $this->_getComponent ('LeagueType', $this->data['Division']['schedule_type'], $this));
-		$this->set('is_coordinator',
-			array_key_exists ('DivisionsPerson', $this->data['Division']) &&
-			array_key_exists ('position', $this->data['Division']['DivisionsPerson']) &&
-			$this->data['Division']['DivisionsPerson']['position'] == 'coordinator');
+		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.DivisionIDs')));
 
 		$this->_addDivisionMenuItems ($this->data['Division'], $this->data['League']);
 	}
