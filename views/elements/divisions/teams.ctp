@@ -2,7 +2,7 @@
 	<?php if (!empty($teams)):?>
 	<table class="list">
 	<?php
-	echo $this->element("leagues/view/{$league_obj->render_element}/heading", compact ('is_manager'));
+	echo $this->element("leagues/view/{$league_obj->render_element}/heading", compact ('is_manager', 'division', 'league'));
 	$seed = $i = 0;
 	foreach ($teams as $team) {
 		$is_captain = in_array($team['id'], $this->Session->read('Zuluru.OwnedTeamIDs'));

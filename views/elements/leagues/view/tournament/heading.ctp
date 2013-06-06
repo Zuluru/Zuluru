@@ -3,7 +3,7 @@
 	<th><?php __('Rating'); ?></th>
 	<?php endif; ?>
 	<th><?php __('Team Name'); ?></th>
-	<?php if ($division['Division']['is_playoff']): ?>
+	<?php if ($division['is_playoff']): ?>
 	<th><?php __('From'); ?></th>
 	<?php endif; ?>
 	<?php if ($is_logged_in): ?>
