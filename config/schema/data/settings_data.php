@@ -173,6 +173,11 @@ class SettingsData {
 		),
 		array(
 			'category' => 'feature',
+			'name' => 'badges',
+			'value' => '0',
+		),
+		array(
+			'category' => 'feature',
 			'name' => 'tiny_mce',
 			'value' => '0',
 		),
