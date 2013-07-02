@@ -254,7 +254,8 @@ body.map
 {
 	font-size: 90%;
 	display: block;
-	margin-bottom:3px;
+	margin-bottom: 3px;
+	width: auto;
 }
 #zuluru input,
 #zuluru select,
