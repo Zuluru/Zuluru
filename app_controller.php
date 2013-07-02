@@ -959,8 +959,10 @@ class AppController extends Controller {
 
 		if (Configure::read('feature.franchises')) {
 			$franchises = $this->Session->read('Zuluru.Franchises');
-			foreach ($franchises as $franchise) {
-				$this->_addFranchiseMenuItems ($franchise);
+			if (!empty($franchises)) {
+				foreach ($franchises as $franchise) {
+					$this->_addFranchiseMenuItems ($franchise);
+				}
 			}
 		}
 
