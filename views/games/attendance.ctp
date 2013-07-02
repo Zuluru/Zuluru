@@ -49,7 +49,7 @@ $this->Html->addCrumb ($this->ZuluruTime->date($game['GameSlot']['game_date']));
 				}
 			}
 			if (!empty ($counts)) {
-				$low = low($statuses[$status]);
+				$low = Inflector::slug(low($statuses[$status]));
 				$short = $this->ZuluruHtml->icon("attendance_{$low}_dedicated_24.png", array(
 						'title' => sprintf (__('Attendance: %s', true), __($statuses[$status], true)),
 						'alt' => $alt[$status],
