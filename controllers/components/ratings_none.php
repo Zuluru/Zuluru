@@ -6,6 +6,7 @@
 
 class RatingsNoneComponent extends RatingsComponent
 {
+	var $per_game_ratings = false;
 }
 
 ?>
