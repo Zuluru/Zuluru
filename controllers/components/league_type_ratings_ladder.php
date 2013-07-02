@@ -31,7 +31,11 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 		if ($a['rating'] > $b['rating'])
 			return -1;
 
-		return $this->compareTeamsTieBreakers($a, $b);
+		$ret = $this->compareTeamsTieBreakers($a, $b);
+		if ($ret == 0) {
+			$ret = parent::compareTeams($a, $b);
+		}
+		return $ret;
 	}
 
 	function schedulingFields($is_admin, $is_coordinator) {

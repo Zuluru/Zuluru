@@ -1831,6 +1831,10 @@ class GamesController extends AppController {
 				}
 			}
 		}
+
+		// Any time that this is called, the division seeding might change.
+		// We just reset it here, and it will be recalculated as required elsewhere.
+		$this->Game->Division->Team->updateAll(array('seed' => 0), array('Team.division_id' => $game['Division']['id']));
 	}
 
 	/**

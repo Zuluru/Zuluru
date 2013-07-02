@@ -1101,6 +1101,7 @@ class AppController extends Controller {
 				$this->_addMenuItem ('Spirit Report', array('controller' => 'divisions', 'action' => 'spirit', 'division' => $division['id']), $path);
 				$this->_addMenuItem ('Download', array('controller' => 'divisions', 'action' => 'spirit', 'division' => $division['id'], 'ext' => 'csv'), array_merge($path, array('Spirit Report')));
 			}
+			$this->_addMenuItem ('Adjust seeds', array('controller' => 'divisions', 'action' => 'seeds', 'division' => $division['id']), $path);
 		}
 		if ($this->is_admin) {
 			$this->_addMenuItem ('Add coordinator', array('controller' => 'divisions', 'action' => 'add_coordinator', 'division' => $division['id']), $path);

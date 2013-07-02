@@ -40,6 +40,7 @@ class DivisionsController extends AppController {
 				'emails',
 				'spirit',
 				'ratings',
+				'seeds',
 				'initialize_ratings',
 				'initialize_dependencies',
 		)))
@@ -90,6 +91,7 @@ class DivisionsController extends AppController {
 					'emails',
 					'spirit',
 					'ratings',
+					'seeds',
 					'initialize_ratings',
 					'initialize_dependencies',
 			)))
@@ -130,25 +132,37 @@ class DivisionsController extends AppController {
 		$this->Division->addPlayoffs($division);
 		Configure::load("sport/{$division['League']['sport']}");
 
-		// Find all games played by teams that are currently in this division,
-		// or tournament games for this division
-		$teams = Set::extract ('/Team/id', $division);
-		$this->Division->Game->contain (array('GameSlot', 'SpiritEntry'));
-		$division['Game'] = $this->Division->Game->find('all', array(
-				'conditions' => array(
-					'OR' => array(
-						'Game.home_team' => $teams,
-						'Game.away_team' => $teams,
-						'AND' => array(
-							'Game.division_id' => $id,
-							'Game.tournament' => true,
+		// If there's anyone without seed information, we get game data, sort and save the seeds
+		$unseeded = Set::extract('/Team[seed=0]', $division);
+		if (!empty($unseeded)) {
+			// Find all games played by teams that are currently in this division,
+			// or tournament games for this division
+			$teams = Set::extract ('/Team/id', $division);
+			$this->Division->Game->contain (array('GameSlot', 'SpiritEntry'));
+			$division['Game'] = $this->Division->Game->find('all', array(
+					'conditions' => array(
+						'OR' => array(
+							'Game.home_team' => $teams,
+							'Game.away_team' => $teams,
+							'AND' => array(
+								'Game.division_id' => $id,
+								'Game.tournament' => true,
+							),
 						),
 					),
-				),
-		));
+			));
+		}
 
 		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
 		$league_obj->sort($division);
+
+		if (!empty($unseeded)) {
+			$seed = 0;
+			foreach ($division['Team'] as $team) {
+				$this->Division->Team->id = $team['id'];
+				$this->Division->Team->saveField('seed', ++$seed);
+			}
+		}
 
 		if ($division['Division']['is_playoff']) {
 			foreach ($division['Team'] as $key => $team) {
@@ -462,7 +476,53 @@ class DivisionsController extends AppController {
 			'Day' => array('order' => 'day_id'),
 			'Team' => array(
 				'Person',
-				'order' => 'rating DESC',
+				'order' => array('rating' => 'DESC'),
+			),
+			'League',
+		));
+		$division = $this->Division->read(null, $id);
+		if (!$division) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+		}
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
+
+		$this->set(compact ('division'));
+		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
+	}
+
+	function seeds() {
+		$id = $this->_arg('division');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+		}
+
+		if (!empty($this->data)) {
+			$seeds = Set::extract('/Team/initial_seed', $this->data);
+			if (count($this->data['Team']) != count(array_unique($seeds))) {
+				$this->Session->setFlash(__('Each team must have a unique initial seed.', true), 'default', array('class' => 'warning'));
+			} else if (min($seeds) != 1 || count($this->data['Team']) != max($seeds)) {
+				$this->Session->setFlash(__('Initial seeds must start at 1 and not skip any.', true), 'default', array('class' => 'warning'));
+			} else {
+				// Reset current seeds; they'll be recalculated as required
+				foreach (array_keys($this->data['Team']) as $key) {
+					$this->data['Team'][$key]['seed'] = 0;
+				}
+				if ($this->Division->Team->saveAll($this->data['Team'])) {
+					$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('division', true)), 'default', array('class' => 'success'));
+					$this->redirect(array('action' => 'view', 'division' => $id));
+				} else {
+					$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('division', true)), 'default', array('class' => 'warning'));
+				}
+			}
+		}
+
+		$this->Division->contain(array (
+			'Day' => array('order' => 'day_id'),
+			'Team' => array(
+				'Person',
+				'order' => array('initial_seed'),
 			),
 			'League',
 		));
@@ -720,6 +780,16 @@ class DivisionsController extends AppController {
 		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
 		$spirit_obj = $this->_getComponent ('Spirit', $division['League']['sotg_questions'], $this);
 		$league_obj->sort($division, $spirit_obj, false);
+
+		// If there's anyone without seed information, save the seeds
+		$unseeded = Set::extract('/Team[seed=0]', $division);
+		if (!empty($unseeded)) {
+			$seed = 0;
+			foreach ($division['Team'] as $team) {
+				$this->Division->Team->id = $team['id'];
+				$this->Division->Team->saveField('seed', ++$seed);
+			}
+		}
 
 		// If we're asking for "team" standings, only show the 5 teams above and 5 teams below this team.
 		// Don't bother if there are 24 teams or less (24 is probably the largest fall division size).

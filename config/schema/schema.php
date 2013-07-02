@@ -660,6 +660,8 @@ class ZuluruSchema extends CakeSchema {
 		'attendance_notification' => array('type' => 'integer', 'null' => true, 'default' => '-1'),
 		'initial_rating' => array('type' => 'integer', 'null' => true, 'default' => '1500'),
 		'rating' => array('type' => 'integer', 'null' => true, 'default' => '1500'),
+		'initial_seed' => array('type' => 'integer', 'null' => false, 'default' => 0),
+		'seed' => array('type' => 'integer', 'null' => false, 'default' => 0),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'name' => array('column' => 'name', 'unique' => 0), 'division' => array('column' => 'division_id', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);

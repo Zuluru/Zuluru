@@ -224,9 +224,19 @@ class LeagueTypeComponent extends Object
 	}
 
 	/**
-	 * By default, we just sort by name.
+	 * By default, we sort by any seeding information we may have, and then by name as a last resort.
 	 */
 	function compareTeams($a, $b) {
+		if ($a['seed'] < $b['seed'])
+			return -1;
+		if ($a['seed'] > $b['seed'])
+			return 1;
+
+		if ($a['initial_seed'] < $b['initial_seed'])
+			return -1;
+		if ($a['initial_seed'] > $b['initial_seed'])
+			return 1;
+
 		return (strtolower ($a['name']) > strtolower ($b['name']));
 	}
 

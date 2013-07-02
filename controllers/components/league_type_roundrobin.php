@@ -7,7 +7,11 @@
 class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 {
 	function compareTeams($a, $b) {
-		return $this->compareTeamsTieBreakers($a, $b);
+		$ret = $this->compareTeamsTieBreakers($a, $b);
+		if ($ret == 0) {
+			$ret = parent::compareTeams($a, $b);
+		}
+		return $ret;
 	}
 
 	function schedulingFields($is_admin, $is_coordinator) {
