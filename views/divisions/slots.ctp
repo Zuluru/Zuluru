@@ -47,11 +47,25 @@ echo $this->Form->end();
 <?php if (!$slot['Game']['id']): ?>
 <?php ++$unused; ?>
 		<td colspan="3">---- <?php printf(__('%s open', true), Configure::read('sport.field')); ?> ----</td>
-<?php else: ?>
+<?php else:
+		Game::_readDependencies($slot['Game']);
+?>
 		<td><?php echo $this->Html->link ($slot['Game']['id'],
 				array('controller' => 'games', 'action' => 'view', 'game' => $slot['Game']['id'])); ?></td>
-		<td><?php echo $this->element('teams/block', array('team' => $slot['Game']['HomeTeam'], 'max_length' => 16, 'show_shirt' => false)); ?></td>
-		<td><?php echo $this->element('teams/block', array('team' => $slot['Game']['AwayTeam'], 'max_length' => 16, 'show_shirt' => false)); ?></td>
+		<td><?php
+		if (empty($slot['Game']['home_team'])) {
+			echo $slot['Game']['home_dependency'];
+		} else {
+			echo $this->element('teams/block', array('team' => $slot['Game']['HomeTeam'], 'max_length' => 16, 'show_shirt' => false));
+		}
+		?></td>
+		<td><?php
+		if (empty($slot['Game']['away_team'])) {
+			echo $slot['Game']['away_dependency'];
+		} else {
+			echo $this->element('teams/block', array('team' => $slot['Game']['AwayTeam'], 'max_length' => 16, 'show_shirt' => false));
+		}
+		?></td>
 <?php endif; ?>
 		<td><?php __($slot['Field']['Facility']['Region']['name']); ?></td>
 <?php if (Configure::read('feature.region_preference')): ?>
