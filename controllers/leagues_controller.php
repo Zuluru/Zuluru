@@ -295,7 +295,7 @@ class LeaguesController extends AppController {
 				$this->data['Division']['Day'] = $this->data['League']['Day'];
 			}
 			$this->data['Day'] = $this->data['Division']['Day'];
-			if ($this->League->save($this->data) && $this->League->Division->saveAll($this->data)) {
+			if ($this->League->save($this->data) && (!array_key_exists('Division', $this->data) || $this->League->Division->saveAll($this->data))) {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('league', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
