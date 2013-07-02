@@ -19,10 +19,10 @@ if (!empty ($edit_date)) {
 
 	// Put the slots into a more useful form for us
 	$slots = array();
+	usort($game_slots, array('GameSlot', 'compareTimeAndField'));
 	foreach ($game_slots as $slot) {
 		$slots[$slot['GameSlot']['id']] = $this->ZuluruTime->time ($slot['GameSlot']['game_start']) . ' ' . $slot['Field']['long_name'];
 	}
-	asort ($slots);
 }
 ?>
 <?php if (!empty($division['Game'])):?>

@@ -93,5 +93,33 @@ class GameSlot extends AppModel {
 	function affiliate($id) {
 		return $this->Field->affiliate($this->field('field_id', array('GameSlot.id' => $id)));
 	}
+
+	static function compareTimeAndField ($a, $b) {
+		if ($a['GameSlot']['game_date'] > $b['GameSlot']['game_date']) {
+			return 1;
+		} else if ($a['GameSlot']['game_date'] < $b['GameSlot']['game_date']) {
+			return -1;
+		}
+
+		if ($a['GameSlot']['game_start'] > $b['GameSlot']['game_start']) {
+			return 1;
+		} else if ($a['GameSlot']['game_start'] < $b['GameSlot']['game_start']) {
+			return -1;
+		}
+
+		if ($a['GameSlot']['display_game_end'] > $b['GameSlot']['display_game_end']) {
+			return 1;
+		} else if ($a['GameSlot']['display_game_end'] < $b['GameSlot']['display_game_end']) {
+			return -1;
+		}
+
+		if ($a['Field']['long_name'] > $b['Field']['long_name']) {
+			return 1;
+		} else if ($a['Field']['long_name'] < $b['Field']['long_name']) {
+			return -1;
+		}
+
+		return 0;
+	}
 }
 ?>
