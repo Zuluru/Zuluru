@@ -229,7 +229,11 @@ dl .altrow
 }
 #zuluru tr.unpublished td, #zuluru div.unpublished
 {
-	background-color: yellow;
+	background-color: #ffff00;
+}
+#zuluru table.list tr.unpublished:nth-child(2n) td
+{
+	background-color: #ffff44;
 }
 #zuluru .winning
 {
