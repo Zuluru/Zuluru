@@ -8,6 +8,10 @@ class LockComponent extends Object
 		$this->controller =& $controller;
 	}
 
+	function __destruct() {
+		$this->unlock();
+	}
+
 	function lock($key, $affiliate = null, $text = null) {
 		$this->locked = false;
 		$this->Lock = ClassRegistry::init ('Lock');
