@@ -407,7 +407,7 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 </div>
 
 <?php
-if (Configure::read('sport.rating_questions')) {
+if (Configure::read('profile.skill_level') && Configure::read('sport.rating_questions')) {
 	echo $this->element('people/rating', array('sport' => $sport, 'field' => '#PersonSkillLevel'));
 }
 ?>
