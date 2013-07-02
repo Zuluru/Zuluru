@@ -1,6 +1,6 @@
 <h2><?php echo $team['Team']['name']; ?></h2>
 <dl>
-<?php if (Configure::read('feature.shirt_colour') && array_key_exists ('shirt_colour', $team['Team'])): ?>
+<?php if (Configure::read('feature.shirt_colour') && !empty($team['Team']['shirt_colour'])): ?>
 	<dt><?php __('Shirt colour'); ?></dt>
 	<dd><?php echo $team['Team']['shirt_colour']; ?></dd>
 <?php endif; ?>
