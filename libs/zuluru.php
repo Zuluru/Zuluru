@@ -134,7 +134,6 @@ function fake_id() {
 function ical_encode($text) {
 	$text = strtr ($text, array(
 		'\\' => '\\\\',
-		'\'' => '\\\'',
 		',' => '\\,',
 		';' => '\\;',
 	));
