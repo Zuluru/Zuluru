@@ -672,9 +672,17 @@ class TeamsController extends AppController {
 			'Field' => array('Facility'),
 		);
 		if ($this->is_logged_in) {
-			$contain[] = 'Person';
+			$contain['Person'] = array();
 			if (Configure::read('feature.annotations')) {
 				$contain['Note'] = array('conditions' => array('created_person_id' => $this->Auth->user('id')));
+			}
+
+			if (Configure::read('feature.badges')) {
+				$badge_obj = $this->_getComponent('Badge', '', $this);
+				$contain['Person']['Badge'] = array('conditions' => array(
+					'BadgesPerson.approved' => true,
+					'Badge.visibility' => $badge_obj->visibility($this->is_admin || $this->is_manager, BADGE_VISIBILITY_HIGH),
+				));
 			}
 		}
 		$this->Team->contain($contain);
@@ -689,6 +697,12 @@ class TeamsController extends AppController {
 			$this->Configuration->loadAffiliate($team['Team']['affiliate_id']);
 		} else {
 			$this->Configuration->loadAffiliate($team['Division']['League']['affiliate_id']);
+		}
+
+		if (isset($badge_obj)) {
+			foreach (array_keys($team['Person']) as $key) {
+				$badge_obj->prepForDisplay($team['Person'][$key]);
+			}
 		}
 
 		$this->Team->Division->addPlayoffs($team);

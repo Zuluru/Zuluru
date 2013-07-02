@@ -70,6 +70,14 @@ class Person extends User {
 			'associationForeignKey' => 'affiliate_id',
 			'unique' => true,
 		),
+		'Badge' => array(
+			'className' => 'Badge',
+			'joinTable' => 'badges_people',
+			'with' => 'BadgesPerson',
+			'foreignKey' => 'person_id',
+			'associationForeignKey' => 'badge_id',
+			'unique' => false,
+		),
 		'Division' => array(
 			'className' => 'Division',
 			'joinTable' => 'divisions_people',
@@ -102,7 +110,7 @@ class Person extends User {
 	);
 
 	// Return a person record including all details related to current divisions.
-	function readCurrent($id, $my_id = null) {
+	function readCurrent($id, $my_id = null, $badge_obj = null) {
 		// Check for invalid users (not logged in, for example)
 		if ($id === null) {
 			return array();
@@ -132,6 +140,13 @@ class Person extends User {
 			$contain['Note'] = array('conditions' => array('created_person_id' => $my_id));
 		}
 
+		if (isset($badge_obj)) {
+			$contain['Badge'] = array('conditions' => array(
+				'BadgesPerson.approved' => true,
+				'Badge.visibility' => $badge_obj->getVisibility(),
+			));
+		}
+
 		if (Configure::read('feature.registration')) {
 			$contain = array_merge ($contain, array(
 				'Registration' => array(
@@ -150,6 +165,10 @@ class Person extends User {
 		$person = $this->read(null, $id);
 		if (!$person) {
 			return array();
+		}
+
+		if (isset($badge_obj)) {
+			$badge_obj->prepForDisplay($person);
 		}
 
 		// Unfortunate that we have to manually specify the joins, but it seems

@@ -60,6 +60,36 @@ class ZuluruSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'game_id' => array('column' => 'game_id', 'unique' => 0), 'team_id' => array('column' => 'team_id', 'unique' => 0), 'person_id' => array('column' => 'person_id', 'unique' => 0), 'team_event_id' => array('column' => 'team_event_id', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
+	var $badges = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'affiliate_id' => array('type' => 'integer', 'null' => false, 'default' => '1'),
+		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 128),
+		'description' => array('type' => 'text', 'null' => true, 'default' => NULL),
+		'category' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 32, 'key' => 'index'),
+		'handler' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 32),
+		'active' => array('type' => 'boolean', 'null' => false, 'default' => '1'),
+		'visibility' => array('type' => 'integer', 'null' => false, 'default' => '1'),
+		'icon' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 64),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'category' => array('column' => 'category', 'unique' => 0)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
+	var $badges_people = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'badge_id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'index'),
+		'person_id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'index'),
+		'nominated_by' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'game_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'team_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'registration_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'reason' => array('type' => 'text', 'null' => true, 'default' => NULL),
+		'approved' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'approved_by' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'visible' => array('type' => 'boolean', 'null' => false, 'default' => '1'),
+		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
+		'updated' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'badge' => array('column' => 'badge_id', 'unique' => 0), 'person' => array('column' => 'person_id', 'unique' => 0)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
 	var $countries = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 32),

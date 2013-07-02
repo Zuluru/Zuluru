@@ -252,6 +252,23 @@ $config['options'] = array(
 		'label',
 	)),
 
+	// List of available badge categories
+	'category' => array(
+		'runtime' => 'Run-time determination',
+		'game' => 'Determined by game outcomes',
+		'team' => 'Determined by roster status',
+		'registration' => 'Determined by registrations',
+		'aggregate' => 'Aggregates multiple badges, e.g. "5x"',
+		'nominated' => 'Nominated by anyone (must be approved)',
+		'assigned' => 'Assigned by an admin',
+	),
+
+	'visibility' => array(
+		BADGE_VISIBILITY_ADMIN => 'Admin only (same locations as high)',
+		BADGE_VISIBILITY_HIGH => 'High (profile, pop-ups, team rosters)',
+		BADGE_VISIBILITY_LOW => 'Low (profile only)',
+	),
+
 	/**
 	 * The following options are for components that change the elements
 	 * found on certain view and edit pages. Each group must have a base

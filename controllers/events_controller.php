@@ -2,10 +2,10 @@
 class EventsController extends AppController {
 
 	var $name = 'Events';
-	var $components = array('CanRegister');
+	var $components = array('Lock', 'CanRegister');
 
 	function publicActions() {
-		return array('index', 'view', 'wizard');
+		return array('cron', 'index', 'view', 'wizard');
 	}
 
 	function isAuthorized() {
@@ -418,17 +418,120 @@ class EventsController extends AppController {
 		);
 		$membership_types = $this->Event->EventType->find('list', array(
 			'conditions' => array('type' => 'membership'),
+			'fields' => array('id', 'id'),
 		));
 		if ($membership) {
-			$conditions['event_type_id'] = array_keys($membership_types);
+			$conditions['event_type_id'] = $membership_types;
 		} else {
-			$conditions['NOT'] = array('event_type_id' => array_keys($membership_types));
+			$conditions['NOT'] = array('event_type_id' => $membership_types);
 		}
 
 		return $this->Event->find('count', array(
 				'conditions' => $conditions,
 				'contain' => array(),
 		));
+	}
+
+	function cron() {
+		if (!Configure::read('feature.registration') || !Configure::read('feature.badges')) {
+			return;
+		}
+
+		$badges = $this->Event->Registration->Person->Badge->find('all', array(
+				'conditions' => array(
+					'Badge.category' => 'registration',
+					'Badge.active' => true,
+				),
+				'contain' => array(),
+		));
+		if (empty($badges)) {
+			return;
+		}
+		$badge_obj = $this->_getComponent('badge', '', $this);
+
+		$this->layout = 'bare';
+		if (!ini_get('safe_mode')) { 
+			set_time_limit(0);
+		}
+
+		if (!$this->Lock->lock ('cron')) {
+			return false;
+		}
+
+		$activity_log = ClassRegistry::init('ActivityLog');
+		$today = date('Y-m-d');
+		$transaction = new DatabaseTransaction($this->Event);
+
+		// Find all membership events for which the membership has started,
+		// but we haven't opened it. The only ones that can possibly be
+		// opened are ones that are closed, but not even all of those will be.
+		$events = $this->Event->find('all', array(
+				'conditions' => array(
+					'NOT' => array('id' => $activity_log->find('list', array(
+						'conditions' => array('type' => 'membership_opened'),
+						'fields' => array('id', 'custom'),
+					))),
+					'open <= CURDATE()',
+					'affiliate_id' => $this->_applicableAffiliateIDs(),
+					'event_type_id' => $this->Event->EventType->find('list', array(
+						'conditions' => array('type' => 'membership'),
+						'fields' => array('id', 'id'),
+					)),
+				),
+				'contain' => array(),
+		));
+
+		foreach ($events as $event) {
+			if ($event['Event']['membership_begins'] <= $today) {
+				$this->Event->contain(array('Registration' => array(
+						'conditions' => array('Registration.payment' => array('Paid', 'Pending')),
+				)));
+				$event = $this->Event->read(null, $event['Event']['id']);
+				foreach ($event['Registration'] as $person) {
+					// We are only dealing with paid and pending registrations, so the $extra parameter is true
+					$badge_obj->update('registration', array('Registration' => $person), true);
+				}
+				$activity_log->create();
+				$activity_log->save(array('type' => 'membership_opened', 'custom' => $event['Event']['id']));
+			}
+		}
+
+		// Find all membership events for which the membership has ended,
+		// but we haven't closed it. The only ones that can possibly be
+		// ended are ones that are closed, but not even all of those will be.
+		$events = $this->Event->find('all', array(
+				'conditions' => array(
+					'NOT' => array('id' => $activity_log->find('list', array(
+						'conditions' => array('type' => 'membership_closed'),
+						'fields' => array('id', 'custom'),
+					))),
+					'close < CURDATE()',
+					'affiliate_id' => $this->_applicableAffiliateIDs(),
+					'event_type_id' => $this->Event->EventType->find('list', array(
+						'conditions' => array('type' => 'membership'),
+						'fields' => array('id', 'id'),
+					)),
+				),
+				'contain' => array(),
+		));
+
+		foreach ($events as $event) {
+			if ($event['Event']['membership_ends'] < $today) {
+				$this->Event->contain(array('Registration' => array(
+						'conditions' => array('Registration.payment' => array('Paid', 'Pending')),
+				)));
+				$event = $this->Event->read(null, $event['Event']['id']);
+				foreach ($event['Registration'] as $person) {
+					// We are only dealing with paid and pending registrations, so the $extra parameter is true
+					$badge_obj->update('registration', array('Registration' => $person), true);
+				}
+				$activity_log->create();
+				$activity_log->save(array('type' => 'membership_closed', 'custom' => $event['Event']['id']));
+			}
+		}
+
+		$transaction->commit();
+		$this->Lock->unlock();
 	}
 }
 ?>

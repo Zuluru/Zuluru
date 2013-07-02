@@ -26,5 +26,31 @@ class TeamsPerson extends AppModel {
 			'order' => ''
 		),
 	);
+
+	function afterSave() {
+		if (Configure::read('feature.badges')) {
+			$badge_obj = AppController::_getComponent('Badge');
+			if (!$badge_obj->update('team', $this->data['TeamsPerson'])) {
+				return false;
+			}
+		}
+	}
+
+	function beforeDelete() {
+		if (Configure::read('feature.badges')) {
+			$this->contain(array());
+			$data = $this->read(null, $this->id);
+			$badge_obj = AppController::_getComponent('Badge');
+			if (!$badge_obj->update('team', array(
+					'team_id' => $data['TeamsPerson']['team_id'],
+					'person_id' => $data['TeamsPerson']['person_id'],
+					'role' => null,
+				)))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
 }
 ?>

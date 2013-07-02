@@ -8,6 +8,12 @@ class Affiliate extends AppModel {
 	);
 
 	var $hasMany = array(
+		'Badge' => array(
+			'className' => 'Badge',
+			'foreignKey' => 'affiliate_id',
+			'dependent' => true,
+			'conditions' => '',
+		),
 		'Event' => array(
 			'className' => 'Event',
 			'foreignKey' => 'affiliate_id',

@@ -64,10 +64,24 @@ class EventTypeComponent extends Object
 	}
 
 	function paid($event, &$data) {
+		if (Configure::read('feature.badges')) {
+			$badge_obj = $this->_controller->_getComponent('Badge', '', $this->_controller);
+			if (!$badge_obj->update('registration', $data, true)) {
+				return false;
+			}
+		}
+
 		return true;
 	}
 
 	function unpaid($event, $data) {
+		if (Configure::read('feature.badges')) {
+			$badge_obj = $this->_controller->_getComponent('Badge', '', $this->_controller);
+			if (!$badge_obj->update('registration', $data, false)) {
+				return false;
+			}
+		}
+
 		return true;
 	}
 

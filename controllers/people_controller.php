@@ -21,6 +21,7 @@ class PeopleController extends AppController {
 				'delete_document',
 				'note',
 				'delete_note',
+				'nominate',
 		)))
 		{
 			return true;
@@ -53,6 +54,7 @@ class PeopleController extends AppController {
 					'participation',
 					'retention',
 					'rule_search',
+					'approve_badges',
 			)))
 			{
 				// If an affiliate id is specified, check if we're a manager of that affiliate
@@ -62,6 +64,21 @@ class PeopleController extends AppController {
 					return true;
 				} else if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
 					return true;
+				}
+			}
+
+			if (in_array ($this->params['action'], array(
+				'approve_badge',
+				'delete_badge',
+			)))
+			{
+				// If a badge id is specified, check if we're a manager of that badge's affiliate
+				// This isn't the real badge id, but the id of the badge/person join table
+				$badge = $this->_arg('badge');
+				if ($badge) {
+					if (in_array($this->Person->BadgesPerson->affiliate($badge), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						return true;
+					}
 				}
 			}
 		}
@@ -457,11 +474,17 @@ class PeopleController extends AppController {
 			}
 		}
 
-		$person = $this->Person->readCurrent($id, $my_id);
+		if ($this->is_logged_in && Configure::read('feature.badges')) {
+			$badge_obj = $this->_getComponent('Badge', '', $this);
+			$badge_obj->visibility($this->is_admin || $this->is_manager);
+		}
+
+		$person = $this->Person->readCurrent($id, $my_id, $badge_obj);
 		if (empty($person)) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
+
 		$this->set(compact('person'));
 		$this->set('is_me', ($id === $my_id));
 		$this->set($this->_connections($person));
@@ -473,10 +496,16 @@ class PeopleController extends AppController {
 			return;
 		}
 
-		$person = $this->Person->readCurrent($id, $this->Auth->user('id'));
+		if ($this->is_logged_in && Configure::read('feature.badges')) {
+			$badge_obj = $this->_getComponent('Badge', '', $this);
+			$badge_obj->visibility($this->is_admin || $this->is_manager, BADGE_VISIBILITY_HIGH);
+		}
+
+		$person = $this->Person->readCurrent($id, $this->Auth->user('id'), $badge_obj);
 		if (empty($person)) {
 			return;
 		}
+
 		$this->set(compact('person'));
 		$this->set('is_me', ($id === $this->Auth->user('id')));
 		$this->set($this->_connections($person));
@@ -1261,6 +1290,318 @@ class PeopleController extends AppController {
 			)))
 			{
 				$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $document['Person']['email']), 'default', array('class' => 'error'), 'email');
+			}
+		}
+	}
+
+	function nominate() {
+		if (!empty($this->data)) {
+			if (empty($this->data['badge'])) {
+				$this->Session->setFlash(__('You must select an badge!', true), 'default', array('class' => 'warning'));
+			} else {
+				$this->redirect(array('action' => 'nominate_badge', 'badge' => $this->data['badge']));
+			}
+		}
+
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->set(compact('affiliates'));
+
+		$conditions = array(
+			'Badge.category' => 'nominated',
+			'Badge.active' => true,
+			'Badge.affiliate_id' => $affiliates,
+		);
+		if ($this->is_admin || $this->is_manager) {
+			$conditions['Badge.category'] = array('nominated', 'assigned');
+		} else {
+			$conditions['Badge.visibility !='] = BADGE_VISIBILITY_ADMIN;
+		}
+
+		$badges = $this->Person->Badge->find('all', array(
+				'conditions' => $conditions,
+				'contain' => array('Affiliate'),
+				'order' => array('Affiliate.name', 'Badge.category', 'Badge.name'),
+		));
+
+		if (count($affiliates) > 1) {
+			$names = array();
+			foreach ($badges as $badge) {
+				$names[$badge['Affiliate']['name']][$badge['Badge']['id']] = $badge['Badge']['name'];
+			}
+			$badges = $names;
+		} else {
+			$badges = Set::combine($badges, '{n}.Badge.id', '{n}.Badge.name');
+		}
+
+		$this->set(compact('badges'));
+	}
+
+	function nominate_badge() {
+		$params = $url = $this->_extractSearchParams();
+		unset ($params['badge']);
+
+		if (!$url['badge']) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('badge', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'badges', 'action' => 'index'));
+		}
+		$this->Person->Badge->contain();
+		$badge = $this->Person->Badge->read(null, $url['badge']);
+		if (!$badge) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('badge', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'badges', 'action' => 'index'));
+		}
+		$this->is_manager = in_array($badge['Badge']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+		if (!$badge['Badge']['active']) {
+			$this->Session->setFlash(sprintf(__('Inactive %s', true), __('badge', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'badges', 'action' => 'index'));
+		}
+		if ($badge['Badge']['visibility'] == BADGE_VISIBILITY_ADMIN && !($this->is_admin || $this->is_manager)) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('badge', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'badges', 'action' => 'index'));
+		}
+		if ($badge['Badge']['category'] != 'nominated' && ($badge['Badge']['category'] != 'assigned' || !($this->is_admin || $this->is_manager))) {
+			$this->Session->setFlash(__('This badge must be earned, not granted.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'badges', 'action' => 'index'));
+		}
+		$this->set(compact('badge'));
+		$this->Configuration->loadAffiliate($badge['Badge']['affiliate_id']);
+
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->set(compact('affiliates'));
+
+		$this->_handlePersonSearch($params, $url, $this->Person);
+	}
+
+	function nominate_badge_reason() {
+		$badge_id = $this->_arg('badge');
+		if (!$badge_id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('badge', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'badges', 'action' => 'index'));
+		}
+		$person_id = $this->_arg('person');
+		if (!$person_id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'badges', 'action' => 'index'));
+		}
+		$this->Person->Badge->contain(array(
+			'Person' => array('conditions' => array('person_id' => $person_id)),
+		));
+		$badge = $this->Person->Badge->read(null, $badge_id);
+		if (!$badge) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('badge', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'badges', 'action' => 'index'));
+		}
+		$this->is_manager = in_array($badge['Badge']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+		if (!$badge['Badge']['active']) {
+			$this->Session->setFlash(sprintf(__('Inactive %s', true), __('badge', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'badges', 'action' => 'index'));
+		}
+		if ($badge['Badge']['visibility'] == BADGE_VISIBILITY_ADMIN && !($this->is_admin || $this->is_manager)) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('badge', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'badges', 'action' => 'index'));
+		}
+		if ($badge['Badge']['category'] != 'nominated' && ($badge['Badge']['category'] != 'assigned' || !($this->is_admin || $this->is_manager))) {
+			$this->Session->setFlash(__('This badge must be earned, not granted.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'badges', 'action' => 'index'));
+		}
+		if (!empty($badge['Person'])) {
+			if ($badge['Badge']['active']) {
+				// TODO: Allow multiple copies of the badge?
+				$this->Session->setFlash(__('This player already has this badge', true), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'add', 'badge' => $url['badge']));
+			} else {
+				$this->Session->setFlash(__('This player has already been nominated for this badge', true), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'add', 'badge' => $url['badge']));
+			}
+		}
+		$this->set(compact('badge'));
+		$this->Configuration->loadAffiliate($badge['Badge']['affiliate_id']);
+
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->set(compact('affiliates'));
+
+		if (!empty($this->data)) {
+			$data = array(
+				'badge_id' => $badge_id,
+				'person_id' => $person_id,
+				'reason' => $this->data['BadgesPerson']['reason'],
+			);
+			if ($badge['Badge']['category'] == 'assigned') {
+				$data['approved'] = true;
+				$data['approved_by'] = $this->Auth->user('id');
+			} else {
+				$data['nominated_by'] = $this->Auth->user('id');
+			}
+			if ($this->Person->BadgesPerson->save($data)) {
+				if ($badge['Badge']['category'] == 'assigned') {
+					$this->Session->setFlash(__('The badge has been assigned', true), 'default', array('class' => 'success'));
+
+					if ($badge['Badge']['visibility'] != BADGE_VISIBILITY_ADMIN) {
+						$this->Person->BadgesPerson->contain(array(
+								'Badge',
+								'Person',
+								'ApprovedBy',
+						));
+						$person = $this->Person->BadgesPerson->read (null, $this->Person->BadgesPerson->id);
+						$this->set(compact('person'));
+
+						// Inform the recipient
+						if (!$this->_sendMail (array (
+							'to' => $person['Person'],
+							'subject' => Configure::read('organization.name') . ' New Badge Awarded',
+							'template' => 'badge_awarded',
+							'sendAs' => 'both',
+						)))
+						{
+							$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['Person']['email']), 'default', array('class' => 'error'), 'email');
+						}
+					}
+				} else {
+					$this->Session->setFlash(__('Your nomination has been saved', true), 'default', array('class' => 'success'));
+				}
+				$this->redirect(array('controller' => 'badges', 'action' => 'index'));
+			} else {
+				if ($badge['Badge']['category'] == 'assigned') {
+					$this->Session->setFlash(__('Your badge assignment could not be saved. Please, try again.', true), 'default', array('class' => 'warning'));
+				} else {
+					$this->Session->setFlash(__('Your nomination could not be saved. Please, try again.', true), 'default', array('class' => 'warning'));
+				}
+			}
+		}
+
+		$this->Person->contain('Affiliate');
+		$person = $this->Person->read(null, $person_id);
+		if (!$person) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'badges', 'action' => 'index'));
+		}
+		if (Configure::read('feature.affiliates' && !in_array($badge['Badge']['affiliate_id'], Set::extract('/Affiliate/id', $person)))) {
+			$this->Session->setFlash(__('That person is not a member of this affiliate.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'badges', 'action' => 'index'));
+		}
+		$this->set(compact('person'));
+	}
+
+	function approve_badges() {
+		if (!Configure::read('feature.badges')) {
+			$this->Session->setFlash(__('Badges are not enabled on this site.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->set(compact('affiliates'));
+
+		$badges = $this->Person->Badge->find('all', array(
+				'contain' => array(
+					'Person' => array('conditions' => array('approved' => 0))
+				),
+				'conditions' => array(
+					'Badge.affiliate_id' => $affiliates,
+				),
+		));
+		$people = Set::extract('/Person/id', $badges);
+		if (empty($people)) {
+			$this->Session->setFlash(__('There are no badges to approve.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$this->set(compact('badges'));
+	}
+
+	function approve_badge() {
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
+
+		extract($this->params['named']);
+		$this->set($this->params['named']);
+
+		$this->Person->BadgesPerson->contain(array(
+				'Badge',
+				'Person',
+				'ApprovedBy',
+				'NominatedBy',
+		));
+		$person = $this->Person->BadgesPerson->read (null, $id);
+		$this->set(compact('person'));
+
+		$success = $this->Person->BadgesPerson->save (array(
+			'approved' => true,
+			'approved_by' => $this->Auth->user('id'),
+		));
+		$this->set(compact('success'));
+
+		if ($success && $person['Badge']['visibility'] != BADGE_VISIBILITY_ADMIN) {
+			// Inform the nominator
+			if (!$this->_sendMail (array (
+				'to' => $person['NominatedBy'],
+				'subject' => Configure::read('organization.name') . ' Notification of Badge Approval',
+				'template' => 'badge_nomination_approved',
+				'sendAs' => 'both',
+			)))
+			{
+				$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['NominatedBy']['email']), 'default', array('class' => 'error'), 'email');
+			}
+
+			// Inform the recipient
+			if (!$this->_sendMail (array (
+				'to' => $person['Person'],
+				'subject' => Configure::read('organization.name') . ' New Badge Awarded',
+				'template' => 'badge_awarded',
+				'sendAs' => 'both',
+			)))
+			{
+				$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['Person']['email']), 'default', array('class' => 'error'), 'email');
+			}
+		}
+	}
+
+	function delete_badge() {
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
+
+		extract($this->params['named']);
+		$this->set($this->params['named']);
+
+		$this->Person->BadgesPerson->contain(array(
+				'Badge',
+				'Person',
+				'ApprovedBy',
+				'NominatedBy',
+		));
+		$person = $this->Person->BadgesPerson->read (null, $id);
+		$this->set(compact('person'));
+
+		if (!$person) {
+			$success = false;
+		} else {
+			$success = $this->Person->BadgesPerson->delete ($id);
+		}
+		$this->set(compact('success'));
+
+		if ($success && $person['Badge']['visibility'] != BADGE_VISIBILITY_ADMIN) {
+			$this->set('comment', $this->data['Badge']['comment']);
+
+			if ($person['BadgesPerson']['approved']) {
+				// Inform the badge holder
+				if (!$this->_sendMail (array (
+					'to' => $person['Person'],
+					'subject' => Configure::read('organization.name') . ' Notification of Badge Deletion',
+					'template' => 'badge_deleted',
+					'sendAs' => 'both',
+				)))
+				{
+					$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['Person']['email']), 'default', array('class' => 'error'), 'email');
+				}
+			} else {
+				// Inform the nominator
+				if (!$this->_sendMail (array (
+					'to' => $person['NominatedBy'],
+					'subject' => Configure::read('organization.name') . ' Notification of Badge Rejection',
+					'template' => 'badge_nomination_rejected',
+					'sendAs' => 'both',
+				)))
+				{
+					$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['NominatedBy']['email']), 'default', array('class' => 'error'), 'email');
+				}
 			}
 		}
 	}

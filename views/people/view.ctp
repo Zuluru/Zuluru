@@ -264,6 +264,17 @@ echo $person['Person']['full_name'];
 		</ul>
 	</div>
 </div>
+
+	<?php if (Configure::read('feature.badges') && !empty($person['Badge'])): ?>
+<div class="related">
+	<h3><?php __('Badges');?></h3>
+	<p><?php
+	foreach ($person['Badge'] as $badge) {
+		echo $this->ZuluruHtml->iconLink("{$badge['icon']}_64.png", array('controller' => 'badges', 'action' => 'view', 'badge' => $badge['id']),
+			array('alt' => $badge['name'], 'title' => $badge['description']));
+	}
+	?></p>
+	<?php endif; ?>
 <?php endif; ?>
 
 <?php if (!empty($person['Division'])):?>

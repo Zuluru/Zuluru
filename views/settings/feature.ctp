@@ -90,6 +90,16 @@ echo $this->element('settings/banner');
 			),
 		));
 	}
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
+		'name' => 'badges',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'label' => 'Enable badges',
+			'after' => 'Enable or disable the awarding and display of badges.',
+		),
+	));
 	?>
 	</fieldset>
 

@@ -67,6 +67,13 @@ if (!defined('VISIBILITY_PRIVATE')) {
 	define('VISIBILITY_PUBLIC', 4);
 }
 
+if (!defined('BADGE_VISIBILITY_ADMIN')) {
+	define('BADGE_VISIBILITY_ADMIN', 1);
+	define('BADGE_VISIBILITY_HIGH', 2);
+	define('BADGE_VISIBILITY_MEDIUM', 3);
+	define('BADGE_VISIBILITY_LOW', 4);
+}
+
 if (!defined('SCHEDULE_TYPE_LEAGUE')) {
 	define('SCHEDULE_TYPE_LEAGUE', 1);
 	define('SCHEDULE_TYPE_TOURNAMENT', 2);

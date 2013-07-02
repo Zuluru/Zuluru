@@ -413,7 +413,7 @@ class Game extends AppModel {
 		} else {
 			$test = $game;
 		}
-		return ($test['status'] != 'normal' || (isset($test['home_score']) && isset($test['away_score'])));
+		return (!empty($test['status']) && $test['status'] != 'normal' || (isset($test['home_score']) && isset($test['away_score'])));
 	}
 
 	/**
@@ -801,6 +801,15 @@ class Game extends AppModel {
 
 	function affiliate($id) {
 		return $this->Division->affiliate($this->field('division_id', array('Game.id' => $id)));
+	}
+
+	function afterSave() {
+		if (Configure::read('feature.badges') && $this->_is_finalized($this->data)) {
+			$badge_obj = AppController::_getComponent('Badge');
+			if (!$badge_obj->update('game', $this->data)) {
+				return false;
+			}
+		}
 	}
 }
 ?>

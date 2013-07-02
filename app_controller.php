@@ -612,6 +612,31 @@ class AppController extends Controller {
 
 		if ($this->is_logged_in) {
 			$this->_addMenuItem ('Search', array('controller' => 'people', 'action' => 'search'), 'Players');
+			if (Configure::read('feature.badges')) {
+				$this->_addMenuItem ('Badges', array('controller' => 'badges', 'action' => 'index'), 'Players');
+				$this->_addMenuItem ('Nominate', array('controller' => 'people', 'action' => 'nominate'), array('Players', 'Badges'));
+				if ($this->is_admin || $this->is_manager) {
+					$new = $this->Person->Badge->find ('count', array(
+						'joins' => array(
+							array(
+								'table' => "{$this->Person->tablePrefix}badges_people",
+								'alias' => 'BadgesPerson',
+								'type' => 'LEFT',
+								'foreignKey' => false,
+								'conditions' => 'BadgesPerson.badge_id = Badge.id',
+							),
+						),
+						'conditions' => array(
+							'BadgesPerson.approved' => false,
+							'Badge.affiliate_id' => array_keys($affiliates),
+						),
+					));
+					if ($new > 0) {
+						$this->_addMenuItem ("Approve nominations ($new pending)", array('controller' => 'people', 'action' => 'approve_badges'), array('Players', 'Badges'));
+					}
+					$this->_addMenuItem ('Deactivated', array('controller' => 'badges', 'action' => 'deactivated'), array('Players', 'Badges'));
+				}
+			}
 		}
 
 		if ($this->is_admin || $this->is_manager) {

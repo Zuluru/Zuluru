@@ -402,7 +402,24 @@ class LeaguesController extends AppController {
 
 		$this->set(compact('leagues'));
 
-		// Update the is_open status of any divisions that are about to open or have recently closed
+		// Update the badges in any divisions that are about to open or have recently closed
+		$contain = array('League');
+		if (Configure::read('feature.badges')) {
+			$badges = $this->League->Division->Person->Badge->find('all', array(
+					'conditions' => array(
+						'Badge.category' => 'team',
+						'Badge.active' => true,
+					),
+					'contain' => array(),
+			));
+
+			// Read team rosters, if there are badges that might be affected
+			if (!empty($badges)) {
+				$badge_obj = $this->_getComponent('badge', '', $this);
+				$contain['Team'] = 'Person';
+			}
+		}
+
 		$to_close = $this->League->Division->find('all', array(
 				'conditions' => array(
 					'Division.is_open' => true,
@@ -411,7 +428,7 @@ class LeaguesController extends AppController {
 						'Division.close < DATE_ADD(NOW(), INTERVAL -7 DAY)',
 					),
 				),
-				'contain' => array('League'),
+				'contain' => $contain,
 				'order' => 'Division.open',
 		));
 		$to_open = $this->League->Division->find('all', array(
@@ -420,7 +437,7 @@ class LeaguesController extends AppController {
 					'Division.open < DATE_ADD(NOW(), INTERVAL 21 DAY)',
 					'Division.close > DATE_ADD(NOW(), INTERVAL -7 DAY)',
 				),
-				'contain' => array('League'),
+				'contain' => $contain,
 				'order' => 'Division.open',
 		));
 
@@ -428,9 +445,27 @@ class LeaguesController extends AppController {
 
 		if (!empty($to_close)) {
 			$this->League->Division->updateAll (array('Division.is_open' => 0), array('Division.id' => Set::extract('/Division/id', $to_close)));
+			if (isset($badge_obj)) {
+				foreach ($to_close as $division) {
+					foreach ($division['Team'] as $team) {
+						foreach ($team['Person'] as $person) {
+							$badge_obj->update('team', $person['TeamsPerson']);
+						}
+					}
+				}
+			}
 		}
 		if (!empty($to_open)) {
 			$this->League->Division->updateAll (array('Division.is_open' => true), array('Division.id' => Set::extract('/Division/id', $to_open)));
+			if (isset($badge_obj)) {
+				foreach ($to_open as $division) {
+					foreach ($division['Team'] as $team) {
+						foreach ($team['Person'] as $person) {
+							$badge_obj->update('team', $person['TeamsPerson']);
+						}
+					}
+				}
+			}
 		}
 
 		// Update any league open and close dates that have changed because of divisions

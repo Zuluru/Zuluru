@@ -228,8 +228,8 @@ $this->Html->addCrumb (__('View', true));
 			++$cols;
 		endif;
 		?>
-		<?php if (Configure::read('profile.shirt_size') && ($is_admin || $is_coordinator)): ?>
-		<th><?php __('Shirt Size'); ?></th>
+		<?php if (Configure::read('feature.badges') && $is_logged_in): ?>
+		<th><?php __('Badges'); ?></th>
 		<?php
 			++$cols;
 		endif;
@@ -321,11 +321,16 @@ $this->Html->addCrumb (__('View', true));
 		<?php if (Configure::read('profile.skill_level')): ?>
 		<td><?php echo $person['skill_level'];?></td>
 		<?php endif; ?>
-		<?php
-		if (Configure::read('profile.shirt_size') && ($is_admin || $is_coordinator)) {
-			echo $this->Html->tag('td', __($person['shirt_size'], true));
+		<?php if (Configure::read('feature.badges') && $is_logged_in): ?>
+		<td><?php
+		foreach ($person['Badge'] as $badge) {
+			if (($badge['visibility'] == BADGE_VISIBILITY_ADMIN && ($is_admin || $is_manager)) || $badge['visibility'] == BADGE_VISIBILITY_HIGH) {
+				echo $this->ZuluruHtml->iconLink("{$badge['icon']}_32.png", array('controller' => 'badges', 'action' => 'view', 'badge' => $badge['id']),
+					array('alt' => $badge['name'], 'title' => $badge['description']));
+			}
 		}
-		?>
+		?></td>
+		<?php endif; ?>
 		<td><?php echo $this->ZuluruTime->date($person['TeamsPerson']['created']);?></td>
 	</tr>
 	<?php endforeach; ?>
