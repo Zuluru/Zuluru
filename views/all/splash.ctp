@@ -16,6 +16,9 @@ if (Configure::read('feature.affiliates')) {
 	$affiliates = $this->requestAction(array('controller' => 'affiliates', 'action' => 'index'));
 	AppModel::_reindexOuter($affiliates, 'Affiliate', 'id');
 }
+if (Configure::read('feature.tasks')) {
+	$tasks = $this->Session->read('Zuluru.Tasks');
+}
 ?>
 
 <div id="kick_start">
@@ -169,7 +172,7 @@ if ($is_manager) {
 	}
 } else {
 	// If the user has nothing going on, pull some more details to allow us to help them get started
-	if (empty($teams) && empty($divisions) && empty($unpaid)) {
+	if (empty($teams) && empty($divisions) && empty($unpaid) && empty($tasks)) {
 		$membership_events = $this->requestAction(array('controller' => 'events', 'action' => 'count'), array('pass' => array(true)));
 		$non_membership_events = $this->requestAction(array('controller' => 'events', 'action' => 'count'));
 		$open_teams = $this->requestAction(array('controller' => 'teams', 'action' => 'open_count'));
@@ -382,6 +385,48 @@ foreach ($games as $game):
 	</tr>
 <?php endforeach; ?>
 </table>
+<?php endif; ?>
+
+<?php
+if (!empty($tasks)):
+?>
+<table class="list">
+<tr>
+	<th><?php __('My Tasks'); ?></th>
+	<th><?php __('Time'); ?></th>
+	<th><?php __('Report To'); ?></th>
+	<th><?php __('Actions'); ?></th>
+</tr>
+<?php
+$i = 0;
+foreach ($tasks as $task):
+	$class = null;
+	if ($i++ % 2 == 0) {
+		$class = ' class="altrow"';
+	}
+?>
+<tr<?php echo $class;?>>
+	<td class="splash_item"><?php
+	echo $this->Html->link($task['Task']['name'], array('controller' => 'tasks', 'action' => 'view', 'task' => $task['Task']['id']));
+	?></td>
+	<td class="splash_item"><?php
+	echo $this->ZuluruTime->day($task['TaskSlot']['task_date']) . ', ' .
+			$this->ZuluruTime->time($task['TaskSlot']['task_start']) . '-' .
+			$this->ZuluruTime->time($task['TaskSlot']['task_end'])
+	?></td>
+	<td class="splash_item"><?php
+	echo $this->element('people/block', array('person' => $task['Task']['Person']));
+	?></td>
+	<td class="actions"><?php
+	echo $this->Html->link(
+			__('iCal', true),
+			array('controller' => 'task_slots', 'action' => 'ical', $task['TaskSlot']['id'], 'task.ics'));
+
+	?></td>
+</tr>
+<?php endforeach; ?>
+</table>
+<?php endif; ?>
 
 <p><?php
 if (Configure::read('personal.enable_ical')) {
@@ -401,7 +446,6 @@ if (Configure::read('personal.enable_ical')) {
 	__(' to enable your personal iCal feed');
 }
 ?>. <?php echo $this->ZuluruHtml->help(array('action' => 'games', 'personal_feed')); ?></p>
-<?php endif; ?>
 
 <?php if (Configure::read('feature.affiliates') && count($affiliates) > 1): ?>
 <div id="affiliate_select">

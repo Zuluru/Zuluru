@@ -585,6 +585,9 @@ class PeopleController extends AppController {
 		$this->_loadGroupOptions();
 		$this->_loadAffiliateOptions();
 
+		$sport = array_shift(array_keys(Configure::read('options.sport')));
+		Configure::load("sport/$sport");
+
 		if (!empty($this->data)) {
 			$this->data['Person']['complete'] = true;
 			$this->Person->create();
@@ -1979,6 +1982,10 @@ class PeopleController extends AppController {
 			// Game iCal element will handle team_id as an array
 			$this->set('team_id', $team_ids);
 			$this->set('games', $games);
+		}
+
+		if (Configure::read('feature.tasks')) {
+			$this->set('tasks', $person['TaskSlot']);
 		}
 
 		$this->set ('calendar_type', 'Player Schedule');

@@ -260,6 +260,16 @@ echo $this->element('settings/banner');
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'feature',
+		'name' => 'tasks',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'label' => 'Enable tasks',
+			'after' => 'Enable or disable the management and assignment of tasks.',
+		),
+	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
 		'name' => 'dog_questions',
 		'options' => array(
 			'type' => 'radio',

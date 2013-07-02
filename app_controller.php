@@ -755,6 +755,11 @@ class AppController extends Controller {
 			}
 
 			$this->_addMenuItem ('Waivers', array('controller' => 'waivers', 'action' => 'index'), 'Configuration');
+
+			if (Configure::read('feature.tasks')) {
+				$this->_addMenuItem ('Tasks', array('controller' => 'tasks', 'action' => 'index'), 'Configuration');
+				$this->_addMenuItem ('Categories', array('controller' => 'categories', 'action' => 'index'), array('Configuration', 'Tasks'));
+			}
 		}
 
 		if (Configure::read('feature.manage_accounts')) {
@@ -905,6 +910,16 @@ class AppController extends Controller {
 
 			$this->Session->write ('Zuluru.Divisions', $divisions);
 			$this->Session->write ('Zuluru.DivisionIDs', Set::extract ('/Division/id', $divisions));
+		}
+
+		if ($this->is_volunteer && Configure::read('feature.tasks')) {
+			$tasks = $this->Session->read('Zuluru.Tasks');
+			// Test against null instead of empty, so that volunteers that
+			// legitimately have no tasks don't cause so many queries
+			if ($tasks === null) {
+				$tasks = $this->requestAction(array('controller' => 'tasks', 'action' => 'assigned'));
+				$this->Session->write ('Zuluru.Tasks', $tasks);
+			}
 		}
 	}
 

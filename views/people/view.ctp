@@ -502,4 +502,39 @@ echo $person['Person']['full_name'];
 </div>
 <?php endif; ?>
 
+<?php if (Configure::read('feature.tasks') && $is_admin && !empty($person['TaskSlot'])):?>
+	<div class="related">
+<h3><?php __('Assigned Tasks'); ?></h3>
+<table class="list">
+<tr>
+	<th><?php __('Task'); ?></th>
+	<th><?php __('Time'); ?></th>
+	<th><?php __('Report To'); ?></th>
+</tr>
+<?php
+$i = 0;
+foreach ($person['TaskSlot'] as $task):
+	$class = null;
+	if ($i++ % 2 == 0) {
+		$class = ' class="altrow"';
+	}
+?>
+	<tr<?php echo $class;?>>
+		<td class="splash_item"><?php
+			echo $this->Html->link($task['Task']['name'], array('controller' => 'tasks', 'action' => 'view', 'task' => $task['Task']['id']));
+		?></td>
+		<td class="splash_item"><?php
+		echo $this->ZuluruTime->day($task['task_date']) . ', ' .
+					$this->ZuluruTime->time($task['task_start']) . '-' .
+					$this->ZuluruTime->time($task['task_end'])
+		?></td>
+		<td class="splash_item"><?php
+		echo $this->element('people/block', array('person' => $task['Task']['Person']));
+		?></td>
+	</tr>
+<?php endforeach; ?>
+</table>
+</div>
+<?php endif; ?>
+
 <?php if (!empty($teams)) echo $this->element('people/roster_div'); ?>

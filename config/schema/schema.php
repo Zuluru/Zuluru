@@ -90,6 +90,13 @@ class ZuluruSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'badge' => array('column' => 'badge_id', 'unique' => 0), 'person' => array('column' => 'person_id', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
+	var $categories = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 64),
+		'affiliate_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
 	var $countries = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 32),
@@ -611,6 +618,30 @@ class ZuluruSchema extends CakeSchema {
 		'subscribed' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'mailing_list' => array('column' => 'mailing_list_id', 'unique' => 0), 'person' => array('column' => 'person_id', 'unique' => 0), 'full' => array('column' => array('mailing_list_id', 'person_id'), 'unique' => 0)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
+	var $task_slots = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'task_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
+		'task_date' => array('type' => 'date', 'null' => true, 'default' => NULL),
+		'task_start' => array('type' => 'time', 'null' => true, 'default' => NULL),
+		'task_end' => array('type' => 'time', 'null' => true, 'default' => NULL),
+		'person_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'approved' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'approved_by' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'updated' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'task' => array('column' => 'task_id', 'unique' => 0), 'person' => array('column' => 'person_id', 'unique' => 0)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
+	var $tasks = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'name' => array('type' => 'string', 'null' => false, 'length' => 100),
+		'category_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'description' => array('type' => 'text', 'null' => true, 'default' => NULL),
+		'notes' => array('type' => 'text', 'null' => true, 'default' => NULL),
+		'auto_approve' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $teams = array(

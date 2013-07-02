@@ -60,6 +60,11 @@ class Person extends User {
 			'foreignKey' => 'person_id',
 			'dependent' => true,
 		),
+		'TaskSlot' => array(
+			'className' => 'TaskSlot',
+			'foreignKey' => 'person_id',
+			'dependent' => true,
+		),
 	);
 
 	var $hasAndBelongsToMany = array(
@@ -159,6 +164,10 @@ class Person extends User {
 				),
 				'Preregistration' => 'Event',
 			));
+		}
+
+		if (Configure::read('feature.tasks')) {
+			$contain['TaskSlot'] = array('Task' => array('Category', 'Person'));
 		}
 
 		$this->contain($contain);
