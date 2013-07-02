@@ -32,6 +32,14 @@ echo $this->Paginator->counter(array(
 <?php
 $i = 0;
 $affiliate_id = null;
+
+$leagues = array_unique(Set::extract('/League/name', $teams));
+if (count($leagues) == 1) {
+	$field = 'name';
+} else {
+	$field = 'full_league_name';
+}
+
 foreach ($teams as $team):
 	$is_manager = $is_logged_in && in_array($team['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
 	Division::_addNames($team['Division'], $team['League']);
@@ -57,7 +65,7 @@ foreach ($teams as $team):
 			<?php echo $this->element('teams/block', array('team' => $team['Team'])); ?>
 		</td>
 		<td>
-			<?php echo $this->element('divisions/block', array('division' => $team['Division'], 'field' => 'full_league_name')); ?>
+			<?php echo $this->element('divisions/block', array('division' => $team['Division'], 'field' => $field)); ?>
 		</td>
 		<td class="actions">
 			<?php echo $this->element('teams/actions', array('team' => $team['Team'], 'division' => $team['Division'], 'league' => $team['League'], 'format' => 'links')); ?>

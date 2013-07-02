@@ -81,7 +81,9 @@ foreach ($regions as $region):
 	if ($i++ % 2 == 0) {
 		$class = ' class="altrow"';
 	}
-	echo "<tr$class><td colspan='2'><h4>{$region['Region']['name']}</h4></td></tr>";
+	if (count($regions) > 1) {
+		echo "<tr$class><td colspan='2'><h4>{$region['Region']['name']}</h4></td></tr>";
+	}
 
 	foreach ($region['Facility'] as $facility):
 		if (empty($facility['Field']) && (!($is_admin || $is_manager) || array_key_exists($facility['id'], $facilities_with_fields))) {

@@ -14,6 +14,9 @@ if (!empty($sport)) {
 <table class="list">
 <?php
 $affiliate_id = null;
+
+$seasons = array_unique(Set::extract('/League/long_season', $leagues));
+
 foreach ($leagues as $league):
 	$is_manager = $is_logged_in && in_array($league['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
 
@@ -40,7 +43,7 @@ foreach ($leagues as $league):
 <?php
 	endif;
 
-	if ($league['League']['long_season'] != $season):
+	if ($league['League']['long_season'] != $season && count($seasons) > 1):
 		$season = $league['League']['long_season'];
 ?>
 	<tr>
@@ -96,7 +99,7 @@ endforeach;
 </table>
 <?php endif; ?>
 </div>
-<?php if ($is_logged_in): ?>
+<?php if ($is_logged_in && count($years) > 1): ?>
 <div class="actions">
 	<ul>
 <?php

@@ -135,9 +135,13 @@ class League extends AppModel {
 				// TODO: Add closing year, if different than opening
 				$full_name = $year . ' ' . $full_name;
 			}
-			if (array_key_exists('season', $league)) {
+			if (array_key_exists('season', $league) && $league['season'] != 'None') {
 				$league['long_season'] = "$year {$league['season']}";
+			} else {
+				$league['long_season'] = $year;
 			}
+		} else if (array_key_exists('season', $league)) {
+			$league['long_season'] = $league['season'];
 		}
 
 		$league['long_name'] = trim($long_name);
