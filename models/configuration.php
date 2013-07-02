@@ -9,12 +9,12 @@ class Configuration extends AppModel
 		$conditions = array(
 			'category !=' => '',
 			'affiliate_id' => null,
-			'OR' => array(array(
-				'person_id' => null,
-			)),
+			'OR' => array(
+				'category !=' => 'personal',
+			),
 		);
 		if ($id) {
-			$conditions['OR'][] = array('person_id' => $id);
+			$conditions['OR']['person_id'] = $id;
 		}
 
 		$settings = $this->find('all', array('conditions' => $conditions));
