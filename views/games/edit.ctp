@@ -37,7 +37,9 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 			if (array_key_exists ('home_dependency', $game['Game'])) {
 				echo " ({$game['Game']['home_dependency']})";
 			}
-			echo ' (' . __('currently rated', true) . ": {$game['HomeTeam']['rating']})";
+			if ($game['Division']['schedule_type'] != 'tournament') {
+				echo ' (' . __('currently rated', true) . ": {$game['HomeTeam']['rating']})";
+			}
 		}
 		?>
 
@@ -53,7 +55,9 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 			if (array_key_exists ('away_dependency', $game['Game'])) {
 				echo " ({$game['Game']['away_dependency']})";
 			}
-			echo ' (' . __('currently rated', true) . ": {$game['AwayTeam']['rating']})";
+			if ($game['Division']['schedule_type'] != 'tournament') {
+				echo ' (' . __('currently rated', true) . ": {$game['AwayTeam']['rating']})";
+			}
 		}
 		?>
 
@@ -84,7 +88,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 		?>
 
 	</dd>
-	<?php if ($game['Game']['round']): ?>
+	<?php if ($game['Division']['schedule_type'] == 'round_robin' && $game['Game']['round']): ?>
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Round'); ?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php echo $game['Game']['round']; ?>
