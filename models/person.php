@@ -82,6 +82,7 @@ class Person extends User {
 			'foreignKey' => 'person_id',
 			'associationForeignKey' => 'badge_id',
 			'unique' => false,
+			'order' => 'Badge.id',
 		),
 		'Division' => array(
 			'className' => 'Division',
