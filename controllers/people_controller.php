@@ -501,6 +501,8 @@ class PeopleController extends AppController {
 		if ($this->is_logged_in && Configure::read('feature.badges')) {
 			$badge_obj = $this->_getComponent('Badge', '', $this);
 			$badge_obj->visibility($this->is_admin || $this->is_manager, BADGE_VISIBILITY_HIGH);
+		} else {
+			$badge_obj = null;
 		}
 
 		$person = $this->Person->readCurrent($id, $this->Auth->user('id'), $badge_obj);
