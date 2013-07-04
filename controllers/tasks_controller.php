@@ -46,14 +46,34 @@ class TasksController extends AppController {
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('affiliates'));
 
-		$tasks = $this->Task->find('all', array(
-			'conditions' => array('Category.affiliate_id' => $affiliates),
-			'contain' => array(
-				'Category',
-				'Person',
-			),
-			'order' => array('Category.name', 'Task.name'),
-		));
+		if ($this->params['url']['ext'] == 'csv') {
+			$tasks = $this->Task->Category->find('all', array(
+				'conditions' => array('Category.affiliate_id' => $affiliates),
+				'contain' => array(
+					'Task' => array(
+						'order' => array('Task.name'),
+						'Person',
+						'TaskSlot' => array(
+							'order' => array('TaskSlot.task_date', 'TaskSlot.task_start'),
+							'Person',
+							'ApprovedBy',
+						),
+					),
+				),
+				'order' => array('Category.name'),
+			));
+			$this->set('download_file_name', 'Tasks');
+			Configure::write ('debug', 0);
+		} else {
+			$tasks = $this->Task->find('all', array(
+				'conditions' => array('Category.affiliate_id' => $affiliates),
+				'contain' => array(
+					'Category',
+					'Person',
+				),
+				'order' => array('Category.name', 'Task.name'),
+			));
+		}
 
 		$this->set(compact('tasks'));
 	}
