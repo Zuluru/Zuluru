@@ -524,6 +524,30 @@ div.help_dialog p
 	margin: 1em 0;
 }
 
+/* Live scoring styling. */
+#zuluru div.score_box
+{
+	width: 49%;
+	float: left;
+}
+
+#zuluru div.score_box table
+{
+	width: 100%;
+	border: 1px solid;
+}
+
+#zuluru div.score_box td
+{
+	text-align: center;
+	width: 25%;
+}
+
+#zuluru div.score_box td.score, #zuluru div.score_box td.up, #zuluru div.score_box td.down
+{
+	font-size: 150%;
+}
+
 /* Tournament bracket styling. */
 #zuluru div.bracket
 {

@@ -24,6 +24,12 @@ $config['sport'] = array(
 		'Power Forward' => 'Power Forward',
 	),
 
+	'score_options' => array(
+		'Field goal' => 2,
+		'3 pointer' => 3,
+		'Free throw' => 1,
+	),
+
 	'rating_questions' => false,
 );
 

@@ -155,6 +155,10 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 		$awaySpiritEntry = $spiritEntry;
 	}
 }
+$team_names = array(
+	$game['HomeTeam']['id'] => $game['HomeTeam']['name'],
+	$game['AwayTeam']['id'] => $game['AwayTeam']['name']
+);
 ?>
 
 <fieldset class="clear wide_labels">
@@ -219,7 +223,7 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 		</dd>
 	</dl>
 	<?php else: ?>
-		<p><?php __('Score not yet finalized'); ?></p>
+		<p><?php __('The score of this game has not yet been finalized.'); ?></p>
 		<?php if (!empty($game['ScoreEntry']) && ($is_admin || $is_coordinator)):?>
 		<h3><?php __('Score as entered'); ?></h3>
 		<?php
@@ -291,7 +295,84 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 		</tr>
 		<?php endif; ?>
 		</table>
+		<?php
+		else:
+			$entry = Game::_get_best_score_entry($game);
+			if ($entry === null) {
+				echo $this->Html->para(null, __('The final scores entered by the teams do not match, and the discrepancy has not been resolved.', true));
+			}
+		endif;
+		?>
+		<?php if (!empty($entry)): ?>
+		<p><?php
+		if ($entry['team_id'] === null) {
+			$name = __('A scorekeeper', true);
+		} else {
+			$name = $team_names[$entry['team_id']];
+		}
+		if ($entry['status'] == 'in_progress') {
+				printf (__('%s reported the following in-progress score as of %s:', true),
+				$name, $this->ZuluruTime->time($entry['updated'])
+			);
+		} else {
+			printf (__('%s reported the final score as:', true), $name);
+		}
+		?></p>
+		<dl>
+			<dt><?php echo $this->Text->truncate ($game['HomeTeam']['name'], 28); ?></dt>
+			<dd>
+				<?php echo ($entry['team_id'] == $game['HomeTeam']['id'] ? $entry['score_for'] : $entry['score_against']); ?>
+
+			</dd>
+			<dt><?php echo $this->Text->truncate ($game['AwayTeam']['name'], 28); ?></dt>
+			<dd>
+				<?php echo ($entry['team_id'] == $game['AwayTeam']['id'] ? $entry['score_for'] : $entry['score_against']); ?>
+
+			</dd>
+		</dl>
 		<?php endif; ?>
+	<?php endif; ?>
+
+	<?php if (!empty($game['ScoreDetail'])): ?>
+	<fieldset>
+		<legend>Box Score</legend>
+		<div id="BoxScore">
+			<ul>
+			<?php
+			$start = strtotime("{$game['GameSlot']['game_date']} {$game['GameSlot']['game_start']}");
+			$scores = array($game['HomeTeam']['id'] => 0, $game['AwayTeam']['id'] => 0);
+
+			foreach ($game['ScoreDetail'] as $detail) {
+				$time = strtotime($detail['created']) - $start;
+				if ($detail['play'] == 'Start') {
+					$start = strtotime($detail['created']);
+					// TODO: Make this sport-independent
+					$line = $this->ZuluruTime->time($start) . ' Game started, ' . $team_names[$detail['team_id']] . ' pulled';
+				} else if (Configure::read("sport.other_options.{$detail['play']}")) {
+					$line = sprintf("%d:%02d", $time / HOUR, ($time % HOUR) / MINUTE) . ' ' .
+						$team_names[$detail['team_id']] . ' ' . low(Configure::read("sport.other_options.{$detail['play']}"));
+				} else {
+					$line = sprintf("%d:%02d", $time / HOUR, ($time % HOUR) / MINUTE) . ' ' .
+						$team_names[$detail['team_id']] . ' ' .
+						low($detail['play']);
+					if ($detail['points']) {
+						$scores[$detail['team_id']] += $detail['points'];
+						$line .= ' (' . implode(' - ', $scores) . ')';
+					}
+					$stats = array();
+					foreach ($detail['ScoreDetailStat'] as $stat) {
+						$stats[] = Inflector::singularize(low($stat['StatType']['name'])) . ' ' . $stat['Person']['full_name'];
+					}
+					if (!empty($stats)) {
+						$line .= ' (' . implode(', ', $stats) . ')';
+					}
+				}
+				echo $this->Html->tag('li', $line);
+			}
+			?>
+			</ul>
+		</div>
+	</fieldset>
 	<?php endif; ?>
 </fieldset>
 

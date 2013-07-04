@@ -52,9 +52,11 @@ foreach ($attendance['Person'] as $person):
 <?php
 			$i = fake_id();
 			$stat_record = Set::extract("/Stat[team_id={$attendance['Team']['id']}][person_id={$person['id']}][stat_type_id={$stat['id']}]/.", $this->data);
-			if (!empty($stat_record[0]['id'])) {
+			if (!empty($stat_record)) {
 				$stat_record = array_shift($stat_record);
-				echo $this->ZuluruForm->hidden("Stat.$i.id", array('value' => $stat_record['id']));
+				if (!empty($stat_record['id'])) {
+					echo $this->ZuluruForm->hidden("Stat.$i.id", array('value' => $stat_record['id']));
+				}
 			} else {
 				$stat_record = array(
 					'game_id' => $game['Game']['id'],

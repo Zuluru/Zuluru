@@ -14,6 +14,10 @@ $config['sport'] = array(
 	'positions' => array(
 	),
 
+	'score_options' => array(
+		// TODO
+	),
+
 	'rating_questions' => false,
 );
 

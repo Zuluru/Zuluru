@@ -32,6 +32,15 @@ $config['sport'] = array(
 		'dlinestriker' => 'D Line Striker',
 	),
 
+	'score_options' => array(
+		'Goal' => 1,
+	),
+
+	'other_options' => array(
+		'Half' => 'Pull to start second half',
+		'Injury' => 'Injury substitution',
+	),
+
 	'rating_questions' => array(
 		'Skill' => array(
 			'Compared to other players of the same sex as you, would you consider yourself:' => array(

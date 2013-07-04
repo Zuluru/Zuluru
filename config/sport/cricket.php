@@ -21,6 +21,10 @@ $config['sport'] = array(
 		'allrounder' => 'All Rounder',
 	),
 
+	'score_options' => array(
+		// TODO
+	),
+
 	'rating_questions' => false,
 );
 

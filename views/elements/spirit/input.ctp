@@ -40,7 +40,8 @@ if ($game['Division']['League']['numeric_sotg']) {
 		{
 			$checked = true;
 		} else if (!Game::_is_finalized($game) &&
-			!array_key_exists ($team_id, $game['ScoreEntry']))
+			!array_key_exists ($team_id, $game['ScoreEntry']) &&
+			!array_key_exists (null, $game['ScoreEntry']))
 		{
 			$checked = true;
 		}

@@ -15,6 +15,16 @@ class SportComponent extends Object
 		$this->_controller =& $controller;
 	}
 
+	function validate_play($team, $play, $score_from, $details) {
+		switch ($play) {
+			case 'Start':
+				if (!empty($details)) {
+					return __('Game timer was already initialized.', true);
+				}
+		}
+		return true;
+	}
+
 	/*
 	 * Default functions for how many points the various outcomes are worth.
 	 */
@@ -320,7 +330,7 @@ class SportComponent extends Object
 			}
 		} else if (array_key_exists($team_id, $game['ScoreEntry'])) {
 			// Use our score entry
-			if ($game['ScoreEntry'][$team_id]['score_for'] > $game['ScoreEntry'][$team_id]['score_against']) {
+			if ($game['ScoreEntry'][$team_id]['status'] != 'in_progress' && $game['ScoreEntry'][$team_id]['score_for'] > $game['ScoreEntry'][$team_id]['score_against']) {
 				return 1;
 			} else {
 				return 0;
@@ -328,7 +338,7 @@ class SportComponent extends Object
 		} else if (!empty($game['ScoreEntry'])) {
 			// Must be an entry from the other team
 			$entry = array_shift($game['ScoreEntry']);
-			if ($entry['score_for'] < $entry['score_against']) {
+			if ($entry['status'] != 'in_progress' && $entry['score_for'] < $entry['score_against']) {
 				return 1;
 			} else {
 				return 0;
@@ -377,7 +387,7 @@ class SportComponent extends Object
 			}
 		} else if (array_key_exists($team_id, $game['ScoreEntry'])) {
 			// Use our score entry
-			if ($game['ScoreEntry'][$team_id]['score_for'] < $game['ScoreEntry'][$team_id]['score_against']) {
+			if ($game['ScoreEntry'][$team_id]['status'] != 'in_progress' && $game['ScoreEntry'][$team_id]['score_for'] < $game['ScoreEntry'][$team_id]['score_against']) {
 				return 1;
 			} else {
 				return 0;
@@ -385,7 +395,7 @@ class SportComponent extends Object
 		} else if (!empty($game['ScoreEntry'])) {
 			// Must be an entry from the other team
 			$entry = array_shift($game['ScoreEntry']);
-			if ($entry['score_for'] > $entry['score_against']) {
+			if ($entry['status'] != 'in_progress' && $entry['score_for'] > $entry['score_against']) {
 				return 1;
 			} else {
 				return 0;
@@ -432,7 +442,7 @@ class SportComponent extends Object
 			}
 		} else if (!empty($game['ScoreEntry'])) {
 			$entry = array_shift($game['ScoreEntry']);
-			if ($entry['score_for'] == $entry['score_against']) {
+			if ($entry['status'] != 'in_progress' && $entry['score_for'] == $entry['score_against']) {
 				return 1;
 			} else {
 				return 0;

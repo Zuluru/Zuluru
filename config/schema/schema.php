@@ -537,17 +537,38 @@ class ZuluruSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'event_id' => array('column' => 'event_id', 'unique' => 0), 'registration_id' => array('column' => 'registration_id', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
+	var $score_details = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'game_id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'index'),
+		'team_id' => array('type' => 'integer', 'null' => false, 'default' => NULL),
+		'created_team_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'score_from' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'play' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 32),
+		'points' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'game' => array('column' => 'game_id', 'unique' => 0)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
+	var $score_detail_stats = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'score_detail_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
+		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'stat_type_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'detail' => array('column' => 'score_detail_id', 'unique' => 0)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
 	var $score_entries = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
-		'team_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
-		'game_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'team_id' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'key' => 'index'),
+		'game_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
 		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
 		'score_for' => array('type' => 'integer', 'null' => true, 'default' => '0', 'length' => 4),
 		'score_against' => array('type' => 'integer', 'null' => true, 'default' => '0', 'length' => 4),
 		'spirit' => array('type' => 'integer', 'null' => false, 'default' => '0', 'length' => 4),
 		'status' => array('type' => 'string', 'null' => false, 'default' => 'normal', 'length' => 32),
 		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
-		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'team' => array('column' => array('team_id', 'game_id'), 'unique' => 0)),
+		'updated' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'game' => array('column' => 'game_id', 'unique' => 0), 'team' => array('column' => array('team_id', 'game_id'), 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $settings = array(

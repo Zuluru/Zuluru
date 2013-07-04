@@ -41,7 +41,6 @@ class Game extends AppModel {
 		'GameSlot' => array(
 			'className' => 'GameSlot',
 			'foreignKey' => 'game_id',
-			'conditions' => '',
 		)
 	);
 
@@ -49,22 +48,18 @@ class Game extends AppModel {
 		'Division' => array(
 			'className' => 'Division',
 			'foreignKey' => 'division_id',
-			'conditions' => '',
 		),
 		'HomeTeam' => array(
 			'className' => 'Team',
 			'foreignKey' => 'home_team',
-			'conditions' => '',
 		),
 		'AwayTeam' => array(
 			'className' => 'Team',
 			'foreignKey' => 'away_team',
-			'conditions' => '',
 		),
 		'ApprovedBy' => array(
 			'className' => 'Person',
 			'foreignKey' => 'approved_by',
-			'conditions' => '',
 		)
 	);
 
@@ -73,7 +68,6 @@ class Game extends AppModel {
 			'className' => 'Allstar',
 			'foreignKey' => 'game_id',
 			'dependent' => true,
-			'conditions' => '',
 		),
 		'Attendance' => array(
 			'className' => 'Attendance',
@@ -85,19 +79,21 @@ class Game extends AppModel {
 			'className' => 'Incident',
 			'foreignKey' => 'game_id',
 			'dependent' => true,
-			'conditions' => '',
+		),
+		'ScoreDetail' => array(
+			'className' => 'ScoreDetail',
+			'foreignKey' => 'game_id',
+			'dependent' => true,
 		),
 		'ScoreEntry' => array(
 			'className' => 'ScoreEntry',
 			'foreignKey' => 'game_id',
 			'dependent' => true,
-			'conditions' => '',
 		),
 		'SpiritEntry' => array(
 			'className' => 'SpiritEntry',
 			'foreignKey' => 'game_id',
 			'dependent' => true,
-			'conditions' => '',
 		),
 		'ScoreReminderEmail' => array(
 			'className' => 'ActivityLog',
@@ -127,7 +123,6 @@ class Game extends AppModel {
 			'className' => 'Note',
 			'foreignKey' => 'game_id',
 			'dependent' => true,
-			'conditions' => '',
 			'order' => 'Note.created',
 		),
 		'Stat' => array(
@@ -367,15 +362,45 @@ class Game extends AppModel {
 	/**
 	 * Retrieve score entry for given team. Assumes that _adjustEntryIndices has been called.
 	 *
-	 * @return mixed Array with the requested score entry, or false if the team hasn't entered a score yet.
+	 * @return mixed Array with the requested score entry, or false if the team hasn't entered a final score yet.
 	 */
 	static function _get_score_entry ($game, $team_id)
 	{
-		if (array_key_exists ($team_id, $game['ScoreEntry'])) {
+		if (array_key_exists ($team_id, $game['ScoreEntry']) && $game['ScoreEntry'][$team_id]['status'] != 'in_progress') {
 			return $game['ScoreEntry'][$team_id];
 		}
 
 		return false;
+	}
+
+	/**
+	 * Retrieve the best score entry for a game. Assumes that _adjustEntryIndices has been called.
+	 *
+	 * @return mixed Array with the best score entry, false if neither team has entered a score yet,
+	 * or null if there is no clear "best" entry.
+	 */
+	static function _get_best_score_entry ($game)
+	{
+		switch (count($game['ScoreEntry'])) {
+			case 0:
+				return false;
+
+			case 1:
+				return array_pop($game['ScoreEntry']);
+
+			case 2:
+				$entries = array_values($game['ScoreEntry']);
+				if (Game::_score_entries_agree($entries[0], $entries[1])) {
+					return $entries[0];
+				} else if ($entries[0]['status'] == 'in_progress' && $entries[1]['status'] != 'in_progress') {
+					return $entries[1];
+				} else if ($entries[0]['status'] != 'in_progress' && $entries[1]['status'] == 'in_progress') {
+					return $entries[0];
+				} else if ($entries[0]['status'] == 'in_progress' && $entries[1]['status'] == 'in_progress') {
+					return ($entries[0]['updated'] > $entries[1]['updated'] ? $entries[0] : $entries[1]);
+				}
+		}
+		return null;
 	}
 
 	/**
@@ -398,7 +423,7 @@ class Game extends AppModel {
 	static function _score_entries_agree ($one, $two)
 	{
 		if ($one['status'] == $two['status']) {
-			if ($one['status'] == 'normal') {
+			if (in_array($one['status'], array('normal', 'in_progress'))) {
 				return (($one['score_for'] == $two['score_against']) && ($one['score_against'] == $two['score_for']));
 			}
 			return true;

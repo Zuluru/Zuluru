@@ -569,7 +569,7 @@ class DivisionsController extends AppController {
 			'League',
 			'Game' => array(
 				'GameSlot' => array('Field' => 'Facility'),
-				'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $this->Session->read('Zuluru.TeamIDs'))),
+				'ScoreEntry',
 				'HomeTeam',
 				'AwayTeam',
 			),

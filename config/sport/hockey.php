@@ -23,6 +23,10 @@ $config['sport'] = array(
 		'rightwinger' => 'Right Winger',
 	),
 
+	'score_options' => array(
+		'Goal' => 1,
+	),
+
 	'rating_questions' => false,
 );
 

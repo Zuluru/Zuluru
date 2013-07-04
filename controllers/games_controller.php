@@ -43,9 +43,29 @@ class GamesController extends AppController {
 			return true;
 		}
 
+		// Volunteers can perform these operations any time
+		// TODO: Restrict these based on task assignments?
+		if (in_array ($this->params['action'], array(
+				'live_score',
+				'score_up',
+				'score_down',
+				'timeout',
+				'play',
+				'submit_score',
+				'submit_stats',
+		)))
+		{
+			return true;
+		}
+
 		// People can perform these operations on teams they are on
 		if (in_array ($this->params['action'], array(
 				'attendance',
+				'live_score',
+				'score_up',
+				'score_down',
+				'timeout',
+				'play',
 		)))
 		{
 			$team = $this->_arg('team');
@@ -121,6 +141,10 @@ class GamesController extends AppController {
 			),
 			'ApprovedBy',
 			'ScoreEntry' => array('Person'),
+			'ScoreDetail' => array(
+				'order' => 'ScoreDetail.created',
+				'ScoreDetailStat' => array('Person', 'StatType'),
+			),
 			'SpiritEntry',
 			'Allstar' => array('Person'),
 			'Incident',
@@ -151,6 +175,7 @@ class GamesController extends AppController {
 			$this->redirect('/');
 		}
 		$this->Configuration->loadAffiliate($game['Division']['League']['affiliate_id']);
+		Configure::load("sport/{$game['Division']['League']['sport']}");
 		$this->Game->_adjustEntryIndices($game);
 		$this->Game->_readDependencies($game['Game']);
 
@@ -1039,6 +1064,545 @@ class GamesController extends AppController {
 		$this->set('is_captain', in_array($team_id, $this->Session->read('Zuluru.OwnedTeamIDs')));
 	}
 
+	function live_score() {
+		$id = $this->_arg('game');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$team_id = $this->_arg('team');
+		if (!$this->is_volunteer && !$team_id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$contain = array(
+			'Division' => array(
+				'League' => array(
+					'StatType' => array('conditions' => array('StatType.type' => 'entered')),
+				),
+			),
+			'GameSlot' => array('Field' => 'Facility'),
+			'ScoreEntry',
+			'ScoreDetail',
+			// We need roster details for potential stat tracking.
+			'HomeTeam' => array(
+				'Person' => array(
+					'conditions' => array('TeamsPerson.role' => Configure::read('extended_playing_roster_roles')),
+					'fields' => array(
+						'Person.id', 'Person.first_name', 'Person.last_name', 'Person.gender',
+					),
+				),
+			),
+			'AwayTeam' => array(
+				'Person' => array(
+					'conditions' => array('TeamsPerson.role' => Configure::read('extended_playing_roster_roles')),
+					'fields' => array(
+						'Person.id', 'Person.first_name', 'Person.last_name', 'Person.gender',
+					),
+				),
+			),
+		);
+		if ($team_id) {
+			$contain['ScoreEntry']['conditions'] = array('ScoreEntry.team_id' => $team_id);
+		}
+
+		$this->Game->contain ($contain);
+		$game = $this->Game->read(null, $id);
+		if (!$game) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$this->Game->_adjustEntryIndices($game);
+
+		if ($team_id && $team_id != $game['Game']['home_team'] && $team_id != $game['Game']['away_team']) {
+			$this->Session->setFlash(__('That team did not play in that game!', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'game' => $id));
+		}
+
+		if ($this->Game->_is_finalized ($game)) {
+			$this->Session->setFlash(__('The score for that game has already been finalized.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'game' => $id));
+		}
+
+		if ($team_id && array_key_exists($team_id, $game['ScoreEntry']) && $game['ScoreEntry'][$team_id]['status'] != 'in_progress') {
+			$this->Session->setFlash(__('That team has already submitted a score for that game.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'game' => $id));
+		}
+
+		$this->Configuration->loadAffiliate($game['Division']['League']['affiliate_id']);
+		Configure::load("sport/{$game['Division']['League']['sport']}");
+		if ($game['Game']['home_team'] == $team_id || $team_id === null) {
+			$team = $game['HomeTeam'];
+			$opponent = $game['AwayTeam'];
+		} else if ($game['Game']['away_team'] == $team_id) {
+			$team = $game['AwayTeam'];
+			$opponent = $game['HomeTeam'];
+		} else {
+			$this->Session->setFlash(__('That team is not playing in this game.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'game' => $id));
+		}
+
+		$this->set(compact ('game', 'team', 'opponent'));
+		$this->set(array('submitter' => $team_id));
+	}
+
+	function score_up() {
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
+
+		$id = $this->_arg('game');
+		if (!$id) {
+			$this->set('error', sprintf(__('Invalid %s', true), __('game', true)));
+			return;
+		}
+
+		$submitter = $this->_arg('team');
+		if (!$this->is_volunteer && !$submitter) {
+			$this->set('error', sprintf(__('Invalid %s', true), __('submitter', true)));
+			return;
+		}
+
+		if (!$this->data['team_id']) {
+			$this->set('error', sprintf(__('Invalid %s', true), __('team', true)));
+			return;
+		}
+
+		// Lock all of this to prevent multiple simultaneous score updates
+		// TODO: Handle both teams updating at the same time, one with details and one without
+		if (!$this->Lock->lock ("live_scoring $id", null, null, false)) {
+			$this->set('error', __('Someone else is currently updating the score for this game!\n\nIt\'s probably your opponent, try again right away.', true));
+			return;
+		}
+
+		$this->Game->contain (array(
+			'Division' => array(
+				'League',
+			),
+			'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $submitter)),
+			'ScoreDetail' => array('conditions' => array(
+				'ScoreDetail.team_id' => $this->data['team_id'],
+				'ScoreDetail.score_from' => $this->data['score_from'],
+				'ScoreDetail.play' => $this->data['play'],
+			)),
+		));
+		$game = $this->Game->read(null, $id);
+		if (!$game) {
+			$this->set('error', sprintf(__('Invalid %s', true), __('game', true)));
+			return;
+		}
+
+		if ($this->data['team_id'] != $game['Game']['home_team'] && $this->data['team_id'] != $game['Game']['away_team']) {
+			$this->set('error', __('That team did not play in that game!', true));
+			return;
+		}
+
+		if ($this->Game->_is_finalized ($game)) {
+			$this->set('error', __('The score for that game has already been finalized.', true));
+			return;
+		}
+
+		// This will handle either the home team or a third-party submitting the score as "for"
+		$score_field = ($submitter === null || $submitter == $this->data['team_id'] ? 'score_for' : 'score_against');
+
+		if (!empty($game['ScoreEntry'])) {
+			$entry = current($game['ScoreEntry']);
+			if ($entry['status'] != 'in_progress') {
+				$this->set('error', __('That team has already submitted a score for that game.', true));
+				return;
+			}
+			unset($entry['created']);
+			unset($entry['updated']);
+			unset($entry['person_id']);
+			$score = $entry[$score_field];
+		} else {
+			$entry = array(
+				'team_id' => $submitter,
+				'game_id' => $id,
+				'status' => 'in_progress',
+			);
+			$score = 0;
+		}
+
+		if ($score != $this->data['score_from']) {
+			$this->set('error', __('The saved score does not match yours.\nSomeone else may have updated the score in the meantime.\n\nPlease refresh the page and try again.', true));
+			return;
+		}
+
+		$this->Configuration->loadAffiliate($game['Division']['League']['affiliate_id']);
+		Configure::load("sport/{$game['Division']['League']['sport']}");
+
+		if (empty($this->data['play'])) {
+			$this->set('error', __('You must indicate the scoring play so that the new score can be calculated.', true));
+			return;
+		}
+		$points = Configure::read("sport.score_options.{$this->data['play']}");
+		if (!$points) {
+			$this->set('error', __('Invalid scoring play!', true));
+			return;
+		}
+		$score += $points;
+		$entry[$score_field] = $score;
+
+		$transaction = new DatabaseTransaction($this->Game);
+
+		if (!$this->Game->ScoreEntry->save($entry)) {
+			$this->set('error', __('There was an error updating the score.\nPlease try again.', true));
+			return;
+		}
+
+		// Check if there's already a matching score detail record (presumably from the other team).
+		// If so, we may want to update it.
+		if (!empty($game['ScoreDetail'])) {
+			$this->Game->ScoreDetail->id = $game['ScoreDetail'][0]['id'];
+		}
+		if (!$this->Game->ScoreDetail->save(array_merge($this->data, array(
+				'game_id' => $id,
+				'created_team_id' => $submitter,
+				'points' => $points,
+		))))
+		{
+			$this->set('error', __('There was an error updating the box score.\nPlease try again.', true));
+			return;
+		}
+
+		// Save stat details
+		if (!empty($this->data['Stat'])) {
+			foreach ($this->data['Stat'] as $stat_type_id => $person_id) {
+				if (!empty($person_id)) {
+					$this->Game->ScoreDetail->ScoreDetailStat->create();
+					$this->Game->ScoreDetail->ScoreDetailStat->save(array(
+							'score_detail_id' => $this->Game->ScoreDetail->id,
+							'stat_type_id' => $stat_type_id,
+							'person_id' => $person_id,
+					));
+				}
+			}
+		}
+
+		$transaction->commit();
+
+		$this->set(compact('score'));
+	}
+
+	function score_down() {
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
+
+		$id = $this->_arg('game');
+		if (!$id) {
+			$this->set('error', sprintf(__('Invalid %s', true), __('game', true)));
+			return;
+		}
+
+		$submitter = $this->_arg('team');
+		if (!$this->is_volunteer && !$submitter) {
+			$this->set('error', sprintf(__('Invalid %s', true), __('submitter', true)));
+			return;
+		}
+
+		if (!$this->data['team_id']) {
+			$this->set('error', sprintf(__('Invalid %s', true), __('team', true)));
+			return;
+		}
+
+		// Lock all of this to prevent multiple simultaneous score updates
+		// TODO: Handle both teams updating at the same time, one with details and one without
+		if (!$this->Lock->lock ("live_scoring $id", null, null, false)) {
+			$this->set('error', __('Someone else is currently updating the score for this game!\n\nIt\'s probably your opponent, try again right away.', true));
+			return;
+		}
+
+		$this->Game->contain (array(
+			'Division' => array(
+				'League',
+			),
+			'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $submitter)),
+			'ScoreDetail' => array(
+				'conditions' => array(
+					'ScoreDetail.team_id' => $this->data['team_id'],
+					'ScoreDetail.points !=' => null,
+				),
+				'order' => array('ScoreDetail.score_from' => 'DESC'),
+			),
+		));
+		$game = $this->Game->read(null, $id);
+		if (!$game) {
+			$this->set('error', sprintf(__('Invalid %s', true), __('game', true)));
+			return;
+		}
+		$this->Game->_adjustEntryIndices($game);
+
+		if ($this->data['team_id'] != $game['Game']['home_team'] && $this->data['team_id'] != $game['Game']['away_team']) {
+			$this->set('error', __('That team did not play in that game!', true));
+			return;
+		}
+
+		if ($this->Game->_is_finalized ($game)) {
+			$this->set('error', __('The score for that game has already been finalized.', true));
+			return;
+		}
+
+		// This will handle either the home team or a third-party submitting the score as "for"
+		$score_field = ($submitter === null || $submitter == $this->data['team_id'] ? 'score_for' : 'score_against');
+
+		if (empty($game['ScoreEntry'])) {
+			$this->set('error', __('You can\'t decrease the score below zero.', true));
+			return;
+		}
+		$entry = current($game['ScoreEntry']);
+		if ($entry['status'] != 'in_progress') {
+			$this->set('error', __('That team has already submitted a score for that game.', true));
+			return;
+		}
+		unset($entry['created']);
+		unset($entry['updated']);
+		unset($entry['person_id']);
+		$score = $entry[$score_field];
+
+		if ($score != $this->data['score_from']) {
+			$this->set('error', __('The saved score does not match yours.\nSomeone else may have updated the score in the meantime.\n\nPlease refresh the page and try again.', true));
+			return;
+		}
+
+		$this->Configuration->loadAffiliate($game['Division']['League']['affiliate_id']);
+		Configure::load("sport/{$game['Division']['League']['sport']}");
+
+		$detail = array_shift($game['ScoreDetail']);
+		$score -= $detail['points'];
+		$entry[$score_field] = $score;
+
+		$transaction = new DatabaseTransaction($this->Game);
+
+		if (!$this->Game->ScoreEntry->save($entry)) {
+			$this->set('error', __('There was an error updating the score.\nPlease try again.', true));
+			return;
+		}
+
+		// Delete the matching score detail record, if it's got details from our team.
+		// TODO: If the other team isn't keeping stats, there might be ScoreDetail records to remove when the score is finalized.
+		if (($submitter === null || $detail['team_id'] == $submitter) && !$this->Game->ScoreDetail->delete($detail['id'])) {
+			$this->set('error', __('There was an error updating the box score.\nPlease try again.', true));
+			return;
+		}
+		$transaction->commit();
+
+		$this->set(compact('score'));
+	}
+
+	function timeout() {
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
+
+		$id = $this->_arg('game');
+		if (!$id) {
+			$this->set('error', sprintf(__('Invalid %s', true), __('game', true)));
+			return;
+		}
+
+		$submitter = $this->_arg('team');
+		if (!$this->is_volunteer && !$submitter) {
+			$this->set('error', sprintf(__('Invalid %s', true), __('submitter', true)));
+			return;
+		}
+
+		if (!$this->data['team_id']) {
+			$this->set('error', sprintf(__('Invalid %s', true), __('team', true)));
+			return;
+		}
+
+		// Lock all of this to prevent multiple simultaneous score updates
+		if (!$this->Lock->lock ("live_scoring $id", null, null, false)) {
+			$this->set('error', __('Someone else is currently updating the score for this game!\n\nIt\'s probably your opponent, try again right away.', true));
+			return;
+		}
+
+		$this->Game->contain (array(
+			'Division' => array(
+				'League',
+			),
+			'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $submitter)),
+			'ScoreDetail' => array('conditions' => array(
+				'ScoreDetail.team_id' => $this->data['team_id'],
+				'ScoreDetail.play' => 'Timeout',
+			)),
+		));
+		$game = $this->Game->read(null, $id);
+		if (!$game) {
+			$this->set('error', sprintf(__('Invalid %s', true), __('game', true)));
+			return;
+		}
+		$this->Game->_adjustEntryIndices($game);
+
+		if ($this->data['team_id'] != $game['Game']['home_team'] && $this->data['team_id'] != $game['Game']['away_team']) {
+			$this->set('error', __('That team did not play in that game!', true));
+			return;
+		}
+
+		if ($this->Game->_is_finalized ($game)) {
+			$this->set('error', __('The score for that game has already been finalized.', true));
+			return;
+		}
+
+		// This will handle either the home team or a third-party submitting the timeout as "for"
+		$score_field = ($submitter === null || $submitter == $this->data['team_id'] ? 'score_for' : 'score_against');
+
+		if (empty($game['ScoreEntry'])) {
+			$score = 0;
+		} else {
+			$entry = current($game['ScoreEntry']);
+			if ($entry['status'] != 'in_progress') {
+				$this->set('error', __('That team has already submitted a score for that game.', true));
+				return;
+			}
+			$score = $entry[$score_field];
+		}
+		if ($score != $this->data['score_from']) {
+			$this->set('error', __('The saved score does not match yours.\nSomeone else may have updated the score in the meantime.\n\nPlease refresh the page and try again.', true));
+			return;
+		}
+
+		$this->Configuration->loadAffiliate($game['Division']['League']['affiliate_id']);
+		Configure::load("sport/{$game['Division']['League']['sport']}");
+
+		// Check if there's already a score detail record from the other team that this is likely a duplicate of.
+		// If so, we want to disregard it.
+		foreach ($game['ScoreDetail'] as $detail) {
+			if ($detail['play'] == 'Timeout' &&
+				$detail['created_team_id'] != $submitter &&
+				$detail['score_from'] == $this->data['score_from'] &&
+				strtotime($detail['created']) >= time() - 2 * MINUTE)
+			{
+				$this->set('taken', count($game['ScoreDetail']));
+				return;
+			}
+		}
+
+		if (!$this->Game->ScoreDetail->save(array_merge($this->data, array(
+				'game_id' => $id,
+				'created_team_id' => $submitter,
+				'play' => 'Timeout',
+		))))
+		{
+			$this->set('error', __('There was an error updating the box score.\nPlease try again.', true));
+			return;
+		}
+
+		$this->set('taken', count($game['ScoreDetail']) + 1);
+	}
+
+	function play() {
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
+
+		$id = $this->_arg('game');
+		if (!$id) {
+			$this->set('message', sprintf(__('Invalid %s', true), __('game', true)));
+			return;
+		}
+
+		$submitter = $this->_arg('team');
+		if (!$this->is_volunteer && !$submitter) {
+			$this->set('message', sprintf(__('Invalid %s', true), __('submitter', true)));
+			return;
+		}
+
+		if (!$this->data['team_id']) {
+			$this->set('message', sprintf(__('Invalid %s', true), __('team', true)));
+			return;
+		}
+
+		// Lock all of this to prevent multiple simultaneous score updates
+		if (!$this->Lock->lock ("live_scoring $id", null, null, false)) {
+			$this->set('message', __('Someone else is currently updating the score for this game!\n\nIt\'s probably your opponent, try again right away.', true));
+			return;
+		}
+
+		$this->Game->contain (array(
+			'Division' => array(
+				'League',
+			),
+			'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $submitter)),
+			'ScoreDetail',
+		));
+		$game = $this->Game->read(null, $id);
+		if (!$game) {
+			$this->set('message', sprintf(__('Invalid %s', true), __('game', true)));
+			return;
+		}
+		$this->Game->_adjustEntryIndices($game);
+
+		if ($this->data['team_id'] != $game['Game']['home_team'] && $this->data['team_id'] != $game['Game']['away_team']) {
+			$this->set('message', __('That team did not play in that game!', true));
+			return;
+		}
+
+		if ($this->Game->_is_finalized ($game)) {
+			$this->set('message', __('The score for that game has already been finalized.', true));
+			return;
+		}
+
+		// This will handle either the home team or a third-party submitting the score as "for"
+		$score_field = ($submitter === null || $submitter == $this->data['team_id'] ? 'score_for' : 'score_against');
+
+		if (empty($game['ScoreEntry'])) {
+			$score = 0;
+		} else {
+			$entry = current($game['ScoreEntry']);
+			if ($entry['status'] != 'in_progress') {
+				$this->set('message', __('That team has already submitted a score for that game.', true));
+				return;
+			}
+			$score = $entry[$score_field];
+		}
+
+		$this->Configuration->loadAffiliate($game['Division']['League']['affiliate_id']);
+		Configure::load("sport/{$game['Division']['League']['sport']}");
+		$sport_obj = $this->_getComponent ('Sport', $game['Division']['League']['sport'], $this);
+
+		if (empty($this->data['play'])) {
+			$this->set('message', __('You must indicate the play so that the box score will be accurate.', true));
+			return;
+		}
+		if ($this->data['play'] != 'Start' && !Configure::read("sport.other_options.{$this->data['play']}")) {
+			$this->set('message', __('Invalid play!', true));
+			return;
+		}
+
+		$valid = $sport_obj->validate_play($this->data['team_id'], $this->data['play'], $this->data['score_from'], $game['ScoreDetail']);
+		if ($valid !== true) {
+			$this->set('message', addslashes($valid));
+			return;
+		} else if ($this->data['play'] == 'Start') {
+			$this->set('message', __('Game timer initialized.', true));
+		} else {
+			$this->set('message', Configure::read("sport.other_options.{$this->data['play']}") . ' ' . __('recorded', true));
+		}
+
+		// Check if there's already a score detail record from the other team that this is likely a duplicate of.
+		// If so, we want to disregard it.
+		foreach ($game['ScoreDetail'] as $detail) {
+			if ($detail['play'] == $this->data['play'] &&
+				$detail['team_id'] == $this->data['team_id'] &&
+				$detail['created_team_id'] != $submitter &&
+				$detail['score_from'] == $this->data['score_from'] &&
+				strtotime($detail['created']) >= time() - 2 * MINUTE)
+			{
+				return;
+			}
+		}
+
+		if (!$this->Game->ScoreDetail->save(array_merge($this->data, array(
+				'game_id' => $id,
+				'created_team_id' => $submitter,
+		))))
+		{
+			$this->set('message', __('There was an error updating the box score.\nPlease try again.', true));
+			return;
+		}
+	}
+
 	function submit_score() {
 		$id = $this->_arg('game');
 		if (!$id) {
@@ -1047,7 +1611,10 @@ class GamesController extends AppController {
 		}
 
 		$team_id = $this->_arg('team');
-		if (!$team_id) {
+		if ($this->is_volunteer && !$team_id) {
+			// Allow specified individuals (referees, umpires, volunteers) to "submit" a score without a team id,
+			// by redirecting to the game edit page
+			$this->redirect(array('action' => 'edit', 'game' => $id), array('action' => 'submit_stats', 'game' => $id));
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
@@ -1116,31 +1683,29 @@ class GamesController extends AppController {
 		if ($game['Game']['home_team'] == $team_id) {
 			$team = $game['HomeTeam'];
 			$opponent = $game['AwayTeam'];
-		} else {
+		} else if ($game['Game']['away_team'] == $team_id) {
 			$team = $game['AwayTeam'];
 			$opponent = $game['HomeTeam'];
-		}
-
-		if ($team_id != $game['Game']['home_team'] && $team_id != $game['Game']['away_team']) {
-			$this->Session->setFlash(__('That team did not play in that game!', true), 'default', array('class' => 'info'));
-			$this->redirect('/');
+		} else {
+			$this->Session->setFlash(__('That team is not playing in this game.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'game' => $id));
 		}
 
 		$end_time = strtotime("{$game['GameSlot']['game_date']} {$game['GameSlot']['display_game_end']}") +
 				Configure::read('timezone.adjust') * 60;
 		if ($end_time - 60 * 60 > time()) {
 			$this->Session->setFlash(__('That game has not yet occurred!', true), 'default', array('class' => 'info'));
-			$this->redirect('/');
+			$this->redirect(array('action' => 'view', 'game' => $id));
 		}
 
 		if ($this->Game->_is_finalized ($game)) {
 			$this->Session->setFlash(__('The score for that game has already been finalized.', true), 'default', array('class' => 'info'));
-			$this->redirect('/');
+			$this->redirect(array('action' => 'view', 'game' => $id));
 		}
 
 		if (empty($game['Game']['home_team']) || empty($game['Game']['away_team'])) {
 			$this->Session->setFlash(__('The opponent for that game has not been determined, so a score cannot yet be submitted.', true), 'default', array('class' => 'info'));
-			$this->redirect('/');
+			$this->redirect(array('action' => 'view', 'game' => $id));
 		}
 
 		if ($this->Game->_get_score_entry ($game, $team_id)) {
@@ -1186,7 +1751,7 @@ class GamesController extends AppController {
 				} else {
 					$this->Session->setFlash(__('ID for posted score does not match the saved ID.', true), 'default', array('class' => 'error'));
 				}
-				$this->redirect('/');
+				$this->redirect(array('action' => 'view', 'game' => $id));
 			}
 
 			// Same process, for spirit entries
@@ -1204,7 +1769,7 @@ class GamesController extends AppController {
 					} else {
 						$this->Session->setFlash(__('ID for posted spirit score does not match the saved ID.', true), 'default', array('class' => 'error'));
 					}
-					$this->redirect('/');
+					$this->redirect(array('action' => 'view', 'game' => $id));
 				}
 			}
 
@@ -1416,6 +1981,7 @@ class GamesController extends AppController {
 			),
 			'GameSlot' => array('Field' => 'Facility'),
 			'ScoreEntry',
+			'ScoreDetail' => array('ScoreDetailStat'),
 			'HomeTeam',
 			'AwayTeam',
 		));
@@ -1427,6 +1993,7 @@ class GamesController extends AppController {
 		}
 
 		$team_id = $this->_arg('team');
+		// TODO: Allow specified individuals (referees, umpires, volunteers) to submit stats without a team id
 		if (!$team_id && !in_array($game['Division']['id'], $this->Session->read('Zuluru.DivisionIDs'))) {
 			$this->Session->setFlash(__('You must provide a team ID.', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
@@ -1545,10 +2112,32 @@ class GamesController extends AppController {
 					'contain' => array(),
 					'conditions' => array('game_id' => $id),
 			));
-			// Reformat the data into the form needed for saving multiple records,
-			// which is the same form the display expects, in case errors cause it
-			// to be redisplayed.
-			$this->data = array('Stat' => Set::extract('/Stat/.', $this->data));
+			if (empty($this->data)) {
+				// Extract counts of stats per player from the live scoring
+				$this->data['Stat'] = array();
+				foreach ($game['ScoreDetail'] as $detail) {
+					foreach ($detail['ScoreDetailStat'] as $stat) {
+						$key = "{$stat['person_id']}:{$stat['stat_type_id']}";
+						if (!array_key_exists($key, $this->data['Stat'])) {
+							$this->data['Stat'][$key] = array(
+								'game_id' => $id,
+								'team_id' => $detail['team_id'],
+								'person_id' => $stat['person_id'],
+								'stat_type_id' => $stat['stat_type_id'],
+								'value' => 1,
+							);
+						} else {
+							++ $this->data['Stat'][$key]['value'];
+						}
+					}
+				}
+				$this->data['Stat'] = array_values($this->data['Stat']);
+			} else {
+				// Reformat the data into the form needed for saving multiple records,
+				// which is the same form the display expects, in case errors cause it
+				// to be redisplayed.
+				$this->data = array('Stat' => Set::extract('/Stat/.', $this->data));
+			}
 		}
 
 		if ($team_id) {

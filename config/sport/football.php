@@ -40,6 +40,17 @@ $config['sport'] = array(
 		'safety' => 'Safety',
 	),
 
+	'score_options' => array(
+		'Touchdown' => 6,
+		'Conversion' => 1,
+		'Two-point conversion' => 2,
+		'Field goal' => 3,
+		'Safety' => 2,
+		'Single' => 1,
+		'Rouge' => 1,
+	),
+
+
 	'rating_questions' => false,
 );
 

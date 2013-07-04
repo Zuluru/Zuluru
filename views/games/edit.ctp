@@ -136,6 +136,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 	<?php else: ?>
 
 	<p><?php __('Score not yet finalized'); ?></p>
+	<?php if (!array_key_exists (null, $game['ScoreEntry'])): ?>
 	<h3><?php __('Score as entered'); ?></h3>
 	<?php
 	if (array_key_exists ($game['Game']['home_team'], $game['ScoreEntry'])) {
@@ -179,12 +180,12 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 		<td><?php __('Entry Time'); ?></td>
 		<td><?php
 		if (isset ($homeScoreEntry)) {
-			echo $this->ZuluruTime->datetime($homeScoreEntry['created']);
+			echo $this->ZuluruTime->datetime($homeScoreEntry['updated']);
 		}
 		?></td>
 		<td><?php
 		if (isset ($awayScoreEntry)) {
-			echo $this->ZuluruTime->datetime($awayScoreEntry['created']);
+			echo $this->ZuluruTime->datetime($awayScoreEntry['updated']);
 		}
 		?></td>
 	</tr>
@@ -204,6 +205,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 	</tr>
 	<?php endif; ?>
 	</table>
+	<?php endif; ?>
 
 	<?php endif; ?>
 
@@ -215,6 +217,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 					'id' => 'ScoreHome',
 					'label' => false,
 					'size' => 2,
+					'default' => (array_key_exists(null, $game['ScoreEntry']) ? $game['ScoreEntry'][null]['score_for'] : null),
 			)); ?>
 
 		</dd>
@@ -224,6 +227,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 					'id' => 'ScoreAway',
 					'label' => false,
 					'size' => 2,
+					'default' => (array_key_exists(null, $game['ScoreEntry']) ? $game['ScoreEntry'][null]['score_against'] : null),
 			)); ?>
 
 		</dd>

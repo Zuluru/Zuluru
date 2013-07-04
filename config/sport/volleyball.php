@@ -29,6 +29,10 @@ $config['sport'] = array(
 		'liberos' => 'Liberos',
 	),
 
+	'score_options' => array(
+		'Point' => 1,
+	),
+
 	'rating_questions' => false,
 );
 

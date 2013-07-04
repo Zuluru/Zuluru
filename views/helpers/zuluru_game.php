@@ -12,14 +12,15 @@ class ZuluruGameHelper extends Helper {
 			// ...or the Game model is at the top and others are below
 			$details = $game;
 		}
-		$score_entry = $game['ScoreEntry'];
 
 		$view =& ClassRegistry::getObject('view');
 		$is_admin = $view->viewVars['is_admin'];
 		$is_manager = $view->viewVars['is_manager'] && in_array($league['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
 		$is_coordinator = in_array ($details['division_id'], $this->Session->read('Zuluru.DivisionIDs'));
 
-		// Calculate the game end time stamp
+		// Calculate the game start and end time stamps
+		$start_time = strtotime("{$game['GameSlot']['game_date']} {$game['GameSlot']['game_start']}") +
+				Configure::read('timezone.adjust') * 60;
 		$end_time = strtotime("{$game['GameSlot']['game_date']} {$game['GameSlot']['display_game_end']}") +
 				Configure::read('timezone.adjust') * 60;
 
@@ -61,8 +62,8 @@ class ZuluruGameHelper extends Helper {
 				}
 			}
 		} else {
-			if (!empty ($score_entry)) {
-				$score_entry = array_shift ($score_entry);
+			$score_entry = Game::_get_best_score_entry($game);
+			if (!empty($score_entry)) {
 				if (in_array($score_entry['status'], Configure::read('unplayed_status'))) {
 					__($score_entry['status']);
 				} else {
@@ -81,37 +82,59 @@ class ZuluruGameHelper extends Helper {
 				}
 
 				if ($team_id) {
-					$links[] = $this->Html->link(
+					if ($score_entry['status'] == 'in_progress') {
+						$links[] = $this->Html->link(
+								__('Live Score', true),
+								array('controller' => 'games', 'action' => 'live_score', 'game' => $details['id'], 'team' => $team_id));
+					} else {
+						$links[] = $this->Html->link(
 							__('Edit score', true),
 							array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $team_id));
+					}
 
 					// Check if someone is a captain on both teams that played each other
-					$team_id = array_pop ($teams);
-					if ($team_id) {
+					$second_team_id = array_pop ($teams);
+					if ($second_team_id) {
 						$links[] = $this->Html->link(
-								__('Submit', true),
-								array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $team_id));
+							__('Submit', true),
+							array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $second_team_id));
 					}
+				}
+				// TODO: Allow specified individuals (referees, umpires, volunteers) to live score without a team id
+
+				if ($score_entry['status'] == 'in_progress') {
+					echo ' (' . __('in progress', true) . ')';
 				} else {
 					echo ' (' . __('unofficial', true) . ')';
 				}
-			} else if (time() > $end_time - 60 * 60) {
+			} else if ($score_entry === null) {
+				__('score mismatch');
+			} else if (time() > $end_time - 60 * 60 + Configure::read('timezone.adjust') * 60) {
 				// Allow score submissions up to an hour before scheduled game end time.
 				// Some people like to submit via mobile phone immediately, and games can end early.
 				if ($team_id) {
 					$links[] = $this->Html->link(
-							__('Submit', true),
-							array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $team_id));
+						__('Submit', true),
+						array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $team_id));
 				} else {
 					__('not entered');
 				}
-			} else {
-				// Check if one of the teams involved in the game is a team the current user is on
-				$team_id = array_pop (array_intersect (array($details['home_team'], $details['away_team']), $this->Session->read('Zuluru.TeamIDs')));
+			} else if (time() > $start_time - 30 * 60 + Configure::read('timezone.adjust') * 60) {
+				// Allow live scoring to start up to half an hour before scheduled game start time.
+				// This allows score keepers to get the page loaded and ready to go in advance.
 				if ($team_id) {
 					$links[] = $this->Html->link(
+							__('Live Score', true),
+							array('controller' => 'games', 'action' => 'live_score', 'game' => $details['id'], 'team' => $team_id));
+				}
+				// TODO: Allow specified individuals (referees, umpires, volunteers) to live score without a team id
+			} else {
+				// Check if one of the teams involved in the game is a team the current user is on
+				$player_team_id = array_pop (array_intersect (array($details['home_team'], $details['away_team']), $this->Session->read('Zuluru.TeamIDs')));
+				if ($player_team_id) {
+					$links[] = $this->Html->link(
 							__('iCal', true),
-							array('controller' => 'games', 'action' => 'ical', $details['id'], $team_id, 'game.ics'));
+							array('controller' => 'games', 'action' => 'ical', $details['id'], $player_team_id, 'game.ics'));
 				}
 			}
 		}

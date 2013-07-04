@@ -29,6 +29,10 @@ $config['sport'] = array(
 		'designatedhitter' => 'Designated Hitter',
 	),
 
+	'score_options' => array(
+		'Run' => 1,
+	),
+
 	'rating_questions' => false,
 );
 

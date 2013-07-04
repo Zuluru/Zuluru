@@ -185,6 +185,7 @@ $config['options'] = array(
 
 	'game_status' => make_human_options(array(
 		'normal',
+		'in_progress',
 		'home_default',
 		'away_default',
 		'rescheduled',

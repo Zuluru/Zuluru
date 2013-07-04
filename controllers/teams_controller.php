@@ -1352,7 +1352,7 @@ class TeamsController extends AppController {
 		Configure::load("sport/{$team['Division']['League']['sport']}");
 		$this->Team->Division->Game->contain(array(
 				'GameSlot' => array('Field' => 'Facility'),
-				'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $this->Session->read('Zuluru.TeamIDs'))),
+				'ScoreEntry',
 				'SpiritEntry',
 				'HomeTeam',
 				'AwayTeam',

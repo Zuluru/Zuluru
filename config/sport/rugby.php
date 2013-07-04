@@ -40,6 +40,10 @@ $config['sport'] = array(
 		'fullback' => 'Fullback',
 	),
 
+	'score_options' => array(
+		// TODO
+	),
+
 	'rating_questions' => false,
 );
 
