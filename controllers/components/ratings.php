@@ -118,7 +118,7 @@ class RatingsComponent extends Object
 			$games[$key]['Game']['calc_rating_away'] = $division['Team'][$game['Game']['away_team']]['current_rating'];
 
 			if ($this->game_obj->_is_finalized ($game) && $game['Game']['status'] != 'rescheduled') {
-				if ($game['Game']['tournament']) {
+				if ($game['Game']['type'] != SEASON_GAME) {
 					// Playoff games don't adjust ratings
 					$change = 0;
 				} else if (strpos($game['Game']['status'], 'default') !== false && !Configure::read('scoring.default_transfer_ratings')) {

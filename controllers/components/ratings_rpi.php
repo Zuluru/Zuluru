@@ -14,7 +14,7 @@ class RatingsRpiComponent extends RatingsComponent
 	function _initializeRatings($league, &$division, $games) {
 		// Build some counters to make the later calculations trivial
 		foreach ($games as $game) {
-			if (!$game['Game']['tournament'] && $this->game_obj->_is_finalized ($game) && $game['Game']['status'] != 'rescheduled') {
+			if ($game['Game']['type'] == SEASON_GAME && $this->game_obj->_is_finalized ($game) && $game['Game']['status'] != 'rescheduled') {
 				if (!array_key_exists($game['Game']['home_team'], $this->results)) {
 					$this->results[$game['Game']['home_team']] = array('games' => 0, 'wins' => 0);
 				}
@@ -100,8 +100,8 @@ class RatingsRpiComponent extends RatingsComponent
 
 	function _owp($games, $team_id) {
 		$opponents = array_merge(
-			Set::extract("/Game[home_team=$team_id][tournament=0]/away_team", $games),
-			Set::extract("/Game[away_team=$team_id][tournament=0]/home_team", $games)
+			Set::extract("/Game[home_team=$team_id][type=" . SEASON_GAME . "]/away_team", $games),
+			Set::extract("/Game[away_team=$team_id][type=" . SEASON_GAME . "]/home_team", $games)
 		);
 
 		$sum = 0;
@@ -113,8 +113,8 @@ class RatingsRpiComponent extends RatingsComponent
 
 	function _oowp($games, $team_id) {
 		$opponents = array_merge(
-			Set::extract("/Game[home_team=$team_id][tournament=0]/away_team", $games),
-			Set::extract("/Game[away_team=$team_id][tournament=0]/home_team", $games)
+			Set::extract("/Game[home_team=$team_id][type=" . SEASON_GAME . "]/away_team", $games),
+			Set::extract("/Game[away_team=$team_id][type=" . SEASON_GAME . "]/home_team", $games)
 		);
 
 		$sum = 0;

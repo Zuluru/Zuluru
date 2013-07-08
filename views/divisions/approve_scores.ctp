@@ -19,7 +19,7 @@ $this->Html->addCrumb (__('Approve Scores', true));
 	<tbody>
 <?php
 foreach ($games as $game):
-	Game::_readDependencies($game['Game']);
+	Game::_readDependencies($game);
 
 	if (array_key_exists ($game['Game']['home_team'], $game['ScoreEntry'])) {
 		$home = $game['ScoreEntry'][$game['Game']['home_team']];

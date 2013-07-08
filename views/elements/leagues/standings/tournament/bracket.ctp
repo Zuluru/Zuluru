@@ -27,10 +27,10 @@ while (!empty($games)):
 		<?php
 		// Whatever game we have here will be the final one in this bracket
 		if (Game::_is_finalized($game)) {
-			if ($game['Game']['home_score'] > $game['Game']['away_score']) {
-				echo $this->element('teams/block', array('team' => $teams[$game['Game']['home_team']], 'options' => array('max_length' => 16)));
+			if ($game['home_score'] > $game['away_score']) {
+				echo $this->element('teams/block', array('team' => $teams[$game['home_team']], 'options' => array('max_length' => 16)));
 			} else {
-				echo $this->element('teams/block', array('team' => $teams[$game['Game']['away_team']], 'options' => array('max_length' => 16)));
+				echo $this->element('teams/block', array('team' => $teams[$game['away_team']], 'options' => array('max_length' => 16)));
 			}
 		}
 		?>

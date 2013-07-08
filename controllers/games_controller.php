@@ -133,12 +133,14 @@ class GamesController extends AppController {
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
+			'HomePoolTeam' => 'DependencyPool',
 			'AwayTeam' => array(
 				'Person' => array(
 					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
+			'AwayPoolTeam' => 'DependencyPool',
 			'ApprovedBy',
 			'ScoreEntry' => array('Person'),
 			'ScoreDetail' => array(
@@ -177,7 +179,7 @@ class GamesController extends AppController {
 		$this->Configuration->loadAffiliate($game['Division']['League']['affiliate_id']);
 		Configure::load("sport/{$game['Division']['League']['sport']}");
 		$this->Game->_adjustEntryIndices($game);
-		$this->Game->_readDependencies($game['Game']);
+		$this->Game->_readDependencies($game);
 
 		$this->set('game', $game);
 		$this->set('spirit_obj', $this->_getComponent ('Spirit', $this->Game->data['Division']['League']['sotg_questions'], $this));
@@ -285,12 +287,14 @@ class GamesController extends AppController {
 					'fields' => array('id', 'first_name', 'last_name', 'gender', 'email'),
 				),
 			),
+			'HomePoolTeam' => 'DependencyPool',
 			'AwayTeam' => array(
 				'Person' => array(
 					'conditions' => array('TeamsPerson.role' => Configure::read('extended_playing_roster_roles')),
 					'fields' => array('id', 'first_name', 'last_name', 'gender', 'email'),
 				),
 			),
+			'AwayPoolTeam' => 'DependencyPool',
 			'ApprovedBy',
 			'ScoreEntry' => array('Person'),
 			'SpiritEntry',
@@ -304,7 +308,7 @@ class GamesController extends AppController {
 		}
 		$this->Configuration->loadAffiliate($game['Division']['League']['affiliate_id']);
 		$this->Game->_adjustEntryIndices($game);
-		$this->Game->_readDependencies($game['Game']);
+		$this->Game->_readDependencies($game);
 
 		if (!$this->is_admin && !in_array ($game['Division']['id'], $this->Session->read('Zuluru.DivisionIDs'))) {
 			$this->Session->setFlash(__('You do not have permission to edit that game.', true), 'default', array('class' => 'info'));
@@ -388,6 +392,11 @@ class GamesController extends AppController {
 				} else {
 					$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('game', true)), 'default', array('class' => 'warning'));
 				}
+			}
+
+			$cache_file = CACHE . 'queries' . DS . "division_{$game['Division']['id']}.data";
+			if (file_exists($cache_file)) {
+				unlink($cache_file);
 			}
 		}
 
@@ -628,6 +637,12 @@ class GamesController extends AppController {
 				}
 
 				$transaction->commit();
+
+				$cache_file = CACHE . 'queries' . DS . "division_{$game['Division']['id']}.data";
+				if (file_exists($cache_file)) {
+					unlink($cache_file);
+				}
+
 				$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $game['Division']['id']));
 			} else {
 				$this->Session->setFlash(__('Game was deleted, but game slot was not cleared', true), 'default', array('class' => 'warning'));
@@ -1017,7 +1032,9 @@ class GamesController extends AppController {
 				'Day',
 			),
 			'HomeTeam',
+			'HomePoolTeam' => 'DependencyPool',
 			'AwayTeam',
+			'AwayPoolTeam' => 'DependencyPool',
 			'GameSlot' => array('Field' => 'Facility'),
 		));
 		$game = $this->Game->read(null, $id);
@@ -1030,7 +1047,7 @@ class GamesController extends AppController {
 			$this->redirect('/');
 		}
 		$this->Configuration->loadAffiliate($game['Division']['League']['affiliate_id']);
-		$this->Game->_readDependencies($game['Game']);
+		$this->Game->_readDependencies($game);
 		if ($game['Game']['home_team'] == $team_id) {
 			$team = $game['HomeTeam'];
 			if ($game['Game']['away_team'] === null) {
@@ -1283,6 +1300,11 @@ class GamesController extends AppController {
 
 		$transaction->commit();
 
+		$cache_file = CACHE . 'queries' . DS . "division_{$game['Division']['id']}.data";
+		if (file_exists($cache_file)) {
+			unlink($cache_file);
+		}
+
 		$this->set(compact('score'));
 	}
 
@@ -1387,6 +1409,11 @@ class GamesController extends AppController {
 			return;
 		}
 		$transaction->commit();
+
+		$cache_file = CACHE . 'queries' . DS . "division_{$game['Division']['id']}.data";
+		if (file_exists($cache_file)) {
+			unlink($cache_file);
+		}
 
 		$this->set(compact('score'));
 	}
@@ -1853,6 +1880,11 @@ class GamesController extends AppController {
 					$this->Game->SpiritEntry->delete($game['SpiritEntry'][$opponent['id']]['id'], false);
 				}
 				$transaction->commit();
+
+				$cache_file = CACHE . 'queries' . DS . "division_{$game['Division']['id']}.data";
+				if (file_exists($cache_file)) {
+					unlink($cache_file);
+				}
 
 				// Check if the opponent has an entry
 				if (!$this->Game->_get_score_entry($game, $opponent['id'])) {
@@ -2332,6 +2364,11 @@ class GamesController extends AppController {
 
 		$this->_updateDependencies ($game, $data['Game']['home_score'] > $data['Game']['away_score']);
 
+		$cache_file = CACHE . 'queries' . DS . "division_{$game['Division']['id']}.data";
+		if (file_exists($cache_file)) {
+			unlink($cache_file);
+		}
+
 		return true;
 	}
 
@@ -2464,7 +2501,7 @@ class GamesController extends AppController {
 		{
 			$change_rating = true;
 		}
-		if ($game['Game']['tournament']) {
+		if ($game['Game']['type'] != SEASON_GAME) {
 			$change_rating = false;
 		}
 
@@ -2641,7 +2678,7 @@ class GamesController extends AppController {
 			),
 			'fields' => array(
 				'Game.id', 'Game.home_team', 'Game.home_score', 'Game.away_team', 'Game.away_score', 'Game.status', 'Game.division_id',
-				'Game.home_dependency_type', 'Game.home_dependency_id', 'Game.away_dependency_type', 'Game.away_dependency_id',
+				'HomePoolTeam.dependency_type', 'HomePoolTeam.dependency_id', 'AwayPoolTeam.dependency_type', 'AwayPoolTeam.dependency_id',
 				'GameSlot.game_date', 'GameSlot.game_start', 'GameSlot.game_end',
 				'HomeTeam.id', 'HomeTeam.name',
 				'AwayTeam.id', 'AwayTeam.name',
@@ -2651,7 +2688,9 @@ class GamesController extends AppController {
 				'GameSlot' => array('Field' => 'Facility'),
 				'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $team_ids)),
 				'HomeTeam',
+				'HomePoolTeam' => 'DependencyPool',
 				'AwayTeam',
+				'AwayPoolTeam' => 'DependencyPool',
 				'Attendance' => array(
 					'conditions' => array('Attendance.person_id' => $this->Auth->user('id')),
 				),
@@ -2678,7 +2717,7 @@ class GamesController extends AppController {
 			),
 			'fields' => array(
 				'Game.id', 'Game.home_team', 'Game.home_score', 'Game.away_team', 'Game.away_score', 'Game.status', 'Game.division_id',
-				'Game.home_dependency_type', 'Game.home_dependency_id', 'Game.away_dependency_type', 'Game.away_dependency_id',
+				'HomePoolTeam.dependency_type', 'HomePoolTeam.dependency_id', 'AwayPoolTeam.dependency_type', 'AwayPoolTeam.dependency_id',
 				'GameSlot.game_date', 'GameSlot.game_start', 'GameSlot.game_end',
 				'HomeTeam.id', 'HomeTeam.name',
 				'AwayTeam.id', 'AwayTeam.name',
@@ -2688,7 +2727,9 @@ class GamesController extends AppController {
 				'GameSlot' => array('Field' => 'Facility'),
 				'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $team_ids)),
 				'HomeTeam',
+				'HomePoolTeam' => 'DependencyPool',
 				'AwayTeam',
+				'AwayPoolTeam' => 'DependencyPool',
 				'Attendance' => array(
 					'conditions' => array('Attendance.person_id' => $this->Auth->user('id')),
 				),

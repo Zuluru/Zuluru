@@ -1355,7 +1355,9 @@ class TeamsController extends AppController {
 				'ScoreEntry',
 				'SpiritEntry',
 				'HomeTeam',
+				'HomePoolTeam',
 				'AwayTeam',
+				'AwayPoolTeam',
 				'Attendance' => array(
 					'Person' => array(
 						'fields' => array('gender'),
@@ -1364,19 +1366,26 @@ class TeamsController extends AppController {
 				),
 		));
 		$team['Game'] = $this->Team->Division->Game->find('all', array(
-				'conditions' => array('OR' => array(
+				'conditions' => array(
+					array('OR' => array(
 						'Game.home_team' => $id,
 						'Game.away_team' => $id,
-				)),
+					)),
+					array('OR' => array(
+						'Game.home_dependency_type !=' => 'copy',
+						'Game.home_dependency_type' => null,
+					)),
+				),
 		));
-		if (empty ($team['Game'])) {
-			$this->Session->setFlash(__('This team has no games scheduled yet.', true), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'view', 'team' => $id));
-		}
 
 		// Find any non-game team events
 		if (in_array ($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs'))) {
 			$team['Game'] = array_merge ($team['Game'], $this->Team->TeamEvent->_read_attendance($team));
+		}
+
+		if (empty ($team['Game'])) {
+			$this->Session->setFlash(__('This team has no games scheduled yet.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'team' => $id));
 		}
 
 		// Sort games by date, time and field
@@ -1415,11 +1424,15 @@ class TeamsController extends AppController {
 		));
 		$team['Game'] = $this->Team->Division->Game->find('all', array(
 				'conditions' => array(
-					'Game.published' => true,
-					'OR' => array(
+					array('OR' => array(
 						'Game.home_team' => $id,
 						'Game.away_team' => $id,
-					),
+					)),
+					'Game.published' => true,
+					array('OR' => array(
+						'Game.home_dependency_type !=' => 'copy',
+						'Game.home_dependency_type' => null,
+					)),
 				),
 		));
 
@@ -1461,10 +1474,16 @@ class TeamsController extends AppController {
 				'SpiritEntry',
 		));
 		$team['Game'] = $this->Team->Division->Game->find('all', array(
-				'conditions' => array('OR' => array(
+				'conditions' => array(
+					array('OR' => array(
 						'Game.home_team' => $id,
 						'Game.away_team' => $id,
-				)),
+					)),
+					array('OR' => array(
+						'Game.home_dependency_type !=' => 'copy',
+						'Game.home_dependency_type' => null,
+					)),
+				),
 		));
 		if (empty ($team['Game'])) {
 			$this->Session->setFlash(__('This team has no games scheduled yet.', true), 'default', array('class' => 'info'));
@@ -1532,11 +1551,15 @@ class TeamsController extends AppController {
 		));
 		$games = $this->Team->Division->Game->find('all', array(
 				'conditions' => array(
-					'OR' => array(
+					array('OR' => array(
 						'Game.home_team' => $id,
 						'Game.away_team' => $id,
-					),
+					)),
 					'Game.published' => true,
+					array('OR' => array(
+						'Game.home_dependency_type !=' => 'copy',
+						'Game.home_dependency_type' => null,
+					)),
 				),
 				'order' => array('GameSlot.game_date', 'GameSlot.game_start'),
 		));

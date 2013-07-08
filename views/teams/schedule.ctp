@@ -49,7 +49,7 @@ $display_spirit = ($is_admin || $is_coordinator || $team['Division']['League']['
 				$classes[] = 'unpublished';
 			}
 			Game::_adjustEntryIndices ($game);
-			Game::_readDependencies($game['Game']);
+			Game::_readDependencies($game);
 			if ($display_spirit && !in_array($game['Game']['status'], Configure::read('unplayed_status')) &&
 				Game::_is_finalized($game) && array_key_exists ($team['Team']['id'], $game['SpiritEntry']))
 			{

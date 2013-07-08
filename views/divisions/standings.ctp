@@ -7,8 +7,7 @@ $this->Html->addCrumb (__('Standings', true));
 <div class="divisions standings">
 <h2><?php  echo __('Division Standings', true) . ': ' . $division['Division']['full_league_name'];?></h2>
 <?php
-$season = Set::extract('/Game[tournament=0]/..', $division['Game']);
-if (!empty($division['Team']) && !empty($season)):?>
+if (!empty($division['Team']) && !empty($division['Season'])):?>
 	<table class="list">
 	<?php
 	echo $this->element("leagues/standings/{$league_obj->render_element}/heading",
@@ -56,14 +55,20 @@ if (!empty($division['Team']) && !empty($season)):?>
 	</table>
 <?php endif; ?>
 <?php
-$tournament = Set::extract('/Game[tournament=1]/..', $division['Game']);
-if (!empty($tournament)):
+if (!empty($division['Pool'])):
+?>
+<h3><?php __('Preliminary rounds'); ?></h3>
+<?php
+	echo $this->element('leagues/standings/tournament/pools', array('games' => $division['Pool'], 'teams' => $division['Team']));
+endif;
+
+if (!empty($division['Bracket'])):
 ?>
 <h3><?php __('Playoff brackets'); ?></h3>
 <?php
-echo $this->element('leagues/standings/tournament/bracket', array('games' => $tournament, 'teams' => $division['Team']));
+	echo $this->element('leagues/standings/tournament/bracket', array('games' => $division['Bracket']['Game'], 'teams' => $division['Team']));
+endif;
 ?>
-<?php endif; ?>
 </div>
 <div class="actions"><?php echo $this->element('divisions/actions', array(
 	'league' => $division['League'],

@@ -225,6 +225,12 @@ class FieldsController extends AppController {
 			'Facility' => 'Region',
 			'GameSlot' => array(
 				'Game' => array(
+					'conditions' => array(
+						'OR' => array(
+							'Game.home_dependency_type !=' => 'copy',
+							'Game.home_dependency_type' => null,
+						),
+					),
 					'Division' => 'League',
 				),
 				'order' => 'GameSlot.game_date, GameSlot.game_start',

@@ -548,7 +548,13 @@ div.help_dialog p
 	font-size: 150%;
 }
 
-/* Tournament bracket styling. */
+/* Tournament styling. */
+#zuluru div.pool_results
+{
+	float: left;
+	margin: 0 1em 1em 0;
+}
+
 #zuluru div.bracket
 {
 	width: 100%;

@@ -12,6 +12,13 @@
  * features_custom.php (which you must create).
  */
 
+if (!defined('SEASON_GAME')) {
+	define('SEASON_GAME', 1);
+	define('POOL_PLAY_GAME', 2);
+	define('CROSSOVER_GAME', 3);
+	define('BRACKET_GAME', 4);
+}
+
 if (!defined('APPROVAL_AUTOMATIC')) {
 	define('APPROVAL_AUTOMATIC', -1);		// approval, scores agree
 	define('APPROVAL_AUTOMATIC_HOME', -2);  // approval, home score used
@@ -222,7 +229,7 @@ $config['visibility'] = array(
 );
 
 // Percent likelihood that a notice will be shown, if there is one to show
-$config['notice_frequency'] = 100;
+$config['notice_frequency'] = 20;
 
 // List of colours to use for automatically-created teams
 $config['automatic_team_colours'] = array(

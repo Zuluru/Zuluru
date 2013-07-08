@@ -78,42 +78,42 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 		}
 	}
 
-	function createSchedule($division_id, $exclude_teams, $type, $start_date, $publish) {
-		if (!$this->startSchedule($division_id, $exclude_teams, $start_date))
+	function createSchedule($division_id, $exclude_teams, $data) {
+		if (!$this->startSchedule($division_id, $exclude_teams, $data['start_date']))
 			return false;
 
-		switch($type) {
+		switch($data['type']) {
 			case 'single':
 				// Create single game
-				$ret = $this->createEmptyGame($start_date);
+				$ret = $this->createEmptyGame($data['start_date']);
 				break;
 			case 'blankset':
 				// Create game for all teams in division
-				$ret = $this->createEmptySet($start_date);
+				$ret = $this->createEmptySet($data['start_date']);
 				break;
 			case 'oneset':
 				// Create game for all teams in division
-				$ret = $this->createScheduledSet($start_date);
+				$ret = $this->createScheduledSet($data['start_date']);
 				break;
 			case 'fullround':
 				// Create full roundrobin
-				$ret = $this->createFullRoundrobin($start_date);
+				$ret = $this->createFullRoundrobin($data['start_date']);
 				break;
 			case 'halfroundstandings':
-				$ret = $this->createHalfRoundrobin($start_date, 'standings');
+				$ret = $this->createHalfRoundrobin($data['start_date'], 'standings');
 				break;
 			case 'halfroundrating':
-				$ret = $this->createHalfRoundrobin($start_date, 'rating');
+				$ret = $this->createHalfRoundrobin($data['start_date'], 'rating');
 				break;
 			case 'halfroundmix':
-				$ret = $this->createHalfRoundrobin($start_date, 'mix');
+				$ret = $this->createHalfRoundrobin($data['start_date'], 'mix');
 				break;
 		}
 
 		if (!$ret) {
 			return false;
 		}
-		return $this->finishSchedule($division_id, $publish);
+		return $this->finishSchedule($division_id, $data['publish']);
 	}
 
 	/*

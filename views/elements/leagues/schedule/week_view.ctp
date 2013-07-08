@@ -13,11 +13,11 @@ foreach ($division['Game'] as $game) {
 		$finalized &= Game::_is_finalized($game);
 	}
 }
-$tournament_games = Set::extract ("/Game[tournament=1]/GameSlot[game_date=$date]", $division);
+$tournament_games = Set::extract ('/Game[type!=' . SEASON_GAME . "]/GameSlot[game_date=$date]", $division);
 $is_tournament = !empty($tournament_games);
-$home_seed_games = Set::extract ("/Game[home_dependency_type=seed]/GameSlot[game_date=$date]", $division);
-$away_seed_games = Set::extract ("/Game[away_dependency_type=seed]/GameSlot[game_date=$date]", $division);
-$has_seed_games = !empty($home_seed_games) || !empty($away_seed_games);
+$home_dependent_games = Set::extract ("/Game/HomePoolTeam[dependency_type!=]/../GameSlot[game_date=$date]", $division);
+$away_dependent_games = Set::extract ("/Game/AwayPoolTeam[dependency_type!=]/../GameSlot[game_date=$date]", $division);
+$has_dependent_games = !empty($home_dependent_games) || !empty($away_dependent_games);
 ?>
 
 <tr>
@@ -26,12 +26,12 @@ $has_seed_games = !empty($home_seed_games) || !empty($away_seed_games);
 	if (!$finalized && ($is_admin || $is_manager || $is_coordinator)):
 	?>
 		<?php
-		if ($has_seed_games) {
+		if ($has_dependent_games) {
 			echo $this->ZuluruHtml->iconLink('initialize_24.png',
-				array('action' => 'initialize_dependencies', 'division' => $division['Division']['id']),
+				array('action' => 'initialize_dependencies', 'division' => $division['Division']['id'], 'date' => $date),
 				array('alt' => __('Initialize', true), 'title' => __('Initialize schedule dependencies', true)));
 			echo $this->ZuluruHtml->iconLink('reset_24.png',
-				array('action' => 'initialize_dependencies', 'division' => $division['Division']['id'], 'reset' => true),
+				array('action' => 'initialize_dependencies', 'division' => $division['Division']['id'], 'date' => $date, 'reset' => true),
 				array('alt' => __('Reset', true), 'title' => __('Reset schedule dependencies', true)));
 		}
 		?>

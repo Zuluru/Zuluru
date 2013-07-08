@@ -109,9 +109,6 @@ class Division extends AppModel {
 		'League' => array(
 			'className' => 'League',
 			'foreignKey' => 'league_id',
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
 		)
 	);
 
@@ -120,53 +117,26 @@ class Division extends AppModel {
 			'className' => 'Game',
 			'foreignKey' => 'division_id',
 			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 		'DivisionGameslotAvailability' => array(
 			'className' => 'DivisionGameslotAvailability',
 			'foreignKey' => 'division_id',
 			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 		'Team' => array(
 			'className' => 'Team',
 			'foreignKey' => 'division_id',
 			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
+		),
+		'Pool' => array(
+			'className' => 'Pool',
+			'foreignKey' => 'division_id',
+			'dependent' => true,
 		),
 		'Event' => array(
 			'className' => 'Event',
 			'foreignKey' => 'division_id',
 			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 	);
 
@@ -177,14 +147,6 @@ class Division extends AppModel {
 			'foreignKey' => 'division_id',
 			'associationForeignKey' => 'person_id',
 			'unique' => true,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'finderQuery' => '',
-			'deleteQuery' => '',
-			'insertQuery' => ''
 		),
 		'Day' => array(
 			'className' => 'Day',
@@ -192,14 +154,6 @@ class Division extends AppModel {
 			'foreignKey' => 'division_id',
 			'associationForeignKey' => 'day_id',
 			'unique' => true,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'finderQuery' => '',
-			'deleteQuery' => '',
-			'insertQuery' => ''
 		),
 	);
 

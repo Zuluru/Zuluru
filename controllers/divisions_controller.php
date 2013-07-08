@@ -43,6 +43,7 @@ class DivisionsController extends AppController {
 				'seeds',
 				'initialize_ratings',
 				'initialize_dependencies',
+				'delete_stage',
 		)))
 		{
 			// If a division id is specified, check if we're a coordinator of that division
@@ -94,6 +95,7 @@ class DivisionsController extends AppController {
 					'seeds',
 					'initialize_ratings',
 					'initialize_dependencies',
+					'delete_stage',
 			)))
 			{
 				// If a division id is specified, check if we're a manager of that division's affiliate
@@ -138,29 +140,40 @@ class DivisionsController extends AppController {
 			// Find all games played by teams that are currently in this division,
 			// or tournament games for this division
 			$teams = Set::extract ('/Team/id', $division);
-			$this->Division->Game->contain (array('GameSlot', 'SpiritEntry'));
 			$division['Game'] = $this->Division->Game->find('all', array(
 					'conditions' => array(
-						'OR' => array(
+						array('OR' => array(
 							'Game.home_team' => $teams,
 							'Game.away_team' => $teams,
 							'AND' => array(
 								'Game.division_id' => $id,
-								'Game.tournament' => true,
+								'Game.type !=' => SEASON_GAME,
 							),
-						),
+						)),
+						array('OR' => array(
+							'Game.home_dependency_type !=' => 'copy',
+							'Game.home_dependency_type' => null,
+						)),
+					),
+					'contain' => array(
+						'GameSlot',
+						'HomePoolTeam' => 'Pool',
+						'AwayPoolTeam' => 'Pool',
+						'SpiritEntry',
 					),
 			));
 		}
 
 		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
-		$league_obj->sort($division);
+		$spirit_obj = $this->_getComponent ('Spirit', $division['League']['sotg_questions'], $this);
+		$league_obj->sort($division, $spirit_obj, false);
 
 		if (!empty($unseeded)) {
 			$seed = 0;
-			foreach ($division['Team'] as $team) {
+			foreach ($division['Team'] as $key => $team) {
 				$this->Division->Team->id = $team['id'];
 				$this->Division->Team->saveField('seed', ++$seed);
+				$division['Team'][$key]['seed'] = $seed;
 			}
 		}
 
@@ -568,10 +581,18 @@ class DivisionsController extends AppController {
 			'Team',
 			'League',
 			'Game' => array(
+				'conditions' => array(
+					'OR' => array(
+						'Game.home_dependency_type !=' => 'copy',
+						'Game.home_dependency_type' => null,
+					),
+				),
 				'GameSlot' => array('Field' => 'Facility'),
 				'ScoreEntry',
 				'HomeTeam',
+				'HomePoolTeam' => 'DependencyPool',
 				'AwayTeam',
+				'AwayPoolTeam' => 'DependencyPool',
 			),
 		));
 		$division = $this->Division->read(null, $id);
@@ -730,65 +751,84 @@ class DivisionsController extends AppController {
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$this->Division->contain(array (
-			'Day' => array('order' => 'day_id'),
-			'Team',
-			'League',
-		));
-		$division = $this->Division->read(null, $id);
-		if (!$division) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
-		}
-		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
-		Configure::load("sport/{$division['League']['sport']}");
-
-		// Find all games played by teams that are currently in this division,
-		// or tournament games for this division
-		$teams = Set::extract ('/Team/id', $division);
-		if (empty($teams)) {
-			$conditions = array(
-				'Game.division_id' => $id,
-				'Game.tournament' => true,
-			);
+		// Hopefully, everything we need is already cached
+		$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
+		if (file_exists($cache_file)) {
+			$division = unserialize(file_get_contents($cache_file));
+			$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
+			Configure::load("sport/{$division['League']['sport']}");
+			$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
+			$spirit_obj = $this->_getComponent ('Spirit', $division['League']['sotg_questions'], $this);
 		} else {
-			$conditions = array('OR' => array(
-				'Game.home_team' => $teams,
-				'Game.away_team' => $teams,
-				'AND' => array(
-					'Game.division_id' => $id,
-					'Game.tournament' => true,
-				),
+			$this->Division->contain(array (
+				'Day' => array('order' => 'day_id'),
+				'Team',
+				'League',
 			));
-		}
-		$conditions['NOT'] = array('Game.status' => Configure::read('unplayed_status'));
-
-		$division['Game'] = $this->Division->Game->find('all', array(
-				'conditions' => $conditions,
-				'contain' => array('GameSlot', 'SpiritEntry'),
-		));
-
-		if (empty ($division['Game'])) {
-			$this->Session->setFlash(__('Cannot generate standings for a division with no schedule.', true), 'default', array('class' => 'info'));
-			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
-		}
-
-		// Sort games by date, time and field
-		usort ($division['Game'], array ('Game', 'compareDateAndField'));
-		Game::_adjustEntryIndices($division['Game']);
-
-		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
-		$spirit_obj = $this->_getComponent ('Spirit', $division['League']['sotg_questions'], $this);
-		$league_obj->sort($division, $spirit_obj, false);
-
-		// If there's anyone without seed information, save the seeds
-		$unseeded = Set::extract('/Team[seed=0]', $division);
-		if (!empty($unseeded)) {
-			$seed = 0;
-			foreach ($division['Team'] as $team) {
-				$this->Division->Team->id = $team['id'];
-				$this->Division->Team->saveField('seed', ++$seed);
+			$division = $this->Division->read(null, $id);
+			if (!$division) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 			}
+			$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
+			Configure::load("sport/{$division['League']['sport']}");
+
+			// Find all games played by teams that are currently in this division,
+			// or tournament games for this division
+			$teams = Set::extract ('/Team/id', $division);
+			if (empty($teams)) {
+				$conditions = array(
+					'Game.division_id' => $id,
+					'Game.type !=' => SEASON_GAME,
+				);
+			} else {
+				$conditions = array('OR' => array(
+					'Game.home_team' => $teams,
+					'Game.away_team' => $teams,
+					'AND' => array(
+						'Game.division_id' => $id,
+						'Game.type !=' => SEASON_GAME,
+					),
+				));
+			}
+			$conditions['NOT'] = array('Game.status' => Configure::read('unplayed_status'));
+
+			$division['Game'] = $this->Division->Game->find('all', array(
+					'conditions' => $conditions,
+					'contain' => array(
+						'GameSlot',
+						'HomePoolTeam' => array('Pool', 'DependencyPool'),
+						'AwayPoolTeam' => array('Pool', 'DependencyPool'),
+						'ScoreEntry',
+						'SpiritEntry',
+					),
+			));
+
+			if (empty ($division['Game'])) {
+				$this->Session->setFlash(__('Cannot generate standings for a division with no schedule.', true), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+			}
+
+			// Sort games by date, time and field
+			usort ($division['Game'], array ('Game', 'compareDateAndField'));
+			Game::_adjustEntryIndices($division['Game']);
+
+			$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
+			$spirit_obj = $this->_getComponent ('Spirit', $division['League']['sotg_questions'], $this);
+			$league_obj->sort($division, $spirit_obj, false);
+
+			// If there's anyone without seed information, save the seeds
+			$unseeded = Set::extract('/Team[seed=0]', $division);
+			if (!empty($unseeded)) {
+				$seed = 0;
+				foreach ($division['Team'] as $key => $team) {
+					$this->Division->Team->id = $team['id'];
+					$this->Division->Team->saveField('seed', ++$seed);
+					$division['Team'][$key]['seed'] = $seed;
+				}
+			}
+
+			file_put_contents($cache_file, serialize($division));
 		}
 
 		// If we're asking for "team" standings, only show the 5 teams above and 5 teams below this team.
@@ -821,7 +861,7 @@ class DivisionsController extends AppController {
 		$this->set(compact ('division', 'league_obj', 'spirit_obj', 'teamid', 'show_teams', 'more_before', 'more_after'));
 		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.DivisionIDs')));
 
-		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
+		$this->_addDivisionMenuItems ($division['Division'], $division['League']);
 	}
 
 	function scores() {
@@ -842,25 +882,32 @@ class DivisionsController extends AppController {
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
+		Configure::load("sport/{$division['League']['sport']}");
 
 		// Find all games played by teams that are currently in this division,
 		// or tournament games for this division
 		$teams = Set::extract ('/Team/id', $division);
 		$this->Division->Game->contain (array(
 				'HomeTeam',
+				'HomePoolTeam' => 'Pool',
 				'AwayTeam',
+				'AwayPoolTeam' => 'Pool',
 				'GameSlot' => array('Field' => 'Facility'),
 		));
 		$division['Game'] = $this->Division->Game->find('all', array(
 				'conditions' => array(
-					'OR' => array(
+					array('OR' => array(
 						'Game.home_team' => $teams,
 						'Game.away_team' => $teams,
 						'AND' => array(
 							'Game.division_id' => $id,
-							'Game.tournament' => true,
+							'Game.type !=' => SEASON_GAME,
 						),
-					),
+					)),
+					array('OR' => array(
+						'Game.home_dependency_type !=' => 'copy',
+						'Game.home_dependency_type' => null,
+					)),
 					'NOT' => array('Game.status' => Configure::read('unplayed_status')),
 				),
 		));
@@ -873,7 +920,8 @@ class DivisionsController extends AppController {
 		usort ($division['Game'], array ('Game', 'compareDateAndField'));
 		Game::_adjustEntryIndices($division['Game']);
 		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
-		$league_obj->sort($division);
+		$spirit_obj = $this->_getComponent ('Spirit', $division['League']['sotg_questions'], $this);
+		$league_obj->sort($division, $spirit_obj, false);
 
 		// Move the teams into an array indexed by team id, for easier use in the view
 		$teams = array();
@@ -895,7 +943,13 @@ class DivisionsController extends AppController {
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$conditions = array('NOT' => array('Game.status' => Configure::read('unplayed_status')));
+		$conditions = array(
+			'OR' => array(
+				'Game.home_dependency_type !=' => 'copy',
+				'Game.home_dependency_type' => null,
+			),
+			'NOT' => array('Game.status' => Configure::read('unplayed_status')),
+		);
 
 		if ($this->_arg('published')) {
 			$conditions['Game.published'] = true;
@@ -912,7 +966,9 @@ class DivisionsController extends AppController {
 				'conditions' => $conditions,
 				'GameSlot' => array('Field' => 'Facility'),
 				'HomeTeam',
+				'HomePoolTeam' => 'Pool',
 				'AwayTeam',
+				'AwayPoolTeam' => 'Pool',
 			),
 		));
 		$division = $this->Division->read(null, $id);
@@ -927,7 +983,8 @@ class DivisionsController extends AppController {
 		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 		Configure::load("sport/{$division['League']['sport']}");
 		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
-		$league_obj->sort($division);
+		$spirit_obj = $this->_getComponent ('Spirit', $division['League']['sotg_questions'], $this);
+		$league_obj->sort($division, $spirit_obj, false);
 
 		// Gather all possible facility/time slot combinations this division can use
 		$join = array(
@@ -1039,14 +1096,22 @@ class DivisionsController extends AppController {
 		if (!empty ($date)) {
 			$this->Division->DivisionGameslotAvailability->GameSlot->contain (array (
 					'Game' => array(
+						'conditions' => array(
+							'OR' => array(
+								'Game.home_dependency_type !=' => 'copy',
+								'Game.home_dependency_type' => null,
+							),
+						),
 						'HomeTeam' => array(
 							'Field' => 'Facility',
 							'Region',
 						),
+						'HomePoolTeam' => 'DependencyPool',
 						'AwayTeam' => array(
 							'Field' => 'Facility',
 							'Region',
 						),
+						'AwayPoolTeam' => 'DependencyPool',
 					),
 					'Field' => array(
 						'Facility' => 'Region',
@@ -1163,10 +1228,14 @@ class DivisionsController extends AppController {
 		$division['Game'] = $this->Division->Game->find('all', array(
 			'order' => 'Game.id',
 			'conditions' => array(
-				'OR' => array(
+				array('OR' => array(
 					'home_team' => $teams,
 					'away_team' => $teams,
-				),
+				)),
+				array('OR' => array(
+					'Game.home_dependency_type !=' => 'copy',
+					'Game.home_dependency_type' => null,
+				)),
 				'NOT' => array('Game.status' => Configure::read('unplayed_status')),
 			),
 		));
@@ -1208,12 +1277,14 @@ class DivisionsController extends AppController {
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
+			'HomePoolTeam' => 'DependencyPool',
 			'AwayTeam' => array(
 				'Person' => array(
 					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 					'fields' => array('id', 'first_name', 'last_name', 'email'),
 				),
 			),
+			'AwayPoolTeam' => 'DependencyPool',
 			'GameSlot',
 			'ScoreEntry',
 		));
@@ -1295,6 +1366,12 @@ class DivisionsController extends AppController {
 
 		$this->Session->setFlash(__('Team ratings have been initialized.', true), 'default', array('class' => 'success'));
 		$transaction->commit();
+
+		$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
+		if (file_exists($cache_file)) {
+			unlink($cache_file);
+		}
+
 		$this->redirect(array('action' => 'view', 'division' => $id));
 	}
 
@@ -1305,6 +1382,9 @@ class DivisionsController extends AppController {
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
+		$date = $this->_arg('date');
+		$pool = $this->_arg('pool');
+
 		$this->Division->contain(array(
 			'Team' => array(
 				'Franchise',
@@ -1313,9 +1393,13 @@ class DivisionsController extends AppController {
 			// We may need all of the games, as some league types use game results
 			// to determine sort order.
 			'Game' => array(
+				'GameSlot',
+				'HomePoolTeam' => array('Pool', 'DependencyPool'),
+				'AwayPoolTeam' => array('Pool', 'DependencyPool'),
 				'conditions' => array(
 					'NOT' => array('Game.status' => Configure::read('unplayed_status')),
 				),
+				'order' => 'Game.id',	// need to ensure that "copy" games come after the ones they're copied from
 			),
 		));
 		$division = $this->Division->read(null, $id);
@@ -1325,56 +1409,180 @@ class DivisionsController extends AppController {
 		}
 		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 
-		$count = $this->Division->Game->find('count', array('conditions' => array(
-				'Game.division_id' => $id,
-				'Game.tournament' => true,
-				'Game.approved_by' => null,
-				'OR' => array(
-					'Game.home_dependency_type' => 'seed',
-					'Game.away_dependency_type' => 'seed',
+		$count = $this->Division->Game->find('count', array(
+				'contain' => array(
+					'HomePoolTeam',
+					'AwayPoolTeam',
 				),
-		)));
+				'conditions' => array(
+					'Game.division_id' => $id,
+					'Game.type !=' => SEASON_GAME,
+					'Game.approved_by' => null,
+					'OR' => array(
+						'HomePoolTeam.dependency_type' => array('seed', 'pool', 'ordinal', 'copy'),
+						'AwayPoolTeam.dependency_type' => array('seed', 'pool', 'ordinal', 'copy'),
+					),
+				),
+		));
 		if ($count == 0) {
 			$this->Session->setFlash(__('There are currently no dependencies to initialize in this division.', true), 'default', array('class' => 'warning'));
 			$this->redirect(array('action' => 'schedule', 'division' => $id));
+		}
+
+		if ($division['Division']['schedule_type'] == 'tournament') {
+			$seeds = Set::extract('/Team/initial_seed', $division);
+			if (count($division['Team']) != count(array_unique($seeds))) {
+				$this->Session->setFlash(__('Each team must have a unique initial seed.', true), 'default', array('class' => 'warning'));
+				$this->redirect(array('action' => 'seeds', 'division' => $id));
+			}
 		}
 
 		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
 		$spirit_obj = $this->_getComponent ('Spirit', $division['League']['sotg_questions'], $this);
 		$league_obj->sort($division, $spirit_obj, false);
 		$reset = $this->_arg('reset');
+		$operation = ($reset ? 'reset' : 'update');
 
 		// Wrap the whole thing in a transaction, for safety.
 		$transaction = new DatabaseTransaction($this->Division);
 
 		// Go through all games, updating seed dependencies
 		foreach ($division['Game'] as $game) {
+			if ($date && ($date != $game['GameSlot']['game_date'])) {
+				continue;
+			}
+			if ($pool && ($pool != $game['pool_id'])) {
+				continue;
+			}
+
 			$this->Division->Game->id = $game['id'];
-			foreach (array('home', 'away') as $type) {
-				if ($game["{$type}_dependency_type"] == 'seed') {
+			foreach (array('Home', 'Away') as $type) {
+				if (!empty($game["{$type}PoolTeam"])) {
+					$field = low($type) . '_team';
+					$this->Division->Game->HomePoolTeam->id = $game["{$type}PoolTeam"]['id'];
+
 					if ($reset) {
-						if (!$this->Division->Game->saveField("{$type}_team", null)) {
-							$this->Session->setFlash(sprintf(__('Failed to %s game dependency', true), __('reset', true)), 'default', array('class' => 'warning'));
-							$this->redirect(array('action' => 'schedule', 'division' => $id));
-						}
+						$team_id = null;
 					} else {
-						$seed = $game["{$type}_dependency_id"];
-						if ($seed > count($division['Team'])) {
-							$this->Session->setFlash(__('Not enough teams in the division to fulfill all scheduled seeds', true), 'default', array('class' => 'warning'));
-							$this->redirect(array('action' => 'schedule', 'division' => $id));
+						switch ($game["{$type}PoolTeam"]['dependency_type']) {
+							case 'seed':
+								$seed = $game["{$type}PoolTeam"]['dependency_id'];
+								if ($seed > count($division['Team'])) {
+									$this->Session->setFlash(__('Not enough teams in the division to fulfill all scheduled seeds', true), 'default', array('class' => 'warning'));
+									$this->redirect(array('action' => 'schedule', 'division' => $id));
+								}
+								$team_id = $division['Team'][$seed - 1]['id'];
+								break;
+
+							case 'pool':
+								$stage = $game["{$type}PoolTeam"]['DependencyPool']['stage'];
+								$pool_id = $game["{$type}PoolTeam"]['dependency_pool_id'];
+								$seed = $game["{$type}PoolTeam"]['dependency_id'];
+								$results = $division['Pool'][$stage][$pool_id]['Results'];
+								usort($results, array($league_obj, 'compareTeamsResults'));
+								$team_id = $results[$seed - 1]['id'];
+								break;
 						}
-						if (!$this->Division->Game->saveField("{$type}_team", $division['Team'][$seed - 1]['id'])) {
-							$this->Session->setFlash(sprintf(__('Failed to %s game dependency', true), __('update', true)), 'default', array('class' => 'warning'));
-							$this->redirect(array('action' => 'schedule', 'division' => $id));
-						}
+					}
+
+					if (!$this->Division->Game->saveField($field, $team_id) ||
+						!$this->Division->Game->HomePoolTeam->saveField('team_id', $team_id))
+					{
+						$this->Session->setFlash(sprintf(__('Failed to %s game dependency', true), __($operation, true)), 'default', array('class' => 'warning'));
+						$this->redirect(array('action' => 'schedule', 'division' => $id));
 					}
 				}
 			}
+
+			// Handle any carried-forward results
+			if ($game['home_dependency_type'] == 'copy') {
+				if ($reset) {
+					$save = array(
+							'home_score' => null,
+							'away_score' => null,
+							'approved_by' => null,
+							'status' => 'normal',
+					);
+				} else {
+					$copy = Set::extract("/Game[home_team={$game['home_team']}][away_team={$game['away_team']}][pool_id={$game['HomePoolTeam']['dependency_pool_id']}]", $division);
+					if (empty($copy)) {
+						$copy = Set::extract("/Game[home_team={$game['away_team']}][away_team={$game['home_team']}][pool_id={$game['HomePoolTeam']['dependency_pool_id']}]", $division);
+						$home = 'away';
+						$away = 'home';
+					} else {
+						$home = 'home';
+						$away = 'away';
+					}
+					if (empty($copy)) {
+						$this->Session->setFlash(sprintf(__('Failed to %s game dependency', true), __('locate', true)), 'default', array('class' => 'warning'));
+						$this->redirect(array('action' => 'schedule', 'division' => $id));
+					}
+					$copy = $copy[0]['Game'];
+					$save = array(
+							'home_score' => $copy["{$home}_score"],
+							'away_score' => $copy["{$away}_score"],
+							'approved_by' => $copy['approved_by'],
+							'status' => $copy['status'],
+							'updated' => $copy['updated'],
+					);
+				}
+				if (!$this->Division->Game->save($save)) {
+					$this->Session->setFlash(sprintf(__('Failed to %s game dependency', true), __($operation, true)), 'default', array('class' => 'warning'));
+					$this->redirect(array('action' => 'schedule', 'division' => $id));
+				}
+			}
 		}
-		$this->Session->setFlash(sprintf(__('Seed dependencies have been %s.', true), __($reset ? 'reset' : 'resolved', true)),
+		$this->Session->setFlash(sprintf(__('Dependencies have been %s.', true), __($reset ? 'reset' : 'resolved', true)),
 				'default', array('class' => 'success'));
 		$transaction->commit();
+
+		$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
+		if (file_exists($cache_file)) {
+			unlink($cache_file);
+		}
+
 		$this->redirect(array('action' => 'schedule', 'division' => $id));
+	}
+
+	function delete_stage() {
+		$id = $this->_arg('division');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+		}
+
+		$stage = $this->_arg('stage');
+		if (!$stage) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('stage', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+		}
+
+		$this->Division->contain(array(
+			'League',
+			'Pool' => array('conditions' => array('Pool.stage' => $stage)),
+		));
+		$division = $this->Division->read(null, $id);
+		if (!$division) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+		}
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
+
+		if (empty($division['Pool'])) {
+			$this->Session->setFlash(__('There are currently no pools to delete in this stage.', true), 'default', array('class' => 'warning'));
+			$this->redirect(array('controller' => 'schedules', 'action' => 'add', 'division' => $id));
+		}
+		if ($this->Division->Pool->deleteAll(array('division_id' => $id, 'stage >=' => $stage))) {
+			$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
+			if (file_exists($cache_file)) {
+				unlink($cache_file);
+			}
+
+			$this->Session->setFlash(sprintf(__('%s deleted', true), __('All pools in this stage', true)), 'default', array('class' => 'success'));
+			$this->redirect(array('controller' => 'schedules', 'action' => 'add', 'division' => $id));
+		}
+		$this->Session->setFlash(sprintf(__('%s were not deleted', true), __('Pools in this stage', true)), 'default', array('class' => 'warning'));
+		$this->redirect(array('controller' => 'schedules', 'action' => 'add', 'division' => $id));
 	}
 
 	/**

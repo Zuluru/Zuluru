@@ -83,25 +83,25 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 		}
 	}
 
-	function createSchedule($division_id, $exclude_teams, $type, $start_date, $publish) {
-		if (!$this->startSchedule($division_id, $exclude_teams, $start_date))
+	function createSchedule($division_id, $exclude_teams, $data) {
+		if (!$this->startSchedule($division_id, $exclude_teams, $data['start_date']))
 			return false;
 
-		switch($type) {
+		switch($data['type']) {
 			case 'single':
 				// Create single game
-				$ret = $this->createEmptyGame($start_date);
+				$ret = $this->createEmptyGame($data['start_date']);
 				break;
 			case 'oneset_ratings_ladder':
 				// Create game for all teams in division
-				$ret = $this->createScheduledSet($start_date);
+				$ret = $this->createScheduledSet($data['start_date']);
 				break;
 		}
 
 		if (!$ret) {
 			return false;
 		}
-		return $this->finishSchedule($division_id, $publish);
+		return $this->finishSchedule($division_id, $data['publish']);
 	}
 
 	/*

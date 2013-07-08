@@ -53,9 +53,17 @@ class Game extends AppModel {
 			'className' => 'Team',
 			'foreignKey' => 'home_team',
 		),
+		'HomePoolTeam' => array(
+			'className' => 'PoolsTeam',
+			'foreignKey' => 'home_pool_team_id',
+		),
 		'AwayTeam' => array(
 			'className' => 'Team',
 			'foreignKey' => 'away_team',
+		),
+		'AwayPoolTeam' => array(
+			'className' => 'PoolsTeam',
+			'foreignKey' => 'away_pool_team_id',
 		),
 		'ApprovedBy' => array(
 			'className' => 'Person',
@@ -134,20 +142,24 @@ class Game extends AppModel {
 
 	static function compareDateAndField ($a, $b) {
 		// Handle both game and team event records
-		if (array_key_exists('GameSlot', $a)) {
+		if (!empty($a['GameSlot']['game_date'])) {
 			$a_date = $a['GameSlot']['game_date'];
 			$a_time = $a['GameSlot']['game_start'];
-		} else {
+		} else if (!empty($a['TeamEvent']['date'])) {
 			$a_date = $a['TeamEvent']['date'];
 			$a_time = $a['TeamEvent']['start'];
+		} else {
+			$a_date = $a_time = 0;
 		}
 
-		if (array_key_exists('GameSlot', $b)) {
+		if (!empty($b['GameSlot']['game_date'])) {
 			$b_date = $b['GameSlot']['game_date'];
 			$b_time = $b['GameSlot']['game_start'];
-		} else {
+		} else if (!empty($b['TeamEvent']['date'])) {
 			$b_date = $b['TeamEvent']['date'];
 			$b_time = $b['TeamEvent']['start'];
+		} else {
+			$b_date = $b_time = 0;
 		}
 
 		if ($a_date < $b_date) {
@@ -163,9 +175,20 @@ class Game extends AppModel {
 		}
 
 		if (array_key_exists ('name', $a) && !empty ($a['name'])) {
-			if ($a['name'] < $b['name']) {
+			if (strpos($a['name'], '-') !== false) {
+				list($x, $a_name) = explode('-', $a['name']);
+			} else {
+				$a_name = $a['name'];
+			}
+			if (strpos($b['name'], '-') !== false) {
+				list($x, $b_name) = explode('-', $b['name']);
+			} else {
+				$b_name = $b['name'];
+			}
+
+			if ($a_name < $b_name) {
 				return -1;
-			} else if ($a['name'] > $b['name']) {
+			} else if ($a_name > $b_name) {
 				return 1;
 			}
 		}
@@ -177,32 +200,48 @@ class Game extends AppModel {
 	}
 
 	static function _readDependencies (&$record) {
-		if (array_key_exists('home_dependency_type', $record) && !empty($record['home_dependency_type'])) {
-			Game::_readDependency ($record, 'home');
+		if (!empty($record['Game']['home_dependency_type'])) {
+			Game::_readDependency ($record['Game'], $record['HomePoolTeam'], 'home');
+		} else if (!empty($record['home_dependency_type'])) {
+			Game::_readDependency ($record, $record['HomePoolTeam'], 'home');
 		}
-		if (array_key_exists('away_dependency_type', $record) && !empty($record['away_dependency_type'])) {
-			Game::_readDependency ($record, 'away');
+
+		if (!empty($record['Game']['away_dependency_type'])) {
+			Game::_readDependency ($record['Game'], $record['AwayPoolTeam'], 'away');
+		} else if (!empty($record['away_dependency_type'])) {
+			Game::_readDependency ($record, $record['AwayPoolTeam'], 'away');
 		}
 	}
 
-	static function _readDependency (&$record, $type) {
+	static function _readDependency (&$record, $pool, $type) {
 		$ths = ClassRegistry::init ('Game');
 		$id = $record["{$type}_dependency_id"];
 		switch ($record["{$type}_dependency_type"]) {
 			case 'game_winner':
 				$game = $ths->field('name', array('id' => $id));
-				$record["{$type}_dependency"] = sprintf (__('Winner of game %s', true), $game);
+				$dependency = sprintf (__('Winner of game %s', true), $game);
 				break;
 
 			case 'game_loser':
 				$game = $ths->field('name', array('id' => $id));
-				$record["{$type}_dependency"] = sprintf (__('Loser of game %s', true), $game);
+				$dependency = sprintf (__('Loser of game %s', true), $game);
 				break;
 
 			case 'seed':
-				$record["{$type}_dependency"] = sprintf (__('%s seed', true), ordinal($id));
+				$dependency = sprintf (__('%s seed', true), ordinal($id));
+				break;
+
+			case 'pool':
+			case 'copy':
+				$dependency = Pool::_dependency($pool);
+				$alias = $pool['alias'];
+				if (!empty($alias)) {
+					$dependency = "$alias [$dependency]";
+				}
 				break;
 		}
+
+		$record["{$type}_dependency"] = $dependency;
 	}
 
 	/**
@@ -219,27 +258,27 @@ class Game extends AppModel {
 
 		// Find the "most important" remaining game to start the bracket
 		// TODO: Add some kind of "bracket sort" field and use that instead
-		$pools = array_unique(Set::extract('/Game/tournament_pool', $games));
+		$pools = array_unique(Set::extract('/Game/pool_id', array('Game' => $games)));
 		sort($pools);
 		$pool = array_shift($pools);
 
-		$names = array_unique(Set::extract("/Game[tournament_pool=$pool]/name", $games));
+		$names = array_unique(Set::extract("/Game[pool_id=$pool]/name", array('Game' => $games)));
 		usort($names, array('Game', 'compare_game_name'));
 		$name = array_shift($names);
-		$final = array_shift(Set::extract("/Game[name=$name]/..", $games));
-		$bracket[$final['Game']['round']] = array($final);
-		unset ($games[$final['Game']['id']]);
-		$round = $final['Game']['round'];
+		$final = array_shift(Set::extract("/Game[name=$name]/.", array('Game' => $games)));
+		$bracket[$final['round']] = array($final);
+		unset ($games[$final['id']]);
+		$round = $final['round'];
 
 		// Work backwards through previous rounds
 		while ($round > 1) {
 			$round_games = array();
 
 			foreach ($bracket[$round] as $game) {
-				if (!empty($game) && in_array($game['Game']['home_dependency_type'], array('game_winner', 'game_loser'))) {
-					if (array_key_exists($game['Game']['home_dependency_id'], $games)) {
-						$round_games[] = $games[$game['Game']['home_dependency_id']];
-						unset ($games[$game['Game']['home_dependency_id']]);
+				if (!empty($game) && in_array($game['home_dependency_type'], array('game_winner', 'game_loser'))) {
+					if (array_key_exists($game['home_dependency_id'], $games)) {
+						$round_games[] = $games[$game['home_dependency_id']];
+						unset ($games[$game['home_dependency_id']]);
 					} else {
 						$round_games[] = array();
 					}
@@ -247,10 +286,10 @@ class Game extends AppModel {
 					$round_games[] = array();
 				}
 
-				if (!empty($game) && in_array($game['Game']['away_dependency_type'], array('game_winner', 'game_loser'))) {
-					if (array_key_exists($game['Game']['away_dependency_id'], $games)) {
-						$round_games[] = $games[$game['Game']['away_dependency_id']];
-						unset ($games[$game['Game']['away_dependency_id']]);
+				if (!empty($game) && in_array($game['away_dependency_type'], array('game_winner', 'game_loser'))) {
+					if (array_key_exists($game['away_dependency_id'], $games)) {
+						$round_games[] = $games[$game['away_dependency_id']];
+						unset ($games[$game['away_dependency_id']]);
 					} else {
 						$round_games[] = array();
 					}
@@ -259,8 +298,7 @@ class Game extends AppModel {
 				}
 			}
 
-			$round_game_ids = Set::extract('/Game/id', $round_games);
-			if (empty($round_game_ids)) {
+			if (empty($round_games)) {
 				break;
 			}
 			$bracket[--$round] = $round_games;
@@ -282,13 +320,31 @@ class Game extends AppModel {
 		}
 
 		// Strip off any "st" or "nd" or "rd" or "th".
-		// Don't change names that don't start with numbers.
 		// Change back to strings, so that later comparisons work.
+		$a_ordinal = $b_ordinal = false;
 		if (intval($a) > 0) {
-			$a = strval(intval($a));
+			$a_num = strval(intval($a));
+			if ($a != $a_num) {
+				$a_ordinal = true;
+			}
 		}
 		if (intval($b) > 0) {
-			$b = strval(intval($b));
+			$b_num = strval(intval($b));
+			if ($b != $b_num) {
+				$b_ordinal = true;
+			}
+		}
+
+		if ($a_ordinal && $b_ordinal) {
+			if ($a_num < $b_num) {
+				return -1;
+			} else if ($a_num > $b_num) {
+				return 1;
+			}
+		} else if ($a_ordinal && !$b_ordinal) {
+			return -1;
+		} else if (!$a_ordinal && $b_ordinal) {
+			return 1;
 		}
 
 		if ($a < $b) {

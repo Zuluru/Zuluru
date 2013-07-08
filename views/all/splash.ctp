@@ -315,7 +315,7 @@ foreach ($games as $game):
 			echo $this->Html->link($time, array('controller' => 'games', 'action' => 'view', 'game' => $game['Game']['id']));
 		?></td>
 		<td class="splash_item"><?php
-			Game::_readDependencies($game['Game']);
+			Game::_readDependencies($game);
 			if ($game['Game']['home_team'] === null) {
 				echo $game['Game']['home_dependency'];
 			} else {

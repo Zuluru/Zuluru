@@ -20,7 +20,8 @@ if (!empty ($finalized)): ?>
  and <?php echo count($finalized); ?> have been finalized
 <?php endif; ?>
 <?php endif; ?>
-.</p>
+.<?php if (!empty ($dependent)): ?>
+ There are also <?php echo count($dependent); ?> additional games dependent in some way on these which will be deleted.<?php endif; ?></p>
 <?php if (!empty ($published)): ?>
 <p>Deleting published games can be confusing for players and captains, so be sure to <?php
 echo $this->Html->link (__('contact all captains', true), array('controller' => 'divisions', 'action' => 'emails', 'division' => $id));

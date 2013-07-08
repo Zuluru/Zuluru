@@ -3,55 +3,41 @@
 	<div class="home">
 		<div class="team<?php
 		if (Game::_is_finalized($game)) {
-			if ($game['Game']['home_score'] > $game['Game']['away_score']) {
+			if ($game['home_score'] > $game['away_score']) {
 				echo ' winner';
-			} else if ($game['Game']['home_score'] < $game['Game']['away_score']) {
+			} else if ($game['home_score'] < $game['away_score']) {
 				echo ' loser';
 			}
 		}
 		?>">
 <?php
 if (!empty($game)) {
-	if ($game['Game']['home_team'] !== null) {
-		if ($game['Game']['home_dependency_type'] == 'seed') {
-			echo "({$game['Game']['home_dependency_id']}) ";
+	if ($game['home_team'] !== null) {
+		if ($game['home_dependency_type'] == 'seed') {
+			echo "({$game['home_dependency_id']}) ";
 		}
-		echo $this->element('teams/block', array('team' => $teams[$game['Game']['home_team']], 'options' => array('max_length' => 16)));
+		echo $this->element('teams/block', array('team' => $teams[$game['home_team']], 'options' => array('max_length' => 16)));
 	} else {
-		$ths = ClassRegistry::init ('Game');
-		switch ($game['Game']['home_dependency_type']) {
-			case 'game_winner':
-				$name = $ths->field('name', array('id' => $game['Game']['home_dependency_id']));
-				printf (__('Winner of game %s', true), $name);
-				break;
-
-			case 'game_loser':
-				$name = $ths->field('name', array('id' => $game['Game']['home_dependency_id']));
-				printf (__('Loser of game %s', true), $name);
-				break;
-
-			case 'seed':
-				printf (__('%s seed', true), ordinal($game['Game']['home_dependency_id']));
-				break;
-		}
+		Game::_readDependencies($game);
+		echo $game['home_dependency'];
 	}
 ?>
 		</div>
 		<div class="score">
-<?php echo $game['Game']['home_score']; ?>
+<?php echo $game['home_score']; ?>
 		</div>
 	</div>
 	<div class="details">
 		<div class="name">
 <?php
-	echo $game['Game']['name'];
+	echo $game['name'];
 ?>
 		</div>
 <?php
 	if (strtotime("{$game['GameSlot']['game_date']} {$game['GameSlot']['game_start']}") + Configure::read('timezone.adjust') * 60 > time()) {
 		$date = $this->ZuluruTime->date ($game['GameSlot']['game_date']) . '<br/>' .
 				$this->ZuluruTime->time ($game['GameSlot']['game_start']);
-		if ($game['Game']['published']) {
+		if ($game['published']) {
 			echo $this->Html->tag('div', $date, array('class' => 'date'));
 		} else if ($is_admin || $is_coordinator) {
 			echo $this->Html->tag('div', $date, array('class' => 'date unpublished'));
@@ -62,42 +48,28 @@ if (!empty($game)) {
 	<div class="away">
 		<div class="team<?php
 		if (Game::_is_finalized($game)) {
-			if ($game['Game']['away_score'] > $game['Game']['home_score']) {
+			if ($game['away_score'] > $game['home_score']) {
 				echo ' winner';
-			} else if ($game['Game']['away_score'] < $game['Game']['home_score']) {
+			} else if ($game['away_score'] < $game['home_score']) {
 				echo ' loser';
 			}
 		}
 		?>">
 <?php
-	if ($game['Game']['away_team'] !== null) {
-		if ($game['Game']['away_dependency_type'] == 'seed') {
-			echo "({$game['Game']['away_dependency_id']}) ";
+	if ($game['away_team'] !== null) {
+		if ($game['away_dependency_type'] == 'seed') {
+			echo "({$game['away_dependency_id']}) ";
 		}
-		echo $this->element('teams/block', array('team' => $teams[$game['Game']['away_team']], 'options' => array('max_length' => 16)));
+		echo $this->element('teams/block', array('team' => $teams[$game['away_team']], 'options' => array('max_length' => 16)));
 	} else {
-		$ths = ClassRegistry::init ('Game');
-		switch ($game['Game']['away_dependency_type']) {
-			case 'game_winner':
-				$name = $ths->field('name', array('id' => $game['Game']['away_dependency_id']));
-				printf (__('Winner of game %s', true), $name);
-				break;
-
-			case 'game_loser':
-				$name = $ths->field('name', array('id' => $game['Game']['away_dependency_id']));
-				printf (__('Loser of game %s', true), $name);
-				break;
-
-			case 'seed':
-				printf (__('%s seed', true), ordinal($game['Game']['away_dependency_id']));
-				break;
-		}
+		Game::_readDependencies($game);
+		echo $game['away_dependency'];
 	}
 }
 ?>
 		</div>
 		<div class="score">
-<?php echo $game['Game']['away_score']; ?>
+<?php echo $game['away_score']; ?>
 		</div>
 	</div>
 <?php endif; ?>

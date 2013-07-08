@@ -10,26 +10,26 @@ if (count ($classes)) {
 	echo $this->element('teams/block', array('team' => $team));
 	?></td>
 	<td><?php echo $team['rating']; ?></td>
-	<td><?php echo $team['results']['W']; ?></td>
-	<td><?php echo $team['results']['L']; ?></td>
-	<td><?php echo $team['results']['T']; ?></td>
-	<td><?php echo $team['results']['def']; ?></td>
-	<td><?php echo $team['results']['gf']; ?></td>
-	<td><?php echo $team['results']['ga']; ?></td>
-	<td><?php echo $team['results']['gf'] - $team['results']['ga']; ?></td>
+	<td><?php echo $team['Season']['W']; ?></td>
+	<td><?php echo $team['Season']['L']; ?></td>
+	<td><?php echo $team['Season']['T']; ?></td>
+	<td><?php echo $team['Season']['def']; ?></td>
+	<td><?php echo $team['Season']['gf']; ?></td>
+	<td><?php echo $team['Season']['ga']; ?></td>
+	<td><?php echo $team['Season']['gf'] - $team['Season']['ga']; ?></td>
 	<td><?php
-	if ($team['results']['str'] > 1) {
-		echo $team['results']['str'] . __($team['results']['str_type'], true);
+	if ($team['Season']['str'] > 1) {
+		echo $team['Season']['str'] . __($team['Season']['str_type'], true);
 	} else {
 		echo '-';
 	}
 	?></td>
 	<?php if (League::hasSpirit($division)): ?>
 	<td><?php
-	if ($team['results']['games'] == 0) {
+	if ($team['Season']['games'] == 0) {
 		$spirit = null;
 	} else {
-		$spirit = $team['results']['spirit'] / $team['results']['games'];
+		$spirit = $team['Season']['spirit'] / $team['Season']['games'];
 	}
 	echo $this->element ('spirit/symbol', array(
 			'spirit_obj' => $spirit_obj,

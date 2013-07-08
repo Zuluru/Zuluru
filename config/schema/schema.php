@@ -271,14 +271,17 @@ class ZuluruSchema extends CakeSchema {
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'division_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
 		'round' => array('type' => 'string', 'null' => false, 'default' => '1', 'length' => 10),
-		'tournament' => array('type' => 'boolean', 'null' => true, 'default' => '0'),
 		'tournament_pool' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'type' => array('type' => 'integer', 'null' => false, 'default' => '1'),
+		'pool_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'name' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 32),
 		'home_dependency_type' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 32),
 		'home_dependency_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'home_pool_team_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'home_team' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'key' => 'index'),
 		'away_dependency_type' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 32),
 		'away_dependency_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'away_pool_team_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'away_team' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'key' => 'index'),
 		'home_score' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'length' => 4),
 		'away_score' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'length' => 4),
@@ -444,6 +447,26 @@ class ZuluruSchema extends CakeSchema {
 		'client_ip' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
 		'complete' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'username' => array('column' => 'user_name', 'unique' => 1)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
+	var $pools = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'division_id' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'key' => 'index'),
+		'stage' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 2),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'division' => array('column' => 'division_id', 'unique' => 0)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
+	var $pools_teams = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'pool_id' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'key' => 'index'),
+		'alias' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 4),
+		'dependency_type' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 32),
+		'dependency_ordinal' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'dependency_pool_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'dependency_id' => array('type' => 'integer', 'null' => false, 'default' => NULL),
+		'team_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'pool' => array('column' => 'pool_id', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $preregistrations = array(

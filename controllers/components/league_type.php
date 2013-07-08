@@ -29,18 +29,22 @@ class LeagueTypeComponent extends Object
 
 	/**
 	 * Sort the provided teams according to division-specific criteria.
-	 * This default function is usually going to be good enough, but we put it
-	 * here instead of having other code call usort directly, just in case.
 	 *
 	 * @param mixed $division Division to sort (teams are in ['Team'] key)
 	 *
 	 */
 	function sort(&$division, $spirit_obj = null, $include_tournament = true) {
-		$this->presort ($division, $spirit_obj);
-		if ($include_tournament) {
+		if (!empty($division['Game'])) {
+			$this->presort ($division, $spirit_obj);
+		}
+		$unseeded = Set::extract('/Team[seed=0]', $division);
+		if (empty($unseeded)) {
+			usort ($division['Team'], array($this, 'compareSeed'));
+		} else if ($division['Division']['schedule_type'] == 'tournament' || $include_tournament) {
 			usort ($division['Team'], array($this, 'compareTeamsTournament'));
 		} else {
 			usort ($division['Team'], array($this, 'compareTeams'));
+			$this->detectAndResolveTies($division['Team']);
 		}
 	}
 
@@ -52,51 +56,137 @@ class LeagueTypeComponent extends Object
 	 *
 	 */
 	function presort(&$division, $spirit_obj) {
-		$this->division = $division;
-		if (array_key_exists ('Game', $division)) {
-			$season = $tournament = array();
-			foreach ($division['Game'] as $game) {
-				// Different read methods create arrays in different formats
-				if (array_key_exists ('Game', $game)) {
-					$result = $game['Game'];
-				} else {
-					$result = $game;
-				}
-
-				if ($result['tournament']) {
-					$this->addTournamentResult ($tournament, $result['home_team'], $result['away_team'],
-						$result['tournament_pool'], $result['name'], $result['round'], $result['home_score'], $result['away_score']);
-				} else if (Game::_is_finalized($game) && !in_array($result['status'], Configure::read('unplayed_status'))) {
-					$this->addGameResult ($division, $season, $result['home_team'], $result['away_team'],
-							$result['round'], $result['home_score'], $result['away_score'],
-							Game::_get_spirit_entry ($game, $result['home_team']), $spirit_obj,
-							$result['status'] == 'home_default');
-					$this->addGameResult ($division, $season, $result['away_team'], $result['home_team'],
-							$result['round'], $result['away_score'], $result['home_score'],
-							Game::_get_spirit_entry ($game, $result['away_team']), $spirit_obj,
-							$result['status'] == 'away_default');
-				}
+		// Different read methods create arrays in different formats.
+		// This puts them all in the same format. At the same time,
+		// we split them into various groupings.
+		foreach ($division['Game'] as $game) {
+			if (array_key_exists ('Game', $game)) {
+				$game = array_merge($game['Game'], $game);
+				unset($game['Game']);
 			}
 
-			foreach ($division['Team'] as $key => $team) {
-				if (array_key_exists ($team['id'], $season)) {
-					$division['Team'][$key]['results'] = $season[$team['id']];
-				} else {
-					$division['Team'][$key]['results'] = array('W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'games' => 0,
-							'gf' => 0, 'ga' => 0, 'str' => 0, 'str_type' => '', 'spirit' => 0,
-							'rounds' => array(), 'vs' => array(), 'vspm' => array());
-				}
+			switch ($game['type']) {
+				case SEASON_GAME:
+					$division['Season']['Game'][] = $game;
+					break;
 
-				if (array_key_exists ($team['id'], $tournament)) {
-					$division['Team'][$key]['tournament'] = $tournament[$team['id']];
-				} else {
-					$division['Team'][$key]['tournament'] = array('pool' => 999, 'results' => array(), 'final' => null);
+				case POOL_PLAY_GAME:
+					$division['Pool'][$game['HomePoolTeam']['Pool']['stage']][$game['pool_id']]['Game'][] = $game;
+					break;
+
+				case BRACKET_GAME:
+					$division['Bracket']['Game'][] = $game;
+					break;
+			}
+		}
+
+		// Process each group of games to generate interim results
+		if (!empty($division['Season'])) {
+			$division['Season']['Results'] = $this->roundRobinResults($division, $division['Season']['Game'], $spirit_obj);
+		}
+
+		if (!empty($division['Pool'])) {
+			ksort($division['Pool']);
+			foreach ($division['Pool'] as $stage_num => $stage) {
+				foreach ($stage as $pool_num => $pool) {
+					$division['Pool'][$stage_num][$pool_num]['Results'] = $this->roundRobinResults($division, $pool['Game'], $spirit_obj);
 				}
 			}
 		}
+
+		if (!empty($division['Bracket'])) {
+			$division['Bracket']['Results'] = $this->bracketResults($division, $division['Bracket']['Game'], $spirit_obj);
+		}
+
+		// Put the results into the top team records for easy access.
+		// Also, put teams into arrays for each grouping and sort them.
+		foreach ($division['Team'] as $key => $team) {
+			if (!empty($division['Season']['Results'][$team['id']])) {
+				$division['Team'][$key]['Season'] = $division['Season']['Results'][$team['id']];
+				$division['Season']['Team'][] = $division['Team'][$key];
+			}
+			if (!empty($division['Pool'])) {
+				foreach ($division['Pool'] as $stage_num => $stage) {
+					foreach ($stage as $pool_num => $pool) {
+						if (!empty($pool['Results'][$team['id']])) {
+							$x = $division['Team'][$key];
+							unset($x['Season']);
+							unset($x['Pool']);
+							$x += $pool['Results'][$team['id']];
+							$division['Pool'][$stage_num][$pool_num]['Team'][] = $x;
+
+							$division['Team'][$key]['Pool'][$stage_num][$pool_num] = $pool['Results'][$team['id']];
+						}
+					}
+				}
+			}
+			if (!empty($division['Bracket']['Results'][$team['id']])) {
+				$division['Team'][$key]['Bracket'] = $division['Bracket']['Results'][$team['id']];
+
+				$x = $division['Team'][$key];
+				unset($x['Season']);
+				unset($x['Pool']);
+				$division['Bracket']['Team'][] = $x;
+			}
+		}
+
+		$this->division = $division;
+
+		if (!empty($division['Season']['Team'])) {
+			usort ($division['Season']['Team'], array($this, 'compareTeams'));
+		}
+		if (!empty($division['Pool'])) {
+			foreach ($division['Pool'] as $stage_num => $stage) {
+				foreach ($stage as $pool_num => $pool) {
+					if (!empty($division['Pool'][$stage_num][$pool_num]['Team'])) {
+						usort($division['Pool'][$stage_num][$pool_num]['Team'], array($this, 'compareTeamsResults'));
+						$this->detectAndResolveTies($division['Pool'][$stage_num][$pool_num]['Team']);
+					}
+				}
+			}
+		}
+		if (!empty($division['Bracket']['Team'])) {
+			usort ($division['Bracket']['Team'], array($this, 'compareTeamsTournament'));
+		}
+
+		$this->division = $division;
 	}
 
-	function addGameResult ($division, &$results, $team, $opp, $round, $score_for, $score_against, $spirit_for, $spirit_obj, $default) {
+	function roundRobinResults($division, $games, $spirit_obj) {
+		$results = array();
+
+		foreach ($games as $game) {
+			// Season games use the round indicator for which of possible multiple passes
+			// through the entire round robin we are in. Tournament games use it for which
+			// game in the single round robin we are in, which is needed when scheduling
+			// but not when analysing results.
+			if ($game['type'] == SEASON_GAME) {
+				$round = $game['round'];
+			} else {
+				$round = 1;
+			}
+
+			if (!in_array($game['status'], Configure::read('unplayed_status'))) {
+				if (Game::_is_finalized($game)) {
+					$this->addGameResult ($division, $results, $game['home_team'], $game['away_team'],
+							$round, $game['home_score'], $game['away_score'],
+							Game::_get_spirit_entry ($game, $game['home_team']), $spirit_obj,
+							$game['status'] == 'home_default');
+					$this->addGameResult ($division, $results, $game['away_team'], $game['home_team'],
+							$round, $game['away_score'], $game['home_score'],
+							Game::_get_spirit_entry ($game, $game['away_team']), $spirit_obj,
+							$game['status'] == 'away_default');
+				} else {
+					$this->addUnplayedGame ($division, $results, $game['home_team'], $game['away_team'], $round);
+					$this->addUnplayedGame ($division, $results, $game['away_team'], $game['home_team'], $round);
+				}
+			}
+		}
+
+		return $results;
+	}
+
+	function addGameResult($division, &$results, $team, $opp, $round, $score_for, $score_against, $spirit_for, $spirit_obj, $default) {
 		if (!isset($this->sport_obj)) {
 			$this->sport_obj = $this->_controller->_getComponent ('Sport', $division['League']['sport'], $this->_controller);
 		}
@@ -115,7 +205,7 @@ class LeagueTypeComponent extends Object
 
 		// Make sure the team record exists in the results
 		if (! array_key_exists ($team, $results)) {
-			$results[$team] = array('W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'games' => 0,
+			$results[$team] = array('id' => $team, 'W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'games' => 0,
 									'gf' => 0, 'ga' => 0, 'str' => 0, 'str_type' => '', 'spirit' => 0,
 									'rounds' => array(), 'vs' => array(), 'vspm' => array());
 		}
@@ -178,60 +268,95 @@ class LeagueTypeComponent extends Object
 		}
 	}
 
-	function addTournamentResult (&$results, $team, $opp, $pool, $name, $round, $score_for, $score_against) {
-		// Make sure the team records exist in the results
+	function addUnplayedGame($division, &$results, $team, $opp, $round) {
+		// Make sure the team record exists in the results
 		if (! array_key_exists ($team, $results)) {
-			$results[$team] = array('pool' => $pool, 'results' => array());
-		}
-		if (! array_key_exists ($opp, $results)) {
-			$results[$opp] = array('pool' => $pool, 'results' => array());
+			$results[$team] = array('id' => $team, 'W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'games' => 0,
+									'gf' => 0, 'ga' => 0, 'str' => 0, 'str_type' => '', 'spirit' => 0,
+									'rounds' => array(), 'vs' => array(), 'vspm' => array());
 		}
 
-		// Check if this was a placement game
-		$final_win = $final_lose = null;
-		$suffix = substr($name, -2);
-		if (in_array($suffix, array('st', 'nd', 'rd', 'th'))) {
-			$name = substr($name, 0, -2);
-			while (true) {
-				$x = substr($name, -1);
-				$name = substr($name, 0, -1);
-				if (is_numeric($x)) {
-					$final_win = "$x$final_win";
-				} else {
-					$final_lose = $final_win + 1;
-					break;
+		// Make sure a record exists for the round in the results
+		// Some league types don't use rounds, but there's no real harm in calculating this
+		if (! array_key_exists ($round, $results[$team]['rounds'])) {
+			$results[$team]['rounds'][$round] = array('W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'gf' => 0, 'ga' => 0, 'vs' => array(), 'vspm' => array());
+		}
+
+		// Make sure a record exists for the opponent in the vs arrays
+		if (! array_key_exists ($opp, $results[$team]['vs'])) {
+			$results[$team]['vs'][$opp] = 0;
+			$results[$team]['vspm'][$opp] = 0;
+		}
+		if (! array_key_exists ($opp, $results[$team]['rounds'][$round]['vs'])) {
+			$results[$team]['rounds'][$round]['vs'][$opp] = 0;
+			$results[$team]['rounds'][$round]['vspm'][$opp] = 0;
+		}
+	}
+
+	function bracketResults($division, $games, $spirit_obj) {
+		$results = array();
+
+		foreach ($games as $game) {
+			// Make sure the team records exist in the results
+			if (! array_key_exists ($game['home_team'], $results)) {
+				$results[$game['home_team']] = array('pool' => $game['pool_id'], 'results' => array(), 'final' => null);
+			}
+			if (! array_key_exists ($game['away_team'], $results)) {
+				$results[$game['away_team']] = array('pool' => $game['pool_id'], 'results' => array(), 'final' => null);
+			}
+
+			// Check if this was a placement game
+			$final_win = $final_lose = null;
+			$suffix = substr($game['name'], -2);
+			if (in_array($suffix, array('st', 'nd', 'rd', 'th'))) {
+				$name = substr($game['name'], 0, -2);
+				while (true) {
+					$x = substr($name, -1);
+					$name = substr($name, 0, -1);
+					if (is_numeric($x)) {
+						$final_win = "$x$final_win";
+					} else {
+						$final_lose = $final_win + 1;
+						break;
+					}
 				}
+			}
+
+			// What type of result was this?
+			if ($game['home_score'] > $game['away_score']) {
+				$results[$game['home_team']]['results'][$game['round']] = 1;
+				$results[$game['home_team']]['final'] = $final_win;
+
+				$results[$game['away_team']]['results'][$game['round']] = -1;
+				$results[$game['away_team']]['final'] = $final_lose;
+			} else if ($game['home_score'] < $game['away_score']) {
+				$results[$game['home_team']]['results'][$game['round']] = -1;
+				$results[$game['home_team']]['final'] = $final_lose;
+
+				$results[$game['away_team']]['results'][$game['round']] = 1;
+				$results[$game['away_team']]['final'] = $final_win;
+			} else {
+				$results[$game['home_team']]['results'][$game['round']] = $results[$game['away_team']]['results'][$game['round']] = 0;
+				$results[$game['home_team']]['final'] = $results[$game['away_team']]['final'] = $final_win;
 			}
 		}
 
-		// What type of result was this?
-		if ($score_for > $score_against) {
-			$results[$team]['results'][$round] = 1;
-			$results[$team]['final'] = $final_win;
+		return $results;
+	}
 
-			$results[$opp]['results'][$round] = -1;
-			$results[$opp]['final'] = $final_lose;
-		} else if ($score_for < $score_against) {
-			$results[$team]['results'][$round] = -1;
-			$results[$team]['final'] = $final_lose;
-
-			$results[$opp]['results'][$round] = 1;
-			$results[$opp]['final'] = $final_win;
-		} else {
-			$results[$team]['results'][$round] = $results[$opp]['results'][$round] = 0;
-			$results[$team]['final'] = $results[$opp]['final'] = $final_win;
-		}
+	function compareSeed($a, $b) {
+		if ($a['seed'] < $b['seed'])
+			return -1;
+		if ($a['seed'] > $b['seed'])
+			return 1;
+		return 0;
 	}
 
 	/**
 	 * By default, we sort by any seeding information we may have, and then by name as a last resort.
 	 */
-	function compareTeams($a, $b) {
-		if ($a['seed'] < $b['seed'])
-			return -1;
-		if ($a['seed'] > $b['seed'])
-			return 1;
 
+	function compareTeams($a, $b) {
 		if ($a['initial_seed'] < $b['initial_seed'])
 			return -1;
 		if ($a['initial_seed'] > $b['initial_seed'])
@@ -244,48 +369,60 @@ class LeagueTypeComponent extends Object
 	 * Various league types might have tournaments.
 	 */
 	function compareTeamsTournament($a, $b) {
-		if (!array_key_exists('tournament', $a) || !array_key_exists('tournament', $b)) {
-			return $this->compareTeams($a, $b);
-		}
+		// If both teams have bracket results, we may be able to use that
+		if (!empty($a['Bracket']) && !empty($b['Bracket'])) {
+			// If both teams have final placements, we use that
+			if ($a['Bracket']['final'] !== null && $b['Bracket']['final'] !== null) {
+				if ($a['Bracket']['final'] > $b['Bracket']['final']) {
+					return 1;
+				} else if ($a['Bracket']['final'] < $b['Bracket']['final']) {
+					return -1;
+				}
+			}
 
-		// If both teams have final placements, we use that
-		if ($a['tournament']['final'] !== null && $b['tournament']['final'] !== null) {
-			if ($a['tournament']['final'] > $b['tournament']['final']) {
-				return 1;
-			} else if ($a['tournament']['final'] < $b['tournament']['final']) {
-				return -1;
+			// Go through each round in the bracket and compare the two teams' results in that round
+			$rounds = array_unique(array_merge(array_keys($a['Bracket']['results']), array_keys($b['Bracket']['results'])));
+			sort($rounds);
+			foreach ($rounds as $round) {
+				// If the first team had a bye in this round and the second team lost,
+				// put the first team ahead
+				if (!array_key_exists($round, $a['Bracket']['results']) && $b['Bracket']['results'][$round] < 0) {
+					return -1;
+				}
+
+				// If the second team had a bye in this round and the first team lost,
+				// put the second team ahead
+				if (!array_key_exists($round, $a['Bracket']['results']) && $b['Bracket']['results'][$round] < 0) {
+					return 1;
+				}
+
+				// If both teams played in this round and had different results,
+				// use that result to determine who is ahead
+				if (array_key_exists($round, $a['Bracket']['results']) && array_key_exists($round, $b['Bracket']['results']) &&
+					$a['Bracket']['results'][$round] != $b['Bracket']['results'][$round])
+				{
+					return ($a['Bracket']['results'][$round] > $b['Bracket']['results'][$round] ? -1 : 1);
+				}
 			}
 		}
 
-		// If teams are not in the same pool, we use that
-		if ($a['tournament']['pool'] < $b['tournament']['pool']) {
-			return -1;
-		} else if ($a['tournament']['pool'] > $b['tournament']['pool']) {
-			return 1;
-		}
+		// If both teams have pool results, we may be able to use that
+		if (!empty($a['Pool']) && !empty($b['Pool'])) {
+			$max_stage = max(array_merge(array_keys($a['Pool']), array_keys($b['Pool'])));
+			for ($stage = $max_stage; $stage > 0; -- $stage) {
+				// If teams are not in the same pool, we use that
+				$a_pool = current(array_keys($a['Pool'][$stage]));
+				$b_pool = current(array_keys($b['Pool'][$stage]));
+				if ($a_pool < $b_pool) {
+					return -1;
+				} else if ($a_pool > $b_pool) {
+					return 1;
+				}
 
-		// Go through each tournament round and compare the two teams' results in that round
-		$rounds = array_unique(array_merge(array_keys($a['tournament']['results']), array_keys($b['tournament']['results'])));
-		sort($rounds);
-		foreach ($rounds as $round) {
-			// If the first team had a bye in this round and the second team lost,
-			// put the first team ahead
-			if (!array_key_exists($round, $a['tournament']['results']) && $b['tournament']['results'][$round] < 0) {
-				return -1;
-			}
-
-			// If the second team had a bye in this round and the first team lost,
-			// put the second team ahead
-			if (!array_key_exists($round, $a['tournament']['results']) && $b['tournament']['results'][$round] < 0) {
-				return 1;
-			}
-
-			// If both teams played in this round and had different results,
-			// use that result to determine who is ahead
-			if (array_key_exists($round, $a['tournament']['results']) && array_key_exists($round, $b['tournament']['results']) &&
-				$a['tournament']['results'][$round] != $b['tournament']['results'][$round])
-			{
-				return ($a['tournament']['results'][$round] > $b['tournament']['results'][$round] ? -1 : 1);
+				$ret = $this->compareTeamsResults($a['Pool'][$stage][$a_pool], $b['Pool'][$stage][$b_pool]);
+				if ($ret != 0) {
+					return $ret;
+				}
 			}
 		}
 
@@ -296,90 +433,173 @@ class LeagueTypeComponent extends Object
 	 * Sort based on configured list of tie-breakers
 	 */
 	function compareTeamsTieBreakers($a, $b) {
-		if (array_key_exists ('results', $a))
+		if (array_key_exists ('Season', $a))
 		{
 			$round = $this->division['Division']['current_round'];
 			if ($round != 1) {
-				if (array_key_exists($round, $a['results']['rounds'])) {
-					$a_results = $a['results']['rounds'][$round];
+				if (array_key_exists($round, $a['Season']['rounds'])) {
+					$a_results = $a['Season']['rounds'][$round];
 				} else {
-					$a_results = array('W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'gf' => 0, 'ga' => 0, 'vs' => array(), 'vspm' => array());
+					$a_results = array('id' => $a['id'], 'W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'gf' => 0, 'ga' => 0, 'vs' => array(), 'vspm' => array());
 				}
-				if (array_key_exists($round, $b['results']['rounds'])) {
-					$b_results = $b['results']['rounds'][$round];
+				if (array_key_exists($round, $b['Season']['rounds'])) {
+					$b_results = $b['Season']['rounds'][$round];
 				} else {
-					$b_results = array('W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'gf' => 0, 'ga' => 0, 'vs' => array(), 'vspm' => array());
+					$b_results = array('id' => $b['id'], 'W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'gf' => 0, 'ga' => 0, 'vs' => array(), 'vspm' => array());
 				}
 			} else {
-				$a_results = $a['results'];
-				$b_results = $b['results'];
+				$a_results = $a['Season'];
+				$b_results = $b['Season'];
 			}
 
-			if ($a_results['pts'] < $b_results['pts'])
-				return 1;
-			if ($a_results['pts'] > $b_results['pts'])
-				return -1;
+			return $this->compareTeamsResults($a_results, $b_results);
+		}
 
-			if ($a_results['W'] < $b_results['W'])
-				return 1;
-			if ($a_results['W'] > $b_results['W'])
-				return -1;
+		return 0;
+	}
 
-			$order = Configure::read("tie_breakers.{$this->division['League']['tie_breaker']}");
-			foreach ($order as $option) {
-				switch ($option) {
-					case 'hth':
-						if (array_key_exists ($b['id'], $a_results['vs'])) {
-							// if b is in a's results, a must also exist in b's results, no point checking that
-							if ($a_results['vs'][$b['id']] < $b_results['vs'][$a['id']])
-								return 1;
-							if ($a_results['vs'][$b['id']] > $b_results['vs'][$a['id']])
-								return -1;
-						}
-						break;
+	/**
+	 * Sort based on round-robin results
+	 */
+	function compareTeamsResults($a, $b) {
+		if ($a['pts'] < $b['pts'])
+			return 1;
+		if ($a['pts'] > $b['pts'])
+			return -1;
 
-					case 'hthpm':
-						if (array_key_exists ($b['id'], $a_results['vspm'])) {
-							// if b is in a's results, a must also exist in b's results, no point checking that
-							if ($a_results['vspm'][$b['id']] < $b_results['vspm'][$a['id']])
-								return 1;
-							if ($a_results['vspm'][$b['id']] > $b_results['vspm'][$a['id']])
-								return -1;
-						}
-						break;
+		if ($a['W'] < $b['W'])
+			return 1;
+		if ($a['W'] > $b['W'])
+			return -1;
 
-					case 'pm':
-						if ($a_results['gf'] - $a_results['ga'] < $b_results['gf'] - $b_results['ga'])
+		$order = Configure::read("tie_breakers.{$this->division['League']['tie_breaker']}");
+		foreach ($order as $option) {
+			switch ($option) {
+				case 'hth':
+					if (array_key_exists ($b['id'], $a['vs'])) {
+						// if b is in a's results, a must also exist in b's results, no point checking that
+						if ($a['vs'][$b['id']] < $b['vs'][$a['id']])
 							return 1;
-						if ($a_results['gf'] - $a_results['ga'] > $b_results['gf'] - $b_results['ga'])
+						if ($a['vs'][$b['id']] > $b['vs'][$a['id']])
 							return -1;
-						break;
+					}
+					break;
 
-					case 'gf':
-						if ($a_results['gf'] < $b_results['gf'])
+				case 'hthpm':
+					if (array_key_exists ($b['id'], $a['vspm'])) {
+						// if b is in a's results, a must also exist in b's results, no point checking that
+						if ($a['vspm'][$b['id']] < $b['vspm'][$a['id']])
 							return 1;
-						if ($a_results['gf'] > $b_results['gf'])
+						if ($a['vspm'][$b['id']] > $b['vspm'][$a['id']])
 							return -1;
-						break;
+					}
+					break;
 
-					case 'loss':
-						if ($a_results['L'] > $b_results['L'])
-							return 1;
-						if ($a_results['L'] < $b_results['L'])
-							return -1;
-						break;
+				case 'pm':
+					if ($a['gf'] - $a['ga'] < $b['gf'] - $b['ga'])
+						return 1;
+					if ($a['gf'] - $a['ga'] > $b['gf'] - $b['ga'])
+						return -1;
+					break;
 
-					case 'spirit':
-						if ($a['results']['spirit'] - $a['results']['games'] < $b['results']['spirit'] - $b['results']['games'])
-							return 1;
-						if ($a['results']['spirit'] - $a['results']['games'] > $b['results']['spirit'] - $b['results']['games'])
-							return -1;
-						break;
-				}
+				case 'gf':
+					if ($a['gf'] < $b['gf'])
+						return 1;
+					if ($a['gf'] > $b['gf'])
+						return -1;
+					break;
+
+				case 'loss':
+					if ($a['L'] > $b['L'])
+						return 1;
+					if ($a['L'] < $b['L'])
+						return -1;
+					break;
+
+				case 'spirit':
+					if ($a['spirit'] - $a['games'] < $b['spirit'] - $b['games'])
+						return 1;
+					if ($a['spirit'] - $a['games'] > $b['spirit'] - $b['games'])
+						return -1;
+					break;
 			}
 		}
 
 		return 0;
+	}
+
+	/**
+	 * Go through a list of teams with game results, detect any three (or more)
+	 * way ties, and resolve them.
+	 * 
+	 * @param mixed $teams Sorted list of teams, with zero-based array indices
+	 */
+	function detectAndResolveTies(&$teams) {
+		for ($i = 0; $i < count($teams) - 1; ++ $i) {
+			$tied = array();
+			for ($j = $i + 1; $j < count($teams); ++ $j) {
+				if ($this->compareTeamsResults($teams[$i], $teams[$j]) == 1) {
+					// Found two teams that are not in the expected order.
+					// They must be tied with at least one other.
+					$tied[] = $i;
+					$tied[] = $j;
+					for ($k = $i + 1; $k < count($teams); ++ $k) {
+						if ($j != $k && $this->compareTeamsResults($teams[$j], $teams[$k]) == 1) {
+							$tied[] = $k;
+							// We don't need to look for teams tied with the ones we've already found
+							$i = max($j, $k) + 1;
+						}
+					}
+					$this->resolveTies($teams, $tied);
+				}
+			}
+		}
+	}
+
+	function resolveTies(&$teams, $tied) {
+		$compare = array_fill_keys($tied, array(
+				'hthpm' => 0,
+				'pm' => 0,
+		));
+		$round = $this->division['Division']['current_round'];
+		foreach ($tied as $i) {
+			foreach ($tied as $j) {
+				if ($i != $j) {
+					$compare[$i]['hthpm'] += $teams[$i]['rounds'][$round]['vspm'][$teams[$j]['id']];
+				}
+			}
+			$compare[$i]['pm'] = $teams[$i]['rounds'][$round]['gf'] - $teams[$i]['rounds'][$round]['ga'];
+			$compare[$i]['initial_seed'] = $teams[$i]['initial_seed'];
+		}
+		uasort($compare, array($this, 'compareHTH'));
+
+		// Put the teams into the same order as this new comparison demands
+		$new_teams = array_slice($teams, 0, min($tied));
+		foreach (array_keys($compare) as $key) {
+			$new_teams[] = $teams[$key];
+		}
+		$new_teams += array_slice($teams, max($tied) + 1, null, true);
+		$teams = $new_teams;
+	}
+
+	function compareHTH($a, $b) {
+		// First multi-way tie breaker is head-to-head plus minus in games between these teams
+		if ($a['hthpm'] > $b['hthpm'])
+			return -1;
+		if ($a['hthpm'] < $b['hthpm'])
+			return 1;
+
+		// Second multi-way tie breaker is overall plus minus
+		if ($a['pm'] > $b['pm'])
+			return -1;
+		if ($a['pm'] < $b['pm'])
+			return 1;
+
+		// For lack of a better idea, we'll use initial seed as the final tie breaker
+		if ($a['initial_seed'] < $b['initial_seed'])
+			return -1;
+		if ($a['initial_seed'] > $b['initial_seed'])
+			return 1;
 	}
 
 	/**
@@ -419,20 +639,14 @@ class LeagueTypeComponent extends Object
 	 * Get the description of a scheduling type.
 	 *
 	 * @param mixed $type The scheduling type to return the description of
-	 * @param mixed $teams The number of teams to include in the description, or false to return a short description
+	 * @param mixed $stage The stage of the tournament we're scheduling
+	 * @param mixed $teams The number of teams to include in the description
 	 * @return mixed The description
 	 *
 	 */
-	function scheduleDescription($type, $teams = false) {
-		$types = $this->scheduleOptions($teams);
+	function scheduleDescription($type, $num_teams, $stage) {
+		$types = $this->scheduleOptions($num_teams, $stage);
 		$desc = $types[$type];
-		if ($teams === false) {
-			$pos = strpos ($desc, '(');
-			if ($pos !== false) {
-				$desc = substr ($desc, 0, $pos);
-			}
-			$desc = trim ($desc);
-		}
 		return $desc;
 	}
 
@@ -483,6 +697,12 @@ class LeagueTypeComponent extends Object
 				'conditions' => array('NOT' => array('id' => $exclude_teams)),
 			),
 			'League',
+			'Pool' => array(
+				'order' => 'Pool.id',
+				'PoolsTeam' => array(
+					'order' => 'PoolsTeam.id',
+				),
+			),
 			'Game' => array(
 				'GameSlot' => $field_contain,
 			),
@@ -590,9 +810,12 @@ class LeagueTypeComponent extends Object
 				return false;
 			}
 
-			$this->games[$key]['GameSlot']['game_id'] = $this->_controller->Division->Game->id;
-			if (!$this->_controller->Division->Game->GameSlot->save($this->games[$key]['GameSlot'])) {
-				return false;
+			// Some games don't have game slots, e.g. placeholder games for results carried forward
+			if (!empty($this->games[$key]['GameSlot'])) {
+				$this->games[$key]['GameSlot']['game_id'] = $this->_controller->Division->Game->id;
+				if (!$this->_controller->Division->Game->GameSlot->save($this->games[$key]['GameSlot'])) {
+					return false;
+				}
 			}
 		}
 
@@ -773,17 +996,15 @@ class LeagueTypeComponent extends Object
 		// Put all those teams with a home field at the top of the list
 		$a_home = $this->hasHomeField($a);
 		$b_home = $this->hasHomeField($b);
-		if ($a_home && !$b_home) {
+		if ($a_home && !$b_home)
 			return -1;
-		} else if (!$a_home && $b_home) {
+		if (!$a_home && $b_home)
 			return 1;
-		}
 
 		$a_ratio = $this->preferredFieldRatio($a);
 		$b_ratio = $this->preferredFieldRatio($b);
-		if ($a_ratio == $b_ratio) {
+		if ($a_ratio == $b_ratio)
 			return 0;
-		}
 
 		return ($a_ratio > $b_ratio) ? 1 : -1;
 	}
