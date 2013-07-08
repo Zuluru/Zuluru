@@ -167,7 +167,7 @@ class BadgeComponent extends Object
 				$this->Team = ClassRegistry::init('Team');
 			}
 		}
-		if (!isset($data['team_id']) || !isset($data['role'])) {
+		if (!isset($data['team_id']) || !array_key_exists('role', $data)) {
 			$this->Team->TeamsPerson->contain(array());
 			$record = $this->Team->TeamsPerson->read(null, $data['id']);
 			$data = array_merge($record['TeamsPerson'], $data);
@@ -182,7 +182,7 @@ class BadgeComponent extends Object
 			'person_id' => $data['person_id'],
 			'team_id' => $data['team_id'],
 		));
-		if ($handler->applicable($this->team) && $data['status'] == ROSTER_APPROVED && in_array($data['role'], Configure::read('regular_roster_roles'))) {
+		if ($handler->applicable($this->team) && in_array($data['role'], Configure::read('regular_roster_roles')) && $data['status'] == ROSTER_APPROVED) {
 			$badge_data = array(
 				'badge_id' => $badge['Badge']['id'],
 				'person_id' => $data['person_id'],
