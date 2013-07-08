@@ -430,7 +430,7 @@ class Game extends AppModel {
 	}
 
 	/**
-	 * Retrieve the best score entry for a game. Assumes that _adjustEntryIndices has been called.
+	 * Retrieve the best score entry for a game.
 	 *
 	 * @return mixed Array with the best score entry, false if neither team has entered a score yet,
 	 * or null if there is no clear "best" entry.
