@@ -135,11 +135,13 @@ $this->Html->addCrumb (__('View', true));
 		<?php endif; ?>
 		<?php endif; ?>
 		<?php // TODO: SBF ?>
+		<?php if ($team['Division']['schedule_type'] == 'ratings_ladder'):?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Rating'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $team['Team']['rating']; ?>
 
 		</dd>
+		<?php endif; ?>
 		<?php if (Configure::read('feature.franchises') && !empty ($team['Franchise'])):?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Franchises'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
