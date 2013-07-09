@@ -46,7 +46,8 @@ class TasksController extends AppController {
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('affiliates'));
 
-		if ($this->params['url']['ext'] == 'csv') {
+		if (($this->is_admin || $this->is_manager) && $this->_arg('download')) {
+			$this->RequestHandler->renderAs($this, 'csv');
 			$tasks = $this->Task->Category->find('all', array(
 				'conditions' => array('Category.affiliate_id' => $affiliates),
 				'contain' => array(

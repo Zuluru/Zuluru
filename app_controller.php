@@ -759,7 +759,7 @@ class AppController extends Controller {
 			if (Configure::read('feature.tasks')) {
 				$this->_addMenuItem ('Tasks', array('controller' => 'tasks', 'action' => 'index'), 'Configuration');
 				$this->_addMenuItem ('Categories', array('controller' => 'categories', 'action' => 'index'), array('Configuration', 'Tasks'));
-				$this->_addMenuItem ('Download All', array('controller' => 'tasks', 'action' => 'index', 'download', 'ext' => 'csv'), array('Configuration', 'Tasks'));
+				$this->_addMenuItem ('Download All', array('controller' => 'tasks', 'action' => 'index', 'download' => true), array('Configuration', 'Tasks'));
 			}
 		}
 
