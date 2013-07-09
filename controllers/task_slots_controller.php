@@ -8,6 +8,20 @@ class TaskSlotsController extends AppController {
 	}
 
 	function isAuthorized() {
+		if ($this->is_volunteer) {
+			// Volunteers can can perform these operations
+			if (in_array ($this->params['action'], array(
+				'assign',
+			)))
+			{
+				// If a person id is specified, check if we're that person
+				$person = $this->_arg('person');
+				if ($person && $person == $this->Auth->user('id')) {
+					return true;
+				}
+			}
+		}
+
 		if ($this->is_manager) {
 			// Managers can perform these operations
 			if (in_array ($this->params['action'], array(
@@ -22,6 +36,8 @@ class TaskSlotsController extends AppController {
 			if (in_array ($this->params['action'], array(
 					'view',
 					'edit',
+					'assign',
+					'approve',
 					'delete',
 			)))
 			{
@@ -174,35 +190,80 @@ class TaskSlotsController extends AppController {
 	}
 
 	function assign() {
-		Configure::write ('debug', 0);
-		$this->layout = 'ajax';
-
 		$id = $this->_arg('slot');
 		if (!$id) {
-			$this->set(array('error' => sprintf(__('Invalid %s', true), __('task slot', true))));
-			return;
+			if ($this->RequestHandler->isAjax()) {
+				$this->set(array('error' => sprintf(__('Invalid %s', true), __('task slot', true))));
+				return;
+			} else {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('task slot', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'tasks', 'action' => 'index'));
+			}
 		}
 		$this->TaskSlot->contain('Task');
 		$taskSlot = $this->TaskSlot->read(null, $id);
 		if (!$taskSlot) {
-			$this->set(array('error' => sprintf(__('Invalid %s', true), __('task slot', true))));
-			return;
+			if ($this->RequestHandler->isAjax()) {
+				$this->set(array('error' => sprintf(__('Invalid %s', true), __('task slot', true))));
+				return;
+			} else {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('task slot', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'tasks', 'action' => 'index'));
+			}
 		}
 
-		$person = $this->_arg('person');
-		if ($person === null || $person === '') {
-			$this->set(array('error' => sprintf(__('Invalid %s', true), __('person', true))));
-			return;
+		if (!$taskSlot['Task']['allow_signup'] && !($this->is_admin || $this->is_manager)) {
+			if ($this->RequestHandler->isAjax()) {
+				$this->set(array('error' => sprintf(__('Invalid %s', true), __('task', true))));
+				return;
+			} else {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('task', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'tasks', 'action' => 'view', 'task' => $taskSlot['Task']['id']));
+			}
 		}
 
-		$this->set(compact('id', 'taskSlot', 'person'));
+		if ($taskSlot['TaskSlot']['person_id'] && !($this->is_admin || $this->is_manager)) {
+			if ($this->RequestHandler->isAjax()) {
+				$this->set(array('error' => __('This task slot has already been assigned.', true)));
+				return;
+			} else {
+				$this->Session->setFlash(__('This task slot has already been assigned.', true), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'tasks', 'action' => 'view', 'task' => $taskSlot['Task']['id']));
+			}
+		}
 
-		if (!empty($person)) {
+		$person_id = $this->_arg('person');
+		if ($person_id === null || $person_id === '') {
+			if ($this->RequestHandler->isAjax()) {
+				$this->set(array('error' => sprintf(__('Invalid %s', true), __('person', true))));
+				return;
+			} else {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'tasks', 'action' => 'view', 'task' => $taskSlot['Task']['id']));
+			}
+		}
+		if ($person_id != 0) {
+			$this->TaskSlot->Person->contain(false);
+			$person = $this->TaskSlot->Person->read(null, $person_id);
+			if (!$person) {
+				if ($this->RequestHandler->isAjax()) {
+					$this->set(array('error' => sprintf(__('Invalid %s', true), __('person', true))));
+					return;
+				} else {
+					$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+					$this->redirect(array('controller' => 'tasks', 'action' => 'view', 'task' => $taskSlot['Task']['id']));
+				}
+			}
+		}
+
+		$this->set(compact('id', 'taskSlot', 'person', 'person_id'));
+
+		if (!empty($person_id)) {
 			$conflict = $this->TaskSlot->find('first', array(
 					'contain' => array('Task' => 'Category'),
 					'conditions' => array(
 						'TaskSlot.id !=' => $id,
-						'TaskSlot.person_id' => $person,
+						'TaskSlot.person_id' => $person_id,
 						'TaskSlot.task_date' => $taskSlot['TaskSlot']['task_date'],
 						'OR' => array(
 							array(
@@ -217,23 +278,31 @@ class TaskSlotsController extends AppController {
 					),
 			));
 			if (!empty($conflict)) {
-				$this->log($conflict);
 				App::import('Helper', 'Time');
 				App::import('Helper', 'ZuluruTime');
 				$time = new ZuluruTimeHelper();
-				$this->set(array(
-					'error' => sprintf(__('This person has a conflicting assignment:\n\n%s (%s) from %s to %s on %s', true),
-								$conflict['Task']['name'], $conflict['Task']['Category']['name'],
-								$time->time($conflict['TaskSlot']['task_start']),
-								$time->time($conflict['TaskSlot']['task_end']),
-								$time->date($conflict['TaskSlot']['task_date'])),
-					'reset' => true,
-				));
-				return;
+				if ($this->RequestHandler->isAjax()) {
+					$this->set(array(
+						'error' => sprintf(__('This person has a conflicting assignment:\n\n%s (%s) from %s to %s on %s', true),
+									$conflict['Task']['name'], $conflict['Task']['Category']['name'],
+									$time->time($conflict['TaskSlot']['task_start']),
+									$time->time($conflict['TaskSlot']['task_end']),
+									$time->date($conflict['TaskSlot']['task_date'])),
+						'reset' => true,
+					));
+					return;
+				} else {
+					$this->Session->setFlash(sprintf(__('This person has a conflicting assignment: %s (%s) from %s to %s on %s', true),
+									$conflict['Task']['name'], $conflict['Task']['Category']['name'],
+									$time->time($conflict['TaskSlot']['task_start']),
+									$time->time($conflict['TaskSlot']['task_end']),
+									$time->date($conflict['TaskSlot']['task_date'])), 'default', array('class' => 'info'));
+					$this->redirect(array('controller' => 'tasks', 'action' => 'view', 'task' => $taskSlot['Task']['id']));
+				}
 			}
 		}
 
-		if ($taskSlot['Task']['auto_approve']) {
+		if ($taskSlot['Task']['auto_approve'] || $this->is_admin || $this->is_manager) {
 			$update = array(
 				'approved' => true,
 				'approved_by' => $this->Auth->user('id'),
@@ -247,15 +316,79 @@ class TaskSlotsController extends AppController {
 			);
 		}
 
-		if (empty($person)) {
+		if (empty($person_id)) {
 			$update['person_id'] = null;
 		} else {
-			$update['person_id'] = $person;
+			$update['person_id'] = $person_id;
 		}
 
 		if (!$this->TaskSlot->save($update)) {
 			$this->set(array('error' => __('Error assigning the task slot', true)));
 			return;
+		} else if (!$this->RequestHandler->isAjax()) {
+			$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('assignment', true)), 'default', array('class' => 'success'));
+			$this->redirect(array('controller' => 'tasks', 'action' => 'view', 'task' => $taskSlot['Task']['id']));
+		}
+	}
+
+	function approve() {
+		$id = $this->_arg('slot');
+		if (!$id) {
+			if ($this->RequestHandler->isAjax()) {
+				$this->set(array('error' => sprintf(__('Invalid %s', true), __('task slot', true))));
+				return;
+			} else {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('task slot', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'tasks', 'action' => 'index'));
+			}
+		}
+		$this->TaskSlot->contain('Task');
+		$taskSlot = $this->TaskSlot->read(null, $id);
+		if (!$taskSlot) {
+			if ($this->RequestHandler->isAjax()) {
+				$this->set(array('error' => sprintf(__('Invalid %s', true), __('task slot', true))));
+				return;
+			} else {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('task slot', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'tasks', 'action' => 'index'));
+			}
+		}
+
+		if (!$taskSlot['TaskSlot']['person_id']) {
+			if ($this->RequestHandler->isAjax()) {
+				$this->set(array('error' => __('This task slot has not been assigned.', true)));
+				return;
+			} else {
+				$this->Session->setFlash(__('This task slot has not been assigned.', true), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'tasks', 'action' => 'view', 'task' => $taskSlot['Task']['id']));
+			}
+		}
+
+		if ($taskSlot['TaskSlot']['approved']) {
+			if ($this->RequestHandler->isAjax()) {
+				$this->set(array('error' => __('This task slot has already been approved.', true)));
+				return;
+			} else {
+				$this->Session->setFlash(__('This task slot has already been approved.', true), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'tasks', 'action' => 'view', 'task' => $taskSlot['Task']['id']));
+			}
+		}
+
+		$this->set(compact('id', 'taskSlot'));
+
+		$update = array(
+			'approved' => true,
+			'approved_by' => $this->Auth->user('id'),
+		);
+		$this->TaskSlot->Person->contain();
+		$this->set('approved_by', $this->TaskSlot->Person->read(null, $this->Auth->user('id')));
+
+		if (!$this->TaskSlot->save($update)) {
+			$this->set(array('error' => __('Error approving the task slot', true)));
+			return;
+		} else if (!$this->RequestHandler->isAjax()) {
+			$this->Session->setFlash(sprintf(__('The %s has been approved', true), __('assignment', true)), 'default', array('class' => 'success'));
+			$this->redirect(array('controller' => 'tasks', 'action' => 'view', 'task' => $taskSlot['Task']['id']));
 		}
 	}
 }

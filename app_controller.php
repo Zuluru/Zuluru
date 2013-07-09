@@ -748,6 +748,13 @@ class AppController extends Controller {
 			}
 		}
 
+		if ($this->is_volunteer) {
+			if (Configure::read('feature.tasks')) {
+				$this->_addMenuItem ('Tasks', array('controller' => 'tasks', 'action' => 'index'));
+				$this->_addMenuItem ('List', array('controller' => 'tasks', 'action' => 'index'), 'Tasks');
+			}
+		}
+
 		if ($this->is_admin || $this->is_manager) {
 			$this->_addMenuItem ('Holidays', array('controller' => 'holidays', 'action' => 'index'), 'Configuration');
 			if (Configure::read('feature.documents')) {
@@ -757,9 +764,8 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Waivers', array('controller' => 'waivers', 'action' => 'index'), 'Configuration');
 
 			if (Configure::read('feature.tasks')) {
-				$this->_addMenuItem ('Tasks', array('controller' => 'tasks', 'action' => 'index'), 'Configuration');
-				$this->_addMenuItem ('Categories', array('controller' => 'categories', 'action' => 'index'), array('Configuration', 'Tasks'));
-				$this->_addMenuItem ('Download All', array('controller' => 'tasks', 'action' => 'index', 'download' => true), array('Configuration', 'Tasks'));
+				$this->_addMenuItem ('Categories', array('controller' => 'categories', 'action' => 'index'), 'Tasks');
+				$this->_addMenuItem ('Download All', array('controller' => 'tasks', 'action' => 'index', 'download' => true), 'Tasks');
 			}
 		}
 

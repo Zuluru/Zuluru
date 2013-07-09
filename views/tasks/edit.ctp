@@ -26,6 +26,12 @@ if (isset ($add)) {
 		echo $this->Form->input('notes', array(
 				'after' => $this->Html->para (null, __('Notes will only be visible administrators.', true)),
 		));
+		echo $this->Form->input('auto_approve', array(
+				'after' => $this->Html->para (null, __('If checked, assignments will not require separate admin approval.', true)),
+		));
+		echo $this->Form->input('allow_signup', array(
+				'after' => $this->Html->para (null, __('If checked, volunteers will be able to sign themselves up; if not, an admin will have to assign people.', true)),
+		));
 		echo $this->Form->input('person_id', array(
 				'label' => __('Reporting To', true),
 				'empty' => '---',

@@ -10,6 +10,10 @@ $this->Html->addCrumb (__('List', true));
 		<th><?php __('Task'); ?></th>
 		<th><?php __('Category'); ?></th>
 		<th><?php __('Reporting To'); ?></th>
+		<?php if ($is_admin || $is_manager): ?>
+		<th><?php __('Auto-Approve'); ?></th>
+		<th><?php __('Allow Signup'); ?></th>
+		<?php endif; ?>
 		<th class="actions"><?php __('Actions'); ?></th>
 	</tr>
 	<?php
@@ -21,30 +25,37 @@ $this->Html->addCrumb (__('List', true));
 		}
 	?>
 	<tr<?php echo $class;?>>
-		<td><?php echo $task['Task']['name']; ?>&nbsp;</td>
+		<td><?php echo $task['Task']['name']; ?></td>
 		<td><?php echo $this->Html->link($task['Category']['name'], array('controller' => 'categories', 'action' => 'view', 'category' => $task['Category']['id'])); ?></td>
+		<?php if ($is_admin || $is_manager): ?>
+		<td><?php __($task['Task']['auto_approve'] ? 'Yes' : 'No'); ?></td>
+		<td><?php __($task['Task']['allow_signup'] ? 'Yes' : 'No'); ?></td>
+		<?php endif; ?>
 		<td><?php echo $this->element('people/block', array('person' => $task['Person'])); ?></td>
 		<td class="actions">
 		<?php
 		echo $this->ZuluruHtml->iconLink('view_24.png',
 			array('action' => 'view', 'task' => $task['Task']['id']),
 			array('alt' => __('View', true), 'title' => __('View', true)));
-		echo $this->ZuluruHtml->iconLink('edit_24.png',
-			array('action' => 'edit', 'task' => $task['Task']['id']),
-			array('alt' => __('Edit', true), 'title' => __('Edit', true)));
-		echo $this->ZuluruHtml->iconLink('delete_24.png',
-			array('action' => 'delete', 'task' => $task['Task']['id']),
-			array('alt' => __('Delete', true), 'title' => __('Delete', true)),
-			array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $task['Task']['id'])));
-		echo $this->ZuluruHtml->iconLink('schedule_add_24.png',
-			array('controller' => 'task_slots', 'action' => 'add', 'task' => $task['Task']['id']),
-			array('alt' => __('Add Slots', true), 'title' => __('Add Slots', true)));
+		if ($is_admin || $is_manager) {
+			echo $this->ZuluruHtml->iconLink('edit_24.png',
+				array('action' => 'edit', 'task' => $task['Task']['id']),
+				array('alt' => __('Edit', true), 'title' => __('Edit', true)));
+			echo $this->ZuluruHtml->iconLink('delete_24.png',
+				array('action' => 'delete', 'task' => $task['Task']['id']),
+				array('alt' => __('Delete', true), 'title' => __('Delete', true)),
+				array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $task['Task']['id'])));
+			echo $this->ZuluruHtml->iconLink('schedule_add_24.png',
+				array('controller' => 'task_slots', 'action' => 'add', 'task' => $task['Task']['id']),
+				array('alt' => __('Add Slots', true), 'title' => __('Add Slots', true)));
+		}
 		?>
 		</td>
 	</tr>
 <?php endforeach; ?>
-	</table>
+</table>
 </div>
+<?php if ($is_admin || $is_manager): ?>
 <div class="actions">
 	<ul>
 		<?php
@@ -54,3 +65,4 @@ $this->Html->addCrumb (__('List', true));
 		?>
 	</ul>
 </div>
+<?php endif; ?>

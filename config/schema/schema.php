@@ -684,6 +684,7 @@ class ZuluruSchema extends CakeSchema {
 		'description' => array('type' => 'text', 'null' => true, 'default' => NULL),
 		'notes' => array('type' => 'text', 'null' => true, 'default' => NULL),
 		'auto_approve' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'allow_signup' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')

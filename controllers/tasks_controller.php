@@ -4,19 +4,21 @@ class TasksController extends AppController {
 	var $name = 'Tasks';
 
 	function isAuthorized() {
-		// Anyone that's logged in can perform these operations
-		if (in_array ($this->params['action'], array(
+		if ($this->is_volunteer) {
+			// Volunteers can can perform these operations
+			if (in_array ($this->params['action'], array(
+				'index',
 				'view',
 				'assigned',
-		)))
-		{
-			return true;
+			)))
+			{
+				return true;
+			}
 		}
 
 		if ($this->is_manager) {
 			// Managers can perform these operations
 			if (in_array ($this->params['action'], array(
-					'index',
 					'add',
 			)))
 			{
@@ -66,8 +68,12 @@ class TasksController extends AppController {
 			$this->set('download_file_name', 'Tasks');
 			Configure::write ('debug', 0);
 		} else {
+			$conditions = array('Category.affiliate_id' => $affiliates);
+			if (!$this->is_admin && !$this->is_manager) {
+				$conditions['Task.allow_signup'] = true;
+			}
 			$tasks = $this->Task->find('all', array(
-				'conditions' => array('Category.affiliate_id' => $affiliates),
+				'conditions' => $conditions,
 				'contain' => array(
 					'Category',
 					'Person',
@@ -105,44 +111,55 @@ class TasksController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('task', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
-		$contain = array(
+		$this->Task->contain(array(
 				'Category',
 				'Person',
-		);
-		if ($this->is_admin || $this->is_manager) {
-			// TODO: if manager, check we're not looking at another affiliate
-			$contain['TaskSlot'] = array(
+				'TaskSlot' => array(
 					'order' => array('TaskSlot.task_date', 'TaskSlot.task_start', 'TaskSlot.task_end', 'TaskSlot.id'),
 					'Person',
 					'ApprovedBy',
-			);
+				),
+		));
+
+		$task = $this->Task->read(null, $id);
+		if (!$task) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('task', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
 		}
-		$this->Task->contain($contain);
-		$this->set('task', $this->Task->read(null, $id));
+		// TODO: if manager, check we're not looking at another affiliate
+		if (!$task['Task']['allow_signup'] && !($this->is_admin || $this->is_manager)) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('task', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+		$this->set(compact('task'));
 
 		$affiliates = $this->_applicableAffiliates(true);
-		$people = $this->Task->Person->find('all', array(
-				'joins' => array(
-					array(
-						'table' => "{$this->Person->tablePrefix}affiliates_people",
-						'alias' => 'AffiliatePerson',
-						'type' => 'LEFT',
-						'foreignKey' => false,
-						'conditions' => 'AffiliatePerson.person_id = Person.id',
+		if ($this->is_admin || $this->is_manager) {
+			$people = $this->Task->Person->find('all', array(
+					'joins' => array(
+						array(
+							'table' => "{$this->Person->tablePrefix}affiliates_people",
+							'alias' => 'AffiliatePerson',
+							'type' => 'LEFT',
+							'foreignKey' => false,
+							'conditions' => 'AffiliatePerson.person_id = Person.id',
+						),
 					),
-				),
-				'conditions' => array(
-					'Person.group_id' => $this->Person->Group->find('list', array(
-						'conditions' => array('name' => array('Administrator', 'Volunteer')),
-						'fields' => array('Group.id', 'Group.id'),
-					)),
-					'AffiliatePerson.affiliate_id' => array_keys($affiliates),
-				),
-				'contain' => array('Affiliate'),
-				'order' => array('Person.first_name', 'Person.last_name'),
-		));
-		$people = Set::combine($people, '{n}.Person.id', '{n}.Person.full_name');
-		$this->set(compact('affiliates', 'people'));
+					'conditions' => array(
+						'Person.group_id' => $this->Person->Group->find('list', array(
+							'conditions' => array('name' => array('Administrator', 'Volunteer')),
+							'fields' => array('Group.id', 'Group.id'),
+						)),
+						'AffiliatePerson.affiliate_id' => array_keys($affiliates),
+					),
+					'contain' => array('Affiliate'),
+					'order' => array('Person.first_name', 'Person.last_name'),
+			));
+			$people = Set::combine($people, '{n}.Person.id', '{n}.Person.full_name');
+		} else {
+			$my_id = $this->Auth->user('id');
+		}
+		$this->set(compact('affiliates', 'people', 'my_id'));
 	}
 
 	function add() {
