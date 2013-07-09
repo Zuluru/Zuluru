@@ -1,6 +1,6 @@
 <?php
 $fp = fopen('php://output','w+');
-fputcsv($fp, array(
+$headers = array(
 		__('Category', true),
 		__('Task', true),
 		__('Reporting To', true),
@@ -10,11 +10,19 @@ fputcsv($fp, array(
 		__('Assignee', true),
 		__('Approved By', true),
 		__('Email', true),
-		__('Home Phone', true),
-		__('Work Phone', true),
-		__('Work Ext', true),
-		__('Mobile Phone', true),
-));
+);
+if (Configure::read('profile.home_phone')) {
+	$headers[] = __('Home Phone', true);
+}
+if (Configure::read('profile.work_phone')) {
+	$headers[] = __('Work Phone', true);
+	$headers[] = __('Work Ext', true);
+}
+if (Configure::read('profile.mobile_phone')) {
+	$headers[] = __('Mobile Phone', true);
+}
+
+fputcsv($fp, $headers);
 
 foreach ($tasks as $category) {
 	foreach ($category['Task'] as $task) {
@@ -32,11 +40,17 @@ foreach ($tasks as $category) {
 						$slot['Person']['full_name'],
 						$slot['approved'] ? $slot['ApprovedBy']['full_name'] : '',
 						$slot['Person']['email'],
-						$slot['Person']['home_phone'],
-						$slot['Person']['work_phone'],
-						$slot['Person']['work_ext'],
-						$slot['Person']['mobile_phone'],
 				));
+				if (Configure::read('profile.home_phone')) {
+					$row[] = $slot['Person']['home_phone'];
+				}
+				if (Configure::read('profile.work_phone')) {
+					$row[] = $slot['Person']['work_phone'];
+					$row[] = $slot['Person']['work_ext'];
+				}
+				if (Configure::read('profile.mobile_phone')) {
+					$row[] = $slot['Person']['mobile_phone'];
+				}
 			}
 			fputcsv($fp, $row);
 		}
