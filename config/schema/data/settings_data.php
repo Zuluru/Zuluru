@@ -108,6 +108,11 @@ class SettingsData {
 		),
 		array(
 			'category' => 'feature',
+			'name' => 'flickr',
+			'value' => '1',
+		),
+		array(
+			'category' => 'feature',
 			'name' => 'annotations',
 			'value' => '1',
 		),

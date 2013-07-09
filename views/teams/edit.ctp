@@ -33,6 +33,25 @@ if (isset ($add)) {
 				'after' => $this->Html->para (null, __('Your team\'s website, if you have one.', true)),
 			));
 		}
+
+		if (Configure::read('feature.flickr')) {
+			if ($is_admin) {
+				echo $this->ZuluruForm->input('flickr_ban', array(
+					'after' => $this->Html->para (null, __('If selected, this team\'s Flickr slideshow will no longer be shown. This is for use if teams repeatedly violate this site\'s terms of service.', true)),
+				));
+			} else if ($this->Form->value('Team.flickr_ban')) {
+				echo $this->Html->para('warning-message', __('Your team has been banned from using the Flickr slideshow. Contact an administrator if you believe this was done in error or would like to request a review.', true));
+			}
+			if ($is_admin || !$this->Form->value('Team.flickr_ban')) {
+				echo $this->ZuluruForm->input('flickr_user', array(
+					'after' => $this->Html->para (null, __('The URL for your photo set will be something like http://www.flickr.com/photos/abcdef/sets/12345678901234567/. abcdef is your user name.', true)),
+				));
+				echo $this->ZuluruForm->input('flickr_set', array(
+					'after' => $this->Html->para (null, __('The URL for your photo set will be something like http://www.flickr.com/photos/abcdef/sets/12345678901234567/. 12345678901234567 is your set number.', true)),
+				));
+			}
+		}
+
 		if (Configure::read('feature.shirt_colour')) {
 			echo $this->ZuluruForm->input('shirt_colour', array(
 				'after' => $this->Html->para (null, __('Shirt colour of your team. If you don\'t have team shirts, pick \'light\' or \'dark\'.', true)),
