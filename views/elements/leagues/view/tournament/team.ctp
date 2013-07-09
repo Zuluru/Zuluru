@@ -6,7 +6,7 @@ if (count ($classes)) {
 ?>
 <tr<?php echo $class;?>>
 	<?php if ($is_admin || $is_manager || $is_coordinator): ?>
-	<td><?php echo $team['initial_seed']; ?></td>
+	<td><?php echo $team['initial_seed'] ? $team['initial_seed'] : __('TBD', true); ?></td>
 	<?php endif; ?>
 	<td><?php
 	echo $this->element('teams/block', array('team' => $team));
