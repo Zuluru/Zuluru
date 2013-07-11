@@ -661,31 +661,42 @@ class SchedulesController extends AppController {
 		));
 
 		$pools = array_unique(Set::extract('/Game/pool_id', $games));
-		$stages = $this->Division->Pool->find ('list', array(
-				'conditions' => array(
-					'Pool.id' => $pools,
-				),
-				'fields' => array('Pool.id', 'Pool.stage'),
-				'contain' => array(),
-		));
-
-		$later_pools = $this->Division->Pool->find ('list', array(
-				'conditions' => array(
-					'Pool.division_id' => $id,
-					'Pool.stage >' => max($stages),
-				),
-				'fields' => array('Pool.id', 'Pool.id'),
-				'contain' => array(),
-		));
-
-		if (!empty($later_pools)) {
-			$dependent = $this->Division->Game->find ('all', array(
+		if (!empty($pools)) {
+			$same_pool = $this->Division->Game->find ('all', array(
 					'conditions' => array(
-						'Game.pool_id' => $later_pools,
+						'Game.pool_id' => $pools,
+						'GameSlot.game_date !=' => $date,
 					),
 					'fields' => array('Game.id', 'Game.published', 'Game.home_score', 'Game.pool_id'),
+					'contain' => array('GameSlot'),
+			));
+
+			$stages = $this->Division->Pool->find ('list', array(
+					'conditions' => array(
+						'Pool.id' => $pools,
+					),
+					'fields' => array('Pool.id', 'Pool.stage'),
 					'contain' => array(),
 			));
+
+			$later_pools = $this->Division->Pool->find ('list', array(
+					'conditions' => array(
+						'Pool.division_id' => $id,
+						'Pool.stage >' => max($stages),
+					),
+					'fields' => array('Pool.id', 'Pool.id'),
+					'contain' => array(),
+			));
+
+			if (!empty($later_pools)) {
+				$dependent = $this->Division->Game->find ('all', array(
+						'conditions' => array(
+							'Game.pool_id' => $later_pools,
+						),
+						'fields' => array('Game.id', 'Game.published', 'Game.home_score', 'Game.pool_id'),
+						'contain' => array(),
+				));
+			}
 		}
 
 		if ($this->_arg('confirm')) {
@@ -694,6 +705,9 @@ class SchedulesController extends AppController {
 
 			// Clear game_id from game_slots, and delete the games.
 			$game_ids = Set::extract ('/Game/id', $games);
+			if (!empty($same_pool)) {
+				$game_ids = array_merge($game_ids, Set::extract ('/Game/id', $same_pool));
+			}
 			if (!empty($dependent)) {
 				$game_ids = array_merge($game_ids, Set::extract ('/Game/id', $dependent));
 			}
@@ -718,7 +732,7 @@ class SchedulesController extends AppController {
 			}
 		}
 
-		$this->set (compact ('date', 'games', 'dependent'));
+		$this->set (compact ('date', 'games', 'same_pool', 'dependent'));
 	}
 
 	function reschedule() {
