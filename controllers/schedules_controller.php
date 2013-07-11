@@ -96,10 +96,10 @@ class SchedulesController extends AppController {
 			$step = $this->data['Game']['step'];
 		} else {
 			// What's the default first step?
-			if (!$this->_arg('playoff') && $this->division['Division']['exclude_teams']) {
-				$step = 'exclude';
-			} else if ($this->_arg('playoff') || $this->division['Division']['schedule_type'] == 'tournament') {
+			if ($this->_arg('playoff') || $this->division['Division']['schedule_type'] == 'tournament') {
 				$step = 'pools';
+			} else if ($this->division['Division']['exclude_teams']) {
+				$step = 'exclude';
 			} else {
 				$step = 'type';
 			}
