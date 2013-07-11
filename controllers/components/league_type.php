@@ -639,8 +639,8 @@ class LeagueTypeComponent extends Object
 	 * Get the description of a scheduling type.
 	 *
 	 * @param mixed $type The scheduling type to return the description of
+	 * @param mixed $num_teams The number of teams to include in the description
 	 * @param mixed $stage The stage of the tournament we're scheduling
-	 * @param mixed $teams The number of teams to include in the description
 	 * @return mixed The description
 	 *
 	 */
@@ -648,6 +648,19 @@ class LeagueTypeComponent extends Object
 		$types = $this->scheduleOptions($num_teams, $stage);
 		$desc = $types[$type];
 		return $desc;
+	}
+
+	/**
+	 * Get a preview of the games to be created. Most schedule types will have no preview.
+	 *
+	 * @param mixed $type The scheduling type to return the description of
+	 * @param mixed $num_teams The number of teams to include in the description
+	 * @param mixed $stage The stage of the tournament we're scheduling
+	 * @return mixed The preview
+	 *
+	 */
+	function schedulePreview($type, $num_teams) {
+		return null;
 	}
 
 	/**
@@ -690,6 +703,7 @@ class LeagueTypeComponent extends Object
 		} else {
 			$field_contain = array();
 		}
+
 		$this->_controller->Division->contain (array (
 			'Day',
 			'Team' => array(
@@ -835,7 +849,7 @@ class LeagueTypeComponent extends Object
 	/**
 	 * Create a single game in this division
 	 */
-	function createEmptyGame($date) {
+	function createEmptyGame($date = null) {
 		$num_teams = count($this->division['Team']);
 
 		if ($num_teams < 2) {
@@ -843,22 +857,21 @@ class LeagueTypeComponent extends Object
 			return false;
 		}
 
-		$game_slot_id = $this->selectRandomGameslot($date);
-		if ($game_slot_id === false) {
-			return false;
-		}
-
-		// TODO: 'GameSlot' can't be the first key, or else Model::set uses it as the
-		// parameter to getAssociated and the return value isn't null. Report as a bug
-		// in CakePHP?
-		$this->games[] = array(
+		$game = array(
 			'home_team' => null,
 			'away_team' => null,
-			'GameSlot' => array(
-				'id' => $game_slot_id,
-			),
 		);
 
+		if ($date) {
+			$game_slot_id = $this->selectRandomGameslot($date);
+			if ($game_slot_id === false) {
+				return false;
+			}
+
+			$game['GameSlot'] = array('id' => $game_slot_id);
+		}
+
+		$this->games[] = $game;
 		return true;
 	}
 

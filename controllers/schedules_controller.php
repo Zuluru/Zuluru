@@ -469,6 +469,15 @@ class SchedulesController extends AppController {
 	}
 
 	function _date($id) {
+		$preview = $this->league_obj->schedulePreview ($this->data['Game']['type'], $this->_numTeams());
+		if (empty($preview)) {
+			$field = 'DISTINCT GameSlot.game_date AS date';
+			$extract = 'GameSlot';
+		} else {
+			$field = 'DISTINCT CONCAT(GameSlot.game_date, " ", GameSlot.game_start) AS date';
+			$extract = '0';
+		}
+
 		// Find the list of available dates for scheduling this division
 		$dates = $this->Division->DivisionGameslotAvailability->find('all', array(
 				'conditions' => array(
@@ -476,14 +485,15 @@ class SchedulesController extends AppController {
 					'DivisionGameslotAvailability.division_id' => $id,
 					'GameSlot.game_date >= CURDATE()',
 				),
-				'fields' => 'DISTINCT GameSlot.game_date AS date',
-				'order' => 'GameSlot.game_date',
+				'fields' => $field,
+				'order' => array('GameSlot.game_date', 'GameSlot.game_start'),
 		));
+
 		if (count($dates) == 0) {
 			$this->Session->setFlash(sprintf(__('Sorry, there are no %s available for your division. Check that %s have been allocated before attempting to proceed.', true), Configure::read('sport.fields'), Configure::read('sport.fields')), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'divisions', 'action' => 'view', 'division' => $id));
 		}
-		$dates = Set::extract ('/GameSlot/date', $dates);
+		$dates = Set::extract ("/$extract/date", $dates);
 
 		$stages = Set::extract('/Pool/stage', $this->division);
 		if (!empty($stages)) {
@@ -502,7 +512,7 @@ class SchedulesController extends AppController {
 		$num_fields = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams(), $stage);
 		$desc = $this->league_obj->scheduleDescription ($this->data['Game']['type'], $this->_numTeams(), $stage);
 
-		$this->set(compact('dates', 'num_fields', 'desc'));
+		$this->set(compact('dates', 'num_fields', 'desc', 'preview'));
 		$this->render('date');
 	}
 
@@ -593,6 +603,12 @@ class SchedulesController extends AppController {
 	}
 
 	function _canSchedule($id, $stage) {
+		if (is_array($this->data['Game']['start_date'])) {
+			list ($start_date, $x) = explode(' ', min($this->data['Game']['start_date']));
+		} else {
+			$start_date = $this->data['Game']['start_date'];
+		}
+
 		$this->Division->contain('League');
 		$division = $this->Division->read(null, $id);
 		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
@@ -601,7 +617,7 @@ class SchedulesController extends AppController {
 		$games = $this->Division->Game->find ('count', array(
 				'conditions' => array(
 					'Game.division_id' => $id,
-					'GameSlot.game_date' => $this->data['Game']['start_date'],
+					'GameSlot.game_date' => $start_date,
 				),
 		));
 
@@ -617,7 +633,7 @@ class SchedulesController extends AppController {
 				'fields' => array('count(GameSlot.id) AS count'),
 				'conditions' => array(
 					'GameSlot.game_id' => null,
-					'GameSlot.game_date >=' => $this->data['Game']['start_date'],
+					'GameSlot.game_date >=' => $start_date,
 					'DivisionGameslotAvailability.division_id' => $id,
 				),
 				'group' => array('GameSlot.game_date', 'GameSlot.game_start'),

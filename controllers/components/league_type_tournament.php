@@ -66,6 +66,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			for ($i = $min_pools; $i <= $max_pools; ++ $i) {
 				$types["reseed_$i"] = "$i re-seeded power pools";
 			}
+			$types['crossover'] = 'group of crossover games';
 		}
 
 		return $types;
@@ -205,9 +206,47 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		}
 	}
 
+	function schedulePreview($type, $num_teams) {
+		// At the moment, only round robins have previews
+		if ($type != 'round_robin') {
+			return null;
+		}
+
+		// Set up some fake info
+		$this->games = array();
+		$this->pool_name = null;
+		$this->pool = array(
+			'Pool' => array('id' => null),
+			'PoolsTeam' => array(),
+		);
+		for ($i = 0; $i < $num_teams; ++ $i) {
+			$this->pool['PoolsTeam'][$i] = array('id' => $i + 1);
+		}
+
+		if (!$this->createScheduleBlock($type)) {
+			return null;
+		}
+
+		$rounds = array();
+		foreach ($this->games as $game) {
+			$rounds[$game['round']][] = "{$game['home_pool_team_id']}v{$game['away_pool_team_id']}";
+		}
+		$ret = array();
+		foreach ($rounds as $round => $games) {
+			$ret[$round] = "Round $round: " . implode(', ', $games);
+		}
+		return $ret;
+	}
+
 	function createSchedule($division_id, $exclude_teams, $data, $pool) {
-		if (!$this->startSchedule($division_id, $exclude_teams, $data['start_date'], $pool) ||
-			!$this->createScheduleBlock($exclude_teams, $data['type'], $data['start_date'], $data['publish']) ||
+		if (is_array($data['start_date'])) {
+			list($start_date, $x) = explode(' ', min($data['start_date']));
+		} else {
+			$start_date = $data['start_date'];
+		}
+
+		if (!$this->startSchedule($division_id, $exclude_teams, $start_date, $pool) ||
+			!$this->createScheduleBlock($data['type']) ||
 			!$this->assignFieldsByRound($data['start_date']))
 		{
 			return false;
@@ -229,23 +268,23 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		return $ret;
 	}
 
-	function createScheduleBlock($exclude_teams, $type, $start_date, $publish) {
+	function createScheduleBlock($type) {
 		switch($type) {
 			case 'single':
 				// Create single game
-				$ret = $this->createEmptyGame($start_date);
+				$ret = $this->createEmptyGame();
 				break;
 			case 'blankset':
 				// Create game for all teams in division
-				$ret = $this->createEmptySet($start_date);
+				$ret = $this->createEmptySet();
 				break;
 			case 'blankset_bye':
 				// Create game for all teams in division
-				$ret = $this->createEmptySet($start_date, -1);
+				$ret = $this->createEmptySet(-1);
 				break;
 			case 'blankset_doubleheader':
 				// Create game for all teams in division
-				$ret = $this->createEmptySet($start_date, 1);
+				$ret = $this->createEmptySet(1);
 				break;
 			case 'round_robin':
 				$ret = $this->createRoundRobin();
@@ -318,7 +357,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 	/*
 	 * Create an empty set of games for this division
 	 */
-	function createEmptySet($date, $team_adjustment = 0) {
+	function createEmptySet($team_adjustment = 0) {
 		$num_teams = count($this->division['Team']) + $team_adjustment;
 
 		if ($num_teams < 2) {
@@ -336,7 +375,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		$num_games = $num_teams / 2;
 		$success = true;
 		for ($i = 0; $i < $num_games; ++$i) {
-			$success &= $this->createEmptyGame($date);
+			$success &= $this->createEmptyGame();
 		}
 
 		return $success;
@@ -353,7 +392,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 
 		// For general algorithm details, see the round robin component
 		$success = true;
-		$id = $game_name = 1;
+		$id = 1;
 
 		// If we are carrying forward results, create those games first
 		if ($carry_forward) {
@@ -368,8 +407,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 					}
 					if ($home != -1 && $away != -1) {
 						if ($this->pool['PoolsTeam'][$home - 1]['dependency_pool_id'] == $this->pool['PoolsTeam'][$away - 1]['dependency_pool_id']) {
-							$success &= $this->createTournamentGame ($id++, $round, $game_name, POOL_PLAY_GAME, 'copy', $home, 'copy', $away);
-							++ $game_name;
+							$success &= $this->createTournamentGame ($id++, $round, null, POOL_PLAY_GAME, 'copy', $home, 'copy', $away);
 						}
 					}
 				}
@@ -388,8 +426,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				}
 				if ($home != -1 && $away != -1) {
 					if (!$carry_forward || $this->pool['PoolsTeam'][$home - 1]['dependency_pool_id'] != $this->pool['PoolsTeam'][$away - 1]['dependency_pool_id']) {
-						$success &= $this->createTournamentGame ($id++, $round, $game_name, POOL_PLAY_GAME, 'pool', $home, 'pool', $away);
-						++ $game_name;
+						$success &= $this->createTournamentGame ($id++, $round, null, POOL_PLAY_GAME, 'pool', $home, 'pool', $away);
 					}
 				}
 			}
@@ -794,7 +831,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			'away_team' => null,
 			'round' => $round,
 			'type' => $type,
-			'name' => $this->pool_name . $name,
+			'name' => (!empty($name) ? $this->pool_name . $name : null),
 			'home_dependency_type' => $home_dependency_type,
 			"home_{$home_dependency_field}_id" => $home_dependency_id,
 			'home_dependency_resolved' => $home_dependency_resolved,
@@ -850,14 +887,64 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 
 	function assignFieldsByRound($start_date) {
 		uasort($this->games, array($this, 'sortByRound'));
-		$rounds = count(array_unique(Set::extract('/round', $this->games)));
-		$dates = count(array_unique(Set::extract("/DivisionGameslotAvailability/GameSlot[game_date>=$start_date]/game_date", $this->division)));
-		$separate_days = ($this->division['Division']['schedule_type'] != 'tournament') && ($rounds <= $dates);
+		if (is_array($start_date)) {
+			list ($date, $x) = explode(' ', min($start_date));
+		} else {
+			$date = $start_date;
+			$rounds = count(array_unique(Set::extract('/round', $this->games)));
+			$dates = count(array_unique(Set::extract("/DivisionGameslotAvailability/GameSlot[game_date>=$start_date]/game_date", $this->division)));
+			$separate_days = ($this->division['Division']['schedule_type'] != 'tournament') && ($rounds <= $dates);
+		}
 		$this->pool_times = array();
+
+		// Extract and sort the list of slots that are available
+		$this->slots = Set::extract("/DivisionGameslotAvailability/GameSlot[game_date>=$date]", $this->division);
+
+		// If this division has already had games scheduled in earlier
+		// stages, get rid of any unused slots in the same time as games
+		// in the last stage.
+		$prior_pools = Set::extract("/Pool[stage<{$this->pool['Pool']['stage']}]/id", $this->division);
+		$used = array();
+		foreach ($prior_pools as $pool) {
+			$stage_slots = Set::extract("/Game[pool_id=$pool]/GameSlot", $this->division);
+			foreach ($stage_slots as $slot) {
+				// Placeholder games for carried-forward results don't have game slots
+				if (!empty($slot['GameSlot']['game_date'])) {
+					if ($separate_days) {
+						$slot_key = $slot['GameSlot']['game_date'];
+					} else {
+						$slot_key = "{$slot['GameSlot']['game_date']} {$slot['GameSlot']['game_start']}";
+					}
+					if (!in_array($slot_key, $used)) {
+						$used[] = $slot_key;
+					}
+				}
+			}
+		}
+		if (!empty($used)) {
+			foreach ($this->slots as $key => $slot) {
+				if ($separate_days) {
+					$slot_key = $slot['GameSlot']['game_date'];
+				} else {
+					$slot_key = "{$slot['GameSlot']['game_date']} {$slot['GameSlot']['game_start']}";
+				}
+				if (in_array($slot_key, $used)) {
+					unset ($this->slots[$key]);
+				}
+			}
+		}
+
+		usort($this->slots, array($this, 'sortByDateAndTime'));
 
 		foreach ($this->games as $key => $game) {
 			if ($game['home_dependency_type'] != 'copy') {
-				$game_slot_id = $this->selectRoundGameslot($start_date, $game['round'], $separate_days);
+				if (is_array($start_date)) {
+					list ($date, $time) = explode(' ', $start_date[$game['round']]);
+					$game_slot_id = $this->selectRoundGameslot($date, $time, $game['round'], false);
+				} else {
+					// '0' is a non-blank string which Set::extract can compare to, but will always be less than any actual time
+					$game_slot_id = $this->selectRoundGameslot($start_date, '0', $game['round'], $separate_days);
+				}
 				if ($game_slot_id === false) {
 					return false;
 				}
@@ -871,52 +958,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		return true;
 	}
 
-	function selectRoundGameslot($date, $round, $separate_days) {
-		if (is_numeric ($date)) {
-			$date = date('Y-m-d', $date);
-		}
-
-		// Extract and sort the list of slots that are available
-		if ($this->slots === null) {
-			$this->slots = Set::extract("/DivisionGameslotAvailability/GameSlot[game_date>=$date]", $this->division);
-
-			// If this division has already had games scheduled in earlier
-			// stages, get rid of any unused slots in the same time as games
-			// in the last stage.
-			$prior_pools = Set::extract("/Pool[stage<{$this->pool['Pool']['stage']}]/id", $this->division);
-			$used = array();
-			foreach ($prior_pools as $pool) {
-				$stage_slots = Set::extract("/Game[pool_id=$pool]/GameSlot", $this->division);
-				foreach ($stage_slots as $slot) {
-					// Placeholder games for carried-forward results don't have game slots
-					if (!empty($slot['GameSlot']['game_date'])) {
-						if ($separate_days) {
-							$slot_key = $slot['GameSlot']['game_date'];
-						} else {
-							$slot_key = "{$slot['GameSlot']['game_date']} {$slot['GameSlot']['game_start']}";
-						}
-						if (!in_array($slot_key, $used)) {
-							$used[] = $slot_key;
-						}
-					}
-				}
-			}
-			if (!empty($used)) {
-				foreach ($this->slots as $key => $slot) {
-					if ($separate_days) {
-						$slot_key = $slot['GameSlot']['game_date'];
-					} else {
-						$slot_key = "{$slot['GameSlot']['game_date']} {$slot['GameSlot']['game_start']}";
-					}
-					if (in_array($slot_key, $used)) {
-						unset ($this->slots[$key]);
-					}
-				}
-			}
-
-			usort($this->slots, array($this, 'sortByDateAndTime'));
-		}
-
+	function selectRoundGameslot($date, $time, $round, $separate_days) {
 		// If this pool has already had games scheduled, but not in this
 		// round, get rid of any unused slots in the same time as games
 		// in the last round of this pool. If we have at least as many
@@ -936,13 +978,26 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			}
 		}
 
-		if (empty ($this->slots)) {
-			$message = sprintf (__('Couldn\'t get a slot ID: date %s, round %s', true), $date, $round);
+		if (empty($this->slots)) {
+			if ($time == '0') {
+				$message = sprintf (__('Couldn\'t get a slot ID: date %s, round %s', true), $date, $round);
+			} else {
+				$message = sprintf (__('Couldn\'t get a slot ID: date %s, time %s, round %s', true), $date, $time, $round);
+			}
 			$this->_controller->Session->setFlash($message, 'default', array('class' => 'warning'));
 			return false;
 		}
 
-		$slot = array_shift($this->slots);
+		$possible_slots = Set::extract("/GameSlot[game_date=$date][game_start>=$time]", $this->slots);
+		if (empty($possible_slots)) {
+			// No slots at the requested time, or later on the same day. Try any later date.
+			$possible_slots = Set::extract("/GameSlot[game_date>$date]", $this->slots);
+		}
+		if (empty($possible_slots)) {
+			// No slots on later date either. Take the last available slot instead.
+			$possible_slots = array_reverse($this->slots);
+		}
+		$slot = array_shift($possible_slots);
 		$this->removeGameslot($slot['GameSlot']['id']);
 		if (empty($this->pool_times[$round])) {
 			$this->pool_times[$round] = array();
@@ -954,6 +1009,16 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		}
 
 		return $slot['GameSlot']['id'];
+	}
+
+	function removeGameslot($slot_id) {
+		parent::removeGameslot($slot_id);
+		foreach ($this->slots as $key => $slot) {
+			if ($slot['GameSlot']['id'] == $slot_id) {
+				unset ($this->slots[$key]);
+				return;
+			}
+		}
 	}
 
 	// Make sure that dependencies are resolved before saving

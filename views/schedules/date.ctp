@@ -31,13 +31,34 @@ if (count($num_fields) > 1) {
 }
 ?></p>
 
+<?php if (!empty($preview)): ?>
+<p>This will create the following games:<?php echo $this->Html->nestedList($preview); ?></p>
+<?php endif; ?>
+
 <?php
 // We have an array like 0 => timestamp, and need timestamp => readable
 $dates = array_combine(array_values($dates), array_values($dates));
-$dates = array_map(array($this->ZuluruTime, 'fulldate'), $dates);
-echo $this->ZuluruForm->input('start_date', array(
-		'options' => $dates,
-));
+if (empty($preview)) {
+	$dates = array_map(array($this->ZuluruTime, 'fulldate'), $dates);
+	echo $this->ZuluruForm->input('Game.start_date', array(
+			'options' => $dates,
+	));
+} else {
+?>
+<p>Choose your preferred time slot for each round.
+This allows you to ensure that teams have a maximum number of games on each day, place byes where necessary, etc.
+Note that games will be placed no earlier than these time slots, but may be later depending on field availability.
+Rounds may be scheduled to start after "later" rounds, for example if you have a particular matchup that you need to schedule at a particular time.
+If you leave all rounds at the earliest possible time, the system will schedule games as closely as possible; you don't need to set each round's time if you have no constraints.</p>
+<?php
+	$dates = array_map(array($this->ZuluruTime, 'fulldatetime'), $dates);
+	foreach (array_keys($preview) as $round) {
+		echo $this->ZuluruForm->input("Game.start_date.$round", array(
+				'label' => "Round $round",
+				'options' => $dates,
+		));
+	}
+}
 ?>
 
 </fieldset>
