@@ -547,6 +547,11 @@ class SchedulesController extends AppController {
 		}
 
 		if ($this->league_obj->createSchedule($id, $exclude_teams, $this->data['Game'], $this->pool)) {
+			$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
+			if (file_exists($cache_file)) {
+				unlink($cache_file);
+			}
+
 			// Check if we have any pools defined without games
 			foreach ($this->division['Pool'] as $pool) {
 				if ($pool['id'] > $this->pool['Pool']['id']) {
@@ -701,6 +706,12 @@ class SchedulesController extends AppController {
 			{
 				$this->Session->setFlash(__('Deleted games on the requested date.', true), 'default', array('class' => 'success'));
 				$transaction->commit();
+
+				$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
+				if (file_exists($cache_file)) {
+					unlink($cache_file);
+				}
+
 				$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
 			} else {
 				$this->Session->setFlash(__('Failed to delete games on the requested date.', true), 'default', array('class' => 'warning'));
@@ -761,6 +772,12 @@ class SchedulesController extends AppController {
 					if ($this->Division->Game->GameSlot->updateAll (array('game_id' => null), array('GameSlot.id' => $unused_slots))) {
 						$this->Session->setFlash(__('Games rescheduled', true), 'default', array('class' => 'success'));
 						$transaction->commit();
+
+						$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
+						if (file_exists($cache_file)) {
+							unlink($cache_file);
+						}
+
 						$this->redirect (array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
 					} else {
 						$this->Session->setFlash(__('Problem! Games were rescheduled, but old game slots were not freed. Schedule will be unstable!', true), 'default', array('class' => 'error'));
