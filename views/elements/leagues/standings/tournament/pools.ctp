@@ -94,11 +94,11 @@ foreach ($games as $stage => $stage_games):
 			foreach ($pool_times as $time) {
 				if (empty($time)) {
 					// Assumption here is that the only games without times are ones with copy dependencies
-					$time_games[$time] = Set::extract("/Game[home_dependency_type=copy]$published", $pool_games);
+					$time_games[$date][$time] = Set::extract("/Game[home_dependency_type=copy]$published", $pool_games);
 				} else {
-					$time_games[$time] = Set::extract("/Game/GameSlot[game_date=$date][game_start=$time]$published/..", $pool_games);
+					$time_games[$date][$time] = Set::extract("/Game/GameSlot[game_date=$date][game_start=$time]$published/..", $pool_games);
 				}
-				$max_games = max($max_games, count($time_games[$time]));
+				$max_games = max($max_games, count($time_games[$date][$time]));
 			}
 		}
 		$cols = 2 + $max_games * 2;
@@ -145,7 +145,7 @@ foreach ($games as $stage => $stage_games):
 		$last_date = null;
 		foreach ($pool_dates as $date => $pool_times):
 			foreach ($pool_times as $time):
-				if (!empty($time_games[$time])):
+				if (!empty($time_games[$date][$time])):
 		?>
 		<tr>
 			<td><?php
@@ -156,7 +156,7 @@ foreach ($games as $stage => $stage_games):
 			?></td>
 			<td><?php echo $this->ZuluruTime->time($time); ?></td>
 			<?php
-					foreach ($time_games[$time] as $game):
+					foreach ($time_games[$date][$time] as $game):
 						if ($game['Game']['published']) {
 							$class = '';
 						} else if ($is_admin || $is_coordinator) {
