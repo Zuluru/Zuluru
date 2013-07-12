@@ -24,6 +24,11 @@ class Pool extends AppModel {
 			'foreignKey' => 'pool_id',
 			'dependent' => true,
 		),
+		'Game' => array(
+			'className' => 'Game',
+			'foreignKey' => 'pool_id',
+			'dependent' => true,
+		),
 	);
 
 	var $hasAndBelongsToMany = array(
