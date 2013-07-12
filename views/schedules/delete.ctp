@@ -12,7 +12,12 @@ $published = Set::extract ('/Game[published=1]', $games);
 $finalized = Set::extract ('/Game[home_score>-1]', $games);
 ?>
 
-<p>You have requested to delete games on <?php echo $this->ZuluruTime->date($date); ?>.</p>
+<p>You have requested to delete games
+<?php if (isset($date)): ?>
+on <?php echo $this->ZuluruTime->date($date); ?>
+<?php else: ?>
+from pool <?php echo $pool['Pool']['name']; ?>
+<?php endif; ?>.</p>
 <p>This will remove <?php echo count($games); ?> games<?php
 if (!empty ($published)): ?>
 , of which <?php echo count($published); ?> are published<?php
@@ -35,6 +40,6 @@ echo $this->Html->link (__('contact all captains', true), array('controller' => 
 
 <div class="actions">
 <ul><li>
-<?php echo $this->Html->link (__('Proceed', true), array('division' => $id, 'date' => $date, 'confirm' => true)); ?>
+<?php echo $this->Html->link (__('Proceed', true), array('division' => $id, 'date' => $date, 'pool' => $pool['Pool']['id'], 'confirm' => true)); ?>
 </li></ul>
 </div>

@@ -706,26 +706,39 @@ class SchedulesController extends AppController {
 		$id = $this->_arg('division');
 		$this->_init($id);
 		$date = $this->_arg('date');
+		$pool_id = $this->_arg('pool');
 
+		$conditions = array(
+			'Game.division_id' => $id,
+		);
+		if ($date) {
+			$conditions['GameSlot.game_date'] = $date;
+			$contain = array();
+		}
+		if ($pool_id) {
+			$conditions['Game.pool_id'] = $pool_id;
+			$contain = array('GameSlot');
+			$this->Division->Pool->contain();
+			$pool = $this->Division->Pool->read(null, $pool_id);
+		}
 		$games = $this->Division->Game->find ('all', array(
-				'conditions' => array(
-					'Game.division_id' => $id,
-					'GameSlot.game_date' => $date,
-				),
+				'conditions' => $conditions,
 				'fields' => array('Game.id', 'Game.published', 'Game.home_score', 'Game.pool_id'),
-				'contain' => array('GameSlot'),
+				'contain' => $contain,
 		));
 
 		$pools = array_unique(Set::extract('/Game/pool_id', $games));
 		if (!empty($pools)) {
-			$same_pool = $this->Division->Game->find ('all', array(
-					'conditions' => array(
-						'Game.pool_id' => $pools,
-						'GameSlot.game_date !=' => $date,
-					),
-					'fields' => array('Game.id', 'Game.published', 'Game.home_score', 'Game.pool_id'),
-					'contain' => array('GameSlot'),
-			));
+			if ($date) {
+				$same_pool = $this->Division->Game->find ('all', array(
+						'conditions' => array(
+							'Game.pool_id' => $pools,
+							'GameSlot.game_date !=' => $date,
+						),
+						'fields' => array('Game.id', 'Game.published', 'Game.home_score', 'Game.pool_id'),
+						'contain' => array('GameSlot'),
+				));
+			}
 
 			$stages = $this->Division->Pool->find ('list', array(
 					'conditions' => array(
@@ -774,7 +787,11 @@ class SchedulesController extends AppController {
 					'Game.id' => $game_ids,
 				), false))
 			{
-				$this->Session->setFlash(__('Deleted games on the requested date.', true), 'default', array('class' => 'success'));
+				if ($date) {
+					$this->Session->setFlash(__('Deleted games on the requested date.', true), 'default', array('class' => 'success'));
+				} else {
+					$this->Session->setFlash(__('Deleted games from the requested pool.', true), 'default', array('class' => 'success'));
+				}
 				$transaction->commit();
 
 				$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
@@ -788,7 +805,7 @@ class SchedulesController extends AppController {
 			}
 		}
 
-		$this->set (compact ('date', 'games', 'same_pool', 'dependent'));
+		$this->set (compact ('date', 'pool', 'games', 'same_pool', 'dependent'));
 	}
 
 	function reschedule() {

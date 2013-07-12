@@ -41,6 +41,9 @@ foreach ($games as $stage => $stage_games):
 <h4><?php
 		printf(__('Pool %s', true), $pool_games['Game'][0]['HomePoolTeam']['Pool']['name']);
 		if ($is_admin || $is_manager || $is_coordinator) {
+			echo $this->ZuluruHtml->iconLink('delete_24.png',
+				array('controller' => 'schedules', 'action' => 'delete', 'division' => $division['Division']['id'], 'pool' => $pool_games['Game'][0]['HomePoolTeam']['Pool']['id'], 'return' => true),
+				array('alt' => __('Delete', true), 'title' => __('Delete pool games', true)));
 			echo $this->ZuluruHtml->iconLink('initialize_24.png',
 				array('action' => 'initialize_dependencies', 'division' => $division['Division']['id'], 'pool' => $pool_games['Game'][0]['HomePoolTeam']['Pool']['id'], 'return' => true),
 				array('alt' => __('Initialize', true), 'title' => __('Initialize schedule dependencies', true)));
