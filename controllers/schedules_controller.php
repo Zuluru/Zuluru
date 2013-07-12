@@ -713,11 +713,11 @@ class SchedulesController extends AppController {
 		);
 		if ($date) {
 			$conditions['GameSlot.game_date'] = $date;
-			$contain = array();
+			$contain = array('GameSlot');
 		}
 		if ($pool_id) {
 			$conditions['Game.pool_id'] = $pool_id;
-			$contain = array('GameSlot');
+			$contain = array();
 			$this->Division->Pool->contain();
 			$pool = $this->Division->Pool->read(null, $pool_id);
 		}
@@ -814,7 +814,7 @@ class SchedulesController extends AppController {
 			}
 		}
 
-		$this->set (compact ('date', 'pool', 'games', 'same_pool', 'dependent'));
+		$this->set (compact ('date', 'pool_id', 'pool', 'games', 'same_pool', 'dependent'));
 	}
 
 	function reschedule() {

@@ -40,6 +40,6 @@ echo $this->Html->link (__('contact all captains', true), array('controller' => 
 
 <div class="actions">
 <ul><li>
-<?php echo $this->Html->link (__('Proceed', true), array('division' => $id, 'date' => $date, 'pool' => $pool['Pool']['id'], 'confirm' => true)); ?>
+<?php echo $this->Html->link (__('Proceed', true), array('division' => $id, 'date' => $date, 'pool' => $pool_id, 'confirm' => true)); ?>
 </li></ul>
 </div>
