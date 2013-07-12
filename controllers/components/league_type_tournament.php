@@ -146,7 +146,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		return $types;
 	}
 
-	function scheduleRequirements($type, $num_teams, $stage) {
+	function scheduleRequirements($type, $num_teams) {
 		switch($type) {
 			case 'single':
 				return array(1);

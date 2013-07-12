@@ -538,7 +538,7 @@ class SchedulesController extends AppController {
 			}
 		}
 
-		$num_fields = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams(), $stage);
+		$num_fields = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams());
 		$desc = $this->league_obj->scheduleDescription ($this->data['Game']['type'], $this->_numTeams(), $stage);
 
 		$this->set(compact('dates', 'num_fields', 'desc', 'preview'));
@@ -633,7 +633,7 @@ class SchedulesController extends AppController {
 			return false;
 		}
 
-		$num_fields = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams(), $stage);
+		$num_fields = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams());
 		$field_counts = $this->Division->DivisionGameslotAvailability->find('all', array(
 				'fields' => array('count(GameSlot.id) AS count'),
 				'conditions' => array(
