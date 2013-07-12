@@ -901,34 +901,29 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		$this->slots = Set::extract("/DivisionGameslotAvailability/GameSlot[game_date>=$date]", $this->division);
 
 		// If this division has already had games scheduled in earlier
-		// stages, get rid of any unused slots in the same time as games
-		// in the last stage.
+		// stages, get rid of any unused slots up to the end of the last stage.
 		$prior_pools = Set::extract("/Pool[stage<{$this->pool['Pool']['stage']}]/id", $this->division);
-		$used = array();
-		foreach ($prior_pools as $pool) {
-			$stage_slots = Set::extract("/Game[pool_id=$pool]/GameSlot", $this->division);
-			foreach ($stage_slots as $slot) {
-				// Placeholder games for carried-forward results don't have game slots
-				if (!empty($slot['GameSlot']['game_date'])) {
-					if ($separate_days) {
-						$slot_key = $slot['GameSlot']['game_date'];
-					} else {
-						$slot_key = "{$slot['GameSlot']['game_date']} {$slot['GameSlot']['game_start']}";
-					}
-					if (!in_array($slot_key, $used)) {
-						$used[] = $slot_key;
-					}
-				}
-			}
+		if ($separate_days) {
+			$initial = '0000-00-00';
+		} else {
+			$initial = '0000-00-00 00:00:00';
 		}
-		if (!empty($used)) {
+		$last_game = $initial;
+		foreach ($prior_pools as $pool) {
+			$last_pool_game = max(Set::extract("/Game[pool_id=$pool]/GameSlot/game_date", $this->division));
+			if (!$separate_days) {
+				$last_pool_game .= ' ' . max(Set::extract("/Game[pool_id=$pool]/GameSlot[game_date=$last_pool_game]/game_start", $this->division));
+			}
+			$last_game = max($last_game, $last_pool_game);
+		}
+		if ($last_game != $initial) {
 			foreach ($this->slots as $key => $slot) {
 				if ($separate_days) {
 					$slot_key = $slot['GameSlot']['game_date'];
 				} else {
 					$slot_key = "{$slot['GameSlot']['game_date']} {$slot['GameSlot']['game_start']}";
 				}
-				if (in_array($slot_key, $used)) {
+				if ($slot_key <= $last_game) {
 					unset ($this->slots[$key]);
 				}
 			}
