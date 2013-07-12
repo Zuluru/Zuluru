@@ -449,7 +449,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 	}
 
 	function createCrossover() {
-		$success = $this->createTournamentGame (1, 1, null, POOL_PLAY_GAME, 'pool', 1, 'pool', 2);
+		$success = $this->createTournamentGame (1, 1, true, POOL_PLAY_GAME, 'pool', 1, 'pool', 2);
 		return $success;
 	}
 
@@ -835,12 +835,18 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			return false;
 		}
 
+		if ($name === true) {
+			$name = $this->pool['Pool']['name'];
+		} else if (!empty($name)) {
+			$name = $this->pool_name . $name;
+		}
+
 		$this->games[$id] = array(
 			'home_team' => null,
 			'away_team' => null,
 			'round' => $round,
 			'type' => $type,
-			'name' => (!empty($name) ? $this->pool_name . $name : null),
+			'name' => $name,
 			'home_dependency_type' => $home_dependency_type,
 			"home_{$home_dependency_field}_id" => $home_dependency_id,
 			'home_dependency_resolved' => $home_dependency_resolved,
