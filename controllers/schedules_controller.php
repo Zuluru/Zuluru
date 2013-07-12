@@ -314,6 +314,7 @@ class SchedulesController extends AppController {
 
 		// Check if the previous stage was crossovers
 		$crossovers = Set::extract("/Pool[type=crossover][stage=$last_stage]", $this->division);
+		$crossover_names = Set::extract('/Pool/name', $crossovers);
 		if (!empty($crossovers)) {
 			$crossover_stage = $last_stage;
 			-- $last_stage;
@@ -395,17 +396,19 @@ class SchedulesController extends AppController {
 
 					// Make sure that we haven't got both pool and ordinal types selected
 					// for any particular "tier" in the pools. For example, A-1 can be used
-					// with B-1, but not with 1-1.
+					// with B-1, but not with 1-1. Crossovers can be used with either.
 					list ($pool, $pos) = explode('-', $qualifier);
 					$numeric = is_numeric($pool);
-					if (array_key_exists($pos, $qualifier_type)) {
-						if ($qualifier_type[$pos]['value'] != $numeric) {
-							$this->Session->setFlash(sprintf(__('You have selected %s and %s, but you cannot mix "pool"-type options with "ordinal"-type options; both could end up being the same team.', true), $qualifier_type[$pos]['qualifier'], $qualifier), 'default', array('class' => 'info'));
-							$proceed = false;
-							break;
+					if (!in_array($pool, $crossover_names)) {
+						if (array_key_exists($pos, $qualifier_type)) {
+							if ($qualifier_type[$pos]['value'] != $numeric) {
+								$this->Session->setFlash(sprintf(__('You have selected %s and %s, but you cannot mix "pool"-type options with "ordinal"-type options; both could end up being the same team.', true), $qualifier_type[$pos]['qualifier'], $qualifier), 'default', array('class' => 'info'));
+								$proceed = false;
+								break;
+							}
+						} else {
+							$qualifier_type[$pos] = array('qualifier' => $qualifier, 'value' => $numeric);
 						}
-					} else {
-						$qualifier_type[$pos] = array('qualifier' => $qualifier, 'value' => $numeric);
 					}
 
 					if ($numeric) {
