@@ -208,8 +208,14 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 	}
 
 	function schedulePreview($type, $num_teams) {
-		// At the moment, only round robins have previews
-		if ($type != 'round_robin') {
+		// At the moment, not all types have previews
+		if ($type == 'round_robin_carry_forward') {
+			return null;
+		}
+
+		// Schedules with only a single round don't warrant a preview
+		$requirements = $this->scheduleRequirements($type, $num_teams);
+		if (count($requirements) < 2) {
 			return null;
 		}
 
@@ -230,7 +236,37 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 
 		$rounds = array();
 		foreach ($this->games as $game) {
-			$rounds[$game['round']][] = "{$game['home_pool_team_id']}v{$game['away_pool_team_id']}";
+			if ($game['home_dependency_type'] == 'copy') {
+				continue;
+			}
+
+			switch ($game['home_dependency_type']) {
+				case 'pool':
+				case 'seed':
+					$home = $game['home_pool_team_id'];
+					break;
+				case 'game_winner':
+					$home = "W{$game['home_dependency_id']}";
+					break;
+				case 'game_loser':
+					$home = "L{$game['home_dependency_id']}";
+					break;
+			}
+
+			switch ($game['away_dependency_type']) {
+				case 'pool':
+				case 'seed':
+					$away = $game['away_pool_team_id'];
+					break;
+				case 'game_winner':
+					$away = "W{$game['away_dependency_id']}";
+					break;
+				case 'game_loser':
+					$away = "L{$game['away_dependency_id']}";
+					break;
+			}
+
+			$rounds[$game['round']][] = "{$home}v{$away}";
 		}
 		$ret = array();
 		foreach ($rounds as $round => $games) {
@@ -904,6 +940,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		uasort($this->games, array($this, 'sortByRound'));
 		if (is_array($start_date)) {
 			list ($date, $x) = explode(' ', min($start_date));
+			$separate_days = false;
 		} else {
 			$date = $start_date;
 			$rounds = count(array_unique(Set::extract('/round', $this->games)));
