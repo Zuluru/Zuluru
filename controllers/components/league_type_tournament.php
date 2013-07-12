@@ -166,6 +166,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				$games = $num_teams * ($num_teams - 1) / 2 - floor($num_teams / 2);
 				$games_per_round = floor($num_teams / 2);
 				return array_fill(1, $games / $games_per_round, $games_per_round);
+			case 'crossover':
 			case 'winner_take_all':
 				return array(1);
 			case 'home_and_home':
@@ -291,6 +292,9 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				break;
 			case 'round_robin_carry_forward':
 				$ret = $this->createRoundRobin(true);
+				break;
+			case 'crossover':
+				$ret = $this->createCrossover();
 				break;
 			case 'winner_take_all':
 				$ret = $this->createWinnerTakeAll();
@@ -442,6 +446,11 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		array_push ($ary, $new_last);
 		array_unshift ($ary, $new_first);
 		return $ary;
+	}
+
+	function createCrossover() {
+		$success = $this->createTournamentGame (1, 1, null, POOL_PLAY_GAME, 'pool', 1, 'pool', 2);
+		return $success;
 	}
 
 	function createWinnerTakeAll() {

@@ -141,6 +141,8 @@ class SchedulesController extends AppController {
 		if ($this->data['Game']['step'] == 'pools') {
 			if (!array_key_exists ($this->data['Game']['pools'], $types)) {
 				$this->Session->setFlash(__('Select the number of pools to add.', true), 'default', array('class' => 'info'));
+			} else if ($this->data['Game']['pools'] == 'crossover') {
+				return $this->_crosscount($id);
 			} else {
 				return $this->_details($id);
 			}
@@ -148,6 +150,21 @@ class SchedulesController extends AppController {
 
 		$this->set(compact('types', 'stage'));
 		$this->render('pools');
+	}
+
+	function _crosscount($id) {
+		// Validate any data posted to us
+		if ($this->data['Game']['step'] == 'crosscount') {
+			list($type, $pools) = explode('_', $this->data['Game']['pools']);
+			for ($i = 1, $name = 'A'; $i <= $pools; ++ $i, ++ $name) {
+				$this->data['Game']['name'][$i] = "X$name";
+				$this->data['Game']['count'][$i] = 2;
+			}
+			$this->_reseed($id);
+		}
+
+		$this->set('teams', $this->_numTeams());
+		$this->render('crossover');
 	}
 
 	function _details($id) {
@@ -199,7 +216,7 @@ class SchedulesController extends AppController {
 			++ $sizes[$i];
 		}
 
-		$existing_names = Set::extract('/Pool/name', $this->division);
+		$existing_names = Set::extract('/Pool[type!=crossover]/name', $this->division);
 		if (!empty($existing_names)) {
 			$name = max($existing_names);
 			++ $name;
@@ -221,6 +238,7 @@ class SchedulesController extends AppController {
 					'division_id' => $id,
 					'name' => $name,
 					'stage' => 1,	// Seeded split is only an option for stage 1
+					'type' => 'seeded',
 				),
 				'PoolsTeam' => array(),
 			);
@@ -246,6 +264,7 @@ class SchedulesController extends AppController {
 					'division_id' => $id,
 					'name' => $name,
 					'stage' => 1,	// Snake seeding is only an option for stage 1
+					'type' => 'snake',
 				),
 				'PoolsTeam' => array(),
 			);
@@ -283,27 +302,40 @@ class SchedulesController extends AppController {
 
 	function _reseed($id) {
 		$options = $valid_options = $pool_sizes = $ordinal_counts = $save = array();
+		list($type, $pools) = explode('_', $this->data['Game']['pools']);
 
 		$stages = Set::extract('/Pool/stage', $this->division);
 		if (!empty($stages)) {
-			$stage = max($stages) + 1;
+			$last_stage = max($stages);
 		} else {
-			$stage = 1;
+			$last_stage = 0;
+		}
+		$this_stage = $last_stage + 1;
+
+		// Check if the previous stage was crossovers
+		$crossovers = Set::extract("/Pool[type=crossover][stage=$last_stage]", $this->division);
+		if (!empty($crossovers)) {
+			$crossover_stage = $last_stage;
+			-- $last_stage;
+		} else {
+			$crossover_stage = 0;
 		}
 
 		// List of finishing options for each pool
 		foreach ($this->division['Pool'] as $pool) {
-			if ($pool['stage'] == $stage - 1) {
+			if ($pool['stage'] == $last_stage) {
 				$group = "Pool {$pool['name']}";
-				$options[$group] = array();
 				$pool_sizes[] = count($pool['PoolsTeam']);
 				for ($i = 1; $i <= count($pool['PoolsTeam']); ++ $i) {
-					$key = "{$pool['name']}-$i";
-					$options[$group][$key] = ordinal($i) . " ($key)";
-					if (!array_key_exists($i, $ordinal_counts)) {
-						$ordinal_counts[$i] = 1;
-					} else {
-						++ $ordinal_counts[$i];
+					$in_crossover = Set::extract("/Pool/PoolsTeam[dependency_pool_id={$pool['id']}][dependency_id=$i]", $crossovers);
+					if (empty($in_crossover)) {
+						$key = "{$pool['name']}-$i";
+						$options[$group][$key] = ordinal($i) . " ($key)";
+						if (!array_key_exists($i, $ordinal_counts)) {
+							$ordinal_counts[$i] = 1;
+						} else {
+							++ $ordinal_counts[$i];
+						}
 					}
 				}
 				$valid_options = array_merge($valid_options, $options[$group]);
@@ -312,16 +344,27 @@ class SchedulesController extends AppController {
 
 		// List of finishing options between pools
 		for ($ordinal = 1; $ordinal <= max($pool_sizes); ++ $ordinal) {
-			$group = ordinal($ordinal) . ' ' . __('place teams', true);
-			$options[$group] = array();
+			if (array_key_exists($ordinal, $ordinal_counts)) {
+				$group = ordinal($ordinal) . ' ' . __('place teams', true);
 
-			// List of finishing options for each pool
-			for ($i = 1; $i <= $ordinal_counts[$ordinal]; ++ $i) {
-				$key = "$ordinal-$i";
-				$options[$group][$key] = ordinal($i) . " ($key)";
+				// List of finishing options for each pool
+				for ($i = 1; $i <= $ordinal_counts[$ordinal]; ++ $i) {
+					$in_crossover = Set::extract("/Pool/PoolsTeam[dependency_ordinal=$ordinal][dependency_id=$i]", $crossovers);
+					if (empty($in_crossover)) {
+						$key = "$ordinal-$i";
+						$options[$group][$key] = ordinal($i) . " ($key)";
+					}
+				}
+
+				$valid_options = array_merge($valid_options, $options[$group]);
 			}
+		}
 
-			$valid_options = array_merge($valid_options, $options[$group]);
+		// Add any crossovers
+		foreach ($crossovers as $crossover) {
+			$options['Crossovers']["{$crossover['Pool']['name']}-1"] = "Winner of {$crossover['Pool']['name']}";
+			$options['Crossovers']["{$crossover['Pool']['name']}-2"] = "Loser of {$crossover['Pool']['name']}";
+			$valid_options = array_merge($valid_options, $options['Crossovers']);
 		}
 
 		// Validate any data posted to us, building the data to save as we go
@@ -336,7 +379,8 @@ class SchedulesController extends AppController {
 					'Pool' => array(
 						'division_id' => $id,
 						'name' => $name,
-						'stage' => $stage,
+						'stage' => $this_stage,
+						'type' => ($type == 'crossover' ? 'crossover' : 'power'),
 					),
 					'PoolsTeam' => array(),
 				);
@@ -382,11 +426,12 @@ class SchedulesController extends AppController {
 					}
 				}
 			}
-			if ($this->_numTeams() != count($qualifiers) || in_array('', $qualifiers)) {
-				$this->Session->setFlash(__('You must select a qualifier for each seed in each new pool.', true), 'default', array('class' => 'info'));
+
+			if (array_sum($this->data['Game']['count']) != count($qualifiers) || in_array('', $qualifiers)) {
+				$this->Session->setFlash(__('You must select a qualifier for each slot.', true), 'default', array('class' => 'info'));
 				$proceed = false;
-			} else if ($this->_numTeams() != count(array_unique($qualifiers))) {
-				$this->Session->setFlash(__('You must select a unique qualifier for each seed in each new pool.', true), 'default', array('class' => 'info'));
+			} else if (array_sum($this->data['Game']['count']) != count(array_unique($qualifiers))) {
+				$this->Session->setFlash(__('You must select a unique qualifier for each slot.', true), 'default', array('class' => 'info'));
 				$proceed = false;
 			}
 
@@ -395,7 +440,7 @@ class SchedulesController extends AppController {
 			}
 		}
 
-		$this->set(compact('options'));
+		$this->set(compact('type', 'options'));
 		$this->render('reseed');
 	}
 
@@ -430,7 +475,11 @@ class SchedulesController extends AppController {
 			$stage = 0;
 		}
 
-		$types = $this->league_obj->scheduleOptions($this->_numTeams(), $stage);
+		if ($this->pool['Pool']['type'] == 'crossover') {
+			$types = array('crossover' => 'crossover game');
+		} else {
+			$types = $this->league_obj->scheduleOptions($this->_numTeams(), $stage);
+		}
 
 		// Validate any data posted to us
 		if ($this->data['Game']['step'] == 'type') {

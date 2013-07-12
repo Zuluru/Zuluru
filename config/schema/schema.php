@@ -454,6 +454,7 @@ class ZuluruSchema extends CakeSchema {
 		'division_id' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'key' => 'index'),
 		'stage' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 2),
+		'type' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 16),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'division' => array('column' => 'division_id', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);

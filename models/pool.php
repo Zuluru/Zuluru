@@ -46,7 +46,11 @@ class Pool extends AppModel {
 			if (!array_key_exists('DependencyPool', $pool)) {
 				trigger_error('Missing dependency information', E_USER_ERROR);
 			}
-			return ordinal($pool['dependency_id']) . ' in pool ' . $pool['DependencyPool']['name'];
+			if ($pool['DependencyPool']['type'] == 'crossover') {
+				return ($pool['dependency_id'] == 1 ? 'winner' : 'loser') . ' of ' . $pool['DependencyPool']['name'];
+			} else {
+				return ordinal($pool['dependency_id']) . ' in pool ' . $pool['DependencyPool']['name'];
+			}
 		} else if (!empty($pool['dependency_ordinal'])) {
 			return ordinal($pool['dependency_id']) . ' among ' . ordinal($pool['dependency_ordinal']) . ' place teams';
 		} else {
