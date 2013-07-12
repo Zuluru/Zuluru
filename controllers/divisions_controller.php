@@ -1480,6 +1480,7 @@ class DivisionsController extends AppController {
 								$seed = $game["{$type}PoolTeam"]['dependency_id'];
 								$results = $division['Pool'][$stage][$pool_id]['Results'];
 								usort($results, array($league_obj, 'compareTeamsResults'));
+								$league_obj->detectAndResolveTies($results);
 								$team_id = $results[$seed - 1]['id'];
 								break;
 						}
