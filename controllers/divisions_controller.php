@@ -1560,7 +1560,10 @@ class DivisionsController extends AppController {
 
 		$this->Division->contain(array(
 			'League',
-			'Pool' => array('conditions' => array('Pool.stage' => $stage)),
+			'Pool' => array(
+				'conditions' => array('Pool.stage' => $stage),
+				'Game',
+			),
 		));
 		$division = $this->Division->read(null, $id);
 		if (!$division) {
@@ -1573,16 +1576,29 @@ class DivisionsController extends AppController {
 			$this->Session->setFlash(__('There are currently no pools to delete in this stage.', true), 'default', array('class' => 'warning'));
 			$this->redirect(array('controller' => 'schedules', 'action' => 'add', 'division' => $id));
 		}
-		if ($this->Division->Pool->deleteAll(array('division_id' => $id, 'stage >=' => $stage))) {
-			$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
-			if (file_exists($cache_file)) {
-				unlink($cache_file);
-			}
 
-			$this->Session->setFlash(sprintf(__('%s deleted', true), __('All pools in this stage', true)), 'default', array('class' => 'success'));
-			$this->redirect(array('controller' => 'schedules', 'action' => 'add', 'division' => $id));
-		}
+		$games = Set::extract('/Game/id', $division['Pool']);
+		$transaction = new DatabaseTransaction($this->Division->Pool);
+
+		// We'll overwrite this flash message if it succeeds
 		$this->Session->setFlash(sprintf(__('%s were not deleted', true), __('Pools in this stage', true)), 'default', array('class' => 'warning'));
+
+		if ($this->Division->Pool->deleteAll(array('Pool.division_id' => $id, 'Pool.stage >=' => $stage))) {
+			if (empty($games) || (
+					$this->Division->Pool->Game->deleteAll(array('Game.id' => $games)) &&
+					$this->Division->Pool->Game->GameSlot->updateAll (array('GameSlot.game_id' => null), array('GameSlot.game_id' => $games))
+				))
+			{
+				$transaction->commit();
+
+				$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
+				if (file_exists($cache_file)) {
+					unlink($cache_file);
+				}
+
+				$this->Session->setFlash(sprintf(__('%s deleted', true), __('All pools in this stage', true)), 'default', array('class' => 'success'));
+			}
+		}
 		$this->redirect(array('controller' => 'schedules', 'action' => 'add', 'division' => $id));
 	}
 
