@@ -125,31 +125,8 @@ class SchedulesController extends AppController {
 	}
 
 	function _pools($id) {
-		// Check if we have any pools defined without games
-		foreach ($this->division['Pool'] as $pool) {
-			$pool_team_ids = Set::extract('/PoolsTeam/id', $pool);
-			$pool_games = $this->Division->Game->find('count', array(
-					'contain' => array(),
-					'conditions' => array(
-						'Game.division_id' => $id,
-						'OR' => array(
-							array(
-								'Game.home_dependency_type' => 'pool',
-								'Game.home_pool_team_id' => $pool_team_ids,
-							),
-							array(
-								'Game.away_dependency_type' => 'pool',
-								'Game.away_pool_team_id' => $pool_team_ids,
-							),
-						),
-					),
-			));
-			if (!$pool_games) {
-				$this->set(compact('pool'));
-				$this->pool = $pool;
-				$this->numTeams = count($pool['PoolsTeam']);
-				return $this->_type($id);
-			}
+		if ($this->_unscheduledPools($id)) {
+			return $this->_type($id);
 		}
 
 		$stages = Set::extract('/Pool/stage', $this->division);
@@ -562,34 +539,10 @@ class SchedulesController extends AppController {
 				unlink($cache_file);
 			}
 
-			// Check if we have any pools defined without games
-			foreach ($this->division['Pool'] as $pool) {
-				if ($pool['id'] > $this->pool['Pool']['id']) {
-					$pool_team_ids = Set::extract('/PoolsTeam/id', $pool);
-					$pool_games = $this->Division->Game->find('count', array(
-							'contain' => array(),
-							'conditions' => array(
-								'Game.division_id' => $id,
-								'OR' => array(
-									array(
-										'Game.home_dependency_type' => 'pool',
-										'Game.home_pool_team_id' => $pool_team_ids,
-									),
-									array(
-										'Game.away_dependency_type' => 'pool',
-										'Game.away_pool_team_id' => $pool_team_ids,
-									),
-								),
-							),
-					));
-					if (!$pool_games) {
-						$this->set(compact('pool'));
-						$this->pool = $pool;
-						$this->numTeams = count($pool['PoolsTeam']);
-						return $this->_type($id);
-					}
-				}
+			if ($this->_unscheduledPools($id)) {
+				return $this->_type($id);
 			}
+
 			$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
 		}
 		$this->Lock->unlock ();
@@ -660,6 +613,41 @@ class SchedulesController extends AppController {
 		}
 
 		return $this->numTeams;
+	}
+
+	function _unscheduledPools($id) {
+		// Check if we have any pools defined without games
+		foreach ($this->division['Pool'] as $pool) {
+			if ($pool['id'] > $this->pool['Pool']['id']) {
+				$pool_team_ids = Set::extract('/PoolsTeam/id', $pool);
+				$pool_games = $this->Division->Game->find('count', array(
+						'contain' => array(),
+						'conditions' => array(
+							'Game.division_id' => $id,
+							'OR' => array(
+								array(
+									'Game.home_dependency_type' => 'pool',
+									'Game.home_pool_team_id' => $pool_team_ids,
+								),
+								array(
+									'Game.away_dependency_type' => 'pool',
+									'Game.away_pool_team_id' => $pool_team_ids,
+								),
+							),
+						),
+				));
+				if (!$pool_games) {
+					$this->set(compact('pool'));
+					// The format of the data in this kind of read is different from the other kind of read...
+					$this->pool = array(
+						'Pool' => $pool,
+						'PoolsTeam' => $pool['PoolsTeam'],
+					);
+					$this->numTeams = count($pool['PoolsTeam']);
+					return true;
+				}
+			}
+		}
 	}
 
 	function delete() {
