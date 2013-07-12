@@ -729,6 +729,8 @@ class SchedulesController extends AppController {
 
 		$pools = array_unique(Set::extract('/Game/pool_id', $games));
 		if (!empty($pools)) {
+			$reset_pools = $pools;
+
 			if ($date) {
 				$same_pool = $this->Division->Game->find ('all', array(
 						'conditions' => array(
@@ -758,6 +760,8 @@ class SchedulesController extends AppController {
 			));
 
 			if (!empty($later_pools)) {
+				$reset_pools = array_merge($reset_pools, $later_pools);
+
 				$dependent = $this->Division->Game->find ('all', array(
 						'conditions' => array(
 							'Game.pool_id' => $later_pools,
@@ -771,6 +775,11 @@ class SchedulesController extends AppController {
 		if ($this->_arg('confirm')) {
 			// Wrap the whole thing in a transaction, for safety.
 			$transaction = new DatabaseTransaction($this->Division->Game);
+
+			// Reset dependencies for affected pools
+			if (!empty($reset_pools)) {
+				$this->Division->Pool->PoolsTeam->updateAll (array('team_id' => null), array('pool_id' => $reset_pools));
+			}
 
 			// Clear game_id from game_slots, and delete the games.
 			$game_ids = Set::extract ('/Game/id', $games);
