@@ -84,7 +84,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			$types['blankset_doubleheader'] = "set of blank unscheduled games for all teams in the division, one team will have a double-header ($num_teams teams, " . (($num_teams + 1) / 2) . " games)";
 		}
 
-		if ($num_teams >= 3 && $num_teams <= 8) {
+		if ($num_teams >= 3 && $num_teams <= 10) {
 			$types['round_robin'] = 'round-robin';
 			if ($stage > 1) {
 				$types['round_robin_carry_forward'] = 'round-robin with results from prior-stage matchups carried forward';
