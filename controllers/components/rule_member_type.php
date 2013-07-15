@@ -58,10 +58,10 @@ class RuleMemberTypeComponent extends RuleComponent
 	function build_query($affiliate, &$joins, &$fields, &$conditions) {
 		if (!isset($this->events)) {
 			if (is_array($this->config)) {
-				$date_from = strtotime ($this->config[0]);
-				$date_to = strtotime ($this->config[1]);
+				$date_from = date('Y-m-d', strtotime ($this->config[0]));
+				$date_to = date('Y-m-d', strtotime ($this->config[1]));
 			} else {
-				$date_from = $date_to = strtotime ($this->config);
+				$date_from = $date_to = date('Y-m-d', strtotime ($this->config));
 			}
 			$model = ClassRegistry::init('Event');
 			$types = $model->EventType->find('list', array(
