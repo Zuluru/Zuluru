@@ -35,6 +35,7 @@ $this->Html->addCrumb (__('Adjust Initial Seeds', true));
 		echo $this->Form->input ("Team.$key.initial_seed", array(
 				'div' => false,
 				'label' => false,
+				'tabindex' => 1,
 				'size' => 3,
 				'default' => $team['initial_seed'],
 		));
