@@ -170,6 +170,8 @@ class SchedulesController extends AppController {
 	function _details($id) {
 		list($type, $pools) = explode('_', $this->data['Game']['pools']);
 		if ($pools == 1) {
+			$this->data['Game']['name'] = array('A');
+			$this->data['Game']['count'] = array($this->_numTeams());
 			$func = "_$type";
 			$this->$func($id);
 		}
