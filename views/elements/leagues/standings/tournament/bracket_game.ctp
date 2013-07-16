@@ -30,7 +30,11 @@ if (!empty($game)) {
 	<div class="details">
 		<div class="name">
 <?php
-	echo $game['name'];
+	if ($game['published'] || $is_admin || $is_coordinator) {
+		echo $this->Html->link($game['name'], array('controller' => 'games', 'action' => 'view', 'game' => $game['id']));
+	} else {
+		echo $game['name'];
+	}
 ?>
 		</div>
 <?php
