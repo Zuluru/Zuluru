@@ -925,6 +925,11 @@ class SchedulesController extends AppController {
 			array('Game.id' => $games)
 		))
 		{
+			$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
+			if (file_exists($cache_file)) {
+				unlink($cache_file);
+			}
+
 			$this->Session->setFlash(__('Published games on the requested date.', true), 'default', array('class' => 'success'));
 		} else {
 			$this->Session->setFlash(__('Failed to publish games on the requested date.', true), 'default', array('class' => 'warning'));
@@ -953,6 +958,11 @@ class SchedulesController extends AppController {
 			array('Game.id' => $games)
 		))
 		{
+			$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
+			if (file_exists($cache_file)) {
+				unlink($cache_file);
+			}
+
 			$this->Session->setFlash(__('Unpublished games on the requested date.', true), 'default', array('class' => 'success'));
 		} else {
 			$this->Session->setFlash(__('Failed to unpublish games on the requested date.', true), 'default', array('class' => 'warning'));
