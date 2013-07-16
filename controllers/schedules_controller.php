@@ -498,7 +498,7 @@ class SchedulesController extends AppController {
 	}
 
 	function _date($id) {
-		$preview = $this->league_obj->schedulePreview ($this->data['Game']['type'], $this->_numTeams());
+		$preview = $this->league_obj->schedulePreview ($this->data['Game']['type'], $this->_numTeams(), $this->pool);
 		if (empty($preview)) {
 			$field = 'DISTINCT GameSlot.game_date AS date';
 			$extract = 'GameSlot';

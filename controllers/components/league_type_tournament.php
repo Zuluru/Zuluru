@@ -207,12 +207,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		}
 	}
 
-	function schedulePreview($type, $num_teams) {
-		// At the moment, not all types have previews
-		if ($type == 'round_robin_carry_forward') {
-			return null;
-		}
-
+	function schedulePreview($type, $num_teams, $pool) {
 		// Schedules with only a single round don't warrant a preview
 		$requirements = $this->scheduleRequirements($type, $num_teams);
 		if (count($requirements) < 2) {
@@ -222,13 +217,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		// Set up some fake info
 		$this->games = array();
 		$this->pool_name = null;
-		$this->pool = array(
-			'Pool' => array('id' => null),
-			'PoolsTeam' => array(),
-		);
-		for ($i = 0; $i < $num_teams; ++ $i) {
-			$this->pool['PoolsTeam'][$i] = array('id' => $i + 1);
-		}
+		$this->pool = $pool;
 
 		if (!$this->createScheduleBlock($type)) {
 			return null;
@@ -243,7 +232,8 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			switch ($game['home_dependency_type']) {
 				case 'pool':
 				case 'seed':
-					$home = $game['home_pool_team_id'];
+					$alias = Set::extract("/PoolsTeam[id={$game['home_pool_team_id']}]/alias", $pool);
+					$home = $alias[0];
 					break;
 				case 'game_winner':
 					$home = "W{$game['home_dependency_id']}";
@@ -256,7 +246,8 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			switch ($game['away_dependency_type']) {
 				case 'pool':
 				case 'seed':
-					$away = $game['away_pool_team_id'];
+					$alias = Set::extract("/PoolsTeam[id={$game['away_pool_team_id']}]/alias", $pool);
+					$away = $alias[0];
 					break;
 				case 'game_winner':
 					$away = "W{$game['away_dependency_id']}";
@@ -435,6 +426,10 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		$id = 1;
 
 		// If we are carrying forward results, create those games first
+		// This cannot work if there was a round robin, then crossover games, then
+		// another round robin with results carried forward, because we don't know
+		// what teams will win the crossovers and hence don't know what matchups
+		// have already happened. TODO: Detect this situation and abort.
 		if ($carry_forward) {
 			for ($round = 1; $success && ($round < $num_teams); ++ $round) {
 				for ($k = 0; $k < ($num_teams / 2); $k++) {
