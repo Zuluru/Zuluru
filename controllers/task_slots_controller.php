@@ -318,6 +318,8 @@ class TaskSlotsController extends AppController {
 
 		if (empty($person_id)) {
 			$update['person_id'] = null;
+			$update['approved'] = false;
+			$update['approved_by'] = null;
 		} else {
 			$update['person_id'] = $person_id;
 		}
