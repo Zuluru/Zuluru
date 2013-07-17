@@ -60,7 +60,7 @@ class GameSlot extends AppModel {
 		return $record;
 	}
 
-	function getAvailable($division_id, $date) {
+	function getAvailable($division_id, $date, $is_tournament) {
 		// Find available slots
 		$join = array( array(
 				'table' => "{$this->tablePrefix}division_gameslot_availabilities",
@@ -76,8 +76,24 @@ class GameSlot extends AppModel {
 					'Facility',
 				),
 		));
+
+		$conditions = array('DivisionGameslotAvailability.division_id' => $division_id);
+		if ($is_tournament) {
+			$conditions['OR'] = array(
+				'AND' => array(
+					"GameSlot.game_date >= DATE_ADD('$date', INTERVAL -6 DAY)",
+					"GameSlot.game_date <= DATE_ADD('$date', INTERVAL 6 DAY)",
+					'GameSlot.game_date !=' => $date,
+					'GameSlot.game_id' => null,
+				),
+				'GameSlot.game_date' => $date,
+			);
+		} else {
+			$conditions['GameSlot.game_date'] = $date;
+		}
+
 		$game_slots = $this->find('all', array(
-			'conditions' => array('DivisionGameslotAvailability.division_id' => $division_id, 'GameSlot.game_date' => $date),
+			'conditions' => $conditions,
 			'joins' => $join,
 		));
 

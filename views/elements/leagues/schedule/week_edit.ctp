@@ -8,8 +8,6 @@ if (count ($published) != 1 || $published[0] == 0) {
 
 $teams = Set::combine ($division['Team'], '{n}.id', '{n}.name');
 natcasesort ($teams);
-$tournament_games = Set::extract ('/Game[type!=' . SEASON_GAME . "]/GameSlot[game_date=$date]", $division);
-$is_tournament = !empty($tournament_games);
 ?>
 
 <tr>

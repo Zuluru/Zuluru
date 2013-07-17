@@ -21,7 +21,11 @@ if (!empty ($edit_date)) {
 	$slots = array();
 	usort($game_slots, array('GameSlot', 'compareTimeAndField'));
 	foreach ($game_slots as $slot) {
-		$slots[$slot['GameSlot']['id']] = $this->ZuluruTime->time ($slot['GameSlot']['game_start']) . ' ' . $slot['Field']['long_name'];
+		if ($is_tournament) {
+			$slots[$slot['GameSlot']['id']] = $this->ZuluruTime->day ($slot['GameSlot']['game_date']) . ' ' . $this->ZuluruTime->time ($slot['GameSlot']['game_start']) . ' ' . $slot['Field']['long_name'];
+		} else {
+			$slots[$slot['GameSlot']['id']] = $this->ZuluruTime->time ($slot['GameSlot']['game_start']) . ' ' . $slot['Field']['long_name'];
+		}
 	}
 }
 ?>
@@ -37,7 +41,7 @@ if (!empty ($edit_date)) {
 	$dates = array_unique(Set::extract ('/Game/GameSlot/game_date', $division));
 	foreach ($dates as $date) {
 		if ($date == $edit_date) {
-			echo $this->element('leagues/schedule/week_edit', compact ('date', 'slots', 'is_manager'));
+			echo $this->element('leagues/schedule/week_edit', compact ('date', 'slots', 'is_manager', 'is_tournament'));
 		} else {
 			echo $this->element('leagues/schedule/week_view', compact ('date', 'is_manager'));
 		}

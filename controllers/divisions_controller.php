@@ -620,7 +620,11 @@ class DivisionsController extends AppController {
 		}
 
 		if ($edit_date) {
-			$game_slots = $this->Division->DivisionGameslotAvailability->GameSlot->getAvailable($id, $edit_date);
+			$tournament_games = Set::extract ('/Game[type!=' . SEASON_GAME . "]/GameSlot[game_date=$edit_date]", $division);
+			$is_tournament = !empty($tournament_games);
+			$game_slots = $this->Division->DivisionGameslotAvailability->GameSlot->getAvailable($id, $edit_date, $is_tournament);
+		} else {
+			$is_tournament = false;
 		}
 
 		// Save posted data
@@ -633,7 +637,7 @@ class DivisionsController extends AppController {
 		// Sort games by date, time and field
 		usort ($division['Game'], array ('Game', 'compareDateAndField'));
 
-		$this->set(compact ('id', 'division', 'edit_date', 'game_slots', 'is_coordinator'));
+		$this->set(compact ('id', 'division', 'edit_date', 'game_slots', 'is_coordinator', 'is_tournament'));
 
 		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 	}
