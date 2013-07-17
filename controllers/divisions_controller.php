@@ -1102,6 +1102,7 @@ class DivisionsController extends AppController {
 								'Game.home_dependency_type' => null,
 							),
 						),
+						'Division',
 						'HomeTeam' => array(
 							'Field' => 'Facility',
 							'Region',

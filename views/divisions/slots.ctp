@@ -31,6 +31,7 @@ echo $this->Form->end();
 		<th><?php __(Configure::read('sport.field_cap')); ?></th>
 		<th>Start Time</th>
 		<th>Game</th>
+		<th>Division</th>
 		<th>Home</th>
 		<th>Away</th>
 		<th><?php __(Configure::read('sport.field_cap')); ?> Region</th>
@@ -46,12 +47,13 @@ echo $this->Form->end();
 		<td><?php echo $this->ZuluruTime->time ($slot['GameSlot']['game_start']); ?></td>
 <?php if (!$slot['Game']['id']): ?>
 <?php ++$unused; ?>
-		<td colspan="3">---- <?php printf(__('%s open', true), Configure::read('sport.field')); ?> ----</td>
+		<td colspan="4">---- <?php printf(__('%s open', true), Configure::read('sport.field')); ?> ----</td>
 <?php else:
 		Game::_readDependencies($slot['Game']);
 ?>
 		<td><?php echo $this->Html->link ($slot['Game']['id'],
 				array('controller' => 'games', 'action' => 'view', 'game' => $slot['Game']['id'])); ?></td>
+		<td><?php echo $slot['Game']['Division']['name']; ?></td>
 		<td><?php
 		if (empty($slot['Game']['home_team'])) {
 			echo $slot['Game']['home_dependency'];
