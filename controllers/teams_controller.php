@@ -924,7 +924,7 @@ class TeamsController extends AppController {
 				'League' => array('StatType' => array('conditions' => array('StatType.type' => Configure::read('stat_types.team')))),
 				'Day',
 			),
-			'Person',
+			'Person' => array('conditions' => array('TeamsPerson.role' => Configure::read('extended_playing_roster_roles'))),
 		);
 		if (Configure::read('feature.annotations') && $this->params['url']['ext'] != 'csv') {
 			$contain['Note'] = array('conditions' => array('created_person_id' => $this->Auth->user('id')));
