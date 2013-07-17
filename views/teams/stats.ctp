@@ -15,17 +15,30 @@ $this->Html->addCrumb (__('Stats', true));
 <?php
 $na = __('N/A', true);
 
+$has_numbers = false;
+$numbers = array_unique(Set::extract('/Person/TeamsPerson/number', $team));
+if (Configure::read('feature.shirt_numbers') && count($numbers) > 1 && $numbers[0] !== null) {
+	$has_numbers = true;
+}
+
+$headers = array(
+	$this->Html->tag('th', __('Name', true)),
+	$this->Html->tag('th', __('Gender', true)),
+);
+$totals = array(__('Total', true), '');
+if ($has_numbers) {
+	array_unshift($headers, $this->Html->tag('th', '#'));
+	array_unshift($totals, '');
+}
+
 // Sort the stats into groups for display
 $tables = array();
 foreach ($team['Division']['League']['StatType'] as $stat_type) {
 	if (!array_key_exists($stat_type['positions'], $tables)) {
 		$tables[$stat_type['positions']] = array(
-			'headers' => array(
-				$this->Html->tag('th', __('Name', true)),
-				$this->Html->tag('th', __('Gender', true)),
-			),
+			'headers' => $headers,
 			'rows' => array(),
-			'totals' => array(__('Total', true), ''),
+			'totals' => $totals,
 		);
 	}
 
@@ -41,6 +54,9 @@ foreach ($team['Division']['League']['StatType'] as $stat_type) {
 				$this->element('people/block', compact('person')),
 				__($person['gender'], true),
 			);
+			if ($has_numbers) {
+				array_unshift($tables[$stat_type['positions']]['rows'][$person['id']], $person['TeamsPerson']['number']);
+			}
 		}
 		if (array_key_exists($person['id'], $team['Calculated']) &&
 			array_key_exists($stat_type['id'], $team['Calculated'][$person['id']]))
