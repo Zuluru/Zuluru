@@ -13,16 +13,25 @@ while (!empty($games)):
 	// round number is.
 	$bracket = array_values($bracket);
 
-	if (!empty($bracket[0][0]) && !in_array($bracket[0][0]['pool_id'], $init_pools) && ($is_admin || $is_manager || $is_coordinator)) {
-		$init_pools[] = $bracket[0][0]['pool_id'];
+	// Find the bracket's pool id
+	$pool_id = null;
+	foreach ($bracket[0] as $game) {
+		if (!empty($game['pool_id'])) {
+			$pool_id = $game['pool_id'];
+			break;
+		}
+	}
+
+	if ($pool_id && !in_array($pool_id, $init_pools) && ($is_admin || $is_manager || $is_coordinator)) {
+		$init_pools[] = $pool_id;
 		echo $this->ZuluruHtml->iconLink('delete_24.png',
-			array('controller' => 'schedules', 'action' => 'delete', 'division' => $division['Division']['id'], 'pool' => $bracket[0][0]['pool_id'], 'return' => true),
+			array('controller' => 'schedules', 'action' => 'delete', 'division' => $division['Division']['id'], 'pool' => $pool_id, 'return' => true),
 			array('alt' => __('Delete', true), 'title' => __('Delete pool games', true)));
 		echo $this->ZuluruHtml->iconLink('initialize_24.png',
-			array('action' => 'initialize_dependencies', 'division' => $division['Division']['id'], 'pool' => $bracket[0][0]['pool_id'], 'return' => true),
+			array('action' => 'initialize_dependencies', 'division' => $division['Division']['id'], 'pool' => $pool_id, 'return' => true),
 			array('alt' => __('Initialize', true), 'title' => __('Initialize schedule dependencies', true)));
 		echo $this->ZuluruHtml->iconLink('reset_24.png',
-			array('action' => 'initialize_dependencies', 'division' => $division['Division']['id'], 'pool' => $bracket[0][0]['pool_id'], 'reset' => true, 'return' => true),
+			array('action' => 'initialize_dependencies', 'division' => $division['Division']['id'], 'pool' => $pool_id, 'reset' => true, 'return' => true),
 			array('alt' => __('Reset', true), 'title' => __('Reset schedule dependencies', true)));
 	}
 ?>
