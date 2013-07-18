@@ -1,7 +1,7 @@
 <div class="score_box" id="score_team_<?php echo $team['id']; ?>">
 <table>
 	<tr>
-		<td class="actions down"><?php echo $this->Html->link('-', '#'); ?></td>
+		<td class="actions down"><?php echo $this->Html->link('&ndash;', '#', array('escape' => false)); ?></td>
 		<td class="team_name" colspan="2"><?php
 		echo $team['name'];
 		if (Configure::read('feature.shirt_colour') && array_key_exists ('shirt_colour', $team)) {
@@ -24,6 +24,8 @@ $url_timeout = array('controller' => 'games', 'action' => 'timeout', 'game' => $
 $url_other = array('controller' => 'games', 'action' => 'play', 'game' => $game['Game']['id'], 'team' => $submitter);
 $score_options = Configure::read('sport.score_options');
 $other_options = Configure::read('sport.other_options');
+$spinner = $this->ZuluruHtml->icon('spinner.gif');
+
 if (($has_stats && ($submitter == $team['id'] || $submitter === null)) || count($score_options) > 1):
 ?>
 <div id="ScoreDetails<?php echo $team['id']; ?>" title="Scoring Play Details" class="form">
@@ -102,17 +104,19 @@ echo $this->Html->scriptBlock ("
 			width: 500
 		});
 	");
-echo $this->Js->get("#score_team_{$team['id']} td.up")->event('click', "jQuery('#ScoreDetails{$team['id']}').dialog('open');");
+echo $this->Js->get("#score_team_{$team['id']} td.up a")->event('click', "jQuery('#ScoreDetails{$team['id']}').dialog('open');");
 else:
 	$url_up = Router::url($url_up);
 	$play = array_shift(array_keys($score_options));
-	echo $this->Js->get("#score_team_{$team['id']} td.up")->event('click', "
+	echo $this->Js->get("#score_team_{$team['id']} td.up a")->event('click', "
+		var score_from = jQuery('#score_team_{$team['id']} td.score').html();
+		jQuery('#score_team_{$team['id']} td.score').html('$spinner');
 		jQuery.ajax({
 			dataType: 'html',
 			type: 'POST',
 			data: {
 				'data[team_id]': {$team['id']},
-				'data[score_from]': jQuery('#score_team_{$team['id']} td.score').html(),
+				'data[score_from]': score_from,
 				'data[play]': '$play'
 			},
 			success: function (data, textStatus) {
@@ -124,13 +128,15 @@ else:
 endif;
 
 $url_down = Router::url($url_down);
-echo $this->Js->get("#score_team_{$team['id']} td.down")->event('click', "
+echo $this->Js->get("#score_team_{$team['id']} td.down a")->event('click', "
+	var score_from = jQuery('#score_team_{$team['id']} td.score').html();
+	jQuery('#score_team_{$team['id']} td.score').html('$spinner');
 	jQuery.ajax({
 		dataType: 'html',
 		type: 'POST',
 		data: {
 			'data[team_id]': {$team['id']},
-			'data[score_from]': jQuery('#score_team_{$team['id']} td.score').html()
+			'data[score_from]': score_from
 		},
 		success: function (data, textStatus) {
 			jQuery('#temp_update').html(data);
@@ -140,7 +146,7 @@ echo $this->Js->get("#score_team_{$team['id']} td.down")->event('click', "
 ");
 
 $url_timeout = Router::url($url_timeout);
-echo $this->Js->get("#score_team_{$team['id']} td.timeout")->event('click', "
+echo $this->Js->get("#score_team_{$team['id']} td.timeout a")->event('click', "
 	if (confirm('Timeout called?')) {
 		jQuery.ajax({
 			dataType: 'html',
@@ -207,6 +213,6 @@ if (count($other_options) > 1):
 			width: 500
 		});
 	");
-	echo $this->Js->get("#score_team_{$team['id']} td.other")->event('click', "jQuery('#OtherDetails{$team['id']}').dialog('open');");
+	echo $this->Js->get("#score_team_{$team['id']} td.other a")->event('click', "jQuery('#OtherDetails{$team['id']}').dialog('open');");
 endif;
 ?>

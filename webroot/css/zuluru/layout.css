@@ -543,9 +543,14 @@ div.help_dialog p
 	width: 25%;
 }
 
-#zuluru div.score_box td.score, #zuluru div.score_box td.up, #zuluru div.score_box td.down
+#zuluru div.score_box td.score
 {
 	font-size: 150%;
+}
+
+#zuluru div.score_box td.up, #zuluru div.score_box td.down
+{
+	font-size: 200%;
 }
 
 /* Tournament styling. */
