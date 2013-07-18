@@ -138,18 +138,20 @@ echo $this->Js->get("#score_team_{$team['id']} td.down")->event('click', "
 
 $url_timeout = Router::url($url_timeout);
 echo $this->Js->get("#score_team_{$team['id']} td.timeout")->event('click', "
-	jQuery.ajax({
-		dataType: 'html',
-		type: 'POST',
-		data: {
-			'data[team_id]': {$team['id']},
-			'data[score_from]': jQuery('#score_team_{$team['id']} td.score').html(),
-		},
-		success: function (data, textStatus) {
-			jQuery('#temp_update').html(data);
-		},
-		url: '$url_timeout'
-	});
+	if (confirm('Timeout called?')) {
+		jQuery.ajax({
+			dataType: 'html',
+			type: 'POST',
+			data: {
+				'data[team_id]': {$team['id']},
+				'data[score_from]': jQuery('#score_team_{$team['id']} td.score').html(),
+			},
+			success: function (data, textStatus) {
+				jQuery('#temp_update').html(data);
+			},
+			url: '$url_timeout'
+		});
+	}
 ");
 
 if (count($other_options) > 1):
