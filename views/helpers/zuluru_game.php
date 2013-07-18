@@ -99,8 +99,18 @@ class ZuluruGameHelper extends Helper {
 							__('Submit', true),
 							array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $second_team_id));
 					}
+				} else if ($is_volunteer) {
+					// Allow specified individuals (referees, umpires, volunteers) to live score without a team id
+					if ($score_entry['status'] == 'in_progress') {
+						$links[] = $this->Html->link(
+								__('Live Score', true),
+								array('controller' => 'games', 'action' => 'live_score', 'game' => $details['id']));
+					} else {
+						$links[] = $this->Html->link(
+							__('Edit score', true),
+							array('controller' => 'games', 'action' => 'edit', 'game' => $details['id']));
+					}
 				}
-				// TODO: Allow specified individuals (referees, umpires, volunteers) to live score without a team id
 
 				if ($score_entry['status'] == 'in_progress') {
 					echo ' (' . __('in progress', true) . ')';
@@ -126,8 +136,12 @@ class ZuluruGameHelper extends Helper {
 					$links[] = $this->Html->link(
 							__('Live Score', true),
 							array('controller' => 'games', 'action' => 'live_score', 'game' => $details['id'], 'team' => $team_id));
+				} else if ($is_volunteer) {
+					// Allow specified individuals (referees, umpires, volunteers) to live score without a team id
+					$links[] = $this->Html->link(
+							__('Live Score', true),
+							array('controller' => 'games', 'action' => 'live_score', 'game' => $details['id']));
 				}
-				// TODO: Allow specified individuals (referees, umpires, volunteers) to live score without a team id
 			} else {
 				// Check if one of the teams involved in the game is a team the current user is on
 				$player_team_id = array_pop (array_intersect (array($details['home_team'], $details['away_team']), $this->Session->read('Zuluru.TeamIDs')));

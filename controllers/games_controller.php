@@ -2025,8 +2025,8 @@ class GamesController extends AppController {
 		}
 
 		$team_id = $this->_arg('team');
-		// TODO: Allow specified individuals (referees, umpires, volunteers) to submit stats without a team id
-		if (!$team_id && !in_array($game['Division']['id'], $this->Session->read('Zuluru.DivisionIDs'))) {
+		// Allow specified individuals (referees, umpires, volunteers) to submit stats without a team id
+		if (!$this->is_volunteer && !$team_id && !in_array($game['Division']['id'], $this->Session->read('Zuluru.DivisionIDs'))) {
 			$this->Session->setFlash(__('You must provide a team ID.', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
