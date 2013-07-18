@@ -122,7 +122,10 @@ foreach ($games as $stage => $stage_games):
 				} else {
 					echo '0-0';
 				}
-				echo ') ' . $alias . ' ' . $this->element('teams/block', array('team' => $teams[$team], 'show_shirt' => false)) . ' (' . $teams[$team]['initial_seed'] . ')';
+				echo ') ' . $alias . ' ' . $this->element('teams/block', array('team' => $teams[$team], 'show_shirt' => false));
+				if ($pool['Pool']['stage'] == 1) {
+					echo ' (' . $teams[$team]['initial_seed'] . ')';
+				}
 			} else {
 				$dependency = Pool::_dependency($pool);
 				echo "(0-0) $alias [$dependency]";
