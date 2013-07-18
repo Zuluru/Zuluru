@@ -50,7 +50,7 @@ class Game extends AppModel {
 			'foreignKey' => 'division_id',
 		),
 		'Pool' => array(
-			'className' => 'Pools',
+			'className' => 'Pool',
 			'foreignKey' => 'pool_id',
 		),
 		'HomeTeam' => array(
