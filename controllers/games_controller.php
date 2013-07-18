@@ -1133,6 +1133,11 @@ class GamesController extends AppController {
 		}
 		$this->Game->_adjustEntryIndices($game);
 
+		if (!$game['Game']['home_team'] || !$game['Game']['away_team']) {
+			$this->Session->setFlash(__('Dependencies for that game have not yet been resolved!', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'game' => $id));
+		}
+
 		if ($team_id && $team_id != $game['Game']['home_team'] && $team_id != $game['Game']['away_team']) {
 			$this->Session->setFlash(__('That team did not play in that game!', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'game' => $id));
