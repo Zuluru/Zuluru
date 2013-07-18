@@ -752,25 +752,27 @@ class SchedulesController extends AppController {
 					'contain' => array(),
 			));
 
-			$later_pools = $this->Division->Pool->find ('list', array(
-					'conditions' => array(
-						'Pool.division_id' => $id,
-						'Pool.stage >' => max($stages),
-					),
-					'fields' => array('Pool.id', 'Pool.id'),
-					'contain' => array(),
-			));
-
-			if (!empty($later_pools)) {
-				$reset_pools = array_merge($reset_pools, $later_pools);
-
-				$dependent = $this->Division->Game->find ('all', array(
+			if (!empty($stages)) {
+				$later_pools = $this->Division->Pool->find ('list', array(
 						'conditions' => array(
-							'Game.pool_id' => $later_pools,
+							'Pool.division_id' => $id,
+							'Pool.stage >' => max($stages),
 						),
-						'fields' => array('Game.id', 'Game.published', 'Game.home_score', 'Game.pool_id'),
+						'fields' => array('Pool.id', 'Pool.id'),
 						'contain' => array(),
 				));
+
+				if (!empty($later_pools)) {
+					$reset_pools = array_merge($reset_pools, $later_pools);
+
+					$dependent = $this->Division->Game->find ('all', array(
+							'conditions' => array(
+								'Game.pool_id' => $later_pools,
+							),
+							'fields' => array('Game.id', 'Game.published', 'Game.home_score', 'Game.pool_id'),
+							'contain' => array(),
+					));
+				}
 			}
 		}
 
