@@ -953,42 +953,52 @@ class TeamsController extends AppController {
 		if (!empty($team['Team']['division_id'])) {
 			Configure::load("sport/{$team['Division']['League']['sport']}");
 		}
-
-		// Calculate some stats. We need to get stats from any team in this
-		// division, so that it properly handles subs and people who move teams.
-		$teams = $this->Team->find('list', array(
-				'conditions' => array('division_id' => $team['Division']['id']),
-		));
-		$stats = $this->Team->Stat->find('all', array(
-				'conditions' => array(
-					'person_id' => Set::extract('/Person/id', $team),
-					'team_id' => array_keys($teams),
-				),
-				'contain' => array(),
-		));
-		$team['Stat'] = array();
-		foreach ($stats as $stat) {
-			$team['Stat'][] = $stat['Stat'];
-		}
-
 		$sport_obj = $this->_getComponent ('Sport', $team['Division']['League']['sport'], $this);
-		foreach ($team['Division']['League']['StatType'] as $stat_type) {
-			switch ($stat_type['type']) {
-				case 'season_total':
-					$sport_obj->_season_total($stat_type, $team);
-					break;
-				case 'season_avg':
-					$sport_obj->_season_avg($stat_type, $team);
-					break;
-				case 'season_calc':
-					$func = "{$stat_type['handler']}_season";
-					if (method_exists($sport_obj, $func)) {
-						$sport_obj->$func($stat_type, $team);
-					} else {
-						trigger_error("Season stat handler {$stat_type['handler']} was not found in the {$stat_type['sport']} component!", E_USER_ERROR);
-					}
-					break;
+
+		// Hopefully, everything we need is already cached
+		$cache_file = CACHE . 'queries' . DS . "team_stats_{$id}.data";
+		if (file_exists($cache_file)) {
+			$team += unserialize(file_get_contents($cache_file));
+		} else {
+			// Calculate some stats. We need to get stats from any team in this
+			// division, so that it properly handles subs and people who move teams.
+			$teams = $this->Team->find('list', array(
+					'conditions' => array('division_id' => $team['Division']['id']),
+			));
+			$stats = $this->Team->Stat->find('all', array(
+					'conditions' => array(
+						'person_id' => Set::extract('/Person/id', $team),
+						'team_id' => array_keys($teams),
+					),
+					'contain' => array(),
+			));
+			$team['Stat'] = array();
+			foreach ($stats as $stat) {
+				$team['Stat'][] = $stat['Stat'];
 			}
+
+			foreach ($team['Division']['League']['StatType'] as $stat_type) {
+				switch ($stat_type['type']) {
+					case 'season_total':
+						$sport_obj->_season_total($stat_type, $team);
+						break;
+					case 'season_avg':
+						$sport_obj->_season_avg($stat_type, $team);
+						break;
+					case 'season_calc':
+						$func = "{$stat_type['handler']}_season";
+						if (method_exists($sport_obj, $func)) {
+							$sport_obj->$func($stat_type, $team);
+						} else {
+							trigger_error("Season stat handler {$stat_type['handler']} was not found in the {$stat_type['sport']} component!", E_USER_ERROR);
+						}
+						break;
+				}
+			}
+			file_put_contents($cache_file, serialize(array(
+					'Stat' => $team['Stat'],
+					'Calculated' => $team['Calculated'],
+			)));
 		}
 
 		usort ($team['Person'], array('Team', 'compareRoster'));

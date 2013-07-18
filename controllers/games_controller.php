@@ -2119,6 +2119,23 @@ class GamesController extends AppController {
 				if ($this->Game->Stat->saveAll($this->data['Stat'], array('validate' => 'first'))) {
 					$this->Session->setFlash(sprintf(__('The %s have been saved', true), __('stats', true)), 'default', array('class' => 'success'));
 					$transaction->commit();
+
+					if ($team_id) {
+						$cache_file = CACHE . 'queries' . DS . "team_stats_{$team_id}.data";
+						if (file_exists($cache_file)) {
+							unlink($cache_file);
+						}
+					} else {
+						$cache_file = CACHE . 'queries' . DS . "team_stats_{$game['Game']['home_team']}.data";
+						if (file_exists($cache_file)) {
+							unlink($cache_file);
+						}
+						$cache_file = CACHE . 'queries' . DS . "team_stats_{$game['Game']['away_team']}.data";
+						if (file_exists($cache_file)) {
+							unlink($cache_file);
+						}
+					}
+
 					$this->redirect(array('action' => 'view', 'game' => $id));
 				} else {
 					$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('stats', true)), 'default', array('class' => 'warning'));
