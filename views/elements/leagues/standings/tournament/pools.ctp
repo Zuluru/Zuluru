@@ -185,6 +185,10 @@ foreach ($games as $stage => $stage_games):
 						}
 			?></td>
 			<?php endforeach; ?>
+			<?php for ($i = count($time_games[$date][$time]); $i < $max_games; ++ $i): ?>
+			<td></td>
+			<td></td>
+			<?php endfor; ?>
 		</tr>
 		<?php
 				endif;
