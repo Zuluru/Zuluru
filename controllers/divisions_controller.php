@@ -1127,7 +1127,6 @@ class DivisionsController extends AppController {
 				'joins' => $join,
 				'order' => array('GameSlot.game_date', 'GameSlot.game_start', 'Field.id'),
 			));
-			$slots = Set::sort($slots, '{n}.Field.code', 'asc');
 		}
 
 		$this->set(compact('division', 'dates', 'date', 'slots'));
