@@ -327,9 +327,14 @@ class TaskSlotsController extends AppController {
 		if (!$this->TaskSlot->save($update)) {
 			$this->set(array('error' => __('Error assigning the task slot', true)));
 			return;
-		} else if (!$this->RequestHandler->isAjax()) {
-			$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('assignment', true)), 'default', array('class' => 'success'));
-			$this->redirect(array('controller' => 'tasks', 'action' => 'view', 'task' => $taskSlot['Task']['id']));
+		} else {
+			if ($update['approved'] && $taskSlot['TaskSlot']['person_id'] == $this->my_id) {
+				$this->Session->delete('Zuluru.Tasks');
+			}
+			if (!$this->RequestHandler->isAjax()) {
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('assignment', true)), 'default', array('class' => 'success'));
+				$this->redirect(array('controller' => 'tasks', 'action' => 'view', 'task' => $taskSlot['Task']['id']));
+			}
 		}
 	}
 
