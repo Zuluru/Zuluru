@@ -976,6 +976,7 @@ class TeamsController extends AppController {
 			foreach ($stats as $stat) {
 				$team['Stat'][] = $stat['Stat'];
 			}
+			$team['Calculated'] = array();
 
 			foreach ($team['Division']['League']['StatType'] as $stat_type) {
 				switch ($stat_type['type']) {
