@@ -1125,6 +1125,7 @@ class DivisionsController extends AppController {
 			$slots = $this->Division->DivisionGameslotAvailability->GameSlot->find('all', array(
 				'conditions' => array('DivisionGameslotAvailability.division_id' => $id, 'GameSlot.game_date' => $date),
 				'joins' => $join,
+				'order' => array('GameSlot.game_date', 'GameSlot.game_start', 'Field.id'),
 			));
 			$slots = Set::sort($slots, '{n}.Field.code', 'asc');
 		}
