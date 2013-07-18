@@ -168,7 +168,10 @@ class Person extends User {
 		}
 
 		if (Configure::read('feature.tasks')) {
-			$contain['TaskSlot'] = array('Task' => array('Category', 'Person'));
+			$contain['TaskSlot'] = array(
+				'Task' => array('Category', 'Person'),
+				'order' => array('TaskSlot.task_date', 'TaskSlot.task_start'),
+			);
 		}
 
 		$this->contain($contain);
