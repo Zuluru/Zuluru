@@ -58,7 +58,8 @@ foreach ($team['Division']['League']['StatType'] as $stat_type) {
 				array_unshift($tables[$stat_type['positions']]['rows'][$person['id']], $person['TeamsPerson']['number']);
 			}
 		}
-		if (array_key_exists($person['id'], $team['Calculated']) &&
+		if (array_key_exists('Calculated', $team) &&
+			array_key_exists($person['id'], $team['Calculated']) &&
 			array_key_exists($stat_type['id'], $team['Calculated'][$person['id']]))
 		{
 			$value = $team['Calculated'][$person['id']][$stat_type['id']];
