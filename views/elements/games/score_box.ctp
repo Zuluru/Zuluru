@@ -54,6 +54,9 @@ if ($has_stats) {
 		$option = $person['full_name'];
 		if ($has_numbers && $person['TeamsPerson']['number'] !== null && $person['TeamsPerson']['number'] !== '') {
 			$option = "{$person['TeamsPerson']['number']} $option";
+			if ($person['TeamsPerson']['number'] < 10) {
+				$option = " $option";
+			}
 		}
 		$roster[$person['id']] = $option;
 	}
