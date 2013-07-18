@@ -32,6 +32,9 @@ echo $this->Form->end();
 		<th>Start Time</th>
 		<th>Game</th>
 		<th>Division</th>
+<?php if ($is_tournament): ?>
+		<th>Pool</th>
+<?php endif; ?>
 		<th>Home</th>
 		<th>Away</th>
 		<th><?php __(Configure::read('sport.field_cap')); ?> Region</th>
@@ -54,6 +57,14 @@ echo $this->Form->end();
 		<td><?php echo $this->Html->link ($slot['Game']['id'],
 				array('controller' => 'games', 'action' => 'view', 'game' => $slot['Game']['id'])); ?></td>
 		<td><?php echo $slot['Game']['Division']['name']; ?></td>
+<?php if ($is_tournament): ?>
+		<td><?php
+		echo $slot['Game']['Pool']['name'];
+		if ($slot['Game']['Pool']['type'] != 'crossover') {
+			echo " (round&nbsp;{$slot['Game']['round']})";
+		}
+		?></td>
+<?php endif; ?>
 		<td><?php
 		if (empty($slot['Game']['home_team'])) {
 			echo $slot['Game']['home_dependency'];

@@ -1107,6 +1107,7 @@ class DivisionsController extends AppController {
 							),
 						),
 						'Division',
+						'Pool',
 						'HomeTeam' => array(
 							'Field' => 'Facility',
 							'Region',
@@ -1127,9 +1128,12 @@ class DivisionsController extends AppController {
 				'joins' => $join,
 				'order' => array('GameSlot.game_date', 'GameSlot.game_start', 'Field.id'),
 			));
+
+			$tournament_games = Set::extract ('/Game[type!=' . SEASON_GAME . "]", $slots);
+			$is_tournament = !empty($tournament_games);
 		}
 
-		$this->set(compact('division', 'dates', 'date', 'slots'));
+		$this->set(compact('division', 'dates', 'date', 'slots', 'is_tournament'));
 
 		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 	}
