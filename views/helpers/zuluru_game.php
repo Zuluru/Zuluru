@@ -16,6 +16,7 @@ class ZuluruGameHelper extends Helper {
 		$view =& ClassRegistry::getObject('view');
 		$is_admin = $view->viewVars['is_admin'];
 		$is_manager = $view->viewVars['is_manager'] && in_array($league['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+		$is_volunteer = $view->viewVars['is_volunteer'];
 		$is_coordinator = in_array ($details['division_id'], $this->Session->read('Zuluru.DivisionIDs'));
 
 		// Calculate the game start and end time stamps
@@ -129,7 +130,7 @@ class ZuluruGameHelper extends Helper {
 				} else {
 					__('not entered');
 				}
-			} else if (time() > $start_time - 30 * 60 + Configure::read('timezone.adjust') * 60) {
+			} else if (time() > $start_time - 30 * 60 + Configure::read('timezone.adjust') * 60 && $details['home_team'] != null && $details['away_team'] != null) {
 				// Allow live scoring to start up to half an hour before scheduled game start time.
 				// This allows score keepers to get the page loaded and ready to go in advance.
 				if ($team_id) {
