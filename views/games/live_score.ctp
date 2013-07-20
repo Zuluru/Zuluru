@@ -1,6 +1,6 @@
 <?php
 $this->Html->addCrumb (__('Games', true));
-$this->Html->addCrumb (__('Game', true) . ' ' . $game['Game']['id']);
+$this->Html->addCrumb ("{$team['name']} vs {$opponent['name']}");
 $this->Html->addCrumb (__('Live Game Scoring', true));
 ?>
 
