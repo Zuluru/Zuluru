@@ -120,7 +120,8 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				break;
 
 			case 7:
-				$types['quarters_consolation_seven'] = 'bracket with quarter-finals, semi-finals, finals, and all placement games, with a first-round bye for the top seed';
+				$types['quarters_consolation_seven'] = 'bracket with quarter-finals, semi-finals, finals, and all placement games, with a bye every round for whoever should be playing the missing 8th seed';
+				$types['quarters_round_robin_seven'] = 'bracket with play-in quarter-finals for all but the top seed, semi-finals, finals and 3rd place, and a round-robin for the losers of the quarters';
 				break;
 
 			case 8:
@@ -189,6 +190,8 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			case 'semis_minimal_six':
 				return array(3, 3);
 			case 'quarters_consolation_seven':
+				return array(3, 3, 3);
+			case 'quarters_round_robin_seven':
 				return array(3, 3, 3, 1);
 			case 'quarters_consolation':
 				return array(4, 4, 4);
@@ -358,6 +361,9 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				break;
 			case 'quarters_consolation_seven':
 				$ret = $this->createQuartersSeven(true, true);
+				break;
+			case 'quarters_round_robin_seven':
+				$ret = $this->createQuartersRoundRobinSeven(true, true);
 				break;
 			case 'quarters_consolation':
 				$ret = $this->createQuarters(true, true);
@@ -635,6 +641,31 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 	}
 
 	function createQuartersSeven($bronze, $consolation) {
+		// Round 1: 4 vs 5, 2 vs 7, 3 vs 6
+		$success = $this->createTournamentGame (1, 1, '1', BRACKET_GAME, 'pool', 4, 'pool', 5);
+		$success &= $this->createTournamentGame (2, 1, '2', BRACKET_GAME, 'pool', 2, 'pool', 7);
+		$success &= $this->createTournamentGame (3, 1, '3', BRACKET_GAME, 'pool', 3, 'pool', 6);
+
+		// Round 2: 1 vs Winner 1, other winners vs winners, optional losers vs losers
+		$success &= $this->createTournamentGame (4, 2, '4', BRACKET_GAME, 'pool', 1, 'game_winner', 1);
+		$success &= $this->createTournamentGame (5, 2, '5', BRACKET_GAME, 'game_winner', 2, 'game_winner', 3);
+		if ($consolation) {
+			$success &= $this->createTournamentGame (6, 2, '6', BRACKET_GAME, 'game_loser', 2, 'game_loser', 3);
+		}
+
+		// Round 3: more winners vs winners, optional losers vs losers
+		$success &= $this->createTournamentGame (7, 3, ordinal($this->first_team + 1), BRACKET_GAME, 'game_winner', 4, 'game_winner', 5);
+		if ($bronze) {
+			$success &= $this->createTournamentGame (8, 3, ordinal($this->first_team + 3), BRACKET_GAME, 'game_loser', 4, 'game_loser', 5);
+		}
+		if ($consolation) {
+			$success &= $this->createTournamentGame (9, 3, ordinal($this->first_team + 5), BRACKET_GAME, 'game_loser', 1, 'game_winner', 6);
+		}
+
+		return $success;
+	}
+
+	function createQuartersRoundRobinSeven($bronze, $consolation) {
 		// Round 1: 4 vs 5, 2 vs 7, 3 vs 6
 		$success = $this->createTournamentGame (1, 1, '1', BRACKET_GAME, 'pool', 4, 'pool', 5);
 		$success &= $this->createTournamentGame (2, 1, '2', BRACKET_GAME, 'pool', 2, 'pool', 7);
