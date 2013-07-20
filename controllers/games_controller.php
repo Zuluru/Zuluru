@@ -1228,7 +1228,7 @@ class GamesController extends AppController {
 		}
 
 		// This will handle either the home team or a third-party submitting the score as "for"
-		$score_field = ($submitter === null || $submitter == $this->data['team_id'] ? 'score_for' : 'score_against');
+		$score_field = (($submitter === null && $this->data['team_id'] == $game['Game']['home_team']) || $submitter == $this->data['team_id'] ? 'score_for' : 'score_against');
 
 		if (!empty($game['ScoreEntry'])) {
 			$entry = current($game['ScoreEntry']);

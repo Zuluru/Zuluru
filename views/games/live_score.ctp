@@ -18,7 +18,7 @@ echo $this->ZuluruTime->date ($game['GameSlot']['game_date']) . ' ' .
 <?php
 if (!empty($game['ScoreEntry'])) {
 	$entry = current($game['ScoreEntry']);
-	if ($team['id'] == $entry['team_id']) {
+	if ($entry['team_id'] === null || $entry['team_id'] == $team['id']) {
 		$team_score = $entry['score_for'];
 		$opponent_score = $entry['score_against'];
 	} else {
