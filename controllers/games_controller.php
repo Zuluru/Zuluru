@@ -1082,6 +1082,8 @@ class GamesController extends AppController {
 	}
 
 	function live_score() {
+		$this->layout = 'bare';
+
 		$id = $this->_arg('game');
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));

@@ -102,11 +102,11 @@ body.map
 }
 #zuluru table.container tr
 {
-    border: 0;
+	border: 0;
 }
 #zuluru table.container td
 {
-    border: 0;
+	border: 0;
 	padding: 4px 0;
 	vertical-align: top;
 }
@@ -262,10 +262,10 @@ body.map
 #zuluru textarea
 {
 	clear: both;
-    border: 1px solid;
-    padding: 1px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
+	border: 1px solid;
+	padding: 1px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
 }
 #zuluru .input p
 {
@@ -535,22 +535,25 @@ div.help_dialog p
 {
 	width: 100%;
 	border: 1px solid;
+	margin-bottom: 1em;
 }
 
 #zuluru div.score_box td
 {
 	text-align: center;
 	width: 25%;
+	padding: 2px;
 }
 
 #zuluru div.score_box td.score
 {
-	font-size: 150%;
+	font-size: 100px;
+	height: 125px;
 }
 
 #zuluru div.score_box td.up, #zuluru div.score_box td.down
 {
-	font-size: 200%;
+	font-size: 250%;
 }
 
 /* Tournament styling. */

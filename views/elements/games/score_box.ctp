@@ -1,16 +1,11 @@
 <div class="score_box" id="score_team_<?php echo $team['id']; ?>">
 <table>
 	<tr>
-		<td class="actions down"><?php echo $this->Html->link('&ndash;', '#', array('escape' => false)); ?></td>
-		<td class="team_name" colspan="2"><?php
-		echo $team['name'];
-		if (Configure::read('feature.shirt_colour') && array_key_exists ('shirt_colour', $team)) {
-			echo ' ' . $this->element('shirt', array('colour' => $team['shirt_colour']));
-		}
-		?></td>
-		<td class="actions up"><?php echo $this->Html->link('+', '#'); ?></td>
+		<td class="actions down" rowspan="2"><?php echo $this->Html->link('&ndash;', '#', array('escape' => false)); ?></td>
+		<td class="team_name" colspan="2"><?php echo $team['name']; ?></td>
+		<td class="actions up" rowspan="2"><?php echo $this->Html->link('+', '#'); ?></td>
 	</tr>
-	<tr><td class="score" colspan="4"><?php echo $score; ?></td></tr>
+	<tr><td class="score" colspan="2"><?php echo $score; ?></td></tr>
 	<tr>
 		<td class="actions timeout" colspan="2"><?php echo $this->Html->link('Timeout', '#'); ?> (<span class="timeout_count"><?php echo $timeouts; ?></span> taken)</td>
 		<td class="actions other" colspan="2"><?php echo $this->Html->link('Other', '#'); ?></td>
