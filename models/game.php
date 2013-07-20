@@ -277,11 +277,13 @@ class Game extends AppModel {
 		// Work backwards through previous rounds
 		while ($round > 1) {
 			$round_games = array();
+			$empty = true;
 
 			foreach ($bracket[$round] as $game) {
 				if (!empty($game) && in_array($game['home_dependency_type'], array('game_winner', 'game_loser'))) {
 					if (array_key_exists($game['home_dependency_id'], $games)) {
 						$round_games[] = $games[$game['home_dependency_id']];
+						$empty = false;
 						unset ($games[$game['home_dependency_id']]);
 					} else {
 						$round_games[] = array();
@@ -293,6 +295,7 @@ class Game extends AppModel {
 				if (!empty($game) && in_array($game['away_dependency_type'], array('game_winner', 'game_loser'))) {
 					if (array_key_exists($game['away_dependency_id'], $games)) {
 						$round_games[] = $games[$game['away_dependency_id']];
+						$empty = false;
 						unset ($games[$game['away_dependency_id']]);
 					} else {
 						$round_games[] = array();
@@ -302,7 +305,7 @@ class Game extends AppModel {
 				}
 			}
 
-			if (empty($round_games)) {
+			if ($empty) {
 				break;
 			}
 			$bracket[--$round] = $round_games;
