@@ -1090,6 +1090,9 @@ class AppController extends Controller {
 		$this->_addMenuItem ('Standings', array('controller' => 'divisions', 'action' => 'standings', 'division' => $division['id']), $path);
 		if ($this->is_logged_in) {
 			$this->_addMenuItem ('Scores', array('controller' => 'divisions', 'action' => 'scores', 'division' => $division['id']), $path);
+			if (League::hasStats($league)) {
+				$this->_addMenuItem ('Stats', array('controller' => 'divisions', 'action' => 'stats', 'division' => $division['id']), $path);
+			}
 		}
 		if ($this->is_admin || $is_manager || $is_coordinator) {
 			$this->_addMenuItem ('Add Games', array('controller' => 'schedules', 'action' => 'add', 'division' => $division['id']), array_merge($path, array('Schedule')));

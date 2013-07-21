@@ -45,6 +45,11 @@ if ($division['schedule_type'] != 'none') {
 			array('controller' => 'divisions', 'action' => 'standings', 'division' => $division['id']),
 			array('alt' => __('Standings', true), 'title' => __('Standings', true)));
 	}
+	if ($this->params['controller'] != 'divisions' || $this->params['action'] != 'stats') {
+		$links[] = $this->ZuluruHtml->iconLink("stats_$size.png",
+			array('controller' => 'divisions', 'action' => 'stats', 'division' => $division['id']),
+			array('alt' => __('Stats', true), 'title' => __('Stats', true)));
+	}
 }
 if ($is_admin || $is_manager || $is_coordinator) {
 	if (!$collapse && ($this->params['controller'] != 'divisions' || $this->params['action'] != 'edit')) {

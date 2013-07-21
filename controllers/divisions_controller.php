@@ -13,6 +13,7 @@ class DivisionsController extends AppController {
 		// Anyone that's logged in can perform these operations
 		if (in_array ($this->params['action'], array(
 				'scores',
+				'stats',
 		)))
 		{
 			return true;
@@ -230,6 +231,90 @@ class DivisionsController extends AppController {
 
 		Configure::write ('debug', 0);
 		$this->layout = 'ajax';
+	}
+
+	function stats() {
+		$id = $this->_arg('division');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+		}
+		$contain = array(
+			'League' => array('StatType' => array('conditions' => array('StatType.type' => Configure::read('stat_types.team')))),
+			'Day',
+			'Team',
+		);
+		$this->Division->contain($contain);
+
+		$division = $this->Division->read(null, $id);
+		if (!$division) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+		}
+
+		if (!League::hasStats($division['League'])) {
+			$this->Session->setFlash(__('This league does not have stat tracking enabled.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'division' => $id));
+		}
+
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
+		Configure::load("sport/{$division['League']['sport']}");
+		$sport_obj = $this->_getComponent ('Sport', $division['League']['sport'], $this);
+
+		// Hopefully, everything we need is already cached
+		$cache_file = CACHE . 'queries' . DS . "division_stats_{$id}.data";
+		if (file_exists($cache_file)) {
+			$division += unserialize(file_get_contents($cache_file));
+		} else {
+			// Calculate some stats.
+			$teams = Set::extract('/Team/id', $division);
+			$stats = $this->Division->Team->Stat->find('all', array(
+					'conditions' => array(
+						'team_id' => array_keys($teams),
+					),
+			));
+
+			$division['Person'] = $this->Division->Team->TeamsPerson->find('all', array(
+					'contain' => array('Person'),
+					'conditions' => array('TeamsPerson.team_id' => array_keys($teams)),
+			));
+			usort($division['Person'], array('Person', 'comparePerson'));
+			AppModel::_reindexOuter($division['Person'], 'Person', 'id');
+
+			foreach ($division['League']['StatType'] as $stat_type) {
+				switch ($stat_type['type']) {
+					case 'season_total':
+						$sport_obj->_season_total($stat_type, $stats);
+						break;
+					case 'season_avg':
+						$sport_obj->_season_avg($stat_type, $stats);
+						break;
+					case 'season_calc':
+						$func = "{$stat_type['handler']}_season";
+						if (method_exists($sport_obj, $func)) {
+							$sport_obj->$func($stat_type, $stats);
+						} else {
+							trigger_error("Season stat handler {$stat_type['handler']} was not found in the {$stat_type['sport']} component!", E_USER_ERROR);
+						}
+						break;
+				}
+			}
+
+			$division['Calculated'] = $stats['Calculated'];
+
+			file_put_contents($cache_file, serialize(array(
+					'Person' => $division['Person'],
+					'Calculated' => $division['Calculated'],
+			)));
+		}
+
+		$this->set(compact('division', 'sport_obj'));
+		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.DivisionIDs')));
+
+		if ($this->params['url']['ext'] == 'csv') {
+			$this->set('download_file_name', "Stats - {$division['Division']['name']}");
+			Configure::write ('debug', 0);
+		}
 	}
 
 	function add() {
