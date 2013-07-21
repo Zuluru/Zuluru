@@ -44,9 +44,9 @@ echo $this->element('games/score_box', array('game' => $game, 'submitter' => $su
 <?php
 if (Configure::read('feature.twitter')) {
 	if (isset($entry)) {
-		$twitter = "{$game['Division']['name']} score update: " . Game::shortScore($team, $team_score, $opponent, $opponent_score);
+		$twitter = "{$game['Division']['name']} score update: " . Game::twitterScore($team, $team_score, $opponent, $opponent_score);
 	} else {
-		$twitter = "{$game['Division']['name']} game between " . Team::shortName($team) . ' and ' . Team::shortName($opponent) . " is about to start at {$game['GameSlot']['Field']['long_code']}.";
+		$twitter = "{$game['Division']['name']} game between " . Team::twitterName($team) . ' and ' . Team::twitterName($opponent) . " is about to start at {$game['GameSlot']['Field']['long_code']}.";
 	}
 	echo $this->Form->input('Game.Twitter', array(
 			'div' => 'clear',
