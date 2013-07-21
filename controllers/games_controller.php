@@ -1204,6 +1204,8 @@ class GamesController extends AppController {
 			'Division' => array(
 				'League',
 			),
+			'HomeTeam',
+			'AwayTeam',
 			'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $submitter)),
 			'ScoreDetail' => array('conditions' => array(
 				'ScoreDetail.team_id' => $this->data['team_id'],
@@ -1228,7 +1230,13 @@ class GamesController extends AppController {
 		}
 
 		// This will handle either the home team or a third-party submitting the score as "for"
-		$score_field = (($submitter === null && $this->data['team_id'] == $game['Game']['home_team']) || $submitter == $this->data['team_id'] ? 'score_for' : 'score_against');
+		if (($submitter === null && $this->data['team_id'] == $game['Game']['home_team']) || $submitter == $this->data['team_id']) {
+			$team_score_field = 'score_for';
+			$opponent_score_field = 'score_against';
+		} else {
+			$team_score_field = 'score_against';
+			$opponent_score_field = 'score_for';
+		}
 
 		if (!empty($game['ScoreEntry'])) {
 			$entry = current($game['ScoreEntry']);
@@ -1239,17 +1247,18 @@ class GamesController extends AppController {
 			unset($entry['created']);
 			unset($entry['updated']);
 			unset($entry['person_id']);
-			$score = $entry[$score_field];
+			$team_score = $entry[$team_score_field];
+			$opponent_score = $entry[$opponent_score_field];
 		} else {
 			$entry = array(
 				'team_id' => $submitter,
 				'game_id' => $id,
 				'status' => 'in_progress',
 			);
-			$score = 0;
+			$team_score = $opponent_score = 0;
 		}
 
-		if ($score != $this->data['score_from']) {
+		if ($team_score != $this->data['score_from']) {
 			$this->set('error', __('The saved score does not match yours.\nSomeone else may have updated the score in the meantime.\n\nPlease refresh the page and try again.', true));
 			return;
 		}
@@ -1266,8 +1275,8 @@ class GamesController extends AppController {
 			$this->set('error', __('Invalid scoring play!', true));
 			return;
 		}
-		$score += $points;
-		$entry[$score_field] = $score;
+		$team_score += $points;
+		$entry[$team_score_field] = $team_score;
 
 		$transaction = new DatabaseTransaction($this->Game);
 
@@ -1312,7 +1321,39 @@ class GamesController extends AppController {
 			unlink($cache_file);
 		}
 
-		$this->set(compact('score'));
+		if ($game['Game']['home_team'] == $this->data['team_id'] || $this->data['team_id'] === null) {
+			$team = $game['HomeTeam'];
+			$opponent = $game['AwayTeam'];
+		} else if ($game['Game']['away_team'] == $this->data['team_id']) {
+			$team = $game['AwayTeam'];
+			$opponent = $game['HomeTeam'];
+		}
+
+		// Do some fun analysis on scores
+		$twitter = "Score update #{$game['Division']['name']}: ";
+		if ($team_score == 1 && $opponent_score == 0) {
+			$twitter .= Team::twitterName($team) . ' opens the scoring against ' . Team::twitterName($opponent) . '.';
+		} else if ($team_score >= $game['Division']['League']['expected_max_score']) {
+			$twitter .= Team::twitterName($team) . " wins $team_score-$opponent_score against " . Team::twitterName($opponent);
+		} else if ($team_score == ceil($game['Division']['League']['expected_max_score'] / 2)) {
+			$twitter .= Team::twitterName($team) . " takes half $team_score-$opponent_score against " . Team::twitterName($opponent);
+		} else if ($team_score == $opponent_score) {
+			$twitter .= Team::twitterName($team) . ' scores to tie ' . Team::twitterName($opponent) . " at $team_score-$opponent_score";
+			if ($team_score == $game['Division']['League']['expected_max_score'] - 1) {
+				$twitter .= ', heading to overtime!';
+			}
+		} else if ($team_score == $opponent_score + 1) {
+			$twitter .= Team::twitterName($team) . " takes the lead $team_score-$opponent_score against " . Team::twitterName($opponent);
+		} else if ($team_score == $opponent_score - 1) {
+			$twitter .= Team::twitterName($team) . " pulls within one, down $opponent_score-$team_score against " . Team::twitterName($opponent);
+		} else if ($team_score == $opponent_score + 5) {
+			$twitter .= Team::twitterName($team) . ' opens up a five-point lead on ' . Team::twitterName($opponent) . ', score now ' . Game::twitterScore($team, $team_score, $opponent, $opponent_score);
+		} else {
+			$twitter .= Game::twitterScore($team, $team_score, $opponent, $opponent_score);
+		}
+
+		$this->set(compact('team_score'));
+		$this->set('twitter', addslashes($twitter));
 	}
 
 	function score_down() {
@@ -1347,6 +1388,8 @@ class GamesController extends AppController {
 			'Division' => array(
 				'League',
 			),
+			'HomeTeam',
+			'AwayTeam',
 			'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $submitter)),
 			'ScoreDetail' => array(
 				'conditions' => array(
@@ -1374,7 +1417,13 @@ class GamesController extends AppController {
 		}
 
 		// This will handle either the home team or a third-party submitting the score as "for"
-		$score_field = ($submitter === null || $submitter == $this->data['team_id'] ? 'score_for' : 'score_against');
+		if (($submitter === null && $this->data['team_id'] == $game['Game']['home_team']) || $submitter == $this->data['team_id']) {
+			$team_score_field = 'score_for';
+			$opponent_score_field = 'score_against';
+		} else {
+			$team_score_field = 'score_against';
+			$opponent_score_field = 'score_for';
+		}
 
 		if (empty($game['ScoreEntry'])) {
 			$this->set('error', __('You can\'t decrease the score below zero.', true));
@@ -1388,9 +1437,10 @@ class GamesController extends AppController {
 		unset($entry['created']);
 		unset($entry['updated']);
 		unset($entry['person_id']);
-		$score = $entry[$score_field];
+		$team_score = $entry[$team_score_field];
+		$opponent_score = $entry[$opponent_score_field];
 
-		if ($score != $this->data['score_from']) {
+		if ($team_score != $this->data['score_from']) {
 			$this->set('error', __('The saved score does not match yours.\nSomeone else may have updated the score in the meantime.\n\nPlease refresh the page and try again.', true));
 			return;
 		}
@@ -1399,8 +1449,8 @@ class GamesController extends AppController {
 		Configure::load("sport/{$game['Division']['League']['sport']}");
 
 		$detail = array_shift($game['ScoreDetail']);
-		$score -= $detail['points'];
-		$entry[$score_field] = $score;
+		$team_score -= $detail['points'];
+		$entry[$team_score_field] = $team_score;
 
 		$transaction = new DatabaseTransaction($this->Game);
 
@@ -1422,7 +1472,17 @@ class GamesController extends AppController {
 			unlink($cache_file);
 		}
 
-		$this->set(compact('score'));
+		if ($game['Game']['home_team'] == $this->data['team_id'] || $this->data['team_id'] === null) {
+			$team = $game['HomeTeam'];
+			$opponent = $game['AwayTeam'];
+		} else if ($game['Game']['away_team'] == $this->data['team_id']) {
+			$team = $game['AwayTeam'];
+			$opponent = $game['HomeTeam'];
+		}
+
+		$twitter = "Score update #{$game['Division']['name']}: " . Game::twitterScore($team, $team_score, $opponent, $opponent_score);
+		$this->set(compact('team_score'));
+		$this->set('twitter', addslashes($twitter));
 	}
 
 	function timeout() {
@@ -1456,6 +1516,8 @@ class GamesController extends AppController {
 			'Division' => array(
 				'League',
 			),
+			'HomeTeam',
+			'AwayTeam',
 			'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $submitter)),
 			'ScoreDetail' => array('conditions' => array(
 				'ScoreDetail.team_id' => $this->data['team_id'],
@@ -1480,25 +1542,42 @@ class GamesController extends AppController {
 		}
 
 		// This will handle either the home team or a third-party submitting the timeout as "for"
-		$score_field = ($submitter === null || $submitter == $this->data['team_id'] ? 'score_for' : 'score_against');
+		if (($submitter === null && $this->data['team_id'] == $game['Game']['home_team']) || $submitter == $this->data['team_id']) {
+			$team_score_field = 'score_for';
+			$opponent_score_field = 'score_against';
+		} else {
+			$team_score_field = 'score_against';
+			$opponent_score_field = 'score_for';
+		}
 
 		if (empty($game['ScoreEntry'])) {
-			$score = 0;
+			$team_score = $opponent_score = 0;
 		} else {
 			$entry = current($game['ScoreEntry']);
 			if ($entry['status'] != 'in_progress') {
 				$this->set('error', __('That team has already submitted a score for that game.', true));
 				return;
 			}
-			$score = $entry[$score_field];
+			$team_score = $entry[$team_score_field];
+			$opponent_score = $entry[$opponent_score_field];
 		}
-		if ($score != $this->data['score_from']) {
+		if ($team_score != $this->data['score_from']) {
 			$this->set('error', __('The saved score does not match yours.\nSomeone else may have updated the score in the meantime.\n\nPlease refresh the page and try again.', true));
 			return;
 		}
 
 		$this->Configuration->loadAffiliate($game['Division']['League']['affiliate_id']);
 		Configure::load("sport/{$game['Division']['League']['sport']}");
+
+		if ($game['Game']['home_team'] == $this->data['team_id'] || $this->data['team_id'] === null) {
+			$team = $game['HomeTeam'];
+			$opponent = $game['AwayTeam'];
+		} else if ($game['Game']['away_team'] == $this->data['team_id']) {
+			$team = $game['AwayTeam'];
+			$opponent = $game['HomeTeam'];
+		}
+
+		$twitter = "Game update #{$game['Division']['name']}: timeout called by " . Team::twitterName($team) . ' with the score ' . Game::twitterScore($team, $team_score, $opponent, $opponent_score);
 
 		// Check if there's already a score detail record from the other team that this is likely a duplicate of.
 		// If so, we want to disregard it.
@@ -1509,6 +1588,7 @@ class GamesController extends AppController {
 				strtotime($detail['created']) >= time() - 2 * MINUTE)
 			{
 				$this->set('taken', count($game['ScoreDetail']));
+				$this->set('twitter', addslashes($twitter));
 				return;
 			}
 		}
@@ -1524,6 +1604,7 @@ class GamesController extends AppController {
 		}
 
 		$this->set('taken', count($game['ScoreDetail']) + 1);
+		$this->set('twitter', addslashes($twitter));
 	}
 
 	function play() {
@@ -1557,6 +1638,8 @@ class GamesController extends AppController {
 			'Division' => array(
 				'League',
 			),
+			'HomeTeam',
+			'AwayTeam',
 			'ScoreEntry' => array('conditions' => array('ScoreEntry.team_id' => $submitter)),
 			'ScoreDetail',
 		));
@@ -1578,17 +1661,24 @@ class GamesController extends AppController {
 		}
 
 		// This will handle either the home team or a third-party submitting the score as "for"
-		$score_field = ($submitter === null || $submitter == $this->data['team_id'] ? 'score_for' : 'score_against');
+		if (($submitter === null && $this->data['team_id'] == $game['Game']['home_team']) || $submitter == $this->data['team_id']) {
+			$team_score_field = 'score_for';
+			$opponent_score_field = 'score_against';
+		} else {
+			$team_score_field = 'score_against';
+			$opponent_score_field = 'score_for';
+		}
 
 		if (empty($game['ScoreEntry'])) {
-			$score = 0;
+			$team_score = $opponent_score = 0;
 		} else {
 			$entry = current($game['ScoreEntry']);
 			if ($entry['status'] != 'in_progress') {
 				$this->set('message', __('That team has already submitted a score for that game.', true));
 				return;
 			}
-			$score = $entry[$score_field];
+			$team_score = $entry[$team_score_field];
+			$opponent_score = $entry[$opponent_score_field];
 		}
 
 		$this->Configuration->loadAffiliate($game['Division']['League']['affiliate_id']);
@@ -1604,14 +1694,27 @@ class GamesController extends AppController {
 			return;
 		}
 
+		if ($game['Game']['home_team'] == $this->data['team_id'] || $this->data['team_id'] === null) {
+			$team = $game['HomeTeam'];
+			$opponent = $game['AwayTeam'];
+		} else if ($game['Game']['away_team'] == $this->data['team_id']) {
+			$team = $game['AwayTeam'];
+			$opponent = $game['HomeTeam'];
+		}
+
 		$valid = $sport_obj->validate_play($this->data['team_id'], $this->data['play'], $this->data['score_from'], $game['ScoreDetail']);
 		if ($valid !== true) {
 			$this->set('message', addslashes($valid));
+			$this->set('twitter', '');
 			return;
 		} else if ($this->data['play'] == 'Start') {
 			$this->set('message', __('Game timer initialized.', true));
+			$twitter = "Game update #{$game['Division']['name']}: " . Team::twitterName($team) . ' pulls to ' . Team::twitterName($opponent) . ' to start the game.';
+			$this->set('twitter', addslashes($twitter));
 		} else {
 			$this->set('message', Configure::read("sport.other_options.{$this->data['play']}") . ' ' . __('recorded', true));
+			$twitter = "Game update #{$game['Division']['name']}: " . Team::twitterName($team) . ' ' . low(Configure::read("sport.other_options.{$this->data['play']}")) . ' vs ' . Team::twitterName($opponent);
+			$this->set('twitter', addslashes($twitter));
 		}
 
 		// Check if there's already a score detail record from the other team that this is likely a duplicate of.

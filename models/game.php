@@ -887,6 +887,14 @@ class Game extends AppModel {
 		return $options;
 	}
 
+	static function twitterScore($team, $team_score, $opponent, $opponent_score) {
+		if ($team_score >= $opponent_score) {
+			return Team::twitterName($team) . ' ' . $team_score . ', ' . Team::twitterName($opponent) . ' ' . $opponent_score;
+		} else {
+			return Team::twitterName($opponent) . ' ' . $opponent_score . ', ' . Team::twitterName($team) . ' ' . $team_score;
+		}
+	}
+
 	function affiliate($id) {
 		return $this->Division->affiliate($this->field('division_id', array('Game.id' => $id)));
 	}

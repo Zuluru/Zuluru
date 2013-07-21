@@ -166,6 +166,15 @@ echo $this->element('settings/banner');
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'feature',
+		'name' => 'twitter',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'after' => 'Enable or disable generation of Twitter text during live scoring.',
+		),
+	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
 		'name' => 'region_preference',
 		'options' => array(
 			'type' => 'radio',

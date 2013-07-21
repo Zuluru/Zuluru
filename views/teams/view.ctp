@@ -19,6 +19,13 @@ if (!empty($team['Team']['short_name'])) {
 
 		</dd>
 		<?php endif; ?>
+		<?php if (Configure::read('feature.twitter') && !empty ($team['Team']['twitter_user'])):?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Twitter'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo $this->Html->link("@{$team['Team']['twitter_user']}", "https://twitter.com/{$team['Team']['twitter_user']}"); ?>
+
+		</dd>
+		<?php endif; ?>
 		<?php if (Configure::read('feature.shirt_colour')): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Shirt Colour'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>

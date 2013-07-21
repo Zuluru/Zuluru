@@ -712,6 +712,7 @@ class ZuluruSchema extends CakeSchema {
 		'flickr_user' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 32),
 		'flickr_set' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 24),
 		'flickr_ban' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'twitter_user' => array('type' => 'string', 'null' => true, 'length' => 64),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'name' => array('column' => 'name', 'unique' => 0), 'division' => array('column' => 'division_id', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);

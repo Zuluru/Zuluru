@@ -263,6 +263,21 @@ class Team extends AppModel {
 		}
 	}
 
+	static function twitterName($team) {
+		static $handles = array();
+
+		if (!empty($team['short_name'])) {
+			$ret = $team['short_name'];
+		} else {
+			$ret = $team['name'];
+		}
+		if (!empty($team['twitter_user']) && !in_array($team['twitter_user'], $handles)) {
+			$ret .= " @{$team['twitter_user']}";
+			$handles[] = $team['twitter_user'];
+		}
+		return $ret;
+	}
+
 	function affiliate($id) {
 		// Teams may be unassigned
 		$division = $this->field('division_id', array('Team.id' => $id));

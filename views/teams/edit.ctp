@@ -98,6 +98,12 @@ if (isset ($add)) {
 			}
 		}
 
+		if (Configure::read('feature.twitter')) {
+			echo $this->ZuluruForm->input('twitter_user', array(
+				'after' => $this->Html->para (null, __('Do NOT include the @; it will be automatically added for you.', true)),
+			));
+		}
+
 		if ($is_admin && Configure::read('feature.home_field')) {
 			echo $this->ZuluruForm->input('home_field', array(
 				'label' => sprintf(__('Home %s', true), Configure::read('sport.field_cap')),
