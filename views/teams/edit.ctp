@@ -19,6 +19,9 @@ if (isset ($add)) {
 		echo $this->ZuluruForm->input('name', array(
 			'after' => $this->Html->para (null, __('The full name of your team.', true)),
 		));
+		echo $this->ZuluruForm->input('short_name', array(
+			'after' => $this->Html->para (null, __('A short name for your team, if you have one.', true)),
+		));
 
 		if (isset ($add)) {
 			echo $this->ZuluruForm->input('affiliate_id', array(

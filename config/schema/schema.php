@@ -693,6 +693,7 @@ class ZuluruSchema extends CakeSchema {
 	var $teams = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'name' => array('type' => 'string', 'null' => false, 'length' => 100, 'key' => 'index'),
+		'short_name' => array('type' => 'string', 'null' => true, 'length' => 6),
 		'affiliate_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'division_id' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'key' => 'index'),
 		'website' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
