@@ -445,6 +445,8 @@ class ZuluruSchema extends CakeSchema {
 		'contact_for_feedback' => array('type' => 'boolean', 'null' => false, 'default' => '1'),
 		'last_login' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
 		'client_ip' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
+		'twitter_token' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 255),
+		'twitter_secret' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 255),
 		'complete' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'username' => array('column' => 'user_name', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')

@@ -44,16 +44,26 @@ echo $this->element('games/score_box', array('game' => $game, 'submitter' => $su
 <?php
 if (Configure::read('feature.twitter')) {
 	if (isset($entry)) {
-		$twitter = "{$game['Division']['name']} score update: " . Game::twitterScore($team, $team_score, $opponent, $opponent_score);
+		$twitter = "Score update #{$game['Division']['name']}: " . Game::twitterScore($team, $team_score, $opponent, $opponent_score);
 	} else {
-		$twitter = "{$game['Division']['name']} game between " . Team::twitterName($team) . ' and ' . Team::twitterName($opponent) . " is about to start at {$game['GameSlot']['Field']['long_code']}.";
+		$twitter = "#{$game['Division']['name']} game between " . Team::twitterName($team) . ' and ' . Team::twitterName($opponent) . " is about to start at {$game['GameSlot']['Field']['long_code']}.";
 	}
-	echo $this->Form->input('Game.Twitter', array(
+	echo $this->Form->create('Twitter', array('url' => array('controller' => 'games', 'action' => 'tweet')));
+	echo $this->Form->hidden('lat', array('value' => $game['GameSlot']['Field']['latitude']));
+	echo $this->Form->hidden('long', array('value' => $game['GameSlot']['Field']['longitude']));
+	echo $this->Form->input('message', array(
 			'div' => 'clear',
 			'cols' => 50,
 			'rows' => 4,
 			'value' => $twitter,
 	));
+	echo $this->Form->end('Tweet');
+
+	echo $this->Html->scriptBlock ("
+        jQuery(document).ready(function() {
+            jQuery('#TwitterLiveScoreForm').ajaxForm({target: '#temp_update'});
+        });
+	");
 }
 ?>
 </div>

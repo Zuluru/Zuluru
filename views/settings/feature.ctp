@@ -166,15 +166,6 @@ echo $this->element('settings/banner');
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'feature',
-		'name' => 'twitter',
-		'options' => array(
-			'type' => 'radio',
-			'options' => Configure::read('options.enable'),
-			'after' => 'Enable or disable generation of Twitter text during live scoring.',
-		),
-	));
-	echo $this->element('settings/input', array(
-		'category' => 'feature',
 		'name' => 'region_preference',
 		'options' => array(
 			'type' => 'radio',
@@ -293,6 +284,37 @@ echo $this->element('settings/banner');
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
 			'after' => 'Enable or disable questions and options about dogs.',
+		),
+	));
+	?>
+	</fieldset>
+
+	<fieldset>
+ 		<legend><?php __('Twitter Features'); ?></legend>
+	<?php
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
+		'name' => 'twitter',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'after' => 'Enable or disable Twitter integration.',
+		),
+	));
+
+	echo $this->element('settings/input', array(
+		'category' => 'twitter',
+		'name' => 'consumer_key',
+		'options' => array(
+			'after' => 'This application\'s Twitter consumer key.',
+		),
+	));
+
+	echo $this->element('settings/input', array(
+		'category' => 'twitter',
+		'name' => 'consumer_secret',
+		'options' => array(
+			'after' => 'This application\'s Twitter consumer secret.',
 		),
 	));
 	?>

@@ -78,7 +78,26 @@ $this->Html->addCrumb ("{$person['Person']['first_name']} {$person['Person']['la
 			'after' => 'Select your preferred time format',
 		),
 	));
+
+	if (Configure::read('feature.twitter')):
 	?>
+		<fieldset>
+	 		<legend><?php __('Twitter'); ?></legend>
+<?php
+		if (!empty($person['Person']['twitter_token'])) {
+			echo $this->Html->para(null, sprintf(__('You have authorized your account to post updates to Twitter. You can %s if you no longer want to tweet updates.', true),
+				$this->Html->link(__('revoke this authorization', true), array('action' => 'revoke_twitter'))
+			));
+		} else {
+			echo $this->Html->para(null, sprintf(__('This system can post certain updates to Twitter on your behalf. To enable this, you must %s. Note that nothing will ever be tweeted automatically; this authorization enables you to tweet directly from this site.', true),
+				$this->Html->link(__('authorize Twitter to accept these tweets', true), array('action' => 'authorize_twitter'))
+			));
+		}
+?>
+		</fieldset>
+<?php
+	endif;
+?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>

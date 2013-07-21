@@ -38,6 +38,7 @@ class GamesController extends AppController {
 				'past',
 				'future',
 				'stats',
+				'tweet',
 		)))
 		{
 			return true;
@@ -1737,6 +1738,41 @@ class GamesController extends AppController {
 		{
 			$this->set('message', __('There was an error updating the box score.\nPlease try again.', true));
 			return;
+		}
+	}
+
+	function tweet() {
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
+
+		if (!App::import('Lib', 'twitter_api_exchange')) {
+			$this->set('message', sprintf(__('Failed to load the %s library! Contact your system administrator.', true), 'Twitter API Exchange'));
+			return;
+		}
+		$this->Game->HomeTeam->Person->contain();
+		$person = $this->Game->HomeTeam->Person->read(array('twitter_token', 'twitter_secret'), $this->Auth->user('id'));
+		if (empty($person['Person']['twitter_token']) || empty($person['Person']['twitter_secret'])) {
+			$this->set('message', __('You have not authorized this site to tweet on your behalf. Configure this in the Profile Preferences page.', true));
+			return;
+		}
+		$settings = array(
+				'consumer_key' => Configure::read('twitter.consumer_key'),
+				'consumer_secret' => Configure::read('twitter.consumer_secret'),
+				'oauth_access_token' => $person['Person']['twitter_token'],
+				'oauth_access_token_secret' => $person['Person']['twitter_secret'],
+		);
+		$url = 'https://api.twitter.com/1.1/statuses/update.json';
+		$postfields = array(
+				'status' => $this->data['Twitter']['message'],
+				'lat' => $this->data['Twitter']['lat'],
+				'long' => $this->data['Twitter']['long'],
+		);
+		$twitter = new TwitterAPIExchange($settings);
+		$response = json_decode($twitter->buildOauth($url, 'POST')->setPostfields($postfields)->performRequest());
+		if (!empty($response->id_str)) {
+			$this->set('message', __('Your message has been tweeted.', true));
+		} else {
+			$this->set('message', __('Failed to send the tweet.', true) . ' ' . $response->errors[0]->message);
 		}
 	}
 

@@ -1,3 +1,3 @@
 <?php
-echo $this->Html->scriptBlock ("jQuery('#GameTwitter').val('$twitter'); alert('$message');");
+echo $this->Html->scriptBlock ("jQuery('#TwitterMessage').val('$twitter'); alert('$message');");
 ?>

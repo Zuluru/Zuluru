@@ -792,6 +792,94 @@ class PeopleController extends AppController {
 		));
 	}
 
+	function authorize_twitter() {
+		if (!App::import('Lib', 'tmh_oauth')) {
+			$this->Session->setFlash(sprintf(__('Failed to load the %s library! Contact your system administrator.', true), 'Twitter OAuth'), 'default', array('class' => 'error'));
+			$this->redirect(array('action' => 'preferences'));
+		}
+
+		define('__DIR__', ROOT . DS . APP_DIR . DS . 'libs');
+		$tmhOAuth = new tmhOAuth(array(
+			'consumer_key' => Configure::read('twitter.consumer_key'),
+			'consumer_secret' => Configure::read('twitter.consumer_secret'),
+		));
+
+		if (!empty($this->params['url']['oauth_token'])) {
+			$response = $this->Session->read('Twitter.response');
+			$this->Session->delete('Twitter.response');
+			if ($this->params['url']['oauth_token'] !== $response['oauth_token']) {
+				$this->Session->setFlash(__('The oauth token you started with doesn\'t match the one you\'ve been redirected with. Do you have multiple tabs open?', true), 'default', array('class' => 'warning'));
+				$this->redirect(array('action' => 'preferences'));
+			}
+
+			if (!isset($this->params['url']['oauth_verifier'])) {
+				$this->Session->setFlash(__('The oauth verifier is missing so we cannot continue. Did you deny the appliction access?', true), 'default', array('class' => 'warning'));
+				$this->redirect(array('action' => 'preferences'));
+			}
+
+			// Update with the temporary token and secret
+			$tmhOAuth->reconfigure(array_merge($tmhOAuth->config, array(
+				'token' => $response['oauth_token'],
+				'secret' => $response['oauth_token_secret'],
+			)));
+
+			$code = $tmhOAuth->user_request(array(
+				'method' => 'POST',
+				'url' => $tmhOAuth->url('oauth/access_token', ''),
+				'params' => array(
+					'oauth_verifier' => trim($this->params['url']['oauth_verifier']),
+				)
+			));
+
+			if ($code == 200) {
+				$oauth_creds = $tmhOAuth->extract_params($tmhOAuth->response['response']);
+				if ($this->Person->updateAll(array('twitter_token' => "'{$oauth_creds['oauth_token']}'", 'twitter_secret' => "'{$oauth_creds['oauth_token_secret']}'"), array('Person.id' => $this->Auth->user('id')))) {
+					$this->Session->setFlash(sprintf(__('Your Twitter authorization has been completed. You can always revoke this at any time through the preferences page.', true), __('person', true)), 'default', array('class' => 'success'));
+				} else {
+					$this->Session->setFlash(sprintf(__('Twitter authorization was received, but the database failed to update.', true), __('person', true)), 'default', array('class' => 'warning'));
+				}
+			} else {
+				$this->Session->setFlash(__('There was an error communicating with Twitter.', true) . ' ' . $tmhOAuth->response['response'], 'default', array('class' => 'warning'));
+			}
+			$this->redirect(array('action' => 'preferences'));
+		} else {
+			$code = $tmhOAuth->apponly_request(array(
+				'without_bearer' => true,
+				'method' => 'POST',
+				'url' => $tmhOAuth->url('oauth/request_token', ''),
+				'params' => array(
+					'oauth_callback' => Router::url(Router::normalize($this->here), true),
+				),
+			));
+
+			if ($code != 200) {
+				$this->Session->setFlash(__('There was an error communicating with Twitter.', true) . ' ' . $tmhOAuth->response['response'], 'default', array('class' => 'warning'));
+				$this->redirect(array('action' => 'preferences'));
+			}
+
+			// store the params into the session so they are there when we come back after the redirect
+			$response = $tmhOAuth->extract_params($tmhOAuth->response['response']);
+
+			// check the callback has been confirmed
+			if ($response['oauth_callback_confirmed'] !== 'true') {
+				$this->Session->setFlash(__('The callback was not confirmed by Twitter so we cannot continue.', true) . ' ' . $tmhOAuth->response['response'], 'default', array('class' => 'warning'));
+				$this->redirect(array('action' => 'preferences'));
+			} else {
+				$this->Session->write('Twitter.response', $response);
+				$this->redirect($tmhOAuth->url('oauth/authorize', '') . "?oauth_token={$response['oauth_token']}");			
+			}
+		}
+	}
+
+	function revoke_twitter() {
+		if ($this->Person->updateAll(array('twitter_token' => null, 'twitter_secret' => null), array('Person.id' => $this->Auth->user('id')))) {
+			$this->Session->setFlash(sprintf(__('Your Twitter authorization has been revoked. You can always re-authorize at any time through the preferences page.', true), __('person', true)), 'default', array('class' => 'success'));
+		} else {
+			$this->Session->setFlash(sprintf(__('Failed to revoke your Twitter authorization.', true), __('person', true)), 'default', array('class' => 'warning'));
+		}
+		$this->redirect(array('action' => 'preferences'));
+	}
+
 	function photo() {
 		if (!Configure::read('feature.photos')) {
 			return;
@@ -1042,7 +1130,7 @@ class PeopleController extends AppController {
 				'id' => $document['Upload']['filename'],
 				'extension' => $f->ext(),
 				'name' => $f->info['filename'],
-				'mimeType'  => Configure::read('new_mime_types'),
+				'mimeType' => Configure::read('new_mime_types'),
 				'download' => !in_array($f->ext(), Configure::read('no_download_extensions')),
 		));
 	}
