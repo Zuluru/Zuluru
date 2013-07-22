@@ -137,7 +137,7 @@ $can_annotate = Configure::read('feature.annotations') && isset($my_team);
 			array('alt' => __('Delete Game', true), 'title' => __('Delete Game', true)),
 			array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $game['Game']['id']))); ?></li>
 		<?php endif; ?>
-		<?php if (Game::_is_finalized($game) && League::hasStats($game['Division']['League'])): ?>
+		<?php if (Game::_is_finalized($game) && League::hasStats($game['Division']['League']) && ($is_logged_in || Configure::read('feature.public'))): ?>
 		<li><?php echo $this->ZuluruHtml->iconLink('stats_24.png',
 			array('action' => 'stats', 'game' => $game['Game']['id']),
 			array('alt' => __('Game Stats', true), 'title' => __('Game Stats', true))); ?></li>

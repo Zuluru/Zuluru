@@ -23,10 +23,14 @@ class TeamsController extends AppController {
 	}
 
 	function publicActions() {
-		return array('cron', 'index', 'add', 'letter', 'view', 'tooltip', 'schedule', 'ical',
+		$actions = array('cron', 'index', 'add', 'letter', 'view', 'tooltip', 'schedule', 'ical',
 			// Roster updates may come from emailed links; people might not be logged in
 			'roster_accept', 'roster_decline',
 		);
+		if (Configure::read('feature.public')) {
+			$actions[] = 'stats';
+		}
+		return $actions;
 	}
 
 	function isAuthorized() {
@@ -671,7 +675,7 @@ class TeamsController extends AppController {
 			'Region',
 			'Field' => array('Facility'),
 		);
-		if ($this->is_logged_in) {
+		if ($this->is_logged_in || Configure::read('feature.public')) {
 			$contain['Person'] = array();
 			if (Configure::read('feature.annotations')) {
 				$contain['Note'] = array('conditions' => array('created_person_id' => $this->Auth->user('id')));
@@ -716,7 +720,7 @@ class TeamsController extends AppController {
 			}
 		}
 
-		if ($this->is_logged_in) {
+		if ($this->is_logged_in || Configure::read('feature.public')) {
 			foreach ($team['Person'] as $key => $person) {
 				// Get everything from the user record that the rule might need
 				$this->Team->Person->contain(array(

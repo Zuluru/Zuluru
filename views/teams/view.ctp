@@ -215,7 +215,7 @@ if (!empty($team['Team']['short_name'])) {
 	?>
 </div>
 
-<?php if ($is_logged_in):?>
+<?php if ($is_logged_in || Configure::read('feature.public')):?>
 <div class="related">
 	<?php
 	$cols = 4;
@@ -255,7 +255,7 @@ if (!empty($team['Team']['short_name'])) {
 		$roster_required = Configure::read("sport.roster_requirements.{$team['Division']['ratio']}");
 		foreach ($team['Person'] as $person):
 			// Maybe add a warning
-			if ($person['can_add'] !== true && !$warning):
+			if ($is_logged_in && $person['can_add'] !== true && !$warning):
 				$warning = true;
 				$class = ' class="warning-message"';
 				if ($i++ % 2 == 0) {
@@ -294,18 +294,20 @@ if (!empty($team['Team']['short_name'])) {
 				}
 			}
 
-			$conflicts = array();
-			if ($person['status'] == 'inactive') {
-				$conflicts[] = __('account inactive', true);
-			}
-			if (Configure::read('feature.registration') && $team['Division']['flag_membership']  && !$person['is_a_member']) {
-				$conflicts[] = __('not a member', true);
-			}
-			if ($team['Division']['flag_roster_conflict'] && $person['roster_conflict']) {
-				$conflicts[] = __('roster conflict', true);
-			}
-			if ($team['Division']['flag_schedule_conflict'] && $person['schedule_conflict']) {
-				$conflicts[] = __('schedule conflict', true);
+			if ($is_logged_in) {
+				$conflicts = array();
+				if ($person['status'] == 'inactive') {
+					$conflicts[] = __('account inactive', true);
+				}
+				if (Configure::read('feature.registration') && $team['Division']['flag_membership']  && !$person['is_a_member']) {
+					$conflicts[] = __('not a member', true);
+				}
+				if ($team['Division']['flag_roster_conflict'] && $person['roster_conflict']) {
+					$conflicts[] = __('roster conflict', true);
+				}
+				if ($team['Division']['flag_schedule_conflict'] && $person['schedule_conflict']) {
+					$conflicts[] = __('schedule conflict', true);
+				}
 			}
 	?>
 	<tr<?php echo $class;?>>
@@ -314,7 +316,7 @@ if (!empty($team['Team']['short_name'])) {
 		<?php endif; ?>
 		<td><?php
 		echo $this->element('people/block', compact('person'));
-		if (!empty ($conflicts)) {
+		if ($is_logged_in && !empty ($conflicts)) {
 			echo $this->Html->tag('div',
 				'(' . implode (', ', $conflicts) . ')',
 				array('class' => 'warning-message'));
@@ -322,7 +324,7 @@ if (!empty($team['Team']['short_name'])) {
 		?></td>
 		<td<?php if ($warning) echo ' class="warning-message"';?>><?php
 		echo $this->element('people/roster_role', array('roster' => $person['TeamsPerson'], 'division' => $team['Division']));
-		if ($person['can_add'] !== true) {
+		if ($is_logged_in && $person['can_add'] !== true) {
 			echo ' ' . $this->ZuluruHtml->icon('help_16.png', array('title' => $person['can_add'], 'alt' => '?'));
 		}
 		?></td>

@@ -50,6 +50,16 @@ echo $this->element('settings/banner');
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'feature',
+		'name' => 'public',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'label' => 'Public Site',
+			'after' => 'If this is enabled, some information normally reserved for people who are logged on (statistics, team rosters, etc.) will be made available to anyone.',
+		),
+	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
 		'name' => 'registration',
 		'options' => array(
 			'type' => 'radio',

@@ -14,6 +14,7 @@ class ZuluruGameHelper extends Helper {
 		}
 
 		$view =& ClassRegistry::getObject('view');
+		$is_logged_in = $view->viewVars['is_logged_in'];
 		$is_admin = $view->viewVars['is_admin'];
 		$is_manager = $view->viewVars['is_manager'] && in_array($league['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
 		$is_volunteer = $view->viewVars['is_volunteer'];
@@ -56,7 +57,7 @@ class ZuluruGameHelper extends Helper {
 							__('Submit Stats', true),
 							array('controller' => 'games', 'action' => 'submit_stats', 'game' => $details['id'], 'team' => $team_id));
 				}
-				if ($this->params['controller'] != 'games' || $this->params['action'] != 'stats') {
+				if (($this->params['controller'] != 'games' || $this->params['action'] != 'stats') && ($is_logged_in || Configure::read('feature.public'))) {
 					$links[] = $this->ZuluruHtml->iconLink('stats_24.png',
 							array('controller' => 'games', 'action' => 'stats', 'game' => $details['id'], 'team' => $show_score_for_team),
 							array('alt' => __('Game Stats', true), 'title' => __('Game Stats', true)));

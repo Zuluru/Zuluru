@@ -6,7 +6,11 @@ class DivisionsController extends AppController {
 	var $components = array('Lock', 'CanRegister');
 
 	function publicActions() {
-		return array('view', 'schedule', 'standings', 'tooltip');
+		$actions = array('view', 'schedule', 'standings', 'tooltip');
+		if (Configure::read('feature.public')) {
+			$actions[] = 'stats';
+		}
+		return $actions;
 	}
 
 	function isAuthorized() {

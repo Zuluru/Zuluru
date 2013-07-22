@@ -23,10 +23,14 @@ class GamesController extends AppController {
 	}
 
 	function publicActions() {
-		return array('cron', 'view', 'tooltip', 'ical',
+		$actions = array('cron', 'view', 'tooltip', 'ical',
 			// Attendance updates may come from emailed links; people might not be logged in
 			'attendance_change',
 		);
+		if (Configure::read('feature.public')) {
+			$actions[] = 'stats';
+		}
+		return $actions;
 	}
 
 	function isAuthorized() {
