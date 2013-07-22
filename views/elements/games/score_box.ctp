@@ -38,6 +38,10 @@ echo $this->ZuluruForm->input('play', array(
 		'empty' => '---',
 		'hide_single' => true,
 ));
+echo $this->ZuluruForm->input('created', array(
+		'type' => 'datetime',
+		'label' => __('Time', true),
+));
 
 if ($has_stats) {
 	// Build the roster options
@@ -174,6 +178,10 @@ if (count($other_options) > 1):
 	echo $this->ZuluruForm->input('play', array(
 			'options' => $other_options,
 			'empty' => '---',
+	));
+	echo $this->ZuluruForm->input('created', array(
+			'type' => 'datetime',
+			'label' => __('Time', true),
 	));
 	echo $this->Form->end();
 ?>
