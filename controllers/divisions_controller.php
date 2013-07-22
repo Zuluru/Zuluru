@@ -276,7 +276,10 @@ class DivisionsController extends AppController {
 
 			$division['Person'] = $this->Division->Team->TeamsPerson->find('all', array(
 					'contain' => array('Person'),
-					'conditions' => array('TeamsPerson.team_id' => $teams),
+					'conditions' => array(
+						'TeamsPerson.team_id' => $teams,
+						'TeamsPerson.role' => Configure::read('extended_playing_roster_roles'),
+					),
 			));
 			usort($division['Person'], array('Person', 'comparePerson'));
 			AppModel::_reindexOuter($division['Person'], 'Person', 'id');
