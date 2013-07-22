@@ -7,6 +7,6 @@
 	<?php if (Configure::read('profile.skill_level')): ?>
 	<th><?php __('Avg. Skill'); ?></th>
 	<?php endif; ?>
-	<th class="actions"><?php __('Actions');?></th>
 	<?php endif; ?>
+	<th class="actions"><?php __('Actions');?></th>
 </tr>

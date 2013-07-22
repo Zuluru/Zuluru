@@ -23,8 +23,8 @@ if (count ($classes)) {
 	<?php if (Configure::read('profile.skill_level')): ?>
 	<td><?php echo $team['average_skill']; ?></td>
 	<?php endif; ?>
+	<?php endif; ?>
 	<td class="actions">
 	<?php echo $this->element('teams/actions', compact('team', 'division', 'league', 'is_manager')); ?>
 	</td>
-	<?php endif; ?>
 </tr>
