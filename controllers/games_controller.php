@@ -1336,7 +1336,7 @@ class GamesController extends AppController {
 			$twitter .= Team::twitterName($team) . ' opens the scoring against ' . Team::twitterName($opponent) . '.';
 		} else if ($team_score >= $game['Division']['League']['expected_max_score']) {
 			$twitter .= Team::twitterName($team) . " wins $team_score-$opponent_score against " . Team::twitterName($opponent);
-		} else if ($team_score == ceil($game['Division']['League']['expected_max_score'] / 2)) {
+		} else if ($team_score == ceil($game['Division']['League']['expected_max_score'] / 2) && $team_score > $opponent_score) {
 			$twitter .= Team::twitterName($team) . " takes half $team_score-$opponent_score against " . Team::twitterName($opponent);
 		} else if ($team_score == $opponent_score) {
 			$twitter .= Team::twitterName($team) . ' scores to tie ' . Team::twitterName($opponent) . " at $team_score-$opponent_score";
