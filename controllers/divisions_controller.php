@@ -270,13 +270,13 @@ class DivisionsController extends AppController {
 			$teams = Set::extract('/Team/id', $division);
 			$stats = $this->Division->Team->Stat->find('all', array(
 					'conditions' => array(
-						'team_id' => array_keys($teams),
+						'team_id' => $teams,
 					),
 			));
 
 			$division['Person'] = $this->Division->Team->TeamsPerson->find('all', array(
 					'contain' => array('Person'),
-					'conditions' => array('TeamsPerson.team_id' => array_keys($teams)),
+					'conditions' => array('TeamsPerson.team_id' => $teams),
 			));
 			usort($division['Person'], array('Person', 'comparePerson'));
 			AppModel::_reindexOuter($division['Person'], 'Person', 'id');
@@ -300,7 +300,11 @@ class DivisionsController extends AppController {
 				}
 			}
 
-			$division['Calculated'] = $stats['Calculated'];
+			if (!empty($stats['Calculated'])) {
+				$division['Calculated'] = $stats['Calculated'];
+			} else {
+				$division['Calculated'] = array();
+			}
 
 			file_put_contents($cache_file, serialize(array(
 					'Person' => $division['Person'],
