@@ -573,12 +573,39 @@ class LeagueTypeComponent extends Object
 		}
 		uasort($compare, array($this, 'compareHTH'));
 
-		// Put the teams into the same order as this new comparison demands
+		// Start the revised list with all teams that were ahead of the tied teams
 		$new_teams = array_slice($teams, 0, min($tied));
+
+		// When rounds are not complete, we can have multi-way ties where one team is clearly better
+		// then the others, but got lumped into the middle based on overall +/- comparison with a
+		// team that they haven't played. We need to deal with these leftovers.
+		$leftovers = array_diff(range(min($tied), max($tied)), $tied);
+		if (!empty($leftovers)) {
+			$sorted = array_keys($compare);
+			$best = $teams[array_shift($sorted)];
+			$worst = $teams[array_pop($sorted)];
+			foreach ($leftovers as $key => $team) {
+				// Is the leftover team better than the best team among those tied?
+				if ($this->compareTeamsResults($teams[$team], $best) < 1) {
+					$new_teams[] = $teams[$team];
+					unset($leftovers[$key]);
+				}
+			}
+		}
+
+		// Put the teams into the same order as this new comparison demands
 		foreach (array_keys($compare) as $key) {
 			$new_teams[] = $teams[$key];
 		}
+
+		// Any more leftover teams to deal with?
+		foreach ($leftovers as $team) {
+			$new_teams[] = $teams[$team];
+		}
+
+		// Finish up with all the teams there were behind all the tied teams
 		$new_teams += array_slice($teams, max($tied) + 1, null, true);
+
 		$teams = $new_teams;
 	}
 
