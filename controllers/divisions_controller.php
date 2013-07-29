@@ -266,9 +266,12 @@ class DivisionsController extends AppController {
 		$sport_obj = $this->_getComponent ('Sport', $division['League']['sport'], $this);
 
 		// Hopefully, everything we need is already cached
-		$cache_file = CACHE . 'queries' . DS . "division_stats_{$id}.data";
-		if (file_exists($cache_file)) {
-			$division += unserialize(file_get_contents($cache_file));
+		$cache_file = CACHE . 'queries' . DS . 'division_stats_' . intval($id) . '.data';
+		if (file_exists($cache_file) && !Configure::read('debug')) {
+			$stats = unserialize(file_get_contents($cache_file));
+		}
+		if (!empty($stats)) {
+			$division += $stats;
 		} else {
 			// Calculate some stats.
 			$teams = Set::extract('/Team/id', $division);
@@ -672,33 +675,43 @@ class DivisionsController extends AppController {
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
-		$this->Division->contain(array (
-			'Day' => array('order' => 'day_id'),
-			'Team',
-			'League',
-			'Game' => array(
-				'conditions' => array(
-					'OR' => array(
-						'Game.home_dependency_type !=' => 'copy',
-						'Game.home_dependency_type' => null,
-					),
-				),
-				'GameSlot' => array('Field' => 'Facility'),
-				'ScoreEntry',
-				'HomeTeam',
-				'HomePoolTeam' => 'DependencyPool',
-				'AwayTeam',
-				'AwayPoolTeam' => 'DependencyPool',
-			),
-		));
-		$division = $this->Division->read(null, $id);
-		if (!$division) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+		// Hopefully, everything we need is already cached
+		$cache_file = CACHE . 'queries' . DS . 'schedule_' . intval($id) . '.data';
+		if (empty($this->data) && file_exists($cache_file)) {
+			$division = unserialize(file_get_contents($cache_file));
 		}
-		if (empty ($division['Game'])) {
-			$this->Session->setFlash(__('This division has no games scheduled yet.', true), 'default', array('class' => 'info'));
-			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+		if (empty($division)) {
+			$this->Division->contain(array (
+				'Day' => array('order' => 'day_id'),
+				'Team',
+				'League',
+				'Game' => array(
+					'conditions' => array(
+						'OR' => array(
+							'Game.home_dependency_type !=' => 'copy',
+							'Game.home_dependency_type' => null,
+						),
+					),
+					'GameSlot' => array('Field' => 'Facility'),
+					'ScoreEntry',
+					'HomeTeam',
+					'HomePoolTeam' => 'DependencyPool',
+					'AwayTeam',
+					'AwayPoolTeam' => 'DependencyPool',
+				),
+			));
+			$division = $this->Division->read(null, $id);
+			if (!$division) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+			}
+			if (empty ($division['Game'])) {
+				$this->Session->setFlash(__('This division has no games scheduled yet.', true), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+			}
+
+			// Sort games by date, time and field
+			usort ($division['Game'], array ('Game', 'compareDateAndField'));
 		}
 		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 		Configure::load("sport/{$division['League']['sport']}");
@@ -726,16 +739,24 @@ class DivisionsController extends AppController {
 		// Save posted data
 		if (!empty ($this->data) && ($this->is_admin || $is_manager || $is_coordinator)) {
 			if ($this->_validateAndSaveSchedule($game_slots)) {
+				if (file_exists($cache_file)) {
+					unlink($cache_file);
+				}
+
+				$cache_file = CACHE . 'queries' . DS . 'division_' . intval($id) . '.data';
+				if (file_exists($cache_file)) {
+					unlink($cache_file);
+				}
+
 				$this->redirect (array('action' => 'schedule', 'division' => $id));
 			}
 		}
 
-		// Sort games by date, time and field
-		usort ($division['Game'], array ('Game', 'compareDateAndField'));
+		file_put_contents($cache_file, serialize($division));
 
 		$this->set(compact ('id', 'division', 'edit_date', 'game_slots', 'is_coordinator', 'is_tournament'));
 
-		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
+		$this->_addDivisionMenuItems ($division['Division'], $division['League']);
 	}
 
 	function _validateAndSaveSchedule($available_slots) {
@@ -852,9 +873,11 @@ class DivisionsController extends AppController {
 		}
 
 		// Hopefully, everything we need is already cached
-		$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
+		$cache_file = CACHE . 'queries' . DS . 'division_' . intval($id) . '.data';
 		if (file_exists($cache_file)) {
 			$division = unserialize(file_get_contents($cache_file));
+		}
+		if (!empty($division)) {
 			$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 			Configure::load("sport/{$division['League']['sport']}");
 			$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
@@ -1472,7 +1495,12 @@ class DivisionsController extends AppController {
 		$this->Session->setFlash(__('Team ratings have been initialized.', true), 'default', array('class' => 'success'));
 		$transaction->commit();
 
-		$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
+		$cache_file = CACHE . 'queries' . DS . 'division_' . intval($id) . '.data';
+		if (file_exists($cache_file)) {
+			unlink($cache_file);
+		}
+
+		$cache_file = CACHE . 'queries' . DS . 'schedule_' . intval($id) . '.data';
 		if (file_exists($cache_file)) {
 			unlink($cache_file);
 		}
@@ -1687,7 +1715,12 @@ class DivisionsController extends AppController {
 				'default', array('class' => 'success'));
 		$transaction->commit();
 
-		$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
+		$cache_file = CACHE . 'queries' . DS . 'division_' . intval($id) . '.data';
+		if (file_exists($cache_file)) {
+			unlink($cache_file);
+		}
+
+		$cache_file = CACHE . 'queries' . DS . 'schedule_' . intval($id) . '.data';
 		if (file_exists($cache_file)) {
 			unlink($cache_file);
 		}
@@ -1741,7 +1774,12 @@ class DivisionsController extends AppController {
 			{
 				$transaction->commit();
 
-				$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
+				$cache_file = CACHE . 'queries' . DS . 'division_' . intval($id) . '.data';
+				if (file_exists($cache_file)) {
+					unlink($cache_file);
+				}
+
+				$cache_file = CACHE . 'queries' . DS . 'schedule_' . intval($id) . '.data';
 				if (file_exists($cache_file)) {
 					unlink($cache_file);
 				}

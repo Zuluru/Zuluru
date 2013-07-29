@@ -588,7 +588,12 @@ class SchedulesController extends AppController {
 		}
 
 		if ($this->league_obj->createSchedule($id, $exclude_teams, $this->data['Game'], $this->pool)) {
-			$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
+			$cache_file = CACHE . 'queries' . DS . 'division_' . intval($id) . '.data';
+			if (file_exists($cache_file)) {
+				unlink($cache_file);
+			}
+
+			$cache_file = CACHE . 'queries' . DS . 'schedule_' . intval($id) . '.data';
 			if (file_exists($cache_file)) {
 				unlink($cache_file);
 			}
@@ -807,7 +812,12 @@ class SchedulesController extends AppController {
 				}
 				$transaction->commit();
 
-				$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
+				$cache_file = CACHE . 'queries' . DS . 'division_' . intval($id) . '.data';
+				if (file_exists($cache_file)) {
+					unlink($cache_file);
+				}
+
+				$cache_file = CACHE . 'queries' . DS . 'schedule_' . intval($id) . '.data';
 				if (file_exists($cache_file)) {
 					unlink($cache_file);
 				}
@@ -873,7 +883,12 @@ class SchedulesController extends AppController {
 						$this->Session->setFlash(__('Games rescheduled', true), 'default', array('class' => 'success'));
 						$transaction->commit();
 
-						$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
+						$cache_file = CACHE . 'queries' . DS . 'division_' . intval($id) . '.data';
+						if (file_exists($cache_file)) {
+							unlink($cache_file);
+						}
+
+						$cache_file = CACHE . 'queries' . DS . 'schedule_' . intval($id) . '.data';
 						if (file_exists($cache_file)) {
 							unlink($cache_file);
 						}
@@ -927,7 +942,12 @@ class SchedulesController extends AppController {
 			array('Game.id' => $games)
 		))
 		{
-			$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
+			$cache_file = CACHE . 'queries' . DS . 'division_' . intval($id) . '.data';
+			if (file_exists($cache_file)) {
+				unlink($cache_file);
+			}
+
+			$cache_file = CACHE . 'queries' . DS . 'schedule_' . intval($id) . '.data';
 			if (file_exists($cache_file)) {
 				unlink($cache_file);
 			}
@@ -960,7 +980,12 @@ class SchedulesController extends AppController {
 			array('Game.id' => $games)
 		))
 		{
-			$cache_file = CACHE . 'queries' . DS . "division_{$id}.data";
+			$cache_file = CACHE . 'queries' . DS . 'division_' . intval($id) . '.data';
+			if (file_exists($cache_file)) {
+				unlink($cache_file);
+			}
+
+			$cache_file = CACHE . 'queries' . DS . 'schedule_' . intval($id) . '.data';
 			if (file_exists($cache_file)) {
 				unlink($cache_file);
 			}

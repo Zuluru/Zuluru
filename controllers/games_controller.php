@@ -393,15 +393,20 @@ class GamesController extends AppController {
 					// Delete score entries
 					$this->Game->ScoreEntry->deleteAll(array('game_id' => $id));
 					$transaction->commit();
+
+					$cache_file = CACHE . 'queries' . DS . "division_{$game['Division']['id']}.data";
+					if (file_exists($cache_file)) {
+						unlink($cache_file);
+					}
+					$cache_file = CACHE . 'queries' . DS . "schedule_{$game['Division']['id']}.data";
+					if (file_exists($cache_file)) {
+						unlink($cache_file);
+					}
+
 					$this->redirect(array('action' => 'view', 'game' => $id));
 				} else {
 					$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('game', true)), 'default', array('class' => 'warning'));
 				}
-			}
-
-			$cache_file = CACHE . 'queries' . DS . "division_{$game['Division']['id']}.data";
-			if (file_exists($cache_file)) {
-				unlink($cache_file);
 			}
 		}
 
@@ -644,6 +649,10 @@ class GamesController extends AppController {
 				$transaction->commit();
 
 				$cache_file = CACHE . 'queries' . DS . "division_{$game['Division']['id']}.data";
+				if (file_exists($cache_file)) {
+					unlink($cache_file);
+				}
+				$cache_file = CACHE . 'queries' . DS . "schedule_{$game['Division']['id']}.data";
 				if (file_exists($cache_file)) {
 					unlink($cache_file);
 				}
@@ -1322,7 +1331,11 @@ class GamesController extends AppController {
 		$transaction->commit();
 
 		$cache_file = CACHE . 'queries' . DS . "division_{$game['Division']['id']}.data";
-		if (file_exists($cache_file)) {
+		if (file_exists($cache_file) && time()-filemtime($cache_file) > 5 * MINUTE) {
+			unlink($cache_file);
+		}
+		$cache_file = CACHE . 'queries' . DS . "schedule_{$game['Division']['id']}.data";
+		if (file_exists($cache_file) && time()-filemtime($cache_file) > 5 * MINUTE) {
 			unlink($cache_file);
 		}
 
@@ -1473,7 +1486,11 @@ class GamesController extends AppController {
 		$transaction->commit();
 
 		$cache_file = CACHE . 'queries' . DS . "division_{$game['Division']['id']}.data";
-		if (file_exists($cache_file)) {
+		if (file_exists($cache_file) && time()-filemtime($cache_file) > 5 * MINUTE) {
+			unlink($cache_file);
+		}
+		$cache_file = CACHE . 'queries' . DS . "schedule_{$game['Division']['id']}.data";
+		if (file_exists($cache_file) && time()-filemtime($cache_file) > 5 * MINUTE) {
 			unlink($cache_file);
 		}
 
@@ -2035,6 +2052,10 @@ class GamesController extends AppController {
 				if (file_exists($cache_file)) {
 					unlink($cache_file);
 				}
+				$cache_file = CACHE . 'queries' . DS . "schedule_{$game['Division']['id']}.data";
+				if (file_exists($cache_file)) {
+					unlink($cache_file);
+				}
 
 				// Check if the opponent has an entry
 				if (!$this->Game->_get_score_entry($game, $opponent['id'])) {
@@ -2532,6 +2553,10 @@ class GamesController extends AppController {
 		$this->_updateDependencies ($game, $data['Game']['home_score'] > $data['Game']['away_score']);
 
 		$cache_file = CACHE . 'queries' . DS . "division_{$game['Division']['id']}.data";
+		if (file_exists($cache_file)) {
+			unlink($cache_file);
+		}
+		$cache_file = CACHE . 'queries' . DS . "schedule_{$game['Division']['id']}.data";
 		if (file_exists($cache_file)) {
 			unlink($cache_file);
 		}
