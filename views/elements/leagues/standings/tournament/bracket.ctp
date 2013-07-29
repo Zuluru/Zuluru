@@ -1,28 +1,13 @@
 <?php
-AppModel::_reindexOuter($games, 'Game', 'id');
-ksort($games);
 AppModel::_reindexOuter($teams, 'Team', 'id');
 
 $init_pools = array();
 
-while (!empty($games)):
-	$bracket = Game::_extractBracket($games);
-	ksort($bracket);
-	// For the class names to format this correctly, we need the rounds in
-	// this bracket to be numbered from 0, regardless of what their real
-	// round number is.
-	$bracket = array_values($bracket);
+foreach ($games as $bracket_details):
+	$bracket = $bracket_details['bracket'];
+	$pool_id = $bracket_details['pool_id'];
 
-	// Find the bracket's pool id
-	$pool_id = null;
-	foreach ($bracket[0] as $game) {
-		if (!empty($game['pool_id'])) {
-			$pool_id = $game['pool_id'];
-			break;
-		}
-	}
-
-	if ($pool_id && !in_array($pool_id, $init_pools) && ($is_admin || $is_manager || $is_coordinator)) {
+	if (!in_array($pool_id, $init_pools) && ($is_admin || $is_manager || $is_coordinator)) {
 		$init_pools[] = $pool_id;
 		echo $this->ZuluruHtml->iconLink('delete_24.png',
 			array('controller' => 'schedules', 'action' => 'delete', 'division' => $division['Division']['id'], 'pool' => $pool_id, 'return' => true),
@@ -62,6 +47,6 @@ while (!empty($games)):
 	</div>
 
 </div>
-<?php endwhile; ?>
+<?php endforeach; ?>
 
 </div>

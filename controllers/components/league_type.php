@@ -59,6 +59,7 @@ class LeagueTypeComponent extends Object
 		// Different read methods create arrays in different formats.
 		// This puts them all in the same format. At the same time,
 		// we split them into various groupings.
+		$bracket_games = array();
 		foreach ($division['Game'] as $game) {
 			if (array_key_exists ('Game', $game)) {
 				$game = array_merge($game['Game'], $game);
@@ -75,7 +76,7 @@ class LeagueTypeComponent extends Object
 					break;
 
 				case BRACKET_GAME:
-					$division['Bracket']['Game'][] = $game;
+					$bracket_games[] = $game;
 					break;
 			}
 		}
@@ -94,8 +95,30 @@ class LeagueTypeComponent extends Object
 			}
 		}
 
-		if (!empty($division['Bracket'])) {
-			$division['Bracket']['Results'] = $this->bracketResults($division['Bracket']['Game'], $spirit_obj);
+		if (!empty($bracket_games)) {
+			$division['Bracket']['Results'] = $this->bracketResults($bracket_games, $spirit_obj);
+
+			AppModel::_reindexOuter($bracket_games, 'Game', 'id');
+			ksort($bracket_games);
+
+			while (!empty($bracket_games)) {
+				$bracket = Game::_extractBracket($bracket_games);
+				ksort($bracket);
+				// For the class names to format this correctly, we need the rounds in
+				// this bracket to be numbered from 0, regardless of what their real
+				// round number is.
+				$bracket = array_values($bracket);
+
+				// Find the bracket's pool id
+				$pool_id = null;
+				foreach ($bracket[0] as $game) {
+					if (!empty($game['pool_id'])) {
+						$pool_id = $game['pool_id'];
+						break;
+					}
+				}
+				$division['Bracket']['Game'][] = compact('pool_id', 'bracket');
+			}
 		}
 
 		// Put the results into the top team records for easy access.
