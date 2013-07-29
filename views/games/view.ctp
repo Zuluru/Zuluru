@@ -321,7 +321,7 @@ $team_names = array(
 		<dl>
 			<dt><?php echo $this->Text->truncate ($game['HomeTeam']['name'], 28); ?></dt>
 			<dd>
-				<?php echo ($entry['team_id'] == $game['HomeTeam']['id'] ? $entry['score_for'] : $entry['score_against']); ?>
+				<?php echo ($entry['team_id'] != $game['AwayTeam']['id'] ? $entry['score_for'] : $entry['score_against']); ?>
 
 			</dd>
 			<dt><?php echo $this->Text->truncate ($game['AwayTeam']['name'], 28); ?></dt>
