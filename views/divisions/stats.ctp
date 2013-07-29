@@ -16,7 +16,7 @@ $this->Html->addCrumb (__('Stats', true));
 $na = __('N/A', true);
 
 $has_numbers = false;
-$numbers = array_unique(Set::extract('/Team/Person/TeamsPerson/number', $division));
+$numbers = array_unique(Set::extract('/Person/TeamsPerson/number', $division));
 if (Configure::read('feature.shirt_numbers') && count($numbers) > 1 && $numbers[0] !== null) {
 	$has_numbers = true;
 }
@@ -24,6 +24,7 @@ if (Configure::read('feature.shirt_numbers') && count($numbers) > 1 && $numbers[
 $headers = array(
 	$this->Html->tag('th', __('Name', true)),
 	$this->Html->tag('th', __('Gender', true)),
+	$this->Html->tag('th', __('Team', true)),
 );
 if ($has_numbers) {
 	array_unshift($headers, $this->Html->tag('th', '#'));
@@ -50,6 +51,7 @@ foreach ($division['League']['StatType'] as $stat_type) {
 			$tables[$stat_type['positions']]['rows'][$person['Person']['id']] = array(
 				$this->element('people/block', compact('person')),
 				__($person['Person']['gender'], true),
+				$this->element('teams/block', array('team' => $person)),
 			);
 			if ($has_numbers) {
 				array_unshift($tables[$stat_type['positions']]['rows'][$person['Person']['id']], $person['TeamsPerson']['number']);

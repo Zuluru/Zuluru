@@ -279,7 +279,7 @@ class DivisionsController extends AppController {
 			));
 
 			$division['Person'] = $this->Division->Team->TeamsPerson->find('all', array(
-					'contain' => array('Person'),
+					'contain' => array('Person', 'Team'),
 					'conditions' => array(
 						'TeamsPerson.team_id' => $teams,
 						'TeamsPerson.role' => Configure::read('extended_playing_roster_roles'),
