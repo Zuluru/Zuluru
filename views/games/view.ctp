@@ -57,6 +57,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 		?>
 
 	</dd>
+<?php if ($game['Game']['home_dependency_type'] != 'copy'): ?>
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Date and Time');?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php
@@ -70,6 +71,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 		<?php echo $this->element('fields/block', array('field' => $game['GameSlot']['Field'], 'display_field' => 'long_name')); ?>
 
 	</dd>
+<?php endif; ?>
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Game Status'); ?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php __(Inflector::humanize ($game['Game']['status'])); ?>
