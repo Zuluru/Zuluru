@@ -8,16 +8,14 @@ if (count ($published) != 1 || $published[0] == 0) {
 
 // Spin through the games before building headers, to eliminate edit-type actions on completed weeks.
 $finalized = true;
+$is_tournament = $has_dependent_games = false;
 foreach ($division['Game'] as $game) {
 	if ($date == $game['GameSlot']['game_date']) {
 		$finalized &= Game::_is_finalized($game);
+		$is_tournament |= ($game['type'] != SEASON_GAME);
+		$has_dependent_games |= (!empty($game['HomePoolTeam']['dependency_type']) || !empty($game['AwaayPoolTeam']['dependency_type']));
 	}
 }
-$tournament_games = Set::extract ('/Game[type!=' . SEASON_GAME . "]/GameSlot[game_date=$date]", $division);
-$is_tournament = !empty($tournament_games);
-$home_dependent_games = Set::extract ("/Game/HomePoolTeam[dependency_type!=]/../GameSlot[game_date=$date]", $division);
-$away_dependent_games = Set::extract ("/Game/AwayPoolTeam[dependency_type!=]/../GameSlot[game_date=$date]", $division);
-$has_dependent_games = !empty($home_dependent_games) || !empty($away_dependent_games);
 ?>
 
 <tr>
