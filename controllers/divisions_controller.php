@@ -120,7 +120,7 @@ class DivisionsController extends AppController {
 		$id = $this->_arg('division');
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('controller' => 'leagues'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
 		$this->Division->contain(array (
