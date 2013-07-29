@@ -1301,6 +1301,8 @@ class GamesController extends AppController {
 		if (!$this->Game->ScoreEntry->save($entry)) {
 			$this->set('error', __('There was an error updating the score.\nPlease try again.', true));
 			return;
+		} else {
+			$this->Game->updateAll(array('Game.updated' => 'NOW()'), array('Game.id' => $id));
 		}
 
 		// Check if there's already a matching score detail record (presumably from the other team).
@@ -1479,6 +1481,8 @@ class GamesController extends AppController {
 		if (!$this->Game->ScoreEntry->save($entry)) {
 			$this->set('error', __('There was an error updating the score.\nPlease try again.', true));
 			return;
+		} else {
+			$this->Game->updateAll(array('Game.updated' => 'NOW()'), array('Game.id' => $id));
 		}
 
 		// Delete the matching score detail record, if it's got details from our team.
