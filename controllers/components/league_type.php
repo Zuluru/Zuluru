@@ -540,9 +540,9 @@ class LeagueTypeComponent extends Object
 					break;
 
 				case 'spirit':
-					if ($a['spirit'] - $a['games'] < $b['spirit'] - $b['games'])
+					if ($a['spirit'] / $a['games'] < $b['spirit'] / $b['games'])
 						return 1;
-					if ($a['spirit'] - $a['games'] > $b['spirit'] - $b['games'])
+					if ($a['spirit'] / $a['games'] > $b['spirit'] / $b['games'])
 						return -1;
 					break;
 			}
