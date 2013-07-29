@@ -552,6 +552,41 @@ class LeagueTypeComponent extends Object
 	}
 
 	/**
+	 * Sort based on round-robin results, when teams are coming from different pools,
+	 * possibly with unequal numbers of teams. Putting a 5-0 team ahead of a 4-0 team
+	 * isn't fair!
+	 */
+	function compareTeamsResultsCrossPool($a, $b) {
+		if ($a['L'] > $b['L'])
+			return 1;
+		if ($a['L'] < $b['L'])
+			return -1;
+
+		if (($a['gf'] - $a['ga']) / $a['games'] < ($b['gf'] - $b['ga']) / $b['games'])
+			return 1;
+		if (($a['gf'] - $a['ga']) / $a['games'] > ($b['gf'] - $b['ga']) / $b['games'])
+			return -1;
+
+		if ($a['gf'] / $a['games'] < $b['gf'] / $b['games'])
+			return 1;
+		if ($a['gf'] / $a['games'] > $b['gf'] / $b['games'])
+			return -1;
+
+		if ($a['spirit'] / $a['games'] < $b['spirit'] / $b['games'])
+			return 1;
+		if ($a['spirit'] / $a['games'] > $b['spirit'] / $b['games'])
+			return -1;
+
+		// For lack of a better idea, we'll use initial seed as the final tie breaker
+		if ($a['initial_seed'] < $b['initial_seed'])
+			return -1;
+		if ($a['initial_seed'] > $b['initial_seed'])
+			return 1;
+
+		return 0;
+	}
+
+	/**
 	 * Go through a list of teams with game results, detect any three (or more)
 	 * way ties, and resolve them.
 	 * 

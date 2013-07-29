@@ -1606,7 +1606,7 @@ class DivisionsController extends AppController {
 									$league_obj->detectAndResolveTies($results['Team']);
 									$teams[] = $results['Team'][$ordinal - 1];
 								}
-								usort($teams, array($league_obj, 'compareTeamsResults'));
+								usort($teams, array($league_obj, 'compareTeamsResultsCrossPool'));
 								$seed = $game["{$type}PoolTeam"]['dependency_id'];
 								$team_id = $teams[$seed - 1]['id'];
 								break;
