@@ -1514,20 +1514,36 @@ class DivisionsController extends AppController {
 		}
 		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 
+		$conditions = array(
+				'Game.division_id' => $id,
+				'Game.type !=' => SEASON_GAME,
+				'Game.approved_by' => null,
+				'OR' => array(
+					'HomePoolTeam.dependency_type' => array('seed', 'pool', 'ordinal', 'copy'),
+					'AwayPoolTeam.dependency_type' => array('seed', 'pool', 'ordinal', 'copy'),
+				),
+		);
+		// If there are tournament pools with finalized games in them, we do not want to
+		// initialize any games in those pools.
+		$finalized_pools = array_unique(Set::extract('/Game[approved_by!=][pool_id!=]/pool_id', $division));
+		if (!empty($finalized_pools)) {
+			$conditions['NOT'] = array('Game.pool_id' => $finalized_pools);
+		}
+
+		if ($pool) {
+			if (in_array($pool, $finalized_pools)) {
+				$this->Session->setFlash(__('There are already games finalized in this pool. Unable to proceed.', true), 'default', array('class' => 'warning'));
+				$this->redirect(array('action' => 'schedule', 'division' => $id));
+			}
+			$conditions['Game.pool_id'] = $pool;
+		}
+
 		$count = $this->Division->Game->find('count', array(
 				'contain' => array(
 					'HomePoolTeam',
 					'AwayPoolTeam',
 				),
-				'conditions' => array(
-					'Game.division_id' => $id,
-					'Game.type !=' => SEASON_GAME,
-					'Game.approved_by' => null,
-					'OR' => array(
-						'HomePoolTeam.dependency_type' => array('seed', 'pool', 'ordinal', 'copy'),
-						'AwayPoolTeam.dependency_type' => array('seed', 'pool', 'ordinal', 'copy'),
-					),
-				),
+				'conditions' => $conditions,
 		));
 		if ($count == 0) {
 			$this->Session->setFlash(__('There are currently no dependencies to initialize in this division.', true), 'default', array('class' => 'warning'));
@@ -1557,6 +1573,12 @@ class DivisionsController extends AppController {
 				continue;
 			}
 			if ($pool && ($pool != $game['pool_id'])) {
+				continue;
+			}
+			if (in_array($game['pool_id'], $finalized_pools)) {
+				continue;
+			}
+			if (Game::_is_finalized($game)) {
 				continue;
 			}
 
@@ -1619,6 +1641,7 @@ class DivisionsController extends AppController {
 						$this->Session->setFlash(sprintf(__('Failed to %s game dependency', true), __($operation, true)), 'default', array('class' => 'warning'));
 						$this->redirect(array('action' => 'schedule', 'division' => $id));
 					}
+					$game[$field] = $team_id;
 				}
 			}
 
