@@ -9,12 +9,12 @@ class LoginJoomlaComponent extends LoginComponent
 		if ($user) {
 			// Hide login/logout menu items
 			$this->_controller->Session->write('Zuluru.external_login', true);
-		}
 
-		// Check if we're logged in to Joomla
-		if ($user->id) {
-			// Parameter to Auth->login must be a string
-			$this->_controller->Auth->login($user->id . '');
+			// Check if we're logged in to Joomla
+			if ($user->id) {
+				// Parameter to Auth->login must be a string
+				$this->_controller->Auth->login($user->id . '');
+			}
 		}
 
 		parent::login();
