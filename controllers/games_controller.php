@@ -1813,10 +1813,7 @@ class GamesController extends AppController {
 		}
 
 		$team_id = $this->_arg('team');
-		if ($this->is_volunteer && !$team_id) {
-			// Allow specified individuals (referees, umpires, volunteers) to "submit" a score without a team id,
-			// by redirecting to the game edit page
-			$this->redirect(array('action' => 'edit', 'game' => $id), array('action' => 'submit_stats', 'game' => $id));
+		if (!$team_id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
