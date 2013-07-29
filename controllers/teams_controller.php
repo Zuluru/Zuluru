@@ -1370,9 +1370,9 @@ class TeamsController extends AppController {
 				'ScoreEntry',
 				'SpiritEntry',
 				'HomeTeam',
-				'HomePoolTeam',
+				'HomePoolTeam' => 'DependencyPool',
 				'AwayTeam',
-				'AwayPoolTeam',
+				'AwayPoolTeam' => 'DependencyPool',
 				'Attendance' => array(
 					'Person' => array(
 						'fields' => array('gender'),
