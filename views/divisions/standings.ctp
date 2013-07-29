@@ -56,6 +56,7 @@ if (!empty($division['Team']) && !empty($division['Season'])):?>
 <?php endif; ?>
 <?php
 if (!empty($division['Pool'])):
+	echo $this->element('leagues/standings/tournament/notice');
 ?>
 <h3><?php __('Preliminary rounds'); ?></h3>
 <?php

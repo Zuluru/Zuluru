@@ -14,6 +14,10 @@ if ($is_manager && !in_array($division['League']['affiliate_id'], $this->Session
 <div class="divisions schedule">
 <h2><?php echo __('Division Schedule', true) . ': ' . $division['Division']['full_league_name'];?></h2>
 <?php
+if ($division['Division']['schedule_type'] == 'tournament') {
+	echo $this->element('leagues/schedule/tournament/notice');
+}
+
 if (!empty ($edit_date)) {
 	echo $this->Form->create ('Game', array('url' => Router::normalize($this->here)));
 
