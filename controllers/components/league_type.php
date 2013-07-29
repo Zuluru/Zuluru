@@ -95,7 +95,7 @@ class LeagueTypeComponent extends Object
 		}
 
 		if (!empty($division['Bracket'])) {
-			$division['Bracket']['Results'] = $this->bracketResults($division, $division['Bracket']['Game'], $spirit_obj);
+			$division['Bracket']['Results'] = $this->bracketResults($division['Bracket']['Game'], $spirit_obj);
 		}
 
 		// Put the results into the top team records for easy access.
@@ -293,7 +293,7 @@ class LeagueTypeComponent extends Object
 		}
 	}
 
-	function bracketResults($division, $games, $spirit_obj) {
+	function bracketResults($games, $spirit_obj) {
 		$results = array();
 
 		foreach ($games as $game) {
