@@ -149,7 +149,7 @@ class GamesController extends AppController {
 			'ApprovedBy',
 			'ScoreEntry' => array('Person'),
 			'ScoreDetail' => array(
-				'order' => 'ScoreDetail.created',
+				'order' => array('ScoreDetail.created', 'ScoreDetail.id'),
 				'ScoreDetailStat' => array('Person', 'StatType'),
 			),
 			'SpiritEntry',
