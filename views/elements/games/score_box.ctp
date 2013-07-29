@@ -43,6 +43,33 @@ echo $this->ZuluruForm->input('created', array(
 		'label' => __('Time', true),
 ));
 
+echo $this->Html->scriptBlock("
+function openDialog(id) {
+	var d = new Date();
+	var h = d.getHours();
+	var m = d.getMinutes();
+	var mer = 'am';
+	if (h >= 12) {
+		mer = 'pm';
+	}
+	if (h == 0) {
+		h = 12;
+	} else if (h > 12) {
+		h = h - 12;
+	}
+	if (h < 10) {
+		h = '0' + h;
+	}
+	if (m < 10) {
+		m = '0' + m;
+	}
+	jQuery(id + ' #createdHour').val(h);
+	jQuery(id + ' #createdMin').val(m);
+	jQuery(id + ' #createdMeridian').val(mer);
+	jQuery(id).dialog('open');
+}
+");
+
 if ($has_stats) {
 	// Build the roster options
 	$roster = array();
@@ -103,7 +130,7 @@ echo $this->Html->scriptBlock ("
 			width: 500
 		});
 	");
-echo $this->Js->get("#score_team_{$team['id']} td.up a")->event('click', "jQuery('#ScoreDetails{$team['id']}').dialog('open');");
+echo $this->Js->get("#score_team_{$team['id']} td.up a")->event('click', "openDialog('#ScoreDetails{$team['id']}');");
 else:
 	$url_up = Router::url($url_up);
 	$play = array_shift(array_keys($score_options));
@@ -216,6 +243,6 @@ if (count($other_options) > 1):
 			width: 500
 		});
 	");
-	echo $this->Js->get("#score_team_{$team['id']} td.other a")->event('click', "jQuery('#OtherDetails{$team['id']}').dialog('open');");
+	echo $this->Js->get("#score_team_{$team['id']} td.other a")->event('click', "openDialog('#OtherDetails{$team['id']}');");
 endif;
 ?>
