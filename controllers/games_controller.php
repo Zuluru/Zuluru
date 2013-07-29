@@ -403,7 +403,11 @@ class GamesController extends AppController {
 						unlink($cache_file);
 					}
 
-					$this->redirect(array('action' => 'view', 'game' => $id));
+					if ($this->_arg('stats')) {
+						$this->redirect(array('action' => 'submit_stats', 'game' => $id));
+					} else {
+						$this->redirect(array('action' => 'view', 'game' => $id));
+					}
 				} else {
 					$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('game', true)), 'default', array('class' => 'warning'));
 				}

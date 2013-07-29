@@ -38,7 +38,13 @@ echo $this->element('games/score_box', array('game' => $game, 'submitter' => $su
 ?>
 <div class="actions clear">
 	<ul>
-		<li><?php echo $this->Html->link(__('Finalize', true), array('action' => 'submit_score', 'game' => $game['Game']['id'], 'team' => $submitter)); ?> </li>
+		<li><?php
+		if (!$submitter) {
+			echo $this->Html->link(__('Finalize', true), array('action' => 'edit', 'game' => $game['Game']['id'], 'stats' => $has_stats));
+		} else {
+			echo $this->Html->link(__('Finalize', true), array('action' => 'submit_score', 'game' => $game['Game']['id'], 'team' => $submitter));
+		}
+		?> </li>
 	</ul>
 </div>
 <?php
