@@ -42,7 +42,9 @@ foreach ($division['Game'] as $game):
 
 <tr<?php if (!$game['published']) echo ' class="unpublished"'; ?>>
 	<td><?php if ($is_tournament): ?><?php
-	echo $data['name'];
+	if (!empty($data['name'])) {
+		echo $data['name'];
+	}
 	?><?php endif; ?></td>
 	<td colspan="2"><?php
 	echo $this->Form->hidden ("Game.{$game['id']}.id", array('value' => $game['id']));

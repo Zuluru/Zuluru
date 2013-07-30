@@ -762,8 +762,12 @@ class DivisionsController extends AppController {
 	function _validateAndSaveSchedule($available_slots) {
 		$publish = $this->data['Game']['publish'];
 		unset ($this->data['Game']['publish']);
-		$allow_double_header = $this->data['Game']['double_header'];
-		unset ($this->data['Game']['double_header']);
+		if (array_key_exists('double_header', $this->data['Game'])) {
+			$allow_double_header = $this->data['Game']['double_header'];
+			unset ($this->data['Game']['double_header']);
+		} else {
+			$allow_double_header = false;
+		}
 
 		$games = count($this->data['Game']);
 		// TODO: Remove workaround for Set::extract bug
