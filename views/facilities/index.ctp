@@ -118,17 +118,16 @@ foreach ($regions as $region):
 					array('action' => 'delete', 'facility' => $facility['id'], 'return' => true),
 					array('alt' => __('Delete', true), 'title' => __('Delete', true)),
 					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $facility['id']))); ?>
-			<?php $id = 'span_' . mt_rand(); ?>
-			<span id="<?php echo $id; ?>">
+			<span id="span_<?php echo $facility['id']; ?>">
 			<?php
 			if ($facility['is_open']) {
 				echo $this->Js->link(__('Close', true),
-						array('controller' => 'facilities', 'action' => 'close', 'facility' => $facility['id'], 'id' => $id),
+						array('controller' => 'facilities', 'action' => 'close', 'facility' => $facility['id']),
 						array('update' => "#temp_update")
 				);
 			} else {
 				echo $this->Js->link(__('Open', true),
-						array('controller' => 'facilities', 'action' => 'open', 'facility' => $facility['id'], 'id' => $id),
+						array('controller' => 'facilities', 'action' => 'open', 'facility' => $facility['id']),
 						array('update' => "#temp_update")
 				);
 			}

@@ -215,25 +215,23 @@ class FacilitiesController extends AppController {
 		Configure::write ('debug', 0);
 		$this->layout = 'ajax';
 
-		extract($this->params['named']);
-		$this->set($this->params['named']);
-		$name = $this->Facility->field('name', array('id' => $facility));
+		$id = $this->_arg('facility');
+		$name = $this->Facility->field('name', array('id' => $id));
 
-		$success = $this->Facility->updateAll (array('is_open' => true), array('Facility.id' => $facility));
-		$this->set(compact('success', 'name'));
+		$success = $this->Facility->updateAll (array('is_open' => true), array('Facility.id' => $id));
+		$this->set(compact('id', 'success', 'name'));
 	}
 
 	function close() {
 		Configure::write ('debug', 0);
 		$this->layout = 'ajax';
 
-		extract($this->params['named']);
-		$this->set($this->params['named']);
-		$name = $this->Facility->field('name', array('id' => $facility));
+		$id = $this->_arg('facility');
+		$name = $this->Facility->field('name', array('id' => $id));
 
-		$success = $this->Facility->updateAll (array('is_open' => 0), array('Facility.id' => $facility)) &&
-				$this->Facility->Field->updateAll (array('is_open' => 0), array('Field.facility_id' => $facility));
-		$this->set(compact('success', 'name'));
+		$success = $this->Facility->updateAll (array('is_open' => 0), array('Facility.id' => $id)) &&
+				$this->Facility->Field->updateAll (array('is_open' => 0), array('Field.facility_id' => $id));
+		$this->set(compact('id', 'success', 'name'));
 	}
 
 	function delete() {

@@ -150,17 +150,16 @@ $surfaces = array_map(array('Inflector', 'humanize'), $surfaces);
 					<?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Layout', true)), array('controller' => 'maps', 'action' => 'edit', 'field' => $related['id'], 'return' => true)); ?>
 					<?php echo $this->Html->link(sprintf(__('Add %s', true), __('Game Slots', true)), array('controller' => 'game_slots', 'action' => 'add', 'field' => $related['id'])); ?>
 					<?php echo $this->Html->link(sprintf(__('View %s', true), __('Bookings', true)), array('controller' => 'fields', 'action' => 'bookings', 'field' => $related['id'])); ?>
-					<?php $id = 'span_' . mt_rand(); ?>
-					<span id="<?php echo $id; ?>">
+					<span id="span_<?php echo $related['id']; ?>">
 					<?php
 					if ($related['is_open']) {
 						echo $this->Js->link(__('Close', true),
-								array('controller' => 'fields', 'action' => 'close', 'field' => $related['id'], 'id' => $id),
+								array('controller' => 'fields', 'action' => 'close', 'field' => $related['id']),
 								array('update' => "#temp_update")
 						);
 					} else {
 						echo $this->Js->link(__('Open', true),
-								array('controller' => 'fields', 'action' => 'open', 'field' => $related['id'], 'id' => $id),
+								array('controller' => 'fields', 'action' => 'open', 'field' => $related['id']),
 								array('update' => "#temp_update")
 						);
 					}

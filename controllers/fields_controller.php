@@ -174,24 +174,22 @@ class FieldsController extends AppController {
 		Configure::write ('debug', 0);
 		$this->layout = 'ajax';
 
-		extract($this->params['named']);
-		$this->set($this->params['named']);
-		$name = $this->Field->field('name', array('id' => $field));
+		$id = $this->_arg('field');
+		$name = $this->Field->field('name', array('id' => $id));
 
-		$success = $this->Field->updateAll (array('is_open' => true), array('Field.id' => $field));
-		$this->set(compact('success', 'name'));
+		$success = $this->Field->updateAll (array('is_open' => true), array('Field.id' => $id));
+		$this->set(compact('id', 'success', 'name'));
 	}
 
 	function close() {
 		Configure::write ('debug', 0);
 		$this->layout = 'ajax';
 
-		extract($this->params['named']);
-		$this->set($this->params['named']);
-		$name = $this->Field->field('name', array('id' => $field));
+		$id = $this->_arg('field');
+		$name = $this->Field->field('name', array('id' => $id));
 
-		$success = $this->Field->updateAll (array('is_open' => 0), array('Field.id' => $field));
-		$this->set(compact('success', 'name'));
+		$success = $this->Field->updateAll (array('is_open' => 0), array('Field.id' => $id));
+		$this->set(compact('id', 'success', 'name'));
 	}
 
 	function delete() {
