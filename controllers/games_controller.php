@@ -96,6 +96,9 @@ class GamesController extends AppController {
 		// Permit coordinators to perform these operations on their games
 		if (in_array ($this->params['action'], array(
 				'edit',
+				'edit_boxscore',
+				'delete_score',
+				'add_score',
 				'delete',
 				'stat_sheet',
 				'submit_stats',
@@ -422,6 +425,150 @@ class GamesController extends AppController {
 		// set it in the 'game' variable here too.
 		$this->set(compact (array ('game', 'captains', 'spirit_obj', 'league_obj')));
 		$this->set('is_coordinator', in_array ($game['Division']['id'], $this->Session->read('Zuluru.DivisionIDs')));
+	}
+
+	function edit_boxscore() {
+		$id = $this->_arg('game');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$this->Game->contain (array (
+			'Division' => array(
+				'League' => array(
+					'StatType' => array('conditions' => array('StatType.type' => 'entered')),
+				),
+			),
+			'GameSlot' => array('Field' => 'Facility'),
+			'HomeTeam' => array(
+				'Person' => array(
+					'conditions' => array('TeamsPerson.role' => Configure::read('extended_playing_roster_roles')),
+					'fields' => array('id', 'first_name', 'last_name', 'gender'),
+				),
+			),
+			'HomePoolTeam' => 'DependencyPool',
+			'AwayTeam' => array(
+				'Person' => array(
+					'conditions' => array('TeamsPerson.role' => Configure::read('extended_playing_roster_roles')),
+					'fields' => array('id', 'first_name', 'last_name', 'gender'),
+				),
+			),
+			'AwayPoolTeam' => 'DependencyPool',
+			'ScoreDetail' => array(
+				'order' => array('ScoreDetail.created', 'ScoreDetail.id'),
+				'ScoreDetailStat' => array('Person', 'StatType'),
+			),
+		));
+		$game = $this->Game->read(null, $id);
+		if (!$game) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$this->Configuration->loadAffiliate($game['Division']['League']['affiliate_id']);
+		Configure::load("sport/{$game['Division']['League']['sport']}");
+		$this->Game->_readDependencies($game);
+		$this->set(compact('game'));
+
+		if (!empty($this->data)) {
+			// saveAll handles hasMany relations OR multiple records, but not both,
+			// so we have to save each pool separately. Wrap the whole thing in a
+			// transaction, for safety.
+			$transaction = new DatabaseTransaction($this->Game->ScoreDetail);
+			$success = true;
+			foreach ($this->data['ScoreDetail'] as $detail) {
+				if (!empty($detail['ScoreDetailStat'])) {
+					foreach ($detail['ScoreDetailStat'] as $key => $stat) {
+						if (empty($stat['person_id'])) {
+							unset($detail['ScoreDetailStat'][$key]);
+						}
+					}
+				}
+				if (empty($detail['ScoreDetailStat'])) {
+					unset($detail['ScoreDetailStat']);
+				}
+				if (!empty($detail['ScoreDetail']['id'])) {
+					$success &= $this->Game->ScoreDetail->ScoreDetailStat->deleteAll(array('score_detail_id' => $detail['ScoreDetail']['id']));
+				}
+				$success &= $this->Game->ScoreDetail->saveAll($detail, array('atomic' => false));
+				if (!$success) {
+					pr($this->Game->ScoreDetail->validationErrors);
+				}
+			}
+			if ($success) {
+				$this->Session->setFlash(sprintf(__('The %s have been saved', true), __('score details', true)), 'default', array('class' => 'success'));
+				$transaction->commit();
+				$this->redirect(array('action' => 'view', 'game' => $id));
+			} else {
+				$this->Session->setFlash(__('Failed to save the score details!', true), 'default', array('class' => 'warning'));
+			}
+		}
+	}
+
+	function delete_score() {
+		$id = $this->_arg('detail');
+		$game_id = $this->Game->ScoreDetail->field('game_id', array('id' => $id));
+		if ($game_id != $this->_arg('game')) {
+			$this->set('error', __('Invalid score detail id', true));
+		} else {
+			if ($this->Game->ScoreDetail->delete($id)) {
+				$this->set(compact('id'));
+			} else {
+				$this->set('error', sprintf (__('Failed to delete %s', true), __('score detail', true)));
+			}
+		}
+		if (!$this->RequestHandler->isAjax()) {
+			$this->redirect(array('action' => 'edit_boxscore', 'game' => $game_id));
+		}
+	}
+
+	function add_score() {
+		$game_id = $this->_arg('game');
+		$this->Game->contain (array (
+			'Division' => array(
+				'League' => array(
+					'StatType' => array('conditions' => array('StatType.type' => 'entered')),
+				),
+			),
+			'HomeTeam' => array(
+				'Person' => array(
+					'conditions' => array('TeamsPerson.role' => Configure::read('extended_playing_roster_roles')),
+					'fields' => array('id', 'first_name', 'last_name', 'gender'),
+				),
+			),
+			'AwayTeam' => array(
+				'Person' => array(
+					'conditions' => array('TeamsPerson.role' => Configure::read('extended_playing_roster_roles')),
+					'fields' => array('id', 'first_name', 'last_name', 'gender'),
+				),
+			),
+		));
+		$game = $this->Game->read(null, $game_id);
+		if (!$game) {
+			if (!$this->RequestHandler->isAjax()) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'edit_boxscore', 'game' => $game_id));
+			}
+			$this->set('error', sprintf(__('Invalid %s', true), __('game', true)));
+			return;
+		}
+
+		$this->Configuration->loadAffiliate($game['Division']['League']['affiliate_id']);
+		Configure::load("sport/{$game['Division']['League']['sport']}");
+
+		$detail = array_merge($this->data['AddDetail'], array(
+				'game_id' => $game_id
+		));
+		$saved = $this->Game->ScoreDetail->save($detail);
+		if ($saved) {
+			$saved['ScoreDetail']['id'] = $this->Game->ScoreDetail->id;
+			$this->set(compact('game', 'saved'));
+		} else if ($this->RequestHandler->isAjax()) {
+			$this->set('error', array_shift($this->Game->ScoreDetail->validationErrors));
+			return;
+		} else {
+			$this->render('edit_boxscore');
+		}
 	}
 
 	function note() {

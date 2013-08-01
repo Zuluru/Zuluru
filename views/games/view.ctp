@@ -373,6 +373,13 @@ $team_names = array(
 			}
 			?>
 			</ul>
+			<?php
+			if ($is_admin || $is_coordinator) {
+				echo $this->ZuluruHtml->iconLink('edit_24.png',
+					array('action' => 'edit_boxscore', 'game' => $game['Game']['id']),
+					array('alt' => __('Edit Box Score', true), 'title' => __('Edit Box Score', true)));
+			}
+			?>
 		</div>
 	</fieldset>
 	<?php endif; ?>

@@ -1,6 +1,20 @@
 <?php
 class ScoreDetail extends AppModel {
 	var $name = 'ScoreDetail';
+	var $validate = array(
+		'team_id' => array(
+			'inlist' => array(
+				'rule' => array('inquery', 'Team', 'id'),
+				'message' => 'You must select a valid team.',
+			),
+		),
+		'play' => array(
+			'valid' => array(
+				'rule' => array('valid_play'),
+				'message' => 'You must select a valid play.',
+			),
+		),
+	);
 
 	var $belongsTo = array(
 		'Game' => array(

@@ -491,5 +491,15 @@ class AppModel extends Model {
 		}
 		return $this->inclusive_range($check, $lower, $upper);
 	}
+
+	function valid_play($check) {
+		// $check array is passed using the form field name as the key
+		// have to extract the value to make the function generic
+		$value = array_values($check);
+		$value = $value[0];
+
+		$options = array_merge(make_options(array_merge(array_keys(Configure::read('sport.score_options')), array('Start', 'Timeout'))), Configure::read('sport.other_options'));
+		return array_key_exists($value, $options);
+	}
 }
 ?>
