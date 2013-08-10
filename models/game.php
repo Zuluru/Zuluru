@@ -265,8 +265,16 @@ class Game extends AppModel {
 		$pools = array_unique(Set::extract('/Game/pool_id', array('Game' => $games)));
 		sort($pools);
 		$pool = array_shift($pools);
+		if ($pool === null) {
+			$pools = array_unique(Set::extract('/Game/tournament_pool', array('Game' => $games)));
+			sort($pools);
+			$pool = array_shift($pools);
+			$pool_field = 'tournament_pool';
+		} else {
+			$pool_field = 'pool_id';
+		}
 
-		$names = array_unique(Set::extract("/Game[pool_id=$pool]/name", array('Game' => $games)));
+		$names = array_unique(Set::extract("/Game[$pool_field=$pool]/name", array('Game' => $games)));
 		usort($names, array('Game', 'compare_game_name'));
 		$name = array_shift($names);
 		$final = array_shift(Set::extract("/Game[name=$name]/.", array('Game' => $games)));
