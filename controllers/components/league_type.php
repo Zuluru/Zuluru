@@ -72,7 +72,7 @@ class LeagueTypeComponent extends Object
 					break;
 
 				case POOL_PLAY_GAME:
-					$division['Pool'][$game['HomePoolTeam']['Pool']['stage']][$game['pool_id']]['Game'][] = $game;
+					$division['Pools'][$game['HomePoolTeam']['Pool']['stage']][$game['pool_id']]['Game'][] = $game;
 					break;
 
 				case BRACKET_GAME:
@@ -86,11 +86,11 @@ class LeagueTypeComponent extends Object
 			$division['Season']['Results'] = $this->roundRobinResults($division, $division['Season']['Game'], $spirit_obj);
 		}
 
-		if (!empty($division['Pool'])) {
-			ksort($division['Pool']);
-			foreach ($division['Pool'] as $stage_num => $stage) {
+		if (!empty($division['Pools'])) {
+			ksort($division['Pools']);
+			foreach ($division['Pools'] as $stage_num => $stage) {
 				foreach ($stage as $pool_num => $pool) {
-					$division['Pool'][$stage_num][$pool_num]['Results'] = $this->roundRobinResults($division, $pool['Game'], $spirit_obj);
+					$division['Pools'][$stage_num][$pool_num]['Results'] = $this->roundRobinResults($division, $pool['Game'], $spirit_obj);
 				}
 			}
 		}
@@ -128,17 +128,17 @@ class LeagueTypeComponent extends Object
 				$division['Team'][$key]['Season'] = $division['Season']['Results'][$team['id']];
 				$division['Season']['Team'][] = $division['Team'][$key];
 			}
-			if (!empty($division['Pool'])) {
-				foreach ($division['Pool'] as $stage_num => $stage) {
+			if (!empty($division['Pools'])) {
+				foreach ($division['Pools'] as $stage_num => $stage) {
 					foreach ($stage as $pool_num => $pool) {
 						if (!empty($pool['Results'][$team['id']])) {
 							$x = $division['Team'][$key];
 							unset($x['Season']);
-							unset($x['Pool']);
+							unset($x['Pools']);
 							$x += $pool['Results'][$team['id']];
-							$division['Pool'][$stage_num][$pool_num]['Team'][] = $x;
+							$division['Pools'][$stage_num][$pool_num]['Team'][] = $x;
 
-							$division['Team'][$key]['Pool'][$stage_num][$pool_num] = $pool['Results'][$team['id']];
+							$division['Team'][$key]['Pools'][$stage_num][$pool_num] = $pool['Results'][$team['id']];
 						}
 					}
 				}
@@ -148,7 +148,7 @@ class LeagueTypeComponent extends Object
 
 				$x = $division['Team'][$key];
 				unset($x['Season']);
-				unset($x['Pool']);
+				unset($x['Pools']);
 				$division['Bracket']['Team'][] = $x;
 			}
 		}
@@ -158,12 +158,12 @@ class LeagueTypeComponent extends Object
 		if (!empty($division['Season']['Team'])) {
 			usort ($division['Season']['Team'], array($this, 'compareTeams'));
 		}
-		if (!empty($division['Pool'])) {
-			foreach ($division['Pool'] as $stage_num => $stage) {
+		if (!empty($division['Pools'])) {
+			foreach ($division['Pools'] as $stage_num => $stage) {
 				foreach ($stage as $pool_num => $pool) {
-					if (!empty($division['Pool'][$stage_num][$pool_num]['Team'])) {
-						usort($division['Pool'][$stage_num][$pool_num]['Team'], array($this, 'compareTeamsResults'));
-						$this->detectAndResolveTies($division['Pool'][$stage_num][$pool_num]['Team']);
+					if (!empty($division['Pools'][$stage_num][$pool_num]['Team'])) {
+						usort($division['Pools'][$stage_num][$pool_num]['Team'], array($this, 'compareTeamsResults'));
+						$this->detectAndResolveTies($division['Pools'][$stage_num][$pool_num]['Team']);
 					}
 				}
 			}
@@ -430,19 +430,19 @@ class LeagueTypeComponent extends Object
 		}
 
 		// If both teams have pool results, we may be able to use that
-		if (!empty($a['Pool']) && !empty($b['Pool'])) {
-			$max_stage = max(array_merge(array_keys($a['Pool']), array_keys($b['Pool'])));
+		if (!empty($a['Pools']) && !empty($b['Pools'])) {
+			$max_stage = max(array_merge(array_keys($a['Pools']), array_keys($b['Pools'])));
 			for ($stage = $max_stage; $stage > 0; -- $stage) {
 				// If teams are not in the same pool, we use that
-				$a_pool = current(array_keys($a['Pool'][$stage]));
-				$b_pool = current(array_keys($b['Pool'][$stage]));
+				$a_pool = current(array_keys($a['Pools'][$stage]));
+				$b_pool = current(array_keys($b['Pools'][$stage]));
 				if ($a_pool < $b_pool) {
 					return -1;
 				} else if ($a_pool > $b_pool) {
 					return 1;
 				}
 
-				$ret = $this->compareTeamsResults($a['Pool'][$stage][$a_pool], $b['Pool'][$stage][$b_pool]);
+				$ret = $this->compareTeamsResults($a['Pools'][$stage][$a_pool], $b['Pools'][$stage][$b_pool]);
 				if ($ret != 0) {
 					return $ret;
 				}

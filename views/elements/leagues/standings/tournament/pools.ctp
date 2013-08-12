@@ -113,8 +113,8 @@ foreach ($games as $stage => $stage_games):
 			if ($aliases[$alias] !== null) {
 				$team = $aliases[$alias];
 				echo '(';
-				if (!empty($teams[$team]['Pool'][$stage])) {
-					$results = current($teams[$team]['Pool'][$stage]);
+				if (!empty($teams[$team]['Pools'][$stage])) {
+					$results = current($teams[$team]['Pools'][$stage]);
 					echo $results['W'] . '-' . $results['L'];
 					if ($results['T']) {
 						echo '-' . $results['T'];

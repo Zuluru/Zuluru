@@ -55,12 +55,12 @@ if (!empty($division['Team']) && !empty($division['Season'])):?>
 	</table>
 <?php endif; ?>
 <?php
-if (!empty($division['Pool'])):
+if (!empty($division['Pools'])):
 	echo $this->element('leagues/standings/tournament/notice');
 ?>
 <h3><?php __('Preliminary rounds'); ?></h3>
 <?php
-	echo $this->element('leagues/standings/tournament/pools', array('games' => $division['Pool'], 'teams' => $division['Team']));
+	echo $this->element('leagues/standings/tournament/pools', array('games' => $division['Pools'], 'teams' => $division['Team']));
 endif;
 
 if (!empty($division['Bracket'])):
