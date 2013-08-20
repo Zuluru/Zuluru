@@ -445,8 +445,8 @@ class ZuluruSchema extends CakeSchema {
 		'contact_for_feedback' => array('type' => 'boolean', 'null' => false, 'default' => '1'),
 		'last_login' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
 		'client_ip' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
-		'twitter_token' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 255),
-		'twitter_secret' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 255),
+		'twitter_token' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 250),
+		'twitter_secret' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 250),
 		'complete' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'username' => array('column' => 'user_name', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
@@ -700,6 +700,7 @@ class ZuluruSchema extends CakeSchema {
 		'division_id' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'key' => 'index'),
 		'website' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
 		'shirt_colour' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
+		'logo' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
 		'home_field' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'region_preference' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'open_roster' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
