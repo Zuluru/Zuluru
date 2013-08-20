@@ -24,9 +24,9 @@ For more details of options you can use, see PHP's <a href="http://php.net/manua
 However, for technical reasons, it is not always possible to generate a query that will do what you want.
 In particular, the TEAM_COUNT and LEAGUE_TEAM_COUNT rules cannot be used to find players who are not on any teams.
 For example, if you try to send a newsletter to a mailing list that has:
-<pre>COMPARE(TEAM_COUNT(FORMAT_DATE('today')) = '0')</pre>
+<pre>COMPARE(TEAM_COUNT('today') = '0')</pre>
 you will get the following error message:</p>
 <div id="flashMessage" class="error">The syntax of the mailing list rule is valid, but it is not possible to build a query which will return the expected results. See the "rules engine" help for suggestions.</div>
 <p>Fortunately, there is a simple workaround. Simply negate the rule:
-<pre>NOT(COMPARE(TEAM_COUNT(FORMAT_DATE('today')) > '0'))</pre>
+<pre>NOT(COMPARE(TEAM_COUNT('today') > '0'))</pre>
 </p>
