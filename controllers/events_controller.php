@@ -451,7 +451,7 @@ class EventsController extends AppController {
 
 		$this->layout = 'bare';
 		if (!ini_get('safe_mode')) { 
-			set_time_limit(0);
+			set_time_limit(1800);
 		}
 
 		if (!$this->Lock->lock ('cron')) {

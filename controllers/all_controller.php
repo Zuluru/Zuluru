@@ -25,7 +25,7 @@ class AllController extends AppController {
 	function cron() {
 		$this->layout = 'bare';
 		if (!ini_get('safe_mode')) { 
-			set_time_limit(0);
+			set_time_limit(1800);
 		}
 		Configure::write ('debug', 0);
 		$controllers = array('people', 'leagues', 'teams', 'games', 'team_events', 'events');
