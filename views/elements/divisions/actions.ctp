@@ -114,7 +114,7 @@ if ($is_admin || $is_manager) {
 			$links[] = $this->Html->link(__('Allstars', true), array('controller' => 'divisions', 'action' => 'allstars', 'division' => $division['id']));
 		}
 	}
-	if (!$collapse && ($this->params['controller'] != 'divisions' || $this->params['action'] != 'delete')) {
+	if ($this->params['controller'] != 'divisions' || $this->params['action'] != 'delete') {
 		$links[] = $this->ZuluruHtml->iconLink("delete_$size.png",
 			array('controller' => 'divisions', 'action' => 'delete', 'division' => $division['id'], 'return' => $return),
 			array('alt' => __('Delete', true), 'title' => __('Delete Division', true)),
