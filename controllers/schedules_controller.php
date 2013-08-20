@@ -59,7 +59,9 @@ class SchedulesController extends AppController {
 		}
 		$this->Configuration->loadAffiliate($this->division['League']['affiliate_id']);
 
-		if ($this->_arg('playoff')) {
+		if ($this->_arg('playoff') ||
+			($this->division['Division']['schedule_type'] != 'tournament' && $this->_unscheduledPools($id)))
+		{
 			$this->league_obj = $this->_getComponent ('LeagueType', 'tournament', $this);
 			$this->set('playoff', true);
 		} else {
