@@ -180,7 +180,6 @@ foreach ($roster as $person) {
 // May need to tweak saved allstar data
 $male = $female = null;
 if (array_key_exists ('division_id', $this->data['Game']) && !empty($this->data['Allstar'])) {
-	$allstars = array();
 	foreach ($this->data['Allstar'] as $allstar) {
 		if (is_array ($players[$allstar['Person']['gender']])) {
 			if (array_key_exists ($allstar['person_id'], $players[$allstar['Person']['gender']])) {
@@ -201,7 +200,7 @@ if (!empty ($players['Male'])) {
 			'type' => 'radio',
 			'legend' => __('Male', true),
 			'options' => $players['Male'],
-			'default' => $male,
+			'value' => $male,
 	));
 }
 
@@ -210,7 +209,7 @@ if (!empty ($players['Female'])) {
 			'type' => 'radio',
 			'legend' => __('Female', true),
 			'options' => $players['Female'],
-			'default' => $female,
+			'value' => $female,
 	));
 }
 
