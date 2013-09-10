@@ -128,20 +128,20 @@ $url = $this->Html->url (array('controller' => 'divisions', 'action' => 'select'
 echo $this->Html->scriptBlock("
 jQuery(document).ready(function($) {
 	update_divisions();
-	$('select[id*=GameSlotGameDate]').change(function(){update_divisions();});
-	$('.hidden').hide();
+	jQuery('select[id*=GameSlotGameDate]').change(function(){update_divisions();});
+	jQuery('.hidden').hide();
 
 	// When the label for a parent field is clicked, toggle display of child fields.
 	// Return false, so that the associated checkbox isn't also toggled.
-	$('div.field > label').click(function() {
-		$(this).closest('div').children('div.hidden').toggle();
+	jQuery('div.field > label').click(function() {
+		jQuery(this).closest('div').children('div.hidden').toggle();
 		return false;
 	});
 
 	// When the checkbox for a parent field is toggled, also toggle all child fields.
-	$('div.field > input').change(function() {
-		var checked = $(this).is(':checked');
-		$(this).closest('div').children('div.hidden').find('input').attr('checked', checked);
+	jQuery('div.field > input').change(function() {
+		var checked = jQuery(this).is(':checked');
+		jQuery(this).closest('div').children('div.hidden').find('input').attr('checked', checked);
 	});
 });
 
