@@ -767,6 +767,10 @@ class AppController extends Controller {
 				$this->_addMenuItem ('Categories', array('controller' => 'categories', 'action' => 'index'), 'Tasks');
 				$this->_addMenuItem ('Download All', array('controller' => 'tasks', 'action' => 'index', 'download' => true), 'Tasks');
 			}
+
+			if (Configure::read('feature.contacts')) {
+				$this->_addMenuItem ('Contacts', array('controller' => 'contacts', 'action' => 'index'), 'Configuration');
+			}
 		}
 
 		if (Configure::read('feature.manage_accounts')) {
@@ -781,6 +785,9 @@ class AppController extends Controller {
 		}
 
 		$this->_addMenuItem ('Help', array('controller' => 'help'));
+		if (Configure::read('feature.contacts')) {
+			$this->_addMenuItem ('Contact us', array('controller' => 'contacts', 'action' => 'message'), 'Help');
+		}
 		$this->_addMenuItem ('Help index', array('controller' => 'help'), 'Help');
 		$this->_addMenuItem ('New users', array('controller' => 'help', 'action' => 'guide', 'new_user'), 'Help');
 		$this->_addMenuItem ('Advanced users', array('controller' => 'help', 'action' => 'guide', 'advanced'), 'Help');
@@ -1268,7 +1275,11 @@ class AppController extends Controller {
 
 		// Get ready and send it
 		$email->initialize ($this, $opts);
-		$success = $email->send();
+		if (array_key_exists('content', $opts)) {
+			$success = $email->send($opts['content']);
+		} else {
+			$success = $email->send();
+		}
 
 		if (! empty ($email->smtpError))
 		{

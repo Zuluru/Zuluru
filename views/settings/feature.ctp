@@ -110,6 +110,16 @@ echo $this->element('settings/banner');
 			'after' => 'Enable or disable the awarding and display of badges.',
 		),
 	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
+		'name' => 'contacts',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'label' => 'Handle contacts',
+			'after' => 'Enable or disable management of contacts for users to send messages without exposing email addresses.',
+		),
+	));
 	?>
 	</fieldset>
 
