@@ -238,6 +238,10 @@ class DivisionsController extends AppController {
 	}
 
 	function stats() {
+		if (Configure::read('debug') && !ini_get('safe_mode')) {
+			set_time_limit(1800);
+		}
+
 		$id = $this->_arg('division');
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
