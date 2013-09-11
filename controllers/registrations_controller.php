@@ -570,7 +570,7 @@ class RegistrationsController extends AppController {
 			while ($this->_unregisterDependencies($registration['Registration']['person_id'])) {}
 
 			$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
-			if ($registration['Registration']['payment'] == 'Paid') {
+			if (in_array($registration['Registration']['payment'], array('Paid', 'Pending'))) {
 				if (!$event_obj->unpaid($registration, $registration)) {
 					$success = false;
 					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
