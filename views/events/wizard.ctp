@@ -96,49 +96,49 @@ switch ($step) {
 
 	default:
 		if (!empty ($events_by_type[1])) {
-			echo $this->Html->para(null, __('You are eligible to register for membership in the club. A membership is typically required before you can sign up for team-related events.', true));
+			echo $this->Html->para(null, sprintf(__('You are eligible to %s. A membership is typically required before you can sign up for team-related events.', true), $this->Html->link(__('register for membership in the club', true), array('action' => 'wizard', 'membership'))));
 			echo $this->Html->tag('span',
 					$this->Html->link('Register for membership', array('action' => 'wizard', 'membership')),
 					array('class' => 'actions'));
 		}
 
 		if (!empty ($events_by_type[2])) {
-			echo $this->Html->para(null, __('You are eligible to register a league team. This is for team captains looking to add their team for the upcoming season.', true));
+			echo $this->Html->para(null, sprintf(__('You are eligible to %s. This is for team captains looking to add their team for the upcoming season.', true), $this->Html->link(__('register a league team', true), array('action' => 'wizard', 'league_team'))));
 			echo $this->Html->tag('span',
 					$this->Html->link('Register a league team', array('action' => 'wizard', 'league_team')),
 					array('class' => 'actions'));
 		}
 
 		if (!empty ($events_by_type[3])) {
-			echo $this->Html->para(null, __('You are eligible to register as an individual for league play. This is for individuals who do not already have a team and want to play on a "hat team".', true));
+			echo $this->Html->para(null, sprintf(__('You are eligible to %s. This is for individuals who do not already have a team and want to play on a "hat team".', true), $this->Html->link(__('register as an individual for league play', true), array('action' => 'wizard', 'league_individual'))));
 			echo $this->Html->tag('span',
 					$this->Html->link('Register as an individual', array('action' => 'wizard', 'league_individual')),
 					array('class' => 'actions'));
 		}
 
 		if (!empty ($events_by_type[4])) {
-			echo $this->Html->para(null, __('You are eligible to register a team for a one-time event. This is for team captains looking to add their team for a tournament or similar event.', true));
+			echo $this->Html->para(null, sprintf(__('You are eligible to %s. This is for team captains looking to add their team for a tournament or similar event.', true), $this->Html->link(__('register a team for a one-time event', true), array('action' => 'wizard', 'event_team'))));
 			echo $this->Html->tag('span',
 					$this->Html->link('Register a team for an event', array('action' => 'wizard', 'event_team')),
 					array('class' => 'actions'));
 		}
 
 		if (!empty ($events_by_type[5])) {
-			echo $this->Html->para(null, __('You are eligible to register as an individual for a one-time event. This is for individuals who do not already have a team and want to play on a "hat team" in a tournament or similar event.', true));
+			echo $this->Html->para(null, sprintf(__('You are eligible to %s. This is for individuals who do not already have a team and want to play on a "hat team" in a tournament or similar event.', true), $this->Html->link(__('register as an individual for a one-time event', true), array('action' => 'wizard', 'event_individual'))));
 			echo $this->Html->tag('span',
 					$this->Html->link('Register as an individual', array('action' => 'wizard', 'event_individual')),
 					array('class' => 'actions'));
 		}
 
 		if (!empty ($events_by_type[6])) {
-			echo $this->Html->para(null, __('There are upcoming clinics that you might be interested in.', true));
+			echo $this->Html->para(null, sprintf(__('There are %s that you might be interested in.', true), $this->Html->link(__('upcoming clinics', true), array('action' => 'wizard', 'clinic'))));
 			echo $this->Html->tag('span',
 					$this->Html->link('Register for a clinic', array('action' => 'wizard', 'clinic')),
 					array('class' => 'actions'));
 		}
 
 		if (!empty ($events_by_type[7])) {
-			echo $this->Html->para(null, __('There are upcoming social events that you might be interested in.', true));
+			echo $this->Html->para(null, sprintf(__('There are %s that you might be interested in.', true), $this->Html->link(__('upcoming social events', true), array('action' => 'wizard', 'social_event'))));
 			echo $this->Html->tag('span',
 					$this->Html->link('Register for a social event', array('action' => 'wizard', 'social_event')),
 					array('class' => 'actions'));
