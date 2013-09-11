@@ -567,7 +567,7 @@ class RegistrationsController extends AppController {
 			$this->Session->setFlash(__('Successfully unregistered from this event.', true), 'default', array('class' => 'success'));
 
 			// Check if anything else must be removed as a result (e.g. team reg after removing membership)
-			while ($this->_unregisterDependencies()) {}
+			while ($this->_unregisterDependencies($registration['Registration']['person_id'])) {}
 
 			$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
 			if ($registration['Registration']['payment'] == 'Paid') {
@@ -591,7 +591,7 @@ class RegistrationsController extends AppController {
 		$this->redirect(array('action' => 'checkout'));
 	}
 
-	function _unregisterDependencies() {
+	function _unregisterDependencies($person_id) {
 		// Get everything from the user record that the decisions below might need
 		$this->Registration->Person->contain (array (
 			'Registration' => array(
@@ -600,7 +600,7 @@ class RegistrationsController extends AppController {
 				'conditions' => array('payment !=' => 'Refunded'),
 			),
 		));
-		$person = $this->Registration->Person->read(null, $this->Auth->user('id'));
+		$person = $this->Registration->Person->read(null, $person_id);
 		$unregistered = false;
 
 		// Pull out the list of unpaid registrations; these are the ones that might be removed
