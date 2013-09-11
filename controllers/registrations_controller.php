@@ -80,6 +80,9 @@ class RegistrationsController extends AppController {
 	}
 
 	function full_list() {
+		if (!ini_get('safe_mode')) { 
+			set_time_limit(1800);
+		}
 		$id = $this->_arg('event');
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
