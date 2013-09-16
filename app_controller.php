@@ -785,7 +785,7 @@ class AppController extends Controller {
 		}
 
 		$this->_addMenuItem ('Help', array('controller' => 'help'));
-		if (Configure::read('feature.contacts')) {
+		if (Configure::read('feature.contacts') && $this->is_logged_in) {
 			$this->_addMenuItem ('Contact us', array('controller' => 'contacts', 'action' => 'message'), 'Help');
 		}
 		$this->_addMenuItem ('Help index', array('controller' => 'help'), 'Help');
