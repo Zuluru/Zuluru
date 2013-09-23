@@ -431,6 +431,15 @@ class DivisionsController extends AppController {
 
 		if (!empty($this->data)) {
 			if ($this->Division->saveAll($this->data)) {
+				// Any time that this is called, the division seeding might change.
+				// We just reset it here, and it will be recalculated as required elsewhere.
+				$this->Division->Team->updateAll(array('seed' => 0), array('Team.division_id' => $id));
+
+				$cache_file = CACHE . 'queries' . DS . "division_$division.data";
+				if (file_exists($cache_file)) {
+					unlink($cache_file);
+				}
+
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('division', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 			} else {
@@ -581,6 +590,7 @@ class DivisionsController extends AppController {
 
 		if (!empty($this->data)) {
 			if ($this->Division->Team->saveAll($this->data['Team'])) {
+				$this->Division->League->recalculateRatings($this->Division->league($id));
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('division', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'view', 'division' => $id));
 			} else {
@@ -621,7 +631,8 @@ class DivisionsController extends AppController {
 			} else if (min($seeds) != 1 || count($this->data['Team']) != max($seeds)) {
 				$this->Session->setFlash(__('Initial seeds must start at 1 and not skip any.', true), 'default', array('class' => 'warning'));
 			} else {
-				// Reset current seeds; they'll be recalculated as required
+				// Any time that this is called, the division seeding might change.
+				// We just reset it here, and it will be recalculated as required elsewhere.
 				foreach (array_keys($this->data['Team']) as $key) {
 					$this->data['Team'][$key]['seed'] = 0;
 				}

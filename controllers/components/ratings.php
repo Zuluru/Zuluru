@@ -45,10 +45,10 @@ class RatingsComponent extends Object
 			$game_update_count = 0;
 			if ($this->iterative) {
 				for ($it = 0; $it < $this->iterations; ++ $it) {
-					$this->_recalculateRatings($division, $games);
+					$this->_recalculateRatings($division, $games, $correct);
 				}
 			} else {
-				$this->_recalculateRatings($division, $games);
+				$this->_recalculateRatings($division, $games, $correct);
 			}
 		}
 		$this->_finalizeRatings($division);
@@ -60,11 +60,19 @@ class RatingsComponent extends Object
 				$team_updates[] = array(
 					'id' => $key,
 					'rating' => $team['current_rating'],
+					// Any time that this is called, the division seeding might change.
+					// We just reset it here, and it will be recalculated as required elsewhere.
+					'seed' => 0,
 				);
 			}
 		}
 		if ($correct && !empty($team_updates)) {
 			$this->team_obj->saveAll ($team_updates);
+
+			$cache_file = CACHE . 'queries' . DS . 'division_' . $division['id'] . '.data';
+			if (file_exists($cache_file)) {
+				unlink($cache_file);
+			}
 		}
 
 		return array(count($team_updates), $game_update_count);

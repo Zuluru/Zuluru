@@ -292,10 +292,28 @@ class LeaguesController extends AppController {
 			$this->Configuration->loadAffiliate($this->data['League']['affiliate_id']);
 			Configure::load("sport/{$this->data['League']['sport']}");
 			if (array_key_exists('Day', $this->data['League'])) {
-				$this->data['Division']['Day'] = $this->data['League']['Day'];
+				$this->data['Day'] = $this->data['League']['Day'];
 			}
-			$this->data['Day'] = $this->data['Division']['Day'];
 			if ($this->League->save($this->data) && (!array_key_exists('Division', $this->data) || $this->League->Division->saveAll($this->data))) {
+				// Any time that this is called, the division seeding might change.
+				// We just reset it here, and it will be recalculated as required elsewhere.
+				if (array_key_exists('Division', $this->data)) {
+					$divisions = array($this->data['Division']['id']);
+				} else {
+					$divisions = $this->League->Division->find('list', array(
+							'conditions' => array('Division.league_id' => $id),
+							'fields' => array('Division.id', 'Division.id'),
+					));
+				}
+				$this->League->Division->Team->updateAll(array('seed' => 0), array('Team.division_id' => $divisions));
+
+				foreach ($divisions as $division) {
+					$cache_file = CACHE . 'queries' . DS . "division_$division.data";
+					if (file_exists($cache_file)) {
+						unlink($cache_file);
+					}
+				}
+
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('league', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
@@ -376,31 +394,7 @@ class LeaguesController extends AppController {
 			return false;
 		}
 
-		// Find any leagues that are currently open, and possibly recalculate ratings
-		$leagues = $this->League->find('all', array(
-				'conditions' => array(
-					'League.is_open' => true,
-				),
-				'contain' => array(
-					'Division' => array(
-						'Team',
-					),
-				),
-				'order' => 'League.open',
-		));
-
-		foreach ($leagues as $key => $league) {
-			AppModel::_reindexInner($league['Division'], 'Team', 'id');
-
-			// Find all games played by teams that are in this league
-			$games = $this->League->readFinalizedGames($league);
-			foreach ($league['Division'] as $dkey => $division) {
-				$ratings_obj = $this->_getComponent ('Ratings', $division['rating_calculator'], $this);
-				$leagues[$key]['Division'][$dkey]['updates'] = $ratings_obj->recalculateRatings($league, $division, $games, true);
-			}
-		}
-
-		$this->set(compact('leagues'));
+		$this->set('leagues', $this->League->recalculateRatings());
 
 		// Update the badges in any divisions that are about to open or have recently closed
 		$contain = array('League');

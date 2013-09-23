@@ -341,6 +341,38 @@ class League extends AppModel {
 		return $games;
 	}
 
+	function recalculateRatings($id = null) {
+		if ($id) {
+			$conditions = array('League.id' => $id);
+		} else {
+			$conditions = array('League.is_open' => true);
+		}
+
+		// Find any leagues that are currently open, and possibly recalculate ratings
+		$leagues = $this->find('all', array(
+				'conditions' => $conditions,
+				'contain' => array(
+					'Division' => array(
+						'Team',
+					),
+				),
+				'order' => 'League.open',
+		));
+
+		foreach ($leagues as $key => $league) {
+			AppModel::_reindexInner($league['Division'], 'Team', 'id');
+
+			// Find all games played by teams that are in this league
+			$games = $this->readFinalizedGames($league);
+			foreach ($league['Division'] as $dkey => $division) {
+				$ratings_obj = AppController::_getComponent ('Ratings', $division['rating_calculator']);
+				$leagues[$key]['Division'][$dkey]['updates'] = $ratings_obj->recalculateRatings($league, $division, $games, true);
+			}
+		}
+
+		return $leagues;
+	}
+
 	function affiliate($id) {
 		return $this->field('affiliate_id', array('League.id' => $id));
 	}
