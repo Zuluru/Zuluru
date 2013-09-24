@@ -44,7 +44,7 @@ class LeagueTypeComponent extends Object
 			usort ($division['Team'], array($this, 'compareTeamsTournament'));
 		} else {
 			usort ($division['Team'], array($this, 'compareTeams'));
-			$this->detectAndResolveTies($division['Team']);
+			$this->detectAndResolveTies($division['Team'], 'compareTeams');
 		}
 	}
 
@@ -163,7 +163,7 @@ class LeagueTypeComponent extends Object
 				foreach ($stage as $pool_num => $pool) {
 					if (!empty($division['Pools'][$stage_num][$pool_num]['Team'])) {
 						usort($division['Pools'][$stage_num][$pool_num]['Team'], array($this, 'compareTeamsResults'));
-						$this->detectAndResolveTies($division['Pools'][$stage_num][$pool_num]['Team']);
+						$this->detectAndResolveTies($division['Pools'][$stage_num][$pool_num]['Team'], 'compareTeamsResults');
 					}
 				}
 			}
@@ -592,17 +592,17 @@ class LeagueTypeComponent extends Object
 	 * 
 	 * @param mixed $teams Sorted list of teams, with zero-based array indices
 	 */
-	function detectAndResolveTies(&$teams) {
+	function detectAndResolveTies(&$teams, $comparison) {
 		for ($i = 0; $i < count($teams) - 1; ++ $i) {
 			$tied = array();
 			for ($j = $i + 1; $j < count($teams); ++ $j) {
-				if ($this->compareTeamsResults($teams[$i], $teams[$j]) == 1) {
+				if ($this->$comparison($teams[$i], $teams[$j]) == 1) {
 					// Found two teams that are not in the expected order.
 					// They must be tied with at least one other.
 					$tied[] = $i;
 					$tied[] = $j;
 					for ($k = $i + 1; $k < count($teams); ++ $k) {
-						if ($j != $k && $this->compareTeamsResults($teams[$j], $teams[$k]) == 1) {
+						if ($j != $k && $this->$comparison($teams[$j], $teams[$k]) == 1) {
 							$tied[] = $k;
 							// We don't need to look for teams tied with the ones we've already found
 							$i = max($j, $k) + 1;
