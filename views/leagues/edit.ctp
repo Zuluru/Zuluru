@@ -191,7 +191,7 @@ $collapse = !empty($this->data['Division']['id']);
 		));
 	?>
 	</fieldset>
-	<fieldset>
+	<fieldset<?php if (!$collapse && !Configure::read('feature.spirit') && !Configure::read('scoring.stat_tracking')) echo ' class="advanced"'; ?>>
  		<legend><?php __('Scoring'); ?></legend>
 	<?php
 		if (Configure::read('feature.spirit')) {
