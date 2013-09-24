@@ -99,7 +99,7 @@ class ZuluruSchema extends CakeSchema {
 	);
 	var $contacts = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
-		'affiliate_id' => array('type' => 'integer', 'null' => false, 'default' => '1', 'key' => 'index'),
+		'affiliate_id' => array('type' => 'integer', 'null' => false, 'default' => '1'),
 		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 64),
 		'email' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 100),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
