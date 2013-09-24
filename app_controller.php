@@ -34,6 +34,12 @@ class AppController extends Controller {
 	var $helpers = array('Session', 'Html', 'ZuluruHtml', 'Form', 'ZuluruForm', 'Time', 'ZuluruTime', 'Number', 'Text', 'Js' => array('ZuluruJquery'));
 	var $view = 'Theme';
 
+	var $is_admin = false;
+	var $is_manager = false;
+	var $is_volunteer = false;
+	var $is_member = false;
+	var $is_logged_in = false;
+
 	var $menu_items = array();
 
 	function beforeFilter() {
