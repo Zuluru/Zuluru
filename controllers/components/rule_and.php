@@ -30,12 +30,6 @@ class RuleAndComponent extends RuleComponent
 		$status = true;
 		foreach ($this->rule as $rule) {
 			if (!$rule->evaluate ($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url)) {
-				// If an invariant rule fails, then we generally don't want to report it,
-				// since there's nothing the user can do
-				if (!$rule->invariant) {
-					$reasons[] = $rule->reason;
-				}
-
 				$this->reason_type = $rule->reason_type;
 				if (!$this->redirect) {
 					$this->redirect = $rule->redirect;
@@ -45,6 +39,10 @@ class RuleAndComponent extends RuleComponent
 				// If an invariant rule fails, then the AND can never succeed
 				if ($rule->invariant) {
 					$this->invariant = true;
+					$reasons = array($rule->reason);
+					break;
+				} else {
+					$reasons[] = $rule->reason;
 				}
 			} else if ($complete) {
 				if (!$rule->invariant) {
