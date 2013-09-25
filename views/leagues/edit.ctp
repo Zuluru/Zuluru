@@ -11,7 +11,8 @@ $collapse = !empty($this->data['Division']['id']);
 
 <div class="leagues form">
 <?php echo $this->Form->create('League', array('url' => Router::normalize($this->here)));?>
-<p><a class="show_advanced basic" href="#">Show advanced configuration</a><a class="show_basic advanced" href="#">Show basic configuration</a></p>
+<p><?php echo $this->ZuluruHtml->icon('gears_32.png', array('class' => 'basic', 'style' => 'vertical-align:middle; padding-right: 5px;')); ?><a class="show_advanced basic" href="#">Show advanced configuration</a>
+<?php echo $this->ZuluruHtml->icon('gear_32.png', array('class' => 'advanced', 'style' => 'vertical-align:middle; padding-right: 5px;')); ?><a class="show_basic advanced" href="#">Show basic configuration</a></p>
 	<fieldset>
  		<legend><?php __('League Information'); ?></legend>
 	<?php
@@ -316,6 +317,8 @@ $collapse = !empty($this->data['Division']['id']);
 		</div>
 	<?php endif; ?>
 	</fieldset>
+<p><?php echo $this->ZuluruHtml->icon('gears_32.png', array('class' => 'basic', 'style' => 'vertical-align:middle; padding-right: 5px;')); ?><a class="show_advanced basic" href="#">Show advanced configuration</a>
+<?php echo $this->ZuluruHtml->icon('gear_32.png', array('class' => 'advanced', 'style' => 'vertical-align:middle; padding-right: 5px;')); ?><a class="show_basic advanced" href="#">Show basic configuration</a></p>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
 
