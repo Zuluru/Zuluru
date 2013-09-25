@@ -117,7 +117,8 @@ class AppController extends Controller {
 
 		// Check if we need to redirect logged-in users for some required step first
 		// We will allow them to see help or logout. Or get the leagues list, as that's where some things redirect to.
-		if ($this->is_member && $this->name != 'Help' && $this->action != 'logout' && ($this->name != 'Leagues' || $this->action != 'index')) {
+		$free = $this->freeActions();
+		if ($this->is_member && !in_array($this->action, $free)) {
 			$email = $this->Session->read('Zuluru.Person.email');
 			if (($this->name != 'People' || $this->action != 'edit') && empty ($email)) {
 				$this->Session->setFlash(__('Last time we tried to contact you, your email bounced. We require a valid email address as part of your profile. You must update it before proceeding.', true), 'default', array('class' => 'warning'));
@@ -367,6 +368,11 @@ class AppController extends Controller {
 	// must override this function.
 	function publicActions() {
 		return null;
+	}
+
+	// Some actions must always be allowed regardless of any redirect that we might want.
+	function freeActions() {
+		return array();
 	}
 
 	// By default, we allow the actions listed above (in the Auth->allow calls) and

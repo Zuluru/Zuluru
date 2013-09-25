@@ -8,6 +8,10 @@ class UsersController extends AppController {
 		return array('login', 'logout', 'create_account', 'reset_password');
 	}
 
+	function freeActions() {
+		return array('logout');
+	}
+
 	function isAuthorized() {
 		// Anyone that's logged in can perform these operations
 		if (in_array ($this->params['action'], array(

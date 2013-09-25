@@ -9,6 +9,10 @@ class LeaguesController extends AppController {
 		return array('cron', 'index', 'view', 'tooltip', 'division_count');
 	}
 
+	function freeActions() {
+		return array('index');
+	}
+
 	function isAuthorized() {
 		if ($this->is_manager) {
 			// Managers can perform these operations
