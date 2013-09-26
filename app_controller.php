@@ -705,6 +705,8 @@ class AppController extends Controller {
 				}
 			}
 
+			$this->_addMenuItem ('List All', array('controller' => 'people'), 'Players');
+
 			$this->_addMenuItem ('Newsletters', array('controller' => 'newsletters', 'action' => 'index'));
 			$this->_addMenuItem ('Upcoming', array('controller' => 'newsletters', 'action' => 'index'), 'Newsletters');
 			$this->_addMenuItem ('Mailing lists', array('controller' => 'mailing_lists', 'action' => 'index'), 'Newsletters');

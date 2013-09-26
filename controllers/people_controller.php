@@ -49,6 +49,7 @@ class PeopleController extends AppController {
 		if ($this->is_manager) {
 			// Managers can perform these operations in affiliates they manage
 			if (in_array ($this->params['action'], array(
+					'index',
 					'list_new',
 					'statistics',
 					'participation',
@@ -84,6 +85,38 @@ class PeopleController extends AppController {
 		}
 
 		return false;
+	}
+
+	function index() {
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->set(compact('affiliates'));
+
+		$this->paginate = array(
+				'conditions' => array(
+					'Affiliate.id' => $affiliates
+				),
+				'joins' => array(
+					array(
+						'table' => "{$this->Person->tablePrefix}affiliates_people",
+						'alias' => 'AffiliatePerson',
+						'type' => 'LEFT',
+						'foreignKey' => false,
+						'conditions' => 'AffiliatePerson.person_id = Person.id',
+					),
+					array(
+						'table' => "{$this->Person->tablePrefix}affiliates",
+						'alias' => 'Affiliate',
+						'type' => 'LEFT',
+						'foreignKey' => false,
+						'conditions' => 'Affiliate.id = AffiliatePerson.affiliate_id',
+					),
+				),
+				'contain' => array(),
+				'fields' => array('Person.*', 'Affiliate.*'),
+				'order' => array('Affiliate.name', 'Person.last_name', 'Person.first_name'),
+				'limit' => Configure::read('feature.items_per_page'),
+		);
+		$this->set('people', $this->paginate());
 	}
 
 	function statistics() {
@@ -1802,6 +1835,8 @@ class PeopleController extends AppController {
 						)),
 				));
 				$this->set('people', $this->paginate('Person'));
+			} else {
+				$this->set('error', 'No matches found!');
 			}
 		}
 	}
