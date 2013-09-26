@@ -121,8 +121,8 @@ class ZuluruGameHelper extends Helper {
 				}
 			} else if ($score_entry === null) {
 				__('score mismatch');
-			} else if (time() > $end_time - 60 * 60 + Configure::read('timezone.adjust') * 60) {
-				// Allow score submissions up to an hour before scheduled game end time.
+			} else if (time() > ($start_time + 3 * $end_time) / 4) {
+				// Allow score submissions any time after 3/4 through the game.
 				// Some people like to submit via mobile phone immediately, and games can end early.
 				if ($team_id) {
 					$links[] = $this->Html->link(
@@ -131,7 +131,7 @@ class ZuluruGameHelper extends Helper {
 				} else {
 					__('not entered');
 				}
-			} else if (time() > $start_time - 30 * 60 + Configure::read('timezone.adjust') * 60 && $details['home_team'] != null && $details['away_team'] != null) {
+			} else if (time() > $start_time - 30 * 60 && $details['home_team'] != null && $details['away_team'] != null) {
 				// Allow live scoring to start up to half an hour before scheduled game start time.
 				// This allows score keepers to get the page loaded and ready to go in advance.
 				if ($team_id) {
