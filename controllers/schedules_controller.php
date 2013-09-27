@@ -590,15 +590,8 @@ class SchedulesController extends AppController {
 		}
 
 		if ($this->league_obj->createSchedule($id, $exclude_teams, $this->data['Game'], $this->pool)) {
-			$cache_file = CACHE . 'queries' . DS . 'division_' . intval($id) . '.data';
-			if (file_exists($cache_file)) {
-				unlink($cache_file);
-			}
-
-			$cache_file = CACHE . 'queries' . DS . 'schedule_' . intval($id) . '.data';
-			if (file_exists($cache_file)) {
-				unlink($cache_file);
-			}
+			Cache::delete('division/' . intval($id) . '/standings', 'long_term');
+			Cache::delete('division/' . intval($id) . '/schedule', 'long_term');
 
 			if ($this->_unscheduledPools($id)) {
 				return $this->_type($id);
@@ -814,15 +807,8 @@ class SchedulesController extends AppController {
 				}
 				$transaction->commit();
 
-				$cache_file = CACHE . 'queries' . DS . 'division_' . intval($id) . '.data';
-				if (file_exists($cache_file)) {
-					unlink($cache_file);
-				}
-
-				$cache_file = CACHE . 'queries' . DS . 'schedule_' . intval($id) . '.data';
-				if (file_exists($cache_file)) {
-					unlink($cache_file);
-				}
+				Cache::delete('division/' . intval($id) . '/standings', 'long_term');
+				Cache::delete('division/' . intval($id) . '/schedule', 'long_term');
 
 				$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
 			} else {
@@ -885,15 +871,8 @@ class SchedulesController extends AppController {
 						$this->Session->setFlash(__('Games rescheduled', true), 'default', array('class' => 'success'));
 						$transaction->commit();
 
-						$cache_file = CACHE . 'queries' . DS . 'division_' . intval($id) . '.data';
-						if (file_exists($cache_file)) {
-							unlink($cache_file);
-						}
-
-						$cache_file = CACHE . 'queries' . DS . 'schedule_' . intval($id) . '.data';
-						if (file_exists($cache_file)) {
-							unlink($cache_file);
-						}
+						Cache::delete('division/' . intval($id) . '/standings', 'long_term');
+						Cache::delete('division/' . intval($id) . '/schedule', 'long_term');
 
 						$this->redirect (array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
 					} else {
@@ -944,15 +923,8 @@ class SchedulesController extends AppController {
 			array('Game.id' => $games)
 		))
 		{
-			$cache_file = CACHE . 'queries' . DS . 'division_' . intval($id) . '.data';
-			if (file_exists($cache_file)) {
-				unlink($cache_file);
-			}
-
-			$cache_file = CACHE . 'queries' . DS . 'schedule_' . intval($id) . '.data';
-			if (file_exists($cache_file)) {
-				unlink($cache_file);
-			}
+			Cache::delete('division/' . intval($id) . '/standings', 'long_term');
+			Cache::delete('division/' . intval($id) . '/schedule', 'long_term');
 
 			$this->Session->setFlash(__('Published games on the requested date.', true), 'default', array('class' => 'success'));
 		} else {
@@ -982,15 +954,8 @@ class SchedulesController extends AppController {
 			array('Game.id' => $games)
 		))
 		{
-			$cache_file = CACHE . 'queries' . DS . 'division_' . intval($id) . '.data';
-			if (file_exists($cache_file)) {
-				unlink($cache_file);
-			}
-
-			$cache_file = CACHE . 'queries' . DS . 'schedule_' . intval($id) . '.data';
-			if (file_exists($cache_file)) {
-				unlink($cache_file);
-			}
+			Cache::delete('division/' . intval($id) . '/standings', 'long_term');
+			Cache::delete('division/' . intval($id) . '/schedule', 'long_term');
 
 			$this->Session->setFlash(__('Unpublished games on the requested date.', true), 'default', array('class' => 'success'));
 		} else {

@@ -75,6 +75,9 @@ class AppController extends Controller {
 			$this->paginate['limit'] = Configure::read('feature.items_per_page');
 		}
 
+		// Set up our long-term cache for rarely-changed data
+		Cache::config('long_term', array('engine' => 'File', 'path' => CACHE . DS . 'queries', 'duration' => YEAR));
+
 		$this->_setPermissions();
 
 		// Set the theme, if any. Must be done before processing, in order for the theme to affect emails.

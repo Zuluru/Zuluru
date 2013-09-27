@@ -960,9 +960,10 @@ class TeamsController extends AppController {
 		$sport_obj = $this->_getComponent ('Sport', $team['Division']['League']['sport'], $this);
 
 		// Hopefully, everything we need is already cached
-		$cache_file = CACHE . 'queries' . DS . "team_stats_{$id}.data";
-		if (file_exists($cache_file)) {
-			$team += unserialize(file_get_contents($cache_file));
+		$cache_key = 'team/' . intval($id) . '/stats';
+		$cached = Cache::read($cache_key, 'long_term');
+		if ($cached) {
+			$team += $cached;
 		} else {
 			// Calculate some stats. We need to get stats from any team in this
 			// division, so that it properly handles subs and people who move teams.
@@ -1000,10 +1001,11 @@ class TeamsController extends AppController {
 						break;
 				}
 			}
-			file_put_contents($cache_file, serialize(array(
+
+			Cache::write($cache_key, array(
 					'Stat' => $team['Stat'],
 					'Calculated' => $team['Calculated'],
-			)));
+			), 'long_term');
 		}
 
 		usort ($team['Person'], array('Team', 'compareRoster'));

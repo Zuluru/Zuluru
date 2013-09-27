@@ -270,9 +270,10 @@ class DivisionsController extends AppController {
 		$sport_obj = $this->_getComponent ('Sport', $division['League']['sport'], $this);
 
 		// Hopefully, everything we need is already cached
-		$cache_file = CACHE . 'queries' . DS . 'division_stats_' . intval($id) . '.data';
-		if (file_exists($cache_file) && !Configure::read('debug')) {
-			$stats = unserialize(file_get_contents($cache_file));
+		$cache_key = 'division/' . intval($id) . '/stats';
+		$cached = Cache::read($cache_key, 'long_term');
+		if ($cached) {
+			$stats = $cached;
 		}
 		if (!empty($stats)) {
 			$division += $stats;
@@ -320,10 +321,10 @@ class DivisionsController extends AppController {
 				$division['Calculated'] = array();
 			}
 
-			file_put_contents($cache_file, serialize(array(
+			Cache::write($cache_key, array(
 					'Person' => $division['Person'],
 					'Calculated' => $division['Calculated'],
-			)));
+			), 'long_term');
 		}
 
 		$this->set(compact('division', 'sport_obj'));
@@ -435,10 +436,7 @@ class DivisionsController extends AppController {
 				// We just reset it here, and it will be recalculated as required elsewhere.
 				$this->Division->Team->updateAll(array('seed' => 0), array('Team.division_id' => $id));
 
-				$cache_file = CACHE . 'queries' . DS . "division_$division.data";
-				if (file_exists($cache_file)) {
-					unlink($cache_file);
-				}
+				Cache::delete("/division/$division/standings", 'long_term');
 
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('division', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
@@ -691,9 +689,10 @@ class DivisionsController extends AppController {
 		}
 
 		// Hopefully, everything we need is already cached
-		$cache_file = CACHE . 'queries' . DS . 'schedule_' . intval($id) . '.data';
-		if (empty($this->data) && file_exists($cache_file)) {
-			$division = unserialize(file_get_contents($cache_file));
+		$cache_key = 'division/' . intval($id) . '/schedule';
+		$cached = Cache::read($cache_key, 'long_term');
+		if ($cached) {
+			$division = $cached;
 		}
 		if (empty($division)) {
 			$this->Division->contain(array (
@@ -754,20 +753,14 @@ class DivisionsController extends AppController {
 		// Save posted data
 		if (!empty ($this->data) && ($this->is_admin || $is_manager || $is_coordinator)) {
 			if ($this->_validateAndSaveSchedule($game_slots)) {
-				if (file_exists($cache_file)) {
-					unlink($cache_file);
-				}
-
-				$cache_file = CACHE . 'queries' . DS . 'division_' . intval($id) . '.data';
-				if (file_exists($cache_file)) {
-					unlink($cache_file);
-				}
+				Cache::delete($cache_key, 'long_term');
+				Cache::delete('division/' . intval($id) . '/standings', 'long_term');
 
 				$this->redirect (array('action' => 'schedule', 'division' => $id));
 			}
 		}
 
-		file_put_contents($cache_file, serialize($division));
+		Cache::write($cache_key, $division, 'long_term');
 
 		$this->set(compact ('id', 'division', 'edit_date', 'game_slots', 'is_coordinator', 'is_tournament'));
 
@@ -892,9 +885,10 @@ class DivisionsController extends AppController {
 		}
 
 		// Hopefully, everything we need is already cached
-		$cache_file = CACHE . 'queries' . DS . 'division_' . intval($id) . '.data';
-		if (file_exists($cache_file)) {
-			$division = unserialize(file_get_contents($cache_file));
+		$cache_key = 'division/' . intval($id) . '/standings';
+		$cached = Cache::read($cache_key, 'long_term');
+		if ($cached) {
+			$division = $cached;
 		}
 		if (!empty($division)) {
 			$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
@@ -970,7 +964,7 @@ class DivisionsController extends AppController {
 				}
 			}
 
-			file_put_contents($cache_file, serialize($division));
+			Cache::write($cache_key, $division, 'long_term');
 		}
 
 		// If we're asking for "team" standings, only show the 5 teams above and 5 teams below this team.
@@ -1514,15 +1508,8 @@ class DivisionsController extends AppController {
 		$this->Session->setFlash(__('Team ratings have been initialized.', true), 'default', array('class' => 'success'));
 		$transaction->commit();
 
-		$cache_file = CACHE . 'queries' . DS . 'division_' . intval($id) . '.data';
-		if (file_exists($cache_file)) {
-			unlink($cache_file);
-		}
-
-		$cache_file = CACHE . 'queries' . DS . 'schedule_' . intval($id) . '.data';
-		if (file_exists($cache_file)) {
-			unlink($cache_file);
-		}
+		Cache::delete('division/' . intval($id) . '/standings', 'long_term');
+		Cache::delete('division/' . intval($id) . '/schedule', 'long_term');
 
 		$this->redirect(array('action' => 'view', 'division' => $id));
 	}
@@ -1734,15 +1721,8 @@ class DivisionsController extends AppController {
 				'default', array('class' => 'success'));
 		$transaction->commit();
 
-		$cache_file = CACHE . 'queries' . DS . 'division_' . intval($id) . '.data';
-		if (file_exists($cache_file)) {
-			unlink($cache_file);
-		}
-
-		$cache_file = CACHE . 'queries' . DS . 'schedule_' . intval($id) . '.data';
-		if (file_exists($cache_file)) {
-			unlink($cache_file);
-		}
+		Cache::delete('division/' . intval($id) . '/standings', 'long_term');
+		Cache::delete('division/' . intval($id) . '/schedule', 'long_term');
 
 		$this->redirect(array('action' => 'schedule', 'division' => $id));
 	}
@@ -1793,15 +1773,8 @@ class DivisionsController extends AppController {
 			{
 				$transaction->commit();
 
-				$cache_file = CACHE . 'queries' . DS . 'division_' . intval($id) . '.data';
-				if (file_exists($cache_file)) {
-					unlink($cache_file);
-				}
-
-				$cache_file = CACHE . 'queries' . DS . 'schedule_' . intval($id) . '.data';
-				if (file_exists($cache_file)) {
-					unlink($cache_file);
-				}
+				Cache::delete('division/' . intval($id) . '/standings', 'long_term');
+				Cache::delete('division/' . intval($id) . '/schedule', 'long_term');
 
 				$this->Session->setFlash(sprintf(__('%s deleted', true), __('All pools in this stage', true)), 'default', array('class' => 'success'));
 			}

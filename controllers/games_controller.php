@@ -397,14 +397,8 @@ class GamesController extends AppController {
 					$this->Game->ScoreEntry->deleteAll(array('game_id' => $id));
 					$transaction->commit();
 
-					$cache_file = CACHE . 'queries' . DS . "division_{$game['Division']['id']}.data";
-					if (file_exists($cache_file)) {
-						unlink($cache_file);
-					}
-					$cache_file = CACHE . 'queries' . DS . "schedule_{$game['Division']['id']}.data";
-					if (file_exists($cache_file)) {
-						unlink($cache_file);
-					}
+					Cache::delete("division/{$game['Division']['id']}/standings", 'long_term');
+					Cache::delete("division/{$game['Division']['id']}/schedule", 'long_term');
 
 					if ($this->_arg('stats')) {
 						$this->redirect(array('action' => 'submit_stats', 'game' => $id));
@@ -799,14 +793,8 @@ class GamesController extends AppController {
 
 				$transaction->commit();
 
-				$cache_file = CACHE . 'queries' . DS . "division_{$game['Division']['id']}.data";
-				if (file_exists($cache_file)) {
-					unlink($cache_file);
-				}
-				$cache_file = CACHE . 'queries' . DS . "schedule_{$game['Division']['id']}.data";
-				if (file_exists($cache_file)) {
-					unlink($cache_file);
-				}
+				Cache::delete("division/{$game['Division']['id']}/standings", 'long_term');
+				Cache::delete("division/{$game['Division']['id']}/schedule", 'long_term');
 
 				$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $game['Division']['id']));
 			} else {
@@ -1483,11 +1471,12 @@ class GamesController extends AppController {
 
 		$transaction->commit();
 
-		$cache_file = CACHE . 'queries' . DS . "division_{$game['Division']['id']}.data";
+		// TODO: Would be nice if there was a Cache method that could help with this
+		$cache_file = CACHE . 'queries' . DS . "cake_division_{$game['Division']['id']}_standings";
 		if (file_exists($cache_file) && time()-filemtime($cache_file) > 5 * MINUTE) {
 			unlink($cache_file);
 		}
-		$cache_file = CACHE . 'queries' . DS . "schedule_{$game['Division']['id']}.data";
+		$cache_file = CACHE . 'queries' . DS . "cake_division_{$game['Division']['id']}_schedule";
 		if (file_exists($cache_file) && time()-filemtime($cache_file) > 5 * MINUTE) {
 			unlink($cache_file);
 		}
@@ -1640,11 +1629,12 @@ class GamesController extends AppController {
 		}
 		$transaction->commit();
 
-		$cache_file = CACHE . 'queries' . DS . "division_{$game['Division']['id']}.data";
+		// TODO: Would be nice if there was a Cache method that could help with this
+		$cache_file = CACHE . 'queries' . DS . "cake_division_{$game['Division']['id']}_standings";
 		if (file_exists($cache_file) && time()-filemtime($cache_file) > 5 * MINUTE) {
 			unlink($cache_file);
 		}
-		$cache_file = CACHE . 'queries' . DS . "schedule_{$game['Division']['id']}.data";
+		$cache_file = CACHE . 'queries' . DS . "cake_division_{$game['Division']['id']}_schedule";
 		if (file_exists($cache_file) && time()-filemtime($cache_file) > 5 * MINUTE) {
 			unlink($cache_file);
 		}
@@ -2200,14 +2190,8 @@ class GamesController extends AppController {
 				}
 				$transaction->commit();
 
-				$cache_file = CACHE . 'queries' . DS . "division_{$game['Division']['id']}.data";
-				if (file_exists($cache_file)) {
-					unlink($cache_file);
-				}
-				$cache_file = CACHE . 'queries' . DS . "schedule_{$game['Division']['id']}.data";
-				if (file_exists($cache_file)) {
-					unlink($cache_file);
-				}
+				Cache::delete("division/{$game['Division']['id']}/standings", 'long_term');
+				Cache::delete("division/{$game['Division']['id']}/schedule", 'long_term');
 
 				// Check if the opponent has an entry
 				if (!$this->Game->_get_score_entry($game, $opponent['id'])) {
@@ -2444,19 +2428,10 @@ class GamesController extends AppController {
 					$transaction->commit();
 
 					if ($team_id) {
-						$cache_file = CACHE . 'queries' . DS . "team_stats_{$team_id}.data";
-						if (file_exists($cache_file)) {
-							unlink($cache_file);
-						}
+						Cache::delete("team/{$team_id}/stats", 'long_term');
 					} else {
-						$cache_file = CACHE . 'queries' . DS . "team_stats_{$game['Game']['home_team']}.data";
-						if (file_exists($cache_file)) {
-							unlink($cache_file);
-						}
-						$cache_file = CACHE . 'queries' . DS . "team_stats_{$game['Game']['away_team']}.data";
-						if (file_exists($cache_file)) {
-							unlink($cache_file);
-						}
+						Cache::delete("team/{$game['Game']['home_team']}/stats", 'long_term');
+						Cache::delete("team/{$game['Game']['away_team']}/stats", 'long_term');
 					}
 
 					$this->redirect(array('action' => 'view', 'game' => $id));
@@ -2704,14 +2679,8 @@ class GamesController extends AppController {
 
 		$this->_updateDependencies ($game, $data['Game']['home_score'] > $data['Game']['away_score']);
 
-		$cache_file = CACHE . 'queries' . DS . "division_{$game['Division']['id']}.data";
-		if (file_exists($cache_file)) {
-			unlink($cache_file);
-		}
-		$cache_file = CACHE . 'queries' . DS . "schedule_{$game['Division']['id']}.data";
-		if (file_exists($cache_file)) {
-			unlink($cache_file);
-		}
+		Cache::delete("division/{$game['Division']['id']}/standings", 'long_term');
+		Cache::delete("division/{$game['Division']['id']}/schedule", 'long_term');
 
 		return true;
 	}

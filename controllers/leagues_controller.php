@@ -312,10 +312,7 @@ class LeaguesController extends AppController {
 				$this->League->Division->Team->updateAll(array('seed' => 0), array('Team.division_id' => $divisions));
 
 				foreach ($divisions as $division) {
-					$cache_file = CACHE . 'queries' . DS . "division_$division.data";
-					if (file_exists($cache_file)) {
-						unlink($cache_file);
-					}
+					Cache::delete("division/$division/standings", 'long_term');
 				}
 
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('league', true)), 'default', array('class' => 'success'));
