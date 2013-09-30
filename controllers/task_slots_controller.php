@@ -160,7 +160,7 @@ class TaskSlotsController extends AppController {
 			$this->TaskSlot->contain();
 			$this->data = $this->TaskSlot->read(null, $id);
 			if (!$this->data) {
-				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('region', true)), 'default', array('class' => 'info'));
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('task slot', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('controller' => 'tasks', 'action' => 'index'));
 			}
 			$this->Configuration->loadAffiliate($this->TaskSlot->affiliate($id));
@@ -284,7 +284,7 @@ class TaskSlotsController extends AppController {
 				if ($this->RequestHandler->isAjax()) {
 					$this->set(array(
 						'error' => sprintf(__('This person has a conflicting assignment:\n\n%s (%s) from %s to %s on %s', true),
-									$conflict['Task']['name'], $conflict['Task']['Category']['name'],
+									addslashes($conflict['Task']['name']), addslashes($conflict['Task']['Category']['name']),
 									$time->time($conflict['TaskSlot']['task_start']),
 									$time->time($conflict['TaskSlot']['task_end']),
 									$time->date($conflict['TaskSlot']['task_date'])),
