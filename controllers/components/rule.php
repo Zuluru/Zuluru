@@ -46,6 +46,7 @@ class RuleComponent extends Object
 		'have a membership type of none'				=> 'not already have a valid membership',
 		'have a membership type of intro'				=> 'have an introductory membership',
 		'have a membership type of full'				=> 'have a full membership',
+		'(have a valid membership)'						=> 'have a valid membership',
 
 		'have an introductory membership OR have a full membership' => 'have a valid membership',
 		'have a full membership OR have an introductory membership' => 'have a valid membership',
@@ -68,6 +69,9 @@ class RuleComponent extends Object
 		'have a birthdate greater than'					=> 'have been born after',
 		'have a birthdate less than or equal to'		=> 'have been born on or before',
 		'have a birthdate less than'					=> 'have been born before',
+
+		'have a gender of female'						=> 'be female',
+		'have a gender of male'							=> 'be male',
 
 		'have a team count of 0'						=> 'not be on another roster',
 	);
