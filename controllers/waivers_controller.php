@@ -37,7 +37,7 @@ class WaiversController extends AppController {
 				// If a waiver id is specified, check if we're a manager of that waiver's affiliate
 				$waiver = $this->_arg('waiver');
 				if ($waiver) {
-					if (in_array($this->Waiver->affiliate($waiver), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Waiver->affiliate($waiver), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -196,8 +196,10 @@ class WaiversController extends AppController {
 
 		if (!empty ($this->data)) {
 			if ($this->data['Person']['signed'] == 'yes') {
-				if ($this->Waiver->WaiversPerson->save (compact('person_id', 'waiver_id', 'valid_from', 'valid_until')))
-				{
+				if ($this->Waiver->WaiversPerson->save (compact('person_id', 'waiver_id', 'valid_from', 'valid_until'))) {
+					$this->UserCache->clear('Waivers', $person_id);
+					$this->UserCache->clear('WaiversCurrent', $person_id);
+
 					$this->Session->setFlash(__('Waiver signed.', true), 'default', array('class' => 'success'));
 					$this->redirect('/');
 				} else {

@@ -18,7 +18,7 @@ $affiliate_id = null;
 $seasons = array_unique(Set::extract('/League/long_season', $leagues));
 
 foreach ($leagues as $league):
-	$is_manager = $is_logged_in && in_array($league['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+	$is_manager = $is_logged_in && in_array($league['League']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
 
 	if ($league['League']['affiliate_id'] != $affiliate_id):
 		$affiliate_id = $league['League']['affiliate_id'];

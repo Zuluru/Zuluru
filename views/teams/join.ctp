@@ -18,7 +18,7 @@ echo $this->Paginator->counter(array(
 <?php
 $affiliate_id = null;
 foreach ($teams as $team) {
-	$is_manager = in_array($team['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+	$is_manager = in_array($team['League']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
 	Division::_addNames($team['Division'], $team['League']);
 
 	if (count($affiliates) > 1 && $team['League']['affiliate_id'] != $affiliate_id):
@@ -28,7 +28,7 @@ foreach ($teams as $team) {
 <?php
 	endif;
 
-	if (!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs'))) {
+	if (!in_array($team['Team']['id'], $this->UserCache->read('TeamIDs'))) {
 		echo $this->Html->tag('li', $this->Html->link($team['Team']['name'] . ' (' . $team['Division']['league_name'] . ')',
 				array('controller' => 'teams', 'action' => 'roster_request', 'team' => $team['Team']['id'])));
 	}

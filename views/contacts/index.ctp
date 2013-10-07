@@ -24,7 +24,7 @@ echo $this->Paginator->counter(array(
 $i = 0;
 $affiliate_id = null;
 foreach ($contacts as $contact):
-	$is_manager = $is_logged_in && in_array($contact['Contact']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+	$is_manager = $is_logged_in && in_array($contact['Contact']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
 
 	if (count($affiliates) > 1 && $contact['Contact']['affiliate_id'] != $affiliate_id):
 		$affiliate_id = $contact['Contact']['affiliate_id'];

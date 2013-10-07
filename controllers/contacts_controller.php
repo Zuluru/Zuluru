@@ -33,7 +33,7 @@ class ContactsController extends AppController {
 				// If an upload type id is specified, check if we're a manager of that upload type's affiliate
 				$type = $this->_arg('type');
 				if ($type) {
-					if (in_array($this->Contact->affiliate($type), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Contact->affiliate($type), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -151,8 +151,8 @@ class ContactsController extends AppController {
 
 				if ($contact && $this->_sendMail (array (
 						'to' => "{$contact['Contact']['name']} <{$contact['Contact']['email']}>",
-						'replyTo' => $this->Session->read('Zuluru.Person'),
-						'cc' => ($this->data['Message']['cc'] ? $this->Session->read('Zuluru.Person') : array()),
+						'replyTo' => $this->UserCache->read('Person'),
+						'cc' => ($this->data['Message']['cc'] ? $this->UserCache->read('Person') : array()),
 						'subject' => $this->data['Message']['subject'],
 						'content' => $this->data['Message']['message'],
 						'sendAs' => 'text',

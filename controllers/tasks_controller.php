@@ -34,7 +34,7 @@ class TasksController extends AppController {
 				// If a task id is specified, check if we're a manager of that task's affiliate
 				$task = $this->_arg('task');
 				if ($task) {
-					if (in_array($this->Task->affiliate($task), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Task->affiliate($task), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}

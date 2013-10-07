@@ -33,7 +33,7 @@ class BadgesController extends AppController {
 				// If a badge id is specified, check if we're a manager of that badge's affiliate
 				$badge = $this->_arg('badge');
 				if ($badge) {
-					if (in_array($this->Badge->affiliate($badge), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Badge->affiliate($badge), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}

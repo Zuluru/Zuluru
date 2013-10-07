@@ -29,9 +29,12 @@
  * @subpackage    cake.cake.libs.controller
  */
 class AppController extends Controller {
-	var $components = array('Session', 'Auth', 'Cookie', 'RequestHandler');
+	var $components = array('Session', 'Auth', 'Cookie', 'RequestHandler', 'UserCache');
 	var $uses = array('Person', 'Configuration');
-	var $helpers = array('Session', 'Html', 'ZuluruHtml', 'Form', 'ZuluruForm', 'Time', 'ZuluruTime', 'Number', 'Text', 'Js' => array('ZuluruJquery'));
+	var $helpers = array(
+			'Session', 'UserCache',
+			'Html', 'ZuluruHtml', 'Form', 'ZuluruForm', 'Js' => array('ZuluruJquery'),
+			'Time', 'ZuluruTime', 'Number', 'Text');
 	var $view = 'Theme';
 
 	var $is_admin = false;
@@ -61,8 +64,7 @@ class AppController extends Controller {
 		Configure::write('feature.manage_name', $this->Auth->authenticate->manageName);
 
 		// Load configuration from database
-		if (isset($this->Configuration) && !empty($this->Configuration->table))
-		{
+		if (isset($this->Configuration) && !empty($this->Configuration->table)) {
 			$this->Configuration->load($this->Auth->user('id'));
 			if (Configure::read('feature.affiliates')) {
 				$affiliates = $this->_applicableAffiliateIDs();
@@ -75,7 +77,8 @@ class AppController extends Controller {
 			$this->paginate['limit'] = Configure::read('feature.items_per_page');
 		}
 
-		// Set up our long-term cache for rarely-changed data
+		// Set up our caches for rarely-changed data
+		Cache::config('file', array('engine' => 'File', 'path' => CACHE . DS . 'queries'));
 		Cache::config('long_term', array('engine' => 'File', 'path' => CACHE . DS . 'queries', 'duration' => YEAR));
 
 		$this->_setPermissions();
@@ -105,8 +108,6 @@ class AppController extends Controller {
 			$this->Auth->authError = __('You must login to access full site functionality.', true);
 		}
 
-		$this->_initSessionData($this->Auth->user('id'));
-
 		if (!$this->RequestHandler->isAjax()) {
 			if ($this->_arg('return') && !$this->Session->check('Navigation.redirect')) {
 				// If there's a return requested, and nothing already saved to return to, remember the referrer
@@ -122,20 +123,20 @@ class AppController extends Controller {
 		// We will allow them to see help or logout. Or get the leagues list, as that's where some things redirect to.
 		$free = $this->freeActions();
 		if ($this->is_member && !in_array($this->action, $free)) {
-			$email = $this->Session->read('Zuluru.Person.email');
+			$email = $this->UserCache->read('Person.email');
 			if (($this->name != 'People' || $this->action != 'edit') && empty ($email)) {
 				$this->Session->setFlash(__('Last time we tried to contact you, your email bounced. We require a valid email address as part of your profile. You must update it before proceeding.', true), 'default', array('class' => 'warning'));
 				$this->redirect (array('controller' => 'people', 'action' => 'edit'));
 			}
 
-			if (($this->name != 'People' || $this->action != 'edit') && $this->Session->read('Zuluru.Person.complete') == 0) {
+			if (($this->name != 'People' || $this->action != 'edit') && $this->UserCache->read('Person.complete') == 0) {
 				$this->Session->setFlash(__('Your player profile is incomplete. You must update it before proceeding.', true), 'default', array('class' => 'warning'));
 				$this->redirect (array('controller' => 'people', 'action' => 'edit'));
 			}
 
 			// Force response to roster requests, if enabled
 			if (Configure::read('feature.force_roster_request')) {
-				$teams = Set::extract ('/TeamsPerson[status=' . ROSTER_INVITED . ']/..', $this->Session->read('Zuluru.Teams'));
+				$teams = Set::extract ('/TeamsPerson[status=' . ROSTER_INVITED . ']/..', $this->UserCache->read('Teams'));
 				$response_required = array();
 				foreach ($teams as $team) {
 					// Only force responses to leagues that have started play, but the roster deadline hasn't passed
@@ -236,7 +237,7 @@ class AppController extends Controller {
 		$affiliates = $this->Person->Affiliate->find('all', array(
 				'conditions' => array(
 					'active' => true,
-					'NOT' => array('id' => $this->Session->read('Zuluru.ManagedAffiliateIDs')),
+					'NOT' => array('id' => $this->UserCache->read('ManagedAffiliateIDs')),
 				),
 				'contain' => array(),
 		));
@@ -285,7 +286,7 @@ class AppController extends Controller {
 
 			if ($user && method_exists ($auth, 'merge_user_record')) {
 				$auth->merge_user_record($user);
-				$this->Session->delete('Zuluru.Person');
+				$this->UserCache->clear('Person');
 			}
 		}
 
@@ -298,38 +299,33 @@ class AppController extends Controller {
 			} else {
 				$id = $user[$auth->alias]['id'];
 			}
-
-			// Make sure the person and group records are in the session
-			$person = $this->_findSessionData('Person', $this->Person, $id);
-			$group = $this->_findSessionData('Group', $this->Person->Group, $person['group_id']);
-		} else {
-			$group = null;
 		}
 
-		if (is_array ($group)) {
+		$group = $this->UserCache->read('Group');
+		if (!empty($group)) {
 			if (array_key_exists ('name', $group)) {
 				$group = $group['name'];
 			} else {
 				$group = 'Non-player account';
 			}
-		}
 
-		// We intentionally fall through from the higher groups to the lower.
-		switch ($group) {
-			case 'Administrator':
-				$this->is_admin = true;
+			// We intentionally fall through from the higher groups to the lower.
+			switch ($group) {
+				case 'Administrator':
+					$this->is_admin = true;
 
-			case 'Manager':
-				$this->is_manager = true;
+				case 'Manager':
+					$this->is_manager = true;
 
-			case 'Volunteer':
-				$this->is_volunteer = true;
+				case 'Volunteer':
+					$this->is_volunteer = true;
 
-			case 'Player':
-				$this->is_member = true;
+				case 'Player':
+					$this->is_member = true;
 
-			case 'Non-player account':
-				$this->is_logged_in = true;
+				case 'Non-player account':
+					$this->is_logged_in = true;
+			}
 		}
 
 		// Set these in convenient locations for views to use
@@ -393,7 +389,7 @@ class AppController extends Controller {
 	}
 
 	function _limitOverride($team_id) {
-		$on_team = in_array($team_id, $this->Session->read('Zuluru.TeamIDs'));
+		$on_team = in_array($team_id, $this->UserCache->read('TeamIDs'));
 		if ($on_team) {
 			$this->effective_admin = $this->effective_coordinator = false;
 		} else {
@@ -406,9 +402,9 @@ class AppController extends Controller {
 				$division = $this->Team->field('division_id', array('id' => $team_id));
 				$league = $this->Team->Division->field('league_id', array('id' => $division));
 				$affiliate = $this->Team->Division->League->field('affiliate_id', array('id' => $league));
-				$this->effective_coordinator = in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+				$this->effective_coordinator = in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs'));
 			} else {
-				$divisions = $this->Session->read('Zuluru.Divisions');
+				$divisions = $this->UserCache->read('Divisions');
 				$teams = Set::extract ('/Team/id', $divisions);
 				$this->effective_coordinator = in_array($team_id, $teams);
 			}
@@ -430,7 +426,7 @@ class AppController extends Controller {
 		$affiliate = $this->_arg('affiliate');
 		if ($affiliate === null) {
 			// If the user has selected a specific affiliate to view, perhaps only use that
-			$affiliate = $this->Session->read('Zuluru.CurrentAffiliate');
+			$affiliate = $this->UserCache->read('CurrentAffiliate');
 		}
 
 		if ($affiliate !== null) {
@@ -439,7 +435,7 @@ class AppController extends Controller {
 			// - the current user is an admin OR
 			// - the current user is a manager of that affiliate
 			if (!$admin_only || $this->is_admin ||
-				($this->is_manager && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs')))
+				($this->is_manager && in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs')))
 			)
 			{
 				return $affiliate_model->find('list', array(
@@ -450,7 +446,7 @@ class AppController extends Controller {
 
 		// Managers may get only their list of managed affiliates
 		if (!$this->is_admin && $this->is_manager && $admin_only) {
-			$affiliates = $this->Session->read('Zuluru.ManagedAffiliates');
+			$affiliates = $this->UserCache->read('ManagedAffiliates');
 			$affiliates = Set::combine($affiliates, '{n}.Affiliate.id', '{n}.Affiliate.name');
 			ksort($affiliates);
 			return $affiliates;
@@ -458,7 +454,7 @@ class AppController extends Controller {
 
 		// Non-admins get their current list of "subscribed" affiliates
 		if ($this->is_logged_in && !$this->is_admin) {
-			$affiliates = $this->Session->read('Zuluru.Affiliates');
+			$affiliates = $this->UserCache->read('Affiliates');
 			if (!empty($affiliates)) {
 				$affiliates = Set::combine($affiliates, '{n}.Affiliate.id', '{n}.Affiliate.name');
 				ksort($affiliates);
@@ -483,7 +479,7 @@ class AppController extends Controller {
 		$affiliate = $this->_arg('affiliate');
 		if ($affiliate === null) {
 			// If the user has selected a specific affiliate to view, perhaps only use that
-			$affiliate = $this->Session->read('Zuluru.CurrentAffiliate');
+			$affiliate = $this->UserCache->read('CurrentAffiliate');
 		}
 
 		if ($affiliate !== null) {
@@ -492,7 +488,7 @@ class AppController extends Controller {
 			// - the current user is an admin OR
 			// - the current user is a manager of that affiliate
 			if (!$admin_only || $this->is_admin ||
-				($this->is_manager && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs')))
+				($this->is_manager && in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs')))
 			)
 			{
 				return array($affiliate);
@@ -501,12 +497,12 @@ class AppController extends Controller {
 
 		// Managers may get only their list of managed affiliates
 		if (!$this->is_admin && $this->is_manager && $admin_only) {
-			return $this->Session->read('Zuluru.ManagedAffiliateIDs');
+			return $this->UserCache->read('ManagedAffiliateIDs');
 		}
 
 		// Non-admins get their current list of selected affiliates
 		if ($this->is_logged_in && !$this->is_admin) {
-			$affiliates = $this->Session->read('Zuluru.AffiliateIDs');
+			$affiliates = $this->UserCache->read('AffiliateIDs');
 			if (!empty($affiliates)) {
 				return $affiliates;
 			}
@@ -809,7 +805,7 @@ class AppController extends Controller {
 		$this->_addMenuItem ('New users', array('controller' => 'help', 'action' => 'guide', 'new_user'), 'Help');
 		$this->_addMenuItem ('Advanced users', array('controller' => 'help', 'action' => 'guide', 'advanced'), 'Help');
 		$this->_addMenuItem ('Captains', array('controller' => 'help', 'action' => 'guide', 'captain'), 'Help');
-		if ($this->is_admin || $this->is_manager || $this->Session->read('Zuluru.DivisionIDs')) {
+		if ($this->is_admin || $this->is_manager || $this->UserCache->read('DivisionIDs')) {
 			$this->_addMenuItem ('Coordinators', array('controller' => 'help', 'action' => 'guide', 'coordinator'), 'Help');
 		}
 		if ($this->is_admin) {
@@ -841,155 +837,24 @@ class AppController extends Controller {
 		}
 	}
 
-	function _initSessionData($my_id) {
-		$session_keys = array('Unpaid', 'Teams', 'TeamIDs', 'OwnedTeams', 'OwnedTeamIDs', 'Divisions', 'DivisionIDs');
-		if (!$my_id) {
-			foreach ($session_keys as $key) {
-				$this->Session->write("Zuluru.$key", array());
-			}
-			return;
-		}
-
-		// Schema changes often break cached session information
-		$schema = $this->Session->read('Zuluru.Schema');
-		if ($schema != SCHEMA_VERSION) {
-			foreach ($session_keys as $key) {
-				$this->Session->delete("Zuluru.$key");
-			}
-			$this->Session->write('Zuluru.Schema', SCHEMA_VERSION);
-		}
-
-		$unpaid = $this->Session->read('Zuluru.Unpaid');
-		if (empty($unpaid)) {
-			if (!isset ($this->Registration)) {
-				$this->Registration = ClassRegistry::init ('Registration');
-			}
-			$this->_findSessionData('Unpaid', $this->Registration, array(
-					'recursive' => -1,
-					'conditions' => array(
-						'person_id' => $my_id,
-						'payment' => array('Unpaid', 'Pending'),
-					),
-			));
-		}
-
-		$affiliates = $this->Session->read('Zuluru.Affiliates');
-		if (empty($affiliates)) {
-			if (!isset ($this->Affiliate)) {
-				$this->Affiliate = ClassRegistry::init('Affiliate');
-			}
-			$affiliates = $this->Affiliate->readByPlayerId ($my_id);
-
-			// If affiliates are disabled, make sure that they are in affiliate 1
-			if (empty($affiliates) && !Configure::read('feature.affiliates')) {
-				$this->Affiliate->AffiliatesPerson->save(array('person_id' => $my_id, 'affiliate_id' => 1));
-				$affiliates = $this->Affiliate->readByPlayerId ($my_id);
-			}
-
-			$this->Session->write ('Zuluru.Affiliates', $affiliates);
-			$this->Session->write ('Zuluru.AffiliateIDs', Set::extract ('/Affiliate/id', $affiliates));
-
-			$managed = Set::extract('/AffiliatesPerson[position=manager]/..', $affiliates);
-			$this->Session->write ('Zuluru.ManagedAffiliates', $managed);
-			$this->Session->write ('Zuluru.ManagedAffiliateIDs', Set::extract ('/Affiliate/id', $managed));
-		}
-
-		$teams = $this->Session->read('Zuluru.Teams');
-		if (empty($teams)) {
-			if (!isset ($this->Team)) {
-				$this->Team = ClassRegistry::init ('Team');
-			}
-			$teams = $this->Team->readByPlayerId ($my_id);
-
-			$this->Session->write ('Zuluru.Teams', $teams);
-			$this->Session->write ('Zuluru.TeamIDs', Set::extract ('/Team/id', $teams));
-
-			$roles = Configure::read('privileged_roster_roles');
-			$owned_teams = array();
-			foreach ($teams as $team) {
-				if (in_array ($team['TeamsPerson']['role'], $roles) &&
-					$team['TeamsPerson']['status'] == ROSTER_APPROVED)
-				{
-					$owned_teams[] = $team;
-				}
-			}
-
-			$this->Session->write ('Zuluru.OwnedTeams', $owned_teams);
-			$this->Session->write ('Zuluru.OwnedTeamIDs', Set::extract ('/Team/id', $owned_teams));
-		}
-
-		$franchises = $this->Session->read('Zuluru.Franchises');
-		if (empty($franchises)) {
-			if (!isset ($this->Franchise)) {
-				if (!class_exists ('Franchise')) {
-					App::import ('Model', 'Franchise');
-				}
-				$this->Franchise = new Franchise();
-			}
-			$franchises = $this->Franchise->readByPlayerId ($my_id, true, true);
-
-			$this->Session->write ('Zuluru.Franchises', $franchises);
-			$this->Session->write ('Zuluru.FranchiseIDs', Set::extract ('/id', $franchises));
-		}
-
-		$divisions = $this->Session->read('Zuluru.Divisions');
-		if (empty($divisions)) {
-			if (!isset ($this->Division)) {
-				$this->Division = ClassRegistry::init('Division');
-			}
-			$divisions = $this->Division->readByPlayerId ($my_id, true, true);
-
-			$this->Session->write ('Zuluru.Divisions', $divisions);
-			$this->Session->write ('Zuluru.DivisionIDs', Set::extract ('/Division/id', $divisions));
-		}
-
-		if ($this->is_volunteer && Configure::read('feature.tasks')) {
-			$tasks = $this->Session->read('Zuluru.Tasks');
-			// Test against null instead of empty, so that volunteers that
-			// legitimately have no tasks don't cause so many queries
-			if ($tasks === null) {
-				$tasks = $this->requestAction(array('controller' => 'tasks', 'action' => 'assigned'));
-				$this->Session->write ('Zuluru.Tasks', $tasks);
-			}
-		}
-	}
-
-	/**
-	 * Delete all of the cached session information related to teams.
-	 */
-	function _deleteTeamSessionData() {
-		$this->Session->delete('Zuluru.Teams');
-		$this->Session->delete('Zuluru.TeamIDs');
-		$this->Session->delete('Zuluru.OwnedTeams');
-		$this->Session->delete('Zuluru.OwnedTeamIDs');
-	}
-
-	/**
-	 * Delete all of the cached session information related to franchises.
-	 */
-	function _deleteFranchiseSessionData() {
-		$this->Session->delete('Zuluru.Franchises');
-		$this->Session->delete('Zuluru.FranchiseIDs');
-	}
-
 	/**
 	 * Put personalized items like specific teams and divisions on the menu.
 	 */
 	function _initPersonalMenu() {
 		if (Configure::read('feature.registration')) {
-			$unpaid = $this->Session->read('Zuluru.Unpaid');
+			$unpaid = $this->UserCache->read('RegistrationsUnpaid');
 			if (!empty ($unpaid)) {
 				$this->_addMenuItem ('Checkout', array('controller' => 'registrations', 'action' => 'checkout'), 'Registration');
 			}
 		}
 
-		$teams = $this->Session->read('Zuluru.Teams');
+		$teams = $this->UserCache->read('Teams');
 		foreach ($teams as $team) {
 			$this->_addTeamMenuItems ($team);
 		}
 
 		if (Configure::read('feature.franchises')) {
-			$franchises = $this->Session->read('Zuluru.Franchises');
+			$franchises = $this->UserCache->read('Franchises');
 			if (!empty($franchises)) {
 				foreach ($franchises as $franchise) {
 					$this->_addFranchiseMenuItems ($franchise);
@@ -997,7 +862,7 @@ class AppController extends Controller {
 			}
 		}
 
-		$divisions = $this->Session->read('Zuluru.Divisions');
+		$divisions = $this->UserCache->read('Divisions');
 		foreach ($divisions as $division) {
 			$this->_addDivisionMenuItems ($division['Division'], $division['League']);
 		}
@@ -1007,13 +872,13 @@ class AppController extends Controller {
 	 * Add all the links for a team to the menu.
 	 */
 	function _addTeamMenuItems($team) {
-		$is_captain = in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs'));
+		$is_captain = in_array($team['Team']['id'], $this->UserCache->read('OwnedTeamIDs'));
 		if (empty($team['Division']['id'])) {
 			$affiliate_id = $team['Team']['affiliate_id'];
 		} else {
 			$affiliate_id = $team['Division']['League']['affiliate_id'];
 		}
-		$is_manager = $this->is_manager && in_array($affiliate_id, $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+		$is_manager = $this->is_manager && in_array($affiliate_id, $this->UserCache->read('ManagedAffiliateIDs'));
 
 		$this->_limitOverride($team['Team']['id']);
 		$key = "{$team['Team']['name']}::{$team['Team']['id']}";
@@ -1023,12 +888,12 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Schedule', array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['Team']['id']), array('Teams', $key));
 			$this->_addMenuItem ('Standings', array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Division']['id'], 'team' => $team['Team']['id']), array('Teams', $key));
 			if ($team['Team']['track_attendance'] &&
-				in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
+				in_array($team['Team']['id'], $this->UserCache->read('TeamIDs')))
 			{
 				$this->_addMenuItem ('Attendance', array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['Team']['id']), array('Teams', $key));
 			}
 			if ($this->is_logged_in && $team['Team']['open_roster'] && !Division::rosterDeadlinePassed($team['Division']) &&
-				!in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')))
+				!in_array($team['Team']['id'], $this->UserCache->read('TeamIDs')))
 			{
 				$this->_addMenuItem ('Join team', array('controller' => 'teams', 'action' => 'roster_request', 'team' => $team['Team']['id']), array('Teams', $key));
 			}
@@ -1064,8 +929,8 @@ class AppController extends Controller {
 	 */
 	function _addFranchiseMenuItems($franchise) {
 		$this->_addMenuItem ($franchise['name'], array('controller' => 'franchises', 'action' => 'view', 'franchise' => $franchise['id']), array('Teams', 'Franchises'), "{$franchise['name']}::{$franchise['id']}");
-		$is_owner = in_array($franchise['id'], $this->Session->read('Zuluru.FranchiseIDs'));
-		$is_manager = $this->is_manager && in_array($franchise['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+		$is_owner = in_array($franchise['id'], $this->UserCache->read('FranchiseIDs'));
+		$is_manager = $this->is_manager && in_array($franchise['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
 
 		if ($this->is_admin || $is_manager || $is_owner) {
 			$this->_addMenuItem ('Edit', array('controller' => 'franchises', 'action' => 'edit', 'franchise' => $franchise['id']), array('Teams', 'Franchises', "{$franchise['name']}::{$franchise['id']}"));
@@ -1090,8 +955,8 @@ class AppController extends Controller {
 	 * Add all the links for a division to the menu.
 	 */
 	function _addDivisionMenuItems($division, $league) {
-		$is_coordinator = in_array($division['id'], $this->Session->read('Zuluru.DivisionIDs'));
-		$is_manager = $this->is_manager && in_array($league['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+		$is_coordinator = in_array($division['id'], $this->UserCache->read('DivisionIDs'));
+		$is_manager = $this->is_manager && in_array($league['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
 
 		if (array_key_exists('Division', $league)) {
 			$division_count = count($league['Division']);
@@ -1436,35 +1301,12 @@ class AppController extends Controller {
 		return $conditions;
 	}
 
-	function _findSessionData($key, &$model, $find = null) {
-		$data = $this->Session->read("Zuluru.$key");
-		if ($data === null) {
-			if (is_numeric ($find)) {
-				$model->contain();
-				$data = $model->read(null, $find);
-				$data = $data[$model->alias];
-			} else {
-				if ($find === null) {
-					$find = array(
-						'contain' => array(),
-						'conditions' => array(
-							'person_id' => $this->Auth->user('id'),
-						),
-					);
-				}
-				$data = $model->find('all', $find);
-				$data = Set::extract("/{$model->alias}/.", $data);
-			}
-			$this->Session->write("Zuluru.$key", $data);
-
-			// We don't want this data hanging around in $model->data to mess up later saves
-			$model->data = null;
-		}
-		return $data;
-	}
-
 	// TODO: Move this to a component? Leagues and Teams need it, but nothing else
 	function _getAffiliateId ($division, $team) {
+		if (empty($division['season_divisions'])) {
+			return null;
+		}
+
 		if (!isset ($this->Team)) {
 			$this->Team = ClassRegistry::init ('Team');
 		}

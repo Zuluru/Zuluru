@@ -9,7 +9,7 @@ echo $this->Html->link (__('captains guide', true), array('controller' => 'help'
 <p>Some features of <?php echo ZULURU; ?> (e.g. schedules and standings) are available for anyone to use.
 However, to participate in the <?php echo Configure::read('organization.name'); ?>, you must have a user account on the system.
 <?php if ($is_logged_in): ?>
-You are already logged in to the system, so it seems that you've successfully taken care of this step. For the record, your user name is '<?php echo $this->Session->read('Zuluru.Person.user_name'); ?>' and your ID number is <?php echo $this->Session->read('Zuluru.Person.id'); ?>.
+You are already logged in to the system, so it seems that you've successfully taken care of this step. For the record, your user name is '<?php echo $this->UserCache->read('Person.user_name'); ?>' and your ID number is <?php echo $this->UserCache->read('Person.id'); ?>.
 <?php elseif (Configure::read('feature.manage_accounts')): ?>
 If you don't already have an account, <?php echo $this->Html->link('follow these directions', array('controller' => 'users', 'action' => 'create_account')); ?> to get yourself set up.
 <?php else: ?>
@@ -17,7 +17,7 @@ This site manages user accounts through <?php echo Configure::read('feature.mana
 <?php endif; ?></p>
 <p>Next, each player must have their completed profile approved by an administrator.
 <?php if ($is_logged_in): ?>
-<?php if (!$this->Session->read('Zuluru.Person.complete')): ?>
+<?php if (!$this->UserCache->read('Person.complete')): ?>
 To complete your profile, <?php echo $this->Html->link('follow these directions', array('controller' => 'people', 'action' => 'edit')); ?>.
 <?php
 	$complete = 'and will not be until you have completed it';
@@ -25,7 +25,7 @@ else:
 	$complete = 'but this should happen soon';
 endif;
 
-switch($this->Session->read('Zuluru.Person.status')) {
+switch($this->UserCache->read('Person.status')) {
 	case 'new':
 		echo "Your profile has not yet been approved, $complete. Until then, you can continue to use the site, but may be limited in some areas.";
 		break;
@@ -34,7 +34,7 @@ switch($this->Session->read('Zuluru.Person.status')) {
 		break;
 	case 'inactive':
 	case 'locked':
-		echo 'Your profile is currently ' . $this->Session->read('Zuluru.Person.status') . ', so you can continue to use the site, but may be limited in some areas.' . 
+		echo 'Your profile is currently ' . $this->UserCache->read('Person.status') . ', so you can continue to use the site, but may be limited in some areas.' . 
 			' To have this changed, contact ' . $this->Html->link(Configure::read('email.admin_name'), 'mailto:' . Configure::read('email.admin_email')) . '.';
 		break;
 }

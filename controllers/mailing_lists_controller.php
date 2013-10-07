@@ -24,7 +24,7 @@ class MailingListsController extends AppController {
 				if (!$affiliate) {
 					// If there's no affiliate id, this is a top-level operation that all managers can perform
 					return true;
-				} else if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+				} else if (in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs'))) {
 					return true;
 				}
 			}
@@ -40,7 +40,7 @@ class MailingListsController extends AppController {
 				// If a list id is specified, check if we're a manager of that list's affiliate
 				$list = $this->_arg('mailing_list');
 				if ($list) {
-					if (in_array($this->MailingList->affiliate($list), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->MailingList->affiliate($list), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}

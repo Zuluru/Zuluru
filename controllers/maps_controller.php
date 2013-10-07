@@ -18,7 +18,7 @@ class MapsController extends AppController {
 				// If a field id is specified, check if we're a manager of that field's affiliate
 				$field = $this->_arg('field');
 				if ($field) {
-					if (in_array($this->Field->affiliate($field), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Field->affiliate($field), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -92,9 +92,9 @@ class MapsController extends AppController {
 
 		$home_addr = '';
 		if ($this->Auth->user()) {
-			$home_addr = $this->Session->read('Zuluru.Person.addr_street') . ', ' .
-						$this->Session->read('Zuluru.Person.addr_city') . ', ' .
-						$this->Session->read('Zuluru.Person.addr_prov');
+			$home_addr = $this->UserCache->read('Person.addr_street') . ', ' .
+						$this->UserCache->read('Person.addr_city') . ', ' .
+						$this->UserCache->read('Person.addr_prov');
 		}
 		$this->set(compact('field', 'home_addr'));
 

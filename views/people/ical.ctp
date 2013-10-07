@@ -10,7 +10,7 @@ if (isset ($games)) {
 $uid_prefix = 'T';
 if (isset ($tasks)) {
 	foreach ($tasks as $task) {
-		$task_slot = $task['id'];
+		$task_slot = $task['TaskSlot']['id'];
 		echo $this->element('tasks/ical', compact('task_slot', 'task', 'timezone', 'uid_prefix'));
 	}
 }

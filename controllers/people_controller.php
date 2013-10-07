@@ -63,7 +63,7 @@ class PeopleController extends AppController {
 				if (!$affiliate) {
 					// If there's no affiliate id, this is a top-level operation that all managers can perform
 					return true;
-				} else if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+				} else if (in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs'))) {
 					return true;
 				}
 			}
@@ -77,7 +77,7 @@ class PeopleController extends AppController {
 				// This isn't the real badge id, but the id of the badge/person join table
 				$badge = $this->_arg('badge');
 				if ($badge) {
-					if (in_array($this->Person->BadgesPerson->affiliate($badge), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Person->BadgesPerson->affiliate($badge), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -507,22 +507,149 @@ class PeopleController extends AppController {
 			}
 		}
 
-		if ($this->is_logged_in && Configure::read('feature.badges')) {
-			$badge_obj = $this->_getComponent('Badge', '', $this);
-			$badge_obj->visibility($this->is_admin || $this->is_manager);
-		} else {
-			$badge_obj = null;
-		}
-
-		$person = $this->Person->readCurrent($id, $my_id, $badge_obj);
+		$person = $this->UserCache->read('Person', $id);
 		if (empty($person)) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
-		$this->set(compact('person'));
+		$group = $this->UserCache->read('Group', $person['id']);
+		$teams = $this->UserCache->read('Teams', $person['id']);
+
+		if ($this->is_logged_in) {
+			$divisions = $this->UserCache->read('Divisions', $person['id']);
+			$waivers = $this->UserCache->read('WaiversCurrent', $person['id']);
+			if (Configure::read('feature.registration')) {
+				$registrations = array_slice($this->UserCache->read('Registrations', $person['id']), 0, 4);
+				$preregistrations = $this->UserCache->read('Preregistrations', $person['id']);
+			}
+			if (Configure::read('scoring.allstars')) {
+				// Unfortunate that we have to manually specify the joins, but it seems
+				// that it's (currently) the only way to fetch all this data in a
+				// single query.
+				$allstars = $this->Person->Allstar->find('all', array(
+						'contain' => false,
+						'conditions' => array(
+							'Allstar.person_id' => $id,
+							'Division.is_open' => true,
+						),
+						'order' => 'GameSlot.game_date, GameSlot.game_start',
+						'fields' => array(
+							'Allstar.id',
+							'Game.id',
+							'GameSlot.game_date', 'GameSlot.game_start', 'GameSlot.game_end',
+							'Facility.id', 'Facility.name', 'Facility.code', 'Field.num',
+							'HomeTeam.id', 'HomeTeam.name',
+							'AwayTeam.id', 'AwayTeam.name',
+							'League.id', 'League.name',
+							'Division.id', 'Division.name',
+						),
+						'joins' => array(
+							array(
+								'table' => "{$this->Person->Allstar->tablePrefix}games",
+								'alias' => 'Game',
+								'type' => 'LEFT',
+								'foreignKey' => false,
+								'conditions' => 'Game.id = Allstar.game_id',
+							),
+								array(
+									'table' => "{$this->Person->Allstar->tablePrefix}game_slots",
+									'alias' => 'GameSlot',
+									'type' => 'LEFT',
+									'foreignKey' => false,
+									'conditions' => 'GameSlot.game_id = Game.id',
+								),
+									array(
+										// TODO: something more generic than explicitly escaping the table name
+										'table' => "`{$this->Person->Allstar->tablePrefix}fields`",
+										'alias' => 'Field',
+										'type' => 'LEFT',
+										'foreignKey' => false,
+										'conditions' => 'Field.id = GameSlot.field_id',
+									),
+										array(
+											'table' => "`{$this->Person->Allstar->tablePrefix}facilities`",
+											'alias' => 'Facility',
+											'type' => 'LEFT',
+											'foreignKey' => false,
+											'conditions' => 'Facility.id = Field.facility_id',
+										),
+								array(
+									'table' => "{$this->Person->Allstar->tablePrefix}teams",
+									'alias' => 'HomeTeam',
+									'type' => 'LEFT',
+									'foreignKey' => false,
+									'conditions' => 'HomeTeam.id = Game.home_team',
+								),
+								array(
+									'table' => "{$this->Person->Allstar->tablePrefix}teams",
+									'alias' => 'AwayTeam',
+									'type' => 'LEFT',
+									'foreignKey' => false,
+									'conditions' => 'AwayTeam.id = Game.away_team',
+									),
+								array(
+									'table' => "{$this->Person->Allstar->tablePrefix}divisions",
+									'alias' => 'Division',
+									'type' => 'LEFT',
+									'foreignKey' => false,
+									'conditions' => 'Division.id = Game.division_id',
+								),
+								array(
+									'table' => "{$this->Person->Allstar->tablePrefix}leagues",
+									'alias' => 'League',
+									'type' => 'LEFT',
+									'foreignKey' => false,
+									'conditions' => 'League.id = Division.league_id',
+								),
+						),
+				));
+			}
+			if (Configure::read('feature.photos')) {
+				$photo = $this->Person->Upload->find('first', array(
+						'contain' => array(),
+						'conditions' => array(
+							'person_id' => $person['id'],
+							'type_id' => null,
+							'approved' => true,
+						),
+				));
+			}
+			if (Configure::read('feature.documents')) {
+				$documents = $this->UserCache->read('Documents', $person['id']);
+			}
+			if (Configure::read('feature.annotations')) {
+				$note = $this->Person->Note->find('first', array(
+						'contain' => false,
+						'conditions' => array(
+							'person_id' => $person['id'],
+							'created_person_id' => $my_id,
+						),
+				));
+			}
+			if (Configure::read('feature.tasks')) {
+				$tasks = $this->UserCache->read('Tasks', $person['id']);
+			}
+			if (Configure::read('feature.badges')) {
+				$badge_obj = $this->_getComponent('Badge', '', $this);
+				$badge_obj->visibility($this->is_admin || $this->is_manager);
+
+				$this->Person->contain(array(
+						'Badge' => array(
+							'conditions' => array(
+								'BadgesPerson.approved' => true,
+								'Badge.visibility' => $badge_obj->getVisibility(),
+							),
+						),
+				));
+				$badges = $this->Person->read(null, $person['id']);
+				$badge_obj->prepForDisplay($badges);
+			}
+		}
+
+		$this->set(compact('person', 'group', 'teams', 'divisions', 'waivers', 'registrations', 'preregistrations', 'allstars', 'photo', 'documents', 'note', 'tasks', 'badges'));
 		$this->set('is_me', ($id === $my_id));
-		$this->set($this->_connections($person));
+		$this->set($this->_connections($id));
 	}
 
 	function tooltip() {
@@ -531,68 +658,88 @@ class PeopleController extends AppController {
 			return;
 		}
 
-		if ($this->is_logged_in && Configure::read('feature.badges')) {
-			$badge_obj = $this->_getComponent('Badge', '', $this);
-			$badge_obj->visibility($this->is_admin || $this->is_manager, BADGE_VISIBILITY_HIGH);
-		} else {
-			$badge_obj = null;
-		}
-
-		$person = $this->Person->readCurrent($id, $this->Auth->user('id'), $badge_obj);
+		$person = $this->UserCache->read('Person', $id);
 		if (empty($person)) {
 			return;
 		}
 
-		$this->set(compact('person'));
+		if ($this->is_logged_in) {
+			if (Configure::read('feature.photos')) {
+				$photo = $this->Person->Upload->find('first', array(
+						'contain' => array(),
+						'conditions' => array(
+							'person_id' => $person['id'],
+							'type_id' => null,
+							'approved' => true,
+						),
+				));
+			}
+			if (Configure::read('feature.annotations') && $this->is_logged_in) {
+				$note = $this->Person->Note->find('first', array(
+						'contain' => false,
+						'conditions' => array(
+							'person_id' => $person['id'],
+							'created_person_id' => $this->Auth->user('id'),
+						),
+				));
+			}
+			if (Configure::read('feature.badges')) {
+				$badge_obj = $this->_getComponent('Badge', '', $this);
+				$badge_obj->visibility($this->is_admin || $this->is_manager, BADGE_VISIBILITY_HIGH);
+
+				$this->Person->contain(array(
+						'Badge' => array(
+							'conditions' => array(
+								'BadgesPerson.approved' => true,
+								'Badge.visibility' => $badge_obj->getVisibility(),
+							),
+						),
+				));
+				$badges = $this->Person->read(null, $person['id']);
+				$badge_obj->prepForDisplay($badges);
+			}
+		}
+
+		$this->set(compact('person', 'photo', 'note', 'badges'));
 		$this->set('is_me', ($id === $this->Auth->user('id')));
-		$this->set($this->_connections($person));
+		$this->set($this->_connections($id));
 
 		Configure::write ('debug', 0);
 		$this->layout = 'ajax';
 	}
 
-	function _connections($person) {
+	function _connections($id) {
 		$connections = array();
 
+		// Pull some lists of team and division IDs for later comparisons
+		$my_team_ids = $this->UserCache->read('TeamIDs');
+		$my_owned_team_ids = $this->UserCache->read('OwnedTeamIDs');
+		$my_owned_division_ids = $this->UserCache->read('DivisionIDs');
+		$my_captain_division_ids = Set::extract('/Team/division_id', $this->UserCache->read('OwnedTeams'));
+		$their_team_ids = $this->UserCache->read('TeamIDs', $id);
+		$their_owned_team_ids = $this->UserCache->read('OwnedTeamIDs', $id);
+		$their_owned_division_ids = $this->UserCache->read('DivisionIDs', $id);
+		$their_captain_division_ids = Set::extract('/Team/division_id', $this->UserCache->read('OwnedTeams', $id));
+
 		// Check if the current user is a captain of a team the viewed player is on
-		$my_team_ids = $this->Session->read('Zuluru.OwnedTeamIDs');
-		$team_ids = Set::extract ('/Team/TeamsPerson[status=' . ROSTER_APPROVED . ']/team_id', $person);
-		$on_my_teams = array_intersect ($my_team_ids, $team_ids);
+		$on_my_teams = array_intersect ($my_owned_team_ids, $their_team_ids);
 		$connections['is_captain'] = !empty ($on_my_teams);
 
+		// Check if the current user is on a team the viewed player is a captain of
+		$on_their_teams = array_intersect ($my_team_ids, $their_owned_team_ids);
+		$connections['is_my_captain'] = !empty ($on_their_teams);
+
 		// Check if the current user is a coordinator of a division the viewed player is a captain in
-		$roles = Configure::read('privileged_roster_roles');
-		$my_division_ids = $this->Session->read('Zuluru.DivisionIDs');
-		$division_ids = array();
-		foreach ($roles as $role) {
-			$division_ids = array_merge ($division_ids,
-				Set::extract ("/Team/TeamsPerson[role=$role]/../Team/division_id", $person)
-			);
-		}
-		$in_my_divisions = array_intersect ($my_division_ids, $division_ids);
+		$in_my_divisions = array_intersect ($my_owned_division_ids, $their_captain_division_ids);
 		$connections['is_coordinator'] = !empty ($in_my_divisions);
 
-		// Check if the current user is a captain in a division the viewed player is a captain in
-		$captain_in_division_ids = Set::extract ('/Team/division_id', $this->Session->read('Zuluru.OwnedTeams'));
-		$opponent_captain_in_division_ids = array();
-		foreach ($person['Team'] as $team) {
-			if (in_array ($team['TeamsPerson']['role'], $roles)) {
-				$opponent_captain_in_division_ids[] = $team['Team']['division_id'];
-			}
-		}
-		$captains_in_same_division = array_intersect ($captain_in_division_ids, $opponent_captain_in_division_ids);
-		$connections['is_division_captain'] = !empty ($captains_in_same_division);
+		// Check if the current user is a captain in a division the viewed player is a coordinator of
+		$in_their_divisions = array_intersect ($my_captain_division_ids, $their_owned_division_ids);
+		$connections['is_my_coordinator'] = !empty ($in_their_divisions);
 
-		// Check if the current user is on a team the viewed player is a captain of
-		$connections['is_my_captain'] = false;
-		foreach ($person['Team'] as $team) {
-			if (in_array ($team['TeamsPerson']['role'], $roles) &&
-				in_array ($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs'))
-			) {
-				$connections['is_my_captain'] = true;
-				break;
-			}
-		}
+		// Check if the current user is a captain in a division the viewed player is a captain in
+		$captains_in_same_division = array_intersect ($my_captain_division_ids, $their_captain_division_ids);
+		$connections['is_division_captain'] = !empty ($captains_in_same_division);
 
 		return $connections;
 	}
@@ -611,12 +758,14 @@ class PeopleController extends AppController {
 		$is_me = ($id === $this->Auth->user('id'));
 		$this->set(compact('id', 'is_me'));
 
-		// Any time that come here (whether manually or forced), we want to expire the
-		// login so that session data will be reloaded. Do this even when it's not a save,
+		// Any time that we come here (whether manually or forced), we want to clear the
+		// cached user data so that it will be reloaded. Do this even when it's not a save,
 		// because when we use third-party auth modules, this page might just have a
 		// link to some other edit page, but we still want to refresh the session next
 		// time we load any Zuluru page.
-		$this->Session->delete('Zuluru.login_time');
+		if ($is_me) {
+			$this->UserCache->clear('Person', $id);
+		}
 
 		$this->_loadAddressOptions();
 		$this->_loadGroupOptions();
@@ -634,11 +783,11 @@ class PeopleController extends AppController {
 				if (Configure::read('feature.affiliates')) {
 					// Manually select all affiliates the user is a manager of
 					if (is_array($this->data['Affiliate']['Affiliate'])) {
-						$this->data['Affiliate']['Affiliate'] = array_merge($this->data['Affiliate']['Affiliate'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+						$this->data['Affiliate']['Affiliate'] = array_merge($this->data['Affiliate']['Affiliate'], $this->UserCache->read('ManagedAffiliateIDs'));
 					} else if (!empty($this->data['Affiliate']['Affiliate'])) {
-						$this->data['Affiliate']['Affiliate'] = array_merge(array($this->data['Affiliate']['Affiliate']), $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+						$this->data['Affiliate']['Affiliate'] = array_merge(array($this->data['Affiliate']['Affiliate']), $this->UserCache->read('ManagedAffiliateIDs'));
 					} else {
-						$this->data['Affiliate']['Affiliate'] = $this->Session->read('Zuluru.ManagedAffiliateIDs');
+						$this->data['Affiliate']['Affiliate'] = $this->UserCache->read('ManagedAffiliateIDs');
 					}
 
 					if (Configure::read('feature.multiple_affiliates')) {
@@ -659,7 +808,7 @@ class PeopleController extends AppController {
 			if ($this->Person->validates() && $this->Person->Affiliate->validates()) {
 				if (!empty($this->data['Affiliate']['Affiliate'])) {
 					foreach ($this->data['Affiliate']['Affiliate'] as $key => $affiliate_id) {
-						if (in_array($affiliate_id, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+						if (in_array($affiliate_id, $this->UserCache->read('ManagedAffiliateIDs'))) {
 							$position = 'manager';
 						} else {
 							unset($position);
@@ -682,12 +831,11 @@ class PeopleController extends AppController {
 						$component->onEdit($this->data['Person']);
 					}
 
-					if ($this->data['Person']['id'] == $my_id) {
-						// Delete the session data, so it's reloaded next time it's needed
-						$this->Session->delete('Zuluru.Person');
-						$this->Session->delete('Zuluru.Affiliates');
-						$this->Session->delete('Zuluru.AffiliateIDs');
-					}
+					// Delete the cached data, so it's reloaded next time it's needed
+					$this->UserCache->clear('Person', $this->data['Person']['id']);
+					$this->UserCache->clear('Group', $this->data['Person']['id']);
+					$this->UserCache->clear('Affiliates', $this->data['Person']['id']);
+					$this->UserCache->clear('AffiliateIDs', $this->data['Person']['id']);
 
 					$this->redirect('/');
 				} else {
@@ -805,7 +953,7 @@ class PeopleController extends AppController {
 			}
 		}
 		$this->set(compact('id'));
-		$this->set('person', $this->Person->readCurrent($id));
+		$this->set('person', $this->UserCache->read('Person', $id));
 
 		$setting = ClassRegistry::init('Setting');
 		if (!empty($this->data)) {
@@ -962,7 +1110,7 @@ class PeopleController extends AppController {
 			$this->redirect('/');
 		}
 
-		$person = $this->_findSessionData('Person', $this->Person);
+		$person = $this->UserCache->read('Person');
 		$size = 150;
 		$this->set(compact('person', 'size'));
 
@@ -1012,7 +1160,7 @@ class PeopleController extends AppController {
 
 	function photo_resize() {
 		if (!empty ($this->data)) {
-			$person = $this->_findSessionData('Person', $this->Person);
+			$person = $this->UserCache->read('Person');
 			$size = 150;
 			$this->set(compact('person', 'size'));
 			$temp_dir = Configure::read('folders.league_base') . DS . 'temp';
@@ -1192,7 +1340,7 @@ class PeopleController extends AppController {
 				$person = $person['Person'];
 			}
 		} else {
-			$person = $this->_findSessionData('Person', $this->Person);
+			$person = $this->UserCache->read('Person');
 		}
 		if (!$person) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
@@ -1314,6 +1462,7 @@ class PeopleController extends AppController {
 			if ($this->Person->Upload->save($this->data)) {
 				// Read updated version
 				$document = $this->Person->Upload->read (null, $id);
+				$this->UserCache->clear('Documents', $document['Person']['id']);
 				$this->set(compact('document'));
 				$this->Session->setFlash(sprintf (__('Approved %s', true), __('document', true)), 'default', array('class' => 'success'));
 
@@ -1403,6 +1552,7 @@ class PeopleController extends AppController {
 			}
 			$success = $this->Person->Upload->delete ($id);
 			if ($success) {
+				$this->UserCache->clear('Documents', $document['Upload']['person_id']);
 				$file_dir = Configure::read('folders.uploads');
 				unlink($file_dir . DS . $document['Upload']['filename']);
 			}
@@ -1478,7 +1628,7 @@ class PeopleController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('badge', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'badges', 'action' => 'index'));
 		}
-		$this->is_manager = in_array($badge['Badge']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+		$this->is_manager = in_array($badge['Badge']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
 		if (!$badge['Badge']['active']) {
 			$this->Session->setFlash(sprintf(__('Inactive %s', true), __('badge', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'badges', 'action' => 'index'));
@@ -1519,7 +1669,7 @@ class PeopleController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('badge', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'badges', 'action' => 'index'));
 		}
-		$this->is_manager = in_array($badge['Badge']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+		$this->is_manager = in_array($badge['Badge']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
 		if (!$badge['Badge']['active']) {
 			$this->Session->setFlash(sprintf(__('Inactive %s', true), __('badge', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'badges', 'action' => 'index'));
@@ -1563,6 +1713,7 @@ class PeopleController extends AppController {
 			if ($this->Person->BadgesPerson->save($data)) {
 				if ($badge['Badge']['category'] == 'assigned') {
 					$this->Session->setFlash(__('The badge has been assigned', true), 'default', array('class' => 'success'));
+					$this->UserCache->clear('Badges', $person_id);
 
 					if ($badge['Badge']['visibility'] != BADGE_VISIBILITY_ADMIN) {
 						$this->Person->BadgesPerson->contain(array(
@@ -1657,6 +1808,10 @@ class PeopleController extends AppController {
 		));
 		$this->set(compact('success'));
 
+		if ($success) {
+			$this->UserCache->clear('Badges', $person['Person']['id']);
+		}
+
 		if ($success && $person['Badge']['visibility'] != BADGE_VISIBILITY_ADMIN) {
 			// Inform the nominator
 			if (!$this->_sendMail (array (
@@ -1704,6 +1859,10 @@ class PeopleController extends AppController {
 			$success = $this->Person->BadgesPerson->delete ($id);
 		}
 		$this->set(compact('success'));
+
+		if ($success) {
+			$this->UserCache->clear('Badges', $person['Person']['id']);
+		}
 
 		if ($success && $person['Badge']['visibility'] != BADGE_VISIBILITY_ADMIN) {
 			$this->set('comment', $this->data['Badge']['comment']);
@@ -2062,6 +2221,8 @@ class PeopleController extends AppController {
 				}
 				break;
 		}
+
+		$this->UserCache->clear('Person', $person['Person']['id']);
 	}
 
 	// This function takes the parameter the old-fashioned way, to try to be more third-party friendly
@@ -2073,15 +2234,15 @@ class PeopleController extends AppController {
 
 		// Check that the person has enabled this option
 		$this->Person->contain(array(
-				'Setting',
+				'Setting' => array('conditions' => array('name' => 'enable_ical')),
 		));
-		$person = $this->Person->readCurrent($id);
-		$enabled = Set::extract ('/Setting[name=enable_ical]/value', $person);
+		$person = $this->Person->read(null, $id);
+		$enabled = Set::extract ('/Setting/value', $person);
 		if (empty ($enabled) || !$enabled[0]) {
 			return;
 		}
 
-		$team_ids = Set::extract ('/Team/id', $person['Team']);
+		$team_ids = $this->UserCache->read('TeamIDs', $id);
 		if (!empty ($team_ids)) {
 			$games = $this->Division->Game->find ('all', array(
 				'conditions' => array(
@@ -2112,7 +2273,7 @@ class PeopleController extends AppController {
 		}
 
 		if (Configure::read('feature.tasks')) {
-			$this->set('tasks', $person['TaskSlot']);
+			$this->set('tasks', $this->UserCache->read('Tasks', $id));
 		}
 
 		$this->set ('calendar_type', 'Player Schedule');

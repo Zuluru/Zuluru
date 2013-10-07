@@ -61,7 +61,7 @@ $this->Html->addCrumb ($this->ZuluruTime->date($game['GameSlot']['game_date']));
 	</dl>
 
 <?php
-$can_annotate = Configure::read('feature.annotations') && in_array($team['id'], $this->Session->read('Zuluru.TeamIDs'));
+$can_annotate = Configure::read('feature.annotations') && in_array($team['id'], $this->UserCache->read('TeamIDs'));
 ?>
 <div class="actions">
 	<ul>

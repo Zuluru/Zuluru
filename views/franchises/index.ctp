@@ -33,7 +33,7 @@ echo $this->Paginator->counter(array(
 $i = 0;
 $affiliate_id = null;
 foreach ($franchises as $franchise):
-	$is_manager = $is_logged_in && in_array($franchise['Franchise']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+	$is_manager = $is_logged_in && in_array($franchise['Franchise']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
 
 	if (count($affiliates) > 1 && $franchise['Franchise']['affiliate_id'] != $affiliate_id):
 		$affiliate_id = $franchise['Franchise']['affiliate_id'];
@@ -67,7 +67,7 @@ foreach ($franchises as $franchise):
 		</td>
 		<td class="actions">
 			<?php
-			$is_owner = $this->Session->read('Zuluru.FranchiseIDs') && in_array($franchise['Franchise']['id'], $this->Session->read('Zuluru.FranchiseIDs'));
+			$is_owner = in_array($franchise['Franchise']['id'], $this->UserCache->read('FranchiseIDs'));
 			if ($is_owner) {
 				echo $this->ZuluruHtml->iconLink('team_add_24.png',
 					array('action' => 'add_team', 'franchise' => $franchise['Franchise']['id']),

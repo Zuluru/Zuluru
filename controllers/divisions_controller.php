@@ -28,7 +28,7 @@ class DivisionsController extends AppController {
 				'scheduling_fields',
 		)))
 		{
-			if ($this->Session->read('Zuluru.DivisionIDs') || $this->is_manager) {
+			if ($this->UserCache->read('DivisionIDs') || $this->is_manager) {
 				return true;
 			}
 		}
@@ -53,7 +53,7 @@ class DivisionsController extends AppController {
 		{
 			// If a division id is specified, check if we're a coordinator of that division
 			$division = $this->_arg('division');
-			if ($division && in_array ($division, $this->Session->read('Zuluru.DivisionIDs'))) {
+			if ($division && in_array ($division, $this->UserCache->read('DivisionIDs'))) {
 				return true;
 			}
 		}
@@ -66,7 +66,7 @@ class DivisionsController extends AppController {
 			{
 				// If an affiliate id is specified, check if we're a manager of that affiliate
 				$affiliate = $this->_arg('affiliate');
-				if ($affiliate && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+				if ($affiliate && in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs'))) {
 					return true;
 				}
 			}
@@ -78,7 +78,7 @@ class DivisionsController extends AppController {
 				// If a league id is specified, check if we're a manager of that league's affiliate
 				$league = $this->_arg('league');
 				if ($league) {
-					if (in_array($this->Division->League->affiliate($league), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Division->League->affiliate($league), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -106,7 +106,7 @@ class DivisionsController extends AppController {
 				// If a division id is specified, check if we're a manager of that division's affiliate
 				$division = $this->_arg('division');
 				if ($division) {
-					if (in_array($this->Division->affiliate($division), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Division->affiliate($division), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -209,7 +209,7 @@ class DivisionsController extends AppController {
 		}
 
 		$this->set(compact ('division', 'league_obj'));
-		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.DivisionIDs')));
+		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
 
 		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 	}
@@ -328,7 +328,7 @@ class DivisionsController extends AppController {
 		}
 
 		$this->set(compact('division', 'sport_obj'));
-		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.DivisionIDs')));
+		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
 
 		if ($this->params['url']['ext'] == 'csv') {
 			$this->set('download_file_name', "Stats - {$division['Division']['name']}");
@@ -455,7 +455,7 @@ class DivisionsController extends AppController {
 
 		$this->set('days', $this->Division->Day->find('list'));
 		$this->set('league_obj', $this->_getComponent ('LeagueType', $this->data['Division']['schedule_type'], $this));
-		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.DivisionIDs')));
+		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
 
 		$this->_addDivisionMenuItems ($this->data['Division'], $this->data['League']);
 	}
@@ -495,6 +495,8 @@ class DivisionsController extends AppController {
 				$division['Person'][] = $person['Person']['id'];
 				// TODO: If we add more coordinator types, we need to save the position here
 				if ($this->Division->saveAll ($division)) {
+					$this->UserCache->clear('Divisions', $person_id);
+					$this->UserCache->clear('DivisionIDs', $person_id);
 					$this->Session->setFlash(__("Added {$person['Person']['full_name']} as coordinator", true), 'default', array('class' => 'success'));
 					$this->redirect(array('action' => 'view', 'division' => $id));
 				} else {
@@ -525,6 +527,8 @@ class DivisionsController extends AppController {
 
 		$join = ClassRegistry::init('DivisionsPerson');
 		if ($join->deleteAll (array('division_id' => $id, 'person_id' => $person_id))) {
+			$this->UserCache->clear('Divisions', $person_id);
+			$this->UserCache->clear('DivisionIDs', $person_id);
 			$this->Session->setFlash(__('Successfully removed coordinator', true), 'default', array('class' => 'success'));
 		} else {
 			$this->Session->setFlash(__('Failed to remove coordinator!', true), 'default', array('class' => 'warning'));
@@ -730,8 +734,8 @@ class DivisionsController extends AppController {
 		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 		Configure::load("sport/{$division['League']['sport']}");
 
-		$is_coordinator = in_array($id, $this->Session->read('Zuluru.DivisionIDs'));
-		$is_manager = $this->is_manager && in_array($division['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+		$is_coordinator = in_array($id, $this->UserCache->read('DivisionIDs'));
+		$is_manager = $this->is_manager && in_array($division['League']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
 		if ($this->is_admin || $is_manager || $is_coordinator) {
 			$edit_date = $this->_arg('edit_date');
 			if (!empty ($this->data)) {
@@ -995,7 +999,7 @@ class DivisionsController extends AppController {
 			$show_teams = $division['Team'];
 		}
 		$this->set(compact ('division', 'league_obj', 'spirit_obj', 'teamid', 'show_teams', 'more_before', 'more_after'));
-		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.DivisionIDs')));
+		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
 
 		$this->_addDivisionMenuItems ($division['Division'], $division['League']);
 	}
@@ -1067,7 +1071,7 @@ class DivisionsController extends AppController {
 		$division['Team'] = $teams;
 
 		$this->set(compact ('division'));
-		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.DivisionIDs')));
+		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
 
 		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 	}
@@ -1170,7 +1174,7 @@ class DivisionsController extends AppController {
 		}
 
 		$this->set(compact ('division', 'league_obj', 'facilities'));
-		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.DivisionIDs')));
+		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
 
 		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 	}
@@ -1450,7 +1454,7 @@ class DivisionsController extends AppController {
 		Game::_adjustEntryIndices($games);
 
 		$this->set(compact ('division', 'games'));
-		$this->set('is_coordinator', in_array($id, $this->Session->read('Zuluru.DivisionIDs')));
+		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
 
 		// TODO: Add this type of links everywhere. Maybe do it in beforeRender?
 		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);

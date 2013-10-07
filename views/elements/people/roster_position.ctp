@@ -3,7 +3,7 @@
 // of admins when managing teams they are on.
 $effective_admin = false;
 if ($is_admin) {
-	$on_team = $this->Session->check('Zuluru.TeamIDs') && in_array ($roster['team_id'], $this->Session->read('Zuluru.TeamIDs'));
+	$on_team = in_array ($roster['team_id'], $this->UserCache->read('TeamIDs'));
 	if (!$on_team) {
 		$effective_admin = true;
 	}
@@ -13,7 +13,7 @@ $permission = ($effective_admin ||
 	(!Division::rosterDeadlinePassed($division) && (
 		(isset ($is_coordinator) && $is_coordinator) ||
 		(isset ($my_id) && $roster['person_id'] == $my_id) ||
-		in_array ($roster['team_id'], $this->Session->read('Zuluru.OwnedTeamIDs')))
+		in_array ($roster['team_id'], $this->UserCache->read('OwnedTeamIDs')))
 	)
 );
 

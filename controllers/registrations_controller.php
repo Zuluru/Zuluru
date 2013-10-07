@@ -39,7 +39,7 @@ class RegistrationsController extends AppController {
 				if (!$affiliate) {
 					// If there's no affiliate, this is a top-level operation that all managers can perform
 					return true;
-				} else if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+				} else if (in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs'))) {
 					return true;
 				}
 			}
@@ -54,7 +54,7 @@ class RegistrationsController extends AppController {
 				// If an event id is specified, check if we're a manager of that event's affiliate
 				$event = $this->_arg('event');
 				if ($event) {
-					if (in_array($this->Registration->Event->affiliate($event), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Registration->Event->affiliate($event), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -69,7 +69,7 @@ class RegistrationsController extends AppController {
 				// If a registration id is specified, check if we're a manager of that registration's event's affiliate
 				$registration = $this->_arg('registration');
 				if ($registration) {
-					if (in_array($this->Registration->affiliate($registration), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Registration->affiliate($registration), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -418,6 +418,7 @@ class RegistrationsController extends AppController {
 			if ($waiting) {
 				$data['Registration']['payment'] = 'Waiting';
 			} else if ($event['Event']['cost'] == 0) {
+				$this->UserCache->clear('RegistrationsPaid');
 				// Free events may need even more processing
 				$result = $event_obj->paid($event, $data);
 				if ($result === false) {
@@ -450,7 +451,8 @@ class RegistrationsController extends AppController {
 					array('question_id' => $anonymous));
 			}
 			if ($transaction->commit() !== false) {
-				$this->Session->delete ('Zuluru.Unpaid');
+				$this->UserCache->clear('Registrations');
+				$this->UserCache->clear('RegistrationsUnpaid');
 				$this->redirect(array('action' => 'checkout'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('registration', true)), 'default', array('class' => 'warning'));
@@ -474,7 +476,9 @@ class RegistrationsController extends AppController {
 		// someone registering for a free event.  In that case, we don't want to
 		// disturb the flash message, just go back to the event list.
 		if (empty ($registrations)) {
-			$this->Session->delete ('Zuluru.Unpaid');
+			$this->UserCache->clear('Registrations');
+			$this->UserCache->clear('RegistrationsPaid');
+			$this->UserCache->clear('RegistrationsUnpaid');
 			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
 
@@ -550,7 +554,7 @@ class RegistrationsController extends AppController {
 		}
 
 		if (!$this->is_admin &&
-			!($this->is_manager && in_array($registration['Event']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'))) &&
+			!($this->is_manager && in_array($registration['Event']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'))) &&
 			$registration['Registration']['person_id'] != $this->Auth->user('id')
 		)
 		{
@@ -677,6 +681,10 @@ class RegistrationsController extends AppController {
 							$extra[$key]['event_id'] = $registration['Event']['id'];
 						}
 						$success = $this->Registration->Response->saveAll($extra, array('atomic' => false, 'validate' => false));
+						// If a parent is registering kids, there might be different person IDs for each registration
+						$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
+						$this->UserCache->clear('RegistrationsPaid', $registration['Registration']['person_id']);
+						$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
 					}
 				} else if ($extra === false) {
 					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
@@ -693,7 +701,6 @@ class RegistrationsController extends AppController {
 			}
 		}
 		$this->set (compact ('result', 'audit', 'registrations', 'errors'));
-		$this->Session->delete ('Zuluru.Unpaid');
 	}
 
 	function edit() {
@@ -761,6 +768,10 @@ class RegistrationsController extends AppController {
 			$was_paid = in_array ($registration['Registration']['payment'], $paid);
 			$now_paid = in_array ($data['Registration']['payment'], $paid);
 			if (!$was_paid && $now_paid) {
+				$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
+				$this->UserCache->clear('RegistrationsPaid', $registration['Registration']['person_id']);
+				$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
+
 				// When it's marked as paid, the responses that the event object
 				// should use are the new ones just now submitted.
 				$result = $event_obj->paid($registration, $data);
@@ -772,6 +783,10 @@ class RegistrationsController extends AppController {
 					$data['Response'] = array_merge($data['Response'], $result);
 				}
 			} else if ($was_paid && !$now_paid) {
+				$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
+				$this->UserCache->clear('RegistrationsPaid', $registration['Registration']['person_id']);
+				$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
+
 				// When it's marked as unpaid, the responses that the event object
 				// should use are the saved ones.
 				$result = $event_obj->unpaid($registration, $registration);

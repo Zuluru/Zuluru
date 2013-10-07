@@ -20,13 +20,13 @@ class SchedulesController extends AppController {
 		{
 			// If a division id is specified, check if we're a coordinator of that division
 			$division = $this->_arg('division');
-			if ($division && in_array ($division, $this->Session->read('Zuluru.DivisionIDs'))) {
+			if ($division && in_array ($division, $this->UserCache->read('DivisionIDs'))) {
 				return true;
 			}
 
 			// If a division id is specified, check if we're a manager of that division's affiliate
 			if ($this->is_manager && $division) {
-				if (in_array($this->Division->affiliate($division), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+				if (in_array($this->Division->affiliate($division), $this->UserCache->read('ManagedAffiliateIDs'))) {
 					return true;
 				}
 			}

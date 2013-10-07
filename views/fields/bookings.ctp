@@ -8,7 +8,7 @@ $this->Html->addCrumb ($field['Field']['long_name']);
 <h2><?php echo __('Availability and Bookings', true) . ': ' . $field['Field']['long_name'];?></h2>
 
 <?php
-$is_manager = in_array($field['Facility']['Region']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+$is_manager = in_array($field['Facility']['Region']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
 ?>
 
 <table class="list">

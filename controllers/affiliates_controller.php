@@ -140,6 +140,8 @@ class AffiliatesController extends AppController {
 					$success = $join->save(array('affiliate_id' => $id, 'person_id' => $person_id, 'position' => 'manager'));
 				}
 				if ($success) {
+					$this->UserCache->clear('ManagedAffiliates', $person_id);
+					$this->UserCache->clear('ManagedAffiliateIDs', $person_id);
 					$this->Session->setFlash(__("Added {$person['Person']['full_name']} as manager", true), 'default', array('class' => 'success'));
 					$this->redirect(array('action' => 'view', 'affiliate' => $id));
 				} else {
@@ -169,6 +171,8 @@ class AffiliatesController extends AppController {
 
 		$join = ClassRegistry::init('AffiliatesPerson');
 		if ($join->updateAll(array('position' => '"player"'), array('affiliate_id' => $id, 'person_id' => $person_id))) {
+			$this->UserCache->clear('ManagedAffiliates', $person_id);
+			$this->UserCache->clear('ManagedAffiliateIDs', $person_id);
 			$this->Session->setFlash(__('Successfully removed manager', true), 'default', array('class' => 'success'));
 		} else {
 			$this->Session->setFlash(__('Failed to remove manager!', true), 'default', array('class' => 'warning'));

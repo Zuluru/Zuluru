@@ -50,7 +50,7 @@ if (Configure::read('feature.attendance') && $team['track_attendance']) {
 	}
 
 	if ($this->params['controller'] != 'teams' || $this->params['action'] != 'attendance') {
-		if (in_array($team['id'], $this->Session->read('Zuluru.TeamIDs'))) {
+		if (in_array($team['id'], $this->UserCache->read('TeamIDs'))) {
 			$links[] = $this->ZuluruHtml->iconLink("attendance_{$size}.png",
 				array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['id']),
 				array('alt' => __('Attendance', true), 'title' => __('View Season Attendance Report', true)));
@@ -58,7 +58,7 @@ if (Configure::read('feature.attendance') && $team['track_attendance']) {
 	}
 }
 if ($is_logged_in && $team['open_roster'] && !Division::rosterDeadlinePassed($division) &&
-	!in_array($team['id'], $this->Session->read('Zuluru.TeamIDs')))
+	!in_array($team['id'], $this->UserCache->read('TeamIDs')))
 {
 	$links[] = $this->ZuluruHtml->iconLink("roster_add_{$size}.png",
 		array('controller' => 'teams', 'action' => 'roster_request', 'team' => $team['id']),

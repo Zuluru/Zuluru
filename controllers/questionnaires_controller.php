@@ -32,7 +32,7 @@ class QuestionnairesController extends AppController {
 				// If a questionnaire id is specified, check if we're a manager of that questionnaire's affiliate
 				$questionnaire = $this->_arg('questionnaire');
 				if ($questionnaire) {
-					if (in_array($this->Questionnaire->affiliate($questionnaire), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Questionnaire->affiliate($questionnaire), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -45,7 +45,7 @@ class QuestionnairesController extends AppController {
 				// If a question id is specified, check if we're a manager of that question's affiliate
 				$question = $this->_arg('question');
 				if ($question) {
-					if (in_array($this->Questionnaire->Question->affiliate($question), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Questionnaire->Question->affiliate($question), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}

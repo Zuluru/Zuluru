@@ -27,30 +27,21 @@ class CanRegisterComponent extends Object
 			$this->controller->Person = ClassRegistry::init ('Person');
 		}
 
-		// Cache database results for multiple calls
-		if (!isset ($this->person)) {
-			$this->controller->Person->contain (array (
-				'Affiliate',
-				'Registration' => array(
-					'Event' => array(
-						'EventType',
-					),
-					'conditions' => array('NOT' => array('payment' => array('Refunded', 'Waiting'))),
-					'order' => 'payment DESC',	// This only works because Unpaid > Pending > Paid
-				),
-				'Preregistration',
-				'Upload' => array(
-					'conditions' => array(
-						'type_id !=' => null,
-					),
-				),
-				'Waiver',
-			));
-			$this->person = $this->controller->Person->read(null, $user_id);
-		}
+		$person = array(
+			'Person' => $this->controller->UserCache->read('Person', $user_id),
+			'Team' => $this->controller->UserCache->read('Teams', $user_id),
+			'Preregistration' => $this->controller->UserCache->read('Preregistrations', $user_id),
+			'Registration' => array_merge(
+				$this->controller->UserCache->read('RegistrationsPaid', $user_id),
+				$this->controller->UserCache->read('RegistrationsUnpaid', $user_id)
+			),
+			'Upload' => $this->controller->UserCache->read('Documents', $user_id),
+			'Affiliate' => $this->controller->UserCache->read('Affiliates', $user_id),
+			'Waiver' => $this->controller->UserCache->read('Waivers', $user_id),
+		);
 
 		// Pull out the registration record(s) for the current event, if any.
-		$registrations = Set::extract ("/Event[id={$event['Event']['id']}]/..", $this->person['Registration']);
+		$registrations = Set::extract ("/Event[id={$event['Event']['id']}]/..", $person['Registration']);
 		$is_registered = !empty ($registrations);
 
 		// Check the registration rule, if any
@@ -60,7 +51,7 @@ class CanRegisterComponent extends Object
 				$this->controller->Session->setFlash(__('Failed to parse the rule', true), 'default', array('class' => 'error'));
 			}
 
-			$rule_allowed = $rule_obj->evaluate($event['Event']['affiliate_id'], $this->person, null, $strict, false);
+			$rule_allowed = $rule_obj->evaluate($event['Event']['affiliate_id'], $person, null, $strict, false);
 		}
 
 		// Find the registration cap and how many are already registered.
@@ -69,10 +60,10 @@ class CanRegisterComponent extends Object
 			'payment' => array('Paid', 'Pending'),
 		);
 		if ($event['Event']['cap_female'] != -2) {
-			$conditions['gender'] = $this->person['Person']['gender'];
+			$conditions['gender'] = $person['Person']['gender'];
 		}
 
-		$cap = Event::cap($event['Event']['cap_male'], $event['Event']['cap_female'], $this->person['Person']['gender']);
+		$cap = Event::cap($event['Event']['cap_male'], $event['Event']['cap_female'], $person['Person']['gender']);
 		if (!isset ($this->controller->Event)) {
 			$this->controller->Event = ClassRegistry::init ('Event');
 		}
@@ -82,10 +73,10 @@ class CanRegisterComponent extends Object
 		}
 
 		// Check whether this user is considered active for the purposes of registration
-		$is_active = ($this->controller->Session->read('Zuluru.Person.status') == 'active');
+		$is_active = ($this->controller->UserCache->read('Person.status') == 'active');
 		// If the user is not yet approved, we may let them register but not pay
-		if ($this->controller->Session->read('Zuluru.Person.status') == 'new' && Configure::read('registration.allow_tentative')) {
-			$duplicates = $this->controller->Person->findDuplicates ($this->person);
+		if ($this->controller->UserCache->read('Person.status') == 'new' && Configure::read('registration.allow_tentative')) {
+			$duplicates = $this->controller->Person->findDuplicates ($person);
 			if (empty ($duplicates)) {
 				$is_active = true;
 			}
@@ -97,15 +88,15 @@ class CanRegisterComponent extends Object
 
 		// First, some tests based on whether the person has already registered for this.
 		if ($is_registered) {
-			if ($registrations[0]['payment'] == 'Paid' ) {
+			if ($registrations[0]['Registration']['payment'] == 'Paid' ) {
 				$messages[] = array('text' => __('You have already registered and paid for this event.', true), 'class' => 'open');
-			} else if ($registrations[0]['payment'] == 'Waiting' ) {
+			} else if ($registrations[0]['Registration']['payment'] == 'Waiting' ) {
 				$messages[] = array('text' => __('You have already been added to the waiting list for this event.', true), 'class' => 'open');
 			} else {
 				$messages[] = array('text' => __('You have already registered for this event, but not yet paid.', true), 'class' => 'warning-message');
 
 				// An unpaid registration might have been pre-empted by someone who paid.
-				if ($registrations[0]['payment'] == 'Unpaid' && $cap > 0 && $paid >= $cap ) {
+				if ($registrations[0]['Registration']['payment'] == 'Unpaid' && $cap > 0 && $paid >= $cap ) {
 					$messages[] = array('text' => __('Your payment was not received in time, so your registration has been moved to a waiting list. If you have any questions about this, please contact the head office.', true), 'class' => 'error-message');
 				} else {
 					$messages[] = sprintf (__('To complete your payment, please proceed to the %s.', true),
@@ -126,7 +117,7 @@ class CanRegisterComponent extends Object
 		}
 
 		// If there is a preregistration record, we ignore open and close times.
-		$prereg = Set::extract ("/Preregistration[event_id={$event['Event']['id']}]", $this->person);
+		$prereg = Set::extract ("/Preregistration[event_id={$event['Event']['id']}]", $person['Preregistration']);
 		if (empty ($prereg) && !$ignore_date) {
 			// Admins can test registration before it opens...
 			if (!$this->controller->is_admin) {

@@ -13,7 +13,7 @@ class SettingsController extends AppController {
 			{
 				// If an affiliate id is specified, check if we're a manager of that affiliate
 				$affiliate = $this->_arg('affiliate');
-				if ($affiliate && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+				if ($affiliate && in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs'))) {
 					return true;
 				}
 			}

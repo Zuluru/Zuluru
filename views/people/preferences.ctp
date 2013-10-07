@@ -1,6 +1,6 @@
 <?php
 $this->Html->addCrumb (__('Preferences', true));
-$this->Html->addCrumb ("{$person['Person']['first_name']} {$person['Person']['last_name']}");
+$this->Html->addCrumb ("{$person['first_name']} {$person['last_name']}");
 ?>
 
 <div class="settings form">
@@ -84,7 +84,7 @@ $this->Html->addCrumb ("{$person['Person']['first_name']} {$person['Person']['la
 		<fieldset>
 	 		<legend><?php __('Twitter'); ?></legend>
 <?php
-		if (!empty($person['Person']['twitter_token'])) {
+		if (!empty($person['twitter_token'])) {
 			echo $this->Html->para(null, sprintf(__('You have authorized your account to post updates to Twitter. You can %s if you no longer want to tweet updates.', true),
 				$this->Html->link(__('revoke this authorization', true), array('action' => 'revoke_twitter'))
 			));

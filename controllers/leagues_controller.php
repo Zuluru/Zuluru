@@ -34,7 +34,7 @@ class LeaguesController extends AppController {
 				// If a league id is specified, check if we're a manager of that league's affiliate
 				$league = $this->_arg('league');
 				if ($league) {
-					if (in_array($this->League->affiliate($league), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->League->affiliate($league), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -49,7 +49,7 @@ class LeaguesController extends AppController {
 			// If a league id is specified, check if we're a coordinator of that league's only division
 			$league = $this->_arg('league');
 			if ($league) {
-				foreach ($this->Session->read('Zuluru.DivisionIDs') as $division) {
+				foreach ($this->UserCache->read('DivisionIDs') as $division) {
 					if ($this->League->Division->league($division) == $league &&
 						$this->requestAction(array('controller' => 'leagues', 'action' => 'division_count'),
 							array('named' => array('league' => $league))) == 1
@@ -173,9 +173,9 @@ class LeaguesController extends AppController {
 
 		$this->set(compact ('league', 'league_obj'));
 
-		$this->set('is_manager', $this->is_manager && in_array($league['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs')));
+		$this->set('is_manager', $this->is_manager && in_array($league['League']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs')));
 
-		$divisions = $this->Session->read('Zuluru.DivisionIDs');
+		$divisions = $this->UserCache->read('DivisionIDs');
 		if (!empty($divisions)) {
 			$coordinated_divisions = array_intersect(Set::extract('/Division/id', $league), $divisions);
 		} else {
@@ -445,6 +445,7 @@ class LeaguesController extends AppController {
 					foreach ($division['Team'] as $team) {
 						foreach ($team['Person'] as $person) {
 							$badge_obj->update('team', $person['TeamsPerson']);
+							$this->UserCache->_deleteTeamData($person['id']);
 						}
 					}
 				}
@@ -457,6 +458,7 @@ class LeaguesController extends AppController {
 					foreach ($division['Team'] as $team) {
 						foreach ($team['Person'] as $person) {
 							$badge_obj->update('team', $person['TeamsPerson']);
+							$this->UserCache->_deleteTeamData($person['id']);
 						}
 					}
 				}

@@ -19,7 +19,7 @@ class TeamEventsController extends AppController {
 		{
 			// If a team id is specified, check if we're a captain of that team
 			$team = $this->_arg('team');
-			if ($team && in_array ($team, $this->Session->read('Zuluru.OwnedTeamIDs'))) {
+			if ($team && in_array ($team, $this->UserCache->read('OwnedTeamIDs'))) {
 				return true;
 			}
 		}
@@ -31,7 +31,7 @@ class TeamEventsController extends AppController {
 			$event = $this->_arg('event');
 			if ($event) {
 				$team = $this->TeamEvent->field('team_id', array('id' => $event));
-				if ($team && in_array ($team, $this->Session->read('Zuluru.OwnedTeamIDs'))) {
+				if ($team && in_array ($team, $this->UserCache->read('OwnedTeamIDs'))) {
 					return true;
 				}
 			}
@@ -45,7 +45,7 @@ class TeamEventsController extends AppController {
 			$event = $this->_arg('event');
 			if ($event) {
 				$team = $this->TeamEvent->field('team_id', array('id' => $event));
-				if ($team && in_array ($team, $this->Session->read('Zuluru.TeamIDs'))) {
+				if ($team && in_array ($team, $this->UserCache->read('TeamIDs'))) {
 					return true;
 				}
 			}
@@ -79,7 +79,7 @@ class TeamEventsController extends AppController {
 		// _read_attendance returns an array, but we only want one event
 		$attendance = array_shift ($this->TeamEvent->_read_attendance($event['Team'], $id));
 		$this->set(compact('event', 'attendance'));
-		$this->set('is_captain', in_array($event['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs')));
+		$this->set('is_captain', in_array($event['Team']['id'], $this->UserCache->read('OwnedTeamIDs')));
 	}
 
 	function add() {
@@ -233,7 +233,7 @@ class TeamEventsController extends AppController {
 		}
 
 		$is_me = ($person_id == $this->Auth->user('id'));
-		$is_captain = in_array ($team['id'], $this->Session->read('Zuluru.OwnedTeamIDs'));
+		$is_captain = in_array ($team['id'], $this->UserCache->read('OwnedTeamIDs'));
 
 		// We must do other permission checks here, because we allow non-logged-in users to accept
 		// through email links
@@ -368,7 +368,7 @@ class TeamEventsController extends AppController {
 			// be an invitation to play or a response to a request or cancelling attendance
 			// if another player is available. Regardless, we need to communicate this.
 			else if ($is_captain && !in_array($role, Configure::read('playing_roster_roles'))) {
-				$captain = $this->Session->read('Zuluru.Person.full_name');
+				$captain = $this->UserCache->read('Person.full_name');
 				if (!$captain) {
 					$captain = __('A captain', true);
 				}
@@ -382,7 +382,7 @@ class TeamEventsController extends AppController {
 
 				$this->_sendMail (array (
 						'to' => $person,
-						'replyTo' => $this->Session->read('Zuluru.Person'),
+						'replyTo' => $this->UserCache->read('Person'),
 						'subject' => "{$team['name']} attendance change for event on $date",
 						'template' => 'event_attendance_substitute_notification',
 						'sendAs' => 'both',

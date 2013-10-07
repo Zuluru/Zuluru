@@ -5,7 +5,7 @@
 	echo $this->element("leagues/view/{$league_obj->render_element}/heading", compact ('is_manager', 'division', 'league'));
 	$seed = $i = 0;
 	foreach ($teams as $team) {
-		$is_captain = in_array($team['id'], $this->Session->read('Zuluru.OwnedTeamIDs'));
+		$is_captain = in_array($team['id'], $this->UserCache->read('OwnedTeamIDs'));
 		$classes = array();
 		if (floor ($seed++ / 8) % 2 == 1) {
 			if (++$i % 2 == 1) {

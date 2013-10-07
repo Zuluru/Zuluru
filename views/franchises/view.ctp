@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('View', true));
 
 <?php
 // Perhaps remove manager status, if we're looking at a different affiliate
-if ($is_manager && !in_array($franchise['Franchise']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+if ($is_manager && !in_array($franchise['Franchise']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'))) {
 	$is_manager = false;
 }
 ?>
@@ -44,7 +44,7 @@ if ($is_manager && !in_array($franchise['Franchise']['affiliate_id'], $this->Ses
 <div class="actions">
 	<ul>
 		<?php
-		$franchises = $this->Session->read('Zuluru.FranchiseIDs');
+		$franchises = $this->UserCache->read('FranchiseIDs');
 		$is_owner = is_array($franchises) && in_array($franchise['Franchise']['id'], $franchises);
 		if ($is_owner) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('team_add_32.png',

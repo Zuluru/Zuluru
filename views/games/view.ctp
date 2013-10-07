@@ -110,7 +110,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 </dl>
 
 <?php
-$my_teams = $this->Session->read('Zuluru.TeamIDs');
+$my_teams = $this->UserCache->read('TeamIDs');
 if (in_array($game['Game']['home_team'], $my_teams)) {
 	$my_team = $game['HomeTeam'];
 } else if (in_array($game['Game']['away_team'], $my_teams)) {

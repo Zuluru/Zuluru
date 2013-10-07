@@ -1,7 +1,7 @@
 <?php
 
 class ZuluruGameHelper extends Helper {
-	var $helpers = array('Html', 'ZuluruHtml', 'Session');
+	var $helpers = array('Html', 'ZuluruHtml', 'Session', 'UserCache');
 
 	function displayScore($game, $league, $show_score_for_team = false) {
 		// Data may come in one of two forms.
@@ -16,9 +16,9 @@ class ZuluruGameHelper extends Helper {
 		$view =& ClassRegistry::getObject('view');
 		$is_logged_in = $view->viewVars['is_logged_in'];
 		$is_admin = $view->viewVars['is_admin'];
-		$is_manager = $view->viewVars['is_manager'] && in_array($league['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+		$is_manager = $view->viewVars['is_manager'] && in_array($league['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
 		$is_volunteer = $view->viewVars['is_volunteer'];
-		$is_coordinator = in_array ($details['division_id'], $this->Session->read('Zuluru.DivisionIDs'));
+		$is_coordinator = in_array ($details['division_id'], $this->UserCache->read('DivisionIDs'));
 
 		// Calculate the game start and end time stamps
 		$start_time = strtotime("{$game['GameSlot']['game_date']} {$game['GameSlot']['game_start']}") +
@@ -37,7 +37,7 @@ class ZuluruGameHelper extends Helper {
 		}
 
 		// Check if one of the teams involved in the game is a team the current user is a captain of
-		$teams = array_intersect (array($details['home_team'], $details['away_team']), $this->Session->read('Zuluru.OwnedTeamIDs'));
+		$teams = array_intersect (array($details['home_team'], $details['away_team']), $this->UserCache->read('OwnedTeamIDs'));
 		$team_id = array_pop ($teams);
 
 		$links = array();
@@ -146,7 +146,7 @@ class ZuluruGameHelper extends Helper {
 				}
 			} else {
 				// Check if one of the teams involved in the game is a team the current user is on
-				$player_team_id = array_pop (array_intersect (array($details['home_team'], $details['away_team']), $this->Session->read('Zuluru.TeamIDs')));
+				$player_team_id = array_pop (array_intersect (array($details['home_team'], $details['away_team']), $this->UserCache->read('TeamIDs')));
 				if ($player_team_id) {
 					$links[] = $this->Html->link(
 							__('iCal', true),

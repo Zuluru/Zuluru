@@ -7,7 +7,7 @@ $this->Html->addCrumb (__('List', true));
 // Perhaps remove manager status, if we're looking at a different affiliate
 if ($is_manager) {
 	$affiliates = array_unique(Set::extract('/Event/affiliate_id', $events));
-	$mine = array_intersect($affiliates, $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+	$mine = array_intersect($affiliates, $this->UserCache->read('ManagedAffiliateIDs'));
 	if (empty($mine)) {
 		$is_manager = false;
 	}

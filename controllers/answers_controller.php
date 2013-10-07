@@ -16,7 +16,7 @@ class AnswersController extends AppController {
 				$answer = $this->_arg('answer');
 				if ($answer) {
 					$question = $this->Answer->field('question_id', array('Answer.id' => $answer));
-					if (in_array($this->Question->affiliate($question), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Question->affiliate($question), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}

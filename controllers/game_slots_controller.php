@@ -12,14 +12,14 @@ class GameSlotsController extends AppController {
 			{
 				// If an affiliate id is specified, check if we're a manager of that affiliate
 				$affiliate = $this->_arg('affiliate');
-				if ($affiliate && in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+				if ($affiliate && in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs'))) {
 					return true;
 				}
 
 				// If a field id is specified, check if we're a manager of that field
 				$field = $this->_arg('field');
 				if ($field) {
-					if (in_array($this->GameSlot->Field->affiliate($field), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->GameSlot->Field->affiliate($field), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -35,7 +35,7 @@ class GameSlotsController extends AppController {
 				// If a game slot id is specified, check if we're a manager of that game slot's affiliate
 				$slot = $this->_arg('slot');
 				if ($slot) {
-					if (in_array($this->GameSlot->affiliate($slot), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->GameSlot->affiliate($slot), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}

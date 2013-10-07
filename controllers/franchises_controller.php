@@ -30,13 +30,13 @@ class FranchisesController extends AppController {
 		{
 			// If a franchise id is specified, check if we're the owner of that franchise
 			$franchise = $this->_arg('franchise');
-			if ($franchise && in_array ($franchise, $this->Session->read('Zuluru.FranchiseIDs'))) {
+			if ($franchise && in_array ($franchise, $this->UserCache->read('FranchiseIDs'))) {
 				return true;
 			}
 
 			// Managers can perform these operations in affiliates they manage
 			if ($franchise && $this->is_manager) {
-				if (in_array($this->Franchise->affiliate($franchise), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+				if (in_array($this->Franchise->affiliate($franchise), $this->UserCache->read('ManagedAffiliateIDs'))) {
 					return true;
 				}
 			}
@@ -49,10 +49,10 @@ class FranchisesController extends AppController {
 		{
 			// If a franchise id is specified, check if we're the owner of that franchise
 			$franchise = $this->_arg('franchise');
-			if ($franchise && in_array ($franchise, $this->Session->read('Zuluru.FranchiseIDs'))) {
+			if ($franchise && in_array ($franchise, $this->UserCache->read('FranchiseIDs'))) {
 				// If no team id is specified, or if we're the owner of the specified team, we can proceed
 				$team = $this->_arg('team');
-				if (!$team || in_array ($team, $this->Session->read('Zuluru.OwnedTeamIDs'))) {
+				if (!$team || in_array ($team, $this->UserCache->read('OwnedTeamIDs'))) {
 					return true;
 				}
 			}
@@ -148,7 +148,7 @@ class FranchisesController extends AppController {
 			$this->data['Person'] = array($this->Auth->User('id'));
 			if ($this->Franchise->saveAll($this->data)) {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('franchise', true)), 'default', array('class' => 'success'));
-				$this->_deleteFranchiseSessionData();
+				$this->UserCache->_deleteFranchiseData();
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('franchise', true)), 'default', array('class' => 'warning'));
@@ -169,8 +169,12 @@ class FranchisesController extends AppController {
 		}
 		if (!empty($this->data)) {
 			if ($this->Franchise->save($this->data)) {
+				$this->Franchise->contain('Person');
+				$franchise = $this->Franchise->read(null, $id);
+				foreach ($franchise['Person'] as $person) {
+					$this->UserCache->_deleteFranchiseData($person['id']);
+				}
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('franchise', true)), 'default', array('class' => 'success'));
-				$this->_deleteFranchiseSessionData();
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('franchise', true)), 'default', array('class' => 'warning'));
@@ -194,17 +198,23 @@ class FranchisesController extends AppController {
 		$id = $this->_arg('franchise');
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action'=>'index'));
+			$this->redirect(array('action' => 'index'));
 		}
-		$dependencies = $this->Franchise->dependencies($id);
+		$dependencies = $this->Franchise->dependencies($id, array('Person'));
 		if ($dependencies !== false) {
 			$this->Session->setFlash(__('The following records reference this franchise, so it cannot be deleted.', true) . '<br>' . $dependencies, 'default', array('class' => 'warning'));
-			$this->redirect(array('action'=>'index'));
+			$this->redirect(array('action' => 'index'));
 		}
+
+		$this->Franchise->contain('Person');
+		$franchise = $this->Franchise->read(null, $id);
 		if ($this->Franchise->delete($id)) {
+			foreach ($franchise['Person'] as $person) {
+				$this->UserCache->_deleteFranchiseData($person['id']);
+			}
+
 			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Franchise', true)), 'default', array('class' => 'success'));
-			$this->_deleteFranchiseSessionData();
-			$this->redirect(array('action'=>'index'));
+			$this->redirect(array('action' => 'index'));
 		}
 		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Franchise', true)), 'default', array('class' => 'warning'));
 		$this->redirect(array('action' => 'index'));
@@ -273,7 +283,7 @@ class FranchisesController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 
-		$this->Franchise->contain('Team');
+		$this->Franchise->contain('Team', 'Person');
 		$franchise = $this->Franchise->read(null, $id);
 		if (!$franchise) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('franchise', true)), 'default', array('class' => 'info'));
@@ -313,9 +323,11 @@ class FranchisesController extends AppController {
 			// If this was the only team in the franchise, delete the franchise too
 			if (count($franchise['Team']) == 1) {
 				if ($this->Franchise->delete ($id)) {
+					foreach ($franchise['Person'] as $person) {
+						$this->UserCache->_deleteFranchiseData($person['id']);
+					}
 					$this->Session->setFlash(__('The selected team has been removed from this franchise.', true) . ' ' .
 							__('As there were no other teams in the franchise, it has been deleted as well.', true), 'default', array('class' => 'success'));
-					$this->_deleteFranchiseSessionData();
 					$this->redirect('/');
 				} else {
 					$this->Session->setFlash(__('The selected team has been removed from this franchise.', true) . ' ' .
@@ -355,8 +367,9 @@ class FranchisesController extends AppController {
 				$this->Session->setFlash(__("{$person['Person']['full_name']} is already an owner of this franchise", true), 'default', array('class' => 'info'));
 			} else {
 				$franchise['Person'] = Set::extract ('/Person/id', $franchise);
-				$franchise['Person'][] = $person['Person']['id'];
+				$franchise['Person'][] = $person_id;
 				if ($this->Franchise->saveAll ($franchise)) {
+					$this->UserCache->_deleteFranchiseData($person_id);
 					$this->Session->setFlash(__("Added {$person['Person']['full_name']} as owner", true), 'default', array('class' => 'success'));
 					$this->redirect(array('action' => 'view', 'franchise' => $id));
 				} else {

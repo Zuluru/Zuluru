@@ -16,7 +16,7 @@ class RegionsController extends AppController {
 				if (!$affiliate) {
 					// If there's no affiliate id, this is a top-level operation that all managers can perform
 					return true;
-				} else if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+				} else if (in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs'))) {
 					return true;
 				}
 			}
@@ -31,7 +31,7 @@ class RegionsController extends AppController {
 				// If a region id is specified, check if we're a manager of that region's affiliate
 				$region = $this->_arg('region');
 				if ($region) {
-					if (in_array($this->Region->affiliate($region), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Region->affiliate($region), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}

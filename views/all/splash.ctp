@@ -1,23 +1,23 @@
 <?php
 $this->Html->addCrumb (__('Home', true));
-$this->Html->addCrumb ($this->Session->read('Zuluru.Person.full_name'));
+$this->Html->addCrumb ($this->UserCache->read('Person.full_name'));
 ?>
 
 <div class="all splash">
-<?php echo $this->Html->tag('h2', $this->Session->read('Zuluru.Person.full_name')); ?>
+<?php echo $this->Html->tag('h2', $this->UserCache->read('Person.full_name')); ?>
 
 <?php
 // We already have a lot of the information we need, stored from when we built the menu
-$teams = $this->Session->read('Zuluru.Teams');
-$divisions = $this->Session->read('Zuluru.Divisions');
-$unpaid = $this->Session->read('Zuluru.Unpaid');
+$teams = $this->UserCache->read('Teams');
+$divisions = $this->UserCache->read('Divisions');
+$unpaid = $this->UserCache->read('RegistrationsUnpaid');
 $past_teams = $this->requestAction(array('controller' => 'teams', 'action' => 'past_count'));
 if (Configure::read('feature.affiliates')) {
 	$affiliates = $this->requestAction(array('controller' => 'affiliates', 'action' => 'index'));
 	AppModel::_reindexOuter($affiliates, 'Affiliate', 'id');
 }
 if (Configure::read('feature.tasks')) {
-	$tasks = $this->Session->read('Zuluru.Tasks');
+	$tasks = $this->UserCache->read('Tasks');
 }
 ?>
 
@@ -74,7 +74,7 @@ if ($is_admin) {
 }
 
 if ($is_manager) {
-	$my_affiliates = $this->Session->read('Zuluru.ManagedAffiliates');
+	$my_affiliates = $this->UserCache->read('ManagedAffiliates');
 	if (!empty($my_affiliates)) {
 		$facilities = $this->requestAction(array('controller' => 'facilities', 'action' => 'index'));
 		$facilities = Set::extract('/Facility[id>0]', $facilities);
@@ -251,7 +251,7 @@ foreach ($teams as $team):
 		?></td>
 		<td class="actions splash_action">
 			<?php
-			$is_captain = in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs'));
+			$is_captain = in_array($team['Team']['id'], $this->UserCache->read('OwnedTeamIDs'));
 			echo $this->element('teams/actions', array('team' => $team['Team'], 'division' => $team['Division'], 'league' => $team['Division']['League'], 'is_captain' => $is_captain, 'format' => 'links'));
 			?>
 		</td>
@@ -333,7 +333,7 @@ foreach ($games as $game):
 			echo $this->element('fields/block', array('field' => $game['GameSlot']['Field']));
 		?></td>
 		<td class="actions splash_action"><?php
-		if (in_array ($game['HomeTeam']['id'], $this->Session->read('Zuluru.TeamIDs')) && in_array ($game['AwayTeam']['id'], $this->Session->read('Zuluru.TeamIDs'))) {
+		if (in_array ($game['HomeTeam']['id'], $this->UserCache->read('TeamIDs')) && in_array ($game['AwayTeam']['id'], $this->UserCache->read('TeamIDs'))) {
 			// This person is on both teams; pick the one they're more important on...
 			// TODO: Better handling of this, as well as deal with game notes in such cases
 			$home_role = array_pop(Set::extract("/TeamsPerson[team_id={$game['HomeTeam']['id']}]/role", $teams));
@@ -344,14 +344,14 @@ foreach ($games as $game):
 			} else {
 				$team = $game['AwayTeam'];
 			}
-		} else if (in_array ($game['HomeTeam']['id'], $this->Session->read('Zuluru.TeamIDs'))) {
+		} else if (in_array ($game['HomeTeam']['id'], $this->UserCache->read('TeamIDs'))) {
 			$team = $game['HomeTeam'];
 		} else {
 			$team = $game['AwayTeam'];
 		}
 		if ($team['track_attendance']) {
 			$role = Set::extract("/TeamsPerson[team_id={$team['id']}]/role", $teams);
-			$is_captain = in_array($team['id'], $this->Session->read('Zuluru.OwnedTeamIDs'));
+			$is_captain = in_array($team['id'], $this->UserCache->read('OwnedTeamIDs'));
 			echo $this->element('games/attendance_change', array(
 				'team' => $team,
 				'game_id' => $game['Game']['id'],
@@ -455,7 +455,7 @@ if (Configure::read('personal.enable_ical')) {
 			$affiliates[$this->Session->read('Zuluru.CurrentAffiliate')]['Affiliate']['name'],
 			$this->Html->link(__('remove this restriction', true), array('controller' => 'affiliates', 'action' => 'view_all')),
 			$this->Html->link(__('select a different affiliate to view', true), array('controller' => 'affiliates', 'action' => 'select'))));
-	} else if (count($this->Session->read('Zuluru.AffiliateIDs')) != count($affiliates)) {
+	} else if (count($this->UserCache->read('AffiliateIDs')) != count($affiliates)) {
 		if ($is_admin) {
 			echo $this->Html->para(null, sprintf(__('This site has multiple affiliates. You might want to %s.', true),
 				$this->Html->link(__('select a specific affiliate to view', true), array('controller' => 'affiliates', 'action' => 'select'))));

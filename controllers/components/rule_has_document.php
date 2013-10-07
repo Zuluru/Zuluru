@@ -20,7 +20,7 @@ class RuleHasDocumentComponent extends RuleComponent
 
 	// Check if the user has uploaded the required document
 	function evaluate($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url) {
-		$matches = Set::extract ("/Upload[type_id={$this->config[0]}]", $params);
+		$matches = Set::extract ("/Upload[type_id={$this->config[0]}]", $params['Upload']);
 		$unapproved = Set::extract ('/Upload[approved=0]', $matches);
 
 		if (empty($unapproved)) {
@@ -47,7 +47,7 @@ class RuleHasDocumentComponent extends RuleComponent
 
 		if (is_array($params) && array_key_exists ('Upload', $params)) {
 			$date = date('Y-m-d', strtotime ($this->config[1]));
-			$matches = Set::extract ("/Upload[type_id={$this->config[0]}][valid_from<=$date][valid_until>=$date]", $params);
+			$matches = Set::extract ("/Upload[type_id={$this->config[0]}][valid_from<=$date][valid_until>=$date]", $params['Upload']);
 			if (!empty ($matches)) {
 				return true;
 			}

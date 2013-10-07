@@ -44,7 +44,7 @@ class TaskSlotsController extends AppController {
 				// If a task slot id is specified, check if we're a manager of that task slot's affiliate
 				$taskSlot = $this->_arg('slot');
 				if ($taskSlot) {
-					if (in_array($this->TaskSlot->affiliate($taskSlot), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->TaskSlot->affiliate($taskSlot), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -328,8 +328,11 @@ class TaskSlotsController extends AppController {
 			$this->set(array('error' => __('Error assigning the task slot', true)));
 			return;
 		} else {
-			if ($update['approved'] && $taskSlot['TaskSlot']['person_id'] == $this->my_id) {
-				$this->Session->delete('Zuluru.Tasks');
+			if ($update['approved'] && $person_id) {
+				$this->UserCache->clear('Tasks', $person_id);
+			}
+			if ($taskSlot['TaskSlot']['person_id']) {
+				$this->UserCache->clear('Tasks', $taskSlot['TaskSlot']['person_id']);
 			}
 			if (!$this->RequestHandler->isAjax()) {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('assignment', true)), 'default', array('class' => 'success'));

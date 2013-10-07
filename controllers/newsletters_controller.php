@@ -24,7 +24,7 @@ class NewslettersController extends AppController {
 				if (!$affiliate) {
 					// If there's no affiliate id, this is a top-level operation that all managers can perform
 					return true;
-				} else if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+				} else if (in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs'))) {
 					return true;
 				}
 			}
@@ -41,7 +41,7 @@ class NewslettersController extends AppController {
 				// If a newsletter id is specified, check if we're a manager of that newsletter's affiliate
 				$newsletter = $this->_arg('newsletter');
 				if ($newsletter) {
-					if (in_array($this->Newsletter->affiliate($newsletter), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Newsletter->affiliate($newsletter), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}

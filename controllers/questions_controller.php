@@ -33,7 +33,7 @@ class QuestionsController extends AppController {
 				// If a question id is specified, check if we're a manager of that question's affiliate
 				$question = $this->_arg('question');
 				if ($question) {
-					if (in_array($this->Question->affiliate($question), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Question->affiliate($question), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -47,7 +47,7 @@ class QuestionsController extends AppController {
 				$answer = $this->_arg('answer');
 				if ($answer) {
 					$question = $this->Question->Answer->field('question_id', array('Answer.id' => $answer));
-					if (in_array($this->Question->affiliate($question), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Question->affiliate($question), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -254,7 +254,7 @@ class QuestionsController extends AppController {
 			'Question.active' => true,
 		);
 		$affiliate = $this->_arg('affiliate');
-		if ($affiliate && ($this->is_admin || in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs')))) {
+		if ($affiliate && ($this->is_admin || in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs')))) {
 			$conditions['Question.affiliate_id'] = $affiliate;
 
 			$this->set('questions', $this->Question->find('all', array(

@@ -185,6 +185,7 @@ class Team extends AppModel {
 						'League' => array('Affiliate'),
 						'Day',
 					),
+					'Franchise',
 				),
 				'fields' => array(
 					'Team.*',

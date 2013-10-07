@@ -37,7 +37,7 @@ class EventsController extends AppController {
 				// If an event id is specified, check if we're a manager of that event's affiliate
 				$event = $this->_arg('event');
 				if ($event) {
-					if (in_array($this->Event->affiliate($event), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Event->affiliate($event), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -132,7 +132,7 @@ class EventsController extends AppController {
 			$this->redirect(array('action' => 'wizard'));
 		}
 
-		if ($this->is_manager && !in_array($this->Event->affiliate($id), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+		if ($this->is_manager && !in_array($this->Event->affiliate($id), $this->UserCache->read('ManagedAffiliateIDs'))) {
 			$this->is_manager = false;
 		}
 		if ($this->is_admin || $this->is_manager) {

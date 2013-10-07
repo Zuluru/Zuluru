@@ -303,8 +303,8 @@ class EventTypeTeamComponent extends EventTypeComponent
 				'question_id' => TEAM_ID,
 				'answer' => $this->_controller->Team->id,
 			);
-			$this->_controller->_deleteTeamSessionData();
-			$this->_controller->_deleteFranchiseSessionData();
+			$this->_controller->UserCache->_deleteTeamData($captain_id);
+			$this->_controller->UserCache->_deleteFranchiseData($captain_id);
 
 			if (array_key_exists('Registration', $data) && array_key_exists('id', $data['Registration'])) {
 				foreach (array_keys($responses) as $key) {
@@ -324,27 +324,33 @@ class EventTypeTeamComponent extends EventTypeComponent
 
 		$team_id = $this->_extractAnswer ($data, TEAM_ID);
 		if ($team_id) {
-			$this->_controller->_deleteTeamSessionData();
 			if (!isset ($this->_controller->Team)) {
 				$this->_controller->Team = ClassRegistry::init ('Team');
 			}
+
+			$this->_controller->Team->contain('Person');
+			$team = $this->_controller->Team->read(null, $team_id);
 			if ($this->_controller->Team->delete ($team_id)) {
+				foreach ($team['Person'] as $person) {
+					$this->_controller->UserCache->_deleteTeamData($person['id']);
+				}
 				$delete = array($this->_extractAnswerId ($data, TEAM_ID));
 				if (Configure::read('feature.franchises')) {
 					$franchise_id = $this->_extractAnswer($data, FRANCHISE_ID_CREATED);
 					if ($franchise_id) {
 						// Delete the franchise record too, if it's empty now
-						$this->_controller->Team->Franchise->contain('Team');
+						$this->_controller->Team->Franchise->contain('Team', 'Person');
 						$franchise = $this->_controller->Team->Franchise->read(null, $franchise_id);
 						if (empty($franchise['Team'])) {
 							$this->_controller->Team->Franchise->delete ($franchise_id);
+							foreach ($franchise['Person'] as $person) {
+								$this->_controller->UserCache->_deleteFranchiseData($person['id']);
+							}
 							$delete[] = $this->_extractAnswerId ($data, FRANCHISE_ID_CREATED);
 						}
 					}
 				}
 
-				$this->_controller->_deleteTeamSessionData();
-				$this->_controller->_deleteFranchiseSessionData();
 				return $delete;
 			}
 			return false;

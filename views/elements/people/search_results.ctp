@@ -29,7 +29,7 @@ echo $this->Paginator->counter(array(
 $i = 0;
 foreach ($people as $person):
 	$affiliates = Set::extract('/Affiliate/id', $person);
-	$mine = array_intersect($affiliates, $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+	$mine = array_intersect($affiliates, $this->UserCache->read('ManagedAffiliateIDs'));
 	$is_manager = !empty($mine);
 
 	$class = null;

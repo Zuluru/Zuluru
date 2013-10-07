@@ -41,7 +41,7 @@ if (count($leagues) == 1) {
 }
 
 foreach ($teams as $team):
-	$is_manager = $is_logged_in && in_array($team['League']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'));
+	$is_manager = $is_logged_in && in_array($team['League']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
 	Division::_addNames($team['Division'], $team['League']);
 
 	if (count($affiliates) > 1 && $team['League']['affiliate_id'] != $affiliate_id):

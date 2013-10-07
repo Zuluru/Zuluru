@@ -55,11 +55,11 @@ class NoticesController extends AppController {
 
 		// Figure out which notices to include based on this user's current details
 		$display_to = array('player');
-		$teams = $this->Session->read('Zuluru.OwnedTeamIDs');
+		$teams = $this->UserCache->read('OwnedTeamIDs');
 		if (!empty($teams)) {
 			$display_to[] = 'captain';
 		}
-		$leagues = $this->Session->read('Zuluru.DivisionIDs');
+		$leagues = $this->UserCache->read('DivisionIDs');
 		if (!empty($leagues)) {
 			$display_to[] = 'coordinator';
 		}

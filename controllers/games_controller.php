@@ -74,7 +74,7 @@ class GamesController extends AppController {
 		)))
 		{
 			$team = $this->_arg('team');
-			if ($team && in_array ($team, $this->Session->read('Zuluru.TeamIDs'))) {
+			if ($team && in_array ($team, $this->UserCache->read('TeamIDs'))) {
 				return true;
 			}
 		}
@@ -88,7 +88,7 @@ class GamesController extends AppController {
 		{
 			// If a team id is specified, check if it belongs to the logged-in user
 			$team = $this->_arg('team');
-			if ($team && in_array ($team, $this->Session->read('Zuluru.OwnedTeamIDs'))) {
+			if ($team && in_array ($team, $this->UserCache->read('OwnedTeamIDs'))) {
 				return true;
 			}
 		}
@@ -106,7 +106,7 @@ class GamesController extends AppController {
 		{
 			$game = $this->_arg('game');
 			if ($game) {
-				$divisions = $this->Session->read('Zuluru.DivisionIDs');
+				$divisions = $this->UserCache->read('DivisionIDs');
 				if (!empty ($divisions)) {
 					$coord = $this->Game->find ('count', array(
 							'conditions' => array(
@@ -163,12 +163,12 @@ class GamesController extends AppController {
 			$contain['Note'] = array(
 				'CreatedPerson',
 				'conditions' => array(
-					'Note.created_team_id' => $this->Session->read('Zuluru.TeamIDs'),
+					'Note.created_team_id' => $this->UserCache->read('TeamIDs'),
 					'OR' => array(
 						'Note.visibility' => VISIBILITY_TEAM,
 						array('AND' => array(
 							'Note.visibility' => VISIBILITY_CAPTAINS,
-							'Note.created_team_id' => $this->Session->read('Zuluru.OwnedTeamIDs'),
+							'Note.created_team_id' => $this->UserCache->read('OwnedTeamIDs'),
 						)),
 						array('AND' => array(
 							'Note.visibility' => VISIBILITY_PRIVATE,
@@ -193,7 +193,7 @@ class GamesController extends AppController {
 		$this->set('spirit_obj', $this->_getComponent ('Spirit', $this->Game->data['Division']['League']['sotg_questions'], $this));
 		$this->set('league_obj', $this->_getComponent ('LeagueType', $this->Game->data['Division']['schedule_type'], $this));
 		$this->set('ratings_obj', $this->_getComponent ('Ratings', $this->Game->data['Division']['rating_calculator'], $this));
-		$this->set('is_coordinator', in_array ($this->Game->data['Division']['id'], $this->Session->read('Zuluru.DivisionIDs')));
+		$this->set('is_coordinator', in_array ($this->Game->data['Division']['id'], $this->UserCache->read('DivisionIDs')));
 	}
 
 	function tooltip() {
@@ -318,7 +318,7 @@ class GamesController extends AppController {
 		$this->Game->_adjustEntryIndices($game);
 		$this->Game->_readDependencies($game);
 
-		if (!$this->is_admin && !in_array ($game['Division']['id'], $this->Session->read('Zuluru.DivisionIDs'))) {
+		if (!$this->is_admin && !in_array ($game['Division']['id'], $this->UserCache->read('DivisionIDs'))) {
 			$this->Session->setFlash(__('You do not have permission to edit that game.', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
@@ -418,7 +418,7 @@ class GamesController extends AppController {
 		// To maximize shared code between the edit and view templates, we'll
 		// set it in the 'game' variable here too.
 		$this->set(compact (array ('game', 'captains', 'spirit_obj', 'league_obj')));
-		$this->set('is_coordinator', in_array ($game['Division']['id'], $this->Session->read('Zuluru.DivisionIDs')));
+		$this->set('is_coordinator', in_array ($game['Division']['id'], $this->UserCache->read('DivisionIDs')));
 	}
 
 	function edit_boxscore() {
@@ -589,7 +589,7 @@ class GamesController extends AppController {
 		$this->set(compact('game'));
 
 		// Make sure that this person is playing in this game
-		$my_teams = $this->Session->read('Zuluru.TeamIDs');
+		$my_teams = $this->UserCache->read('TeamIDs');
 		if (!in_array($game['Game']['home_team'], $my_teams) && !in_array($game['Game']['away_team'], $my_teams)) {
 			$this->Session->setFlash(__('You are not on the roster of a team playing in this game.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'game' => $game_id));
@@ -645,7 +645,7 @@ class GamesController extends AppController {
 						));
 						$team = $this->Game->Division->Team->read(null, $this->data['Note']['created_team_id']);
 						if (!empty($team['Person'])) {
-							$person = $this->Session->read('Zuluru.Person');
+							$person = $this->UserCache->read('Person');
 							$this->set(compact('person', 'team', 'opponent'));
 							$this->_sendMail (array (
 									'to' => $team['Person'],
@@ -849,7 +849,7 @@ class GamesController extends AppController {
 
 		$attendance = $this->Game->_read_attendance($team_id, Set::extract('/Division/Day/id', $game), $id);
 		$this->set(compact('game', 'team', 'opponent', 'attendance'));
-		$this->set('is_captain', in_array($team_id, $this->Session->read('Zuluru.OwnedTeamIDs')));
+		$this->set('is_captain', in_array($team_id, $this->UserCache->read('OwnedTeamIDs')));
 	}
 
 	function add_sub() {
@@ -966,8 +966,8 @@ class GamesController extends AppController {
 		}
 
 		$is_me = ($person_id == $this->Auth->user('id'));
-		$is_captain = in_array ($team_id, $this->Session->read('Zuluru.OwnedTeamIDs'));
-		$is_coordinator = in_array ($team['division_id'], $this->Session->read('Zuluru.DivisionIDs'));
+		$is_captain = in_array ($team_id, $this->UserCache->read('OwnedTeamIDs'));
+		$is_coordinator = in_array ($team['division_id'], $this->UserCache->read('DivisionIDs'));
 
 		// We must do other permission checks here, because we allow non-logged-in users to accept
 		// through email links
@@ -1104,7 +1104,7 @@ class GamesController extends AppController {
 			// be an invitation to play or a response to a request or cancelling attendance
 			// if another player is available. Regardless, we need to communicate this.
 			else if ($is_captain && !in_array($role, Configure::read('playing_roster_roles'))) {
-				$captain = $this->Session->read('Zuluru.Person.full_name');
+				$captain = $this->UserCache->read('Person.full_name');
 				if (!$captain) {
 					$captain = __('A captain', true);
 				}
@@ -1118,7 +1118,7 @@ class GamesController extends AppController {
 
 				$this->_sendMail (array (
 						'to' => $person,
-						'replyTo' => $this->Session->read('Zuluru.Person'),
+						'replyTo' => $this->UserCache->read('Person'),
 						'subject' => "{$team['name']} attendance change for game on $date",
 						'template' => 'attendance_substitute_notification',
 						'sendAs' => 'both',
@@ -1231,7 +1231,7 @@ class GamesController extends AppController {
 
 		$attendance = $this->Game->_read_attendance($team_id, Set::extract('/Division/Day/id', $game), $id);
 		$this->set(compact('game', 'team', 'opponent', 'attendance'));
-		$this->set('is_captain', in_array($team_id, $this->Session->read('Zuluru.OwnedTeamIDs')));
+		$this->set('is_captain', in_array($team_id, $this->UserCache->read('OwnedTeamIDs')));
 	}
 
 	function live_score() {
@@ -2237,7 +2237,7 @@ class GamesController extends AppController {
 						$this->set(compact ('division', 'game', 'status', 'opponent_status', 'score_for', 'score_against', 'team', 'opponent', 'captains'));
 						$this->_sendMail (array (
 								'to' => $captains,
-								'from' => $this->Session->read('Zuluru.Person.email_formatted'),
+								'from' => $this->UserCache->read('Person.email_formatted'),
 								'subject' => 'Opponent score submission',
 								'template' => 'score_submission',
 								'sendAs' => 'both',
@@ -2265,7 +2265,7 @@ class GamesController extends AppController {
 					$this->set(compact ('game', 'incident'));
 					if ($this->_sendMail (array (
 							'to' => "Incident Manager <$addr>",
-							'from' => $this->Session->read('Zuluru.Person.email_formatted'),
+							'from' => $this->UserCache->read('Person.email_formatted'),
 							'subject' => "Incident report: {$incident['type']}",
 							'template' => 'incident_report',
 							'sendAs' => 'html',
@@ -2303,7 +2303,7 @@ class GamesController extends AppController {
 		}
 
 		$this->set(compact ('game', 'team_id', 'spirit_obj'));
-		$this->set('is_coordinator', in_array ($game['Division']['id'], $this->Session->read('Zuluru.DivisionIDs')));
+		$this->set('is_coordinator', in_array ($game['Division']['id'], $this->UserCache->read('DivisionIDs')));
 	}
 
 	function submit_stats() {
@@ -2333,7 +2333,7 @@ class GamesController extends AppController {
 
 		$team_id = $this->_arg('team');
 		// Allow specified individuals (referees, umpires, volunteers) to submit stats without a team id
-		if (!$this->is_volunteer && !$team_id && !in_array($game['Division']['id'], $this->Session->read('Zuluru.DivisionIDs'))) {
+		if (!$this->is_volunteer && !$team_id && !in_array($game['Division']['id'], $this->UserCache->read('DivisionIDs'))) {
 			$this->Session->setFlash(__('You must provide a team ID.', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
@@ -2926,16 +2926,16 @@ class GamesController extends AppController {
 		if (empty($game['Stat'])) {
 			$this->Session->setFlash(__('No stats have been entered for this game.', true), 'default', array('class' => 'info'));
 			// Redirect coordinators to the stats entry page with whatever parameters were used here
-			if (in_array($game['Division']['id'], $this->Session->read('Zuluru.DivisionIDs'))) {
+			if (in_array($game['Division']['id'], $this->UserCache->read('DivisionIDs'))) {
 				$this->redirect(array('action' => 'submit_stats', 'game' => $id, 'team' => $team_id));
 			}
 			// If there was no team ID given, check if one of the two teams is captained by the current user
 			if (!$team_id) {
-				$teams = array_intersect (array($game['Game']['home_team'], $game['Game']['away_team']), $this->Session->read('Zuluru.OwnedTeamIDs'));
+				$teams = array_intersect (array($game['Game']['home_team'], $game['Game']['away_team']), $this->UserCache->read('OwnedTeamIDs'));
 				$team_id = array_pop ($teams);
 			}
 			// If we have a team ID and we're a captain of that team, go to the stats entry page
-			if ($team_id && in_array($team_id, $this->Session->read('Zuluru.OwnedTeamIDs'))) {
+			if ($team_id && in_array($team_id, $this->UserCache->read('OwnedTeamIDs'))) {
 				$this->redirect(array('action' => 'submit_stats', 'game' => $id, 'team' => $team_id));
 			}
 			$this->redirect(array('action' => 'view', 'game' => $id));
@@ -2974,7 +2974,7 @@ class GamesController extends AppController {
 	}
 
 	function past() {
-		$team_ids = $this->Session->read('Zuluru.TeamIDs');
+		$team_ids = $this->UserCache->read('TeamIDs');
 		if (empty ($team_ids)) {
 			return array();
 		}
@@ -3013,7 +3013,7 @@ class GamesController extends AppController {
 	}
 
 	function future($recursive = false) {
-		$team_ids = $this->Session->read('Zuluru.TeamIDs');
+		$team_ids = $this->UserCache->read('TeamIDs');
 		if (empty ($team_ids)) {
 			return array();
 		}

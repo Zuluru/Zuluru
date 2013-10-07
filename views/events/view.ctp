@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('View', true));
 
 <?php
 // Perhaps remove manager status, if we're looking at a different affiliate
-if ($is_manager && !in_array($event['Event']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+if ($is_manager && !in_array($event['Event']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'))) {
 	$is_manager = false;
 }
 ?>

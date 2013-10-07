@@ -63,7 +63,7 @@ class TeamsController extends AppController {
 		{
 			// If a team id is specified, check if we're a captain of that team
 			$team = $this->_arg('team');
-			if ($team && in_array ($team, $this->Session->read('Zuluru.OwnedTeamIDs'))) {
+			if ($team && in_array ($team, $this->UserCache->read('OwnedTeamIDs'))) {
 				return true;
 			}
 		}
@@ -90,7 +90,7 @@ class TeamsController extends AppController {
 		)))
 		{
 			$team = $this->_arg('team');
-			if ($team && in_array ($team, $this->Session->read('Zuluru.TeamIDs'))) {
+			if ($team && in_array ($team, $this->UserCache->read('TeamIDs'))) {
 				return true;
 			}
 			// Check past teams too
@@ -115,7 +115,7 @@ class TeamsController extends AppController {
 				if (!$affiliate) {
 					// If there's no affiliate id, this is a top-level operation that all managers can perform
 					return true;
-				} else if (in_array($affiliate, $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+				} else if (in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs'))) {
 					return true;
 				}
 			}
@@ -141,7 +141,7 @@ class TeamsController extends AppController {
 				// If a team id is specified, check if we're a manager of that team's affiliate
 				$team = $this->_arg('team');
 				if ($team) {
-					if (in_array($this->Team->affiliate($team), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Team->affiliate($team), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -175,7 +175,7 @@ class TeamsController extends AppController {
 			// If a team id is specified, check if we're a coordinator of that team's division
 			$team = $this->_arg('team');
 			if ($team) {
-				$divisions = $this->Session->read('Zuluru.Divisions');
+				$divisions = $this->UserCache->read('Divisions');
 				$teams = Set::extract ('/Team/id', $divisions);
 				return in_array ($team, $teams);
 			}
@@ -814,8 +814,8 @@ class TeamsController extends AppController {
 		}
 
 		$this->set('team', $team);
-		$this->set('is_captain', in_array($id, $this->Session->read('Zuluru.OwnedTeamIDs')));
-		$this->set('is_coordinator', in_array($team['Team']['division_id'], $this->Session->read('Zuluru.DivisionIDs')));
+		$this->set('is_captain', in_array($id, $this->UserCache->read('OwnedTeamIDs')));
+		$this->set('is_coordinator', in_array($team['Team']['division_id'], $this->UserCache->read('DivisionIDs')));
 		$this->_addTeamMenuItems ($team);
 
 		if ($team['Division']['is_playoff']) {
@@ -849,7 +849,7 @@ class TeamsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
-		$is_captain = in_array($id, $this->Session->read('Zuluru.OwnedTeamIDs'));
+		$is_captain = in_array($id, $this->UserCache->read('OwnedTeamIDs'));
 
 		$person_id = $this->_arg('person');
 		if ($person_id) {
@@ -1011,8 +1011,8 @@ class TeamsController extends AppController {
 		usort ($team['Person'], array('Team', 'compareRoster'));
 
 		$this->set(compact('team', 'sport_obj'));
-		$this->set('is_captain', in_array($id, $this->Session->read('Zuluru.OwnedTeamIDs')));
-		$this->set('is_coordinator', in_array($team['Team']['division_id'], $this->Session->read('Zuluru.DivisionIDs')));
+		$this->set('is_captain', in_array($id, $this->UserCache->read('OwnedTeamIDs')));
+		$this->set('is_coordinator', in_array($team['Team']['division_id'], $this->UserCache->read('DivisionIDs')));
 		$this->_addTeamMenuItems ($team);
 
 		if ($this->params['url']['ext'] == 'csv') {
@@ -1094,7 +1094,7 @@ class TeamsController extends AppController {
 
 		if (!empty($this->data)) {
 			$this->Team->create();
-			if (!$this->is_admin && (!empty($this->data['Team']['affiliate_id']) && !in_array($this->data['Team']['affiliate_id'], $this->Session->read('Zuluru.ManagedAffiliateIDs')))) {
+			if (!$this->is_admin && (!empty($this->data['Team']['affiliate_id']) && !in_array($this->data['Team']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs')))) {
 				$this->data['Person'] = array(array(
 					'person_id' => $this->Auth->user('id'),
 					'role' => 'captain',
@@ -1138,8 +1138,10 @@ class TeamsController extends AppController {
 		}
 		if (!empty($this->data)) {
 			if ($this->Team->save($this->data)) {
-				if (in_array ($this->data['Team']['id'], $this->Session->read('Zuluru.TeamIDs'))) {
-					$this->_deleteTeamSessionData();
+				$this->Team->contain('Person');
+				$team = $this->Team->read(null, $id);
+				foreach ($team['Person'] as $person) {
+					$this->UserCache->_deleteTeamData($person['id']);
 				}
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('team', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
@@ -1263,16 +1265,16 @@ class TeamsController extends AppController {
 		$id = $this->_arg('team');
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action'=>'index'));
+			$this->redirect(array('action' => 'index'));
 		}
 		$dependencies = $this->Team->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Session->setFlash(__('The following records reference this team, so it cannot be deleted.', true) . '<br>' . $dependencies, 'default', array('class' => 'warning'));
-			$this->redirect(array('action'=>'index'));
+			$this->redirect(array('action' => 'index'));
 		}
 		if ($this->Team->delete($id)) {
 			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Team', true)), 'default', array('class' => 'success'));
-			$this->redirect(array('action'=>'index'));
+			$this->redirect(array('action' => 'index'));
 		}
 		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Team', true)), 'default', array('class' => 'warning'));
 		$this->redirect(array('action' => 'index'));
@@ -1286,7 +1288,7 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 
-		$this->Team->contain(array ('Division' => 'League'));
+		$this->Team->contain(array ('Division' => 'League', 'Person'));
 		$team = $this->Team->read(null, $id);
 		if (!$team) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
@@ -1313,6 +1315,9 @@ class TeamsController extends AppController {
 				}
 			}
 			if ($this->Team->saveField ('division_id', $this->data['Team']['to'])) {
+				foreach ($team['Person'] as $person) {
+					$this->UserCache->_deleteTeamData($person['id']);
+				}
 				$this->Session->setFlash(sprintf (__('Team has been moved to %s', true), $division['Division']['full_league_name']), 'default', array('class' => 'success'));
 			} else {
 				$this->Session->setFlash(__('Failed to move the team!', true), 'default', array('class' => 'warning'));
@@ -1396,7 +1401,7 @@ class TeamsController extends AppController {
 		));
 
 		// Find any non-game team events
-		if (in_array ($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs'))) {
+		if (in_array ($team['Team']['id'], $this->UserCache->read('TeamIDs'))) {
 			$team['Game'] = array_merge ($team['Game'], $this->Team->TeamEvent->_read_attendance($team));
 		}
 
@@ -1409,11 +1414,11 @@ class TeamsController extends AppController {
 		usort ($team['Game'], array ('Game', 'compareDateAndField'));
 
 		$this->set(compact('team'));
-		$this->set('is_coordinator', in_array($team['Team']['division_id'], $this->Session->read('Zuluru.DivisionIDs')));
-		$this->set('is_captain', in_array($id, $this->Session->read('Zuluru.OwnedTeamIDs')));
+		$this->set('is_coordinator', in_array($team['Team']['division_id'], $this->UserCache->read('DivisionIDs')));
+		$this->set('is_captain', in_array($id, $this->UserCache->read('OwnedTeamIDs')));
 		$this->set('spirit_obj', $this->_getComponent ('Spirit', $team['Division']['League']['sotg_questions'], $this));
-		$this->set('display_attendance', $team['Team']['track_attendance'] && in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')));
-		$this->set('annotate', Configure::read('feature.annotations') && in_array($team['Team']['id'], $this->Session->read('Zuluru.TeamIDs')));
+		$this->set('display_attendance', $team['Team']['track_attendance'] && in_array($team['Team']['id'], $this->UserCache->read('TeamIDs')));
+		$this->set('annotate', Configure::read('feature.annotations') && in_array($team['Team']['id'], $this->UserCache->read('TeamIDs')));
 		$this->_addTeamMenuItems ($this->Team->data);
 	}
 
@@ -1582,7 +1587,7 @@ class TeamsController extends AppController {
 		));
 
 		$this->set(compact('team', 'attendance', 'event_attendance', 'dates', 'days', 'games'));
-		$this->set('is_captain', in_array($id, $this->Session->read('Zuluru.OwnedTeamIDs')));
+		$this->set('is_captain', in_array($id, $this->UserCache->read('OwnedTeamIDs')));
 	}
 
 	function emails() {
@@ -1951,9 +1956,7 @@ class TeamsController extends AppController {
 				$this->Session->setFlash(__('You do not have permission to set that role.', true), 'default', array('class' => 'info'));
 			} else {
 				if ($this->_setRosterRole ($person, $team, $this->data['Person']['role'], ROSTER_APPROVED)) {
-					if ($person_id == $my_id) {
-						$this->_deleteTeamSessionData();
-					}
+					$this->UserCache->_deleteTeamData($person_id);
 					if ($this->RequestHandler->isAjax()) {
 						$this->set(array(
 							'success' => true,
@@ -2007,10 +2010,7 @@ class TeamsController extends AppController {
 				$this->Roster = ClassRegistry::init ('TeamsPerson');
 				$this->Roster->id = $person['Person']['TeamsPerson']['id'];
 				if ($this->Roster->saveField ('position', $this->data['Person']['position'])) {
-					if ($person_id == $my_id) {
-						$this->_deleteTeamSessionData();
-						$this->_initSessionData($my_id);
-					}
+					$this->UserCache->_deleteTeamData($person_id);
 					if ($this->RequestHandler->isAjax()) {
 						$this->set(array(
 							'success' => true,
@@ -2105,7 +2105,7 @@ class TeamsController extends AppController {
 				$this->Session->setFlash(__('You are not allowed to request that role.', true), 'default', array('class' => 'info'));
 			} else {
 				if ($this->_setRosterRole ($person, $team, $this->data['Person']['role'], ROSTER_REQUESTED)) {
-					$this->_deleteTeamSessionData();
+					$this->UserCache->_deleteTeamData();
 					$this->redirect(array('action' => 'view', 'team' => $team['Team']['id']));
 				}
 			}
@@ -2156,7 +2156,7 @@ class TeamsController extends AppController {
 				// Players can accept when they are invited
 				!($person['Person']['TeamsPerson']['status'] == ROSTER_INVITED && $person_id == $this->Auth->user('id')) &&
 				// Captains can accept requests to join their teams
-				!($person['Person']['TeamsPerson']['status'] == ROSTER_REQUESTED && in_array ($team_id, $this->Session->read('Zuluru.OwnedTeamIDs')))
+				!($person['Person']['TeamsPerson']['status'] == ROSTER_REQUESTED && in_array ($team_id, $this->UserCache->read('OwnedTeamIDs')))
 			)
 			{
 				$this->Session->setFlash(sprintf (__('You are not allowed to accept this roster %s.', true),
@@ -2188,9 +2188,7 @@ class TeamsController extends AppController {
 				$this->_sendAccept($person, $team, $person['Person']['TeamsPerson']['role'], $person['Person']['TeamsPerson']['status']);
 			}
 
-			if ($person_id == $my_id) {
-				$this->_deleteTeamSessionData();
-			}
+			$this->UserCache->_deleteTeamData($person_id);
 		} else {
 			$this->Session->setFlash(sprintf (__('The database failed to save the acceptance of this roster %s.', true),
 					__(($person['Person']['TeamsPerson']['status'] == ROSTER_INVITED) ? 'invitation' : 'request', true)),
@@ -2241,7 +2239,7 @@ class TeamsController extends AppController {
 				// Players or captains can either decline an invite or request from the other,
 				// or remove one that they made themselves.
 				!($person_id == $this->Auth->user('id')) &&
-				!(in_array ($team_id, $this->Session->read('Zuluru.OwnedTeamIDs')))
+				!(in_array ($team_id, $this->UserCache->read('OwnedTeamIDs')))
 			)
 			{
 				$this->Session->setFlash(sprintf (__('You are not allowed to decline this roster %s.', true),
@@ -2262,8 +2260,8 @@ class TeamsController extends AppController {
 				$this->_sendDecline($person, $team, $person['Person']['TeamsPerson']['role'], $person['Person']['TeamsPerson']['status']);
 			}
 
+			$this->UserCache->_deleteTeamData($person_id);
 			if ($person_id == $my_id) {
-				$this->_deleteTeamSessionData();
 				$this->redirect('/');
 			}
 		} else {
@@ -2343,7 +2341,7 @@ class TeamsController extends AppController {
 
 		// Admins, coordinators and captains can make anyone anything
 		if ($this->effective_admin || $this->effective_coordinator ||
-			in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs')))
+			in_array($team['Team']['id'], $this->UserCache->read('OwnedTeamIDs')))
 		{
 			return $roster_role_options;
 		}
@@ -2512,23 +2510,12 @@ class TeamsController extends AppController {
 
 			if (!array_key_exists('Registration', $person['Person']) || !array_key_exists('Team', $person['Person']) || !array_key_exists('Waiver', $person['Person'])) {
 				// Get everything from the user record that the rule might need
-				$this->Team->Person->contain(array(
-					'Registration' => array(
-						'Event' => array(
-							'EventType',
-						),
-						'conditions' => array('Registration.payment' => 'paid'),
-					),
-					'Team' => array(
-						'Division' => 'League',
-						'TeamsPerson',
-						'Franchise',
-						'conditions' => array('Team.id !=' => $team['Team']['id']),
-					),
-					'Waiver',
-				));
-
-				$person = $this->Team->Person->read(null, $person['Person']['id']);
+				$person = array(
+					'Person' => $this->UserCache->read('Person', $person['Person']['id']),
+					'Team' => $this->UserCache->read('Teams', $person['Person']['id']),
+					'Registration' => $this->UserCache->read('RegistrationsPaid', $person['Person']['id']),
+					'Waiver' => $this->UserCache->read('Waivers', $person['Person']['id']),
+				);
 			}
 			if (!$this->can_add_rule_obj->evaluate($team['Division']['League']['affiliate_id'], $person, $team, $strict, $text_reason, true, $absolute_url)) {
 				switch ($this->can_add_rule_obj->reason_type) {
@@ -2582,12 +2569,12 @@ class TeamsController extends AppController {
 	function _sendAdd ($person, $team, $role) {
 		$this->_initRosterEmail($person, $team, $role);
 		$this->set (array(
-			'reply' => $this->Session->read('Zuluru.Person.email'),
+			'reply' => $this->UserCache->read('Person.email'),
 		));
 
 		if (!$this->_sendMail (array (
 				'to' => $person,
-				'replyTo' => $this->Session->read('Zuluru.Person'),
+				'replyTo' => $this->UserCache->read('Person'),
 				'subject' => "You have been added to {$team['Team']['name']}",
 				'template' => 'roster_add',
 				'sendAs' => 'both',
@@ -2603,12 +2590,12 @@ class TeamsController extends AppController {
 	function _sendInvite ($person, $team, $role) {
 		$this->_initRosterEmail($person, $team, $role);
 		$this->set (array(
-			'captain' => $this->Session->read('Zuluru.Person.full_name'),
+			'captain' => $this->UserCache->read('Person.full_name'),
 		));
 
 		if (!$this->_sendMail (array (
 				'to' => $person,
-				'replyTo' => $this->Session->read('Zuluru.Person'),
+				'replyTo' => $this->UserCache->read('Person'),
 				'subject' => "Invitation to join {$team['Team']['name']}",
 				'template' => 'roster_invite',
 				'sendAs' => 'both',
@@ -2661,12 +2648,12 @@ class TeamsController extends AppController {
 		} else {
 			// A captain has accepted a request
 			$this->set (array(
-				'captain' => $this->Session->read('Zuluru.Person.full_name'),
+				'captain' => $this->UserCache->read('Person.full_name'),
 			));
 
 			if (!$this->_sendMail (array (
 					'to' => $person,
-					'replyTo' => $this->Session->read('Zuluru.Person'),
+					'replyTo' => $this->UserCache->read('Person'),
 					'subject' => "Request to join {$team['Team']['name']} was accepted",
 					'template' => 'roster_accept_request',
 					'sendAs' => 'both',
@@ -2684,7 +2671,7 @@ class TeamsController extends AppController {
 
 		if ($status == ROSTER_INVITED) {
 			$is_player = ($this->_arg('code') !== null || $person['Person']['id'] == $this->Auth->user('id'));
-			$is_captain = in_array($team['Team']['id'], $this->Session->read('Zuluru.OwnedTeamIDs'));
+			$is_captain = in_array($team['Team']['id'], $this->UserCache->read('OwnedTeamIDs'));
 
 			if ($is_player || $this->effective_admin || $this->effective_coordinator) {
 				// A player or admin has declined an invitation
@@ -2705,12 +2692,12 @@ class TeamsController extends AppController {
 			if ($is_captain || $this->effective_admin || $this->effective_coordinator) {
 				// A captain or admin has removed an invitation
 				$this->set (array(
-					'captain' => $this->Session->read('Zuluru.Person.full_name'),
+					'captain' => $this->UserCache->read('Person.full_name'),
 				));
 
 				if (!$this->_sendMail (array (
 						'to' => $person,
-						'replyTo' => $this->Session->read('Zuluru.Person'),
+						'replyTo' => $this->UserCache->read('Person'),
 						'subject' => "Invitation to join {$team['Team']['name']} was removed",
 						'template' => 'roster_remove_invite',
 						'sendAs' => 'both',
@@ -2723,11 +2710,11 @@ class TeamsController extends AppController {
 		} else {
 			// A captain has declined a request
 			$this->set (array(
-				'captain' => $this->Session->read('Zuluru.Person.full_name'),
+				'captain' => $this->UserCache->read('Person.full_name'),
 			));
 			if (!$this->_sendMail (array (
 					'to' => $person,
-					'replyTo' => $this->Session->read('Zuluru.Person'),
+					'replyTo' => $this->UserCache->read('Person'),
 					'subject' => "Request to join {$team['Team']['name']} was declined",
 					'template' => 'roster_decline_request',
 					'sendAs' => 'both',
@@ -2747,7 +2734,7 @@ class TeamsController extends AppController {
 		$this->_initRosterEmail($person, $team, $role);
 
 		$this->set (array(
-			'reply' => $this->Session->read('Zuluru.Person.email'),
+			'reply' => $this->UserCache->read('Person.email'),
 			'old_role' => $person['Person']['TeamsPerson']['role'],
 		));
 
@@ -2768,12 +2755,12 @@ class TeamsController extends AppController {
 			}
 		} else {
 			$this->set (array(
-				'captain' => $this->Session->read('Zuluru.Person.full_name'),
+				'captain' => $this->UserCache->read('Person.full_name'),
 			));
 
 			if (!$this->_sendMail (array (
 					'to' => $person,
-					'replyTo' => $this->Session->read('Zuluru.Person'),
+					'replyTo' => $this->UserCache->read('Person'),
 					'subject' => "Change of roster role on {$team['Team']['name']}",
 					'template' => 'roster_change_by_captain',
 					'sendAs' => 'both',
@@ -2791,7 +2778,7 @@ class TeamsController extends AppController {
 		$this->_initRosterEmail($person, $team);
 
 		$this->set (array(
-			'reply' => $this->Session->read('Zuluru.Person.email'),
+			'reply' => $this->UserCache->read('Person.email'),
 			'old_role' => $person['Person']['TeamsPerson']['role'],
 		));
 
@@ -2812,12 +2799,12 @@ class TeamsController extends AppController {
 			}
 		} else {
 			$this->set (array(
-				'captain' => $this->Session->read('Zuluru.Person.full_name'),
+				'captain' => $this->UserCache->read('Person.full_name'),
 			));
 
 			if (!$this->_sendMail (array (
 					'to' => $person,
-					'replyTo' => $this->Session->read('Zuluru.Person'),
+					'replyTo' => $this->UserCache->read('Person'),
 					'subject' => "Removal from {$team['Team']['name']} roster",
 					'template' => 'roster_remove_by_captain',
 					'sendAs' => 'both',
@@ -2863,7 +2850,7 @@ class TeamsController extends AppController {
 		return $this->Team->TeamsPerson->find('count', array(
 				'conditions' => array('person_id' => $this->Auth->user('id')),
 				'contain' => array(),
-		)) - count($this->Session->read('Zuluru.TeamIDs'));
+		)) - count($this->UserCache->read('TeamIDs'));
 	}
 
 	function open_count() {

@@ -15,7 +15,7 @@ class PreregistrationsController extends AppController {
 				// If an event id is specified, check if we're a manager of that event's affiliate
 				$event = $this->_arg('event');
 				if ($event) {
-					if (in_array($this->Preregistration->Event->affiliate($event), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Preregistration->Event->affiliate($event), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				} else {
@@ -90,8 +90,8 @@ class PreregistrationsController extends AppController {
 				$this->redirect(array('action' => 'add', 'event' => $url['event']));
 			}
 			$this->Preregistration->create();
-			if ($this->Preregistration->save($data))
-			{
+			if ($this->Preregistration->save($data)) {
+				$this->UserCache->clear('Preregistrations', $url['person']);
 				$this->Session->setFlash(__('The preregistration has been saved', true), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
@@ -140,6 +140,7 @@ class PreregistrationsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		if ($this->Preregistration->delete($id)) {
+			$this->UserCache->clear('Preregistrations', $prereg['Preregistration']['person']);
 			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Preregistration', true)), 'default', array('class' => 'success'));
 			$this->redirect(array('action' => 'index'));
 		}
