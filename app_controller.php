@@ -145,7 +145,7 @@ class AppController extends Controller {
 						$response_required[] = $team['Team']['id'];
 					}
 				}
-				if (!empty ($response_required) &&
+				if (!empty ($response_required) && $this->name != 'Settings' &&
 					// We will let people look at information about teams that they've been invited to
 					($this->name != 'Teams' || !in_array ($this->_arg('team'), $response_required)))
 				{
