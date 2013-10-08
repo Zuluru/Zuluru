@@ -149,7 +149,7 @@ class AppController extends Controller {
 					($this->name != 'Teams' || !in_array ($this->_arg('team'), $response_required)))
 				{
 					$this->Session->setFlash(__('You have been invited to join a team, and must either accept or decline this invitation before proceeding. Before deciding, you have the ability to look at this team\'s roster, schedule, etc.', true), 'default', array('class' => 'info'));
-					$this->redirect (array('controller' => 'teams', 'action' => 'view', 'team' => array_shift($response_required), 'person' => $this->Auth->user('id')));
+					$this->redirect (array('controller' => 'teams', 'action' => 'view', 'team' => array_shift($response_required)));
 				}
 			}
 		}
