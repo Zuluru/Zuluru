@@ -1,6 +1,6 @@
 <?php
 
-class LoginComponent extends object
+class LoginComponent extends Object
 {
 	function __construct(&$controller) {
 		$this->_controller =& $controller;
@@ -35,6 +35,7 @@ class LoginComponent extends object
 			}
 		}
 
+		$this->_controller->Session->delete('Auth.User');
 		return true;
 	}
 }

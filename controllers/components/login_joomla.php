@@ -19,14 +19,6 @@ class LoginJoomlaComponent extends LoginComponent
 
 		parent::login();
 	}
-
-	function expire() {
-		if (parent::expire()) {
-			$this->_controller->Session->delete('Auth.UserJoomla');
-			return true;
-		}
-		return false;
-	}
 }
 
 ?>

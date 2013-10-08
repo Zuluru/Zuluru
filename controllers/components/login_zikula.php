@@ -18,14 +18,6 @@ class LoginZikulaComponent extends LoginComponent
 
 		parent::login();
 	}
-
-	function expire() {
-		if (parent::expire()) {
-			$this->_controller->Session->delete('Auth.UserZikula');
-			return true;
-		}
-		return false;
-	}
 }
 
 ?>

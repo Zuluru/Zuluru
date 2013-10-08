@@ -52,6 +52,7 @@ class AppController extends Controller {
 		// the Auth field names using it
 		$this->Auth->userModel = Configure::read('security.auth_model');
 		$this->Auth->authenticate = ClassRegistry::init($this->Auth->userModel);
+		$this->Auth->sessionKey = 'Auth.User';
 		$this->Auth->fields = array(
 				'username'	=> $this->Auth->authenticate->userField,
 				'password' => $this->Auth->authenticate->pwdField,
