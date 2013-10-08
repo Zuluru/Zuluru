@@ -22,6 +22,13 @@ class AllController extends AppController {
 	function splash() {
 	}
 
+	function clear_cache() {
+		Cache::clear(false, 'file');
+		Cache::clear(false, 'long_term');
+		$this->Session->setFlash(__('The cache has been cleared.', true), 'default', array('class' => 'success'));
+		$this->redirect('/');
+	}
+
 	function cron() {
 		$this->layout = 'bare';
 		if (!ini_get('safe_mode')) { 

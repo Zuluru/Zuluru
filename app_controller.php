@@ -785,6 +785,8 @@ class AppController extends Controller {
 			if (Configure::read('feature.contacts')) {
 				$this->_addMenuItem ('Contacts', array('controller' => 'contacts', 'action' => 'index'), 'Configuration');
 			}
+
+			$this->_addMenuItem ('Clear cache', array('controller' => 'all', 'action' => 'clear_cache'), 'Configuration');
 		}
 
 		if (Configure::read('feature.manage_accounts')) {
