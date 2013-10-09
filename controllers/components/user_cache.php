@@ -19,12 +19,23 @@ class UserCacheComponent extends Object
 	function initialize(&$controller) {
 		$self =& UserCacheComponent::getInstance();
 		$self->_controller =& $controller;
-		$self->my_id = $self->_controller->Auth->user('id');
-		$self->data[$self->my_id] = array();
+		$self->my_id = null;
+		$self->initializeId();
+	}
+
+	function initializeId() {
+		if ($this->my_id) {
+			return;
+		}
+		$this->my_id = $this->_controller->Auth->user('id');
+		if ($this->my_id) {
+			$this->data[$this->my_id] = array();
+		}
 	}
 
 	function read($key, $id = null, $internal = false) {
 		$self =& UserCacheComponent::getInstance();
+		$self->initializeId();
 		if (!$id) {
 			$id = $self->my_id;
 			if (!$id) {
@@ -290,6 +301,7 @@ class UserCacheComponent extends Object
 
 	function clear($key, $id = null) {
 		$self =& UserCacheComponent::getInstance();
+		$self->initializeId();
 		if (!$id) {
 			$id = $self->my_id;
 			if (!$id) {
