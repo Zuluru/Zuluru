@@ -854,10 +854,7 @@ class Game extends AppModel {
 		return $match_dates;
 	}
 
-	static function _attendanceOptions($team_id, $role, $status, $past = false, $is_captain = null) {
-		if ($is_captain === null) {
-			$is_captain = in_array($team_id, CakeSession::read('Zuluru.OwnedTeamIDs'));
-		}
+	static function _attendanceOptions($team_id, $role, $status, $past, $is_captain) {
 		$is_regular = in_array($role, Configure::read('playing_roster_roles'));
 		$options = Configure::read('attendance');
 

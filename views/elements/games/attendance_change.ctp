@@ -44,7 +44,7 @@ if ($team['track_attendance'] || (isset($force) && $force)) {
 			$url['person'] = $person_id;
 		}
 
-		$options = Game::_attendanceOptions($team['id'], $role, $status, !$future);
+		$options = Game::_attendanceOptions($team['id'], $role, $status, !$future, in_array($team['id'], $this->UserCache->read('OwnedTeamIDs')));
 		$option_strings = array();
 		foreach ($options as $key => $value) {
 			$option_strings[] = "$key: '$value'";
