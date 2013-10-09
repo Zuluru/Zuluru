@@ -2052,7 +2052,9 @@ class GamesController extends AppController {
 		}
 
 		// We need this in a couple of places
-		$spirit_obj = $this->_getComponent ('Spirit', $game['Division']['League']['sotg_questions'], $this);
+		if (League::hasSpirit($game['Division']['League'])) {
+			$spirit_obj = $this->_getComponent ('Spirit', $game['Division']['League']['sotg_questions'], $this);
+		}
 
 		if (!empty ($this->data)) {
 			$transaction = new DatabaseTransaction($this->Game);
@@ -2066,11 +2068,11 @@ class GamesController extends AppController {
 			$this->data['Game']['id'] = $id;
 			$this->data['ScoreEntry'][$team_id]['team_id'] = $team_id;
 			$unplayed = in_array($this->data['ScoreEntry'][$team_id]['status'], Configure::read('unplayed_status'));
-			if (!$unplayed) {
-				$this->_spiritTeams ($opponent['id'], $team_id, $this->data);
-			} else {
+			if ($unplayed) {
 				unset($this->data['Allstar']);
 				unset($this->data['SpiritEntry']);
+			} else if (isset($spirit_obj)) {
+				$this->_spiritTeams ($opponent['id'], $team_id, $this->data);
 			}
 
 			// Ensure that the saved score entry ids (if any) are the same as the posted ids (if any)
@@ -2091,7 +2093,7 @@ class GamesController extends AppController {
 			}
 
 			// Same process, for spirit entries
-			if (!$unplayed) {
+			if (!$unplayed && isset($spirit_obj)) {
 				$saved = $posted = null;
 				if (!empty($game['SpiritEntry'][$opponent['id']]['id'])) {
 					$saved = $game['SpiritEntry'][$opponent['id']]['id'];
@@ -2158,28 +2160,38 @@ class GamesController extends AppController {
 				if ($game['Game']['home_team'] == $team_id) {
 					$this->data['ScoreEntry'][$team_id]['score_for'] = Configure::read('scoring.default_losing_score');
 					$this->data['ScoreEntry'][$team_id]['score_against'] = Configure::read('scoring.default_winning_score');
-					$this->_spiritMerge ($opponent['id'], $spirit_obj->expected(), $this->data);
+					if (isset($spirit_obj)) {
+						$this->_spiritMerge ($opponent['id'], $spirit_obj->expected(), $this->data);
+					}
 				} else {
 					$this->data['ScoreEntry'][$team_id]['score_for'] = Configure::read('scoring.default_winning_score');
 					$this->data['ScoreEntry'][$team_id]['score_against'] = Configure::read('scoring.default_losing_score');
-					$this->_spiritMerge ($opponent['id'], $spirit_obj->defaulted(), $this->data);
+					if (isset($spirit_obj)) {
+						$this->_spiritMerge ($opponent['id'], $spirit_obj->defaulted(), $this->data);
+					}
 				}
 			} else if ($status == 'away_default') {
 				if ($game['Game']['home_team'] == $team_id) {
 					$this->data['ScoreEntry'][$team_id]['score_for'] = Configure::read('scoring.default_winning_score');
 					$this->data['ScoreEntry'][$team_id]['score_against'] = Configure::read('scoring.default_losing_score');
-					$this->_spiritMerge ($opponent['id'], $spirit_obj->defaulted(), $this->data);
+					if (isset($spirit_obj)) {
+						$this->_spiritMerge ($opponent['id'], $spirit_obj->defaulted(), $this->data);
+					}
 				} else {
 					$this->data['ScoreEntry'][$team_id]['score_for'] = Configure::read('scoring.default_losing_score');
 					$this->data['ScoreEntry'][$team_id]['score_against'] = Configure::read('scoring.default_winning_score');
-					$this->_spiritMerge ($opponent['id'], $spirit_obj->expected(), $this->data);
+					if (isset($spirit_obj)) {
+						$this->_spiritMerge ($opponent['id'], $spirit_obj->expected(), $this->data);
+					}
 				}
 			} else if ($unplayed) {
 				$this->data['ScoreEntry'][$team_id]['score_for'] = $this->data['ScoreEntry'][$team_id]['score_against'] = null;
 			}
 
 			// Spirit score entry validation comes from the spirit component
-			$this->Game->SpiritEntry->validate = $spirit_obj->getValidate($game['Division']['League']);
+			if (isset($spirit_obj)) {
+				$this->Game->SpiritEntry->validate = $spirit_obj->getValidate($game['Division']['League']);
+			}
 
 			$resultMessage = null;
 			if ($this->Game->saveAll($this->data, array('validate' => 'first'))) {
