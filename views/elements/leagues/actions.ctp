@@ -41,9 +41,13 @@ if ($is_admin || $is_manager) {
 			array('controller' => 'divisions', 'action' => 'add', 'league' => $league['League']['id'], 'return' => $return),
 			array('alt' => __('Add Division', true), 'title' => __('Add Division', true)));
 	}
-	if (!$collapse && ($this->params['controller'] != 'leagues' || $this->params['action'] != 'delete')) {
+	if (!$collapse) {
+		$url = array('controller' => 'leagues', 'action' => 'delete', 'league' => $league['League']['id']);
+		if ($this->params['controller'] != 'leagues') {
+			$url['return'] = true;
+		}
 		$links[] = $this->ZuluruHtml->iconLink("delete_$size.png",
-			array('controller' => 'leagues', 'action' => 'delete', 'league' => $league['League']['id'], 'return' => $return),
+			$url,
 			array('alt' => __('Delete', true), 'title' => __('Delete League', true)),
 			array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $league['League']['id'])));
 	}

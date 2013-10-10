@@ -114,12 +114,14 @@ if ($is_admin || $is_manager) {
 			$links[] = $this->Html->link(__('Allstars', true), array('controller' => 'divisions', 'action' => 'allstars', 'division' => $division['id']));
 		}
 	}
-	if ($this->params['controller'] != 'divisions' || $this->params['action'] != 'delete') {
-		$links[] = $this->ZuluruHtml->iconLink("delete_$size.png",
-			array('controller' => 'divisions', 'action' => 'delete', 'division' => $division['id'], 'return' => $return),
-			array('alt' => __('Delete', true), 'title' => __('Delete Division', true)),
-			array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $division['id'])));
+	$url = array('controller' => 'divisions', 'action' => 'delete', 'division' => $division['id']);
+	if ($this->params['controller'] != 'divisions') {
+		$url['return'] = true;
 	}
+	$links[] = $this->ZuluruHtml->iconLink("delete_$size.png",
+		$url,
+		array('alt' => __('Delete', true), 'title' => __('Delete Division', true)),
+		array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $division['id'])));
 }
 
 if (!empty($extra)) {
