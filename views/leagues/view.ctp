@@ -95,14 +95,13 @@ if (!$collapse):
 <?php endforeach; ?>
 </table>
 </div>
-<?php else: ?>
+<?php endif; ?>
 <div class="actions">
 <?php echo $this->element('leagues/actions', array_merge(
 	compact('league', 'collapse'),
 	array('format' => 'list')
 )); ?>
 </div>
-<?php endif; ?>
 <?php
 if ($collapse) {
 	echo $this->element('divisions/teams', array_merge(array(
