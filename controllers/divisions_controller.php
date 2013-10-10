@@ -436,7 +436,7 @@ class DivisionsController extends AppController {
 				// We just reset it here, and it will be recalculated as required elsewhere.
 				$this->Division->Team->updateAll(array('seed' => 0), array('Team.division_id' => $id));
 
-				Cache::delete("/division/$division/standings", 'long_term');
+				Cache::delete("division/$division/standings", 'long_term');
 
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('division', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));

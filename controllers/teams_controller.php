@@ -1272,7 +1272,11 @@ class TeamsController extends AppController {
 			$this->Session->setFlash(__('The following records reference this team, so it cannot be deleted.', true) . '<br>' . $dependencies, 'default', array('class' => 'warning'));
 			$this->redirect(array('action' => 'index'));
 		}
+		$division = $this->Team->field('division_id', array('Team.id' => $id));
 		if ($this->Team->delete($id)) {
+			if ($division) {
+				Cache::delete("division/$division/standings", 'long_term');
+			}
 			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Team', true)), 'default', array('class' => 'success'));
 			$this->redirect(array('action' => 'index'));
 		}
