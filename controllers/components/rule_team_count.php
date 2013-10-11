@@ -15,6 +15,9 @@ class RuleTeamCountComponent extends RuleComponent
 	// Count how many teams the user was on that played in leagues
 	// that were open on the configured date
 	function evaluate($affiliate, $params) {
+		if (empty($params['Team'])) {
+			return 0;
+		}
 		$date = strtotime ($this->config);
 		$count = 0;
 		$roles = Configure::read('playing_roster_roles');
