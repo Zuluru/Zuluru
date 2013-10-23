@@ -2092,6 +2092,7 @@ class PeopleController extends AppController {
 					$this->Session->setFlash(__('Couldn\'t save new member activation', true), 'default', array('class' => 'warning'));
 					$this->redirect(array('action' => 'approve', 'person' => $person['Person']['id']));
 				}
+				$this->UserCache->clear('Person', $person['Person']['id']);
 
 				$this->set('person', $saved);
 
@@ -2118,6 +2119,7 @@ class PeopleController extends AppController {
 					$this->Session->setFlash(__('Couldn\'t save new member activation', true), 'default', array('class' => 'warning'));
 					$this->redirect(array('action' => 'approve', 'person' => $person['Person']['id']));
 				}
+				$this->UserCache->clear('Person', $person['Person']['id']);
 
 				$this->set('person', $saved);
 
@@ -2139,6 +2141,7 @@ class PeopleController extends AppController {
 				if (! $this->Person->delete($person['Person']['id']) ) {
 					$this->Session->setFlash(sprintf (__('Failed to delete %s', true), $person['Person']['full_name']), 'default', array('class' => 'warning'));
 				}
+				Cache::delete("person/{$person['Person']['id']}");
 				break;
 
 			case 'delete_duplicate':
@@ -2150,6 +2153,7 @@ class PeopleController extends AppController {
 					$this->Session->setFlash(sprintf (__('Failed to delete %s', true), $person['Person']['full_name']), 'default', array('class' => 'warning'));
 					break;
 				}
+				Cache::delete("person/{$person['Person']['id']}");
 
 				$this->set(compact('person', 'existing'));
 
@@ -2207,6 +2211,8 @@ class PeopleController extends AppController {
 				} else {
 					$transaction->commit();
 				}
+				$this->UserCache->clear('Person', $person['Person']['id']);
+				Cache::delete("person/{$existing['Person']['id']}");
 
 				$this->set(compact('person', 'existing'));
 
@@ -2221,8 +2227,6 @@ class PeopleController extends AppController {
 				}
 				break;
 		}
-
-		$this->UserCache->clear('Person', $person['Person']['id']);
 	}
 
 	// This function takes the parameter the old-fashioned way, to try to be more third-party friendly
