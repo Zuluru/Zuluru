@@ -681,10 +681,6 @@ class RegistrationsController extends AppController {
 							$extra[$key]['event_id'] = $registration['Event']['id'];
 						}
 						$success = $this->Registration->Response->saveAll($extra, array('atomic' => false, 'validate' => false));
-						// If a parent is registering kids, there might be different person IDs for each registration
-						$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
-						$this->UserCache->clear('RegistrationsPaid', $registration['Registration']['person_id']);
-						$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
 					}
 				} else if ($extra === false) {
 					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
@@ -694,6 +690,11 @@ class RegistrationsController extends AppController {
 					$this->Session->setFlash(sprintf (__('There was an error updating the database. Contact the office to ensure that your information is updated, quoting order #<b>%s</b>, or you may not be allowed to be added to rosters, etc.', true), $registration['Registration']['id']), 'default', array('class' => 'error'));
 					break;
 				}
+
+				// If a parent is registering kids, there might be different person IDs for each registration
+				$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
+				$this->UserCache->clear('RegistrationsPaid', $registration['Registration']['person_id']);
+				$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
 			}
 
 			if ($success) {
