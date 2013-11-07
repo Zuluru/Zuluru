@@ -14,11 +14,13 @@ $this->Html->addCrumb (__('Search', true));
 <p>Alternately, you may <?php echo $this->Html->link(__('enter a rule and find people who match', true), array('action' => 'rule_search')); ?>.
 <?php endif; ?>
 
+<div id="SearchResults">
 <?php endif; ?>
 
 <?php echo $this->element('people/search_results'); ?>
 
 <?php if (!$this->params['isAjax']): ?>
 
+</div>
 </div>
 <?php endif; ?>

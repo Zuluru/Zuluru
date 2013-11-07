@@ -22,11 +22,13 @@ if (!empty ($division['Person'])) {
 
 <?php echo $this->element('people/search_form', array('affiliate_id' => $division['League']['affiliate_id'])); ?>
 
+<div id="SearchResults">
 <?php endif; ?>
 
 <?php echo $this->element('people/search_results', array('extra_url' => array('Add as coordinator' => array('controller' => 'divisions', 'action' => 'add_coordinator', 'division' => $division['Division']['id'], 'return' => false)))); ?>
 
 <?php if (!$this->params['isAjax']): ?>
 
+</div>
 </div>
 <?php endif; ?>

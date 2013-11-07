@@ -22,6 +22,7 @@ $this->Html->addCrumb ($event['Event']['name']);
 
 <?php echo $this->element('people/search_form', array('affiliate_id' => $event['Event']['affiliate_id'])); ?>
 
+		<div id="SearchResults">
 <?php endif; ?>
 
 <?php
@@ -30,6 +31,7 @@ echo $this->element('people/search_results', array('extra_url' => array('Add pre
 
 <?php if (!$this->params['isAjax']): ?>
 
+		</div>
 	</fieldset>
 </div>
 <div class="actions">

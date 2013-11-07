@@ -33,13 +33,11 @@ echo $this->Form->end();
 </div>
 
 <div id="SearchResults">
-</div>
-
 <?php endif; ?>
 
 <?php echo $this->element('people/search_results'); ?>
 
 <?php if (!$this->params['isAjax']): ?>
-
+</div>
 </div>
 <?php endif; ?>

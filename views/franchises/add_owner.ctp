@@ -11,6 +11,7 @@ $this->Html->addCrumb ($franchise['Franchise']['name']);
 
 <?php echo $this->element('people/search_form', array('affiliate_id' => $franchise['Franchise']['affiliate_id'])); ?>
 
+<div id="SearchResults">
 <?php endif; ?>
 
 <?php
@@ -19,5 +20,6 @@ echo $this->element('people/search_results', array('extra_url' => array('Make ow
 
 <?php if (!$this->params['isAjax']): ?>
 
+</div>
 </div>
 <?php endif; ?>

@@ -31,6 +31,7 @@ $this->Html->addCrumb ($badge['Badge']['name']);
 
 <?php echo $this->element('people/search_form', array('affiliate_id' => $badge['Badge']['affiliate_id'])); ?>
 
+		<div id="SearchResults">
 <?php endif; ?>
 
 <?php
@@ -45,6 +46,7 @@ echo $this->element('people/search_results', compact('extra_url'));
 
 <?php if (!$this->params['isAjax']): ?>
 
+		</div>
 	</fieldset>
 </div>
 

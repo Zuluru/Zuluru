@@ -11,6 +11,7 @@ $this->Html->addCrumb ($team['Team']['name']);
 
 <?php echo $this->element('people/search_form', array('affiliate_id' => $team['Division']['League']['affiliate_id'])); ?>
 
+<div id="SearchResults">
 <?php endif; ?>
 
 <?php
@@ -19,6 +20,7 @@ echo $this->element('people/search_results', array('extra_url' => array('Add to 
 
 <?php if (!$this->params['isAjax']): ?>
 
+</div>
 <p><?php
 if (!empty ($teams)) {
 	__('Or select a team from your history below to invite people from that roster.');

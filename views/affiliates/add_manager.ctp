@@ -22,11 +22,13 @@ if (!empty ($affiliate['Person'])) {
 
 <?php echo $this->element('people/search_form', array('affiliate_id' => $affiliate['Affiliate']['id'])); ?>
 
+<div id="SearchResults">
 <?php endif; ?>
 
 <?php echo $this->element('people/search_results', array('extra_url' => array('Add as manager' => array('controller' => 'affiliates', 'action' => 'add_manager', 'affiliate' => $affiliate['Affiliate']['id'])))); ?>
 
 <?php if (!$this->params['isAjax']): ?>
 
+</div>
 </div>
 <?php endif; ?>

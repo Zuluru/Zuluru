@@ -29,6 +29,3 @@ echo $this->Js->submit(__('Search', true), array('url'=> $url, 'update' => '#Sea
 echo $this->Form->end();
 ?>
 </div>
-
-<div id="SearchResults">
-</div>
