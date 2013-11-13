@@ -56,7 +56,11 @@ CONFIGURE ZULURU
 
 As described above, the base URL for Zuluru may vary. Whatever it is
 (e.g. http://www.example.com/ or http://www.example.com/zuluru), we
-will refer to that as <ZULURU> below.
+will refer to that as <ZULURU> below. Note that if you do not have
+mod_rewrite (or equivalent) to provide short URLs, your <ZULURU> path
+may be more like http://www.example.com/zuluru/index.php; in this case,
+you still follow this with a slash in the URLs you construct below
+(e.g.  http://www.example.com/zuluru/index.php/install).
 
 The following directories under /path/to/cake/zuluru must be writeable
 by the web server at all times (some of these can be modified in the
