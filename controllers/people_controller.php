@@ -55,6 +55,8 @@ class PeopleController extends AppController {
 					'participation',
 					'retention',
 					'rule_search',
+					'league_search',
+					'inactive_search',
 					'approve_badges',
 			)))
 			{
@@ -1932,8 +1934,65 @@ class PeopleController extends AppController {
 
 	function rule_search() {
 		$params = $url = $this->_extractSearchParams();
+		$this->_handleRuleSearch($params, $url);
+	}
+
+	function league_search() {
+		$params = $url = $this->_extractSearchParams();
+		unset($url['league_id']);
+		unset($url['include_subs']);
+		if (array_key_exists('league_id', $params)) {
+			if (!empty($params['include_subs'])) {
+				$subs = ',include_subs';
+			} else {
+				$subs = '';
+			}
+			$params['rule'] = "COMPARE(LEAGUE_TEAM_COUNT({$params['league_id']}$subs) > '0')";
+		}
+
+		// Get the list of possible leagues to look at
+		$affiliates = $this->_applicableAffiliates();
+		$affiliate_leagues = $this->Person->Affiliate->find('all', array(
+			'conditions' => array(
+				'Affiliate.id' => array_keys($affiliates),
+			),
+			'contain' => array('League' => array('order' => array('League.open' => 'DESC'))),
+			'order' => array('Affiliate.name'),
+		));
+		$leagues = array();
+		foreach ($affiliate_leagues as $affiliate) {
+			if (!empty($affiliate['League'])) {
+				$leagues[$affiliate['Affiliate']['name']] = array();
+				foreach ($affiliate['League'] as $league) {
+					$leagues[$affiliate['Affiliate']['name']][$league['id']] = $league['full_name'];
+				}
+			}
+		}
+		if (count($leagues == 1)) {
+			$leagues = array_shift($leagues);
+		}
+		$this->set(compact('leagues'));
+
+		$this->_handleRuleSearch($params, $url);
+	}
+
+	function inactive_search() {
+		if (empty($this->data)) {
+			$this->data = array(
+				'rule' => "NOT(COMPARE(TEAM_COUNT('today') > '0'))",
+				'sort' => 'last_name',
+				'direction' => 'asc',
+			);
+		}
+		$params = $url = $this->_extractSearchParams();
+
+		$this->_handleRuleSearch($params, $url);
+	}
+
+	function _handleRuleSearch($params, $url) {
 		$affiliates = $this->_applicableAffiliates();
 		$this->set(compact('url', 'affiliates'));
+		unset($url['rule']);
 
 		if (array_key_exists('rule64', $params)) {
 			// Base 64 input must have a length that's a multiple of 4, add = to pad it out
@@ -1941,6 +2000,9 @@ class PeopleController extends AppController {
 			{
 				$params['rule64'] .= '=';
 			}
+
+			// Encoding can include + signs, which get converted to spaces. Put them back...
+			$params['rule64'] = str_replace(' ', '+', $params['rule64']);
 
 			// Base 64 decode to recover the original input
 			$params['rule'] = base64_decode ($params['rule64']);
@@ -1955,11 +2017,10 @@ class PeopleController extends AppController {
 			}
 			if (!array_key_exists('rule64', $params)) {
 				// Base 64 encode the rule for easy URL manipulation, trim any = from the end
-				$url['rule64'] = base64_encode ($url['rule']);
+				$url['rule64'] = base64_encode ($params['rule']);
 				$url['rule64'] = trim ($url['rule64'], '=');
-				unset($url['rule']);
 			}
-			$this->set(compact('url'));
+			$this->set(compact('url', 'params'));
 
 			$people = $rule_obj->query($params['rule']);
 			if ($people === null) {

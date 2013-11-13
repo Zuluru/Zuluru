@@ -652,6 +652,10 @@ class AppController extends Controller {
 		}
 
 		if ($this->is_admin || $this->is_manager) {
+			$this->_addMenuItem ('By rule', array('controller' => 'people', 'action' => 'rule_search'), array('Players', 'Search'));
+			$this->_addMenuItem ('By league', array('controller' => 'people', 'action' => 'league_search'), array('Players', 'Search'));
+			$this->_addMenuItem ('Inactive', array('controller' => 'people', 'action' => 'inactive_search'), array('Players', 'Search'));
+
 			if (!isset ($this->Person)) {
 				$this->Person = ClassRegistry::init ('Person');
 			}
