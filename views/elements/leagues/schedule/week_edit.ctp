@@ -36,7 +36,7 @@ foreach ($division['Game'] as $game):
 	if (empty ($this->data)) {
 		$data = $game;
 	} else {
-		$data = array_shift (Set::extract("/Game[id={$game['id']}]/.", $this->data));
+		$data = reset(Set::extract("/Game[id={$game['id']}]/.", $this->data));
 	}
 ?>
 

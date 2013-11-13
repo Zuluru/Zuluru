@@ -558,7 +558,7 @@ class GamesController extends AppController {
 			$saved['ScoreDetail']['id'] = $this->Game->ScoreDetail->id;
 			$this->set(compact('game', 'saved'));
 		} else if ($this->RequestHandler->isAjax()) {
-			$this->set('error', array_shift($this->Game->ScoreDetail->validationErrors));
+			$this->set('error', reset($this->Game->ScoreDetail->validationErrors));
 			return;
 		} else {
 			$this->render('edit_boxscore');
@@ -1608,7 +1608,7 @@ class GamesController extends AppController {
 		$this->Configuration->loadAffiliate($game['Division']['League']['affiliate_id']);
 		Configure::load("sport/{$game['Division']['League']['sport']}");
 
-		$detail = array_shift($game['ScoreDetail']);
+		$detail = reset($game['ScoreDetail']);
 		$team_score -= $detail['points'];
 		$entry[$team_score_field] = $team_score;
 

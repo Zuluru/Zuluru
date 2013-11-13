@@ -44,7 +44,7 @@ foreach ($past_events as $past_id => $counts):
 	if ($i++ % 2 == 0) {
 		$class = ' class="altrow"';
 	}
-	$event = array_shift(Set::extract("/Event[id=$past_id]/name", $event_list));
+	$event = reset(Set::extract("/Event[id=$past_id]/name", $event_list));
 ?>
 	<tr<?php echo $class;?>>
 		<td><?php echo $this->Html->link ($event, array('controller' => 'events', 'action' => 'view', 'event' => $past_id)); ?></td>

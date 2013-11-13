@@ -70,7 +70,7 @@ class AppController extends Controller {
 			if (Configure::read('feature.affiliates')) {
 				$affiliates = $this->_applicableAffiliateIDs();
 				if (count($affiliates) == 1) {
-					$this->Configuration->loadAffiliate(array_shift($affiliates));
+					$this->Configuration->loadAffiliate(reset($affiliates));
 				}
 			}
 		}
@@ -150,7 +150,7 @@ class AppController extends Controller {
 					($this->name != 'Teams' || !in_array ($this->_arg('team'), $response_required)))
 				{
 					$this->Session->setFlash(__('You have been invited to join a team, and must either accept or decline this invitation before proceeding. Before deciding, you have the ability to look at this team\'s roster, schedule, etc.', true), 'default', array('class' => 'info'));
-					$this->redirect (array('controller' => 'teams', 'action' => 'view', 'team' => array_shift($response_required)));
+					$this->redirect (array('controller' => 'teams', 'action' => 'view', 'team' => reset($response_required)));
 				}
 			}
 		}
@@ -614,7 +614,7 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Closed facilities', array('controller' => 'facilities', 'action' => 'closed'), Configure::read('ui.fields_cap'));
 			$this->_addMenuItem ('Create facility', array('controller' => 'facilities', 'action' => 'add'), Configure::read('ui.fields_cap'));
 			if (count($affiliates) == 1) {
-				$this->_addMenuItem ('Add bulk gameslots', array('controller' => 'game_slots', 'action' => 'add', 'affiliate' => array_shift(array_keys($affiliates))), Configure::read('ui.fields_cap'));
+				$this->_addMenuItem ('Add bulk gameslots', array('controller' => 'game_slots', 'action' => 'add', 'affiliate' => reset(array_keys($affiliates))), Configure::read('ui.fields_cap'));
 			} else {
 				foreach ($affiliates as $affiliate => $name) {
 					$this->_addMenuItem ($name, array('controller' => 'game_slots', 'action' => 'add', 'affiliate' => $affiliate), array(Configure::read('ui.fields_cap'), 'Add bulk gameslots'));
@@ -737,7 +737,7 @@ class AppController extends Controller {
 
 		if (Configure::read('feature.affiliates') && $this->is_manager) {
 			if (count($affiliates) == 1 && !$this->is_admin) {
-				$affiliate = array_shift(array_keys($affiliates));
+				$affiliate = reset(array_keys($affiliates));
 				$this->_addMenuItem ('Organization', array('controller' => 'settings', 'action' => 'organization', 'affiliate' => $affiliate), array('Configuration', 'Settings'));
 				$this->_addMenuItem ('Features', array('controller' => 'settings', 'action' => 'feature', 'affiliate' => $affiliate), array('Configuration', 'Settings'));
 				$this->_addMenuItem ('Email', array('controller' => 'settings', 'action' => 'email', 'affiliate' => $affiliate), array('Configuration', 'Settings'));
@@ -1195,7 +1195,7 @@ class AppController extends Controller {
 				$emails = array_filter (Set::extract ("/$model/email_formatted", $input));
 			}
 			if (count ($emails) >= 1 && !$array) {
-				return array_shift ($emails);
+				return reset($emails);
 			}
 			return $emails;
 		}

@@ -71,9 +71,9 @@ foreach($registrations as $registration) {
 	foreach ($event['Questionnaire']['Question'] as $question) {
 		if (!array_key_exists('anonymous', $question) || !$question['anonymous']) {
 			if (in_array ($question['type'], array('text', 'textbox', 'radio', 'select'))) {
-				$answer = array_shift (Set::extract ("/Response[question_id={$question['id']}]/.", $registration));
+				$answer = reset(Set::extract ("/Response[question_id={$question['id']}]/.", $registration));
 				if (!empty ($answer['answer_id'])) {
-					$answer = array_shift (Set::extract ("/Answer[id={$answer['answer_id']}]/.", $question));
+					$answer = reset(Set::extract ("/Answer[id={$answer['answer_id']}]/.", $question));
 				}
 				$row[] = $answer['answer'];
 			} else if ($question['type'] == 'checkbox') {

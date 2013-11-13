@@ -272,7 +272,7 @@ class LeaguesController extends AppController {
 
 		$sports = Configure::read('options.sport');
 		if (count($sports) == 1) {
-			$sport = array_shift(array_keys($sports));
+			$sport = reset(array_keys($sports));
 			$this->set('stat_types', $this->League->StatType->find('all', array(
 				'conditions' => array(
 					'sport' => $sport,

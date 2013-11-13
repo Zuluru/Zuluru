@@ -337,7 +337,7 @@ class SportComponent extends Object
 			}
 		} else if (!empty($game['ScoreEntry'])) {
 			// Must be an entry from the other team
-			$entry = array_shift($game['ScoreEntry']);
+			$entry = reset($game['ScoreEntry']);
 			if ($entry['status'] != 'in_progress' && $entry['score_for'] < $entry['score_against']) {
 				return 1;
 			} else {
@@ -394,7 +394,7 @@ class SportComponent extends Object
 			}
 		} else if (!empty($game['ScoreEntry'])) {
 			// Must be an entry from the other team
-			$entry = array_shift($game['ScoreEntry']);
+			$entry = reset($game['ScoreEntry']);
 			if ($entry['status'] != 'in_progress' && $entry['score_for'] > $entry['score_against']) {
 				return 1;
 			} else {
@@ -441,7 +441,7 @@ class SportComponent extends Object
 				return 0;
 			}
 		} else if (!empty($game['ScoreEntry'])) {
-			$entry = array_shift($game['ScoreEntry']);
+			$entry = reset($game['ScoreEntry']);
 			if ($entry['status'] != 'in_progress' && $entry['score_for'] == $entry['score_against']) {
 				return 1;
 			} else {

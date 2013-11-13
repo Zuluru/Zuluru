@@ -133,7 +133,7 @@ echo $this->Html->scriptBlock ("
 echo $this->Js->get("#score_team_{$team['id']} td.up a")->event('click', "openDialog('#ScoreDetails{$team['id']}');");
 else:
 	$url_up = Router::url($url_up);
-	$play = array_shift(array_keys($score_options));
+	$play = reset(array_keys($score_options));
 	echo $this->Js->get("#score_team_{$team['id']} td.up a")->event('click', "
 		var score_from = jQuery('#score_team_{$team['id']} td.score').html();
 		jQuery('#score_team_{$team['id']} td.score').html('$spinner');

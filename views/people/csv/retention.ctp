@@ -15,7 +15,7 @@ foreach ($short_event_list as $event) {
 fputcsv($fp, $header);
 
 foreach ($past_events as $past_id => $counts) {
-	$event = array_shift(Set::extract("/Event[id=$past_id]", $event_list));
+	$event = reset(Set::extract("/Event[id=$past_id]", $event_list));
 
 	$data = array(
 			$event['Event']['id'],

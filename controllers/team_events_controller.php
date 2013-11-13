@@ -77,7 +77,7 @@ class TeamEventsController extends AppController {
 		usort ($event['Team']['Person'], array('Team', 'compareRoster'));
 
 		// _read_attendance returns an array, but we only want one event
-		$attendance = array_shift ($this->TeamEvent->_read_attendance($event['Team'], $id));
+		$attendance = reset($this->TeamEvent->_read_attendance($event['Team'], $id));
 		$this->set(compact('event', 'attendance'));
 		$this->set('is_captain', in_array($event['Team']['id'], $this->UserCache->read('OwnedTeamIDs')));
 	}
@@ -512,13 +512,13 @@ class TeamEventsController extends AppController {
 		// Read the attendance records for this event.
 		// We have to do it this way, not as a contain on the main find,
 		// so that any missing records are created for us.
-		$attendance = array_shift ($this->TeamEvent->_read_attendance($team, $event['TeamEvent']['id']));
+		$attendance = reset($this->TeamEvent->_read_attendance($team, $event['TeamEvent']['id']));
 		$sent = 0;
 
 		usort ($team['Person'], array('Team', 'compareRoster'));
 
 		foreach ($attendance['Attendance'] as $record) {
-			$person = array_shift (Set::extract("/Person[id={$record['person_id']}]/.", $team));
+			$person = reset(Set::extract("/Person[id={$record['person_id']}]/.", $team));
 			$regular = in_array($person['TeamsPerson']['role'], Configure::read('playing_roster_roles'));
 			$sub = (!$regular && in_array($person['TeamsPerson']['role'], Configure::read('extended_playing_roster_roles')));
 			$always = (!empty($person['Setting']) && $person['Setting'][0]['value'] != false);
@@ -565,7 +565,7 @@ class TeamEventsController extends AppController {
 		// Read the attendance records for this event.
 		// We have to do it this way, not as a contain on the main find,
 		// so that any missing records are created for us.
-		$attendance = array_shift ($this->TeamEvent->_read_attendance($team, $event['TeamEvent']['id']));
+		$attendance = reset($this->TeamEvent->_read_attendance($team, $event['TeamEvent']['id']));
 
 		// Summarize by attendance status
 		$summary = array_fill_keys(array_keys(Configure::read('attendance')),
@@ -573,7 +573,7 @@ class TeamEventsController extends AppController {
 		);
 		$captains = array();
 		foreach ($attendance['Attendance'] as $record) {
-			$person = array_shift (Set::extract("/Person[id={$record['person_id']}]/.", $team));
+			$person = reset(Set::extract("/Person[id={$record['person_id']}]/.", $team));
 			$summary[$record['status']][$person['gender']][] = $person['full_name'];
 			if (in_array($person['TeamsPerson']['role'], Configure::read('privileged_roster_roles'))) {
 				$captains[] = $person;

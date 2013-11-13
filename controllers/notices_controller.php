@@ -48,7 +48,7 @@ class NoticesController extends AppController {
 			$dates = Set::extract('/NoticesPerson/created', $notices);
 			rsort($dates);
 			// Was the most recent response in the past 7 days?
-			if (array_shift($dates) > date('Y-m-d H:i:s', time() - 7 * 24 * 60 * 60)) {
+			if (reset($dates) > date('Y-m-d H:i:s', time() - 7 * 24 * 60 * 60)) {
 				return array();
 			}
 		}

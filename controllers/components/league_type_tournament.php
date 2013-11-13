@@ -1070,7 +1070,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			// No slots on later date either. Take the last available slot instead.
 			$possible_slots = array_reverse($this->slots);
 		}
-		$slot = array_shift($possible_slots);
+		$slot = reset($possible_slots);
 		$this->removeGameslot($slot['GameSlot']['id']);
 		if (empty($this->pool_times[$round])) {
 			$this->pool_times[$round] = array();

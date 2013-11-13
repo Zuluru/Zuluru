@@ -39,7 +39,7 @@
 				'label' => false,
 				'options' => $roster[$detail['team_id']],
 				'empty' => '---',
-				'default' => array_shift($person),
+				'default' => reset($person),
 		));
 		echo $this->Form->hidden("ScoreDetail.{$detail['id']}.ScoreDetailStat.$i.stat_type_id", array('value' => $stat['id']));
 	}

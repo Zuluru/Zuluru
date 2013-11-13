@@ -7,7 +7,7 @@ $short = Configure::read('organization.short_name');
 $access = array(1);
 
 // TODO: Handle more than one sport in a site
-$sport = array_shift(array_keys(Configure::read('options.sport')));
+$sport = reset(array_keys(Configure::read('options.sport')));
 ?>
 
 <p>To create a new account, fill in all the fields below and click 'Submit' when done. Your account will be placed on hold until approved by an administrator. Once approved, you will be allocated a membership number, and have full access to the system.</p>

@@ -68,7 +68,7 @@ $this->Html->addCrumb (__('View', true));
 		$alt = Configure::read('attendance_alt');
 		$count = array_fill_keys(array_keys($statuses), array('Male' => 0, 'Female' => 0));
 		foreach ($attendance['Attendance'] as $record) {
-			$person = array_shift (Set::extract("/Team/Person[id={$record['person_id']}]/.", $event));
+			$person = reset(Set::extract("/Team/Person[id={$record['person_id']}]/.", $event));
 			$status = $record['status'];
 			++$count[$status][$person['gender']];
 		}
@@ -122,7 +122,7 @@ $this->Html->addCrumb (__('View', true));
 	<?php
 	$i = 1;
 	foreach ($event['Team']['Person'] as $person):
-		$record = array_shift (Set::extract("/Attendance[person_id={$person['id']}]/.", $attendance));
+		$record = reset(Set::extract("/Attendance[person_id={$person['id']}]/.", $attendance));
 		$status = $record['status'];
 		$class = null;
 		if ($i++ % 2 == 0) {

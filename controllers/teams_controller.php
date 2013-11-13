@@ -858,7 +858,7 @@ class TeamsController extends AppController {
 				$this->Session->setFlash(__('That player is not on this team.', true), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'view', 'team' => $id));
 			}
-			$person = array_shift($person);
+			$person = reset($person);
 		} else if (!$this->effective_admin && !$this->effective_coordinator && !$is_captain) {
 			$this->Session->setFlash(__('You do not have permission to set shirt numbers for this team.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $id));
@@ -1757,7 +1757,7 @@ class TeamsController extends AppController {
 		if (array_key_exists ('player', $this->data)) {
 			$success = $failure = array();
 			foreach ($this->data['player'] as $player => $bool) {
-				$person = array_shift (Set::extract("/Person[id=$player]", $old_team));
+				$person = reset(Set::extract("/Person[id=$player]", $old_team));
 				unset ($person['Person']['TeamsPerson']);
 				if ($this->_setRosterRole ($person, $team, 'player', ROSTER_INVITED)) {
 					$success[] = $person['Person']['full_name'];
@@ -1871,7 +1871,7 @@ class TeamsController extends AppController {
 		if (array_key_exists ('player', $this->data)) {
 			$success = $failure = array();
 			foreach ($this->data['player'] as $player => $bool) {
-				$person = array_shift (Set::extract("/Registration/Person[id=$player]", $event));
+				$person = reset(Set::extract("/Registration/Person[id=$player]", $event));
 				unset ($person['Person']['TeamsPerson']);
 				// Only admins have this option, typically used for building hat teams,
 				// so their adds are always approved
@@ -2315,7 +2315,7 @@ class TeamsController extends AppController {
 		// it look as if we just read it
 		$person = Set::extract ("/Person[id=$person_id]/.", $team);
 		if (!empty ($person)) {
-			$person = array('Person' => array_shift ($person));
+			$person = array('Person' => reset($person));
 		}
 
 		// To avoid abuses, whether intentional or accidental, we limit the permissions

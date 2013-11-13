@@ -264,11 +264,11 @@ class Game extends AppModel {
 		// TODO: Add some kind of "bracket sort" field and use that instead
 		$pools = array_unique(Set::extract('/Game/pool_id', array('Game' => $games)));
 		sort($pools);
-		$pool = array_shift($pools);
+		$pool = reset($pools);
 		if ($pool === null) {
 			$pools = array_unique(Set::extract('/Game/tournament_pool', array('Game' => $games)));
 			sort($pools);
-			$pool = array_shift($pools);
+			$pool = reset($pools);
 			$pool_field = 'tournament_pool';
 		} else {
 			$pool_field = 'pool_id';
@@ -276,8 +276,8 @@ class Game extends AppModel {
 
 		$names = array_unique(Set::extract("/Game[$pool_field=$pool]/name", array('Game' => $games)));
 		usort($names, array('Game', 'compare_game_name'));
-		$name = array_shift($names);
-		$final = array_shift(Set::extract("/Game[name=$name]/.", array('Game' => $games)));
+		$name = reset($names);
+		$final = reset(Set::extract("/Game[name=$name]/.", array('Game' => $games)));
 		$bracket[$final['round']] = array($final);
 		unset ($games[$final['id']]);
 		$round = $final['round'];
@@ -706,7 +706,7 @@ class Game extends AppModel {
 				} else {
 					// Otherwise, this game is a new one. If there are other attendance
 					// records, we'll copy them.
-					$copy_from_game_id = array_shift ($attendance_game_ids);
+					$copy_from_game_id = reset($attendance_game_ids);
 				}
 			}
 		} else if ($date !== null) {

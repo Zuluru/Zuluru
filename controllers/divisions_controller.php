@@ -1654,7 +1654,7 @@ class DivisionsController extends AppController {
 								// one before this one, or it might be two stages ago, if
 								// the previous stage was crossover games.
 								$stage = $game["{$type}PoolTeam"]['Pool']['stage'] - 1;
-								$pool_id = array_shift(array_keys($division['Pools'][$stage]));
+								$pool_id = reset(array_keys($division['Pools'][$stage]));
 								if ($division['Pools'][$stage][$pool_id]['Game'][0]['HomePoolTeam']['Pool']['type'] == 'crossover') {
 									-- $stage;
 								}

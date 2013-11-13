@@ -35,7 +35,7 @@ if (!empty ($edit_date)) {
 ?>
 <?php if (!empty($division['Game'])):?>
 <?php
-	$future = array_shift (Set::extract('/Game/GameSlot[game_date>=' . date('Y-m-d') . ']/game_date', $division));
+	$future = reset(Set::extract('/Game/GameSlot[game_date>=' . date('Y-m-d') . ']/game_date', $division));
 	if ($future) {
 		echo $this->Html->para(null, $this->Html->link(__('Jump to upcoming games', true), "#$future"));
 	}

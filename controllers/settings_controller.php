@@ -100,7 +100,7 @@ class SettingsController extends AppController {
 				'conditions' => array('person_id' => null),
 		));
 		$provider = $this->params['url']['data']['Setting'];
-		$provider = array_shift($provider);
+		$provider = reset($provider);
 		$provider = $provider['value'];
 		$this->set(compact('provider'));
 	}

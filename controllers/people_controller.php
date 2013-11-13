@@ -773,7 +773,7 @@ class PeopleController extends AppController {
 		$this->_loadGroupOptions();
 		$this->_loadAffiliateOptions();
 
-		$sport = array_shift(array_keys(Configure::read('options.sport')));
+		$sport = reset(array_keys(Configure::read('options.sport')));
 		Configure::load("sport/$sport");
 
 		if (!empty($this->data)) {
@@ -1969,7 +1969,7 @@ class PeopleController extends AppController {
 			}
 		}
 		if (count($leagues == 1)) {
-			$leagues = array_shift($leagues);
+			$leagues = reset($leagues);
 		}
 		$this->set(compact('leagues'));
 
