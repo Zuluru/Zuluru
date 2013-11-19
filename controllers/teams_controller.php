@@ -1143,6 +1143,9 @@ class TeamsController extends AppController {
 				foreach ($team['Person'] as $person) {
 					$this->UserCache->_deleteTeamData($person['id']);
 				}
+				Cache::delete("division/{$team['Team']['division_id']}/standings", 'long_term');
+				Cache::delete("division/{$team['Team']['division_id']}/schedule", 'long_term');
+
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('team', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
