@@ -9,15 +9,15 @@ function suggestSpirit(index) {
 }
 
 function disableSpirit() {
-	jQuery('fieldset.spirit').find('input').attr('disabled', 'disabled');
-	jQuery('fieldset.spirit').find('select').attr('disabled', 'disabled');
-	jQuery('fieldset.spirit').find('textarea').attr('disabled', 'disabled');
+	jQuery('fieldset.spirit').find('input').prop('disabled', true);
+	jQuery('fieldset.spirit').find('select').prop('disabled', true);
+	jQuery('fieldset.spirit').find('textarea').prop('disabled', true);
 	jQuery('fieldset.spirit').css('display', 'none');
 }
 
 function enableSpirit() {
-	jQuery('fieldset.spirit').find('input').removeAttr('disabled');
-	jQuery('fieldset.spirit').find('select').removeAttr('disabled');
-	jQuery('fieldset.spirit').find('textarea').removeAttr('disabled');
+	jQuery('fieldset.spirit').find('input').prop('disabled', false);
+	jQuery('fieldset.spirit').find('select').prop('disabled', false);
+	jQuery('fieldset.spirit').find('textarea').prop('disabled', false);
 	jQuery('fieldset.spirit').css('display', '');
 }

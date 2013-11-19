@@ -5,7 +5,7 @@ $yes = __('Yes', true);
 if (isset($error)) {
 	echo $this->Html->scriptBlock ("alert('$error');");
 	if (isset($reset)) {
-		echo $this->Html->scriptBlock ("jQuery('#slot_{$id} select option[value=\"\"]').attr('selected', 'selected');");
+		echo $this->Html->scriptBlock ("jQuery('#slot_{$id} select option[value=\"\"]').prop('selected', true);");
 	}
 } else if ($person_id === '0') {
 	echo $this->Html->scriptBlock ("

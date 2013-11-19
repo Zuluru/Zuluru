@@ -338,7 +338,7 @@ function enableScores() {
 }
 
 function disableCommon() {
-	jQuery('input:text').attr('disabled', 'disabled');
+	jQuery('input:text').prop('disabled', true);
 	jQuery('.AllstarDetails').css('display', 'none');
 	if (typeof window.disableSpirit == 'function') {
 		disableSpirit();
@@ -346,7 +346,7 @@ function disableCommon() {
 }
 
 function enableCommon() {
-	jQuery('input:text').removeAttr('disabled');
+	jQuery('input:text').prop('disabled', false);
 	jQuery('.AllstarDetails').css('display', '');
 	if (typeof window.enableSpirit == 'function') {
 		enableSpirit();
@@ -361,7 +361,7 @@ function enableCommon() {
 // but maybe something in the future. Cost to do this is
 // extremely minimal.
 $this->Js->buffer('
-jQuery("#Status").change(function(){statusChanged();});
+jQuery("#Status").on("change", function(){statusChanged();});
 statusChanged();
 ');
 

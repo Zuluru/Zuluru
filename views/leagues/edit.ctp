@@ -346,7 +346,7 @@ function selectAll(id) {
 	}
 
 	jQuery('#' + id + ' :checkbox').each(function () {
-		jQuery(this).attr('checked', check);
+		jQuery(this).prop('checked', check);
 	});
 }
 ");

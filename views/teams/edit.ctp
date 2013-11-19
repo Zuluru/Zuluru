@@ -121,7 +121,7 @@ if (isset ($add)) {
 if (Configure::read('feature.attendance')) {
 	echo $this->Html->scriptBlock("
 function attendanceCheckboxChanged() {
-	if (jQuery('#TeamTrackAttendance').attr('checked')) {
+	if (jQuery('#TeamTrackAttendance').prop('checked')) {
 		jQuery('#AttendanceDetails').css('display', '');
 	} else {
 		jQuery('#AttendanceDetails').css('display', 'none');

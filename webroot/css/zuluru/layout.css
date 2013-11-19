@@ -467,39 +467,28 @@ div.related
 	background-color: #cccccc;
 }
 
-/* Tooltip styling. By default the element to be styled is .tooltip  */
-#zuluru .tooltip
+/* Tooltip styling. By default the element to be styled is .ui-tooltip  */
+.ui-tooltip
 {
-	display: none;
-	padding: 18px 25px 32px;
-	z-index: 900;
+	text-align: left;
 }
-#zuluru .tooltip.bottom
-{
-	padding: 42px 25px 8px;
-}
-#zuluru #tooltip_content
-{
-	height: 156px;
-	width: 320px;
-	overflow: auto;
-}
-#zuluru #tooltip h2
+
+.ui-tooltip h2
 {
 	margin: 0;
 }
-#zuluru .tooltip dt
+.ui-tooltip dt
 {
 	line-height: 1.5em;
 }
 
-#zuluru .tooltip dd
+.ui-tooltip dd
 {
 	line-height: 1.5em;
 	margin: -1.5em 0 0 9em;
 }
 
-#zuluru .tooltip img.thumbnail
+.ui-tooltip img.thumbnail
 {
 	float: right;
 	border: 0;
@@ -738,4 +727,10 @@ div.help_dialog p
 {
 	border: 1px solid #ccc !important;
 	background: transparent !important;
+}
+
+/* Add in some overrides of styles from jQueryUI */
+.ui-front
+{
+	z-index: 1000;
 }

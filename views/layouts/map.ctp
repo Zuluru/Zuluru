@@ -36,7 +36,7 @@
 
 		if (isset ($this->Js)) {
 			echo $this->ZuluruHtml->script(array(
-					'http://cdn.jquerytools.org/1.2.7/full/jquery.tools.min.js',
+					'http://code.jquery.com/jquery-1.10.2.js',
 			));
 			echo $this->Html->scriptBlock('jQuery.noConflict();');
 		}

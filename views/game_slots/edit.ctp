@@ -49,7 +49,7 @@ $url = $this->Html->url (array('controller' => 'divisions', 'action' => 'select'
 // Add JavaScript functions for "select all" buttons, hiding blocks of fields, and populating the division list
 echo $this->Html->scriptBlock("
 jQuery(document).ready(function($) {
-	$('select[id*=GameSlotGameDate]').change(function(){update_divisions();});
+	$('select[id*=GameSlotGameDate]').on('change', function(){update_divisions();});
 });
 
 function update_divisions(){

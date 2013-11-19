@@ -285,10 +285,11 @@ function enableScores() {
 }
 
 function disableCommon() {
-	jQuery('input:text').attr('disabled', 'disabled');
-	jQuery('#GameIncident').attr('disabled', 'disabled');
+	jQuery('input:text').prop('disabled', true);
+	jQuery('input[type=\"number\"]').prop('disabled', true);
+	jQuery('#GameIncident').prop('disabled', true);
 	jQuery('#IncidentWrapper').css('display', 'none');
-	jQuery('#GameAllstar').attr('disabled', 'disabled');
+	jQuery('#GameAllstar').prop('disabled', true);
 	jQuery('#AllstarWrapper').css('display', 'none');
 	if (typeof window.disableSpirit == 'function') {
 		disableSpirit();
@@ -296,10 +297,11 @@ function disableCommon() {
 }
 
 function enableCommon() {
-	jQuery('input:text').removeAttr('disabled');
-	jQuery('#GameIncident').removeAttr('disabled');
+	jQuery('input:text').prop('disabled', false);
+	jQuery('input[type=\"number\"]').prop('disabled', false);
+	jQuery('#GameIncident').prop('disabled', false);
 	jQuery('#IncidentWrapper').css('display', '');
-	jQuery('#GameAllstar').removeAttr('disabled');
+	jQuery('#GameAllstar').prop('disabled', false);
 	jQuery('#AllstarWrapper').css('display', '');
 	if (typeof window.enableSpirit == 'function') {
 		enableSpirit();
@@ -307,7 +309,7 @@ function enableCommon() {
 }
 
 function incidentCheckboxChanged() {
-	if (jQuery('#GameIncident').attr('checked')) {
+	if (jQuery('#GameIncident').prop('checked')) {
 		jQuery('#IncidentDetails').css('display', '');
 	} else {
 		jQuery('#IncidentDetails').css('display', 'none');
@@ -315,7 +317,7 @@ function incidentCheckboxChanged() {
 }
 
 function allstarCheckboxChanged() {
-	if (jQuery('#GameAllstar').attr('checked')) {
+	if (jQuery('#GameAllstar').prop('checked')) {
 		jQuery('.AllstarDetails').css('display', '');
 	} else {
 		jQuery('.AllstarDetails').css('display', 'none');
@@ -330,9 +332,9 @@ function allstarCheckboxChanged() {
 // but maybe something in the future. Cost to do this is
 // extremely minimal.
 $this->Js->buffer('
-jQuery("#Status").change(function(){statusChanged();});
-jQuery("#GameIncident").change(function(){incidentCheckboxChanged();});
-jQuery("#GameAllstar").change(function(){allstarCheckboxChanged();});
+jQuery("#Status").on("change", function(){statusChanged();});
+jQuery("#GameIncident").on("change", function(){incidentCheckboxChanged();});
+jQuery("#GameAllstar").on("change", function(){allstarCheckboxChanged();});
 statusChanged();
 incidentCheckboxChanged();
 ');

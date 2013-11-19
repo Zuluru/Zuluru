@@ -1,9 +1,6 @@
 function document_handle_comment(url) {
 	jQuery('#document_comment_div').dialog({
 		buttons: {
-			'Cancel': function() {
-				jQuery('#document_comment_div').dialog('close');
-			},
 			'Save': function() {
 				jQuery.ajax({
 					dataType: 'html',
@@ -16,6 +13,9 @@ function document_handle_comment(url) {
 					},
 					url: url
 				});
+				jQuery('#document_comment_div').dialog('close');
+			},
+			'Cancel': function() {
 				jQuery('#document_comment_div').dialog('close');
 			}
 		},

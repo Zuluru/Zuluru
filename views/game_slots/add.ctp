@@ -128,7 +128,7 @@ $url = $this->Html->url (array('controller' => 'divisions', 'action' => 'select'
 echo $this->Html->scriptBlock("
 jQuery(document).ready(function($) {
 	update_divisions();
-	jQuery('select[id*=GameSlotGameDate]').change(function(){update_divisions();});
+	jQuery('select[id*=GameSlotGameDate]').on('change', function(){update_divisions();});
 	jQuery('.hidden').hide();
 
 	// When the label for a parent field is clicked, toggle display of child fields.
@@ -139,9 +139,9 @@ jQuery(document).ready(function($) {
 	});
 
 	// When the checkbox for a parent field is toggled, also toggle all child fields.
-	jQuery('div.field > input').change(function() {
+	jQuery('div.field > input').on('change', function() {
 		var checked = jQuery(this).is(':checked');
-		jQuery(this).closest('div').children('div.hidden').find('input').attr('checked', checked);
+		jQuery(this).closest('div').children('div.hidden').find('input').prop('checked', checked);
 	});
 });
 
@@ -182,7 +182,7 @@ function selectAll(index) {
 	}
 
 	jQuery('#region' + index + ' :checkbox').each(function () {
-		jQuery(this).attr('checked', check);
+		jQuery(this).prop('checked', check);
 	});
 }
 ");

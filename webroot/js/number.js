@@ -7,9 +7,6 @@ function change_number(url, container_div, number) {
 
 	jQuery('#number_entry_div').dialog({
 		buttons: {
-			'Cancel': function() {
-				jQuery('#number_entry_div').dialog('close');
-			},
 			'Save': function() {
 				jQuery.ajax({
 					dataType: 'html',
@@ -24,6 +21,9 @@ function change_number(url, container_div, number) {
 					url: url
 				});
 				container_div.html('...');
+				jQuery('#number_entry_div').dialog('close');
+			},
+			'Cancel': function() {
 				jQuery('#number_entry_div').dialog('close');
 			}
 		},

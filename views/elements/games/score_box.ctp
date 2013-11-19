@@ -43,33 +43,6 @@ echo $this->ZuluruForm->input('created', array(
 		'label' => __('Time', true),
 ));
 
-echo $this->Html->scriptBlock("
-function openDialog(id) {
-	var d = new Date();
-	var h = d.getHours();
-	var m = d.getMinutes();
-	var mer = 'am';
-	if (h >= 12) {
-		mer = 'pm';
-	}
-	if (h == 0) {
-		h = 12;
-	} else if (h > 12) {
-		h = h - 12;
-	}
-	if (h < 10) {
-		h = '0' + h;
-	}
-	if (m < 10) {
-		m = '0' + m;
-	}
-	jQuery(id + ' #createdHour').val(h);
-	jQuery(id + ' #createdMin').val(m);
-	jQuery(id + ' #createdMeridian').val(mer);
-	jQuery(id).dialog('open');
-}
-");
-
 if ($has_stats) {
 	// Build the roster options
 	$roster = array();
@@ -108,7 +81,6 @@ echo $this->Html->scriptBlock ("
 		jQuery('#ScoreDetails{$team['id']}').dialog({
 			autoOpen: false,
 			buttons: {
-				'Cancel': function() { jQuery(this).dialog('close'); },
 				'Submit': function() {
 					jQuery(this).dialog('close');
 					jQuery('#ScoreForm{$team['id']} #score_from').val(jQuery('#score_team_{$team['id']} td.score').html());
@@ -123,7 +95,8 @@ echo $this->Html->scriptBlock ("
 					jQuery('#ScoreForm{$team['id']}').each(function(){
 						this.reset();
 					});
-				}
+				},
+				'Cancel': function() { jQuery(this).dialog('close'); }
 			},
 			modal: true,
 			resizable: false,
@@ -221,7 +194,6 @@ if (count($other_options) > 1):
 		jQuery('#OtherDetails{$team['id']}').dialog({
 			autoOpen: false,
 			buttons: {
-				'Cancel': function() { jQuery(this).dialog('close'); },
 				'Submit': function() {
 					jQuery(this).dialog('close');
 					jQuery('#OtherForm{$team['id']} #score_from').val(jQuery('#score_team_{$team['id']} td.score').html());
@@ -236,7 +208,8 @@ if (count($other_options) > 1):
 					jQuery('#OtherForm{$team['id']}').each(function(){
 						this.reset();
 					});
-				}
+				},
+				'Cancel': function() { jQuery(this).dialog('close'); }
 			},
 			modal: true,
 			resizable: false,
@@ -245,4 +218,31 @@ if (count($other_options) > 1):
 	");
 	echo $this->Js->get("#score_team_{$team['id']} td.other a")->event('click', "openDialog('#OtherDetails{$team['id']}');");
 endif;
+
+echo $this->Html->scriptBlock("
+function openDialog(id) {
+	var d = new Date();
+	var h = d.getHours();
+	var m = d.getMinutes();
+	var mer = 'am';
+	if (h >= 12) {
+		mer = 'pm';
+	}
+	if (h == 0) {
+		h = 12;
+	} else if (h > 12) {
+		h = h - 12;
+	}
+	if (h < 10) {
+		h = '0' + h;
+	}
+	if (m < 10) {
+		m = '0' + m;
+	}
+	jQuery(id + ' #createdHour').val(h);
+	jQuery(id + ' #createdMin').val(m);
+	jQuery(id + ' #createdMeridian').val(mer);
+	jQuery(id).dialog('open');
+}
+");
 ?>

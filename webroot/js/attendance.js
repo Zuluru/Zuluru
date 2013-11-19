@@ -100,9 +100,6 @@ function attendance_handle_sub(url, status, container_div, dedicated) {
 
 	jQuery('#attendance_comment_div').dialog({
 		buttons: {
-			'Cancel': function() {
-				jQuery('#attendance_comment_div').dialog('close');
-			},
 			'Save': function() {
 				jQuery.ajax({
 					dataType: 'html',
@@ -119,6 +116,9 @@ function attendance_handle_sub(url, status, container_div, dedicated) {
 					url: url
 				});
 				container_div.html('...');
+				jQuery('#attendance_comment_div').dialog('close');
+			},
+			'Cancel': function() {
 				jQuery('#attendance_comment_div').dialog('close');
 			}
 		},
@@ -149,9 +149,6 @@ function attendance_handle_comment(url, container_div, dedicated, comment) {
 
 	jQuery('#attendance_comment_div').dialog({
 		buttons: {
-			'Cancel': function() {
-				jQuery('#attendance_comment_div').dialog('close');
-			},
 			'Save': function() {
 				jQuery.ajax({
 					dataType: 'html',
@@ -167,6 +164,9 @@ function attendance_handle_comment(url, container_div, dedicated, comment) {
 					url: url
 				});
 				container_div.html('...');
+				jQuery('#attendance_comment_div').dialog('close');
+			},
+			'Cancel': function() {
 				jQuery('#attendance_comment_div').dialog('close');
 			}
 		},

@@ -12,6 +12,11 @@ class ZuluruHtmlHelper extends HtmlHelper {
  */
 	var $__bufferedHtml = array();
 
+/**
+ * List of help IDs that have already been included on the page.
+ */
+	var $__helpShown = array();
+
 	/**
 	 * Extend the default tag function by allowing for arrays of text
 	 */
@@ -144,8 +149,13 @@ class ZuluruHtmlHelper extends HtmlHelper {
 		// Add "/help" to the beginning of whatever URL is provided
 		$url = array_merge (array('controller' => 'help'), $url);
 
-		// Add the help image, with a link to a pop-up with the help
+		// Prevent any given help from being added more than once
 		$id = implode ('_', array_values ($url));
+		if (in_array($id, $this->__helpShown)) {
+			return;
+		}
+
+		// Add the help image, with a link to a pop-up with the help
 		$help .= $this->iconLink('help_16.png', $url, array(
 			'id' => $id,
 			'alt' => __('[Help]', true),
@@ -165,23 +175,30 @@ class ZuluruHtmlHelper extends HtmlHelper {
 		$help .= $this->tag ('div', $view->element ($element) . $add, array(
 				'id' => "{$id}_div",
 				'class' => 'help_dialog',
-				'title' => implode (' &raquo; ', $title),
+				'title' => implode (' :: ', $title),
 		));
 
 		$link = Router::url ($url);
 		$view->Js->get("#$id")->event('click', "show_help('$id', '$link');");
 
-		if (!isset ($this->dialogHandlerOutput)) {
-			$help .= $view->Html->scriptBlock ("
+		if (empty($this->__helpShown)) {
+			// The first little bit here is from http://jsbin.com/icuguz/12/edit,
+			// referenced by http://bugs.jqueryui.com/ticket/4731, to keep the
+			// focus from jumping to the first tabbable element in the dialog
+			$view->Html->scriptBlock ("
+jQuery.ui.dialog.prototype._focusTabbable = function() {
+	this.uiDialogTitlebarClose.focus();
+};
+
 function show_help(id, link) {
 	jQuery('#' + id + '_div').dialog({
 		buttons: {
-			'Close': function() {
-				jQuery('#' + id + '_div').dialog('close');
-			},
 			'Open this help page in a new window': function() {
 				jQuery('#' + id + '_div').dialog('close');
 				window.open(link, '_blank');
+			},
+			'Close': function() {
+				jQuery('#' + id + '_div').dialog('close');
 			}
 		},
 		modal: true,
@@ -193,6 +210,8 @@ function show_help(id, link) {
 ", array('inline' => false));
 			$this->dialogHandlerOutput = true;
 		}
+
+		$this->__helpShown[] = $id;
 
 		return $help;
 	}

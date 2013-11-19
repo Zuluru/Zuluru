@@ -154,7 +154,7 @@ $this->Js->get('.show_applicable')->event('click', 'showApplicable();');
 $this->Js->get('.show_unapplicable')->event('click', 'showUnapplicable();');
 
 $this->Js->buffer("
-jQuery('input').change(function(){inputChanged(jQuery(this));});
+jQuery('input').on('change', function(){inputChanged(jQuery(this));});
 jQuery('tr#sub_row').find('input[class^=stat_]').each(function() { inputChanged(jQuery(this)); });
 showApplicable();
 ");

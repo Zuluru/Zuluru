@@ -182,8 +182,8 @@ function approve_slot(ths) {
 
 if ($is_admin || $is_manager) {
 	echo $this->Html->scriptBlock ("
-jQuery('.related select').change(function() { assign_slot(this, jQuery(this).attr('value')); })
-jQuery('.approve_link').bind('click', function() { approve_slot(this); return false; });
+jQuery('.related select').on('change', function() { assign_slot(this, jQuery(this).prop('value')); })
+jQuery('.approve_link').on('click', function() { approve_slot(this); return false; });
 	");
 } else {
 	echo $this->Html->scriptBlock ("jQuery('.assign_link').bind('click', function() { assign_slot(this, $my_id); return false; });");

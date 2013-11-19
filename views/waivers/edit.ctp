@@ -99,13 +99,13 @@ if (isset ($add)) {
 <?php
 echo $this->Html->scriptBlock('
 function expiry_type_changed() {
-	jQuery("#start_and_end_options").find("select").attr("disabled", true);
-	jQuery("#start_and_end_options").find("input").attr("disabled", true);
+	jQuery("#start_and_end_options").find("select").prop("disabled", true);
+	jQuery("#start_and_end_options").find("input").prop("disabled", true);
 	jQuery("#start_and_end_options").children("div").css("display", "none");
 
 	var div = jQuery("#WaiverExpiryType").val() + "_options";
-	jQuery("#" + div).find("select").attr("disabled", false);
-	jQuery("#" + div).find("input").attr("disabled", false);
+	jQuery("#" + div).find("select").prop("disabled", false);
+	jQuery("#" + div).find("input").prop("disabled", false);
 	jQuery("#" + div).css("display", "");
 }
 ');

@@ -47,13 +47,13 @@ echo $this->Html->scriptBlock ("
 jQuery('#rating_dialog').dialog({
 	autoOpen: false,
 	buttons: {
-		'Cancel': function() {
-			jQuery('#rating_dialog').dialog('close');
-		},
 		'Calculate': function() {
 			if (calculate_rating()) {
 				jQuery('#rating_dialog').dialog('close');
 			}
+		},
+		'Cancel': function() {
+			jQuery('#rating_dialog').dialog('close');
 		}
 	},
 	modal: true,

@@ -258,38 +258,17 @@ dl .altrow
 	color: #cc0000;
 }
 
-/* Tooltip styling. By default the element to be styled is .tooltip  */
-#zuluru .tooltip
+/* Tooltip styling. By default the element to be styled is .ui-tooltip  */
+.ui-tooltip
 {
-	background: transparent url(images/tooltip/white_arrow_big_top.png);
 	height: 166px;
 	width: 320px;
 	float: none;
 	border: 0;
 	max-width: inherit;
 }
-#zuluru .tooltip.right
-{
-	background: transparent url(images/tooltip/white_arrow_big_top_right.png);
-}
-#zuluru .tooltip.left
-{
-	background: transparent url(images/tooltip/white_arrow_big_top_left.png);
-}
-#zuluru .tooltip.bottom
-{
-	background: transparent url(images/tooltip/white_arrow_big_bottom.png);
-}
-#zuluru .tooltip.bottom.right
-{
-	background: transparent url(images/tooltip/white_arrow_big_bottom_right.png);
-}
-#zuluru .tooltip.bottom.left
-{
-	background: transparent url(images/tooltip/white_arrow_big_bottom_left.png);
-}
 
-#zuluru #tooltip_content
+.ui-tooltip-content
 {
 	font-size: 11px;
 	color: #000;
@@ -328,4 +307,11 @@ dl .altrow
 #zuluru .stat_season
 {
 	background-color: #d9ead3 !important;
+}
+
+/* Add in some overrides of styles from jQueryUI */
+.ui-widget-content a, .ui-tooltip-content a
+{
+	color: #4C5EA8;
+	text-decoration: none;
 }
