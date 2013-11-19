@@ -28,7 +28,6 @@ if ($game['Division']['League']['numeric_sotg']) {
 	), $opts);
 
 	$spirit .= $this->ZuluruForm->input("SpiritEntry.$team_id.entered_sotg", $opts);
-	echo $this->ZuluruHtml->script ('spirit', array('inline' => false));
 
 	// Don't show this when submitting scores, just when editing. We don't need
 	// to check admin/coordinator permissions, as that's already been done.
@@ -64,5 +63,7 @@ if ($spirit) {
 		$this->Html->tag ('legend', __('Spirit assigned to', true) . ' ' . $opponent_name) . $spirit,
 		array('class' => 'spirit'));
 }
+
+echo $this->ZuluruHtml->script ('spirit', array('inline' => false));
 
 ?>
