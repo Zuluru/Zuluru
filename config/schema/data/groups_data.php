@@ -16,6 +16,9 @@ class GroupsData {
 		array(
 			'name' => 'Non-player account',
 		),
+		array(
+			'name' => 'Manager',
+		),
 	);
 
 }
