@@ -2350,7 +2350,7 @@ class GamesController extends AppController {
 			$this->redirect('/');
 		}
 
-		if (!League::hasSpirit($game['Division']['League'])) {
+		if (!League::hasStats($game['Division']['League'])) {
 			$this->Session->setFlash(__('That league does not have stat tracking enabled!', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
