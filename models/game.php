@@ -145,13 +145,16 @@ class Game extends AppModel {
 	);
 
 	static function compareDateAndField ($a, $b) {
-		// Handle both game and team event records
+		// Handle game, team event and task records
 		if (!empty($a['GameSlot']['game_date'])) {
 			$a_date = $a['GameSlot']['game_date'];
 			$a_time = $a['GameSlot']['game_start'];
 		} else if (!empty($a['TeamEvent']['date'])) {
 			$a_date = $a['TeamEvent']['date'];
 			$a_time = $a['TeamEvent']['start'];
+		} else if (!empty($a['TaskSlot']['task_date'])) {
+			$a_date = $a['TaskSlot']['task_date'];
+			$a_time = $a['TaskSlot']['task_start'];
 		} else {
 			$a_date = $a_time = 0;
 		}
@@ -162,6 +165,9 @@ class Game extends AppModel {
 		} else if (!empty($b['TeamEvent']['date'])) {
 			$b_date = $b['TeamEvent']['date'];
 			$b_time = $b['TeamEvent']['start'];
+		} else if (!empty($b['TaskSlot']['task_date'])) {
+			$b_date = $b['TaskSlot']['task_date'];
+			$b_time = $b['TaskSlot']['task_start'];
 		} else {
 			$b_date = $b_time = 0;
 		}
@@ -178,6 +184,7 @@ class Game extends AppModel {
 			return 1;
 		}
 
+		// Handle named playoff games (and team events have names too)
 		if (array_key_exists ('name', $a) && !empty ($a['name'])) {
 			if (strpos($a['name'], '-') !== false) {
 				list($x, $a_name) = explode('-', $a['name']);
@@ -197,10 +204,41 @@ class Game extends AppModel {
 			}
 		}
 
-		if ($a['GameSlot']['field_id'] < $b['GameSlot']['field_id']) {
-			return -1;
+		// Handle games based on field id
+		if (!empty($a['GameSlot']['field_id']) && !empty($b['GameSlot']['field_id'])) {
+			if ($a['GameSlot']['field_id'] < $b['GameSlot']['field_id']) {
+				return -1;
+			} else {
+				return 1;
+			}
 		}
-		return 1;
+
+		// Handle tasks based on task slot end time and then id
+		if (!empty($a['TaskSlot']['task_end']) && !empty($b['TaskSlot']['task_end'])) {
+			if ($a['TaskSlot']['task_end'] < $b['TaskSlot']['task_end']) {
+				return -1;
+			} else if ($a['TaskSlot']['task_end'] > $b['TaskSlot']['task_end']) {
+				return 1;
+			} else if ($a['TaskSlot']['id'] < $b['TaskSlot']['id']) {
+				return -1;
+			} else {
+				return 1;
+			}
+		}
+
+		// Handle other things just based on their type
+		if (!empty($a['GameSlot'])) {
+			return -1;
+		} else if (!empty($b['GameSlot'])) {
+			return 1;
+		} else if (!empty($a['TeamEvent'])) {
+			return -1;
+		} else if (!empty($b['TeamEvent'])) {
+			return 1;
+		}
+
+		// Shouldn't ever reach here, but just in case...
+		return -1;
 	}
 
 	static function _readDependencies (&$record) {

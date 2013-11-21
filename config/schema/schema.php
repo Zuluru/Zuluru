@@ -740,7 +740,7 @@ class ZuluruSchema extends CakeSchema {
 		'location_street' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
 		'location_city' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
 		'location_province' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
-		'created' => array('type' => 'date', 'null' => true, 'default' => NULL),
+		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'team' => array('column' => 'team_id', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);

@@ -2308,6 +2308,7 @@ class PeopleController extends AppController {
 		}
 
 		$team_ids = $this->UserCache->read('TeamIDs', $id);
+
 		if (!empty ($team_ids)) {
 			$games = $this->Division->Game->find ('all', array(
 				'conditions' => array(
@@ -2329,7 +2330,15 @@ class PeopleController extends AppController {
 					'HomeTeam',
 					'AwayTeam',
 				),
-				'order' => 'GameSlot.game_date ASC, GameSlot.game_start ASC',
+			));
+
+			$events = $this->Division->Team->TeamEvent->find ('all', array(
+				'conditions' => array(
+					'TeamEvent.team_id' => $team_ids,
+				),
+				'contain' => array(
+					'Team',
+				),
 			));
 
 			// Game iCal element will handle team_id as an array

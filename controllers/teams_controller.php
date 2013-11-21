@@ -1451,7 +1451,7 @@ class TeamsController extends AppController {
 				'HomeTeam',
 				'AwayTeam',
 		));
-		$team['Game'] = $this->Team->Division->Game->find('all', array(
+		$games = $this->Team->Division->Game->find('all', array(
 				'conditions' => array(
 					array('OR' => array(
 						'Game.home_team' => $id,
@@ -1465,15 +1465,24 @@ class TeamsController extends AppController {
 				),
 		));
 
-		// Sort games by date, time and field
-		usort ($team['Game'], array ('Game', 'compareDateAndField'));
+		$events = $this->Team->TeamEvent->find ('all', array(
+			'conditions' => array(
+				'TeamEvent.team_id' => $id,
+			),
+			'contain' => false,
+		));
+
+		// Sort items by date, time and field
+		usort ($games, array ('Game', 'compareDateAndField'));
+		usort ($events, array ('Game', 'compareDateAndField'));
 		// Outlook only accepts the first event in a file, so we put the last game first
-		$team['Game'] = array_reverse ($team['Game']);
+		$games = array_reverse ($games);
 
 		$this->set ('calendar_type', 'Team Schedule');
 		$this->set ('calendar_name', "{$team['Team']['name']} schedule");
 		$this->set('team_id', $id);
-		$this->set('games', $team['Game']);
+		$this->set('games', $games);
+		$this->set('events', $events);
 
 		Configure::write ('debug', 0);
 	}
