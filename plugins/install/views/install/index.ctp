@@ -26,11 +26,11 @@
 		}
 
 		// php version
-		if (version_compare(PHP_VERSION, '5.0.0', '>=')) {
-			echo '<p class="success">' . sprintf(__('PHP version %s > 5', true), PHP_VERSION) . '</p>';
+		if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
+			echo '<p class="success">' . sprintf(__('PHP version %s > 5.2', true), PHP_VERSION) . '</p>';
 		} else {
 			$check = false;
-			echo '<p class="error">' . sprintf(__('PHP version %s < 5', true), PHP_VERSION) . '</p>';
+			echo '<p class="error">' . sprintf(__('PHP version %s < 5.2', true), PHP_VERSION) . '</p>';
 		}
 
 		if ($check) {
