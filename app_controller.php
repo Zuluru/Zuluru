@@ -427,7 +427,7 @@ class AppController extends Controller {
 		$affiliate = $this->_arg('affiliate');
 		if ($affiliate === null) {
 			// If the user has selected a specific affiliate to view, perhaps only use that
-			$affiliate = $this->UserCache->read('CurrentAffiliate');
+			$affiliate = $this->Session->read('Zuluru.CurrentAffiliate');
 		}
 
 		if ($affiliate !== null) {
@@ -480,7 +480,7 @@ class AppController extends Controller {
 		$affiliate = $this->_arg('affiliate');
 		if ($affiliate === null) {
 			// If the user has selected a specific affiliate to view, perhaps only use that
-			$affiliate = $this->UserCache->read('CurrentAffiliate');
+			$affiliate = $this->Session->read('Zuluru.CurrentAffiliate');
 		}
 
 		if ($affiliate !== null) {
