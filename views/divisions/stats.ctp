@@ -1,11 +1,11 @@
 <?php
 $this->Html->addCrumb (__('Divisions', true));
-$this->Html->addCrumb ($division['Division']['name']);
+$this->Html->addCrumb ($division['Division']['league_name']);
 $this->Html->addCrumb (__('Stats', true));
 ?>
 
 <div class="divisions stats">
-<h2><?php echo $division['Division']['name'];?></h2>
+<h2><?php echo $division['Division']['league_name'];?></h2>
 </div>
 <div class="actions">
 	<?php echo $this->element('divisions/actions', array('division' => $division['Division'], 'league' => $division['League'], 'format' => 'list')); ?>
