@@ -318,6 +318,7 @@ class LeaguesController extends AppController {
 
 				foreach ($divisions as $division) {
 					Cache::delete("division/$division/standings", 'long_term');
+					Cache::delete("division/$division/schedule", 'long_term');
 				}
 
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('league', true)), 'default', array('class' => 'success'));
