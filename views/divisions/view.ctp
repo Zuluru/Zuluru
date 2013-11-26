@@ -11,6 +11,9 @@ if ($is_manager && !in_array($division['League']['affiliate_id'], $this->UserCac
 }
 ?>
 
+<?php if (!empty($division['Division']['header'])): ?>
+<div class="division_header"><?php echo $division['Division']['header']; ?></div>
+<?php endif; ?>
 <div class="divisions view">
 <h2><?php echo $division['Division']['name'];?></h2>
 	<dl><?php $i = 1; $class = ' class="altrow"';?>
@@ -70,6 +73,9 @@ if ($is_manager && !in_array($division['League']['affiliate_id'], $this->UserCac
 	'division' => $division['Division'],
 	'format' => 'list',
 )); ?></div>
+<?php if (!empty($division['Division']['footer'])): ?>
+<div class="division_footer"><?php echo $division['Division']['footer']; ?></div>
+<?php endif; ?>
 <?php
 echo $this->element('divisions/teams', array_merge(array(
 		'league' => $division['League'],

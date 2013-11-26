@@ -4,6 +4,9 @@ $this->Html->addCrumb ($division['Division']['full_league_name']);
 $this->Html->addCrumb (__('Standings', true));
 ?>
 
+<?php if (!empty($division['Division']['header'])): ?>
+<div class="division_header"><?php echo $division['Division']['header']; ?></div>
+<?php endif; ?>
 <div class="divisions standings">
 <h2><?php  echo __('Division Standings', true) . ': ' . $division['Division']['full_league_name'];?></h2>
 <?php
@@ -76,3 +79,6 @@ endif;
 	'division' => $division['Division'],
 	'format' => 'list',
 )); ?></div>
+<?php if (!empty($division['Division']['footer'])): ?>
+<div class="division_footer"><?php echo $division['Division']['footer']; ?></div>
+<?php endif; ?>

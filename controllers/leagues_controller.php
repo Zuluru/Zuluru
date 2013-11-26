@@ -283,6 +283,11 @@ class LeaguesController extends AppController {
 		}
 		$this->set('affiliates', $this->_applicableAffiliates(true));
 		$this->set('add', true);
+
+		if (Configure::read('feature.tiny_mce')) {
+			$this->helpers[] = 'TinyMce.TinyMce';
+		}
+
 		$this->render ('edit');
 	}
 
@@ -364,6 +369,10 @@ class LeaguesController extends AppController {
 			)
 		)));
 		$this->set('affiliates', $this->_applicableAffiliates(true));
+
+		if (Configure::read('feature.tiny_mce')) {
+			$this->helpers[] = 'TinyMce.TinyMce';
+		}
 	}
 
 	function delete() {

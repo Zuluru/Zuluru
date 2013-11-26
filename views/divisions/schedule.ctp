@@ -11,6 +11,9 @@ if ($is_manager && !in_array($division['League']['affiliate_id'], $this->UserCac
 }
 ?>
 
+<?php if (!empty($division['Division']['header'])): ?>
+<div class="division_header"><?php echo $division['Division']['header']; ?></div>
+<?php endif; ?>
 <div class="divisions schedule">
 <h2><?php echo __('Division Schedule', true) . ': ' . $division['Division']['full_league_name'];?></h2>
 <?php
@@ -67,3 +70,6 @@ if (!empty ($edit_date)) {
 	'division' => $division['Division'],
 	'format' => 'list',
 )); ?></div>
+<?php if (!empty($division['Division']['footer'])): ?>
+<div class="division_footer"><?php echo $division['Division']['footer']; ?></div>
+<?php endif; ?>

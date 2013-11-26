@@ -12,6 +12,9 @@ if ($is_manager && !in_array($league['League']['affiliate_id'], $this->UserCache
 
 $collapse = (count($league['Division']) == 1);
 ?>
+<?php if ($collapse && !empty($league['Division'][0]['header'])): ?>
+<div class="division_header"><?php echo $league['Division'][0]['header']; ?></div>
+<?php endif; ?>
 <div class="leagues view">
 <h2><?php echo $league['League']['full_name'];?></h2>
 	<dl><?php $i = 1; $class = ' class="altrow"';?>
@@ -112,3 +115,6 @@ if ($collapse) {
 	echo $this->element('divisions/register', array('events' => $league['Division'][0]['Event']));
 }
 ?>
+<?php if ($collapse && !empty($league['Division'][0]['footer'])): ?>
+<div class="division_footer"><?php echo $league['Division'][0]['footer']; ?></div>
+<?php endif; ?>

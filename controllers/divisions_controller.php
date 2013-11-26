@@ -410,6 +410,11 @@ class DivisionsController extends AppController {
 		}
 		$this->set('is_coordinator', false);
 		$this->set('add', true);
+
+		if (Configure::read('feature.tiny_mce')) {
+			$this->helpers[] = 'TinyMce.TinyMce';
+		}
+
 		$this->render ('edit');
 	}
 
@@ -458,6 +463,10 @@ class DivisionsController extends AppController {
 		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
 
 		$this->_addDivisionMenuItems ($this->data['Division'], $this->data['League']);
+
+		if (Configure::read('feature.tiny_mce')) {
+			$this->helpers[] = 'TinyMce.TinyMce';
+		}
 	}
 
 	function scheduling_fields() {

@@ -143,6 +143,8 @@ class ZuluruSchema extends CakeSchema {
 		'capt_list' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
 		'email_after' => array('type' => 'integer', 'null' => false, 'default' => '0'),
 		'finalize_after' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'header' => array('type' => 'text', 'null' => true, 'default' => NULL),
+		'footer' => array('type' => 'text', 'null' => true, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'league' => array('column' => 'league_id', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);

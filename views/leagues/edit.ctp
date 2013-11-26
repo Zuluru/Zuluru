@@ -65,6 +65,20 @@ $collapse = !empty($this->data['Division']['id']);
 				'size' => 70,
 				'after' => $this->Html->para (null, __('An email alias for all captains of this division.', true)),
 			));
+			echo $this->ZuluruForm->input('Division.header', array(
+				'div' => 'input advanced',
+				'cols' => 70,
+				'rows' => 5,
+				'after' => $this->Html->para (null, __('A short blurb to be displayed at the top of schedule and standings pages, HTML is allowed.', true)),
+				'class' => 'mceAdvanced',
+			));
+			echo $this->ZuluruForm->input('Division.footer', array(
+				'div' => 'input advanced',
+				'cols' => 70,
+				'rows' => 5,
+				'after' => $this->Html->para (null, __('A short blurb to be displayed at the bottom of schedule and standings pages, HTML is allowed.', true)),
+				'class' => 'mceAdvanced',
+			));
 		}
 	?>
 	</fieldset>
@@ -361,4 +375,5 @@ $this->Js->buffer('
 jQuery(".advanced").hide();
 trackingCheckboxChanged();
 ');
+if (Configure::read('feature.tiny_mce')) $this->TinyMce->editor('advanced');
 ?>
