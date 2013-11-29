@@ -392,11 +392,6 @@ body.map
 	white-space: nowrap;
 	float: left;
 }
-#zuluru th.actions,
-#zuluru td.actions
-{
-	white-space: nowrap;
-}
 #zuluru input[type=submit],
 #zuluru input[type=reset],
 #zuluru .actions a
@@ -411,6 +406,10 @@ body.map
 	border-radius: 8px;
 	text-decoration: none;
 	min-width: 0;
+}
+#zuluru .actions a img
+{
+	margin-top: 4px;
 }
 #zuluru table.list th.splash_action,
 #zuluru table.list td.splash_action
