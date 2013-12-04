@@ -3794,7 +3794,7 @@ class StatTypesData {
 			'sort' => 440,
 			'class' => 'stat_games',
 			'type' => 'entered',
-			'validation' => 'team_score',
+			'validation' => 'opponent_score',
 		),
 
 		array(
