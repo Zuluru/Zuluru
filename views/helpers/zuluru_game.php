@@ -52,7 +52,7 @@ class ZuluruGameHelper extends Helper {
 			}
 
 			if (League::hasStats($league)) {
-				if ($team_id || $is_coordinator) {
+				if ($team_id || $is_admin || $is_coordinator) {
 					$links[] = $this->Html->link(
 							__('Submit Stats', true),
 							array('controller' => 'games', 'action' => 'submit_stats', 'game' => $details['id'], 'team' => $team_id));
