@@ -71,7 +71,7 @@ class UserCacheComponent extends Object
 			}
 		}
 
-		$self->data[$id] = Cache::read(low("person/$id"), 'file');
+		$self->data[$id] = Cache::read("person/$id", 'file');
 		if (!$self->data[$id]) {
 			$self->data[$id] = array();
 		}
@@ -229,10 +229,74 @@ class UserCacheComponent extends Object
 					}
 					break;
 
-				case 'Tasks':
-					if ($self->_controller->is_volunteer) {
-						$self->data[$id][$key] = $self->requestAction(array('controller' => 'tasks', 'action' => 'assigned'));
+				case 'RelatedTo':
+					if (!isset($self->_controller->Person)) {
+						$self->_controller->Person = ClassRegistry::init('Person');
 					}
+					$self->data[$id][$key] = $self->_findData($self->_controller->Person->Relative, array(
+							'contain' => false,
+							'fields' => array('Relative.*', 'PeoplePerson.*'),
+							'joins' => array(
+								array(
+									'table' => "{$self->_controller->Person->tablePrefix}people_people",
+									'alias' => 'PeoplePerson',
+									'type' => 'LEFT',
+									'foreignKey' => false,
+									'conditions' => 'Relative.id = PeoplePerson.person_id',
+								),
+							),
+							'conditions' => array(
+								'PeoplePerson.relative_id' => $id,
+							),
+					));
+					break;
+
+				case 'RelatedToIDs':
+					if ($self->read('RelatedTo', $id, true)) {
+						$self->data[$id][$key] = Set::extract('/PeoplePerson[approved=1]/../Relative/id', $self->data[$id]['RelatedTo']);
+					}
+					break;
+
+				case 'Relatives':
+					if (!isset($self->_controller->Person)) {
+						$self->_controller->Person = ClassRegistry::init('Person');
+					}
+					$self->data[$id][$key] = $self->_findData($self->_controller->Person->Relative, array(
+							'contain' => false,
+							'fields' => array('Relative.*', 'PeoplePerson.*'),
+							'joins' => array(
+								array(
+									'table' => "{$self->_controller->Person->tablePrefix}people_people",
+									'alias' => 'PeoplePerson',
+									'type' => 'LEFT',
+									'foreignKey' => false,
+									'conditions' => 'Relative.id = PeoplePerson.relative_id',
+								),
+							),
+							'conditions' => array(
+								'PeoplePerson.person_id' => $id,
+							),
+					));
+					break;
+
+				case 'RelativeIDs':
+					if ($self->read('Relatives', $id, true)) {
+						$self->data[$id][$key] = Set::extract('/PeoplePerson[approved=1]/../Relative/id', $self->data[$id]['Relatives']);
+					}
+					break;
+
+				case 'RelativeTeamIDs':
+					if ($self->read('Relatives', $id, true)) {
+						$self->data[$id][$key] = array();
+						foreach ($self->data[$id]['Relatives'] as $relative) {
+							$self->data[$id][$key] = array_merge($self->data[$id][$key], $self->read('TeamIDs', $relative['Relative']['id']));
+						}
+						$self->data[$id][$key] = array_unique($self->data[$id][$key]);
+					}
+					break;
+
+				case 'Tasks':
+					$self->data[$id][$key] = $self->requestAction(array('controller' => 'tasks', 'action' => 'assigned'), array('named' => array('person' => $id)));
 					break;
 
 				case 'Teams':
@@ -285,7 +349,7 @@ class UserCacheComponent extends Object
 			if (empty($self->data[$id][$key])) {
 				$self->data[$id][$key] = array();
 			}
-			Cache::write(low("person/$id"), $self->data[$id], 'file');
+			Cache::write("person/$id", $self->data[$id], 'file');
 		}
 
 		if (!$self->data[$id][$key]) {
@@ -310,7 +374,7 @@ class UserCacheComponent extends Object
 		}
 
 		if (empty($self->data[$id])) {
-			$self->data[$id] = Cache::read(low("person/$id"), 'file');
+			$self->data[$id] = Cache::read("person/$id", 'file');
 			if (empty($self->data[$id])) {
 				$self->data[$id] = array();
 			}
@@ -332,7 +396,7 @@ class UserCacheComponent extends Object
 			unset($self->data[$id][$key]);
 		}
 
-		Cache::write(low("person/$id"), $self->data[$id], 'file');
+		Cache::write("person/$id", $self->data[$id], 'file');
 	}
 
 	function _findData(&$model, $find) {

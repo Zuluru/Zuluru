@@ -40,7 +40,6 @@ class TeamsController extends AppController {
 				'note',
 				'delete_note',
 				'stats',
-				'past_count',
 				'open_count',
 		)))
 		{
@@ -74,32 +73,36 @@ class TeamsController extends AppController {
 				'roster_position',
 				'roster_request',
 				'numbers',
+				'past_count',
 		)))
 		{
-			// If a player id is specified, check if it's the logged-in user
+			// If a player id is specified, check if it's the logged-in user, or a relative
 			// If no player id is specified, it's always the logged-in user
 			$person = $this->_arg('person');
-			if (!$person || $person == $this->Auth->user('id')) {
+			$relatives = $this->UserCache->read('RelativeIDs');
+			if (!$person || $person == $this->Auth->user('id') || in_array($person, $relatives)) {
 				return true;
 			}
 		}
 
-		// People can perform these operations on teams they are on
+		// People can perform these operations on teams they or their relatives are on
 		if (in_array ($this->params['action'], array(
 				'attendance',
 		)))
 		{
 			$team = $this->_arg('team');
-			if ($team && in_array ($team, $this->UserCache->read('TeamIDs'))) {
-				return true;
-			}
-			// Check past teams too
-			$count = $this->Team->TeamsPerson->find('count', array('conditions' => array(
-				'person_id' => $this->Auth->user('id'),
-				'team_id' => $team,
-			)));
-			if ($count) {
-				return true;
+			if ($team) {
+				if (in_array($team, $this->UserCache->read('TeamIDs')) || in_array($team, $this->UserCache->read('RelativeTeamIDs'))) {
+					return true;
+				}
+				// Check past teams too
+				$count = $this->Team->TeamsPerson->find('count', array('conditions' => array(
+					'person_id' => array_merge(array($this->Auth->user('id')), $this->UserCache->read('RelativeIDs')),
+					'team_id' => $team,
+				)));
+				if ($count) {
+					return true;
+				}
 			}
 		}
 
@@ -2160,9 +2163,7 @@ class TeamsController extends AppController {
 		if ($code) {
 			// Authenticate the hash code
 			$hash = $this->_hash($person['Person']['TeamsPerson']);
-			// Temporary addition during hash conversion period
-			$hash2 = $this->_hash($person['Person']['TeamsPerson'], false);
-			if ($hash != $code && $hash2 != $code) {
+			if ($hash != $code) {
 				$this->Session->setFlash(__('The authorization code is invalid.', true), 'default', array('class' => 'warning'));
 				$this->redirect(array('action' => 'view', 'team' => $team_id));
 			}
@@ -2243,9 +2244,7 @@ class TeamsController extends AppController {
 		if ($code) {
 			// Authenticate the hash code
 			$hash = $this->_hash($person['Person']['TeamsPerson']);
-			// Temporary addition during hash conversion period
-			$hash2 = $this->_hash($person['Person']['TeamsPerson'], false);
-			if ($hash != $code && $hash2 != $code) {
+			if ($hash != $code) {
 				$this->Session->setFlash(__('The authorization code is invalid.', true), 'default', array('class' => 'warning'));
 				$this->redirect(array('action' => 'view', 'team' => $team_id));
 			}
@@ -2863,10 +2862,14 @@ class TeamsController extends AppController {
 	}
 
 	function past_count() {
+		$person = $this->_arg('person');
+		if (!$person) {
+			return 0;
+		}
 		return $this->Team->TeamsPerson->find('count', array(
-				'conditions' => array('person_id' => $this->Auth->user('id')),
+				'conditions' => array('person_id' => $person),
 				'contain' => array(),
-		)) - count($this->UserCache->read('TeamIDs'));
+		)) - count($this->UserCache->read('TeamIDs', $person));
 	}
 
 	function open_count() {

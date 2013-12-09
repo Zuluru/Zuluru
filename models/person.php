@@ -98,6 +98,14 @@ class Person extends User {
 			'associationForeignKey' => 'franchise_id',
 			'unique' => true,
 		),
+		'Relative' => array(
+			'className' => 'Person',
+			'joinTable' => 'people_people',
+			'with' => 'PeoplePerson',
+			'foreignKey' => 'person_id',
+			'associationForeignKey' => 'relative_id',
+			'unique' => false,
+		),
 		'Team' => array(
 			'className' => 'Team',
 			'joinTable' => 'teams_people',

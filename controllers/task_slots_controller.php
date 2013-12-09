@@ -9,14 +9,15 @@ class TaskSlotsController extends AppController {
 
 	function isAuthorized() {
 		if ($this->is_volunteer) {
-			// Volunteers can can perform these operations
+			// Volunteers can can perform these operations for themselves or relatives
 			if (in_array ($this->params['action'], array(
 				'assign',
 			)))
 			{
-				// If a person id is specified, check if we're that person
+				// If a person id is specified, check the id
 				$person = $this->_arg('person');
-				if ($person && $person == $this->Auth->user('id')) {
+				$relatives = $this->UserCache->read('RelativeIDs');
+				if ($person && ($person == $this->Auth->user('id') || in_array($person, $relatives))) {
 					return true;
 				}
 			}

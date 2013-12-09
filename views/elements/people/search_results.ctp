@@ -63,8 +63,11 @@ foreach ($people as $person):
 			<?php endif; ?>
 			<?php
 			if (!empty($extra_url)) {
+				if (empty($extra_url_parameter)) {
+					$extra_url_parameter = 'person';
+				}
 				foreach ($extra_url as $title => $url) {
-					$url = array_merge (array('person' => $person['Person']['id'], 'return' => true), $url);
+					$url = array_merge (array($extra_url_parameter => $person['Person']['id'], 'return' => true), $url);
 					echo $this->Html->link(__($title, true), $url);
 				}
 			}

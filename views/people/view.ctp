@@ -13,7 +13,7 @@ echo $person['full_name'];
 $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_captain || $is_my_captain || $is_my_coordinator || $is_division_captain;
 ?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
-		<?php if ($is_me || $is_admin):?>
+		<?php if ($is_me || $is_admin || $is_manager):?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('System User Name'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php echo $person['user_name']; ?>
@@ -71,7 +71,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 
 			</dd>
 		<?php endif; ?>
-		<?php if ($is_me || $is_admin):?>
+		<?php if ($is_me || $is_admin || $is_manager):?>
 			<?php if (Configure::read('profile.addr_street')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Address'); ?></dt>
 			<dd<?php if ($i % 2 == 0) echo $class;?>>
@@ -118,7 +118,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 			<?php __($person['gender']); ?>
 
 		</dd>
-		<?php if ($is_me || $is_admin || $is_coordinator || $is_captain):?>
+		<?php if ($is_me || $is_admin || $is_manager || $is_coordinator || $is_captain):?>
 			<?php if (Configure::read('profile.height')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Height'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
@@ -148,7 +148,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 
 			</dd>
 		<?php endif; ?>
-		<?php if ($is_me || $is_admin):?>
+		<?php if ($is_me || $is_admin || $is_manager):?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Account Class'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php __($group['name']); ?>
@@ -202,11 +202,11 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 			}
 			echo $this->Html->tag ('li', $this->Html->link(__($link, true), array('action' => 'note', 'person' => $person['id'])));
 		}
-		if ($is_me || $is_admin) {
+		if ($is_me || $is_admin || $is_manager) {
 			echo $this->Html->tag ('li', $this->Html->link(__('Edit Profile', true), array('action' => 'edit', 'person' => $person['id'], 'return' => true)));
 			echo $this->Html->tag ('li', $this->Html->link(__('Edit Preferences', true), array('action' => 'preferences', 'person' => $person['id'])));
 		}
-		if ($is_admin) {
+		if ($is_admin || $is_manager) {
 			echo $this->Html->tag ('li', $this->Html->link(__('Delete Player', true), array('action' => 'delete', 'person' => $person['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $person['id'])));
 		}
 		?>
@@ -251,8 +251,67 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 		</ul>
 	</div>
 </div>
+<?php endif; ?>
 
-	<?php if (Configure::read('feature.badges') && !empty($badges['Badge'])): ?>
+<?php if (($is_admin || $is_manager || $is_me) && (!empty($relatives) || !empty($related_to))):?>
+<div class="related">
+	<h3><?php __('Relatives');?></h3>
+	<table class="list">
+	<tr>
+		<th><?php __('Relative');?></th>
+		<th><?php __('Approved');?></th>
+		<th class="actions"><?php __('Actions');?></th>
+	</tr>
+	<?php
+		$i = 0;
+		$you = ($is_me ? __('You control', true) : $person['first_name'] . ' ' . __('controls', true));
+		foreach ($relatives as $relative):
+			$class = null;
+			if ($i++ % 2 == 0) {
+				$class = ' class="altrow"';
+			}
+		?>
+		<tr<?php echo $class;?>>
+			<td><?php echo $you . ' ' . $this->element('people/block', array('person' => $relative['Relative'])); ?></td>
+			<td><?php __($relative['PeoplePerson']['approved'] ? 'Yes' : 'No'); ?></td>
+			<td class="actions"><?php
+				echo $this->ZuluruHtml->iconLink('view_24.png', array('controller' => 'people', 'action' => 'view', 'person' => $relative['Relative']['id']));
+				echo $this->ZuluruHtml->iconLink('delete_24.png', array('controller' => 'people', 'action' => 'remove_relative', 'person' => $person['id'], 'relative' => $relative['Relative']['id']));
+			?></td>
+		</tr>
+		<?php
+		endforeach;
+
+		$you = ($is_me ? __('you', true) : $person['first_name']);
+		foreach ($related_to as $relative):
+			$class = null;
+			if ($i++ % 2 == 0) {
+				$class = ' class="altrow"';
+			}
+		?>
+		<tr<?php echo $class;?>>
+			<td><?php echo $this->element('people/block', array('person' => $relative['Relative'])) . ' ' . __('controls', true) . ' ' . $you; ?></td>
+			<td><?php __($relative['PeoplePerson']['approved'] ? 'Yes' : 'No'); ?></td>
+			<td class="actions"><?php
+				echo $this->ZuluruHtml->iconLink('view_24.png', array('controller' => 'people', 'action' => 'view', 'person' => $relative['Relative']['id']));
+				echo $this->ZuluruHtml->iconLink('delete_24.png', array('controller' => 'people', 'action' => 'remove_relative', 'person' => $person['id'], 'relative' => $relative['Relative']['id']));
+				if (!$relative['PeoplePerson']['approved']) {
+					echo $this->Html->link(__('Approve', true), array('controller' => 'people', 'action' => 'approve_relative', 'person' => $person['id'], 'relative' => $relative['Relative']['id']));
+				}
+			?></td>
+		</tr>
+		<?php endforeach; ?>
+	</table>
+
+	<div class="actions">
+		<ul>
+			<li><?php echo $this->Html->link(__('Link a new relative', true), array('controller' => 'people', 'action' => 'add_relative')); ?> </li>
+		</ul>
+	</div>
+</div>
+<?php endif; ?>
+
+<?php if ($is_logged_in && Configure::read('feature.badges') && !empty($badges['Badge'])): ?>
 <div class="related">
 	<h3><?php __('Badges');?></h3>
 	<p><?php
@@ -261,7 +320,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 			array('alt' => $badge['name'], 'title' => $badge['description']));
 	}
 	?></p>
-	<?php endif; ?>
+</div>
 <?php endif; ?>
 
 <?php if (!empty($divisions)):?>
@@ -285,7 +344,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 </div>
 <?php endif; ?>
 
-<?php if (Configure::read('scoring.allstars') && ($is_admin || $is_coordinator)):?>
+<?php if (Configure::read('scoring.allstars') && ($is_admin || $is_manager || $is_coordinator)):?>
 <div class="related">
 	<h3><?php __('Allstar Nominations');?></h3>
 	<?php if (!empty($allstars)):?>
@@ -319,7 +378,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 <?php endif; ?>
 
 <?php if (Configure::read('feature.registration')):?>
-<?php if ($is_admin || ($is_me && !empty($preregistrations))):?>
+<?php if ($is_admin || $is_manager || ($is_me && !empty($preregistrations))):?>
 <div class="related">
 	<h3><?php __('Preregistrations');?></h3>
 	<?php if (!empty($preregistrations)):?>
@@ -346,7 +405,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 	</table>
 	<?php endif; ?>
 
-	<?php if ($is_admin):?>
+	<?php if ($is_admin || $is_manager):?>
 	<div class="actions">
 		<ul>
 			<li><?php echo $this->Html->link(__('Add Preregistration', true), array('controller' => 'preregistrations', 'action' => 'add', 'person' => $person['id']));?> </li>
@@ -356,7 +415,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 </div>
 <?php endif; ?>
 
-<?php if (($is_admin || $is_me) && !empty($registrations)):?>
+<?php if (($is_admin || $is_manager || $is_me) && !empty($registrations)):?>
 <div class="related">
 	<h3><?php __('Recent Registrations');?></h3>
 	<table class="list">
@@ -379,7 +438,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 			<td><?php echo $this->ZuluruTime->date($registration['Registration']['created']);?></td>
 			<td><?php __($registration['Registration']['payment']);?></td>
 			<td class="actions">
-			<?php if ($is_admin): ?>
+			<?php if ($is_admin || $is_manager): ?>
 				<?php echo $this->Html->link(__('View', true), array('controller' => 'registrations', 'action' => 'view', 'registration' => $registration['Registration']['id']));?>
 				<?php echo $this->Html->link(__('Edit', true), array('controller' => 'registrations', 'action' => 'edit', 'registration' => $registration['Registration']['id'], 'return' => true)); ?>
 			<?php endif; ?>
@@ -397,7 +456,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 <?php endif; ?>
 <?php endif; ?>
 
-<?php if (($is_admin || $is_me) && !empty($waivers)):?>
+<?php if (($is_admin || $is_manager || $is_me) && !empty($waivers)):?>
 <div class="related">
 	<h3><?php __('Waivers');?></h3>
 	<table class="list">
@@ -434,7 +493,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 </div>
 <?php endif; ?>
 
-<?php if (Configure::read('feature.documents') && ($is_admin || $is_me)):?>
+<?php if (Configure::read('feature.documents') && ($is_admin || $is_manager || $is_me)):?>
 <div class="related">
 	<h3><?php __('Documents');?></h3>
 <?php if (!empty($documents)): ?>
@@ -464,7 +523,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 <?php endif; ?>
 			<td class="actions">
 				<?php echo $this->Html->link(__('View', true), array('action' => 'document', 'id' => $document['Upload']['id']), array('target' => 'preview'));?>
-<?php if ($is_admin):?>
+<?php if ($is_admin || $is_manager):?>
 <?php if ($document['Upload']['approved']): ?>
 				<?php echo $this->Html->link(__('Edit', true), array('action' => 'edit_document', 'id' => $document['Upload']['id'], 'return' => true));?>
 <?php else: ?>
@@ -487,7 +546,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 </div>
 <?php endif; ?>
 
-<?php if (($is_admin || $is_me) && !empty($tasks)):?>
+<?php if (($is_admin || $is_manager || $is_me) && !empty($tasks)):?>
 	<div class="related">
 <h3><?php __('Assigned Tasks'); ?></h3>
 <table class="list">

@@ -535,6 +535,7 @@ class AppController extends Controller {
 			$this->_addMenuItem ('View', array('controller' => 'people', 'action' => 'view'), 'My Profile');
 			$this->_addMenuItem ('Edit', array('controller' => 'people', 'action' => 'edit'), 'My Profile');
 			$this->_addMenuItem ('Preferences', array('controller' => 'people', 'action' => 'preferences'), 'My Profile');
+			$this->_addMenuItem ('Link new relative', array('controller' => 'people', 'action' => 'add_relative'), 'My Profile');
 			$this->_addMenuItem ('Waiver history', array('controller' => 'people', 'action' => 'waivers'), 'My Profile');
 			if (Configure::read('feature.manage_accounts')) {
 				$this->_addMenuItem ('Change password', array('controller' => 'users', 'action' => 'change_password'), 'My Profile');
@@ -575,6 +576,12 @@ class AppController extends Controller {
 		// the generic operations.
 		if ($this->is_logged_in) {
 			$this->_initPersonalMenu();
+			$relatives = $this->UserCache->read('Relatives');
+			foreach ($relatives as $relative) {
+				if ($relative['PeoplePerson']['approved']) {
+					$this->_initPersonalMenu($relative);
+				}
+			}
 		}
 
 		if ($this->is_logged_in) {
@@ -847,38 +854,52 @@ class AppController extends Controller {
 	/**
 	 * Put personalized items like specific teams and divisions on the menu.
 	 */
-	function _initPersonalMenu() {
+	function _initPersonalMenu($relative = null) {
+		if ($relative) {
+			$id = $relative['Relative']['id'];
+		} else {
+			$id = null;
+		}
+
 		if (Configure::read('feature.registration')) {
-			$unpaid = $this->UserCache->read('RegistrationsUnpaid');
+			$unpaid = $this->UserCache->read('RegistrationsUnpaid', $id);
 			if (!empty ($unpaid)) {
 				$this->_addMenuItem ('Checkout', array('controller' => 'registrations', 'action' => 'checkout'), 'Registration');
 			}
 		}
 
-		$teams = $this->UserCache->read('Teams');
+		$teams = $this->UserCache->read('Teams', $id);
 		foreach ($teams as $team) {
-			$this->_addTeamMenuItems ($team);
+			$this->_addTeamMenuItems ($team, $relative);
 		}
 
-		if (Configure::read('feature.franchises')) {
-			$franchises = $this->UserCache->read('Franchises');
-			if (!empty($franchises)) {
-				foreach ($franchises as $franchise) {
-					$this->_addFranchiseMenuItems ($franchise);
+		if (!$relative) {
+			if (Configure::read('feature.franchises')) {
+				$franchises = $this->UserCache->read('Franchises');
+				if (!empty($franchises)) {
+					foreach ($franchises as $franchise) {
+						$this->_addFranchiseMenuItems ($franchise);
+					}
 				}
 			}
-		}
 
-		$divisions = $this->UserCache->read('Divisions');
-		foreach ($divisions as $division) {
-			$this->_addDivisionMenuItems ($division['Division'], $division['League']);
+			$divisions = $this->UserCache->read('Divisions');
+			foreach ($divisions as $division) {
+				$this->_addDivisionMenuItems ($division['Division'], $division['League']);
+			}
 		}
 	}
 
 	/**
 	 * Add all the links for a team to the menu.
 	 */
-	function _addTeamMenuItems($team) {
+	function _addTeamMenuItems($team, $relative = null) {
+		if ($relative) {
+			$path = array('Teams', $relative['Relative']['first_name']);
+		} else {
+			$path = array('Teams');
+		}
+
 		$is_captain = in_array($team['Team']['id'], $this->UserCache->read('OwnedTeamIDs'));
 		if (empty($team['Division']['id'])) {
 			$affiliate_id = $team['Team']['affiliate_id'];
@@ -891,59 +912,65 @@ class AppController extends Controller {
 		$key = "{$team['Team']['name']}::{$team['Team']['id']}";
 
 		if (!empty($team['Team']['division_id'])) {
-			$this->_addMenuItem ("{$team['Team']['name']} ({$team['Division']['long_league_name']})", array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']), 'Teams', $key);
-			$this->_addMenuItem ('Schedule', array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['Team']['id']), array('Teams', $key));
-			$this->_addMenuItem ('Standings', array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Division']['id'], 'team' => $team['Team']['id']), array('Teams', $key));
+			$this->_addMenuItem ("{$team['Team']['name']} ({$team['Division']['long_league_name']})", array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']), $path, $key);
+			$this->_addMenuItem ('Schedule', array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['Team']['id']), array_merge($path, array($key)));
+			$this->_addMenuItem ('Standings', array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Division']['id'], 'team' => $team['Team']['id']), array_merge($path, array($key)));
 			if ($team['Team']['track_attendance'] &&
 				in_array($team['Team']['id'], $this->UserCache->read('TeamIDs')))
 			{
-				$this->_addMenuItem ('Attendance', array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['Team']['id']), array('Teams', $key));
+				$this->_addMenuItem ('Attendance', array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['Team']['id']), array_merge($path, array($key)));
 			}
 			if ($this->is_logged_in && $team['Team']['open_roster'] && !Division::rosterDeadlinePassed($team['Division']) &&
 				!in_array($team['Team']['id'], $this->UserCache->read('TeamIDs')))
 			{
-				$this->_addMenuItem ('Join team', array('controller' => 'teams', 'action' => 'roster_request', 'team' => $team['Team']['id']), array('Teams', $key));
+				$this->_addMenuItem ('Join team', array('controller' => 'teams', 'action' => 'roster_request', 'team' => $team['Team']['id']), array_merge($path, array($key)));
 			}
-			$this->_addDivisionMenuItems($team['Division'], $team['Division']['League']);
+			$this->_addDivisionMenuItems($team['Division'], $team['Division']['League'], $relative);
 		} else {
-			$this->_addMenuItem ($team['Team']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']), 'Teams', $key);
+			$this->_addMenuItem ($team['Team']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']), $path, $key);
 		}
 
 		if ($this->is_admin || $is_manager || $is_captain) {
-			$this->_addMenuItem ('Edit', array('controller' => 'teams', 'action' => 'edit', 'team' => $team['Team']['id']), array('Teams', $key));
-			$this->_addMenuItem ('Player emails', array('controller' => 'teams', 'action' => 'emails', 'team' => $team['Team']['id']), array('Teams', $key));
-			$this->_addMenuItem ('Delete', array('controller' => 'teams', 'action' => 'delete', 'team' => $team['Team']['id']), array('Teams', $key));
+			$this->_addMenuItem ('Edit', array('controller' => 'teams', 'action' => 'edit', 'team' => $team['Team']['id']), array_merge($path, array($key)));
+			$this->_addMenuItem ('Player emails', array('controller' => 'teams', 'action' => 'emails', 'team' => $team['Team']['id']), array_merge($path, array($key)));
+			$this->_addMenuItem ('Delete', array('controller' => 'teams', 'action' => 'delete', 'team' => $team['Team']['id']), array_merge($path, array($key)));
 		}
 		if ($this->effective_admin || $is_manager ||
 			(($is_captain || $this->effective_coordinator) && !Division::rosterDeadlinePassed($team['Division'])))
 		{
-			$this->_addMenuItem ('Add player', array('controller' => 'teams', 'action' => 'add_player', 'team' => $team['Team']['id']), array('Teams', $key));
+			$this->_addMenuItem ('Add player', array('controller' => 'teams', 'action' => 'add_player', 'team' => $team['Team']['id']), array_merge($path, array($key)));
 		}
 		if ($this->effective_admin) {
-			$this->_addMenuItem ('Move', array('controller' => 'teams', 'action' => 'move', 'team' => $team['Team']['id']), array('Teams', $key));
+			$this->_addMenuItem ('Move', array('controller' => 'teams', 'action' => 'move', 'team' => $team['Team']['id']), array_merge($path, array($key)));
 		}
 		if (($this->is_admin || $is_manager) && League::hasSpirit($team)) {
-			$this->_addMenuItem ('Spirit', array('controller' => 'teams', 'action' => 'spirit', 'team' => $team['Team']['id']), array('Teams', $key));
+			$this->_addMenuItem ('Spirit', array('controller' => 'teams', 'action' => 'spirit', 'team' => $team['Team']['id']), array_merge($path, array($key)));
 		}
 		if ($this->is_logged_in && League::hasStats($team)) {
-			$this->_addMenuItem ('Stats', array('controller' => 'teams', 'action' => 'stats', 'team' => $team['Team']['id']), array('Teams', $key));
-			$this->_addMenuItem ('Download', array('controller' => 'teams', 'action' => 'stats', 'team' => $team['Team']['id'], 'ext' => 'csv'), array('Teams', $key, 'Stats'));
+			$this->_addMenuItem ('Stats', array('controller' => 'teams', 'action' => 'stats', 'team' => $team['Team']['id']), array_merge($path, array($key)));
+			$this->_addMenuItem ('Download', array('controller' => 'teams', 'action' => 'stats', 'team' => $team['Team']['id'], 'ext' => 'csv'), array_merge($path, array($key, 'Stats')));
 		}
 	}
 
 	/**
 	 * Add all the links for a franchise to the menu.
 	 */
-	function _addFranchiseMenuItems($franchise) {
-		$this->_addMenuItem ($franchise['name'], array('controller' => 'franchises', 'action' => 'view', 'franchise' => $franchise['id']), array('Teams', 'Franchises'), "{$franchise['name']}::{$franchise['id']}");
+	function _addFranchiseMenuItems($franchise, $relative = null) {
+		if ($relative) {
+			$path = array('Teams', 'Franchises', $relative['Relative']['first_name']);
+		} else {
+			$path = array('Teams', 'Franchises');
+		}
+
+		$this->_addMenuItem ($franchise['name'], array('controller' => 'franchises', 'action' => 'view', 'franchise' => $franchise['id']), $path, "{$franchise['name']}::{$franchise['id']}");
 		$is_owner = in_array($franchise['id'], $this->UserCache->read('FranchiseIDs'));
 		$is_manager = $this->is_manager && in_array($franchise['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
 
 		if ($this->is_admin || $is_manager || $is_owner) {
-			$this->_addMenuItem ('Edit', array('controller' => 'franchises', 'action' => 'edit', 'franchise' => $franchise['id']), array('Teams', 'Franchises', "{$franchise['name']}::{$franchise['id']}"));
-			$this->_addMenuItem ('Add Team', array('controller' => 'franchises', 'action' => 'add_team', 'franchise' => $franchise['id']), array('Teams', 'Franchises', "{$franchise['name']}::{$franchise['id']}"));
-			$this->_addMenuItem ('Add an Owner', array('controller' => 'franchises', 'action' => 'add_owner', 'franchise' => $franchise['id']), array('Teams', 'Franchises', "{$franchise['name']}::{$franchise['id']}"));
-			$this->_addMenuItem ('Delete', array('controller' => 'franchises', 'action' => 'delete', 'franchise' => $franchise['id']), array('Teams', 'Franchises', "{$franchise['name']}::{$franchise['id']}"));
+			$this->_addMenuItem ('Edit', array('controller' => 'franchises', 'action' => 'edit', 'franchise' => $franchise['id']), array_merge($path, array("{$franchise['name']}::{$franchise['id']}")));
+			$this->_addMenuItem ('Add Team', array('controller' => 'franchises', 'action' => 'add_team', 'franchise' => $franchise['id']), array_merge($path, array("{$franchise['name']}::{$franchise['id']}")));
+			$this->_addMenuItem ('Add an Owner', array('controller' => 'franchises', 'action' => 'add_owner', 'franchise' => $franchise['id']), array_merge($path, array("{$franchise['name']}::{$franchise['id']}")));
+			$this->_addMenuItem ('Delete', array('controller' => 'franchises', 'action' => 'delete', 'franchise' => $franchise['id']), array_merge($path, array("{$franchise['name']}::{$franchise['id']}")));
 		}
 	}
 
@@ -961,7 +988,17 @@ class AppController extends Controller {
 	/**
 	 * Add all the links for a division to the menu.
 	 */
-	function _addDivisionMenuItems($division, $league) {
+	function _addDivisionMenuItems($division, $league, $relative = null) {
+		if ($relative) {
+			$path = array('Leagues', $relative['Relative']['first_name']);
+		} else {
+			$path = array('Leagues');
+		}
+
+		if (!array_key_exists('league_name', $division)) {
+			Division::_addNames($division, $league);
+		}
+
 		$is_coordinator = in_array($division['id'], $this->UserCache->read('DivisionIDs'));
 		$is_manager = $this->is_manager && in_array($league['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
 
@@ -971,12 +1008,13 @@ class AppController extends Controller {
 			$division_count = $this->requestAction(array('controller' => 'leagues', 'action' => 'division_count'),
 					array('named' => array('league' => $league['id'])));
 		}
+
 		if ($division_count == 1) {
-			$this->_addMenuItem ($division['league_name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $league['id']), 'Leagues');
-			$path = array('Leagues', $division['league_name']);
+			$this->_addMenuItem ($division['league_name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $league['id']), $path);
+			$path[] = $division['league_name'];
 		} else {
-			$this->_addMenuItem ($league['name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $league['id']), 'Leagues');
-			$path = array('Leagues', $league['name']);
+			$this->_addMenuItem ($league['name'], array('controller' => 'leagues', 'action' => 'view', 'league' => $league['id']), $path);
+			$path[] = $league['name'];
 			if (!empty($division['name'])) {
 				$this->_addMenuItem ($division['name'], array('controller' => 'divisions', 'action' => 'view', 'division' => $division['id']), $path);
 				$path[] = $division['name'];
@@ -1107,10 +1145,12 @@ class AppController extends Controller {
 			$path = array($path);
 		$parent =& $this->menu_items;
 		foreach ($path as $element) {
-			if (!array_key_exists ($element, $parent)) {
-				$parent[$element] = array('items' => array(), 'name' => $element);
+			if (!empty($element)) {
+				if (!array_key_exists ($element, $parent)) {
+					$parent[$element] = array('items' => array(), 'name' => $element);
+				}
+				$parent =& $parent[$element]['items'];
 			}
-			$parent =& $parent[$element]['items'];
 		}
 
 		if (!array_key_exists ($sort, $parent)) {

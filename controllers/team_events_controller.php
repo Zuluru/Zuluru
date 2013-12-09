@@ -37,7 +37,19 @@ class TeamEventsController extends AppController {
 			}
 		}
 
-		// People can perform these operations on teams they are on
+		// Anyone that's logged in can perform these operations for themselves or relatives
+		if (in_array ($this->params['action'], array(
+				'past',
+				'future',
+		)))
+		{
+			$person = $this->_arg('person');
+			if (!$person || $person == $this->Auth->user('id') || in_array ($person, $this->UserCache->read('RelativeIDs'))) {
+				return true;
+			}
+		}
+
+		// People can perform these operations on teams they or their relatives are on
 		if (in_array ($this->params['action'], array(
 				'view',
 		)))
@@ -45,8 +57,18 @@ class TeamEventsController extends AppController {
 			$event = $this->_arg('event');
 			if ($event) {
 				$team = $this->TeamEvent->field('team_id', array('id' => $event));
-				if ($team && in_array ($team, $this->UserCache->read('TeamIDs'))) {
-					return true;
+				if ($team) {
+					if (in_array($team, $this->UserCache->read('TeamIDs')) || in_array($team, $this->UserCache->read('RelativeTeamIDs'))) {
+						return true;
+					}
+					// Check past teams too
+					$count = $this->TeamEvent->Team->TeamsPerson->find('count', array('conditions' => array(
+						'person_id' => array_merge(array($this->Auth->user('id')), $this->UserCache->read('RelativeIDs')),
+						'team_id' => $team,
+					)));
+					if ($count) {
+						return true;
+					}
 				}
 			}
 		}
@@ -242,13 +264,10 @@ class TeamEventsController extends AppController {
 			// Authenticate the hash code
 			$player_hash = $this->_hash($attendance);
 			$captain_hash = $this->_hash(array_merge ($attendance, array('captain' => true)));
-			// Temporary addition during hash conversion period
-			$player_hash2 = $this->_hash($attendance, false);
-			$captain_hash2 = $this->_hash(array_merge ($attendance, array('captain' => true)), false);
-			if ($player_hash == $code || $player_hash2 == $code) {
+			if ($player_hash == $code) {
 				// Only the player will have this confirmation code
 				$is_me = true;
-			} else if ($captain_hash == $code || $captain_hash2 == $code) {
+			} else if ($captain_hash == $code) {
 				$is_captain = true;
 			} else {
 				$this->Session->setFlash(__('The authorization code is invalid.', true), 'default', array('class' => 'warning'));
@@ -428,6 +447,74 @@ class TeamEventsController extends AppController {
 		}
 
 		return true;
+	}
+
+	function past() {
+		$person = $this->_arg('person');
+		if (!$person) {
+			$person = $this->Auth->user('id');
+		}
+		$team_ids = $this->UserCache->read('TeamIDs', $person);
+		if (empty ($team_ids)) {
+			return array();
+		}
+
+		$limit = max(4, ceil(count(array_unique($team_ids)) * 1.5));
+		return array_reverse ($this->TeamEvent->find ('all', array(
+			'limit' => $limit,
+			'conditions' => array(
+				'TeamEvent.team_id' => $team_ids,
+				'TeamEvent.date < CURDATE()',
+			),
+			'contain' => array(
+				'Team',
+				'Attendance' => array(
+					'conditions' => array('Attendance.person_id' => $person),
+				),
+			),
+			'order' => 'TeamEvent.date DESC, TeamEvent.start DESC',
+		)));
+	}
+
+	function future($recursive = false) {
+		$person = $this->_arg('person');
+		if (!$person) {
+			$person = $this->Auth->user('id');
+		}
+		$team_ids = $this->UserCache->read('TeamIDs', $person);
+		if (empty ($team_ids)) {
+			return array();
+		}
+
+		$limit = max(4, ceil(count(array_unique($team_ids)) * 1.5));
+		$events = $this->TeamEvent->find ('all', array(
+			'limit' => $limit,
+			'conditions' => array(
+				'TeamEvent.team_id' => $team_ids,
+				'TeamEvent.date >= CURDATE()',
+			),
+			'contain' => array(
+				'Team',
+				'Attendance' => array(
+					'conditions' => array('Attendance.person_id' => $person),
+				),
+			),
+			'order' => 'TeamEvent.date ASC, TeamEvent.start ASC',
+		));
+
+		// Check if we need to update attendance records for any upcoming events
+		$reread = false;
+		foreach ($events as $event) {
+			if ($event['Team']['track_attendance'] && empty($event['Attendance'])) {
+				$attendance = $this->TeamEvent->_read_attendance($event['Team']['id'], $event['TeamEvent']['id']);
+				$reread = true;
+			}
+		}
+
+		if ($reread && !$recursive) {
+			return $this->future(true);
+		}
+		return $events;
 	}
 
 	function cron() {

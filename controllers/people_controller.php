@@ -8,7 +8,10 @@ class PeopleController extends AppController {
 	var $paginate = array('Person' => array());
 
 	function publicActions() {
-		return array('cron', 'view', 'tooltip', 'ical');
+		return array('cron', 'view', 'tooltip', 'ical',
+			// Relative approvals and removals may come from emailed links; people might not be logged in
+			'approve_relative', 'remove_relative',
+		);
 	}
 
 	function isAuthorized() {
@@ -31,6 +34,7 @@ class PeopleController extends AppController {
 		if (in_array ($this->params['action'], array(
 				'edit',
 				'preferences',
+				'add_relative',
 				'waivers',
 				'photo_upload',
 				'photo_resize',
@@ -38,10 +42,11 @@ class PeopleController extends AppController {
 				'registrations',
 		)))
 		{
-			// If a player id is specified, check if it's the logged-in user
+			// If a player id is specified, check if it's the logged-in user, or a relative
 			// If no player id is specified, it's always the logged-in user
 			$person = $this->_arg('person');
-			if (!$person || $person == $this->Auth->user('id')) {
+			$relatives = $this->UserCache->read('RelativeIDs');
+			if (!$person || $person == $this->Auth->user('id') || in_array($person, $relatives)) {
 				return true;
 			}
 		}
@@ -519,6 +524,8 @@ class PeopleController extends AppController {
 		$teams = $this->UserCache->read('Teams', $person['id']);
 
 		if ($this->is_logged_in) {
+			$relatives = $this->UserCache->read('Relatives', $person['id']);
+			$related_to = $this->UserCache->read('RelatedTo', $person['id']);
 			$divisions = $this->UserCache->read('Divisions', $person['id']);
 			$waivers = $this->UserCache->read('WaiversCurrent', $person['id']);
 			if (Configure::read('feature.registration')) {
@@ -649,7 +656,7 @@ class PeopleController extends AppController {
 			}
 		}
 
-		$this->set(compact('person', 'group', 'teams', 'divisions', 'waivers', 'registrations', 'preregistrations', 'allstars', 'photo', 'documents', 'note', 'tasks', 'badges'));
+		$this->set(compact('person', 'group', 'teams', 'relatives', 'related_to', 'divisions', 'waivers', 'registrations', 'preregistrations', 'allstars', 'photo', 'documents', 'note', 'tasks', 'badges'));
 		$this->set('is_me', ($id === $my_id));
 		$this->set($this->_connections($id));
 	}
@@ -973,6 +980,193 @@ class PeopleController extends AppController {
 		$this->data = $setting->find('all', array(
 				'conditions' => array('person_id' => $id),
 		));
+	}
+
+	function add_relative() {
+		$person_id = $this->_arg('person');
+		$person = $this->UserCache->read('Person', $person_id);
+		if (!$person) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$this->set(compact('person'));
+
+		$relative_id = $this->_arg('relative');
+		if ($relative_id !== null) {
+			if ($relative_id == $person_id) {
+				$this->Session->setFlash(__('You can\'t add yourself as a relative!', true), 'default', array('class' => 'info'));
+			} else {
+				$relative = $this->UserCache->read('Person', $relative_id);
+				if (!$relative) {
+					$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+					$this->redirect('/');
+				}
+
+				if (in_array($relative_id, $this->UserCache->read('RelativeIDs', $person_id))) {
+					$this->Session->setFlash(__("{$relative['full_name']} is already your relative", true), 'default', array('class' => 'info'));
+				} else {
+					if ($this->Person->PeoplePerson->save(compact('person_id', 'relative_id'), array('validate' => false))) {
+						$this->set(compact('relative'));
+						$this->set('code', $this->_hash (array(
+								'id' => $this->Person->PeoplePerson->id,
+								'person_id' => $person_id,
+								'relative_id' => $relative_id,
+								'created' => date('Y-m-d'),
+						)));
+
+						if (!$this->_sendMail (array (
+								'to' => $relative,
+								'replyTo' => $person,
+								'subject' => 'You have been added as a relative',
+								'template' => 'relative_add',
+								'sendAs' => 'both',
+						)))
+						{
+							$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), $person['full_name']), 'default', array('class' => 'error'), 'email');
+						}
+
+						$this->UserCache->clear('Relatives', $person_id);
+						$this->UserCache->clear('RelativeIDs', $person_id);
+						$this->UserCache->clear('RelatedTo', $relative_id);
+						$this->UserCache->clear('RelatedToIDs', $relative_id);
+						$this->Session->setFlash(__("Added {$relative['full_name']} as relative; you will not have access to their information until they have approved this", true), 'default', array('class' => 'success'));
+						$this->redirect('/');
+					} else {
+						$this->Session->setFlash(__("Failed to add {$relative['full_name']} as relative", true), 'default', array('class' => 'warning'));
+						$this->redirect(array('action' => 'add_relative', 'person' => $person_id));
+					}
+				}
+			}
+		}
+
+		$params = $url = $this->_extractSearchParams();
+		unset ($params['person']);
+		unset ($params['relative']);
+		$this->_handlePersonSearch($params, $url, $this->Person);
+	}
+
+	function approve_relative() {
+		$person_id = $this->_arg('person');
+		$relative_id = $this->_arg('relative');
+		if ($relative_id === null || $person_id === null) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'person' => $person_id));
+		}
+
+		$outstanding = Set::extract("/PeoplePerson[approved=0][person_id=$relative_id]/.", $this->UserCache->read('RelatedTo', $person_id));
+		if (empty($outstanding)) {
+			$this->Session->setFlash(__('This person does not have an outstanding relative request for you.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'person' => $person_id));
+		}
+		$outstanding = reset($outstanding);
+
+		// We must do other permission checks here, because we allow non-logged-in users to approve
+		// through email links
+		$code = $this->_arg('code');
+		if ($code) {
+			// Authenticate the hash code
+			$hash = $this->_hash($outstanding);
+			if ($hash != $code) {
+				$this->Session->setFlash(__('The authorization code is invalid.', true), 'default', array('class' => 'warning'));
+				$this->redirect(array('action' => 'view', 'person' => $person_id));
+			}
+		} else {
+			if (!$this->is_admin && $person_id != $this->Auth->user('id')) {
+				$this->Session->setFlash(__('You are not allowed to approve this relative request.', true), 'default', array('class' => 'warning'));
+				$this->redirect(array('action' => 'view', 'person' => $person_id));
+			}
+		}
+
+		$this->Person->PeoplePerson->id = $outstanding['id'];
+		if (!$this->Person->PeoplePerson->saveField ('approved', true)) {
+			$this->Session->setFlash(__('Failed to approve the relative request!', true), 'default', array('class' => 'warning'));
+			$this->redirect(array('action' => 'view', 'person' => $person_id));
+		}
+
+		$this->UserCache->clear('Relatives', $relative_id);
+		$this->UserCache->clear('RelativeIDs', $relative_id);
+		$this->UserCache->clear('RelatedTo', $person_id);
+		$this->UserCache->clear('RelatedToIDs', $person_id);
+		$this->Session->setFlash(__('Approved the relative request.', true), 'default', array('class' => 'success'));
+
+		$person = $this->UserCache->read('Person', $person_id);
+		$relative = $this->UserCache->read('Person', $relative_id);
+		$this->set(compact('person', 'relative'));
+		if (!$this->_sendMail (array (
+				'to' => $relative,
+				'replyTo' => $person,
+				'subject' => "{$person['full_name']} approved your relative request",
+				'template' => 'relative_approve',
+				'sendAs' => 'both',
+		)))
+		{
+			$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team captains.', true)), 'default', array('class' => 'error'), 'email');
+		}
+
+		$this->redirect(array('action' => 'view', 'person' => $person_id));
+	}
+
+	function remove_relative() {
+		$person_id = $this->_arg('person');
+		$relative_id = $this->_arg('relative');
+		if ($relative_id === null || $person_id === null) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'person' => $person_id));
+		}
+
+		$relation = Set::extract("/PeoplePerson[person_id=$relative_id]/.", $this->UserCache->read('RelatedTo', $person_id));
+		if (empty($relation)) {
+			$relation = Set::extract("/PeoplePerson[relative_id=$relative_id]/.", $this->UserCache->read('Relatives', $person_id));
+			if (empty($relation)) {
+				$this->Session->setFlash(__('This person is already not related to you.', true), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'view', 'person' => $person_id));
+			}
+		}
+		$relation = reset($relation);
+
+		// We must do other permission checks here, because we allow non-logged-in users to remove
+		// through email links
+		$code = $this->_arg('code');
+		if ($code) {
+			// Authenticate the hash code
+			$hash = $this->_hash($relation);
+			if ($hash != $code) {
+				$this->Session->setFlash(__('The authorization code is invalid.', true), 'default', array('class' => 'warning'));
+				$this->redirect(array('action' => 'view', 'person' => $person_id));
+			}
+		} else {
+			if (!$this->is_admin && $person_id != $this->Auth->user('id')) {
+				$this->Session->setFlash(__('You are not allowed to remove this relation.', true), 'default', array('class' => 'warning'));
+				$this->redirect(array('action' => 'view', 'person' => $person_id));
+			}
+		}
+
+		if (!$this->Person->PeoplePerson->delete($relation['id'])) {
+			$this->Session->setFlash(__('Failed to remove the relation!', true), 'default', array('class' => 'warning'));
+			$this->redirect(array('action' => 'view', 'person' => $person_id));
+		}
+
+		$this->UserCache->clear('Relatives', $relation['person_id']);
+		$this->UserCache->clear('RelativeIDs', $relation['person_id']);
+		$this->UserCache->clear('RelatedTo', $relation['relative_id']);
+		$this->UserCache->clear('RelatedToIDs', $relation['relative_id']);
+		$this->Session->setFlash(__('Removed the relation.', true), 'default', array('class' => 'success'));
+
+		$person = $this->UserCache->read('Person', $person_id);
+		$relative = $this->UserCache->read('Person', $relative_id);
+		$this->set(compact('person', 'relative'));
+		if (!$this->_sendMail (array (
+				'to' => $relative,
+				'replyTo' => $person,
+				'subject' => "{$person['full_name']} removed your relation",
+				'template' => 'relative_remove',
+				'sendAs' => 'both',
+		)))
+		{
+			$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team captains.', true)), 'default', array('class' => 'error'), 'email');
+		}
+
+		$this->redirect(array('action' => 'view', 'person' => $person_id));
 	}
 
 	function authorize_twitter() {
@@ -2485,6 +2679,15 @@ class PeopleController extends AppController {
 		}
 
 		$this->Lock->unlock();
+	}
+
+	function _hash ($relative, $salt = true) {
+		// Build a string of the inputs
+		$input = "{$relative['id']}:{$relative['person_id']}:{$relative['relative_id']}:{$relative['created']}";
+		if ($salt) {
+			$input = $input . ':' . Configure::read('Security.salt');
+		}
+		return md5($input);
 	}
 }
 ?>

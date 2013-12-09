@@ -39,13 +39,23 @@ class GamesController extends AppController {
 				'ratings_table',
 				'note',
 				'delete_note',
-				'past',
-				'future',
 				'stats',
 				'tweet',
 		)))
 		{
 			return true;
+		}
+
+		// Anyone that's logged in can perform these operations for themselves or relatives
+		if (in_array ($this->params['action'], array(
+				'past',
+				'future',
+		)))
+		{
+			$person = $this->_arg('person');
+			if (!$person || $person == $this->Auth->user('id') || in_array ($person, $this->UserCache->read('RelativeIDs'))) {
+				return true;
+			}
 		}
 
 		// Volunteers can perform these operations any time
@@ -976,13 +986,10 @@ class GamesController extends AppController {
 			// Authenticate the hash code
 			$player_hash = $this->_hash($attendance);
 			$captain_hash = $this->_hash(array_merge ($attendance, array('captain' => true)));
-			// Temporary addition during hash conversion period
-			$player_hash2 = $this->_hash($attendance, false);
-			$captain_hash2 = $this->_hash(array_merge ($attendance, array('captain' => true)), false);
-			if ($player_hash == $code || $player_hash2 == $code) {
+			if ($player_hash == $code) {
 				// Only the player will have this confirmation code
 				$is_me = true;
-			} else if ($captain_hash == $code || $captain_hash2 == $code) {
+			} else if ($captain_hash == $code) {
 				$is_captain = true;
 			} else {
 				$this->Session->setFlash(__('The authorization code is invalid.', true), 'default', array('class' => 'warning'));
@@ -2986,13 +2993,18 @@ class GamesController extends AppController {
 	}
 
 	function past() {
-		$team_ids = $this->UserCache->read('TeamIDs');
+		$person = $this->_arg('person');
+		if (!$person) {
+			$person = $this->Auth->user('id');
+		}
+		$team_ids = $this->UserCache->read('TeamIDs', $person);
 		if (empty ($team_ids)) {
 			return array();
 		}
 
+		$limit = max(4, ceil(count(array_unique($team_ids)) * 1.5));
 		return array_reverse ($this->Game->find ('all', array(
-			'limit' => 4,
+			'limit' => $limit,
 			'conditions' => array(
 				'OR' => array(
 					'HomeTeam.id' => $team_ids,
@@ -3017,7 +3029,7 @@ class GamesController extends AppController {
 				'AwayTeam',
 				'AwayPoolTeam' => 'DependencyPool',
 				'Attendance' => array(
-					'conditions' => array('Attendance.person_id' => $this->Auth->user('id')),
+					'conditions' => array('Attendance.person_id' => $person),
 				),
 			),
 			'order' => 'GameSlot.game_date DESC, GameSlot.game_start DESC',
@@ -3025,13 +3037,18 @@ class GamesController extends AppController {
 	}
 
 	function future($recursive = false) {
-		$team_ids = $this->UserCache->read('TeamIDs');
+		$person = $this->_arg('person');
+		if (!$person) {
+			$person = $this->Auth->user('id');
+		}
+		$team_ids = $this->UserCache->read('TeamIDs', $person);
 		if (empty ($team_ids)) {
 			return array();
 		}
 
+		$limit = max(4, ceil(count(array_unique($team_ids)) * 1.5));
 		$games = $this->Game->find ('all', array(
-			'limit' => 4,
+			'limit' => $limit,
 			'conditions' => array(
 				'OR' => array(
 					'HomeTeam.id' => $team_ids,
@@ -3056,7 +3073,7 @@ class GamesController extends AppController {
 				'AwayTeam',
 				'AwayPoolTeam' => 'DependencyPool',
 				'Attendance' => array(
-					'conditions' => array('Attendance.person_id' => $this->Auth->user('id')),
+					'conditions' => array('Attendance.person_id' => $person),
 				),
 			),
 			'order' => 'GameSlot.game_date ASC, GameSlot.game_start ASC',

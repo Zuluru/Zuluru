@@ -461,6 +461,15 @@ class ZuluruSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'username' => array('column' => 'user_name', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
+	var $people_people = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
+		'relative_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
+		'approved' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'created' => array('type' => 'date', 'null' => true, 'default' => NULL),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'person' => array('column' => 'person_id', 'unique' => 0), 'relative' => array('column' => 'relative_id', 'unique' => 0)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
 	var $pools = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'division_id' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'key' => 'index'),

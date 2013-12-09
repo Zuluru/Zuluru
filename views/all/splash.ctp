@@ -4,268 +4,73 @@ $this->Html->addCrumb ($this->UserCache->read('Person.full_name'));
 ?>
 
 <div class="all splash">
-<?php echo $this->Html->tag('h2', $this->UserCache->read('Person.full_name')); ?>
-
 <?php
-// We already have a lot of the information we need, stored from when we built the menu
-$teams = $this->UserCache->read('Teams');
-$divisions = $this->UserCache->read('Divisions');
-$unpaid = $this->UserCache->read('RegistrationsUnpaid');
-$past_teams = $this->requestAction(array('controller' => 'teams', 'action' => 'past_count'));
+if ($is_admin) {
+	echo $this->element('version_check');
+}
+
+$id = $this->requestAction(array('controller' => 'users', 'action' => 'id'));
+$statuses = Configure::read('attendance');
+
 if (Configure::read('feature.affiliates')) {
 	$affiliates = $this->requestAction(array('controller' => 'affiliates', 'action' => 'index'));
 	AppModel::_reindexOuter($affiliates, 'Affiliate', 'id');
 }
-if (Configure::read('feature.tasks')) {
-	$tasks = $this->UserCache->read('Tasks');
-}
-?>
 
-<div id="kick_start">
-<?php
-if ($is_admin) {
-	echo $this->element('version_check');
-
-	if (Configure::read('feature.affiliates')) {
-		if (empty($affiliates)) {
-			echo $this->Html->para('warning-message', __('You have enabled the affiliate option, but have not yet created any affiliates. ', true) .
-				$this->Html->link(__('Create one now!', true), array('controller' => 'affiliates', 'action' => 'add', 'return' => true)));
-		} else {
-			$unmanaged = $this->requestAction(array('controller' => 'affiliates', 'action' => 'unmanaged'));
-			if (!empty($unmanaged)):
-?>
-<p class="warning-message">The following affiliates do not yet have managers assigned to them:</p>
-<table class="list">
-<tr>
-	<th><?php __('Affiliate'); ?></th>
-	<th><?php __('Actions'); ?></th>
-</tr>
-<?php
-				$i = 0;
-				foreach ($unmanaged as $affiliate):
-					$class = null;
-					if ($i++ % 2 == 0) {
-						$class = ' class="altrow"';
-					}
-?>
-	<tr<?php echo $class;?>>
-		<td class="splash_item"><?php echo $affiliate['Affiliate']['name']; ?></td>
-		<td class="actions">
-			<?php
-					echo $this->ZuluruHtml->iconLink('edit_24.png',
-						array('controller' => 'affiliates', 'action' => 'edit', 'affiliate' => $affiliate['Affiliate']['id'], 'return' => true),
-						array('alt' => __('Edit', true), 'title' => __('Edit', true)));
-					echo $this->ZuluruHtml->iconLink('coordinator_add_24.png',
-						array('controller' => 'affiliates', 'action' => 'add_manager', 'affiliate' => $affiliate['Affiliate']['id'], 'return' => true),
-						array('alt' => __('Add Manager', true), 'title' => __('Add Manager', true)));
-					echo $this->ZuluruHtml->iconLink('delete_24.png',
-						array('controller' => 'affiliates', 'action' => 'delete', 'affiliate' => $affiliate['Affiliate']['id'], 'return' => true),
-						array('alt' => __('Delete', true), 'title' => __('Delete', true)),
-						array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $affiliate['Affiliate']['id'])));
-			?>
-		</td>
-	</tr>
-<?php endforeach; ?>
-</table>
-<?php
-			endif;
-		}
-	}
+$relatives = $this->UserCache->read('Relatives');
+$approved_relatives = Set::extract('/PeoplePerson[approved=1]/..', $relatives);
+if (empty($approved_relatives)) {
+	echo $this->Html->tag('h2', $this->UserCache->read('Person.full_name'));
 }
 
-if ($is_manager) {
-	$my_affiliates = $this->UserCache->read('ManagedAffiliates');
-	if (!empty($my_affiliates)) {
-		$facilities = $this->requestAction(array('controller' => 'facilities', 'action' => 'index'));
-		$facilities = Set::extract('/Facility[id>0]', $facilities);
-		if (empty($facilities)) {
-			echo $this->Html->para('warning-message', __('You have no open facilities. ', true) .
-				$this->Html->link(__('Create one now!', true), array('controller' => 'facilities', 'action' => 'add', 'return' => true)));
-		} else {
-			// Eliminate any open facilities that have fields, and check if there's anything left that we need to warn about
-			foreach ($facilities as $key => $facility) {
-				if (!empty($facility['Facility']['Field'])) {
-					unset($facilities[$key]);
-				}
-			}
-			if (!empty($facilities)):
-?>
-<p class="warning-message">The following facilities do not yet have <?php echo Configure::read('ui.fields'); ?>:</p>
-<table class="list">
-<tr>
-	<th><?php __('Facility'); ?></th>
-	<th><?php __('Actions'); ?></th>
-</tr>
-<?php
-				$i = 0;
-				foreach ($facilities as $facility):
-					$class = null;
-					if ($i++ % 2 == 0) {
-						$class = ' class="altrow"';
-					}
-?>
-	<tr<?php echo $class;?>>
-		<td class="splash_item"><?php echo $facility['Facility']['name']; ?></td>
-		<td class="actions">
-			<?php
-					echo $this->ZuluruHtml->iconLink('edit_24.png',
-						array('controller' => 'facilities', 'action' => 'edit', 'facility' => $facility['Facility']['id'], 'return' => true),
-						array('alt' => __('Edit', true), 'title' => __('Edit Facility', true)));
-					echo $this->ZuluruHtml->iconLink('add_24.png',
-						array('controller' => 'fields', 'action' => 'add', 'facility' => $facility['Facility']['id'], 'return' => true),
-						array('alt' => sprintf(__('Add %s', true), __(Configure::read('ui.field'), true)), 'title' => sprintf(__('Add %s', true), __(Configure::read('ui.field'), true))));
-					echo $this->ZuluruHtml->iconLink('delete_24.png',
-						array('controller' => 'facilities', 'action' => 'delete', 'facility' => $facility['Facility']['id'], 'return' => true),
-						array('alt' => __('Delete', true), 'title' => __('Delete Facility', true)),
-						array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $facility['Facility']['id'])));
-			?>
-		</td>
-	</tr>
-<?php endforeach; ?>
-</table>
-<?php
-			endif;
-		}
-
-		$leagues = $this->requestAction(array('controller' => 'leagues', 'action' => 'index'));
-		if (empty($leagues)) {
-			echo $this->Html->para('warning-message', __('You have no current or upcoming leagues. ', true) .
-				$this->Html->link(__('Create one now!', true), array('controller' => 'leagues', 'action' => 'add', 'return' => true)));
-		} else {
-			// Eliminate any open leagues that have divisions, and check if there's anything left that we need to warn about
-			foreach ($leagues as $key => $league) {
-				if (!empty($league['Division'])) {
-					unset($leagues[$key]);
-				}
-			}
-			if (!empty($leagues)):
-?>
-<p class="warning-message">The following leagues do not yet have divisions:</p>
-<table class="list">
-<tr>
-	<th><?php __('League'); ?></th>
-	<th><?php __('Actions'); ?></th>
-</tr>
-<?php
-				$i = 0;
-				foreach ($leagues as $league):
-					$class = null;
-					if ($i++ % 2 == 0) {
-						$class = ' class="altrow"';
-					}
-?>
-	<tr<?php echo $class;?>>
-		<td class="splash_item"><?php echo $league['League']['full_name']; ?></td>
-		<td class="actions"><?php echo $this->element('leagues/actions', array('league' => $league['League'], 'return' => true)); ?></td>
-	</tr>
-<?php endforeach; ?>
-</table>
-<?php
-			endif;
-		}
-
-		$events = $this->requestAction(array('controller' => 'events', 'action' => 'index'));
-		if (empty($events)) {
-			echo $this->Html->para('warning-message', __('You have no current or upcoming registration events. ', true) .
-				$this->Html->link(__('Create one now!', true), array('controller' => 'events', 'action' => 'add', 'return' => true)));
-		}
-	}
-} else {
-	// If the user has nothing going on, pull some more details to allow us to help them get started
-	if (empty($teams) && empty($divisions) && empty($unpaid) && empty($tasks)) {
-		$membership_events = $this->requestAction(array('controller' => 'events', 'action' => 'count'), array('pass' => array(true)));
-		$non_membership_events = $this->requestAction(array('controller' => 'events', 'action' => 'count'));
-		$open_teams = $this->requestAction(array('controller' => 'teams', 'action' => 'open_count'));
-		$leagues = $this->requestAction(array('controller' => 'leagues', 'action' => 'index'));
-
-?>
-<h3><?php __('You are not yet on any teams.'); ?></h3>
-<?php
-		$options = array();
-		if ($membership_events) {
-			$options[] = 'membership';
-		}
-		if ($non_membership_events) {
-			$options[] = 'an event';
-		}
-
-		$actions = array();
-		if (!empty($options)) {
-			$actions[] = $this->Html->link ('Register for ' . implode(' or ', $options), array('controller' => 'events', 'action' => 'wizard'));
-		}
-
-		if ($open_teams) {
-			$actions[] = $this->Html->link ('Join an existing team', array('controller' => 'teams', 'action' => 'join'));
-		}
-
-		if (!empty($leagues)) {
-			$actions[] = $this->Html->link ('Check out the leagues we are currently offering', array('controller' => 'leagues'));
-		}
-
-		if (!empty($actions)) {
-			echo $this->Html->tag('div', $this->Html->nestedList($actions), array('class' => 'actions'));
-		}
-	}
+$unpaid = $this->UserCache->read('RegistrationsUnpaid');
+$relative_unpaid = array();
+foreach ($approved_relatives as $relative) {
+	$relative_unpaid[$relative['Relative']['id']] = $this->UserCache->read('RegistrationsUnpaid', $relative['Relative']['id']);
 }
-?>
-</div>
 
-<?php
-if (!empty($unpaid)) {
+$count = count($unpaid) + array_sum(array_map('count', $relative_unpaid));
+if ($count) {
 	echo $this->Html->para (null, sprintf (__('You currently have %s unpaid %s. %s to complete these registrations.', true),
-			count($unpaid),
-			__(count($unpaid) > 1 ? 'registrations' : 'registration', true),
+			$count,
+			__($count > 1 ? 'registrations' : 'registration', true),
 			$this->Html->link (__('Click here', true), array('controller' => 'registrations', 'action' => 'checkout'))
 	));
 }
-?>
 
-<?php if (!empty($teams) || $past_teams > 0): ?>
-<table class="list">
-<tr>
-	<th colspan="2"><?php
-	__('My Teams');
-	echo $this->ZuluruHtml->help(array('action' => 'teams', 'my_teams'));
-	?></th>
-</tr>
-<?php
-$i = 0;
-foreach ($teams as $team):
-	$class = null;
-	if ($i++ % 2 == 0) {
-		$class = ' class="altrow"';
-	}
+$teams = $this->UserCache->read('Teams');
+$team_ids = $this->UserCache->read('TeamIDs');
+$past_teams = $this->requestAction(array('controller' => 'teams', 'action' => 'past_count'), array('named' => array('person' => $id)));
+$divisions = $this->UserCache->read('Divisions');
+if (Configure::read('feature.tasks')) {
+	$tasks = $this->UserCache->read('Tasks');
+}
+$events = array_merge (
+		$this->requestAction(array('controller' => 'team_events', 'action' => 'past'), array('named' => array('person' => $id))),
+		$this->requestAction(array('controller' => 'team_events', 'action' => 'future'), array('named' => array('person' => $id)))
+);
+AppModel::_reindexOuter($events, 'TeamEvent', 'id');
+AppModel::_reindexInner($events, 'Attendance', 'person_id');
+
+if (!empty($approved_relatives)):
+	// Set up the tab structure for everyone
 ?>
-	<tr<?php echo $class;?>>
-		<td class="splash_item"><?php
-		echo $this->element('teams/block', array('team' => $team['Team'])) .
-				' (' . $this->element('divisions/block', array('division' => $team['Division'], 'field' => 'league_name')) . ')' .
-				' (' . $this->element('people/roster_role', array('roster' => $team['TeamsPerson'], 'division' => $team['Division'])) . ')';
-		if (!empty($team['Team']['division_id'])) {
-			Configure::load("sport/{$team['Division']['League']['sport']}");
-			$positions = Configure::read('sport.positions');
-			if (!empty($positions)) {
-				echo ' (' . $this->element('people/roster_position', array('roster' => $team['TeamsPerson'], 'division' => $team['Division'])) . ')';
-			}
-		}
-		?></td>
-		<td class="actions splash_action">
-			<?php
-			$is_captain = in_array($team['Team']['id'], $this->UserCache->read('OwnedTeamIDs'));
-			echo $this->element('teams/actions', array('team' => $team['Team'], 'division' => $team['Division'], 'league' => $team['Division']['League'], 'is_captain' => $is_captain, 'format' => 'links'));
-			?>
-		</td>
-	</tr>
-<?php endforeach; ?>
-</table>
-<?php if ($past_teams > 0): ?>
-<div class="actions">
-	<ul>
-		<li><?php echo $this->Html->link(__('Show Team History', true), array('controller' => 'people', 'action' => 'teams')); ?> </li>
-	</ul>
-</div>
-<?php endif; ?>
-<?php endif; ?>
+	<div id="tabs">
+		<ul>
+			<li><a href="#tab-<?php echo $this->UserCache->read('Person.id'); ?>"><?php echo $this->UserCache->read('Person.full_name'); ?></a></li>
+			<?php foreach ($approved_relatives as $relative): ?>
+			<li><a href="#tab-<?php echo $relative['Relative']['id']; ?>"><?php echo $relative['Relative']['full_name']; ?></a></li>
+			<?php endforeach; ?>
+			<li><a href="#consolidated"><?php __('Consolidated Schedule'); ?></a></li>
+		</ul>
+		<div id="tab-<?php echo $this->UserCache->read('Person.id'); ?>">
+<?php
+endif;
+
+// This is all of the content for the current user, regardless of whether it's in a tab or not
+echo $this->element('teams/splash', array('teams' => $teams, 'past_teams' => $past_teams, 'name' => __('My', true)));
+echo $this->element('all/kickstart', array('empty' => (empty($teams) && empty($divisions) && empty($unpaid) && empty($tasks))));
+?>
 
 <?php if (!empty ($divisions)) : ?>
 <table class="list">
@@ -286,151 +91,27 @@ foreach ($divisions as $division):
 	</tr>
 <?php endforeach; ?>
 </table>
-<?php endif; ?>
-
 <?php
-$games = array_merge ($this->requestAction(array('controller' => 'games', 'action' => 'past')), $this->requestAction(array('controller' => 'games', 'action' => 'future')));
-if (!empty($games)):
+endif;
+
+$games = $items = array_merge (
+		$this->requestAction(array('controller' => 'games', 'action' => 'past'), array('named' => array('person' => $id))),
+		$this->requestAction(array('controller' => 'games', 'action' => 'future'), array('named' => array('person' => $id)))
+);
+$items = $games;
+if (!empty($tasks)) {
+	$items = array_merge($items, $tasks);
+}
+if (!empty($events)) {
+	$items = array_merge($items, $events);
+}
+echo $this->element('games/splash', compact('items', 'teams', 'team_ids'));
+AppModel::_reindexOuter($games, 'Game', 'id');
+AppModel::_reindexInner($games, 'Attendance', 'person_id');
 ?>
-<table class="list">
-<tr>
-	<th colspan="3"><?php
-	__('Recent and Upcoming Games');
-	echo $this->ZuluruHtml->help(array('action' => 'games', 'recent_and_upcoming'));
-	?></th>
-</tr>
-<?php
-$i = 0;
-foreach ($games as $game):
-	$class = null;
-	if ($i++ % 2 == 0) {
-		$class = ' class="altrow"';
-	}
-?>
-	<tr<?php echo $class;?>>
-		<td class="splash_item"><?php
-			$time = $this->ZuluruTime->day($game['GameSlot']['game_date']) . ', ' .
-					$this->ZuluruTime->time($game['GameSlot']['game_start']) . '-' .
-					$this->ZuluruTime->time($game['GameSlot']['display_game_end']);
-			echo $this->Html->link($time, array('controller' => 'games', 'action' => 'view', 'game' => $game['Game']['id']));
-		?></td>
-		<td class="splash_item"><?php
-			Game::_readDependencies($game);
-			if ($game['Game']['home_team'] === null) {
-				echo $game['Game']['home_dependency'];
-			} else {
-				echo $this->element('teams/block', array('team' => $game['HomeTeam'], 'options' => array('max_length' => 16))) .
-					' (' . __('home', true) . ')';
-			}
-			__(' vs. ');
-			if ($game['Game']['away_team'] === null) {
-				echo $game['Game']['away_dependency'];
-			} else {
-				echo $this->element('teams/block', array('team' => $game['AwayTeam'], 'options' => array('max_length' => 16))) .
-					' (' . __('away', true) . ')';
-			}
-			__(' at ');
-			echo $this->element('fields/block', array('field' => $game['GameSlot']['Field']));
-		?></td>
-		<td class="actions splash_action"><?php
-		if (in_array ($game['HomeTeam']['id'], $this->UserCache->read('TeamIDs')) && in_array ($game['AwayTeam']['id'], $this->UserCache->read('TeamIDs'))) {
-			// This person is on both teams; pick the one they're more important on...
-			// TODO: Better handling of this, as well as deal with game notes in such cases
-			$home_role = array_pop(Set::extract("/TeamsPerson[team_id={$game['HomeTeam']['id']}]/role", $teams));
-			$away_role = array_pop(Set::extract("/TeamsPerson[team_id={$game['AwayTeam']['id']}]/role", $teams));
-			$importance = array_flip(array_reverse(array_keys(Configure::read('options.roster_role'))));
-			if ($importance[$home_role] >= $importance[$away_role]) {
-				$team = $game['HomeTeam'];
-			} else {
-				$team = $game['AwayTeam'];
-			}
-		} else if (in_array ($game['HomeTeam']['id'], $this->UserCache->read('TeamIDs'))) {
-			$team = $game['HomeTeam'];
-		} else {
-			$team = $game['AwayTeam'];
-		}
-		if ($team['track_attendance']) {
-			$role = Set::extract("/TeamsPerson[team_id={$team['id']}]/role", $teams);
-			$is_captain = in_array($team['id'], $this->UserCache->read('OwnedTeamIDs'));
-			echo $this->element('games/attendance_change', array(
-				'team' => $team,
-				'game_id' => $game['Game']['id'],
-				'game_date' => $game['GameSlot']['game_date'],
-				'game_time' => $game['GameSlot']['game_start'],
-				'role' => $role[0],
-				'status' => (array_key_exists (0, $game['Attendance']) ? $game['Attendance'][0]['status'] : ATTENDANCE_UNKNOWN),
-				'comment' => (array_key_exists (0, $game['Attendance']) ? $game['Attendance'][0]['comment'] : null),
-				'future_only' => true,
-			));
-			if ($game['GameSlot']['game_date'] >= date('Y-m-d')) {
-				echo $this->ZuluruHtml->iconLink('attendance_24.png',
-					array('controller' => 'games', 'action' => 'attendance', 'team' => $team['id'], 'game' => $game['Game']['id']),
-					array('alt' => __('Attendance', true), 'title' => __('View Game Attendance Report', true)));
-
-				if ($is_captain && Configure::read('scoring.stat_tracking') && League::hasStats($game['Division']['League'])) {
-					echo $this->ZuluruHtml->iconLink('pdf_24.png',
-							array('controller' => 'games', 'action' => 'stat_sheet', 'team' => $team['id'], 'game' => $game['Game']['id']),
-							array('alt' => __('Stat Sheet', true), 'title' => __('Stat Sheet', true)),
-							array('confirm' => __('This stat sheet will only include players who have indicated that they are playing, plus a couple of blank lines.\n\nFor a stat sheet with your full roster, use the link from the team view page.', true)));
-				}
-			}
-		}
-
-		echo $this->ZuluruGame->displayScore ($game, $game['Division']['League']);
-
-		if (Configure::read('feature.annotations')) {
-			echo $this->Html->link(__('Add Note', true), array('controller' => 'games', 'action' => 'note', 'game' => $game['Game']['id']));
-		}
-		?></td>
-	</tr>
-<?php endforeach; ?>
-</table>
-<?php endif; ?>
-
-<?php
-if (!empty($tasks)):
-?>
-<table class="list">
-<tr>
-	<th><?php __('My Tasks'); ?></th>
-	<th><?php __('Time'); ?></th>
-	<th><?php __('Report To'); ?></th>
-	<th><?php __('Actions'); ?></th>
-</tr>
-<?php
-$i = 0;
-foreach ($tasks as $task):
-	$class = null;
-	if ($i++ % 2 == 0) {
-		$class = ' class="altrow"';
-	}
-?>
-<tr<?php echo $class;?>>
-	<td class="splash_item"><?php
-	echo $this->Html->link($task['Task']['name'], array('controller' => 'tasks', 'action' => 'view', 'task' => $task['Task']['id']));
-	?></td>
-	<td class="splash_item"><?php
-	echo $this->ZuluruTime->day($task['TaskSlot']['task_date']) . ', ' .
-			$this->ZuluruTime->time($task['TaskSlot']['task_start']) . '-' .
-			$this->ZuluruTime->time($task['TaskSlot']['task_end'])
-	?></td>
-	<td class="splash_item"><?php
-	echo $this->element('people/block', array('person' => $task['Task']['Person']));
-	?></td>
-	<td class="actions"><?php
-	echo $this->Html->link(
-			__('iCal', true),
-			array('controller' => 'task_slots', 'action' => 'ical', $task['TaskSlot']['id'], 'task.ics'));
-
-	?></td>
-</tr>
-<?php endforeach; ?>
-</table>
-<?php endif; ?>
 
 <p><?php
 if (Configure::read('personal.enable_ical')) {
-	$id = $this->requestAction(array('controller' => 'users', 'action' => 'id'));
 	__('Get your personal schedule in ');
 	// TODOIMG: Better image locations, alt text
 	echo $this->ZuluruHtml->iconLink ('ical.gif',
@@ -446,6 +127,311 @@ if (Configure::read('personal.enable_ical')) {
 	__(' to enable your personal iCal feed');
 }
 ?>. <?php echo $this->ZuluruHtml->help(array('action' => 'games', 'personal_feed')); ?></p>
+
+<?php
+// If there are relatives, we now close out the current user's details and add the other tabs
+if (!empty($relatives)):
+?>
+		</div>
+		<?php foreach ($approved_relatives as $relative): ?>
+		<div id="tab-<?php echo $relative['Relative']['id']; ?>">
+			<?php
+			$relative_teams = $this->UserCache->read('Teams', $relative['Relative']['id']);
+			$relative_team_ids = $this->UserCache->read('TeamIDs', $relative['Relative']['id']);
+			$relative_past_teams = $this->requestAction(array('controller' => 'teams', 'action' => 'past_count'), array('named' => array('person' => $relative['Relative']['id'])));
+			echo $this->element('teams/splash', array('teams' => $relative_teams, 'past_teams' => $relative_past_teams, 'name' => "{$relative['Relative']['first_name']}'s"));
+
+			$relative_games = array_merge (
+					$this->requestAction(array('controller' => 'games', 'action' => 'past'), array('named' => array('person' => $relative['Relative']['id']))),
+					$this->requestAction(array('controller' => 'games', 'action' => 'future'), array('named' => array('person' => $relative['Relative']['id'])))
+			);
+
+			if (Configure::read('feature.tasks')) {
+				$relative_tasks = $this->UserCache->read('Tasks', $relative['Relative']['id']);
+				$tasks = array_merge($tasks, $relative_tasks);
+			}
+
+			$relative_events = array_merge (
+					$this->requestAction(array('controller' => 'team_events', 'action' => 'past'), array('named' => array('person' => $relative['Relative']['id']))),
+					$this->requestAction(array('controller' => 'team_events', 'action' => 'future'), array('named' => array('person' => $relative['Relative']['id'])))
+			);
+
+			$relative_items = $relative_games;
+			if (!empty($relative_tasks)) {
+				$relative_items = array_merge($relative_items, $relative_tasks);
+			}
+			if (!empty($relative_events)) {
+				$relative_items = array_merge($relative_items, $relative_events);
+			}
+			echo $this->element('games/splash', array('items' => $relative_items, 'teams' => $relative_teams, 'team_ids' => $relative_team_ids));
+
+			// Add in this relative's details to the consolidated list
+			foreach ($relative_games as $game) {
+				if (array_key_exists($game['Game']['id'], $games)) {
+					// Just merge the attendance records, if they exist (might not, if tracking is disabled)
+					if (!empty($game['Attendance'])) {
+						$games[$game['Game']['id']]['Attendance'][$game['Attendance'][0]['person_id']] = $game['Attendance'][0];
+					}
+				} else {
+					$games[$game['Game']['id']] = $game;
+				}
+			}
+
+			foreach ($relative_events as $event) {
+				if (array_key_exists($event['TeamEvent']['id'], $events)) {
+					// Just merge the attendance records, if they exist (might not, if tracking is disabled)
+					if (!empty($event['Attendance'])) {
+						$events[$event['TeamEvent']['id']]['Attendance'][$event['Attendance'][0]['person_id']] = $event['Attendance'][0];
+					}
+				} else {
+					$events[$event['TeamEvent']['id']] = $event;
+				}
+			}
+
+			$teams = array_merge($teams, $relative_teams);
+			$team_ids = array_merge($team_ids, $relative_team_ids);
+
+			echo $this->element('all/kickstart', array('is_admin' => false, 'is_manager' => false, 'empty' => (empty($relative_teams) && empty($relative_unpaid[$relative['Relative']['id']]) && empty($relative_tasks))));
+			?>
+		</div>
+		<?php endforeach; ?>
+		<div id="consolidated">
+		<?php
+		$items = $games;
+		if (!empty($tasks)) {
+			$items = array_merge($items, $tasks);
+		}
+		if (!empty($events)) {
+			$items = array_merge($items, $events);
+		}
+
+		if (!empty($items)):
+			usort($items, array('Game', 'compareDateAndField'));
+		?>
+			<table class="list">
+				<tr>
+					<th></th>
+					<th></th>
+					<th><?php echo $this->UserCache->read('Person.full_name'); ?></th>
+					<?php foreach ($approved_relatives as $relative): ?>
+					<th><?php echo $relative['Relative']['full_name']; ?></th>
+					<?php endforeach; ?>
+					<th></th>
+				</tr>
+			<?php
+			$i = 0;
+			foreach ($items as $item):
+				$class = null;
+				if ($i++ % 2 == 0) {
+					$class = ' class="altrow"';
+				}
+			?>
+				<tr<?php echo $class;?>>
+				<?php if (array_key_exists('Game', $item)): ?>
+					<td class="splash_item"><?php
+						$time = $this->ZuluruTime->day($item['GameSlot']['game_date']) . ', ' .
+								$this->ZuluruTime->time($item['GameSlot']['game_start']) . '-' .
+								$this->ZuluruTime->time($item['GameSlot']['display_game_end']);
+						echo $this->Html->link($time, array('controller' => 'games', 'action' => 'view', 'game' => $item['Game']['id']));
+					?></td>
+					<td class="splash_item"><?php
+						Game::_readDependencies($item);
+						if ($item['Game']['home_team'] === null) {
+							echo $item['Game']['home_dependency'];
+						} else {
+							echo $this->element('teams/block', array('team' => $item['HomeTeam'], 'options' => array('max_length' => 16))) .
+								' (' . __('home', true) . ')';
+							if (in_array($item['HomeTeam']['id'], $team_ids) && $item['HomeTeam']['track_attendance'] && $item['GameSlot']['game_date'] >= date('Y-m-d')) {
+								echo $this->ZuluruHtml->iconLink('attendance_24.png',
+									array('controller' => 'games', 'action' => 'attendance', 'team' => $item['HomeTeam']['id'], 'game' => $item['Game']['id']),
+									array('alt' => __('Attendance', true), 'title' => __('View Game Attendance Report', true)));
+							}
+						}
+						__(' vs. ');
+						if ($item['Game']['away_team'] === null) {
+							echo $item['Game']['away_dependency'];
+						} else {
+							echo $this->element('teams/block', array('team' => $item['AwayTeam'], 'options' => array('max_length' => 16))) .
+								' (' . __('away', true) . ')';
+							if (in_array($item['AwayTeam']['id'], $team_ids) && $item['AwayTeam']['track_attendance'] && $item['GameSlot']['game_date'] >= date('Y-m-d')) {
+								echo $this->ZuluruHtml->iconLink('attendance_24.png',
+									array('controller' => 'games', 'action' => 'attendance', 'team' => $item['AwayTeam']['id'], 'game' => $item['Game']['id']),
+									array('alt' => __('Attendance', true), 'title' => __('View Game Attendance Report', true)));
+							}
+						}
+						__(' at ');
+						echo $this->element('fields/block', array('field' => $item['GameSlot']['Field']));
+					?></td>
+					<td class="actions splash_item"><?php
+					if (in_array($item['HomeTeam']['id'], $team_ids) && $item['HomeTeam']['track_attendance']) {
+						$role = Set::extract("/TeamsPerson[person_id=$id][team_id={$item['HomeTeam']['id']}]/role", $teams);
+						if (!empty($role)) {
+							echo $this->element('games/attendance_change', array(
+								'team' => $item['HomeTeam'],
+								'game_id' => $item['Game']['id'],
+								'game_date' => $item['GameSlot']['game_date'],
+								'game_time' => $item['GameSlot']['game_start'],
+								'role' => $role[0],
+								'status' => (array_key_exists ($id, $item['Attendance']) ? $item['Attendance'][$id]['status'] : ATTENDANCE_UNKNOWN),
+								'comment' => (array_key_exists ($id, $item['Attendance']) ? $item['Attendance'][$id]['comment'] : null),
+								'future_only' => false,
+								'dedicated' => true,
+							));
+						}
+					} else if (in_array($item['AwayTeam']['id'], $team_ids) && $item['AwayTeam']['track_attendance']) {
+						$role = Set::extract("/TeamsPerson[person_id=$id][team_id={$item['AwayTeam']['id']}]/role", $teams);
+						if (!empty($role)) {
+							echo $this->element('games/attendance_change', array(
+								'team' => $item['AwayTeam'],
+								'game_id' => $item['Game']['id'],
+								'game_date' => $item['GameSlot']['game_date'],
+								'game_time' => $item['GameSlot']['game_start'],
+								'role' => $role[0],
+								'status' => (array_key_exists ($id, $item['Attendance']) ? $item['Attendance'][$id]['status'] : ATTENDANCE_UNKNOWN),
+								'comment' => (array_key_exists ($id, $item['Attendance']) ? $item['Attendance'][$id]['comment'] : null),
+								'future_only' => false,
+								'dedicated' => true,
+							));
+						}
+					}
+					?></td>
+					<?php foreach ($approved_relatives as $relative): ?>
+					<td class="actions splash_item"><?php
+					if (in_array($item['HomeTeam']['id'], $team_ids) && $item['HomeTeam']['track_attendance']) {
+						$role = Set::extract("/TeamsPerson[person_id={$relative['Relative']['id']}][team_id={$item['HomeTeam']['id']}]/role", $teams);
+						if (!empty($role)) {
+							echo $this->element('games/attendance_change', array(
+								'team' => $item['HomeTeam'],
+								'game_id' => $item['Game']['id'],
+								'game_date' => $item['GameSlot']['game_date'],
+								'game_time' => $item['GameSlot']['game_start'],
+								'role' => $role[0],
+								'status' => (array_key_exists ($relative['Relative']['id'], $item['Attendance']) ? $item['Attendance'][$relative['Relative']['id']]['status'] : ATTENDANCE_UNKNOWN),
+								'comment' => (array_key_exists ($relative['Relative']['id'], $item['Attendance']) ? $item['Attendance'][$relative['Relative']['id']]['comment'] : null),
+								'future_only' => false,
+								'dedicated' => true,
+							));
+						}
+					} else if (in_array($item['AwayTeam']['id'], $team_ids) && $item['AwayTeam']['track_attendance']) {
+						$role = Set::extract("/TeamsPerson[person_id={$relative['Relative']['id']}][team_id={$item['AwayTeam']['id']}]/role", $teams);
+						if (!empty($role)) {
+							echo $this->element('games/attendance_change', array(
+								'team' => $item['AwayTeam'],
+								'game_id' => $item['Game']['id'],
+								'game_date' => $item['GameSlot']['game_date'],
+								'game_time' => $item['GameSlot']['game_start'],
+								'role' => $role[0],
+								'status' => (array_key_exists ($relative['Relative']['id'], $item['Attendance']) ? $item['Attendance'][$relative['Relative']['id']]['status'] : ATTENDANCE_UNKNOWN),
+								'comment' => (array_key_exists ($relative['Relative']['id'], $item['Attendance']) ? $item['Attendance'][$relative['Relative']['id']]['comment'] : null),
+								'future_only' => true,
+								'dedicated' => true,
+							));
+						}
+					}
+					?></td>
+					<?php endforeach; ?>
+					<td><?php echo $this->ZuluruGame->displayScore ($item, $item['Division']['League']); ?></td>
+				<?php elseif (!empty($item['TeamEvent'])): ?>
+					<td class="splash_item"><?php
+						$time = $this->ZuluruTime->day($item['TeamEvent']['date']) . ', ' .
+								$this->ZuluruTime->time($item['TeamEvent']['start']) . '-' .
+								$this->ZuluruTime->time($item['TeamEvent']['end']);
+						echo $this->Html->link($time, array('controller' => 'team_events', 'action' => 'view', 'event' => $item['TeamEvent']['id']));
+					?></td>
+					<td class="splash_item"><?php
+						echo $this->element('teams/block', array('team' => $item['Team'], 'show_shirt' => false)) . ' ' .
+								__('event', true) . ': ';
+						if (!empty($item['TeamEvent']['website'])) {
+							echo $this->Html->link($item['TeamEvent']['name'], $item['TeamEvent']['website']);
+						} else {
+							echo $item['TeamEvent']['name'];
+						}
+						echo ' ' . __('at', true) . ' ';
+						$address = "{$item['TeamEvent']['location_street']}, {$item['TeamEvent']['location_city']}, {$item['TeamEvent']['location_province']}";
+						$link_address = strtr ($address, ' ', '+');
+						echo $this->Html->link($item['TeamEvent']['location_name'], "http://maps.google.com/maps?q=$link_address");
+					?></td>
+					<td class="actions splash_item"><?php
+						if ($item['Team']['track_attendance'] && array_key_exists ($id, $item['Attendance'])) {
+							$role = Set::extract("/TeamsPerson[person_id=$id][team_id={$item['Team']['id']}]/role", $teams);
+							if (!empty($role)) {
+								echo $this->element('team_events/attendance_change', array(
+									'team' => $item['Team'],
+									'event_id' => $item['TeamEvent']['id'],
+									'date' => $item['TeamEvent']['date'],
+									'time' => $item['TeamEvent']['start'],
+									'person_id' => $id,
+									'role' => $role[0],
+									'status' => $item['Attendance'][$id]['status'],
+									'comment' => $item['Attendance'][$id]['comment'],
+									'is_captain' => in_array($item['Team']['id'], $this->UserCache->read('OwnedTeamIDs')),
+									'dedicated' => true,
+								));
+							}
+						}
+					?></td>
+					<?php foreach ($approved_relatives as $relative): ?>
+					<td class="actions splash_item"><?php
+						if ($item['Team']['track_attendance'] && array_key_exists ($relative['Relative']['id'], $item['Attendance'])) {
+							$role = Set::extract("/TeamsPerson[person_id={$relative['Relative']['id']}][team_id={$item['Team']['id']}]/role", $teams);
+							if (!empty($role)) {
+								echo $this->element('team_events/attendance_change', array(
+									'team' => $item['Team'],
+									'event_id' => $item['TeamEvent']['id'],
+									'date' => $item['TeamEvent']['date'],
+									'time' => $item['TeamEvent']['start'],
+									'person_id' => $relative['Relative']['id'],
+									'role' => $role[0],
+									'status' => $item['Attendance'][$relative['Relative']['id']]['status'],
+									'comment' => $item['Attendance'][$relative['Relative']['id']]['comment'],
+									'is_captain' => in_array($item['Team']['id'], $this->UserCache->read('OwnedTeamIDs')),
+									'dedicated' => true,
+								));
+							}
+						}
+					?></td>
+					<?php endforeach; ?>
+					<td></td>
+				<?php elseif (!empty($item['TaskSlot'])): ?>
+					<td class="splash_item"><?php
+						$time = $this->ZuluruTime->day($item['TaskSlot']['task_date']) . ', ' .
+								$this->ZuluruTime->time($item['TaskSlot']['task_start']) . '-' .
+								$this->ZuluruTime->time($item['TaskSlot']['task_end']);
+						echo $this->Html->link($time, array('controller' => 'tasks', 'action' => 'view', 'task' => $item['Task']['id']));
+					?></td>
+					<td class="splash_item"><?php
+						echo $this->Html->link($item['Task']['name'], array('controller' => 'tasks', 'action' => 'view', 'task' => $item['Task']['id'])) .
+								' (' . __('report to', true) . ' ' . $this->element('people/block', array('person' => $item['Task']['Person'])) . ')';
+					?></td>
+					<td class="splash_item"><?php
+					if ($item['TaskSlot']['person_id'] == $id) {
+						echo $this->ZuluruHtml->icon('attendance_attending_dedicated_24.png');
+					}
+					?></td>
+					<?php foreach ($approved_relatives as $relative): ?>
+					<td class="splash_item"><?php
+					if ($item['TaskSlot']['person_id'] == $relative['Relative']['id']) {
+						echo $this->ZuluruHtml->icon('attendance_attending_dedicated_24.png');
+					}
+					?></td>
+					<?php endforeach; ?>
+					<td class="actions"><?php
+					echo $this->Html->link(
+							__('iCal', true),
+							array('controller' => 'task_slots', 'action' => 'ical', $item['TaskSlot']['id'], 'task.ics'));
+					?></td>
+				<?php else: pr($item); ?>
+				<?php endif; ?>
+				</tr>
+			<?php endforeach; ?>
+			</table>
+		<?php endif; ?>
+		</div>
+	</div>
+<?php
+	$this->Js->buffer('jQuery("#tabs").tabs();');
+endif;
+?>
 
 <?php if (Configure::read('feature.affiliates') && count($affiliates) > 1): ?>
 <div id="affiliate_select">

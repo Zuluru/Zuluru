@@ -9,9 +9,21 @@ class TasksController extends AppController {
 			if (in_array ($this->params['action'], array(
 				'index',
 				'view',
-				'assigned',
 			)))
 			{
+				return true;
+			}
+		}
+
+		// People can perform these operations on their own account
+		if (in_array ($this->params['action'], array(
+				'assigned',
+		)))
+		{
+			// If a player id is specified, check if it's the logged-in user, or a relative
+			$person = $this->_arg('person');
+			$relatives = $this->UserCache->read('RelativeIDs');
+			if ($person == $this->Auth->user('id') || in_array($person, $relatives)) {
 				return true;
 			}
 		}
@@ -86,7 +98,7 @@ class TasksController extends AppController {
 	}
 
 	function assigned() {
-		$id = $this->Auth->user('id');
+		$id = $this->_arg('person');
 		$tasks = $this->Task->TaskSlot->find('all', array(
 				'conditions' => array(
 					'TaskSlot.person_id' => $id,
