@@ -405,6 +405,7 @@ body.map
 	-moz-border-radius: 8px;
 	border-radius: 8px;
 	text-decoration: none;
+	white-space: nowrap;
 	min-width: 0;
 }
 #zuluru .actions a img
