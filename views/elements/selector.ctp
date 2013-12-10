@@ -31,9 +31,9 @@ function selector_changed() {
 		}
 	});
 	if (show_selector == '') {
-		jQuery('[class^=\"selector_\"]').css('display', '');
+		jQuery('[class*=\"selector_\"]').css('display', '');
 	} else {
-		jQuery('[class^=\"selector_\"]').css('display', 'none');
+		jQuery('[class*=\"selector_\"]').css('display', 'none');
 		jQuery(show_selector).css('display', '');
 	}
 }
