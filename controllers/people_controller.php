@@ -2566,7 +2566,7 @@ class PeopleController extends AppController {
 		$this->Person->contain();
 		$this->set('person', $this->Person->read(null, $id));
 		$this->paginate['Registration'] = array(
-				'contain' => array('Event' => array('EventType', 'Affiliate')),
+				'contain' => array('Event' => array('EventType', 'Affiliate', 'Division' => array('League', 'Day'))),
 				'conditions' => array('Event.affiliate_id' => $affiliates),
 				'order' => array('Event.affiliate_id', 'Registration.created' => 'DESC'),
 				'limit' => Configure::read('feature.items_per_page'),
