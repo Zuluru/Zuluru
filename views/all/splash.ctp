@@ -173,6 +173,7 @@ if (!empty($relatives)):
 						$games[$game['Game']['id']]['Attendance'][$game['Attendance'][0]['person_id']] = $game['Attendance'][0];
 					}
 				} else {
+					AppModel::_reindexInner($game, 'Attendance', 'person_id');
 					$games[$game['Game']['id']] = $game;
 				}
 			}
