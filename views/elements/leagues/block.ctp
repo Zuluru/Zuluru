@@ -17,7 +17,10 @@ if (isset($max_length)) {
 if (!isset($field)) {
 	$field = 'full_name';
 }
-echo $this->ZuluruHtml->link($league[$field], array('controller' => 'leagues', 'action' => 'view', 'league' => $league['id']), $options);
+if (!isset($name)) {
+	$name = $league[$field];
+}
+echo $this->ZuluruHtml->link($name, array('controller' => 'leagues', 'action' => 'view', 'league' => $league['id']), $options);
 
 echo $this->element('tooltips');
 ?>
