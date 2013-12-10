@@ -196,10 +196,10 @@ class RegistrationsController extends AppController {
 		$this->set(compact('affiliates'));
 
 		$this->Registration->contain ();
-		$this->set('events', $this->Registration->find('all', array(
+		$events = $this->Registration->find('all', array(
 			'fields' => array(
-				'Event.id', 'Event.name', 'Event.affiliate_id',
-				'EventType.name',
+				'Event.id', 'Event.name', 'Event.affiliate_id', 'Event.division_id', 'Event.event_type_id',
+				'EventType.id', 'EventType.name', 'EventType.type',
 				'Affiliate.name',
 				'COUNT(Registration.id) AS count',
 			),
@@ -236,7 +236,17 @@ class RegistrationsController extends AppController {
 					'conditions' => array('Event.affiliate_id = Affiliate.id'),
 				),
 			),
-		)));
+		));
+
+		// Add division information where applicable
+		foreach ($events as $id => $event) {
+			if (!empty($event['Event']['division_id'])) {
+				$this->Registration->Event->Division->contain(array('League', 'Day'));
+				$events[$id] += $this->Registration->Event->Division->read(null, $event['Event']['division_id']);
+			}
+		}
+
+		$this->set(compact('events'));
 
 		$this->Registration->Event->contain();
 		$this->set('years', $this->Registration->Event->find('all', array(
