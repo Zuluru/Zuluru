@@ -107,7 +107,7 @@ class EventsController extends AppController {
 				'Event.affiliate_id' => $affiliates,
 			),
 			'order' => array('Event.event_type_id', 'Event.open', 'Event.close', 'Event.id'),
-			'contain' => array('EventType', 'Affiliate'),
+			'contain' => array('EventType', 'Affiliate', 'Division' => array('League', 'Day')),
 		));
 
 		$types = $this->Event->EventType->find('all', array(
