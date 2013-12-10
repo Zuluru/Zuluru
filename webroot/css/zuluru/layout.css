@@ -257,6 +257,19 @@ body.map
 	margin-bottom: 3px;
 	width: auto;
 }
+#zuluru .selector
+{
+	clear: none;
+}
+#zuluru .selector div
+{
+	clear: none;
+	float: left;
+}
+#zuluru .selector label
+{
+	display: inline;
+}
 #zuluru input,
 #zuluru select,
 #zuluru textarea

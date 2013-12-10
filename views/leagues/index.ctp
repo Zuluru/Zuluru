@@ -11,11 +11,22 @@ if (!empty($sport)) {
 <?php if (empty($leagues)): ?>
 <p class="warning-message">There are no leagues currently active. Please check back periodically for updates<?php if (!empty($years)) echo ' or use the links below to review historical information'; ?>.</p>
 <?php else: ?>
+<?php
+$seasons = array_unique(Set::extract('/League/long_season', $leagues));
+echo $this->element('selector', array(
+		'title' => 'Season',
+		'options' => $seasons,
+));
+$days = array_unique(Set::extract('/Division/Day/name', $leagues));
+echo $this->element('selector', array(
+		'title' => 'Day',
+		'options' => $days,
+));
+
+?>
 <table class="list">
 <?php
 $affiliate_id = null;
-
-$seasons = array_unique(Set::extract('/League/long_season', $leagues));
 
 foreach ($leagues as $league):
 	$is_manager = $is_logged_in && in_array($league['League']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
@@ -45,8 +56,9 @@ foreach ($leagues as $league):
 
 	if ($league['League']['long_season'] != $season && count($seasons) > 1):
 		$season = $league['League']['long_season'];
+		$days = array_unique(Set::extract("/League[long_season=$season]/../Division/Day/name", $leagues));
 ?>
-	<tr>
+	<tr class="<?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $season)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $days)); ?>">
 		<th colspan="2"><?php echo $season; ?></th>
 	</tr>
 <?php
@@ -60,8 +72,9 @@ foreach ($leagues as $league):
 		$class = 'inner-border';
 	else:
 		$class = '';
+		$days = array_unique(Set::extract('/Division/Day/name', $league));
 ?>
-	<tr>
+	<tr class="<?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $season)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $days)); ?>">
 		<td<?php if (!($is_admin || $is_manager)) echo ' colspan="2"'; ?> class="inner-border">
 			<strong><?php echo $this->element('leagues/block', array('league' => $league['League'], 'field' => 'name')); ?></strong>
 		</td>
@@ -73,16 +86,17 @@ foreach ($leagues as $league):
 	endif;
 
 	foreach ($league['Division'] as $division):
+		$days = array_unique(Set::extract('/Day/name', $division));
 ?>
-	<tr>
+	<tr class="<?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $season)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $days)); ?>">
 		<td class="<?php echo $class;?>"><?php
 			if ($collapse) {
 				$name = $league['League']['name'];
 				if (!empty($division['name'])) {
-					$name .= " ({$division['name']})";
+					$name .= " {$division['name']}";
 				}
 				echo $this->Html->tag('strong',
-					$this->element('leagues/block', array('league' => $league['League'], 'field' => 'name')));
+					$this->element('leagues/block', array('league' => $league['League'], 'name' => $name)));
 			} else {
 				echo '&nbsp;&nbsp;&nbsp;&nbsp;' .
 					$this->element('divisions/block', array('division' => $division));
