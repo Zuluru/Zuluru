@@ -459,6 +459,11 @@ class TeamEventsController extends AppController {
 			return array();
 		}
 
+		// We need to read attendance for all relatives, as shared games might
+		// not be everyone's list, but we still want to accurately show attendance
+		$people = $this->UserCache->read('RelativeIDs', $person);
+		array_unshift($people, $person);
+
 		$limit = max(4, ceil(count(array_unique($team_ids)) * 1.5));
 		return array_reverse ($this->TeamEvent->find ('all', array(
 			'limit' => $limit,
@@ -469,7 +474,7 @@ class TeamEventsController extends AppController {
 			'contain' => array(
 				'Team',
 				'Attendance' => array(
-					'conditions' => array('Attendance.person_id' => $person),
+					'conditions' => array('Attendance.person_id' => $people),
 				),
 			),
 			'order' => 'TeamEvent.date DESC, TeamEvent.start DESC',
@@ -486,6 +491,11 @@ class TeamEventsController extends AppController {
 			return array();
 		}
 
+		// We need to read attendance for all relatives, as shared games might
+		// not be everyone's list, but we still want to accurately show attendance
+		$people = $this->UserCache->read('RelativeIDs', $person);
+		array_unshift($people, $person);
+
 		$limit = max(4, ceil(count(array_unique($team_ids)) * 1.5));
 		$events = $this->TeamEvent->find ('all', array(
 			'limit' => $limit,
@@ -496,7 +506,7 @@ class TeamEventsController extends AppController {
 			'contain' => array(
 				'Team',
 				'Attendance' => array(
-					'conditions' => array('Attendance.person_id' => $person),
+					'conditions' => array('Attendance.person_id' => $people),
 				),
 			),
 			'order' => 'TeamEvent.date ASC, TeamEvent.start ASC',
