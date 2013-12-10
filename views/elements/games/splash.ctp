@@ -8,6 +8,9 @@
 </tr>
 <?php
 usort($items, array('Game', 'compareDateAndField'));
+if (!isset($person_id)) {
+	$person_id = null;
+}
 $i = 0;
 foreach ($items as $item):
 	$class = null;
@@ -66,9 +69,11 @@ foreach ($items as $item):
 				'game_id' => $item['Game']['id'],
 				'game_date' => $item['GameSlot']['game_date'],
 				'game_time' => $item['GameSlot']['game_start'],
+				'person_id' => $person_id,
 				'role' => $role[0],
 				'status' => (array_key_exists (0, $item['Attendance']) ? $item['Attendance'][0]['status'] : ATTENDANCE_UNKNOWN),
 				'comment' => (array_key_exists (0, $item['Attendance']) ? $item['Attendance'][0]['comment'] : null),
+				'is_captain' => $is_captain,
 				'future_only' => true,
 			));
 			if ($item['GameSlot']['game_date'] >= date('Y-m-d')) {
@@ -120,6 +125,7 @@ foreach ($items as $item):
 						'event_id' => $item['TeamEvent']['id'],
 						'date' => $item['TeamEvent']['date'],
 						'time' => $item['TeamEvent']['start'],
+						'person_id' => $person_id,
 						'role' => $role[0],
 						'status' => (array_key_exists (0, $item['Attendance']) ? $item['Attendance'][0]['status'] : ATTENDANCE_UNKNOWN),
 						'comment' => (array_key_exists (0, $item['Attendance']) ? $item['Attendance'][0]['comment'] : null),

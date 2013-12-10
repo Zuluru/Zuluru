@@ -163,7 +163,7 @@ if (!empty($relatives)):
 			if (!empty($relative_events)) {
 				$relative_items = array_merge($relative_items, $relative_events);
 			}
-			echo $this->element('games/splash', array('items' => $relative_items, 'teams' => $relative_teams, 'team_ids' => $relative_team_ids));
+			echo $this->element('games/splash', array('items' => $relative_items, 'teams' => $relative_teams, 'team_ids' => $relative_team_ids, 'person_id' => $relative['Relative']['id']));
 
 			// Add in this relative's details to the consolidated list
 			foreach ($relative_games as $game) {
@@ -185,6 +185,7 @@ if (!empty($relatives)):
 						$events[$event['TeamEvent']['id']]['Attendance'][$event['Attendance'][0]['person_id']] = $event['Attendance'][0];
 					}
 				} else {
+					AppModel::_reindexInner($event, 'Attendance', 'person_id');
 					$events[$event['TeamEvent']['id']] = $event;
 				}
 			}
@@ -306,9 +307,11 @@ if (!empty($relatives)):
 								'game_id' => $item['Game']['id'],
 								'game_date' => $item['GameSlot']['game_date'],
 								'game_time' => $item['GameSlot']['game_start'],
+								'person_id' => $relative['Relative']['id'],
 								'role' => $role[0],
 								'status' => (array_key_exists ($relative['Relative']['id'], $item['Attendance']) ? $item['Attendance'][$relative['Relative']['id']]['status'] : ATTENDANCE_UNKNOWN),
 								'comment' => (array_key_exists ($relative['Relative']['id'], $item['Attendance']) ? $item['Attendance'][$relative['Relative']['id']]['comment'] : null),
+								'is_captain' => in_array($item['HomeTeam']['id'], $this->UserCache->read('OwnedTeamIDs')),
 								'future_only' => false,
 								'dedicated' => true,
 							));
@@ -321,9 +324,11 @@ if (!empty($relatives)):
 								'game_id' => $item['Game']['id'],
 								'game_date' => $item['GameSlot']['game_date'],
 								'game_time' => $item['GameSlot']['game_start'],
+								'person_id' => $relative['Relative']['id'],
 								'role' => $role[0],
 								'status' => (array_key_exists ($relative['Relative']['id'], $item['Attendance']) ? $item['Attendance'][$relative['Relative']['id']]['status'] : ATTENDANCE_UNKNOWN),
 								'comment' => (array_key_exists ($relative['Relative']['id'], $item['Attendance']) ? $item['Attendance'][$relative['Relative']['id']]['comment'] : null),
+								'is_captain' => in_array($item['AwayTeam']['id'], $this->UserCache->read('OwnedTeamIDs')),
 								'future_only' => true,
 								'dedicated' => true,
 							));
