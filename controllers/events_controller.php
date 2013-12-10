@@ -178,12 +178,14 @@ class EventsController extends AppController {
 		if (!empty($event['Event']['division_id'])) {
 			// Find the list of facilities and time slots
 			$facilities = $times = array();
-			foreach ($event['Division']['DivisionGameslotAvailability'] as $avail) {
-				$slot = $avail['GameSlot'];
-				$facilities[$slot['Field']['Facility']['id']] = $slot['Field']['Facility']['name'];
-				$times[$slot['game_start']] = $slot['game_end'];
+			if (!empty($event['Division']['DivisionGameslotAvailability'])) {
+				foreach ($event['Division']['DivisionGameslotAvailability'] as $avail) {
+					$slot = $avail['GameSlot'];
+					$facilities[$slot['Field']['Facility']['id']] = $slot['Field']['Facility']['name'];
+					$times[$slot['game_start']] = $slot['game_end'];
+				}
+				asort ($times);
 			}
-			asort ($times);
 		}
 
 		if ($this->is_logged_in) {
