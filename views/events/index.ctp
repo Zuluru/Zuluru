@@ -26,6 +26,16 @@ echo $this->element('registrations/notice');
 if (!$is_logged_in) {
 	echo $this->element('events/not_logged_in');
 }
+
+$seasons = array_unique(Set::extract('/Division/League/season', $events));
+echo $this->element('selector', array('title' => 'Season', 'options' => array_intersect(array_keys(Configure::read('options.season')), $seasons)));
+
+$days = Set::extract('/Division/Day[id!=]', $events);
+$days = Set::combine($days, '{n}.Day.id', '{n}.Day.name');
+ksort($days);
+echo $this->element('selector', array('title' => 'Day', 'options' => $days));
+
+$play_types = array('team', 'individual');
 ?>
 
 <table class="list">
@@ -68,16 +78,48 @@ foreach ($events as $event):
 		continue;
 	}
 	if ($event['EventType']['name'] != $last_name) {
-		$class = null;
+		$classes = array();
 		if ($i++ % 2 == 0) {
-			$class = ' class="altrow"';
+			$classes[] = 'altrow';
+		}
+		if (in_array($event['EventType']['type'], $play_types)) {
+			$divisions = Set::extract("/Event[event_type_id={$event['Event']['event_type_id']}]/../Division", $events);
+
+			$seasons = array_unique(Set::extract('/Division/League/season', $divisions));
+			$classes[] = $this->element('selector_classes', array('title' => 'Season', 'options' => $seasons));
+
+			$days = Set::extract('/Division/Day[id!=]', $divisions);
+			$days = Set::combine($days, '{n}.Day.id', '{n}.Day.name');
+			ksort($days);
+			$classes[] = $this->element('selector_classes', array('title' => 'Day', 'options' => $days));
+		}
+		if (!empty($classes)) {
+			$class = ' class="' . implode(' ', $classes) . '"';
+		} else {
+			$class = '';
 		}
 		echo "<tr$class><td colspan='5'><h4>{$event['EventType']['name']}</h4></td></tr>";
 		$last_name = $event['EventType']['name'];
 	}
-	$class = null;
+	$classes = array();
 	if ($i++ % 2 == 0) {
-		$class = ' class="altrow"';
+		$classes[] = 'altrow';
+	}
+	if (in_array($event['EventType']['type'], $play_types)) {
+		if (!empty($event['Division']['id'])) {
+			$classes[] = $this->element('selector_classes', array('title' => 'Season', 'options' => $event['Division']['League']['season']));
+			$days = Set::combine($event, 'Division.Day.{n}.id', 'Division.Day.{n}.name');
+			ksort($days);
+			$classes[] = $this->element('selector_classes', array('title' => 'Day', 'options' => $days));
+		} else {
+			$classes[] = $this->element('selector_classes', array('title' => 'Season', 'options' => array()));
+			$classes[] = $this->element('selector_classes', array('title' => 'Day', 'options' => array()));
+		}
+	}
+	if (!empty($classes)) {
+		$class = ' class="' . implode(' ', $classes) . '"';
+	} else {
+		$class = '';
 	}
 ?>
 	<tr<?php echo $class;?>>
