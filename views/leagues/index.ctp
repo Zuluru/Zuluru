@@ -40,7 +40,7 @@ foreach ($leagues as $league):
 		<th<?php if (!$is_admin) echo ' colspan="2"'; ?>>
 			<h3 class="affiliate"><?php echo $league['League']['Affiliate']['name']; ?></h3>
 		</th>
-		<?php if ($is_admin): ?>
+			<?php if ($is_admin): ?>
 		<th class="actions">
 			<?php
 				echo $this->ZuluruHtml->iconLink('edit_24.png',
@@ -49,9 +49,9 @@ foreach ($leagues as $league):
 			?>
 		</th>
 			<?php endif; ?>
-		<?php endif; ?>
 	</tr>
 <?php
+		endif;
 	endif;
 
 	if ($league['League']['long_season'] != $season && count($seasons) > 1):
