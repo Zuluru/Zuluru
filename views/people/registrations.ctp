@@ -25,6 +25,24 @@ echo $this->Paginator->counter(array(
 'format' => __('Page %page% of %pages%, showing %current% records out of %count% total, starting on record %start%, ending on %end%', true)
 ));
 ?></p>
+
+<?php
+$types = Set::extract('/Event/EventType/name/..', $registrations);
+$types = Set::combine($types, '{n}.EventType.id', '{n}.EventType.name');
+ksort($types);
+echo $this->element('selector', array('title' => 'Type', 'options' => $types));
+
+$seasons = array_unique(Set::extract('/Event/Division/League/season', $registrations));
+echo $this->element('selector', array('title' => 'Season', 'options' => array_intersect(array_keys(Configure::read('options.season')), $seasons)));
+
+$days = Set::extract('/Event/Division/Day[id!=]', $registrations);
+$days = Set::combine($days, '{n}.Day.id', '{n}.Day.name');
+ksort($days);
+echo $this->element('selector', array('title' => 'Day', 'options' => $days));
+
+$play_types = array('team', 'individual');
+?>
+
 <table class="list">
 <tr>
 	<th><?php echo $this->Paginator->sort('Event Name', 'Event.name', array('buffer' => false));?></th>
@@ -48,10 +66,21 @@ foreach ($registrations as $registration):
 <?php
 	endif;
 
-	$class = null;
+	$classes = array();
 	if ($i++ % 2 == 0) {
-		$class = ' class="altrow"';
+		$classes[] = 'altrow';
 	}
+	$classes[] = $this->element('selector_classes', array('title' => 'Type', 'options' => $registration['Event']['EventType']['name']));
+	if (in_array($registration['Event']['EventType']['type'], $play_types) && !empty($registration['Event']['Division']['id'])) {
+		$classes[] = $this->element('selector_classes', array('title' => 'Season', 'options' => $registration['Event']['Division']['League']['season']));
+		$days = Set::combine($registration['Event'], 'Division.Day.{n}.id', 'Division.Day.{n}.name');
+		ksort($days);
+		$classes[] = $this->element('selector_classes', array('title' => 'Day', 'options' => $days));
+	} else {
+		$classes[] = $this->element('selector_classes', array('title' => 'Season', 'options' => array()));
+		$classes[] = $this->element('selector_classes', array('title' => 'Day', 'options' => array()));
+	}
+	$class = ' class="' . implode(' ', $classes) . '"';
 ?>
 	<tr<?php echo $class;?>>
 		<td>
