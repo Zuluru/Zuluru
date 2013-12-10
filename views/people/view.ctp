@@ -264,7 +264,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 	</tr>
 	<?php
 		$i = 0;
-		$you = ($is_me ? __('You control', true) : $person['first_name'] . ' ' . __('controls', true));
+		$you = ($is_me ? __('You', true) : $person['first_name']) . ' ' . __('can control', true);
 		foreach ($relatives as $relative):
 			$class = null;
 			if ($i++ % 2 == 0) {
@@ -290,7 +290,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 			}
 		?>
 		<tr<?php echo $class;?>>
-			<td><?php echo $this->element('people/block', array('person' => $relative['Relative'])) . ' ' . __('controls', true) . ' ' . $you; ?></td>
+			<td><?php echo $this->element('people/block', array('person' => $relative['Relative'])) . ' ' . __('can control', true) . ' ' . $you; ?></td>
 			<td><?php __($relative['PeoplePerson']['approved'] ? 'Yes' : 'No'); ?></td>
 			<td class="actions"><?php
 				echo $this->ZuluruHtml->iconLink('view_24.png', array('controller' => 'people', 'action' => 'view', 'person' => $relative['Relative']['id']));
