@@ -20,12 +20,12 @@ function addQuestion() {
 	return false;
 }
 
-function addQuestionFinish(url, data, index) {
+function addQuestionFinish(url, value, index) {
     var type = 'GET';
 
     var ajax = {
         type: type,
-        url: url + '/question:' + data[1] + '/' + index,
+        url: url + '/question:' + value + '/' + index,
         success: function(row){
 			jQuery('#Questions > tbody:first').append(row);
 			tableReorder(jQuery('#Questions'));

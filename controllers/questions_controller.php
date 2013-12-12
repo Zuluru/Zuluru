@@ -250,7 +250,7 @@ class QuestionsController extends AppController {
 		Configure::write ('debug', 0);
 
 		$conditions = array(
-			'Question.question LIKE' => "%{$this->params['url']['q']}%",
+			'Question.question LIKE' => "%{$this->params['url']['term']}%",
 			'Question.active' => true,
 		);
 		$affiliate = $this->_arg('affiliate');
@@ -262,7 +262,6 @@ class QuestionsController extends AppController {
 				'contain' => array(),
 				'fields' => array('Question.id', 'Question.question'),
 				'order' => 'Question.question',
-				'limit' => $this->params['url']['limit'],
 			)));
 		} else {
 			$this->set('questions', array());

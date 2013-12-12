@@ -42,8 +42,7 @@ foreach ($questionnaire['Question'] as $question) {
 
 <?php
 // Make the table sortable
-$this->ZuluruHtml->css('jquery.autocomplete', null, array('inline' => false));
-$this->ZuluruHtml->script (array('jquery.tableSort', 'jquery.autocomplete', 'questionnaire'), array('inline' => false));
+$this->ZuluruHtml->script (array('jquery.tableSort', 'questionnaire'), array('inline' => false));
 $add_question_url = $this->Html->url (array('controller' => 'questionnaires', 'action' => 'add_question', 'questionnaire' => $questionnaire['Questionnaire']['id']));
 $auto_complete_url = $this->Html->url (array('controller' => 'questions', 'action' => 'autocomplete', 'affiliate' => $questionnaire['Questionnaire']['affiliate_id']));
 $this->Js->buffer ("
@@ -58,16 +57,11 @@ $this->Js->buffer ("
 		width: 500
 	});
 
-	jQuery('#AddQuestion').autocomplete('$auto_complete_url',
-	{
-		mustMatch: true,
-		width: 470,
-		scroll: true
-	}).result(function(event, data, formatted)
-	{
-		if (data !== undefined)
-		{
-			addQuestionFinish('$add_question_url', data, ++last_index);
+	jQuery('#AddQuestion').autocomplete({
+		source: '$auto_complete_url',
+		minLength: 2,
+		select: function(event, ui) {
+			addQuestionFinish('$add_question_url', ui.item.value, ++last_index);
 			jQuery('#AddQuestionDiv').dialog('close');
 		}
 	});
