@@ -5,6 +5,10 @@
 
 class PaymentComponent extends Object
 {
+	function __construct(&$controller) {
+		$this->_controller =& $controller;
+	}
+
 	function process($data) {
 		return 'Payment processor does not have a "process" function defined!';
 	}
