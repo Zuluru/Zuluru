@@ -21,16 +21,23 @@ echo $this->element('settings/banner');
  		<legend><?php __('Common Options'); ?></legend>
 	<?php
 	if (!$affiliate) {
+		$options = Configure::read('options.payment_provider');
+		if (!function_exists('curl_init')) {
+			unset($options['paypal']);
+		}
 		echo $this->element('settings/input', array(
 			'category' => 'payment',
 			'name' => 'payment_implementation',
 			'options' => array(
 				'id' => 'PaymentProvider',
 				'type' => 'select',
-				'options' => Configure::read('options.payment_provider'),
+				'options' => $options,
 				'hide_single' => true,
 			),
 		));
+		if (!function_exists('curl_init')) {
+			echo $this->Html->para('warning-message', 'PayPal integration requires the cUrl library, which your installation of PHP does not support. If you need PayPal support, talk to your system administrator or hosting company about enabling cUrl.');
+		}
 		echo $this->element('settings/input', array(
 			'category' => 'payment',
 			'name' => 'options',

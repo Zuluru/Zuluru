@@ -312,31 +312,35 @@ echo $this->element('settings/banner');
 	<fieldset>
  		<legend><?php __('Twitter Features'); ?></legend>
 	<?php
-	echo $this->element('settings/input', array(
-		'category' => 'feature',
-		'name' => 'twitter',
-		'options' => array(
-			'type' => 'radio',
-			'options' => Configure::read('options.enable'),
-			'after' => 'Enable or disable Twitter integration.',
-		),
-	));
+	if (function_exists('curl_init')) {
+		echo $this->element('settings/input', array(
+			'category' => 'feature',
+			'name' => 'twitter',
+			'options' => array(
+				'type' => 'radio',
+				'options' => Configure::read('options.enable'),
+				'after' => 'Enable or disable Twitter integration.',
+			),
+		));
 
-	echo $this->element('settings/input', array(
-		'category' => 'twitter',
-		'name' => 'consumer_key',
-		'options' => array(
-			'after' => 'This application\'s Twitter consumer key.',
-		),
-	));
+		echo $this->element('settings/input', array(
+			'category' => 'twitter',
+			'name' => 'consumer_key',
+			'options' => array(
+				'after' => 'This application\'s Twitter consumer key.',
+			),
+		));
 
-	echo $this->element('settings/input', array(
-		'category' => 'twitter',
-		'name' => 'consumer_secret',
-		'options' => array(
-			'after' => 'This application\'s Twitter consumer secret.',
-		),
-	));
+		echo $this->element('settings/input', array(
+			'category' => 'twitter',
+			'name' => 'consumer_secret',
+			'options' => array(
+				'after' => 'This application\'s Twitter consumer secret.',
+			),
+		));
+	} else {
+		echo $this->Html->para('warning-message', 'Twitter integration requires the cUrl library, which your installation of PHP does not support. Talk to your system administrator or hosting company about enabling cUrl.');
+	}
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
