@@ -9,6 +9,17 @@ $this->Html->addCrumb ($field['Field']['long_name']);
 
 <?php
 $is_manager = in_array($field['Facility']['Region']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
+
+$seasons = array_unique(Set::extract('/GameSlot/Game/Division/League/long_season', $field));
+echo $this->element('selector', array(
+		'title' => 'Season',
+		'options' => $seasons,
+));
+$days = array_unique(Set::extract('/GameSlot/Game/Division/Day/name', $field));
+echo $this->element('selector', array(
+		'title' => 'Day',
+		'options' => $days,
+));
 ?>
 
 <table class="list">
@@ -24,8 +35,12 @@ $is_manager = in_array($field['Facility']['Region']['affiliate_id'], $this->User
 		</tr>
 	</thead>
 	<tbody>
-<?php foreach ($field['GameSlot'] as $slot): ?>
-		<tr>
+<?php
+foreach ($field['GameSlot'] as $slot):
+	$seasons = array_unique(Set::extract('/Game/Division/League/long_season', $slot));
+	$days = array_unique(Set::extract('/Game/Division/Day/name', $slot));
+?>
+		<tr class="<?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $seasons)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $days)); ?>">
 			<td><?php echo $this->ZuluruTime->date ($slot['game_date']); ?></td>
 			<?php if ($is_admin || $is_manager): ?>
 			<td><?php echo $this->Html->link ($this->ZuluruTime->time ($slot['game_start']),

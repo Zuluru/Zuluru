@@ -229,7 +229,7 @@ class FieldsController extends AppController {
 							'Game.home_dependency_type' => null,
 						),
 					),
-					'Division' => 'League',
+					'Division' => array('League', 'Day'),
 				),
 				'order' => 'GameSlot.game_date, GameSlot.game_start',
 				'conditions' => 'YEAR(GameSlot.game_date) >= YEAR(NOW())',
