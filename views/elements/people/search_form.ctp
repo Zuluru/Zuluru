@@ -25,7 +25,13 @@ echo $this->Form->input('last_name', array('size' => 40, 'maxlength' => 100));
 echo $this->Form->hidden('sort', array('value' => 'last_name'));
 echo $this->Form->hidden('direction', array('value' => 'asc'));
 
-echo $this->Js->submit(__('Search', true), array('url'=> $url, 'update' => '#SearchResults', 'evalScripts' => true));
+$spinner = $this->ZuluruHtml->icon('spinner.gif');
+echo $this->Js->submit(__('Search', true), array(
+		'url'=> $url,
+		'update' => '#SearchResults',
+		'evalScripts' => true,
+		'beforeSend' => "jQuery('#SearchResults').html('$spinner');",
+));
 echo $this->Form->end();
 ?>
 </div>

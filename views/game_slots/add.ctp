@@ -125,6 +125,7 @@ $url = $this->Html->url (array('controller' => 'divisions', 'action' => 'select'
 
 // Add JavaScript functions for "select all" buttons, hiding blocks of fields, and populating the division list
 // TODO: Make hideFieldset and selectAll more generic and move to a .js file
+$spinner = $this->ZuluruHtml->icon('spinner.gif');
 echo $this->Html->scriptBlock("
 jQuery(document).ready(function($) {
 	update_divisions();
@@ -148,6 +149,7 @@ jQuery(document).ready(function($) {
 function update_divisions(){
 	var date = jQuery('#GameSlotGameDateYear').val() + '-' + jQuery('#GameSlotGameDateMonth').val() + '-' + jQuery('#GameSlotGameDateDay').val();
 
+	jQuery('#division_list').html('$spinner');
 	jQuery.ajax({
 		type: 'GET',
 		url: '$url/' + date,

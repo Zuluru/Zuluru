@@ -16,7 +16,12 @@ echo $this->Form->input('date', array(
 		'label' => false,
 		'options' => $dates,
 ));
-echo $this->Js->submit(__('View', true), array('url' => Router::normalize($this->here), 'update' => '#SlotResults'));
+$spinner = $this->ZuluruHtml->icon('spinner.gif');
+echo $this->Js->submit(__('View', true), array(
+		'url' => Router::normalize($this->here),
+		'update' => '#SlotResults',
+		'beforeSend' => "jQuery('#SlotResults').html('$spinner');",
+));
 echo $this->Form->end();
 ?>
 
