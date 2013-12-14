@@ -152,30 +152,34 @@ function ical_encode($text) {
 class DatabaseTransaction {
 	var $db = null;
 	var $model = null;
+	var $begun = false;
 
 	function __construct($model) {
 		$this->model = $model;
 		$this->db =& ConnectionManager::getDataSource($this->model->useDbConfig);
-		$this->db->begin($this->model);
+		$this->begun = $this->db->begin($this->model);
 	}
 
 	function __destruct() {
-		$this->rollback();
+		if ($this->begun)
+			$this->rollback();
 	}
 
 	function commit() {
-		if ($this->model !== null) {
+		if ($this->begun) {
 			$ret = $this->db->commit($this->model);
 			$this->model = null;
+			$this->begun = false;
 			return $ret;
 		}
 		return false;
 	}
 
 	function rollback() {
-		if ($this->model !== null) {
+		if ($this->begun) {
 			$ret = $this->db->rollback($this->model);
 			$this->model = null;
+			$this->begun = false;
 			return $ret;
 		}
 		return false;
