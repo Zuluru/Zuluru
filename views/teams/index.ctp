@@ -33,8 +33,7 @@ echo $this->Paginator->counter(array(
 $i = 0;
 $affiliate_id = null;
 
-$leagues = array_unique(Set::extract('/League/name', $teams));
-if (count($leagues) == 1) {
+if ($leagues == 1) {
 	$field = 'name';
 } else {
 	$field = 'full_league_name';

@@ -240,6 +240,13 @@ class TeamsController extends AppController {
 				// "DISTINCT letter, id", which is more results than just "DISTINCT letter"
 				'group' => 'letter',
 		)));
+		$this->set('leagues', $this->Team->Division->League->find('count', array(
+				'conditions' => array(
+					'League.is_open' => true,
+					'League.affiliate_id' => $affiliates,
+				),
+				'contain' => array(),
+		)));
 	}
 
 	function letter() {
