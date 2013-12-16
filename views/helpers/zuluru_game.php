@@ -49,18 +49,18 @@ class ZuluruGameHelper extends Helper {
 				if (strpos ($details['status'], 'default') !== false) {
 					echo ' (' . __('default', true) . ')';
 				}
-			}
 
-			if (League::hasStats($league)) {
-				if ($team_id || $is_admin || $is_coordinator) {
-					$links[] = $this->Html->link(
-							__('Submit Stats', true),
-							array('controller' => 'games', 'action' => 'submit_stats', 'game' => $details['id'], 'team' => $team_id));
-				}
-				if (($this->params['controller'] != 'games' || $this->params['action'] != 'stats') && ($is_logged_in || Configure::read('feature.public'))) {
-					$links[] = $this->ZuluruHtml->iconLink('stats_24.png',
-							array('controller' => 'games', 'action' => 'stats', 'game' => $details['id'], 'team' => $show_score_for_team),
-							array('alt' => __('Game Stats', true), 'title' => __('Game Stats', true)));
+				if (League::hasStats($league)) {
+					if ($team_id || $is_admin || $is_coordinator) {
+						$links[] = $this->Html->link(
+								__('Submit Stats', true),
+								array('controller' => 'games', 'action' => 'submit_stats', 'game' => $details['id'], 'team' => $team_id));
+					}
+					if (($this->params['controller'] != 'games' || $this->params['action'] != 'stats') && ($is_logged_in || Configure::read('feature.public'))) {
+						$links[] = $this->ZuluruHtml->iconLink('stats_24.png',
+								array('controller' => 'games', 'action' => 'stats', 'game' => $details['id'], 'team' => $show_score_for_team),
+								array('alt' => __('Game Stats', true), 'title' => __('Game Stats', true)));
+					}
 				}
 			}
 		} else {
