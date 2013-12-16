@@ -12,6 +12,33 @@ $this->Html->addCrumb (__('Report', true));
 
 <?php endif; ?>
 
+<?php
+if (!isset($registrations)):
+	echo $this->Form->create('Registration', array('url' => Router::normalize($this->here)));
+?>
+
+	<fieldset>
+		<legend><?php __('Date Range'); ?></legend>
+	<?php
+		// In January and February, default report range to last year
+		$adjust = (date('n') <= 2 ? ' -1 year' : '');
+		echo $this->ZuluruForm->input('start_date', array(
+				'type' => 'date',
+				'value' => date('Y-m-d', strtotime("Jan 1$adjust")),
+				'maxYear' => date('Y'),
+		));
+		echo $this->ZuluruForm->input('end_date', array(
+				'type' => 'date',
+				'value' => date('Y-m-d', strtotime("Dec 31$adjust")),
+				'maxYear' => date('Y'),
+		));
+	?>
+	</fieldset>
+<?php
+	echo $this->Form->end(__('Submit', true));
+	echo $this->ZuluruHtml->script ('datepicker', array('inline' => false));
+else:
+?>
 <div class="index">
 <p>
 <?php
@@ -96,15 +123,21 @@ foreach ($registrations as $registration):
 	<?php echo $this->Paginator->next(__('next', true).' >>', array('buffer' => false), null, array('class' => 'disabled'));?>
 </div>
 
+<?php endif; ?>
+
 <?php if (!$this->params['isAjax']): ?>
 
 </div>
 </div>
 
-<div class="actions">
+<?php if (!empty($this->data)): ?>
+
+	<div class="actions">
 	<ul>
-		<li><?php echo $this->Html->link(sprintf(__('Download %s Report', true), __('Registration', true)), array('action' => 'report', 'affiliate' => $affiliate, 'ext' => 'csv')); ?> </li>
+		<li><?php echo $this->Html->link(sprintf(__('Download %s Report', true), __('Registration', true)), array('action' => 'report', 'affiliate' => $affiliate, 'start_date' => $start_date, 'end_date' => $end_date, 'ext' => 'csv')); ?> </li>
 	</ul>
 </div>
+
+<?php endif; ?>
 
 <?php endif; ?>

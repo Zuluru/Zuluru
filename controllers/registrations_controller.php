@@ -256,8 +256,24 @@ class RegistrationsController extends AppController {
 	}
 
 	function report() {
-		$start_date = '2012-01-01';
-		$end_date = '2012-12-31';
+		if (!empty($this->data)) {
+			// Deconstruct dates
+			$start_date = $this->data['Registration']['start_date']['year'] . '-' . $this->data['Registration']['start_date']['month'] . '-' . $this->data['Registration']['start_date']['day'];
+			$end_date = $this->data['Registration']['end_date']['year'] . '-' . $this->data['Registration']['end_date']['month'] . '-' . $this->data['Registration']['end_date']['day'];
+		} else {
+			$start_date = $this->_arg('start_date');
+			$end_date = $this->_arg('end_date');
+			if (!$start_date || !$end_date) {
+				// Just return, which will present the user with a date selection
+				return;
+			}
+		}
+
+		if ($start_date > $end_date) {
+			$this->Session->setFlash(__('Start date must be before end date!', true), 'default', array('class' => 'info'));
+			return;
+		}
+
 		$affiliate = $this->_arg('affiliate');
 		$affiliates = $this->_applicableAffiliateIDs(true);
 
@@ -276,7 +292,7 @@ class RegistrationsController extends AppController {
 
 		if ($this->params['url']['ext'] == 'csv') {
 			$this->set('registrations', $this->Registration->find ('all', compact('conditions', 'contain', 'order')));
-			$this->set('download_file_name', 'Registrations');
+			$this->set('download_file_name', "Registrations $start_date to $end_date");
 		} else {
 			$this->paginate = array(
 				'Registration' => compact('conditions', 'contain', 'order', 'limit'),
@@ -284,7 +300,7 @@ class RegistrationsController extends AppController {
 			$this->set('registrations', $this->paginate ('Registration'));
 		}
 
-		$this->set(compact('affiliates', 'affiliate'));
+		$this->set(compact('affiliates', 'affiliate', 'start_date', 'end_date'));
 	}
 
 	function view() {
