@@ -14,6 +14,7 @@ echo $this->element('help/topics', array(
 			'current_round',
 			'games_before_repeat',
 			'exclude_teams',
+			'double_booking',
 			'rating_calculator',
 		),
 		'compact' => true,

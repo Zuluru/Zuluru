@@ -759,7 +759,7 @@ class DivisionsController extends AppController {
 		if ($edit_date) {
 			$tournament_games = Set::extract ('/Game[type!=' . SEASON_GAME . "]/GameSlot[game_date=$edit_date]", $division);
 			$is_tournament = !empty($tournament_games);
-			$game_slots = $this->Division->DivisionGameslotAvailability->GameSlot->getAvailable($id, $edit_date, $is_tournament);
+			$game_slots = $this->Division->DivisionGameslotAvailability->GameSlot->getAvailable($id, $edit_date, $is_tournament, $division['Division']['double_booking']);
 		} else {
 			$is_tournament = false;
 		}
@@ -789,6 +789,12 @@ class DivisionsController extends AppController {
 		} else {
 			$allow_double_header = false;
 		}
+		if (array_key_exists('double_booking', $this->data['Game'])) {
+			$allow_double_booking = $this->data['Game']['double_booking'];
+			unset ($this->data['Game']['double_booking']);
+		} else {
+			$allow_double_booking = false;
+		}
 
 		$games = count($this->data['Game']);
 		// TODO: Remove workaround for Set::extract bug
@@ -799,17 +805,19 @@ class DivisionsController extends AppController {
 			return false;
 		}
 
-		$slot_counts = array_count_values ($slots);
-		foreach ($slot_counts as $slot_id => $count) {
-			if ($count > 1) {
-				$this->Division->Game->GameSlot->contain(array(
-						'Field' => 'Facility',
-				));
-				$slot = $this->Division->Game->GameSlot->read(null, $slot_id);
-				$slot_field = $slot['Field']['long_name'];
-				$slot_time = "{$slot['GameSlot']['game_date']} {$slot['GameSlot']['game_start']}";
-				$this->Session->setFlash(sprintf (__('Game slot at %s on %s was selected more than once!', true), $slot_field, $slot_time), 'default', array('class' => 'info'));
-				return false;
+		if (!$allow_double_booking) {
+			$slot_counts = array_count_values ($slots);
+			foreach ($slot_counts as $slot_id => $count) {
+				if ($count > 1) {
+					$this->Division->Game->GameSlot->contain(array(
+							'Field' => 'Facility',
+					));
+					$slot = $this->Division->Game->GameSlot->read(null, $slot_id);
+					$slot_field = $slot['Field']['long_name'];
+					$slot_time = "{$slot['GameSlot']['game_date']} {$slot['GameSlot']['game_start']}";
+					$this->Session->setFlash(sprintf (__('Game slot at %s on %s was selected more than once!', true), $slot_field, $slot_time), 'default', array('class' => 'info'));
+					return false;
+				}
 			}
 		}
 

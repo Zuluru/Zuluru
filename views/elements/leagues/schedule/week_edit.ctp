@@ -119,6 +119,13 @@ endforeach;
 				'checked' => false,
 		));
 	}
+	if ($division['Division']['double_booking']) {
+		echo $this->Form->input ('double_booking', array(
+				'label' => __('Allow double-booking?', true),
+				'type' => 'checkbox',
+				'checked' => true,
+		));
+	}
 	?></td>
 	<td class="actions splash_action">
 		<?php echo $this->Form->hidden ('edit_date', array('value' => $date)); ?>

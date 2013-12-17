@@ -38,25 +38,37 @@ echo $this->element('selector', array(
 <?php
 foreach ($field['GameSlot'] as $slot):
 	$seasons = array_unique(Set::extract('/Game/Division/League/long_season', $slot));
-	$days = array_unique(Set::extract('/Game/Division/Day/name', $slot));
+	$day = date('l', strtotime($slot['game_date']));
+
+	$divisions = array();
+	foreach ($slot['Game'] as $game) {
+		if (!array_key_exists($game['Division']['id'], $divisions)) {
+			$divisions[$game['Division']['id']] = array('division' => $game['Division'], 'games' => array());
+		}
+		$divisions[$game['Division']['id']]['games'][] = $this->element('games/block', array('game' => array('Game' => $game, 'GameSlot' => $slot), 'field' => 'id'));
+	}
+	$rows = max(count($divisions), 1);
 ?>
-		<tr class="<?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $seasons)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $days)); ?>">
-			<td><?php echo $this->ZuluruTime->date ($slot['game_date']); ?></td>
+		<tr class="<?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $seasons)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $day)); ?>">
+			<td rowspan="<?php echo $rows; ?>"><?php echo $this->ZuluruTime->date ($slot['game_date']); ?></td>
 			<?php if ($is_admin || $is_manager): ?>
-			<td><?php echo $this->Html->link ($this->ZuluruTime->time ($slot['game_start']),
+			<td rowspan="<?php echo $rows; ?>"><?php echo $this->Html->link ($this->ZuluruTime->time ($slot['game_start']),
 						array('controller' => 'game_slots', 'action' => 'view', 'slot' => $slot['id'])); ?></td>
 			<?php else: ?>
-			<td><?php echo $this->ZuluruTime->time ($slot['game_start']); ?></td>
+			<td rowspan="<?php echo $rows; ?>"><?php echo $this->ZuluruTime->time ($slot['game_start']); ?></td>
 			<?php endif; ?>
-			<td><?php echo $this->ZuluruTime->time ($slot['display_game_end']); ?></td>
+			<td rowspan="<?php echo $rows; ?>"><?php echo $this->ZuluruTime->time ($slot['display_game_end']); ?></td>
 			<td><?php
-			if (!empty ($slot['Game'])) {
-				echo $this->element('divisions/block', array('division' => $slot['Game']['Division'], 'field' => 'league_name',
-						'url' => array('controller' => 'games', 'action' => 'view', 'game' => $slot['Game']['id'])));
+			if (empty($divisions)) {
+				echo '---- ' . __('open', true) . ' ----';
+			} else {
+				$division = array_shift($divisions);
+				echo $this->element('divisions/block', array('division' => $division['division'], 'field' => 'league_name')) .
+						' (' . __(count($division['games']) == 1 ? 'game' : 'games', true) . ' ' . implode(', ', $division['games']) . ')';
 			}
 			?></td>
 			<?php if ($is_admin || $is_manager): ?>
-			<td class="actions"><?php
+			<td rowspan="<?php echo $rows; ?>" class="actions"><?php
 				echo $this->Html->link (__('Edit', true),
 						array('controller' => 'game_slots', 'action' => 'edit', 'slot' => $slot['id'], 'return' => true));
 				echo $this->Html->link (__('Delete', true),
@@ -71,6 +83,13 @@ foreach ($field['GameSlot'] as $slot):
 			?></td>
 			<?php endif; ?>
 		</tr>
+<?php foreach ($divisions as $division): ?>
+		<tr>
+			<td><?php echo $this->element('divisions/block', array('division' => $division['division'], 'field' => 'league_name')) .
+						' (' . __(count($division['games']) == 1 ? 'game' : 'games', true) . ' ' . implode(', ', $division['games']) . ')';
+			?></td>
+		</tr>
+<?php endforeach; ?>
 <?php endforeach; ?>
 	</tbody>
 </table>

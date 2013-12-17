@@ -133,6 +133,7 @@ class ZuluruSchema extends CakeSchema {
 		'schedule_type' => array('type' => 'string', 'null' => false, 'default' => 'none', 'length' => 32),
 		'rating_calculator' => array('type' => 'string', 'null' => false, 'default' => 'none', 'length' => 32),
 		'games_before_repeat' => array('type' => 'integer', 'null' => true, 'default' => '4'),
+		'double_booking' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'allstars' => array('type' => 'string', 'null' => false, 'default' => 'never', 'length' => 32),
 		'allstars_from' => array('type' => 'string', 'null' => false, 'default' => 'opponent', 'length' => 32),
 		'exclude_teams' => array('type' => 'boolean', 'null' => false, 'default' => '0'),

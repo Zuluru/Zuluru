@@ -9,27 +9,50 @@ $this->Html->addCrumb (__('View', true));
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __(Configure::read('ui.field_cap')); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $this->element('fields/block', array('field' => $gameSlot['Field'], 'display_field' => 'long_name')); ?>
-			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Game Date'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $this->ZuluruTime->date ($gameSlot['GameSlot']['game_date']); ?>
-			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Game Start'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $this->ZuluruTime->time ($gameSlot['GameSlot']['game_start']); ?>
-			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Game End'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $this->ZuluruTime->time ($gameSlot['GameSlot']['display_game_end']); ?>
-			&nbsp;
 		</dd>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Game'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __(count($gameSlot['Game']) < 2 ? 'Game' : 'Games'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $this->Html->link($gameSlot['Game']['id'], array('controller' => 'games', 'action' => 'view', 'game' => $gameSlot['Game']['id'])); ?>
-			&nbsp;
+			<?php
+			if (empty($gameSlot['Game'])) {
+				__('Unassigned');
+			} else {
+				$games = array();
+				foreach ($gameSlot['Game'] as $game) {
+					Game::_readDependencies($game);
+					$line = $this->Html->link($game['id'], array('controller' => 'games', 'action' => 'view', 'game' => $game['id'])) . ': ';
+
+					if ($game['home_team'] === null) {
+						$line .= $game['home_dependency'];
+					} else {
+						$line .= $this->element('teams/block', array('team' => $game['HomeTeam']));
+					}
+
+					$line .= __(' vs ', true);
+
+					if ($game['away_team'] === null) {
+						$line .= $game['away_dependency'];
+					} else {
+						$line .= $this->element('teams/block', array('team' => $game['AwayTeam']));
+					}
+
+					$line .= ' (' . $this->element('divisions/block', array('division' => $game['Division'], 'field' => 'full_league_name')) . ')';
+					$games[] = $line;
+				}
+				echo implode('<br />', $games);
+			}
+			?>
 		</dd>
 	</dl>
 </div>

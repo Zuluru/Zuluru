@@ -23,17 +23,14 @@ class GameSlot extends AppModel {
 		),
 	);
 
-	var $hasOne = array(
-		'Game' => array(
-			'className' => 'Game',
-			'foreignKey' => 'game_slot_id',
-			'dependent' => false,
-		),
-	);
-
 	var $hasMany = array(
 		'DivisionGameslotAvailability' => array(
 			'className' => 'DivisionGameslotAvailability',
+			'foreignKey' => 'game_slot_id',
+			'dependent' => false,
+		),
+		'Game' => array(
+			'className' => 'Game',
 			'foreignKey' => 'game_slot_id',
 			'dependent' => false,
 		),
@@ -50,7 +47,7 @@ class GameSlot extends AppModel {
 		return $record;
 	}
 
-	function getAvailable($division_id, $date, $is_tournament) {
+	function getAvailable($division_id, $date, $is_tournament, $allow_double_booking) {
 		// Find available slots
 		$join = array( array(
 				'table' => "{$this->tablePrefix}division_gameslot_availabilities",
@@ -87,9 +84,12 @@ class GameSlot extends AppModel {
 			'joins' => $join,
 		));
 
-		foreach ($game_slots as $key => $slot) {
-			if ($slot['Game']['division_id'] != $division_id && !empty ($slot['Game']['division_id'])) {
-				unset ($game_slots[$key]);
+		if (!$allow_double_booking) {
+			foreach ($game_slots as $key => $slot) {
+				$divisions = Set::extract('/Game/division_id', $slot);
+				if (!empty($divisions) && !in_array($division_id, $divisions)) {
+					unset ($game_slots[$key]);
+				}
 			}
 		}
 

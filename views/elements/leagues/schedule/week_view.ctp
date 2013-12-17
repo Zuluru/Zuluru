@@ -72,6 +72,7 @@ foreach ($division['Game'] as $game) {
 </tr>
 
 <?php
+$last_slot = null;
 foreach ($division['Game'] as $game):
 	if (! ($game['published'] || $is_admin || $is_manager || $is_coordinator)) {
 		continue;
@@ -80,16 +81,19 @@ foreach ($division['Game'] as $game):
 		continue;
 	}
 	Game::_readDependencies($game);
+	$same_slot = ($game['GameSlot']['id'] === $last_slot);
 ?>
 
 <tr<?php if (!$game['published']) echo ' class="unpublished"'; ?>>
-	<td><?php if ($is_tournament): ?><?php echo $game['name']; ?><?php endif; ?></td>
+	<td><?php if ($is_tournament && !$same_slot): ?><?php echo $game['name']; ?><?php endif; ?></td>
 	<td><?php
-	$time = $this->ZuluruTime->time($game['GameSlot']['game_start']) . '-' .
-			$this->ZuluruTime->time($game['GameSlot']['display_game_end']);
-	echo $this->Html->link($time, array('controller' => 'games', 'action' => 'view', 'game' => $game['id']));
+	if (!$same_slot) {
+		$time = $this->ZuluruTime->time($game['GameSlot']['game_start']) . '-' .
+				$this->ZuluruTime->time($game['GameSlot']['display_game_end']);
+		echo $this->Html->link($time, array('controller' => 'games', 'action' => 'view', 'game' => $game['id']));
+	}
 	?></td>
-	<td><?php echo $this->element('fields/block', array('field' => $game['GameSlot']['Field'])); ?></td>
+	<td><?php if (!$same_slot) echo $this->element('fields/block', array('field' => $game['GameSlot']['Field'])); ?></td>
 	<td><?php
 	if (empty ($game['HomeTeam'])) {
 		if (array_key_exists ('home_dependency', $game)) {
@@ -116,5 +120,6 @@ foreach ($division['Game'] as $game):
 </tr>
 
 <?php
+	$last_slot = $game['GameSlot']['id'];
 endforeach;
 ?>

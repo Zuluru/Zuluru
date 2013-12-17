@@ -169,6 +169,13 @@ if (isset ($add)) {
 			'default' => 0,
 			'after' => $this->Html->para (null, __('Allows coordinators to exclude teams from schedule generation.', true)),
 		));
+		echo $this->ZuluruForm->input('double_booking', array(
+			'div' => 'input advanced',
+			'options' => Configure::read('options.enable'),
+			'empty' => '---',
+			'default' => 0,
+			'after' => $this->Html->para (null, __('Allows coordinators to schedule multiple games in a single game slot.', true)),
+		));
 	?>
 	</fieldset>
 	<fieldset>

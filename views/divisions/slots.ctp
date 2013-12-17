@@ -34,6 +34,7 @@ echo $this->Form->end();
 	<tr>
 		<th>ID</th>
 		<th><?php __(Configure::read('sport.field_cap')); ?></th>
+		<th><?php __(Configure::read('sport.field_cap')); ?> Region</th>
 		<th>Start Time</th>
 		<th>Game</th>
 		<th>Division</th>
@@ -42,50 +43,57 @@ echo $this->Form->end();
 <?php endif; ?>
 		<th>Home</th>
 		<th>Away</th>
-		<th><?php __(Configure::read('sport.field_cap')); ?> Region</th>
 <?php if (Configure::read('feature.region_preference')): ?>
 		<th>Home Pref</th>
 <?php endif; ?>
 	</tr>
-<?php $unused = 0; ?>
-<?php foreach ($slots as $slot): ?>
-	<tr>
-		<td><?php __($slot['GameSlot']['id']); ?></td>
-		<td><?php echo $this->element('fields/block', array('field' => $slot['Field'])); ?></td>
-		<td><?php echo $this->ZuluruTime->time ($slot['GameSlot']['game_start']); ?></td>
-<?php if (!$slot['Game']['id']): ?>
-<?php ++$unused; ?>
-		<td colspan="4">---- <?php printf(__('%s open', true), Configure::read('sport.field')); ?> ----</td>
-<?php else:
-		Game::_readDependencies($slot['Game']);
+<?php
+$unused = 0;
+foreach ($slots as $slot):
+	$rows = max(count($slot['Game']), 1);
+	$cols = 4 + $is_tournament + Configure::read('feature.region_preference');
 ?>
-		<td><?php echo $this->Html->link ($slot['Game']['id'],
-				array('controller' => 'games', 'action' => 'view', 'game' => $slot['Game']['id'])); ?></td>
-		<td><?php echo $slot['Game']['Division']['name']; ?></td>
+	<tr>
+		<td rowspan="<?php echo $rows; ?>"><?php __($slot['GameSlot']['id']); ?></td>
+		<td rowspan="<?php echo $rows; ?>"><?php echo $this->element('fields/block', array('field' => $slot['Field'])); ?></td>
+		<td rowspan="<?php echo $rows; ?>"><?php __($slot['Field']['Facility']['Region']['name']); ?></td>
+		<td rowspan="<?php echo $rows; ?>"><?php echo $this->ZuluruTime->time ($slot['GameSlot']['game_start']); ?></td>
+<?php if (empty($slot['Game'])): ?>
+<?php ++$unused; ?>
+		<td colspan="<?php echo $cols; ?>">---- <?php printf(__('%s open', true), Configure::read('sport.field')); ?> ----</td>
+<?php else:
+		$first = true;
+		foreach ($slot['Game'] as $game) {
+			Game::_readDependencies($game);
+			if (!$first) {
+				echo '<tr>';
+			}
+?>
+		<td><?php echo $this->Html->link($game['id'],
+					array('controller' => 'games', 'action' => 'view', 'game' => $game['id'])); ?></td>
+		<td><?php echo $this->element('divisions/block', array('division' => $game['Division'])); ?></td>
 <?php if ($is_tournament): ?>
 		<td><?php
-		echo $slot['Game']['Pool']['name'];
-		if ($slot['Game']['Pool']['type'] != 'crossover') {
-			echo " (round&nbsp;{$slot['Game']['round']})";
-		}
+			echo $game['Pool']['name'];
+			if ($game['Pool']['type'] != 'crossover') {
+				echo " (round&nbsp;{$game['round']})";
+			}
 		?></td>
 <?php endif; ?>
 		<td><?php
-		if (empty($slot['Game']['home_team'])) {
-			echo $slot['Game']['home_dependency'];
-		} else {
-			echo $this->element('teams/block', array('team' => $slot['Game']['HomeTeam'], 'max_length' => 16, 'show_shirt' => false));
-		}
+			if (empty($game['home_team'])) {
+				echo $game['home_dependency'];
+			} else {
+				echo $this->element('teams/block', array('team' => $game['HomeTeam'], 'max_length' => 16, 'show_shirt' => false));
+			}
 		?></td>
 		<td><?php
-		if (empty($slot['Game']['away_team'])) {
-			echo $slot['Game']['away_dependency'];
-		} else {
-			echo $this->element('teams/block', array('team' => $slot['Game']['AwayTeam'], 'max_length' => 16, 'show_shirt' => false));
-		}
+			if (empty($game['away_team'])) {
+				echo $game['away_dependency'];
+			} else {
+				echo $this->element('teams/block', array('team' => $game['AwayTeam'], 'max_length' => 16, 'show_shirt' => false));
+			}
 		?></td>
-<?php endif; ?>
-		<td><?php __($slot['Field']['Facility']['Region']['name']); ?></td>
 <?php if (Configure::read('feature.region_preference')): ?>
 		<td><?php
 		if ($slot['Game']['id'] && !empty($slot['Game']['HomeTeam']['Region'])) {
@@ -93,6 +101,14 @@ echo $this->Form->end();
 		}
 		?></td>
 <?php endif; ?>
+<?php
+			if ($first) {
+				$first = false;
+			} else {
+				echo '</tr>';
+			}
+		}
+	endif; ?>
 	</tr>
 <?php endforeach; ?>
 </table>
