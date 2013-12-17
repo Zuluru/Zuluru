@@ -134,11 +134,11 @@ dl .altrow
 {
 	color: red;
 }
-#zuluru .warning-message, #zuluru .highlight-message
+#zuluru .warning-message, #zuluru .highlight-message, .help_dialog .warning-message, .help_dialog .highlight-message
 {
 	color: #AA0000;
 }
-#zuluru .error-message, #zuluru .warning-message, #zuluru .highlight-message
+#zuluru .error-message, #zuluru .warning-message, #zuluru .highlight-message, .help_dialog .warning-message, .help_dialog .highlight-message
 {
 	font-weight: bold;
 }
