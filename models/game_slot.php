@@ -20,17 +20,15 @@ class GameSlot extends AppModel {
 		'Field' => array(
 			'className' => 'Field',
 			'foreignKey' => 'field_id',
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
 		),
+	);
+
+	var $hasOne = array(
 		'Game' => array(
 			'className' => 'Game',
-			'foreignKey' => 'game_id',
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
-		)
+			'foreignKey' => 'game_slot_id',
+			'dependent' => false,
+		),
 	);
 
 	var $hasMany = array(
@@ -38,14 +36,6 @@ class GameSlot extends AppModel {
 			'className' => 'DivisionGameslotAvailability',
 			'foreignKey' => 'game_slot_id',
 			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 	);
 
@@ -84,7 +74,7 @@ class GameSlot extends AppModel {
 					"GameSlot.game_date >= DATE_ADD('$date', INTERVAL -6 DAY)",
 					"GameSlot.game_date <= DATE_ADD('$date', INTERVAL 6 DAY)",
 					'GameSlot.game_date !=' => $date,
-					'GameSlot.game_id' => null,
+					'GameSlot.assigned' => false,
 				),
 				'GameSlot.game_date' => $date,
 			);

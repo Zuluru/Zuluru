@@ -769,7 +769,6 @@ class DivisionsController extends AppController {
 			if ($this->_validateAndSaveSchedule($game_slots)) {
 				Cache::delete($cache_key, 'long_term');
 				Cache::delete('division/' . intval($id) . '/standings', 'long_term');
-
 				$this->redirect (array('action' => 'schedule', 'division' => $id));
 			}
 		}
@@ -794,7 +793,7 @@ class DivisionsController extends AppController {
 		$games = count($this->data['Game']);
 		// TODO: Remove workaround for Set::extract bug
 		$this->data['Game'] = array_values($this->data['Game']);
-		$slots = Set::extract ('/Game/GameSlot/id', $this->data);
+		$slots = Set::extract ('/Game/game_slot_id', $this->data);
 		if (in_array ('', $slots)) {
 			$this->Session->setFlash(__('You cannot choose the "---" as the game time/place!', true), 'default', array('class' => 'info'));
 			return false;
@@ -832,8 +831,8 @@ class DivisionsController extends AppController {
 				if ($allow_double_header) {
 					// Check that the double-header doesn't cause conflicts; must be at the same facility, but different times
 					$team_slot_ids = array_merge(
-						Set::extract ("/Game[home_team=$team_id]/GameSlot/id", $this->data),
-						Set::extract ("/Game[away_team=$team_id]/GameSlot/id", $this->data)
+						Set::extract ("/Game[home_team=$team_id]/game_slot_id", $this->data),
+						Set::extract ("/Game[away_team=$team_id]/game_slot_id", $this->data)
 					);
 					if (count ($team_slot_ids) != count (array_unique ($team_slot_ids))) {
 						$this->Session->setFlash(sprintf (__('Team %s was scheduled twice in the same time slot!', true), $team['Team']['name']), 'default', array('class' => 'info'));
@@ -874,13 +873,11 @@ class DivisionsController extends AppController {
 			return false;
 		}
 		if (!$this->Division->Game->_saveGames($this->data['Game'], $publish)) {
-			$this->Lock->unlock();
 			return false;
 		}
-		$this->Lock->unlock();
 
-		$unused_slots = array_diff (Set::extract ('/GameSlot/id', $available_slots), $slots);
-		if ($this->Division->Game->GameSlot->updateAll (array('game_id' => null), array('GameSlot.id' => $unused_slots))) {
+		$unused_slots = array_diff (Set::extract ('/game_slot_id', $available_slots), $slots);
+		if ($this->Division->Game->GameSlot->updateAll (array('assigned' => 0), array('GameSlot.id' => $unused_slots))) {
 			$this->Session->setFlash(__('Schedule changes saved!', true), 'default', array('class' => 'success'));
 			return true;
 		} else {
@@ -1774,6 +1771,7 @@ class DivisionsController extends AppController {
 		}
 
 		$games = Set::extract('/Game/id', $division['Pool']);
+		$slots = Set::extract('/Game/game_slot_id', $division['Pool']);
 		$transaction = new DatabaseTransaction($this->Division->Pool);
 
 		// We'll overwrite this flash message if it succeeds
@@ -1782,7 +1780,7 @@ class DivisionsController extends AppController {
 		if ($this->Division->Pool->deleteAll(array('Pool.division_id' => $id, 'Pool.stage >=' => $stage))) {
 			if (empty($games) || (
 					$this->Division->Pool->Game->deleteAll(array('Game.id' => $games)) &&
-					$this->Division->Pool->Game->GameSlot->updateAll (array('GameSlot.game_id' => null), array('GameSlot.game_id' => $games))
+					$this->Division->Pool->Game->GameSlot->updateAll (array('GameSlot.assigned' => 0), array('GameSlot.id' => $slots))
 				))
 			{
 				$transaction->commit();

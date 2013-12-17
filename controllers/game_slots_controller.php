@@ -52,6 +52,13 @@ class GameSlotsController extends AppController {
 			$this->redirect('/');
 		}
 		$this->GameSlot->contain(array(
+				'Game' => array(
+					'HomeTeam',
+					'HomePoolTeam' => 'DependencyPool',
+					'AwayTeam',
+					'AwayPoolTeam' => 'DependencyPool',
+					'Division' => 'League',
+				),
 				'Field' => array('Facility' => 'Region'),
 				'DivisionGameslotAvailability' => array('Division' => 'League'),
 		));
@@ -277,8 +284,8 @@ class GameSlotsController extends AppController {
 			$this->redirect('/');
 		}
 
-		$game = $this->GameSlot->field('game_id', compact('id'));
-		if ($game) {
+		$assigned = $this->GameSlot->field('assigned', compact('id'));
+		if ($assigned) {
 			$this->Session->setFlash(__('This game slot has a game assigned to it and cannot be deleted.', true), 'default', array('class' => 'warning'));
 			$this->redirect('/');
 		}

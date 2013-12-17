@@ -471,7 +471,6 @@ class SchedulesController extends AppController {
 		} else {
 			$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('game slots', true)), 'default', array('class' => 'warning'));
 		}
-		$this->Lock->unlock ();
 	}
 
 	function _type($id) {
@@ -514,7 +513,7 @@ class SchedulesController extends AppController {
 		// Find the list of available dates for scheduling this division
 		$dates = $this->Division->DivisionGameslotAvailability->find('all', array(
 				'conditions' => array(
-					'GameSlot.game_id' => null,
+					'GameSlot.assigned' => false,
 					'DivisionGameslotAvailability.division_id' => $id,
 					'GameSlot.game_date >= CURDATE()',
 				),
@@ -599,7 +598,6 @@ class SchedulesController extends AppController {
 
 			$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
 		}
-		$this->Lock->unlock ();
 
 		// The reason for failure will have been set in the flash somewhere in createSchedule.
 		$this->set(array(
@@ -639,7 +637,7 @@ class SchedulesController extends AppController {
 		$field_counts = $this->Division->DivisionGameslotAvailability->find('all', array(
 				'fields' => array('count(GameSlot.id) AS count'),
 				'conditions' => array(
-					'GameSlot.game_id' => null,
+					'GameSlot.assigned' => false,
 					'GameSlot.game_date >=' => $start_date,
 					'DivisionGameslotAvailability.division_id' => $id,
 				),
@@ -725,7 +723,7 @@ class SchedulesController extends AppController {
 		}
 		$games = $this->Division->Game->find ('all', array(
 				'conditions' => $conditions,
-				'fields' => array('Game.id', 'Game.published', 'Game.home_score', 'Game.pool_id'),
+				'fields' => array('Game.id', 'Game.published', 'Game.home_score', 'Game.pool_id', 'Game.game_slot_id'),
 				'contain' => $contain,
 		));
 
@@ -739,7 +737,7 @@ class SchedulesController extends AppController {
 							'Game.pool_id' => $pools,
 							'GameSlot.game_date !=' => $date,
 						),
-						'fields' => array('Game.id', 'Game.published', 'Game.home_score', 'Game.pool_id'),
+						'fields' => array('Game.id', 'Game.published', 'Game.home_score', 'Game.pool_id', 'Game.game_slot_id'),
 						'contain' => array('GameSlot'),
 				));
 			}
@@ -769,7 +767,7 @@ class SchedulesController extends AppController {
 							'conditions' => array(
 								'Game.pool_id' => $later_pools,
 							),
-							'fields' => array('Game.id', 'Game.published', 'Game.home_score', 'Game.pool_id'),
+							'fields' => array('Game.id', 'Game.published', 'Game.home_score', 'Game.pool_id', 'Game.game_slot_id'),
 							'contain' => array(),
 					));
 				}
@@ -785,16 +783,19 @@ class SchedulesController extends AppController {
 				$this->Division->Pool->PoolsTeam->updateAll (array('team_id' => null), array('pool_id' => $reset_pools));
 			}
 
-			// Clear game_id from game_slots, and delete the games.
+			// Clear assigned flag from game_slots, and delete the games.
 			$game_ids = Set::extract ('/Game/id', $games);
+			$slot_ids = Set::extract ('/Game/game_slot_id', $games);
 			if (!empty($same_pool)) {
 				$game_ids = array_merge($game_ids, Set::extract ('/Game/id', $same_pool));
+				$slot_ids = array_merge($slot_ids, Set::extract ('/Game/game_slot_id', $same_pool));
 			}
 			if (!empty($dependent)) {
 				$game_ids = array_merge($game_ids, Set::extract ('/Game/id', $dependent));
+				$slot_ids = array_merge($slot_ids, Set::extract ('/Game/game_slot_id', $dependent));
 			}
-			if ($this->Division->Game->GameSlot->updateAll (array('game_id' => null), array(
-					'GameSlot.game_id' => $game_ids,
+			if ($this->Division->Game->GameSlot->updateAll (array('assigned' => 0), array(
+					'GameSlot.id' => $slot_ids,
 				)) &&
 				$this->Division->Game->deleteAll(array(
 					'Game.id' => $game_ids,
@@ -843,7 +844,7 @@ class SchedulesController extends AppController {
 					// empty GameSlot arrays, so Set::Extract calls won't match and they're ignored
 					'conditions' => array(
 						'game_date >=' => $date,
-						'game_id' => null,
+						'assigned' => false,
 					),
 				),
 			),
@@ -860,23 +861,19 @@ class SchedulesController extends AppController {
 		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
 		$league_obj->division = $division;
 		if (!empty ($this->data)) {
-			// Wrap the whole thing in a transaction, for safety.
-			$transaction = new DatabaseTransaction($this->Division->Game);
-
+			if (!$this->Lock->lock ('scheduling', $division['League']['affiliate_id'], 'schedule creation or edit')) {
+				return false;
+			}
 			if ($league_obj->assignFieldsByPreferences($this->data['new_date'], $division['Game'])) {
-
 				if ($this->Division->Game->_saveGames ($league_obj->games, $this->data['publish'])) {
 					$unused_slots = Set::extract ('/GameSlot/id', $division['Game']);
-					if ($this->Division->Game->GameSlot->updateAll (array('game_id' => null), array('GameSlot.id' => $unused_slots))) {
+					if ($this->Division->Game->GameSlot->updateAll (array('assigned' => 0), array('GameSlot.id' => $unused_slots))) {
 						$this->Session->setFlash(__('Games rescheduled', true), 'default', array('class' => 'success'));
-						$transaction->commit();
-
 						Cache::delete('division/' . intval($id) . '/standings', 'long_term');
 						Cache::delete('division/' . intval($id) . '/schedule', 'long_term');
-
 						$this->redirect (array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
 					} else {
-						$this->Session->setFlash(__('Problem! Games were rescheduled, but old game slots were not freed. Schedule will be unstable!', true), 'default', array('class' => 'error'));
+						$this->Session->setFlash(__('Games were rescheduled, but failed to clear unused slots!', true), 'default', array('class' => 'warning'));
 					}
 				}
 			}
@@ -887,7 +884,7 @@ class SchedulesController extends AppController {
 		$dates = $this->Division->DivisionGameslotAvailability->find('all', array(
 				'conditions' => array(
 					'GameSlot.game_date >' => $date,
-					'GameSlot.game_id' => null,
+					'GameSlot.assigned' => false,
 					'DivisionGameslotAvailability.division_id' => $id,
 				),
 				'fields' => 'DISTINCT UNIX_TIMESTAMP(GameSlot.game_date) AS date',

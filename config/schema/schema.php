@@ -273,13 +273,14 @@ class ZuluruSchema extends CakeSchema {
 		'game_date' => array('type' => 'date', 'null' => true, 'default' => NULL),
 		'game_start' => array('type' => 'time', 'null' => true, 'default' => NULL),
 		'game_end' => array('type' => 'time', 'null' => true, 'default' => NULL),
-		'game_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'assigned' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $games = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'division_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
+		'game_slot_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'round' => array('type' => 'string', 'null' => false, 'default' => '1', 'length' => 10),
 		'tournament_pool' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'type' => array('type' => 'integer', 'null' => false, 'default' => '1'),

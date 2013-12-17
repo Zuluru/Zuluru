@@ -48,13 +48,12 @@ foreach ($division['Game'] as $game):
 	?><?php endif; ?></td>
 	<td colspan="2"><?php
 	echo $this->Form->hidden ("Game.{$game['id']}.id", array('value' => $game['id']));
-	echo $this->Form->hidden ("Game.{$game['id']}.GameSlot.game_id", array('value' => $game['id']));
-	echo $this->Form->input ("Game.{$game['id']}.GameSlot.id", array(
+	echo $this->Form->input ("Game.{$game['id']}.game_slot_id", array(
 			'div' => false,
 			'label' => false,
 			'options' => $slots,
 			'empty' => '---',
-			'selected' => $data['GameSlot']['id'],
+			'selected' => $data['game_slot_id'],
 	));
 	?></td>
 	<td><?php

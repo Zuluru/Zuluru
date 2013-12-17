@@ -815,8 +815,9 @@ class LeagueTypeComponent extends Object
 					// TODO: Can a better query improve the efficiency of this?
 					'conditions' => array(
 						'game_date >=' => $start_date,
-						'game_id' => null,
+						'assigned' => false,
 					),
+					'Field' => 'Facility',
 				),
 			),
 		));
@@ -881,21 +882,17 @@ class LeagueTypeComponent extends Object
 		}
 
 		// Check that chosen game slots didn't somehow get allocated elsewhere in the meantime
-		$slots = Set::extract ('/GameSlot/id', $this->games);
+		$slots = Set::extract ('/game_slot_id', $this->games);
 		$this->_controller->Division->Game->GameSlot->contain();
 		$taken = $this->_controller->Division->Game->GameSlot->find('all', array('conditions' => array(
 				'id' => $slots,
-				'game_id !=' => null,
+				'assigned' => true,
 		)));
 		if (!empty ($taken)) {
 			$this->_controller->Session->setFlash(__('A game slot chosen for this schedule has been allocated elsewhere in the interim. Please try again.', true), 'default', array('class' => 'warning'));
 			return false;
 		}
 
-		// saveAll doesn't save GameSlot records here (the hasOne relation
-		// indicates to Cake that slots are supposed to be created for games,
-		// rather than being created ahead of time and assigned to games).
-		// So, we replicate the important bits of saveAll here.
 		$transaction = new DatabaseTransaction($this->_controller->Division->Game);
 
 		// for($x as $k => $v) works on a cached version of $x, so any changes
@@ -911,25 +908,17 @@ class LeagueTypeComponent extends Object
 			{
 				return false;
 			}
-
-			// Some games don't have game slots, e.g. placeholder games for results carried forward
-			if (!empty($this->games[$key]['GameSlot'])) {
-				$this->games[$key]['GameSlot']['game_id'] = $this->_controller->Division->Game->id;
-				if (!$this->_controller->Division->Game->GameSlot->save($this->games[$key]['GameSlot'])) {
-					return false;
-				}
-			}
 		}
 
 		return ($transaction->commit() !== false);
 	}
 
-	function beforeSave($game) {
+	function beforeSave($key) {
 		// Most league types have nothing that keeps games from being saved
 		return true;
 	}
 
-	function afterSave($game) {
+	function afterSave($gkey) {
 		// Most league types have nothing to do after games are saved
 		return true;
 	}
@@ -956,7 +945,7 @@ class LeagueTypeComponent extends Object
 				return false;
 			}
 
-			$game['GameSlot'] = array('id' => $game_slot_id);
+			$game['game_slot_id'] = $game_slot_id;
 		}
 
 		$this->games[] = $game;
@@ -1083,9 +1072,7 @@ class LeagueTypeComponent extends Object
 			if (!$slot_id) {
 				return false;
 			}
-			$game['GameSlot'] = array(
-				'id' => $slot_id,
-			);
+			$game['game_slot_id'] = $slot_id;
 
 			$this->games[] = $game;
 		}
@@ -1262,7 +1249,7 @@ class LeagueTypeComponent extends Object
 	function matchingSlots($criteria, $path, $dates, $remaining) {
 		$matches = array();
 		foreach ($dates as $date) {
-			$matches = array_merge($matches, Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date]$criteria/$path", $this->division));
+			$matches = array_merge($matches, Set::extract("/GameSlot[game_date=$date]$criteria/$path", $this->division['DivisionGameslotAvailability']));
 			if (count($matches) >= $remaining) {
 				break;
 			}

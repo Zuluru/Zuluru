@@ -566,7 +566,7 @@ class PeopleController extends AppController {
 									'alias' => 'GameSlot',
 									'type' => 'LEFT',
 									'foreignKey' => false,
-									'conditions' => 'GameSlot.game_id = Game.id',
+									'conditions' => 'GameSlot.id = Game.game_slot_id',
 								),
 									array(
 										// TODO: something more generic than explicitly escaping the table name

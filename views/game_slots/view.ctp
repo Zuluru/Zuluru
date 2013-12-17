@@ -28,7 +28,7 @@ $this->Html->addCrumb (__('View', true));
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Game'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $this->Html->link($gameSlot['GameSlot']['game_id'], array('controller' => 'games', 'action' => 'view', 'game' => $gameSlot['GameSlot']['game_id'])); ?>
+			<?php echo $this->Html->link($gameSlot['Game']['id'], array('controller' => 'games', 'action' => 'view', 'game' => $gameSlot['Game']['id'])); ?>
 			&nbsp;
 		</dd>
 	</dl>

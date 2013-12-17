@@ -37,17 +37,14 @@ class Game extends AppModel {
 		),
 	);
 
-	var $hasOne = array(
-		'GameSlot' => array(
-			'className' => 'GameSlot',
-			'foreignKey' => 'game_id',
-		)
-	);
-
 	var $belongsTo = array(
 		'Division' => array(
 			'className' => 'Division',
 			'foreignKey' => 'division_id',
+		),
+		'GameSlot' => array(
+			'className' => 'GameSlot',
+			'foreignKey' => 'game_slot_id',
 		),
 		'Pool' => array(
 			'className' => 'Pool',
@@ -415,45 +412,31 @@ class Game extends AppModel {
 		}
 	}
 
-	// saveAll doesn't save GameSlot records here (the hasOne relation
-	// indicates to Cake that slots are supposed to be created for games,
-	// rather than being created ahead of time and assigned to games).
-	// So, we replicate the important bits of saveAll here.
 	function _saveGames($games, $publish) {
 		// Make sure that some other coordinator hasn't scheduled a game in a
 		// different league on one of the unused slots.
-		$slot_ids = Set::extract ('/GameSlot/id', $games);
-		$game_ids = Set::extract ('/GameSlot/game_id', $games);
-		$this->GameSlot->contain();
-		$taken = $this->GameSlot->find('all', array('conditions' => array(
-				'id' => $slot_ids,
-				'game_id !=' => null,
+		$slot_ids = Set::extract ('/game_slot_id', $games);
+		$game_ids = Set::extract ('/id', $games);
+		$this->contain();
+		$taken = $this->find('all', array('conditions' => array(
+				'game_slot_id' => $slot_ids,
 				// Don't include game slots that are previously allocated to one of these games;
 				// of course those will be taken, but it's okay!
-				'NOT' => array('game_id' => $game_ids),
+				'NOT' => array('id' => $game_ids),
 		)));
 		if (!empty ($taken)) {
 			$this->Session->setFlash(__('A game slot chosen for this schedule has been allocated elsewhere in the interim. Please try again.', true), 'default', array('class' => 'info'));
 			return false;
 		}
 
-		$db =& ConnectionManager::getDataSource($this->useDbConfig);
-		$begun = $db->begin($this);
 		$this->_validateForScheduleEdit();
-		foreach ($games as $game) {
-			$game['GameSlot']['game_id'] = $game['id'];
-			$game['published'] = $publish;
-			if (!$this->save($game) ||
-				!$this->GameSlot->save($game['GameSlot']))
-			{
-				if ($begun)
-					$db->rollback($this);
-				$this->Session->setFlash(__('Failed to save schedule changes!', true), 'default', array('class' => 'warning'));
-				return false;
-			}
+		foreach (array_keys($games) as $key) {
+			$games[$key]['published'] = $publish;
 		}
-		if ($begun)
-			$db->commit($this);
+		if (!$this->saveAll($games)) {
+			$this->Session->setFlash(__('Failed to save schedule changes!', true), 'default', array('class' => 'warning'));
+			return false;
+		}
 		return true;
 	}
 
@@ -943,6 +926,13 @@ class Game extends AppModel {
 	}
 
 	function afterSave() {
+		if (!empty($this->data['Game']['game_slot_id'])) {
+			$this->GameSlot->id = $this->data['Game']['game_slot_id'];
+			if (!$this->GameSlot->saveField('assigned', true)) {
+				return false;
+			}
+		}
+
 		if (Configure::read('feature.badges') && $this->_is_finalized($this->data)) {
 			$badge_obj = AppController::_getComponent('Badge');
 			if (!$badge_obj->update('game', $this->data)) {
