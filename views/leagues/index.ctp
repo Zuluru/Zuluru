@@ -17,7 +17,10 @@ echo $this->element('selector', array(
 		'title' => 'Season',
 		'options' => $seasons,
 ));
-$days = array_unique(Set::extract('/Division/Day/name', $leagues));
+
+$days = Set::extract('/Division/Day[id!=]', $leagues);
+$days = Set::combine($days, '{n}.Day.id', '{n}.Day.name');
+ksort($days);
 echo $this->element('selector', array(
 		'title' => 'Day',
 		'options' => $days,
