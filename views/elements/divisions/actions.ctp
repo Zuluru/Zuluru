@@ -70,10 +70,12 @@ if ($is_admin || $is_manager || $is_coordinator) {
 			array('alt' => __('Captain Emails', true), 'title' => __('Captain Emails', true)));
 	}
 	if ($division['schedule_type'] != 'none') {
-		if ($this->params['controller'] != 'divisions' || $this->params['action'] != 'approve_scores') {
-			$links[] = $this->ZuluruHtml->iconLink("score_approve_$size.png",
-				array('controller' => 'divisions', 'action' => 'approve_scores', 'division' => $division['id'], 'return' => $return),
-				array('alt' => __('Approve scores', true), 'title' => __('Approve scores', true)));
+		if ($division['schedule_type'] != 'competition') {
+			if ($this->params['controller'] != 'divisions' || $this->params['action'] != 'approve_scores') {
+				$links[] = $this->ZuluruHtml->iconLink("score_approve_$size.png",
+					array('controller' => 'divisions', 'action' => 'approve_scores', 'division' => $division['id'], 'return' => $return),
+					array('alt' => __('Approve scores', true), 'title' => __('Approve scores', true)));
+			}
 		}
 		if ($this->params['controller'] != 'schedules' || $this->params['action'] != 'add') {
 			$links[] = $this->ZuluruHtml->iconLink("schedule_add_$size.png",

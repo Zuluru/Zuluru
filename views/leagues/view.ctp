@@ -36,7 +36,7 @@ $collapse = (count($league['Division']) == 1);
 				<?php echo $league['League']['schedule_attempts']; ?>
 
 			</dd>
-		<?php if (Configure::read('feature.spirit')): ?>
+		<?php if (Configure::read('feature.spirit') && !Configure::read('sport.competition')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Spirit Questionnaire'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php __(Configure::read("options.spirit_questions.{$league['League']['sotg_questions']}")); ?>

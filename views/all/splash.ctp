@@ -238,27 +238,32 @@ if (!empty($relatives)):
 					?></td>
 					<td class="splash_item"><?php
 						Game::_readDependencies($item);
+						Configure::load("sport/{$item['Division']['League']['sport']}");
 						if ($item['Game']['home_team'] === null) {
 							echo $item['Game']['home_dependency'];
 						} else {
-							echo $this->element('teams/block', array('team' => $item['HomeTeam'], 'options' => array('max_length' => 16))) .
-								' (' . __('home', true) . ')';
+							echo $this->element('teams/block', array('team' => $item['HomeTeam'], 'options' => array('max_length' => 16)));
+							if ($item['Division']['schedule_type'] != 'competition') {
+								echo ' (' . __('home', true) . ')';
+							}
 							if (in_array($item['HomeTeam']['id'], $team_ids) && $item['HomeTeam']['track_attendance'] && $item['GameSlot']['game_date'] >= date('Y-m-d')) {
 								echo $this->ZuluruHtml->iconLink('attendance_24.png',
 									array('controller' => 'games', 'action' => 'attendance', 'team' => $item['HomeTeam']['id'], 'game' => $item['Game']['id']),
 									array('alt' => __('Attendance', true), 'title' => __('View Game Attendance Report', true)));
 							}
 						}
-						__(' vs. ');
-						if ($item['Game']['away_team'] === null) {
-							echo $item['Game']['away_dependency'];
-						} else {
-							echo $this->element('teams/block', array('team' => $item['AwayTeam'], 'options' => array('max_length' => 16))) .
-								' (' . __('away', true) . ')';
-							if (in_array($item['AwayTeam']['id'], $team_ids) && $item['AwayTeam']['track_attendance'] && $item['GameSlot']['game_date'] >= date('Y-m-d')) {
-								echo $this->ZuluruHtml->iconLink('attendance_24.png',
-									array('controller' => 'games', 'action' => 'attendance', 'team' => $item['AwayTeam']['id'], 'game' => $item['Game']['id']),
-									array('alt' => __('Attendance', true), 'title' => __('View Game Attendance Report', true)));
+						if ($item['Division']['schedule_type'] != 'competition') {
+							__(' vs. ');
+							if ($item['Game']['away_team'] === null) {
+								echo $item['Game']['away_dependency'];
+							} else {
+								echo $this->element('teams/block', array('team' => $item['AwayTeam'], 'options' => array('max_length' => 16))) .
+									' (' . __('away', true) . ')';
+								if (in_array($item['AwayTeam']['id'], $team_ids) && $item['AwayTeam']['track_attendance'] && $item['GameSlot']['game_date'] >= date('Y-m-d')) {
+									echo $this->ZuluruHtml->iconLink('attendance_24.png',
+										array('controller' => 'games', 'action' => 'attendance', 'team' => $item['AwayTeam']['id'], 'game' => $item['Game']['id']),
+										array('alt' => __('Attendance', true), 'title' => __('View Game Attendance Report', true)));
+								}
 							}
 						}
 						__(' at ');
@@ -336,7 +341,7 @@ if (!empty($relatives)):
 					}
 					?></td>
 					<?php endforeach; ?>
-					<td><?php echo $this->ZuluruGame->displayScore ($item, $item['Division']['League']); ?></td>
+					<td><?php echo $this->ZuluruGame->displayScore ($item, $item['Division'], $item['Division']['League']); ?></td>
 				<?php elseif (!empty($item['TeamEvent'])): ?>
 					<td class="splash_item"><?php
 						$time = $this->ZuluruTime->day($item['TeamEvent']['date']) . ', ' .

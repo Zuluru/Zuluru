@@ -110,7 +110,7 @@ class RatingsComponent extends Object
 				$moved_teams[] = $game['Game']['home_team'];
 				$division['Team'][$game['Game']['home_team']] = $game['HomeTeam'];
 			}
-			if (!array_key_exists ($game['Game']['away_team'], $division['Team'])) {
+			if ($division['schedule_type'] != 'competition' && !array_key_exists ($game['Game']['away_team'], $division['Team'])) {
 				$moved_teams[] = $game['Game']['away_team'];
 				$division['Team'][$game['Game']['away_team']] = $game['AwayTeam'];
 			}
@@ -118,12 +118,14 @@ class RatingsComponent extends Object
 			if (!array_key_exists ('current_rating', $division['Team'][$game['Game']['home_team']])) {
 				$division['Team'][$game['Game']['home_team']]['current_rating'] = $division['Team'][$game['Game']['home_team']]['initial_rating'];
 			}
-			if (!array_key_exists ('current_rating', $division['Team'][$game['Game']['away_team']])) {
+			if ($division['schedule_type'] != 'competition' && !array_key_exists ('current_rating', $division['Team'][$game['Game']['away_team']])) {
 				$division['Team'][$game['Game']['away_team']]['current_rating'] = $division['Team'][$game['Game']['away_team']]['initial_rating'];
 			}
 
-            $games[$key]['Game']['calc_rating_home'] = $division['Team'][$game['Game']['home_team']]['current_rating'];
-			$games[$key]['Game']['calc_rating_away'] = $division['Team'][$game['Game']['away_team']]['current_rating'];
+			$games[$key]['Game']['calc_rating_home'] = $division['Team'][$game['Game']['home_team']]['current_rating'];
+			if ($division['schedule_type'] != 'competition') {
+				$games[$key]['Game']['calc_rating_away'] = $division['Team'][$game['Game']['away_team']]['current_rating'];
+			}
 
 			if ($this->game_obj->_is_finalized ($game) && $game['Game']['status'] != 'rescheduled') {
 				if ($game['Game']['type'] != SEASON_GAME) {
@@ -132,6 +134,9 @@ class RatingsComponent extends Object
 				} else if (strpos($game['Game']['status'], 'default') !== false && !Configure::read('scoring.default_transfer_ratings')) {
 					// Defaulted games might not adjust ratings
 					$change = 0;
+				} else if ($division['schedule_type'] != 'competition') {
+					$change = $this->calculateRatingsChange($game['Game']['home_score']);
+					$division['Team'][$game['Game']['home_team']]['current_rating'] += $change;
 				} else if ($game['Game']['home_score'] >= $game['Game']['away_score']) {
 					$games[$key]['Game']['expected'] = $this->calculateExpectedWin($division['Team'][$game['Game']['home_team']]['current_rating'], $division['Team'][$game['Game']['away_team']]['current_rating']);
 					$change = $this->calculateRatingsChange($game['Game']['home_score'], $game['Game']['away_score'], $games[$key]['Game']['expected']);

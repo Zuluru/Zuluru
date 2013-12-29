@@ -11,8 +11,8 @@ natcasesort ($teams);
 ?>
 
 <tr>
-	<th colspan="4"><a name="<?php echo $date; ?>"><?php echo $this->ZuluruTime->fulldate($date); ?></a></th>
-	<th colspan="2" class="actions splash_action">
+	<th colspan="3"><a name="<?php echo $date; ?>"><?php echo $this->ZuluruTime->fulldate($date); ?></a></th>
+	<th colspan="<?php echo 2 + ($division['Division']['schedule_type'] != 'competition'); ?>" class="actions splash_action">
 	<?php echo $this->ZuluruHtml->iconLink('field_24.png',
 			array('action' => 'slots', 'division' => $division['Division']['id'], 'date' => $date),
 			array('alt' => __(Configure::read('sport.fields_cap'), true), 'title' => sprintf(__('Available %s', true), __(Configure::read('sport.fields_cap'), true)))); ?>
@@ -21,8 +21,10 @@ natcasesort ($teams);
 <tr>
 	<th><?php if ($is_tournament): ?><?php __('Game'); ?><?php endif; ?></th>
 	<th colspan="2"><?php printf(__('Time/%s', true), __(Configure::read('sport.field_cap'), true)); ?></th>
-	<th><?php __('Home'); ?></th>
+	<th><?php __($division['Division']['schedule_type'] == 'competition' ? 'Team' : 'Home'); ?></th>
+	<?php if ($division['Division']['schedule_type'] != 'competition'): ?>
 	<th><?php __('Away'); ?></th>
+	<?php endif; ?>
 	<th></th>
 </tr>
 
@@ -77,6 +79,7 @@ foreach ($division['Game'] as $game):
 		));
 	}
 	?></td>
+	<?php if ($division['Division']['schedule_type'] != 'competition'): ?>
 	<td><?php
 	if ($is_tournament) {
 		if (empty ($game['AwayTeam'])) {
@@ -98,6 +101,7 @@ foreach ($division['Game'] as $game):
 		));
 	}
 	?></td>
+	<?php endif; ?>
 	<td></td>
 </tr>
 
@@ -106,7 +110,7 @@ endforeach;
 ?>
 
 <tr>
-	<td colspan="4"><?php
+	<td colspan="<?php echo 4 + ($division['Division']['schedule_type'] != 'competition'); ?>"><?php
 	echo $this->Form->input ('publish', array(
 			'label' => __('Set as published for player viewing?', true),
 			'type' => 'checkbox',

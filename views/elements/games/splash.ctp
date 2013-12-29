@@ -28,18 +28,23 @@ foreach ($items as $item):
 		?></td>
 		<td class="splash_item"><?php
 			Game::_readDependencies($item);
+			Configure::load("sport/{$item['Division']['League']['sport']}");
 			if ($item['Game']['home_team'] === null) {
 				echo $item['Game']['home_dependency'];
 			} else {
-				echo $this->element('teams/block', array('team' => $item['HomeTeam'], 'options' => array('max_length' => 16))) .
-					' (' . __('home', true) . ')';
+				echo $this->element('teams/block', array('team' => $item['HomeTeam'], 'options' => array('max_length' => 16)));
+				if ($item['Division']['schedule_type'] != 'competition') {
+					echo ' (' . __('home', true) . ')';
+				}
 			}
-			__(' vs. ');
-			if ($item['Game']['away_team'] === null) {
-				echo $item['Game']['away_dependency'];
-			} else {
-				echo $this->element('teams/block', array('team' => $item['AwayTeam'], 'options' => array('max_length' => 16))) .
-					' (' . __('away', true) . ')';
+			if ($item['Division']['schedule_type'] != 'competition') {
+				__(' vs. ');
+				if ($item['Game']['away_team'] === null) {
+					echo $item['Game']['away_dependency'];
+				} else {
+					echo $this->element('teams/block', array('team' => $item['AwayTeam'], 'options' => array('max_length' => 16))) .
+						' (' . __('away', true) . ')';
+				}
 			}
 			__(' at ');
 			echo $this->element('fields/block', array('field' => $item['GameSlot']['Field']));
@@ -90,7 +95,7 @@ foreach ($items as $item):
 			}
 		}
 
-		echo $this->ZuluruGame->displayScore ($item, $item['Division']['League']);
+		echo $this->ZuluruGame->displayScore ($item, $item['Division'], $item['Division']['League']);
 
 		if (Configure::read('feature.annotations')) {
 			echo $this->Html->link(__('Add Note', true), array('controller' => 'games', 'action' => 'note', 'game' => $item['Game']['id']));

@@ -633,7 +633,6 @@ class SchedulesController extends AppController {
 			return false;
 		}
 
-		$num_fields = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams());
 		$field_counts = $this->Division->DivisionGameslotAvailability->find('all', array(
 				'fields' => array('count(GameSlot.id) AS count'),
 				'conditions' => array(
@@ -645,6 +644,12 @@ class SchedulesController extends AppController {
 				'order' => array('GameSlot.game_date', 'GameSlot.game_start'),
 		));
 
+		if ($this->data['Game']['double_booking']) {
+			// If double-booking is allowed, we only need a single field availabile
+			return ($field_counts > 0);
+		}
+
+		$num_fields = $this->league_obj->scheduleRequirements ($this->data['Game']['type'], $this->_numTeams());
 		return $this->league_obj->canSchedule($num_fields, $field_counts);
 	}
 

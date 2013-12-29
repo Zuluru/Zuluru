@@ -215,6 +215,7 @@ class GamesController extends AppController {
 			'HomeTeam',
 			'AwayTeam',
 			'GameSlot' => array('Field' => array('Facility' => 'Region')),
+			'Division' => 'League',
 		));
 
 		$game = $this->Game->read(null, $id);
@@ -222,6 +223,7 @@ class GamesController extends AppController {
 			return;
 		}
 		$this->Configuration->loadAffiliate($game['GameSlot']['Field']['Facility']['Region']['affiliate_id']);
+		Configure::load("sport/{$game['Division']['League']['sport']}");
 		$this->set(compact('game'));
 
 		Configure::write ('debug', 0);
@@ -2281,7 +2283,15 @@ class GamesController extends AppController {
 				if (Configure::read('scoring.incident_reports') && $this->data['Game']['incident']) {
 					$addr = Configure::read('email.incident_report_email');
 					$incident = $this->data['Incident'][$team_id];
-					$this->set(compact ('game', 'incident'));
+					$this->set(array(
+							'incident' => $incident,
+							'game' => $game['Game'],
+							'division' => $game['Division'],
+							'slot' => $game['GameSlot'],
+							'field' => $game['GameSlot']['Field'],
+							'home_team' => $game['HomeTeam'],
+							'away_team' => $game['AwayTeam'],
+					));
 					if ($this->_sendMail (array (
 							'to' => "Incident Manager <$addr>",
 							'from' => $this->UserCache->read('Person.email_formatted'),
@@ -2611,9 +2621,7 @@ class GamesController extends AppController {
 							'sendAs' => 'both',
 					)))
 					{
-						// TODO: Save this directly
 						$this->Game->ScoreMismatchEmail->create();
-//						$data['ScoreMismatchEmail'][0] = array(
 						$this->Game->ScoreMismatchEmail->save(array(
 							'type' => 'email_score_mismatch',
 							'game_id' => $game['Game']['id'],

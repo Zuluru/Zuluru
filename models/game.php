@@ -530,7 +530,7 @@ class Game extends AppModel {
 		} else {
 			$test = $game;
 		}
-		return (!empty($test['status']) && $test['status'] != 'normal' || (isset($test['home_score']) && isset($test['away_score'])));
+		return (!empty($test['status']) && $test['status'] != 'normal' || isset($test['home_score']));
 	}
 
 	/**

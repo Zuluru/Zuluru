@@ -16,7 +16,7 @@ $display_spirit = ($is_admin || $is_coordinator || $team['Division']['League']['
 			<th><?php __('Date'); ?></th>
 			<th><?php __('Time'); ?></th>
 			<th><?php __(Configure::read('sport.field_cap')); ?></th>
-			<th><?php __('Opponent'); ?></th>
+			<th><?php if ($team['Division']['schedule_type'] != 'competition') __('Opponent'); ?></th>
 			<th><?php __('Score'); ?></th>
 			<?php if ($display_spirit): ?>
 			<th><?php __('Spirit'); ?></th>
@@ -86,7 +86,7 @@ $display_spirit = ($is_admin || $is_coordinator || $team['Division']['League']['
 			<td><?php
 			if ($is_event) {
 				echo $this->Html->link($game['TeamEvent']['name'], array('controller' => 'team_events', 'action' => 'view', 'event' => $game['TeamEvent']['id']));
-			} else {
+			} else if ($team['Division']['schedule_type'] != 'competition') {
 				if ($team['Team']['id'] == $game['Game']['home_team']) {
 					if ($game['Game']['away_team'] === null) {
 						echo $game['Game']['away_dependency'];
@@ -104,7 +104,7 @@ $display_spirit = ($is_admin || $is_coordinator || $team['Division']['League']['
 			?></td>
 			<td class="actions"><?php
 			if (!$is_event) {
-				echo $this->ZuluruGame->displayScore ($game, $team['Division']['League'], $team['Team']['id']);
+				echo $this->ZuluruGame->displayScore ($game, $team['Division'], $team['Division']['League'], $team['Team']['id']);
 			}
 			?></td>
 			<?php if ($display_spirit): ?>

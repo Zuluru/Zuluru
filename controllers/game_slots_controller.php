@@ -30,6 +30,7 @@ class GameSlotsController extends AppController {
 					'edit',
 					'view',
 					'delete',
+					'submit_score',
 			)))
 			{
 				// If a game slot id is specified, check if we're a manager of that game slot's affiliate
@@ -68,6 +69,7 @@ class GameSlotsController extends AppController {
 			$this->redirect('/');
 		}
 		$this->Configuration->loadAffiliate($gameSlot['Field']['Facility']['Region']['affiliate_id']);
+		Configure::load("sport/{$game['Division']['League']['sport']}");
 		$this->set(compact('gameSlot'));
 	}
 
@@ -302,6 +304,181 @@ class GameSlotsController extends AppController {
 		}
 		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Game slot', true)), 'default', array('class' => 'warning'));
 		$this->redirect('/');
+	}
+
+	function submit_score() {
+		$id = $this->_arg('slot');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game slot', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$this->GameSlot->contain(array(
+				'Game' => array(
+					'HomeTeam',
+					'HomePoolTeam' => 'DependencyPool',
+					'Division' => 'League',
+				),
+				'Field' => array('Facility' => 'Region'),
+		));
+		$gameSlot = $this->GameSlot->read(null, $id);
+		if (!$gameSlot) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('game slot', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		if (empty($gameSlot['Game'])) {
+			$this->Session->setFlash(__('This game slot has no games associated with it.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$game = $gameSlot['Game'][0];
+		if ($game['Division']['schedule_type'] != 'competition') {
+			$this->Session->setFlash(__('You can only enter scores for multiple games in "competition" divisions.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		if (Game::_is_finalized($game)) {
+			$this->Session->setFlash(__('Games in this slot have already been finalized.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$end_time = strtotime("{$gameSlot['GameSlot']['game_date']} {$gameSlot['GameSlot']['display_game_end']}") +
+				Configure::read('timezone.adjust') * 60;
+		if ($end_time - 60 * 60 > time()) {
+			$this->Session->setFlash(__('That game has not yet occurred!', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		// We need this in a couple of places
+		if (League::hasSpirit($game['Division']['League'])) {
+			$spirit_obj = $this->_getComponent ('Spirit', $game['Division']['League']['sotg_questions'], $this);
+		}
+
+		$this->Configuration->loadAffiliate($gameSlot['Field']['Facility']['Region']['affiliate_id']);
+		Configure::load("sport/{$game['Division']['League']['sport']}");
+		$ratings_obj = $this->_getComponent ('Ratings', $game['Division']['rating_calculator'], $this);
+
+		$this->set(compact('gameSlot'));
+
+		if (!empty ($this->data)) {
+			$teams = $games = $incidents = $errors = array();
+
+			$unplayed = in_array($this->data['Game']['status'], Configure::read('unplayed_status'));
+
+			// We could put these as hidden fields in the form, but we'd need to
+			// validate them against the values from the URL anyway, so it's
+			// easier to just set them directly here.
+			// We use the team_id as the array index, here and in the views,
+			// because order matters, and this is a good way to ensure that
+			// the correct data gets into the correct form.
+			foreach ($gameSlot['Game'] as $i => $game) {
+				if (!array_key_exists($game['home_team'], $this->data['Game'])) {
+					$errors[$game['home_team']]['home_score'] = 'Scores must be entered for all teams.';
+				} else {
+					$details = $this->data['Game'][$game['home_team']];
+					if ($unplayed) {
+						$score = null;
+					} else {
+						$score = $details['home_score'];
+						$rating = $ratings_obj->calculateRatingsChange($details['home_score']);
+						$teams[$game['home_team']] = array(
+								'id' => $game['home_team'],
+								'rating' => $game['HomeTeam']['rating'] + $rating,
+								// Any time that this is called, the division seeding might change.
+								// We just reset it here, and it will be recalculated as required elsewhere.
+								'seed' => 0,
+						);
+					}
+					$games[$game['home_team']] = array(
+							'id' => $game['id'],
+							'status' => $this->data['Game']['status'],
+							'home_score' => $score,
+							'approved_by' => $this->Auth->user('id'),
+					);
+					if ($details['incident']) {
+						$incidents[$game['home_team']] = array(
+								'game_id' => $game['id'],
+								'team_id' => $game['home_team'],
+								'type' => $details['type'],
+								'details' => $details['details'],
+								'game' => $game,
+						);
+					}
+				}
+			}
+
+			if (!empty($errors)) {
+				$this->GameSlot->Game->validationErrors = $errors;
+			} else {
+				$transaction = new DatabaseTransaction($this->GameSlot);
+				if ($this->GameSlot->Game->saveAll($games, array('validate' => 'first'))) {
+					if (Configure::read('scoring.incident_reports') && !empty($incidents)) {
+						if (!$this->GameSlot->Game->Incident->saveAll($incidents, array('validate' => 'first'))) {
+							$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('incident data', true)), 'default', array('class' => 'warning'));
+							return;
+						}
+					}
+
+					// TODO: Replace this with a call to GamesController::_adjustScoreAndRatings, which will
+					// need to be moved to a shared location and adjusted to handle competition differences.
+					// For now, all that function does that this doesn't is stats, and we have no idea how
+					// stats might play out in competition divisions, so this will suffice.
+					$this->GameSlot->Game->Division->Team->saveAll($teams);
+
+					$transaction->commit();
+
+					foreach ($gameSlot['Game'] as $i => $game) {
+						Cache::delete("division/{$game['Division']['id']}/standings", 'long_term');
+						Cache::delete("division/{$game['Division']['id']}/schedule", 'long_term');
+					}
+
+					$resultMessage = __('Scores have been saved and game results posted.', true);
+					$resultClass = 'success';
+
+					// TODO: Check for changes to the incident text to avoid sending a duplicate email,
+					// and we probably want to change the text of the email slightly to let the recipient
+					// know that it's an update instead of a new incident.
+					// TODO: Combine code from here and games controller?
+					$incidentMessage = '';
+					if (Configure::read('scoring.incident_reports')) {
+						$addr = Configure::read('email.incident_report_email');
+						foreach ($incidents as $incident) {
+							$this->set(array(
+									'incident' => $incident,
+									'game' => $incident['game'],
+									'division' => $incident['game']['Division'],
+									'slot' => $gameSlot['GameSlot'],
+									'field' => $gameSlot['Field'],
+									'home_team' => $incident['game']['HomeTeam'],
+							));
+							if ($this->_sendMail (array (
+									'to' => "Incident Manager <$addr>",
+									'from' => $this->UserCache->read('Person.email_formatted'),
+									'subject' => "Incident report: {$incident['type']}",
+									'template' => 'incident_report',
+									'sendAs' => 'html',
+							)))
+							{
+								// TODO: Maybe send the incident report before saving data, and add in a column for
+								// whether it was sent, thus allowing the cron to attempt to re-send it?
+								$incidentMessage = ' ' . __('Your incident report details have been sent for handling.', true);
+							} else {
+								App::import('Helper', 'Html');
+								$html = new HtmlHelper();
+								$link = $html->link($addr, "mailto:$addr");
+								$incidentMessage = ' ' . sprintf(__('There was an error sending your incident report details. Please send them to %s to ensure proper handling.', true), $link);
+								$resultClass = 'warning';
+							}
+						}
+					}
+					$resultMessage .= $incidentMessage;
+
+					if ($resultMessage) {
+						$this->Session->setFlash($resultMessage, 'default', array('class' => $resultClass));
+					}
+
+					$this->redirect('/');
+				} else {
+					$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('scores', true)), 'default', array('class' => 'warning'));
+				}
+			}
+		}
 	}
 }
 ?>

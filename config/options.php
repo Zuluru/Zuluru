@@ -277,6 +277,17 @@ $config['options'] = array(
 	 * You can remove (comment out) any options in here that you don't
 	 * want available for your leagues, but you can't just add things here
 	 * without also adding the implementation to support it.
+	 * 
+	 * The "competition" schedule type is not available by default, as it
+	 * applies to a small subset of sports. It is used for anything where
+	 * several teams are given a score based on their own performance,
+	 * unrelated to anything that the other teams do. Teams may compete at
+	 * the same time or not. The winner is the team with the highest (or
+	 * lowest) score. Examples include many track & field events, golf, etc.
+	 * The "manual" rating calculator is for use with competition divisions.
+	 * To enable this type, either uncomment the lines below, or make use of
+	 * the options_custom.php file to re-define the list of scheduling types
+	 * and rating calculators with these included.
 	 */
 
 	// List of available scheduling types
@@ -284,6 +295,7 @@ $config['options'] = array(
 		'none' => 'None',
 		'roundrobin' => 'Round Robin',
 		'ratings_ladder' => 'Ratings Ladder',
+		//'competition' => 'Competition',
 		'tournament' => 'Tournament',
 	),
 
@@ -296,6 +308,7 @@ $config['options'] = array(
 		'krach' => 'KRACH',
 		'rpi' => 'RPI',
 		'modified_elo' => 'Modified Elo',
+		//'manual' => 'Manual',
 	),
 
 	// List of available spirit questionnaires

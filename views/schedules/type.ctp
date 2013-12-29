@@ -77,6 +77,22 @@ else:
 <p>If this is checked, you will be allowed to schedule more than the expected number of games. Check it only if you need this, as it disables some safety checks.</p>
 <?php endif; ?>
 
+<?php
+if ($division['Division']['schedule_type'] == 'competition'):
+	echo $this->ZuluruForm->input ('double_booking', array(
+			'label' => __('Allow double-booking?', true),
+			'type' => 'checkbox',
+			'checked' => true,
+	));
+?>
+
+<p>If this is checked, you will be allowed to schedule more than one game in a game slot.</p>
+<?php
+else:
+	$this->data['Game']['double_booking'] = 0;
+endif;
+?>
+
 </fieldset>
 
 <?php

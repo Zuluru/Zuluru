@@ -20,7 +20,7 @@ foreach ($division['Game'] as $game) {
 
 <tr>
 	<th colspan="3"><a name="<?php echo $date; ?>"><?php echo $this->ZuluruTime->fulldate($date); ?></a></th>
-	<th colspan="3" class="actions splash_action"><?php
+	<th colspan="<?php echo 2 + ($division['Division']['schedule_type'] != 'competition'); ?>" class="actions splash_action"><?php
 	if (!$finalized && ($is_admin || $is_manager || $is_coordinator)):
 	?>
 		<?php
@@ -66,8 +66,10 @@ foreach ($division['Game'] as $game) {
 	<th><?php if ($is_tournament): ?><?php __('Game'); ?><?php endif; ?></th>
 	<th><?php __('Time'); ?></th>
 	<th><?php __(Configure::read('sport.field_cap')); ?></th>
-	<th><?php __('Home'); ?></th>
+	<th><?php __($division['Division']['schedule_type'] == 'competition' ? 'Team' : 'Home'); ?></th>
+	<?php if ($division['Division']['schedule_type'] != 'competition'): ?>
 	<th><?php __('Away'); ?></th>
+	<?php endif; ?>
 	<th><?php __('Score'); ?></th>
 </tr>
 
@@ -105,6 +107,7 @@ foreach ($division['Game'] as $game):
 		echo $this->element('teams/block', array('team' => $game['HomeTeam'], 'options' => array('max_length' => 16)));
 	}
 	?></td>
+	<?php if ($division['Division']['schedule_type'] != 'competition'): ?>
 	<td><?php
 	if (empty ($game['AwayTeam'])) {
 		if (array_key_exists ('away_dependency', $game)) {
@@ -116,7 +119,8 @@ foreach ($division['Game'] as $game):
 		echo $this->element('teams/block', array('team' => $game['AwayTeam'], 'options' => array('max_length' => 16)));
 	}
 	?></td>
-	<td class="actions"><?php echo $this->ZuluruGame->displayScore ($game, $division['League']); ?></td>
+	<?php endif; ?>
+	<td class="actions"><?php echo $this->ZuluruGame->displayScore ($game, $division['Division'], $division['League']); ?></td>
 </tr>
 
 <?php

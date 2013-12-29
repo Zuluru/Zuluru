@@ -12,6 +12,7 @@ echo $this->element('help/topics', array(
 		'topics' => array(
 			'publish',
 			'double_header' => 'Double-headers',
+			'double_booking' => 'Double-booking',
 		),
 		'compact' => true,
 ));

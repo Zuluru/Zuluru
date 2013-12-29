@@ -216,7 +216,7 @@ $collapse = !empty($this->data['Division']['id']);
 	<fieldset<?php if (!$collapse && !Configure::read('feature.spirit') && !Configure::read('scoring.stat_tracking')) echo ' class="advanced"'; ?>>
  		<legend><?php __('Scoring'); ?></legend>
 	<?php
-		if (Configure::read('feature.spirit')) {
+		if (Configure::read('feature.spirit') && !Configure::read('sport.competition')) {
 			echo $this->Html->para('warning-message', __('NOTE: If you set the questionnaire to "' . Configure::read('options.spirit_questions.none') . '" and disable numeric entry, spirit will not be tracked for this league.', true));
 			echo $this->ZuluruForm->input('sotg_questions', array(
 				'options' => Configure::read('options.spirit_questions'),
@@ -243,6 +243,8 @@ $collapse = !empty($this->data['Division']['id']);
 
 			$tie_breaker_options = Configure::read('options.tie_breaker_spirit');
 		} else {
+			echo $this->Form->hidden('sotg_questions', array('value' => 'none'));
+			echo $this->Form->hidden('numeric_sotg', array('value' => 0));
 			$tie_breaker_options = Configure::read('options.tie_breaker');
 		}
 		echo $this->ZuluruForm->input('tie_breaker', array(

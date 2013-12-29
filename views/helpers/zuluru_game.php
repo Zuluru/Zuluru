@@ -3,7 +3,7 @@
 class ZuluruGameHelper extends Helper {
 	var $helpers = array('Html', 'ZuluruHtml', 'Session', 'UserCache');
 
-	function displayScore($game, $league, $show_score_for_team = false) {
+	function displayScore($game, $division, $league, $show_score_for_team = false) {
 		// Data may come in one of two forms.
 		if (array_key_exists ('Game', $game)) {
 			// Either all the models are at the same level in the array...
@@ -26,16 +26,6 @@ class ZuluruGameHelper extends Helper {
 		$end_time = strtotime("{$game['GameSlot']['game_date']} {$game['GameSlot']['display_game_end']}") +
 				Configure::read('timezone.adjust') * 60;
 
-		// If scores are being shown from a particular team's perspective,
-		// we may need to swap the home and away scores.
-		if ($show_score_for_team == $details['away_team']) {
-			$first_score = $details['away_score'];
-			$second_score = $details['home_score'];
-		} else {
-			$first_score = $details['home_score'];
-			$second_score = $details['away_score'];
-		}
-
 		// Check if one of the teams involved in the game is a team the current user is a captain of
 		$teams = array_intersect (array($details['home_team'], $details['away_team']), $this->UserCache->read('OwnedTeamIDs'));
 		$team_id = array_pop ($teams);
@@ -45,7 +35,20 @@ class ZuluruGameHelper extends Helper {
 			if (in_array($details['status'], Configure::read('unplayed_status'))) {
 				__($details['status']);
 			} else {
-				echo "{$first_score} - {$second_score}";
+				if ($division['schedule_type'] == 'competition') {
+					echo $details['home_score'];
+				} else {
+					// If scores are being shown from a particular team's perspective,
+					// we may need to swap the home and away scores.
+					if ($show_score_for_team == $details['away_team']) {
+						$first_score = $details['away_score'];
+						$second_score = $details['home_score'];
+					} else {
+						$first_score = $details['home_score'];
+						$second_score = $details['away_score'];
+					}
+					echo "{$first_score} - {$second_score}";
+				}
 				if (strpos ($details['status'], 'default') !== false) {
 					echo ' (' . __('default', true) . ')';
 				}
@@ -69,18 +72,22 @@ class ZuluruGameHelper extends Helper {
 				if (in_array($score_entry['status'], Configure::read('unplayed_status'))) {
 					__($score_entry['status']);
 				} else {
-					// If scores are being shown from a particular team's perspective,
-					// we may need to swap the home and away scores.
-					if ($show_score_for_team == $score_entry['team_id'] ||
-						($show_score_for_team === false && $score_entry['team_id'] == $details['home_team']))
-					{
-						$first_score = $score_entry['score_for'];
-						$second_score = $score_entry['score_against'];
+					if ($division['schedule_type'] == 'competition') {
+						echo $score_entry['score_for'];
 					} else {
-						$first_score = $score_entry['score_against'];
-						$second_score = $score_entry['score_for'];
+						// If scores are being shown from a particular team's perspective,
+						// we may need to swap the home and away scores.
+						if ($show_score_for_team == $score_entry['team_id'] ||
+							($show_score_for_team === false && $score_entry['team_id'] == $details['home_team']))
+						{
+							$first_score = $score_entry['score_for'];
+							$second_score = $score_entry['score_against'];
+						} else {
+							$first_score = $score_entry['score_against'];
+							$second_score = $score_entry['score_for'];
+						}
+						echo "{$first_score} - {$second_score}";
 					}
-					echo "{$first_score} - {$second_score}";
 				}
 
 				if ($team_id) {
@@ -90,16 +97,16 @@ class ZuluruGameHelper extends Helper {
 								array('controller' => 'games', 'action' => 'live_score', 'game' => $details['id'], 'team' => $team_id));
 					} else {
 						$links[] = $this->Html->link(
-							__('Edit score', true),
-							array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $team_id));
+								__('Edit score', true),
+								array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $team_id));
 					}
 
 					// Check if someone is a captain on both teams that played each other
 					$second_team_id = array_pop ($teams);
 					if ($second_team_id) {
 						$links[] = $this->Html->link(
-							__('Submit', true),
-							array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $second_team_id));
+								__('Submit', true),
+								array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $second_team_id));
 					}
 				} else if ($is_volunteer) {
 					// Allow specified individuals (referees, umpires, volunteers) to live score without a team id
@@ -109,8 +116,8 @@ class ZuluruGameHelper extends Helper {
 								array('controller' => 'games', 'action' => 'live_score', 'game' => $details['id']));
 					} else {
 						$links[] = $this->Html->link(
-							__('Edit score', true),
-							array('controller' => 'games', 'action' => 'edit', 'game' => $details['id']));
+								__('Edit score', true),
+								array('controller' => 'games', 'action' => 'edit', 'game' => $details['id']));
 					}
 				}
 
@@ -122,27 +129,35 @@ class ZuluruGameHelper extends Helper {
 			} else if ($score_entry === null) {
 				__('score mismatch');
 			} else if (time() > ($start_time + 3 * $end_time) / 4) {
-				// Allow score submissions any time after 3/4 through the game.
-				// Some people like to submit via mobile phone immediately, and games can end early.
-				if ($team_id) {
+				if ($division['schedule_type'] != 'competition') {
+					// Allow score submissions any time after 3/4 through the game.
+					// Some people like to submit via mobile phone immediately, and games can end early.
+					if ($team_id) {
+						$links[] = $this->Html->link(
+								__('Submit', true),
+								array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $team_id));
+					} else {
+						__('not entered');
+					}
+				} else if ($is_admin || $is_manager || $is_coordinator) {
 					$links[] = $this->Html->link(
-						__('Submit', true),
-						array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $team_id));
-				} else {
-					__('not entered');
+							__('Submit', true),
+							array('controller' => 'game_slots', 'action' => 'submit_score', 'slot' => $details['game_slot_id']));
 				}
-			} else if (time() > $start_time - 30 * 60 && $details['home_team'] != null && $details['away_team'] != null) {
-				// Allow live scoring to start up to half an hour before scheduled game start time.
-				// This allows score keepers to get the page loaded and ready to go in advance.
-				if ($team_id) {
-					$links[] = $this->Html->link(
-							__('Live Score', true),
-							array('controller' => 'games', 'action' => 'live_score', 'game' => $details['id'], 'team' => $team_id));
-				} else if ($is_volunteer) {
-					// Allow specified individuals (referees, umpires, volunteers) to live score without a team id
-					$links[] = $this->Html->link(
-							__('Live Score', true),
-							array('controller' => 'games', 'action' => 'live_score', 'game' => $details['id']));
+			} else if (time() > $start_time - 30 * 60) {
+				if ($details['home_team'] != null && $details['away_team'] != null) {
+					// Allow live scoring to start up to half an hour before scheduled game start time.
+					// This allows score keepers to get the page loaded and ready to go in advance.
+					if ($team_id) {
+						$links[] = $this->Html->link(
+								__('Live Score', true),
+								array('controller' => 'games', 'action' => 'live_score', 'game' => $details['id'], 'team' => $team_id));
+					} else if ($is_volunteer) {
+						// Allow specified individuals (referees, umpires, volunteers) to live score without a team id
+						$links[] = $this->Html->link(
+								__('Live Score', true),
+								array('controller' => 'games', 'action' => 'live_score', 'game' => $details['id']));
+					}
 				}
 			} else {
 				// Check if one of the teams involved in the game is a team the current user is on
@@ -158,8 +173,8 @@ class ZuluruGameHelper extends Helper {
 		// Give admins, managers and coordinators the option to edit games
 		if ($is_admin || $is_manager || $is_coordinator) {
 			$links[] = $this->ZuluruHtml->iconLink('edit_24.png',
-				array('controller' => 'games', 'action' => 'edit', 'game' => $details['id'], 'return' => true),
-				array('alt' => __('Edit', true), 'title' => __('Edit', true)));
+					array('controller' => 'games', 'action' => 'edit', 'game' => $details['id'], 'return' => true),
+					array('alt' => __('Edit', true), 'title' => __('Edit', true)));
 		}
 
 		echo $this->Html->tag('span', implode('', $links), array('class' => 'actions'));

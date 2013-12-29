@@ -4,7 +4,7 @@ $this->Html->addCrumb (__('Game', true) . ' ' . $game['Game']['id']);
 $this->Html->addCrumb (__('View', true));
 ?>
 <?php
-$preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'] === null);
+$preliminary = ($game['Game']['home_team'] === null || ($game['Division']['schedule_type'] != 'competition' && $game['Game']['away_team'] === null));
 ?>
 
 <div class="games view">
@@ -15,7 +15,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 		<?php echo $this->element('divisions/block', array('division' => $game['Division'], 'field' => 'full_league_name')); ?>
 
 	</dd>
-	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Home Team'); ?></dt>
+	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __($game['Division']['schedule_type'] == 'competition' ? 'Team' : 'Home Team'); ?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php
 		if ($game['Game']['home_team'] === null) {
@@ -28,7 +28,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 			}
 			if ($game['Division']['schedule_type'] != 'tournament') {
 				echo ' (' . __('currently rated', true) . ": {$game['HomeTeam']['rating']})";
-				if (!$preliminary && !Game::_is_finalized($game)) {
+				if (!$preliminary && !Game::_is_finalized($game) && $game['Division']['schedule_type'] != 'competition') {
 					printf (' (%0.1f%% %s)', $ratings_obj->calculateExpectedWin($game['HomeTeam']['rating'], $game['AwayTeam']['rating']) * 100, __('chance to win', true));
 				}
 			}
@@ -36,6 +36,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 		?>
 
 	</dd>
+	<?php if ($game['Division']['schedule_type'] != 'competition'): ?>
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Away Team'); ?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php
@@ -57,7 +58,8 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 		?>
 
 	</dd>
-<?php if ($game['Game']['home_dependency_type'] != 'copy'): ?>
+	<?php endif; ?>
+	<?php if ($game['Game']['home_dependency_type'] != 'copy'): ?>
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Date and Time');?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php
@@ -71,7 +73,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 		<?php echo $this->element('fields/block', array('field' => $game['GameSlot']['Field'], 'display_field' => 'long_name')); ?>
 
 	</dd>
-<?php endif; ?>
+	<?php endif; ?>
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Game Status'); ?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php __(Inflector::humanize ($game['Game']['status'])); ?>
@@ -87,7 +89,11 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 
 	<?php
 	if ($is_admin || $is_coordinator):
-		$captains = array_merge ($game['HomeTeam']['Person'], $game['AwayTeam']['Person']);
+		if ($game['Division']['schedule_type'] == 'competition') {
+			$captains = $game['HomeTeam']['Person'];
+		} else {
+			$captains = array_merge ($game['HomeTeam']['Person'], $game['AwayTeam']['Person']);
+		}
 		if (!empty ($captains)):
 	?>
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Captain Emails'); ?></dt>
@@ -173,11 +179,13 @@ $team_names = array(
 			<?php echo $game['Game']['home_score']; ?>
 
 		</dd>
+		<?php if ($game['Division']['schedule_type'] != 'competition'): ?>
 		<dt><?php echo $this->Text->truncate ($game['AwayTeam']['name'], 28); ?></dt>
 		<dd>
 			<?php echo $game['Game']['away_score']; ?>
 
 		</dd>
+		<?php endif; ?>
 		<?php if (($is_admin || $is_coordinator || $game['Division']['League']['display_sotg'] != 'coordinator_only') &&
 			League::hasSpirit($game)): ?>
 		<dt><?php echo __('Spirit for', true) . ' ' . $this->Text->truncate ($game['HomeTeam']['name'], 18); ?></dt>

@@ -332,7 +332,6 @@ class League extends AppModel {
 						'away_team' => $teams,
 					),
 					'home_score !=' => null,
-					'away_score !=' => null,
 				),
 		));
 

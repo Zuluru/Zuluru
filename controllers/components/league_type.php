@@ -28,6 +28,14 @@ class LeagueTypeComponent extends Object
 	}
 
 	/**
+	 * Add any league-type-specific fields for new teams.
+	 *
+	 */
+	function newTeam() {
+		return array();
+	}
+
+	/**
 	 * Sort the provided teams according to division-specific criteria.
 	 *
 	 * @param mixed $division Division to sort (teams are in ['Team'] key)
@@ -782,8 +790,9 @@ class LeagueTypeComponent extends Object
 	/**
 	 * Load everything required for scheduling.
 	 */
-	function startSchedule($division_id, $exclude_teams, $start_date) {
+	function startSchedule($division_id, $exclude_teams, $start_date, $double_booking = false) {
 		$this->games = array();
+		$this->double_booking = $double_booking;
 
 		$regions = Configure::read('feature.region_preference');
 		if ($regions) {
@@ -827,6 +836,10 @@ class LeagueTypeComponent extends Object
 			return false;
 		}
 
+		if ($double_booking) {
+			$this->saved_slots = $this->division['DivisionGameslotAvailability'];
+		}
+
 		// Go through all the games and count the number of home and away games
 		// and games within preferred region for each team
 		$this->home_games = $this->away_games = $this->preferred_games = array();
@@ -837,10 +850,12 @@ class LeagueTypeComponent extends Object
 				++ $this->home_games[$game['home_team']];
 			}
 
-			if (!array_key_exists ($game['away_team'], $this->away_games)) {
-				$this->away_games[$game['away_team']] = 1;
-			} else {
-				++ $this->away_games[$game['away_team']];
+			if (!empty($game['away_team'])) {
+				if (!array_key_exists ($game['away_team'], $this->away_games)) {
+					$this->away_games[$game['away_team']] = 1;
+				} else {
+					++ $this->away_games[$game['away_team']];
+				}
 			}
 
 			if ($regions) {
@@ -853,12 +868,14 @@ class LeagueTypeComponent extends Object
 					}
 				}
 
-				$team = array_pop (Set::extract ("/Team[id={$game['away_team']}]/.", $this->division));
-				if ($team['region_preference'] && $team['region_preference'] == $game['GameSlot']['Field']['Facility']['region_id']) {
-					if (!array_key_exists ($game['away_team'], $this->preferred_games)) {
-						$this->preferred_games[$game['away_team']] = 1;
-					} else {
-						++ $this->preferred_games[$game['away_team']];
+				if (!empty($game['away_team'])) {
+					$team = array_pop (Set::extract ("/Team[id={$game['away_team']}]/.", $this->division));
+					if ($team['region_preference'] && $team['region_preference'] == $game['GameSlot']['Field']['Facility']['region_id']) {
+						if (!array_key_exists ($game['away_team'], $this->preferred_games)) {
+							$this->preferred_games[$game['away_team']] = 1;
+						} else {
+							++ $this->preferred_games[$game['away_team']];
+						}
 					}
 				}
 			}
@@ -1149,7 +1166,7 @@ class LeagueTypeComponent extends Object
 	 * @return mixed The id of the selected slot
 	 *
 	 */
-	function selectRandomGameslot($dates, $remaining = 1) {
+	function selectRandomGameslot($dates, $remaining = 1, $recursive = false) {
 		if (!is_array($dates)) {
 			$dates = array($dates);
 		}
@@ -1159,13 +1176,19 @@ class LeagueTypeComponent extends Object
 			if (is_numeric ($date)) {
 				$date = date('Y-m-d', $date);
 			}
-			$slots = array_merge($slots, Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date]/id", $this->division));
+			$slots = array_merge($slots, Set::extract("/GameSlot[game_date=$date]/id", $this->division['DivisionGameslotAvailability']));
 			if (count($slots) >= $remaining) {
 				break;
 			}
 		}
 
 		if (empty ($slots)) {
+			// If double-booking is allowed, we can reset the list of slots and start again
+			if (!$recursive && $this->double_booking) {
+				$this->division['DivisionGameslotAvailability'] = $this->saved_slots;
+				return $this->selectRandomGameslot($dates, $remaining, true);
+			}
+
 			App::import('Helper', 'Html');
 			$html = new HtmlHelper();
 
@@ -1205,7 +1228,9 @@ class LeagueTypeComponent extends Object
 		$slots = array();
 
 		$home = $this->division['Team'][$game['home_team']];
-		$away = $this->division['Team'][$game['away_team']];
+		if (!empty($game['away_team'])) {
+			$away = $this->division['Team'][$game['away_team']];
+		}
 
 		$days = Set::extract('/Day/id', $this->division);
 		$match_dates = Game::_matchDates($date, $days);
@@ -1217,7 +1242,7 @@ class LeagueTypeComponent extends Object
 			}
 
 			// If not available, try the away team's home field
-			if (empty ($slots) && $away['home_field']) {
+			if (empty ($slots) && isset($away) && $away['home_field']) {
 				$slots = $this->matchingSlots("[field_id={$away['home_field']}]", 'id', $match_dates, $remaining);
 			}
 		}
@@ -1229,7 +1254,7 @@ class LeagueTypeComponent extends Object
 				$slots = Set::extract('/GameSlot/id', $slots);
 			}
 
-			if (empty ($slots) && $away['region_preference']) {
+			if (empty ($slots) && isset($away) && $away['region_preference']) {
 				$slots = $this->matchingSlots("/Field/Facility[region_id={$away['region_preference']}]", '../..', $match_dates, $remaining);
 				$slots = Set::extract('/GameSlot/id', $slots);
 			}
@@ -1280,12 +1305,12 @@ class LeagueTypeComponent extends Object
 		if (is_numeric ($date)) {
 			$date = date('Y-m-d', $date);
 		}
-		$dates = array_unique(Set::extract("/DivisionGameslotAvailability/GameSlot[game_date>=$date]/game_date", $this->division));
+		$dates = array_unique(Set::extract("/GameSlot[game_date>=$date]/game_date", $this->division['DivisionGameslotAvailability']));
 		sort($dates);
 
 		$available = $slots = 0;
 		foreach ($dates as $date) {
-			$slots += count(Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date]", $this->division));
+			$slots += count(Set::extract("/GameSlot[game_date=$date]", $this->division['DivisionGameslotAvailability']));
 			if ($slots >= $slots_per_day) {
 				++$available;
 				$slots = 0;
@@ -1305,15 +1330,15 @@ class LeagueTypeComponent extends Object
 		}
 
 		if (!$skip) {
-			$dates = array_unique(Set::extract("/DivisionGameslotAvailability/GameSlot[game_date>$date]/game_date", $this->division));
+			$dates = array_unique(Set::extract("/GameSlot[game_date>$date]/game_date", $this->division['DivisionGameslotAvailability']));
 			return min($dates);
 		}
 
-		$dates = array_unique(Set::extract("/DivisionGameslotAvailability/GameSlot[game_date>=$date]/game_date", $this->division));
+		$dates = array_unique(Set::extract("/GameSlot[game_date>=$date]/game_date", $this->division['DivisionGameslotAvailability']));
 		sort($dates);
 		while ($skip > 0 && !empty($dates)) {
 			$date = array_shift($dates);
-			$skip -= count(Set::extract("/DivisionGameslotAvailability/GameSlot[game_date=$date]", $this->division));
+			$skip -= count(Set::extract("/GameSlot[game_date=$date]", $this->division['DivisionGameslotAvailability']));
 		}
 		return array_shift($dates);
 	}

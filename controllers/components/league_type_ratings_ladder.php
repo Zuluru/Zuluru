@@ -18,12 +18,7 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 	}
 
 	/**
-	 * Sort a ladder division by:
-	 * 1: Rating
-	 * 2: Spirit
-	 * 3: Wins/ties
-	 * 4: +/-
-	 * 5: Goals for
+	 * Sort a ladder division by rating first, then all the usual stuff.
 	 */
 	function compareTeams($a, $b) {
 		if ($a['rating'] < $b['rating'])

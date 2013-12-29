@@ -41,8 +41,10 @@ echo $this->Form->end();
 <?php if ($is_tournament): ?>
 		<th>Pool</th>
 <?php endif; ?>
-		<th>Home</th>
+		<th><?php __($division['Division']['schedule_type'] == 'competition' ? 'Team' : 'Home'); ?></th>
+<?php if ($division['Division']['schedule_type'] != 'competition'): ?>
 		<th>Away</th>
+<?php endif; ?>
 <?php if (Configure::read('feature.region_preference')): ?>
 		<th>Home Pref</th>
 <?php endif; ?>
@@ -51,7 +53,7 @@ echo $this->Form->end();
 $unused = 0;
 foreach ($slots as $slot):
 	$rows = max(count($slot['Game']), 1);
-	$cols = 4 + $is_tournament + Configure::read('feature.region_preference');
+	$cols = 3 + $is_tournament + ($division['Division']['schedule_type'] != 'competition') + Configure::read('feature.region_preference');
 ?>
 	<tr>
 		<td rowspan="<?php echo $rows; ?>"><?php __($slot['GameSlot']['id']); ?></td>
@@ -87,6 +89,7 @@ foreach ($slots as $slot):
 				echo $this->element('teams/block', array('team' => $game['HomeTeam'], 'max_length' => 16, 'show_shirt' => false));
 			}
 		?></td>
+<?php if ($division['Division']['schedule_type'] != 'competition'): ?>
 		<td><?php
 			if (empty($game['away_team'])) {
 				echo $game['away_dependency'];
@@ -94,6 +97,7 @@ foreach ($slots as $slot):
 				echo $this->element('teams/block', array('team' => $game['AwayTeam'], 'max_length' => 16, 'show_shirt' => false));
 			}
 		?></td>
+<?php endif; ?>
 <?php if (Configure::read('feature.region_preference')): ?>
 		<td><?php
 		if ($slot['Game']['id'] && !empty($slot['Game']['HomeTeam']['Region'])) {

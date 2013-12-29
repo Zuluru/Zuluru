@@ -1038,6 +1038,10 @@ class DivisionsController extends AppController {
 		}
 		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 		Configure::load("sport/{$division['League']['sport']}");
+		if ($division['Division']['schedule_type'] == 'competition') {
+			$this->Session->setFlash(__('This division does not support this report.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+		}
 
 		// Find all games played by teams that are currently in this division,
 		// or tournament games for this division
@@ -1428,6 +1432,12 @@ class DivisionsController extends AppController {
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
+		Configure::load("sport/{$division['League']['sport']}");
+
+		if ($division['Division']['schedule_type'] == 'competition') {
+			$this->Session->setFlash(__('This division does not support this report.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+		}
 
 		$this->Division->Game->contain (array (
 			// Get the list of captains for each team, for building the email link

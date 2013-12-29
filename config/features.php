@@ -246,6 +246,7 @@ $config['automatic_team_colours'] = array(
 $config['schedule_type'] = array(
 	'roundrobin' => SCHEDULE_TYPE_LEAGUE,
 	'ratings_ladder' => SCHEDULE_TYPE_LEAGUE,
+	'competition' => SCHEDULE_TYPE_LEAGUE,
 	'tournament' => SCHEDULE_TYPE_TOURNAMENT,
 	'none' => SCHEDULE_TYPE_NONE,
 );

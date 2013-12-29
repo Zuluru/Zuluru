@@ -666,7 +666,10 @@ class RegistrationsController extends AppController {
 
 			$this->Registration->contain (array(
 				'Person',
-				'Event' => array('EventType'),
+				'Event' => array(
+					'EventType',
+					'Division' => 'League',
+				),
 				'Response',
 			));
 			$registrations = $this->Registration->find ('all', array(

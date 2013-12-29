@@ -213,6 +213,13 @@ class EventTypeTeamComponent extends EventTypeComponent
 			return true;
 		}
 
+		if (array_key_exists('Division', $event)) {
+			$division = $event['Division'];
+		} else {
+			$division = $event['Event']['Division'];
+		}
+		$league_obj = $this->_controller->_getComponent ('LeagueType', $division['schedule_type'], $this->_controller);
+
 		if (!isset ($this->_controller->Team)) {
 			$this->_controller->Team = ClassRegistry::init ('Team');
 		}
@@ -227,7 +234,8 @@ class EventTypeTeamComponent extends EventTypeComponent
 				'region_id' => REGION_PREFERENCE,
 				'open_roster' => OPEN_ROSTER,
 				'track_attendance' => TRACK_ATTENDANCE,
-			))
+			)),
+			$league_obj->newTeam()
 		);
 		if (Configure::read('feature.attendance') && !empty($team['track_attendance'])) {
 			// Add some default values, chosen based on averages found in the TUC database so far
