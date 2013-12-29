@@ -373,7 +373,7 @@ class GameSlotsController extends AppController {
 				} else {
 					$details = $this->data['Game'][$game['home_team']];
 					if ($unplayed) {
-						$score = null;
+						$score = $rating = null;
 					} else {
 						$score = $details['home_score'];
 						$rating = $ratings_obj->calculateRatingsChange($details['home_score']);
@@ -389,6 +389,7 @@ class GameSlotsController extends AppController {
 							'id' => $game['id'],
 							'status' => $this->data['Game']['status'],
 							'home_score' => $score,
+							'rating_points' => $rating,
 							'approved_by' => $this->Auth->user('id'),
 					);
 					if ($details['incident']) {

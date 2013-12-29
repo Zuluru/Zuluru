@@ -134,7 +134,7 @@ class RatingsComponent extends Object
 				} else if (strpos($game['Game']['status'], 'default') !== false && !Configure::read('scoring.default_transfer_ratings')) {
 					// Defaulted games might not adjust ratings
 					$change = 0;
-				} else if ($division['schedule_type'] != 'competition') {
+				} else if ($division['schedule_type'] == 'competition') {
 					$change = $this->calculateRatingsChange($game['Game']['home_score']);
 					$division['Team'][$game['Game']['home_team']]['current_rating'] += $change;
 				} else if ($game['Game']['home_score'] >= $game['Game']['away_score']) {
