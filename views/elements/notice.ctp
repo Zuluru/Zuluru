@@ -1,5 +1,5 @@
 <?php
-if (!$is_logged_in) {
+if (!isset($is_logged_in) || !$is_logged_in) {
 	return;
 }
 $notice = $this->requestAction ('notices/next');
