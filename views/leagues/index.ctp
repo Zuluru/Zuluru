@@ -41,7 +41,7 @@ foreach ($leagues as $league):
 ?>
 	<tr>
 		<th<?php if (!$is_admin) echo ' colspan="2"'; ?>>
-			<h3 class="affiliate"><?php echo $league['League']['Affiliate']['name']; ?></h3>
+			<h3 class="affiliate"><?php echo $league['Affiliate']['name']; ?></h3>
 		</th>
 			<?php if ($is_admin): ?>
 		<th class="actions">
