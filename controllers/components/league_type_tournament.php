@@ -1022,9 +1022,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 					return false;
 				}
 
-				$this->games[$key]['GameSlot'] = array(
-					'id' => $game_slot_id,
-				);
+				$this->games[$key]['game_slot_id'] = $game_slot_id;
 			}
 		}
 
