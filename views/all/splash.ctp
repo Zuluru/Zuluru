@@ -69,7 +69,7 @@ endif;
 
 // This is all of the content for the current user, regardless of whether it's in a tab or not
 echo $this->element('teams/splash', array('teams' => $teams, 'past_teams' => $past_teams, 'name' => __('My', true)));
-echo $this->element('all/kickstart', array('empty' => (empty($teams) && empty($divisions) && empty($unpaid) && empty($tasks))));
+echo $this->element('all/kickstart', array('affiliates' => $affiliates, 'empty' => (empty($teams) && empty($divisions) && empty($unpaid) && empty($tasks))));
 ?>
 
 <?php if (!empty ($divisions)) : ?>
