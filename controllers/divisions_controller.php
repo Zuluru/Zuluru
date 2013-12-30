@@ -553,6 +553,13 @@ class DivisionsController extends AppController {
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
+		$this->Division->contain('Person', 'League');
+		$division = $this->Division->read(null, $id);
+		if (!$division) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+		}
+
 		if (!empty($this->data)) {
 			$teams = $this->data['Team'];
 			$default = $teams[0];
@@ -566,6 +573,12 @@ class DivisionsController extends AppController {
 			}
 			if ($this->Division->Team->saveAll($teams)) {
 				$this->Session->setFlash(sprintf(__('The %s have been saved', true), __('teams', true)), 'default', array('class' => 'success'));
+
+				// Clear the Divisions cache for all coordinators
+				foreach ($division['Person'] as $person) {
+					$this->UserCache->clear('Divisions', $person['id']);
+				}
+
 				$this->redirect(array('action' => 'view', 'division' => $id));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('teams', true)), 'default', array('class' => 'warning'));
@@ -583,12 +596,7 @@ class DivisionsController extends AppController {
 		}
 
 		if (empty($this->data)) {
-			$this->Division->contain('Person', 'League');
-			$this->data = $this->Division->read(null, $id);
-			if (!$this->data) {
-				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
-				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
-			}
+			$this->data = $division;
 			$this->Configuration->loadAffiliate($this->data['League']['affiliate_id']);
 		}
 	}
