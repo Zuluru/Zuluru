@@ -15,6 +15,8 @@ $statuses = Configure::read('attendance');
 if (Configure::read('feature.affiliates')) {
 	$affiliates = $this->requestAction(array('controller' => 'affiliates', 'action' => 'index'));
 	AppModel::_reindexOuter($affiliates, 'Affiliate', 'id');
+} else {
+	$affiliates = array();
 }
 
 $relatives = $this->UserCache->read('Relatives');
