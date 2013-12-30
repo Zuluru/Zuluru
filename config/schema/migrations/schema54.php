@@ -3,9 +3,16 @@ class Zuluru54Schema extends CakeSchema {
 	var $name = 'Zuluru54';
 
 	function after($event = array()) {
-		$commands = array(
-			'slot' => 'UPDATE `games`,`game_slots` SET `games`.`game_slot_id` = `game_slots`.`id`, `game_slots`.`assigned` = 1 WHERE `games`.`id` = `game_slots`.`game_id`;',
-		);
+		switch ($event['update']) {
+			case 'game_slots':
+				$commands = array(
+					'slot' => 'UPDATE `games`,`game_slots` SET `games`.`game_slot_id` = `game_slots`.`id`, `game_slots`.`assigned` = 1 WHERE `games`.`id` = `game_slots`.`game_id`;',
+				);
+				break;
+
+			default:
+				return true;
+		}
 		return $this->_execute($commands);
 	}
 
