@@ -39,7 +39,7 @@ $this->Html->addCrumb (__('Stats', true));
 <?php if (Game::_is_finalized($game)): ?>
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Score');?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-		<?php echo $this->ZuluruGame->displayScore($game, $game['Division']['League']); ?>
+		<?php echo $this->ZuluruGame->displayScore($game, $game['Division'], $game['Division']['League']); ?>
 
 	</dd>
 <?php endif; ?>
