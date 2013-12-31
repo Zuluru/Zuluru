@@ -470,11 +470,13 @@ class LeagueTypeComponent extends Object
 			if ($round != 1) {
 				if (array_key_exists($round, $a['Season']['rounds'])) {
 					$a_results = $a['Season']['rounds'][$round];
+					$a_results['id'] = $a['id'];
 				} else {
 					$a_results = array('id' => $a['id'], 'W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'gf' => 0, 'ga' => 0, 'vs' => array(), 'vspm' => array());
 				}
 				if (array_key_exists($round, $b['Season']['rounds'])) {
 					$b_results = $b['Season']['rounds'][$round];
+					$b_results['id'] = $b['id'];
 				} else {
 					$b_results = array('id' => $b['id'], 'W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'gf' => 0, 'ga' => 0, 'vs' => array(), 'vspm' => array());
 				}
