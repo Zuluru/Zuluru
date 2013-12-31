@@ -2934,7 +2934,7 @@ class TeamsController extends AppController {
 									),
 								),
 								'fields' => array(
-									'Division.id', 'Division.name', 'Division.open', 'Division.ratio', 'Division.roster_deadline',
+									'Division.id', 'Division.name', 'Division.open', 'Division.ratio', 'Division.roster_deadline', 'Division.close',
 								),
 							),
 							'Person' => array(
