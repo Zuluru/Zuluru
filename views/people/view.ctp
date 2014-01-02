@@ -581,4 +581,4 @@ foreach ($tasks as $task):
 </div>
 <?php endif; ?>
 
-<?php if (!empty($teams)) echo $this->element('people/roster_div'); ?>
+<?php if ($is_logged_in && !empty($teams)) echo $this->element('people/roster_div'); ?>
