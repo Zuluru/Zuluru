@@ -533,7 +533,6 @@ class EventsController extends AppController {
 		}
 
 		$transaction->commit();
-		$this->Lock->unlock();
 	}
 }
 ?>

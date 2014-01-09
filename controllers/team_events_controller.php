@@ -599,8 +599,6 @@ class TeamEventsController extends AppController {
 		}
 
 		$this->set(compact('remind_count', 'summary_count'));
-
-		$this->Lock->unlock();
 	}
 
 	function _remindAttendance($event, $team, $reminded) {

@@ -348,8 +348,6 @@ class NewslettersController extends AppController {
 				}
 			}
 		}
-
-		$this->Lock->unlock ();
 	}
 
 	function _hash ($person, $list) {

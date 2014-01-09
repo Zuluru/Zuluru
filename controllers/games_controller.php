@@ -3288,8 +3288,6 @@ class GamesController extends AppController {
 		}
 
 		$this->set(compact('games', 'remind_count', 'summary_count'));
-
-		$this->Lock->unlock();
 	}
 
 	function _remindAttendance($game, $team, $opponent, $reminded) {

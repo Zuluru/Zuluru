@@ -2671,8 +2671,6 @@ class PeopleController extends AppController {
 
 			$this->set(compact ('emailed'));
 		}
-
-		$this->Lock->unlock();
 	}
 
 	function _hash ($relative, $salt = true) {
