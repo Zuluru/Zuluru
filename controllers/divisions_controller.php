@@ -238,7 +238,7 @@ class DivisionsController extends AppController {
 	}
 
 	function stats() {
-		if (Configure::read('debug') && !ini_get('safe_mode')) {
+		if (!ini_get('safe_mode')) {
 			set_time_limit(1800);
 		}
 
