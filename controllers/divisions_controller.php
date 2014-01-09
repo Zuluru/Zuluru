@@ -238,7 +238,7 @@ class DivisionsController extends AppController {
 	}
 
 	function stats() {
-		if (Configure::read('debug') && !ini_get('safe_mode')) {
+		if (!ini_get('safe_mode')) {
 			set_time_limit(1800);
 		}
 
@@ -892,7 +892,7 @@ class DivisionsController extends AppController {
 			return false;
 		}
 
-		$unused_slots = array_diff (Set::extract ('/game_slot_id', $available_slots), $slots);
+		$unused_slots = array_diff (Set::extract ('/Game/game_slot_id', $available_slots), $slots);
 		if ($this->Division->Game->GameSlot->updateAll (array('assigned' => 0), array('GameSlot.id' => $unused_slots))) {
 			$this->Session->setFlash(__('Schedule changes saved!', true), 'default', array('class' => 'success'));
 			return true;
