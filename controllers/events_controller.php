@@ -86,6 +86,24 @@ class EventsController extends AppController {
 		}
 		$id = $this->Auth->user('zuluru_person_id');
 
+		// Check whether this user is considered active for the purposes of registration
+		$is_active = ($this->UserCache->read('Person.status') == 'active');
+		// If the user is not yet approved, we may let them register but not pay
+		if (!$is_active && $this->UserCache->read('Person.status') == 'new' && Configure::read('registration.allow_tentative')) {
+			$person = array(
+				'Person' => $this->UserCache->read('Person'),
+				'Affiliate' => $this->UserCache->read('Affiliates'),
+			);
+			$duplicates = $this->Event->Registration->Person->findDuplicates ($person);
+			if (empty ($duplicates)) {
+				$is_active = true;
+			}
+		}
+		if (!$is_active) {
+			$this->Session->setFlash(__('You are not allowed to register for events until your account has been approved.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
 		// Find any preregistrations
 		$prereg = $this->Event->Preregistration->find('list', array(
 			'conditions' => array('person_id' => $id),
