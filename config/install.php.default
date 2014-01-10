@@ -82,15 +82,15 @@ $config['urls'] = array(
 	// only require configuration here in extreme cases.
 	'register'			=> '/users/create_account',
 	'login'				=> '/users/login',
-	'password_reset'	=> '/users/reset_password',
-	// If this one has %d in it, it will be replaced with the user id.
-	'profile_edit'		=> '/people/edit',
 );
 
 // Set up system security.
 $config['security'] = array(
 	// Which model do we use for user authentication? Use 'User' if you're not sure.
 	'auth_model'		=> 'User',
+
+	// If you are using a third-party user database, you may need to add more parameters
+	// here. See the comments in the model file specified by auth_model above for details.
 
 	// Do we add the system salt value to strings before hashing? Set to true if this
 	// is a new system, false if you have pre-existing Zuluru member data or if

@@ -46,7 +46,7 @@ class PeopleController extends AppController {
 			// If no player id is specified, it's always the logged-in user
 			$person = $this->_arg('person');
 			$relatives = $this->UserCache->read('RelativeIDs');
-			if (!$person || $person == $this->Auth->user('id') || in_array($person, $relatives)) {
+			if (!$person || $person == $this->Auth->user('zuluru_person_id') || in_array($person, $relatives)) {
 				return true;
 			}
 		}
@@ -98,6 +98,8 @@ class PeopleController extends AppController {
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('affiliates'));
 
+		$user_model = $this->Auth->authenticate->name;
+		$id_field = $this->Auth->authenticate->primaryKey;
 		$this->paginate = array(
 				'conditions' => array(
 					'Affiliate.id' => $affiliates
@@ -117,9 +119,16 @@ class PeopleController extends AppController {
 						'foreignKey' => false,
 						'conditions' => 'Affiliate.id = AffiliatePerson.affiliate_id',
 					),
+					array(
+						'table' => "{$this->Auth->authenticate->tablePrefix}{$this->Auth->authenticate->useTable}",
+						'alias' => $user_model,
+						'type' => 'LEFT',
+						'foreignKey' => false,
+						'conditions' => "$user_model.$id_field = Person.user_id",
+					),
 				),
 				'contain' => array(),
-				'fields' => array('Person.*', 'Affiliate.*'),
+				'fields' => array('Person.*', 'Affiliate.*', "$user_model.*"),
 				'order' => array('Affiliate.name', 'Person.last_name', 'Person.first_name'),
 				'limit' => Configure::read('feature.items_per_page'),
 		);
@@ -504,7 +513,7 @@ class PeopleController extends AppController {
 
 	function view() {
 		$id = $this->_arg('person');
-		$my_id = $this->Auth->user('id');
+		$my_id = $this->Auth->user('zuluru_person_id');
 
 		if (!$id) {
 			$id = $my_id;
@@ -596,7 +605,7 @@ class PeopleController extends AppController {
 									'type' => 'LEFT',
 									'foreignKey' => false,
 									'conditions' => 'AwayTeam.id = Game.away_team',
-									),
+								),
 								array(
 									'table' => "{$this->Person->Allstar->tablePrefix}divisions",
 									'alias' => 'Division',
@@ -688,7 +697,7 @@ class PeopleController extends AppController {
 						'contain' => false,
 						'conditions' => array(
 							'person_id' => $person['id'],
-							'created_person_id' => $this->Auth->user('id'),
+							'created_person_id' => $this->Auth->user('zuluru_person_id'),
 						),
 				));
 			}
@@ -710,7 +719,7 @@ class PeopleController extends AppController {
 		}
 
 		$this->set(compact('person', 'photo', 'note', 'badges'));
-		$this->set('is_me', ($id === $this->Auth->user('id')));
+		$this->set('is_me', ($id === $this->Auth->user('zuluru_person_id')));
 		$this->set($this->_connections($id));
 
 		Configure::write ('debug', 0);
@@ -755,7 +764,7 @@ class PeopleController extends AppController {
 
 	function edit() {
 		$id = $this->_arg('person');
-		$my_id = $this->Auth->user('id');
+		$my_id = $this->Auth->user('zuluru_person_id');
 
 		if (!$id) {
 			$id = $my_id;
@@ -764,7 +773,7 @@ class PeopleController extends AppController {
 				$this->redirect('/');
 			}
 		}
-		$is_me = ($id === $this->Auth->user('id'));
+		$is_me = ($id === $this->Auth->user('zuluru_person_id'));
 		$this->set(compact('id', 'is_me'));
 
 		// Any time that we come here (whether manually or forced), we want to clear the
@@ -855,7 +864,7 @@ class PeopleController extends AppController {
 			}
 		}
 		if (empty($this->data)) {
-			$this->Person->contain('Affiliate');
+			$this->Person->contain(array('Affiliate', $this->Auth->authenticate->name));
 			$this->data = $this->Person->read(null, $id);
 			if (!$this->data) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
@@ -875,11 +884,18 @@ class PeopleController extends AppController {
 				$this->data = array_merge($this->data, $upload);
 			}
 		}
+
+		$this->set(array(
+				'user_model' => $this->Auth->authenticate->name,
+				'id_field' => $this->Auth->authenticate->primaryKey,
+				'user_field' => $this->Auth->authenticate->userField,
+				'email_field' => $this->Auth->authenticate->emailField,
+		));
 	}
 
 	function note() {
 		$id = $this->_arg('person');
-		$my_id = $this->Auth->user('id');
+		$my_id = $this->Auth->user('zuluru_person_id');
 
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
@@ -932,7 +948,7 @@ class PeopleController extends AppController {
 
 	function delete_note() {
 		$id = $this->_arg('person');
-		$my_id = $this->Auth->user('id');
+		$my_id = $this->Auth->user('zuluru_person_id');
 
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
@@ -952,7 +968,7 @@ class PeopleController extends AppController {
 
 	function preferences() {
 		$id = $this->_arg('person');
-		$my_id = $this->Auth->user('id');
+		$my_id = $this->Auth->user('zuluru_person_id');
 
 		if (!$id) {
 			$id = $my_id;
@@ -1071,7 +1087,7 @@ class PeopleController extends AppController {
 				$this->redirect(array('action' => 'view', 'person' => $person_id));
 			}
 		} else {
-			if (!$this->is_admin && $person_id != $this->Auth->user('id')) {
+			if (!$this->is_admin && $person_id != $this->Auth->user('zuluru_person_id')) {
 				$this->Session->setFlash(__('You are not allowed to approve this relative request.', true), 'default', array('class' => 'warning'));
 				$this->redirect(array('action' => 'view', 'person' => $person_id));
 			}
@@ -1135,7 +1151,7 @@ class PeopleController extends AppController {
 				$this->redirect(array('action' => 'view', 'person' => $person_id));
 			}
 		} else {
-			if (!$this->is_admin && $person_id != $this->Auth->user('id')) {
+			if (!$this->is_admin && $person_id != $this->Auth->user('zuluru_person_id')) {
 				$this->Session->setFlash(__('You are not allowed to remove this relation.', true), 'default', array('class' => 'warning'));
 				$this->redirect(array('action' => 'view', 'person' => $person_id));
 			}
@@ -1210,7 +1226,7 @@ class PeopleController extends AppController {
 
 			if ($code == 200) {
 				$oauth_creds = $tmhOAuth->extract_params($tmhOAuth->response['response']);
-				if ($this->Person->updateAll(array('twitter_token' => "'{$oauth_creds['oauth_token']}'", 'twitter_secret' => "'{$oauth_creds['oauth_token_secret']}'"), array('Person.id' => $this->Auth->user('id')))) {
+				if ($this->Person->updateAll(array('twitter_token' => "'{$oauth_creds['oauth_token']}'", 'twitter_secret' => "'{$oauth_creds['oauth_token_secret']}'"), array('Person.id' => $this->Auth->user('zuluru_person_id')))) {
 					$this->Session->setFlash(sprintf(__('Your Twitter authorization has been completed. You can always revoke this at any time through the preferences page.', true), __('person', true)), 'default', array('class' => 'success'));
 				} else {
 					$this->Session->setFlash(sprintf(__('Twitter authorization was received, but the database failed to update.', true), __('person', true)), 'default', array('class' => 'warning'));
@@ -1249,7 +1265,7 @@ class PeopleController extends AppController {
 	}
 
 	function revoke_twitter() {
-		if ($this->Person->updateAll(array('twitter_token' => null, 'twitter_secret' => null), array('Person.id' => $this->Auth->user('id')))) {
+		if ($this->Person->updateAll(array('twitter_token' => null, 'twitter_secret' => null), array('Person.id' => $this->Auth->user('zuluru_person_id')))) {
 			$this->Session->setFlash(sprintf(__('Your Twitter authorization has been revoked. You can always re-authorize at any time through the preferences page.', true), __('person', true)), 'default', array('class' => 'success'));
 		} else {
 			$this->Session->setFlash(sprintf(__('Failed to revoke your Twitter authorization.', true), __('person', true)), 'default', array('class' => 'warning'));
@@ -1431,6 +1447,7 @@ class PeopleController extends AppController {
 		$success = $this->Person->Upload->saveField ('approved', true);
 		$this->set(compact('success'));
 
+		$this->Person->Upload->contain(array('Person' => $this->Auth->authenticate->name));
 		$person = $this->Person->Upload->read (null, $id);
 		$this->set(compact('person'));
 
@@ -1452,6 +1469,7 @@ class PeopleController extends AppController {
 		extract($this->params['named']);
 		$this->set($this->params['named']);
 
+		$this->Person->Upload->contain(array('Person' => $this->Auth->authenticate->name));
 		$photo = $this->Person->Upload->read(null, $id);
 		if (!$photo) {
 			$success = false;
@@ -1495,7 +1513,7 @@ class PeopleController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('document', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
-		if (!$this->is_admin && $document['Upload']['person_id'] != $this->Auth->user('id')) {
+		if (!$this->is_admin && $document['Upload']['person_id'] != $this->Auth->user('zuluru_person_id')) {
 			$this->Session->setFlash(__('You do not have permission to access this document.', true), 'default', array('class' => 'warning'));
 			$this->redirect('/');
 		}
@@ -1647,6 +1665,7 @@ class PeopleController extends AppController {
 			$this->redirect('/');
 		}
 
+		$this->Person->Upload->contain(array('Person' => $this->Auth->authenticate->name, 'UploadType'));
 		$document = $this->Person->Upload->read (null, $id);
 		if (!$document) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('document', true)), 'default', array('class' => 'info'));
@@ -1692,6 +1711,7 @@ class PeopleController extends AppController {
 			$this->redirect('/');
 		}
 
+		$this->Person->Upload->contain(array('Person' => $this->Auth->authenticate->name, 'UploadType'));
 		$document = $this->Person->Upload->read (null, $id);
 		if (!$document) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('document', true)), 'default', array('class' => 'info'));
@@ -1737,10 +1757,11 @@ class PeopleController extends AppController {
 		extract($this->params['named']);
 		$this->set($this->params['named']);
 
+		$this->Person->Upload->contain(array('Person' => $this->Auth->authenticate->name, 'UploadType'));
 		$document = $this->Person->Upload->read (null, $id);
 		if (!$document) {
 			$success = false;
-		} else if (!$this->is_admin && $document['Upload']['person_id'] != $this->Auth->user('id')) {
+		} else if (!$this->is_admin && $document['Upload']['person_id'] != $this->Auth->user('zuluru_person_id')) {
 			$success = false;
 		} else {
 			if (!empty($this->data['Document']['comment'])) {
@@ -1755,7 +1776,7 @@ class PeopleController extends AppController {
 		}
 		$this->set(compact('success', 'document'));
 
-		if ($success && $document['Person']['id'] != $this->Auth->user('id')) {
+		if ($success && $document['Person']['id'] != $this->Auth->user('zuluru_person_id')) {
 			if (!$this->_sendMail (array (
 					'to' => $document,
 					'subject' => Configure::read('organization.name') . ' Notification of Document Deletion',
@@ -1902,9 +1923,9 @@ class PeopleController extends AppController {
 			);
 			if ($badge['Badge']['category'] == 'assigned') {
 				$data['approved'] = true;
-				$data['approved_by'] = $this->Auth->user('id');
+				$data['approved_by'] = $this->Auth->user('zuluru_person_id');
 			} else {
-				$data['nominated_by'] = $this->Auth->user('id');
+				$data['nominated_by'] = $this->Auth->user('zuluru_person_id');
 			}
 			if ($this->Person->BadgesPerson->save($data)) {
 				if ($badge['Badge']['category'] == 'assigned') {
@@ -1914,7 +1935,7 @@ class PeopleController extends AppController {
 					if ($badge['Badge']['visibility'] != BADGE_VISIBILITY_ADMIN) {
 						$this->Person->BadgesPerson->contain(array(
 								'Badge',
-								'Person',
+								'Person' => $this->Auth->authenticate->name,
 								'ApprovedBy',
 						));
 						$person = $this->Person->BadgesPerson->read (null, $this->Person->BadgesPerson->id);
@@ -1991,16 +2012,16 @@ class PeopleController extends AppController {
 
 		$this->Person->BadgesPerson->contain(array(
 				'Badge',
-				'Person',
+				'Person' => $this->Auth->authenticate->name,
 				'ApprovedBy',
-				'NominatedBy',
+				'NominatedBy' => $this->Auth->authenticate->name,
 		));
 		$person = $this->Person->BadgesPerson->read (null, $id);
 		$this->set(compact('person'));
 
 		$success = $this->Person->BadgesPerson->save (array(
 			'approved' => true,
-			'approved_by' => $this->Auth->user('id'),
+			'approved_by' => $this->Auth->user('zuluru_person_id'),
 		));
 		$this->set(compact('success'));
 
@@ -2042,9 +2063,9 @@ class PeopleController extends AppController {
 
 		$this->Person->BadgesPerson->contain(array(
 				'Badge',
-				'Person',
+				'Person' => $this->Auth->authenticate->name,
 				'ApprovedBy',
-				'NominatedBy',
+				'NominatedBy' => $this->Auth->authenticate->name,
 		));
 		$person = $this->Person->BadgesPerson->read (null, $id);
 		$this->set(compact('person'));
@@ -2236,7 +2257,7 @@ class PeopleController extends AppController {
 				$this->paginate = array('Person' => array(
 						'conditions' => $conditions,
 						'contain' => array(
-							'Note' => array('conditions' => array('created_person_id' => $this->Auth->user('id'))),
+							'Note' => array('conditions' => array('created_person_id' => $this->Auth->user('zuluru_person_id'))),
 							'Affiliate',
 						),
 						'limit' => Configure::read('feature.items_per_page'),
@@ -2257,6 +2278,7 @@ class PeopleController extends AppController {
 
 	function list_new() {
 		$affiliates = $this->_applicableAffiliateIDs(true);
+		$user_model = $this->Auth->authenticate->name;
 		$new = $this->Person->find ('all', array(
 			'joins' => array(
 				array(
@@ -2272,8 +2294,8 @@ class PeopleController extends AppController {
 				'Person.complete' => 1,
 				'AffiliatePerson.affiliate_id' => $affiliates,
 			),
-			'contain' => array(),
-			'fields' => array('Person.*', 'AffiliatePerson.*'),
+			'contain' => array($user_model),
+			'fields' => array('Person.*', 'AffiliatePerson.*', "$user_model.*"),
 			'order' => array('Person.last_name' => 'DESC', 'Person.first_name' => 'DESC'),
 		));
 		foreach ($new as $key => $person) {
@@ -2302,7 +2324,7 @@ class PeopleController extends AppController {
 			$this->redirect(array('action' => 'list_new'));
 		}
 
-		$this->Person->contain('Affiliate');
+		$this->Person->contain('Affiliate', Configure::read('security.auth_model'));
 		$person = $this->Person->read(null, $id);
 		if (!$person) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
@@ -2314,9 +2336,9 @@ class PeopleController extends AppController {
 		}
 
 		$duplicates = $this->Person->findDuplicates($person);
-		$auth = $this->Auth->authenticate->read(null, $id);
+		$activated = $this->Auth->authenticate->activated($person);
 
-		$this->set(compact('person', 'duplicates', 'auth'));
+		$this->set(compact('person', 'duplicates', 'activated'));
 	}
 
 	function _approve() {
@@ -2327,9 +2349,10 @@ class PeopleController extends AppController {
 			$dup_id = null;
 		}
 
-		$this->Person->contain();
+		$this->Person->contain($this->Auth->authenticate->name);
 		$person = $this->Person->read(null, $this->data['Person']['id']);
 		if (!empty ($dup_id)) {
+			$this->Person->contain($this->Auth->authenticate->name);
 			$existing = $this->Person->read(null, $dup_id);
 		}
 
@@ -2546,7 +2569,7 @@ class PeopleController extends AppController {
 
 	function registrations() {
 		$id = $this->_arg('person');
-		$my_id = $this->Auth->user('id');
+		$my_id = $this->Auth->user('zuluru_person_id');
 
 		if (!$id) {
 			$id = $my_id;
@@ -2571,7 +2594,7 @@ class PeopleController extends AppController {
 
 	function teams() {
 		$id = $this->_arg('person');
-		$my_id = $this->Auth->user('id');
+		$my_id = $this->Auth->user('zuluru_person_id');
 
 		if (!$id) {
 			$id = $my_id;
@@ -2588,7 +2611,7 @@ class PeopleController extends AppController {
 
 	function waivers() {
 		$id = $this->_arg('person');
-		$my_id = $this->Auth->user('id');
+		$my_id = $this->Auth->user('zuluru_person_id');
 
 		if (!$id) {
 			$id = $my_id;
@@ -2638,7 +2661,7 @@ class PeopleController extends AppController {
 					$this->set(compact('event', 'year'));
 
 					$people = $this->Person->find ('all', array(
-							'contain' => array(),
+							'contain' => array($this->Auth->authenticate->name),
 							'conditions' => array(
 								array("Person.id IN (SELECT DISTINCT person_id FROM registrations WHERE event_id = {$event['Event']['id']} AND payment = 'Paid')"),
 								array("Person.id NOT IN (SELECT person_id FROM activity_logs WHERE type = 'email_membership_letter' AND custom = $year)"),

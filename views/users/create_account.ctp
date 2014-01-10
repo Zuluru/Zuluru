@@ -8,15 +8,16 @@ $access = array(1);
 
 // TODO: Handle more than one sport in a site
 $sport = reset(array_keys(Configure::read('options.sport')));
+Configure::load("sport/$sport");
 ?>
 
 <p>To create a new account, fill in all the fields below and click 'Submit' when done. Your account will be placed on hold until approved by an administrator. Once approved, you will be allocated a membership number, and have full access to the system.</p>
-<p><strong>NOTE:</strong> If you already have an account from a previous season, <strong>DO NOT CREATE ANOTHER ONE</strong>! Instead, please <a href="<?php echo Configure::read('urls.password_reset'); ?>">follow these instructions</a> to regain access to your account.</p>
+<p><strong>NOTE:</strong> If you already have an account from a previous season, <strong>DO NOT CREATE ANOTHER ONE</strong>! Instead, please <?php echo $this->Html->link('follow these instructions', array('controller' => 'users', 'action' => 'reset_password')); ?> to regain access to your account.</p>
 <p>Note that email and phone publish settings below only apply to regular players. Captains will always have access to view the phone numbers and email addresses of their confirmed players. All Team Captains will also have their email address viewable by other players.</p>
 <p>If you have concerns about the data <?php echo $short; ?> collects, please see our <strong><a href="<?php echo Configure::read('urls.privacy_policy'); ?>" target="_new">Privacy Policy</a>.</strong></p>
 
 <div class="users form">
-<?php echo $this->Form->create('User', array('url' => Router::normalize($this->here)));?>
+<?php echo $this->Form->create('Person', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
  		<legend><?php __('Identity'); ?></legend>
 	<?php
@@ -24,7 +25,7 @@ $sport = reset(array_keys(Configure::read('options.sport')));
 			'after' => $this->Html->para (null, __('First (and, if desired, middle) name.', true)),
 		));
 		echo $this->ZuluruForm->input('last_name');
-		echo $this->ZuluruForm->input('user_name');
+		echo $this->ZuluruForm->input("$user_model.$user_field");
 		echo $this->ZuluruForm->input('gender', array(
 			'type' => 'select',
 			'empty' => '---',
@@ -35,8 +36,8 @@ $sport = reset(array_keys(Configure::read('options.sport')));
 	<fieldset>
  		<legend><?php __('Password'); ?></legend>
 	<?php
-		echo $this->ZuluruForm->input('passwd', array('type' => 'password', 'label' => 'Password'));
-		echo $this->ZuluruForm->input('confirm_passwd', array('type' => 'password', 'label' => 'Confirm Password'));
+		echo $this->ZuluruForm->input("$user_model.passwd", array('type' => 'password', 'label' => 'Password'));
+		echo $this->ZuluruForm->input("$user_model.confirm_passwd", array('type' => 'password', 'label' => 'Confirm Password'));
 	?>
 	</fieldset>
 	<?php if (Configure::read('feature.affiliates')): ?>
@@ -61,7 +62,7 @@ $sport = reset(array_keys(Configure::read('options.sport')));
 	<fieldset>
  		<legend><?php __('Online Contact'); ?></legend>
 	<?php
-		echo $this->ZuluruForm->input('email');
+		echo $this->ZuluruForm->input("$user_model.$email_field");
 		echo $this->ZuluruForm->input('publish_email', array(
 			'label' => __('Allow other players to view my email address', true),
 		));
@@ -241,6 +242,6 @@ $sport = reset(array_keys(Configure::read('options.sport')));
 
 <?php
 if (Configure::read('sport.rating_questions')) {
-	echo $this->element('people/rating', array('sport' => $sport, 'field' => '#UserSkillLevel'));
+	echo $this->element('people/rating', array('sport' => $sport, 'field' => '#PersonSkillLevel'));
 }
 ?>

@@ -84,7 +84,7 @@ class EventsController extends AppController {
 		if (!$this->is_logged_in) {
 			$this->redirect(array('action' => 'index'));
 		}
-		$id = $this->Auth->user('id');
+		$id = $this->Auth->user('zuluru_person_id');
 
 		// Find any preregistrations
 		$prereg = $this->Event->Preregistration->find('list', array(
@@ -189,7 +189,7 @@ class EventsController extends AppController {
 		}
 
 		if ($this->is_logged_in) {
-			$this->set ($this->CanRegister->test ($this->Auth->user('id'), $event));
+			$this->set ($this->CanRegister->test ($this->Auth->user('zuluru_person_id'), $event));
 		}
 
 		$affiliates = $this->_applicableAffiliateIDs(true);

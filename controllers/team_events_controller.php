@@ -44,7 +44,7 @@ class TeamEventsController extends AppController {
 		)))
 		{
 			$person = $this->_arg('person');
-			if (!$person || $person == $this->Auth->user('id') || in_array ($person, $this->UserCache->read('RelativeIDs'))) {
+			if (!$person || $person == $this->Auth->user('zuluru_person_id') || in_array ($person, $this->UserCache->read('RelativeIDs'))) {
 				return true;
 			}
 		}
@@ -63,7 +63,7 @@ class TeamEventsController extends AppController {
 					}
 					// Check past teams too
 					$count = $this->TeamEvent->Team->TeamsPerson->find('count', array('conditions' => array(
-						'person_id' => array_merge(array($this->Auth->user('id')), $this->UserCache->read('RelativeIDs')),
+						'person_id' => array_merge(array($this->Auth->user('zuluru_person_id')), $this->UserCache->read('RelativeIDs')),
 						'team_id' => $team,
 					)));
 					if ($count) {
@@ -195,7 +195,7 @@ class TeamEventsController extends AppController {
 		}
 
 		$person_id = $this->_arg('person');
-		$my_id = $this->Auth->user('id');
+		$my_id = $this->Auth->user('zuluru_person_id');
 		if (!$person_id) {
 			$person_id = $my_id;
 			if (!$person_id) {
@@ -214,8 +214,9 @@ class TeamEventsController extends AppController {
 			// Get the list of captains, for the team pop-up
 			'Team' => array(
 				'Person' => array(
+					$this->Auth->authenticate->name,
 					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-					'fields' => array('id', 'first_name', 'last_name', 'email'),
+					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
 				),
 				'Division' => 'League',
 			),
@@ -224,6 +225,7 @@ class TeamEventsController extends AppController {
 					'person_id' => $person_id,
 				),
 				'Person' => array(
+					$this->Auth->authenticate->name,
 					'Team' => array(
 						'conditions' => array('team_id' => $team_id),
 					),
@@ -254,7 +256,7 @@ class TeamEventsController extends AppController {
 			$this->redirect('/');
 		}
 
-		$is_me = ($person_id == $this->Auth->user('id'));
+		$is_me = ($person_id == $this->Auth->user('zuluru_person_id'));
 		$is_captain = in_array ($team['id'], $this->UserCache->read('OwnedTeamIDs'));
 
 		// We must do other permission checks here, because we allow non-logged-in users to accept
@@ -452,7 +454,7 @@ class TeamEventsController extends AppController {
 	function past() {
 		$person = $this->_arg('person');
 		if (!$person) {
-			$person = $this->Auth->user('id');
+			$person = $this->Auth->user('zuluru_person_id');
 		}
 		$team_ids = $this->UserCache->read('TeamIDs', $person);
 		if (empty ($team_ids)) {
@@ -484,7 +486,7 @@ class TeamEventsController extends AppController {
 	function future($recursive = false) {
 		$person = $this->_arg('person');
 		if (!$person) {
-			$person = $this->Auth->user('id');
+			$person = $this->Auth->user('zuluru_person_id');
 		}
 		$team_ids = $this->UserCache->read('TeamIDs', $person);
 		if (empty ($team_ids)) {
@@ -543,6 +545,7 @@ class TeamEventsController extends AppController {
 		$this->TeamEvent->contain(array(
 			'Team' => array(
 				'Person' => array(
+					$this->Auth->authenticate->name,
 					'Setting' => array(
 						'conditions' => array('category' => 'personal', 'name' => 'attendance_emails'),
 					),
@@ -574,7 +577,7 @@ class TeamEventsController extends AppController {
 		// Find all of the events that might have captains that need attendance summaries
 		$this->TeamEvent->contain(array(
 			// Get the list of captains, we may need to email them
-			'Team' => 'Person',
+			'Team' => array('Person' => $this->Auth->authenticate->name),
 			'AttendanceSummaryEmail',
 		));
 		$summary = $this->TeamEvent->find ('all', array(

@@ -18,6 +18,14 @@ class LoginZikulaComponent extends LoginComponent
 
 		parent::login();
 	}
+
+	// We might have session information but the user has logged out of Zikula
+	function expired() {
+		$uid = $this->_controller->Session->read('PNSVuid');
+		if (!$uid) {
+			return true;
+		}
+	}
 }
 
 ?>

@@ -54,14 +54,14 @@ class AppModel extends Model {
 	function afterFind ($results) {
 		if (method_exists ($this, '_afterFind') && !empty ($results)) {
 			// The data can come in many forms
-			if (array_key_exists(0, $results)) {
+			if (Set::numeric(array_keys($results))) {
 				foreach ($results as $key => $result) {
 					$results[$key] = $this->afterFind ($result);
 				}
 			} else if (array_key_exists($this->alias, $results)) {
 				if (empty ($results[$this->alias])) {
 					// Don't do anything with empty records
-				} else if (array_key_exists(0, $results[$this->alias])) {
+				} else if (Set::numeric(array_keys($results[$this->alias]))) {
 					$results = $this->afterFind ($results[$this->alias]);
 				} else {
 					$results = $this->_afterFind ($results);
@@ -210,16 +210,15 @@ class AppModel extends Model {
 		return $data[$field1] === $data[$field2];
 	}
 
+	function comparepassword($password, $hash) {
+		$compare = $this->hashPassword($value);
+		return ($compare == $hash);
+	}
+
 	function matchpassword($check) {
 		$value = array_values($check);
 		$value = $value[0];
-		if (Configure::read ('security.salted_hash')) {
-			$compare = Security::hash($value, null, true);
-		} else {
-			$compare = Security::hash($value, null, '');
-		}
-
-		return ($compare == $this->data['User']['password']);
+		return $this->comparepassword($value, $this->data[Configure::read('security.auth_model')]['password']);
 	}
 
 	function mustnotmatch($check, $field1, $field2) {

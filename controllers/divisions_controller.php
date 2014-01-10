@@ -194,7 +194,7 @@ class DivisionsController extends AppController {
 		}
 
 		// Eliminate any events that cannot be registered for
-		$my_id = $this->Auth->user('id');
+		$my_id = $this->Auth->user('zuluru_person_id');
 		if ($my_id) {
 			foreach ($division['Event'] as $key => $event) {
 				$test = $this->CanRegister->test ($my_id, array('Event' => $event), false, false);
@@ -1329,9 +1329,12 @@ class DivisionsController extends AppController {
 		}
 		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 
+		$user_model = $this->Auth->authenticate->name;
+		$email_field = $this->Auth->authenticate->emailField;
 		$allstars = $this->Division->Game->Allstar->find ('all', array(
+				'contain' => array(),
 				'fields' => array(
-					'Person.id', 'Person.first_name', 'Person.last_name', 'Person.gender', 'Person.email',
+					'Person.id', 'Person.first_name', 'Person.last_name', 'Person.gender', "$user_model.$email_field",
 					'COUNT(Allstar.game_id) AS count',
 				),
 				'conditions' => array(
@@ -1339,7 +1342,34 @@ class DivisionsController extends AppController {
 				),
 				'group' => "Allstar.person_id HAVING count >= $min",
 				'order' => array('Person.gender' => 'DESC', 'count' => 'DESC', 'Person.last_name', 'Person.first_name'),
+				'joins' => array(
+					array(
+						'table' => "{$this->Person->Allstar->tablePrefix}games",
+						'alias' => 'Game',
+						'type' => 'LEFT',
+						'foreignKey' => false,
+						'conditions' => 'Game.id = Allstar.game_id',
+					),
+					array(
+						'table' => "{$this->Person->Allstar->tablePrefix}people",
+						'alias' => 'Person',
+						'type' => 'LEFT',
+						'foreignKey' => false,
+						'conditions' => 'Person.id = Allstar.person_id',
+					),
+						array(
+							'table' => "{$this->Auth->authenticate->tablePrefix}{$this->Auth->authenticate->useTable}",
+							'alias' => $this->Auth->authenticate->name,
+							'type' => 'LEFT',
+							'foreignKey' => false,
+							'conditions' => "{$this->Auth->authenticate->alias}.{$this->Auth->authenticate->primaryKey} = Person.user_id",
+						),
+				),
 		));
+
+		// The afterFind functions aren't called as expected, maybe because of the joins?
+		$allstars = $this->Auth->authenticate->afterFind($allstars);
+		$allstars = $this->Person->afterFind($allstars);
 
 		$this->set(compact('division', 'allstars', 'min'));
 
@@ -1356,8 +1386,9 @@ class DivisionsController extends AppController {
 		$this->Division->contain(array (
 			'Team' => array (
 				'Person' => array(
+					$this->Auth->authenticate->name,
 					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-					'fields' => array('id', 'first_name', 'last_name', 'email'),
+					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
 				),
 			),
 			'League',
@@ -1451,15 +1482,17 @@ class DivisionsController extends AppController {
 			// Get the list of captains for each team, for building the email link
 			'HomeTeam' => array(
 				'Person' => array(
+					$this->Auth->authenticate->name,
 					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-					'fields' => array('id', 'first_name', 'last_name', 'email'),
+					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
 				),
 			),
 			'HomePoolTeam' => 'DependencyPool',
 			'AwayTeam' => array(
 				'Person' => array(
+					$this->Auth->authenticate->name,
 					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-					'fields' => array('id', 'first_name', 'last_name', 'email'),
+					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
 				),
 			),
 			'AwayPoolTeam' => 'DependencyPool',

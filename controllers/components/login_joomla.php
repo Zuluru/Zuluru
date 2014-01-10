@@ -19,6 +19,15 @@ class LoginJoomlaComponent extends LoginComponent
 
 		parent::login();
 	}
+
+	// We might have session information but the user has logged out of Joomla
+	function expired() {
+		$user = $this->_controller->Session->read('__default.user');
+		if (!$user || !$user->id) {
+			return true;
+		}
+		return false;
+	}
 }
 
 ?>

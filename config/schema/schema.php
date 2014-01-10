@@ -425,11 +425,9 @@ class ZuluruSchema extends CakeSchema {
 	);
 	var $people = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
-		'user_name' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100, 'key' => 'unique'),
-		'password' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
+		'user_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'first_name' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
 		'last_name' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
-		'email' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
 		'publish_email' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'home_phone' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 30),
 		'publish_home_phone' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
@@ -449,18 +447,15 @@ class ZuluruSchema extends CakeSchema {
 		'skill_level' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'year_started' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'shirt_size' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
-		'session_cookie' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
 		'group_id' => array('type' => 'integer', 'null' => false, 'default' => NULL),
 		'status' => array('type' => 'string', 'null' => false, 'default' => 'new', 'length' => 16),
 		'has_dog' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'willing_to_volunteer' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'contact_for_feedback' => array('type' => 'boolean', 'null' => false, 'default' => '1'),
-		'last_login' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
-		'client_ip' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
 		'twitter_token' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 250),
 		'twitter_secret' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 250),
 		'complete' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
-		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'username' => array('column' => 'user_name', 'unique' => 1)),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $people_people = array(
@@ -787,6 +782,17 @@ class ZuluruSchema extends CakeSchema {
 		'created' => array('type' => 'timestamp', 'null' => true, 'default' => NULL),
 		'updated' => array('type' => 'timestamp', 'null' => true, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'person' => array('column' => 'person_id', 'unique' => 0)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
+	var $users = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'user_name' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100, 'key' => 'unique'),
+		'password' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
+		'email' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
+		'session_cookie' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
+		'last_login' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
+		'client_ip' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'user_name' => array('column' => 'user_name', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $waivers = array(

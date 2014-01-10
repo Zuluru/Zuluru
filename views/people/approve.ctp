@@ -16,10 +16,15 @@ $dispositions = array(
 
 $rows = array(
 	'full_name' => array('name' => 'Name'),
-	'user_name' => array('name' => 'System Username'),
-	'id' => array('name' => 'Website User ID'),
-	'email',
+	'user_name' => array('name' => 'User Name'),
 );
+
+if (!Configure::read('feature.manage_accounts')) {
+	$rows['user_id'] = array('name' => sprintf(__('%s User Id', true), Configure::read('feature.manage_name')));
+}
+
+$rows['id'] = array('name' => 'Zuluru User ID');
+$rows[] = 'email';
 
 if (Configure::read('profile.home_phone')) {
 	$rows[] = 'home_phone';
@@ -129,16 +134,15 @@ if (!empty ($duplicates)) {
 		}
 	}
 	echo $this->Html->nestedList ($compare);
-
-	// TODO: Make this generic, via function in the Auth model
-	if (array_key_exists ('UserZikula', $auth) && !$auth['UserZikula']['pn_activated']) {
-		echo $this->Html->para('warning-message', 'This user has not yet activated their account. If the user record is merged backwards, they WILL NOT be able to activate their account.');
-	}
 }
 
 echo '<br>';
 
 echo $this->Html->tag ('table', $this->Html->tableCells (array_transpose ($cols), array(), array('class' => 'altrow')), array('class' => 'list'));
+
+if (!empty($duplicates) && !$activated) {
+	echo $this->Html->para('warning-message', 'This user has not yet activated their account. If the user record is merged backwards, they WILL NOT be able to activate their account.');
+}
 
 echo $this->Form->create();
 echo $this->Form->input ('id', array(

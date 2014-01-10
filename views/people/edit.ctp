@@ -65,23 +65,12 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 				'after' => $this->Html->para (null, __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your new name to ', true) . $this->Html->link ($admin, "mailto:$admin") . '.', true),
 			));
 		}
-		if (!Configure::read('feature.manage_accounts')) {
-			$username_edit = sprintf (Configure::read('urls.username_edit'), $id);
-			if ($username_edit) {
-				$username_link = $this->Html->link (Configure::read('feature.manage_name') . ' ' . __('username', true), $username_edit);
-				echo $this->ZuluruForm->input('user_name', array(
-					'disabled' => 'true',
-					'after' => $this->Html->para (null, __('To change this, edit your', true) . ' ' . $username_link),
-					));
-			} else {
-				echo $this->ZuluruForm->input('user_name', array(
-					'disabled' => 'true',
-					'after' => $this->Html->para (null, __('To change this, please email your existing user name and preferred new user name to ', true) . $this->Html->link ($admin, "mailto:$admin") . '.'),
-				));
-			}
-		} else {
-			echo $this->ZuluruForm->input('user_name');
-		}
+
+		echo $this->ZuluruForm->hidden("$user_model.$id_field");
+		echo $this->ZuluruForm->input("$user_model.$user_field", array(
+			'label' => __('User Name', true),
+		));
+
 		if (in_array (Configure::read('profile.gender'), $access)) {
 			echo $this->ZuluruForm->input('gender', array(
 				'type' => 'select',
@@ -125,16 +114,9 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 	<fieldset>
  		<legend><?php __('Online Contact'); ?></legend>
 	<?php
-		if (!Configure::read('feature.manage_accounts')) {
-			$profile_edit = sprintf (Configure::read('urls.profile_edit'), $id);
-			$profile_link = $this->Html->link (Configure::read('feature.manage_name') . ' ' . __('profile', true), $profile_edit);
-			echo $this->ZuluruForm->input('email', array(
-				'disabled' => 'true',
-				'after' => $this->Html->para (null, __('To change this, edit your', true) . ' ' . $profile_link),
-			));
-		} else {
-			echo $this->ZuluruForm->input('email');
-		}
+		echo $this->ZuluruForm->input("$user_model.$email_field", array(
+			'label' => __('Email', true),
+		));
 		echo $this->ZuluruForm->input('publish_email', array(
 			'label' => __('Allow other players to view my email address', true),
 		));
@@ -204,7 +186,7 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 			$fields = __(Configure::read('ui.fields'), true);
 			echo $this->ZuluruForm->input('addr_postalcode', array(
 				'label' => __('Postal Code', true),
-				'after' => $this->Html->para (null, sprintf(__("Please enter a correct postal code matching the address above. $short uses this information to help locate new %s near its members.", true), $fields)),
+				'after' => $this->Html->para (null, sprintf(__("Please enter a correct postal code matching the address above. %s uses this information to help locate new %s near its members.", true), $short, $fields)),
 			));
 		} else if (Configure::read('profile.addr_postalcode')) {
 			echo $this->ZuluruForm->input('addr_postalcode', array(

@@ -88,7 +88,7 @@ class WhoDidItBehavior extends ModelBehavior {
 			// Hardcoded, rather than using the model name. The model name is set *after*
 			// the Auth component sets its session key name.
 			$UserSession = 'User';
-			$userId = Set::extract($_SESSION, $AuthSession.'.'.$UserSession.'.id');
+			$userId = Set::extract($_SESSION, $AuthSession.'.'.$UserSession.'.zuluru_person_id');
 			if ($userId) {
 				$data = array($this->settings[$model->alias]['modified_by_field'] => $userId);
 				if (!$model->exists()) {

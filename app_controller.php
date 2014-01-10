@@ -66,7 +66,7 @@ class AppController extends Controller {
 
 		// Load configuration from database
 		if (isset($this->Configuration) && !empty($this->Configuration->table)) {
-			$this->Configuration->load($this->Auth->user('id'));
+			$this->Configuration->load($this->Auth->user('zuluru_person_id'));
 			if (Configure::read('feature.affiliates')) {
 				$affiliates = $this->_applicableAffiliateIDs();
 				if (count($affiliates) == 1) {
@@ -251,9 +251,6 @@ class AppController extends Controller {
 	 * Basic check for authorization, based solely on the person's login group.
 	 * Set some "is_" variables for the views to use (is_admin, is_member, etc.).
 	 *
-	 * This allows admins access to anything.  Individual controllers should override
-	 * this to control access to their individual actions.
-	 *
 	 * TODO: This should all be replaced with some group-based permission scheme. The
 	 * good news is that those changes will mainly be localized to this function.
 	 *
@@ -264,11 +261,11 @@ class AppController extends Controller {
 		$auth =& $this->Auth->authenticate;
 		$user = $this->Auth->user();
 
-		// If this is a no-authentication-required page, and the user has no session
-		// but does have "remember me" login information saved in a cookie, we want
-		// to redirect to the login page, which will just log them in automatically
-		// and send them right back here. If we don't do that, then their permissions
-		// aren't set up correctly, and menus and views will be wrong.
+		// If the user has no session but does have "remember me" login information
+		// saved in a cookie, we want to redirect to the login page, which will
+		// just log them in automatically and send them right back here. If we
+		// don't do that, then their permissions aren't set up correctly, and menus
+		// and views will be wrong.
 		if (!$user && $this->Cookie->read('Auth.User')) {
 			$login = array('controller' => 'users', 'action' => 'login');
 			if ($this->here != Router::url($login)) {
@@ -280,25 +277,31 @@ class AppController extends Controller {
 		// Perform any additional login processing that may be required;
 		// the Auth user information may be updated by this process
 		$login = $this->_getComponent ('Login', $auth->loginComponent, $this);
-		if (empty($this->params['requested']) && ($login->expire() || !$user)) {
+		if (empty($this->params['requested']) && (!$user || $login->expired())) {
 			$this->Session->delete('Zuluru');
+			$this->Auth->logout();
+			$this->UserCache->initializeData();
 			$login->login();
 			$user = $this->Auth->user();
-
-			if ($user && method_exists ($auth, 'merge_user_record')) {
-				$auth->merge_user_record($user);
-				$this->UserCache->clear('Person');
-			}
 		}
 
-		// Some user models don't include an "id" field; copy over from the primary key
-		// in these cases
-		if ($user) {
-			if (!array_key_exists ('id', $user[$auth->alias])) {
-				$id = $user[$auth->alias][$auth->primaryKey];
-				$this->Session->write("{$this->Auth->sessionKey}.id", $id);
+		// Do we already have the corresponding person record?
+		// If not read it; if it doesn't even exist, create it.
+		if ($user && !$this->Auth->user('zuluru_person_id')) {
+			$person = $auth->Person->find('first', array(
+					'contain' => false,
+					'conditions' => array(
+						'user_id' => $user[$auth->alias][$auth->primaryKey],
+					),
+			));
+			if ($person) {
+				$this->Session->write("{$this->Auth->sessionKey}.zuluru_person_id", $person['Person']['id']);
 			} else {
-				$id = $user[$auth->alias]['id'];
+				if ($auth->Person->create_person_record($user[$auth->alias], $auth->nameField)) {
+					$this->Session->write("{$this->Auth->sessionKey}.zuluru_person_id", $auth->Person->id);
+				} else {
+					// TODO: What to do when writing this record fails?
+				}
 			}
 		}
 
@@ -335,7 +338,7 @@ class AppController extends Controller {
 		$this->set('is_volunteer', $this->is_volunteer);
 		$this->set('is_member', $this->is_member);
 		$this->set('is_logged_in', $this->is_logged_in);
-		$this->set('my_id', $this->Auth->user('id'));
+		$this->set('my_id', $this->Auth->user('zuluru_person_id'));
 
 		// While the options above steadily decrease the output available,
 		// is_visitor is instead used to add output not shown to anyone else,
@@ -537,9 +540,7 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Preferences', array('controller' => 'people', 'action' => 'preferences'), 'My Profile');
 			$this->_addMenuItem ('Link new relative', array('controller' => 'people', 'action' => 'add_relative'), 'My Profile');
 			$this->_addMenuItem ('Waiver history', array('controller' => 'people', 'action' => 'waivers'), 'My Profile');
-			if (Configure::read('feature.manage_accounts')) {
-				$this->_addMenuItem ('Change password', array('controller' => 'users', 'action' => 'change_password'), 'My Profile');
-			}
+			$this->_addMenuItem ('Change password', array('controller' => 'users', 'action' => 'change_password'), 'My Profile');
 			if (Configure::read('feature.photos')) {
 				$this->_addMenuItem ('Upload photo', array('controller' => 'people', 'action' => 'photo_upload'), 'My Profile');
 			}
@@ -667,6 +668,7 @@ class AppController extends Controller {
 				$this->Person = ClassRegistry::init ('Person');
 			}
 			$new = $this->Person->find ('count', array(
+				'contain' => array(),
 				'joins' => array(
 					array(
 						'table' => "{$this->Person->tablePrefix}affiliates_people",
@@ -800,17 +802,6 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Clear cache', array('controller' => 'all', 'action' => 'clear_cache'), 'Configuration');
 		}
 
-		if (Configure::read('feature.manage_accounts')) {
-			if (!$this->is_logged_in) {
-				$this->_addMenuItem ('Reset password', array('controller' => 'users', 'action' => 'reset_password'));
-			}
-			if (!$this->is_logged_in) {
-				$this->_addMenuItem ('Create account', array('controller' => 'users', 'action' => 'create_account'));
-			} else if ($this->is_admin || $this->is_manager) {
-				$this->_addMenuItem ('Create account', array('controller' => 'users', 'action' => 'create_account'), 'Players');
-			}
-		}
-
 		$this->_addMenuItem ('Help', array('controller' => 'help'));
 		if (Configure::read('feature.contacts') && $this->is_logged_in) {
 			$this->_addMenuItem ('Contact us', array('controller' => 'contacts', 'action' => 'message'), 'Help');
@@ -839,6 +830,17 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Statistics', array('controller' => 'teams', 'action' => 'statistics'), 'Teams');
 			if (Configure::read('feature.registration')) {
 				$this->_addMenuItem ('Statistics', array('controller' => 'registrations', 'action' => 'statistics'), 'Registration');
+			}
+		}
+
+		if (!$this->is_logged_in) {
+			$this->_addMenuItem ('Reset password', array('controller' => 'users', 'action' => 'reset_password'));
+		}
+		if (Configure::read('feature.manage_accounts')) {
+			if (!$this->is_logged_in) {
+				$this->_addMenuItem ('Create account', array('controller' => 'users', 'action' => 'create_account'));
+			} else if ($this->is_admin || $this->is_manager) {
+				$this->_addMenuItem ('Create account', array('controller' => 'users', 'action' => 'create_account'), 'Players');
 			}
 		}
 

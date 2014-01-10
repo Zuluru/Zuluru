@@ -2,7 +2,7 @@
 class UsersController extends AppController {
 
 	var $name = 'Users';
-	var $uses = array('User', 'Group');
+	var $uses = array('Person', 'Group');
 
 	function publicActions() {
 		return array('login', 'logout', 'create_account', 'reset_password');
@@ -29,7 +29,7 @@ class UsersController extends AppController {
 			// If a player id is specified, check if it's the logged-in user
 			// If no player id is specified, it's always the logged-in user
 			$person = $this->_arg('user');
-			if (!$person || $person == $this->Auth->user('id')) {
+			if (!$person || $person == $this->Auth->user('zuluru_person_id')) {
 				return true;
 			}
 		}
@@ -45,17 +45,10 @@ class UsersController extends AppController {
 		$user = $this->Auth->user();
 		$auth =& $this->Auth->authenticate;
 		if ($user) {
-			// For third-party authentication systems, we may need to merge changes in the
-			// main record into the Zuluru data.
-			if (method_exists ($auth, 'merge_user_record')) {
-				$auth->merge_user_record($user);
-			}
-
 			if (!empty($this->data[$auth->alias]['remember_me'])) {
 				$this->Cookie->write('Auth.User', $this->data[$auth->alias], true, '+1 year');
 			}
 
-			$this->Session->write('Zuluru.login_time', time());
 			$this->redirect($this->Auth->redirect());
 		}
 
@@ -81,7 +74,7 @@ class UsersController extends AppController {
 			$this->redirect('/');
 		}
 
-		if (!$this->is_admin && !$this->is_manager && $this->Auth->user('id')) {
+		if (!$this->is_admin && !$this->is_manager && $this->Auth->user('zuluru_person_id')) {
 			$this->Session->setFlash(__('You are already logged in!', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
@@ -91,31 +84,30 @@ class UsersController extends AppController {
 		$this->_loadAffiliateOptions();
 
 		if (!empty($this->data)) {
-			$this->User->create();
-			$this->data['User']['complete'] = true;
-			$this->data['User']['group_id'] = 1;	// TODO: Assumed this is the Player group
+			$this->Person->create();
+			$this->data['Person']['complete'] = true;
+			$this->data['Person']['group_id'] = 1;	// TODO: Assumed this is the Player group
 			if (Configure::read('feature.auto_approve')) {
-				$this->data['User']['status'] = 'active';
+				$this->data['Person']['status'] = 'active';
 			}
 
 			// Handle affiliations
 			if (Configure::read('feature.affiliates')) {
 				if (Configure::read('feature.multiple_affiliates')) {
-					if (empty($this->data['Affiliate']['Affiliate'])) {
-						$this->User->Affiliate->validationErrors['Affiliate'] = __('You must select at least one affiliate that you are interested in.', true);
+					if (empty($this->data['Affiliate']['Affiliate'][0])) {
+						$this->Person->Affiliate->validationErrors['Affiliate'] = __('You must select at least one affiliate that you are interested in.', true);
 					}
 				} else {
-					if (empty($this->data['Affiliate']['Affiliate']) || count($this->data['Affiliate']['Affiliate']) > 1) {
-						$this->User->Affiliate->validationErrors['Affiliate'] = __('You must select an affiliate that you are interested in.', true);
+					if (empty($this->data['Affiliate']['Affiliate'][0]) || count($this->data['Affiliate']['Affiliate']) > 1) {
+						$this->Person->Affiliate->validationErrors['Affiliate'] = __('You must select an affiliate that you are interested in.', true);
 					}
 				}
 			} else {
 				$this->data['Affiliate']['Affiliate'] = array(1);
 			}
 
-			$this->User->set($this->data);
-			if ($this->User->validates() && $this->User->Affiliate->validates()) {
-				if ($this->User->saveAll($this->data)) {
+			if ($this->Person->saveAll($this->data, array('validate' => 'only')) && $this->Person->Affiliate->validates()) {
+				if ($this->Person->saveAll($this->data)) {
 					if (Configure::read('feature.auto_approve')) {
 						$this->Session->setFlash('<h2>' . __('THANK YOU', true) . '</h2><p>' . sprintf(__('for creating an account with %s.', true), Configure::read('organization.name')) . '</p>', 'default', array('class' => 'success'));
 					} else {
@@ -124,17 +116,17 @@ class UsersController extends AppController {
 
 					// There may be callbacks to handle
 					// TODO: How to handle this in conjunction with third-party auth systems?
-					$this->data['User']['id'] = $this->User->id;
+					$this->data['Person']['id'] = $this->Person->id;
 					$components = Configure::read('callbacks.user');
 					foreach ($components as $name => $config) {
 						$component = $this->_getComponent('User', $name, $this, false, $config);
-						$component->onAdd($this->data['User']);
+						$component->onAdd($this->data);
 					}
 
 					if (!$this->is_logged_in) {
 						// Automatically log the user in
-						$this->data['User']['password'] = Security::hash($this->data['User']['passwd'], null, Configure::read ('security.salted_hash'));
-						$this->Auth->login($this->data);
+						$this->data['User']['password'] = $this->data['User']['passwd'];
+						$this->Auth->login($this->Auth->hashPasswords($this->data));
 					}
 
 					$this->redirect('/');
@@ -145,17 +137,19 @@ class UsersController extends AppController {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('account', true)), 'default', array('class' => 'warning'));
 			}
 		}
+
+		$this->set(array(
+				'user_model' => $this->Auth->authenticate->name,
+				'id_field' => $this->Auth->authenticate->primaryKey,
+				'user_field' => $this->Auth->authenticate->userField,
+				'email_field' => $this->Auth->authenticate->emailField,
+		));
 	}
 
 	function change_password() {
-		if (!Configure::read('feature.manage_accounts')) {
-			$this->Session->setFlash (__('This system uses ' . Configure::read('feature.manage_name') . ' to manage user accounts. Changing your password through Zuluru is disabled.', true), 'default', array('class' => 'info'));
-			$this->redirect('/');
-		}
-
 		$id = $this->_arg('user');
 		if (!$id) {
-			$id = $this->Auth->user('id');
+			$id = $this->Auth->user('zuluru_person_id');
 		}
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('user', true)), 'default', array('class' => 'info'));
@@ -164,10 +158,13 @@ class UsersController extends AppController {
 
 		// Read this before trying to save, so that things like the current password are
 		// available for validation
-		$user = $this->User->read(null, $id);
+		$user_model = $this->Auth->authenticate->name;
+		$this->Person->contain($user_model);
+		$user = $this->Person->read(null, $id);
 
 		if (!empty($this->data)) {
-			if ($this->User->save($this->data)) {
+			$this->data[$user_model]['password'] = $user[$user_model]['password'];
+			if ($this->Person->$user_model->save($this->data)) {
 				$this->Session->setFlash(__('The password has been updated', true), 'default', array('class' => 'success'));
 				$this->redirect('/');
 			} else {
@@ -177,28 +174,29 @@ class UsersController extends AppController {
 			$this->data = $user;
 		}
 		$this->set(compact('user'));
-		$this->set('is_me', ($this->Auth->user('id') == $id));
+		$this->set('is_me', ($this->Auth->user('zuluru_person_id') == $id));
+		$this->set(array(
+				'user_model' => $this->Auth->authenticate->name,
+				'id_field' => $this->Auth->authenticate->primaryKey,
+		));
 	}
 
 	function reset_password($id = null, $code = null) {
-		if (!Configure::read('feature.manage_accounts')) {
-			$this->Session->setFlash (__('This system uses ' . Configure::read('feature.manage_name') . ' to manage user accounts. Changing your password through Zuluru is disabled.', true), 'default', array('class' => 'info'));
-			$this->redirect('/');
-		}
-
-		if ($this->Auth->user('id') !== null) {
+		if ($this->Auth->user('zuluru_person_id') !== null) {
 			$this->Session->setFlash (__('You are already logged in. Use the change password form instead.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'change_password'));
 		}
 
+		$user_model = $this->Auth->authenticate->name;
+
 		if ($code !== null) {
 			// Look up the provided code
-			$this->User->contain();
-			$matches = $this->User->read (null, $id);
-			if (!$matches || substr ($matches['User']['password'], -8) != $code) {
+			$this->Person->contain($user_model);
+			$matches = $this->Person->read (null, $id);
+			if (!$matches || substr ($matches[$user_model]['password'], -8) != $code) {
 				$this->Session->setFlash(__('The provided code is not valid!', true), 'default', array('class' => 'warning'));
 			} else {
-				if ($this->_email_new_password($matches['User'])) {
+				if ($this->_email_new_password($matches['Person'])) {
 					$this->Session->setFlash(__('Your new password has been emailed to you.', true), 'default', array('class' => 'success'));
 					$this->redirect('/');
 				} else {
@@ -208,17 +206,16 @@ class UsersController extends AppController {
 		} else {
 			if (!empty ($this->data)) {
 				// Remove any empty fields
-				foreach ($this->data['User'] as $field => $value) {
+				foreach ($this->data[$user_model] as $field => $value) {
 					if (empty ($value)) {
-						unset ($this->data['User'][$field]);
+						unset ($this->data[$user_model][$field]);
 					}
 				}
-				if (!empty ($this->data['User'])) {
+				if (!empty ($this->data[$user_model])) {
 					// Find the user and send the email
-					$this->User->contain();
-					$matches = $this->User->find ('all', array(
-							'conditions' => $this->data['User'],
-							'fields' => array('id', 'user_name', 'first_name', 'last_name', 'password', 'email'),
+					$this->Person->contain($user_model);
+					$matches = $this->Person->find ('all', array(
+							'conditions' => $this->data[$user_model],
 					));
 					switch (count($matches)) {
 						case 0:
@@ -226,7 +223,7 @@ class UsersController extends AppController {
 							break;
 
 						case 1:
-							if ($this->_email_reset_code($matches[0]['User'])) {
+							if ($this->_email_reset_code($matches[0]['Person'])) {
 								$this->Session->setFlash(__('Your reset code has been emailed to you.', true), 'default', array('class' => 'success'));
 								$this->redirect('/');
 							} else {
@@ -241,6 +238,12 @@ class UsersController extends AppController {
 				}
 			}
 		}
+
+		$this->set(array(
+				'user_model' => $this->Auth->authenticate->name,
+				'user_field' => $this->Auth->authenticate->userField,
+				'email_field' => $this->Auth->authenticate->emailField,
+		));
 	}
 
 	function _email_reset_code($user) {
@@ -255,15 +258,15 @@ class UsersController extends AppController {
 	}
 
 	function _email_new_password($user) {
-		$this->User->id = $user['id'];
+		$user_model = $this->Auth->authenticate->name;
+		$this->Person->$user_model->id = $user['user_id'];
 		$password = $this->_password(10);
 		$hashed = $this->Auth->authenticate->hashPasswords (array(
 				$this->Auth->authenticate->alias => array(
-						$this->Auth->authenticate->userField => true,
 						$this->Auth->authenticate->pwdField => $password,
 				)
 		));
-		if ($this->User->saveField('password', $hashed[$this->Auth->authenticate->alias][$this->Auth->authenticate->pwdField])) {
+		if ($this->Person->$user_model->saveField($this->Auth->authenticate->pwdField, $hashed[$this->Auth->authenticate->alias][$this->Auth->authenticate->pwdField])) {
 			$this->set ($user);
 			$this->set (compact('password'));
 			return $this->_sendMail (array (
@@ -288,7 +291,7 @@ class UsersController extends AppController {
 	}
 
 	function id() {
-		return $this->Auth->user('id');
+		return $this->Auth->user('zuluru_person_id');
 	}
 }
 ?>

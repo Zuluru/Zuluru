@@ -600,6 +600,7 @@ class Game extends AppModel {
 		// Re-read whatever is current, including join tables that will be useful in the output
 		$this->Attendance->Team->contain (array(
 			'Person' => array(
+				Configure::read('security.auth_model'),
 				'Attendance' => array(
 					'conditions' => array_merge (array('team_id' => $team_id, 'team_event_id' => null), $conditions),
 				),
@@ -608,9 +609,7 @@ class Game extends AppModel {
 				),
 				'conditions' => array('TeamsPerson.status' => ROSTER_APPROVED),
 				'fields' => array(
-					'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.gender', 'Person.skill_level',
-					'Person.home_phone', 'Person.work_phone', 'Person.work_ext', 'Person.mobile_phone',
-					'Person.publish_email', 'Person.publish_home_phone', 'Person.publish_work_phone', 'Person.publish_mobile_phone',
+					'Person.id', 'Person.first_name', 'Person.last_name', 'Person.gender', 'Person.skill_level',
 				),
 			),
 		));
@@ -619,10 +618,9 @@ class Game extends AppModel {
 		// There may be other attendance records from people that are no longer on the roster
 		$this->Attendance->contain (array(
 			'Person' => array(
+				Configure::read('security.auth_model'),				
 				'fields' => array(
-					'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.gender', 'Person.skill_level',
-					'Person.home_phone', 'Person.work_phone', 'Person.work_ext', 'Person.mobile_phone',
-					'Person.publish_email', 'Person.publish_home_phone', 'Person.publish_work_phone', 'Person.publish_mobile_phone',
+					'Person.id', 'Person.first_name', 'Person.last_name', 'Person.gender', 'Person.skill_level',
 				),
 			),
 		));

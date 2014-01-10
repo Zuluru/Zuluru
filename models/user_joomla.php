@@ -1,26 +1,17 @@
 <?php
+App::Import ('model', 'User');
+
 /**
  * Class for handling authentication using the Joomla user database.
+ *
+ * If you are using this class, you will need to manually add the following
+ * entries to the $config['security'] array in the config/install.php file:
+ *	'jpath_base'		=> '/path/to/your/joomla/installation',
  */
 class UserJoomla extends User {
 	var $name = 'UserJoomla';
-	var $useTable = 'j_users';
+	var $useDbConfig = 'joomla';
 	var $primaryKey = 'id';
-
-	// We have to undo the belongsTo from the base User class, since it's not the
-	// nuke_users table that has the relation, but the people table, handled with
-	// the hasOne below;
-	var $belongsTo = array();
-
-	var $hasOne = array(
-		'User' => array(
-			'className' => 'Person',
-			'foreignKey' => 'id',
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
-		)
-	);
 
 	/**
 	 * Column in the table where user names are stored.
@@ -33,9 +24,14 @@ class UserJoomla extends User {
 	var $pwdField = 'password';
 
 	/**
-	 * Function to use for hashing passwords.
+	 * Column in the table where email addresses are stored.
 	 */
-	var $hashMethod = 'md5';
+	var $emailField = 'email';
+
+	/**
+	 * Column in the table where actual names are stored.
+	 */
+	var $nameField = 'name';
 
 	/**
 	 * Accounts (add, delete, passwords) are managed by Joomla, not Zuluru.
@@ -44,40 +40,47 @@ class UserJoomla extends User {
 	var $manageName = 'Joomla';
 	var $loginComponent = 'Joomla';
 
-	// TODO: Get the table prefix from Joomla configuration and update $this->useTable
+	function __construct($id = false, $table = null, $ds = null) {
+		// TODO: Something like this so that it works outside of the Joomla module.
+		// This won't be sufficient, though. The CakePHP Auth component assumes that
+		// it will be handed a hashed password that it can use, along with the user
+		// name, to look up the user, but Joomla can't actually hash the password
+		// without the unique salt value saved for each user. To get around this,
+		// we'll need a customized Auth component which overrides the login (or
+		// identify) function to call a modular function for the comparison.
+		//if (!defined('JPATH_BASE'))
+		//{
+		//	define('JPATH_BASE', Configure::read('security.jpath_base'));
+		//	require_once JPATH_BASE . '/configuration.php';
+		//}
 
-/**
- * Merge Joomla and Zuluru user records, if it's not already done.
- *
- * @param array $user Joomla user record
- * @return array Joomla user record merged with Zuluru user data
- * @access public
- */
-	function merge_user_record($data) {
-		$this->User->contain();
-		$user = $this->User->read(null, $data[$this->alias][$this->primaryKey]);
-		if (!$user) {
-			return $this->create_user_record($data, array(
-				'first_name'=> 'name',
-				'user_name'	=> 'username',
-				'email'		=> 'email',
-			));
-		}
+		$config = new JConfig;
+		$this->useTable = $config->dbprefix . 'users';
 
-		$field_map = array(
-			'user_name'	=> 'username',
-			'email'		=> 'email',
-		);
-		foreach ($field_map as $new => $old) {
-			if ($data[$this->alias][$old] != $user['User'][$new]) {
-				$this->User->saveField ($new, $data[$this->alias][$old]);
-			}
-		}
+		parent::__construct($id, $table, $ds);
+	}
 
-		// We don't want this data hanging around in $User->data to mess up later saves
-		$this->User->data = null;
+	// Override the AppModel function for password checking
+	function comparepassword($password, $saved) {
+		require_once JPATH_BASE . '/includes/defines.php';
+		require_once JPATH_LIBRARIES . '/joomla/user/helper.php';
 
-		return true;
+		list($hash, $salt) = explode(':', $saved);
+		$crypt = crypt($password, $hash);
+		return ("$crypt:$salt" == $saved);
+	}
+
+	function hashPassword($password) {
+		require_once JPATH_BASE . '/includes/defines.php';
+		require_once JPATH_LIBRARIES . '/joomla/user/helper.php';
+
+		$salt = JUserHelper::genRandomPassword(32);
+		$crypt = JUserHelper::getCryptedPassword($password, $salt);
+		return "$crypt:$salt";
+	}
+
+	function activated($data) {
+		return (array_key_exists($this->name, $data) && empty($data[$this->name]['activation']));
 	}
 
 	function delete_duplicate_user($id) {

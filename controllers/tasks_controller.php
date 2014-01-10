@@ -23,7 +23,7 @@ class TasksController extends AppController {
 			// If a player id is specified, check if it's the logged-in user, or a relative
 			$person = $this->_arg('person');
 			$relatives = $this->UserCache->read('RelativeIDs');
-			if ($person == $this->Auth->user('id') || in_array($person, $relatives)) {
+			if ($person == $this->Auth->user('zuluru_person_id') || in_array($person, $relatives)) {
 				return true;
 			}
 		}
@@ -67,7 +67,7 @@ class TasksController extends AppController {
 				'contain' => array(
 					'Task' => array(
 						'order' => array('Task.name'),
-						'Person',
+						'Person' => $this->Auth->authenticate->name,
 						'TaskSlot' => array(
 							'order' => array('TaskSlot.task_date', 'TaskSlot.task_start'),
 							'Person',
@@ -169,7 +169,7 @@ class TasksController extends AppController {
 			));
 			$people = Set::combine($people, '{n}.Person.id', '{n}.Person.full_name');
 		} else {
-			$my_id = $this->Auth->user('id');
+			$my_id = $this->Auth->user('zuluru_person_id');
 		}
 		$this->set(compact('affiliates', 'people', 'my_id'));
 	}

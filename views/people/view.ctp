@@ -14,15 +14,19 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 ?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
 		<?php if ($is_me || $is_admin || $is_manager):?>
-			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('System User Name'); ?></dt>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('User Name'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php echo $person['user_name']; ?>
-
 			</dd>
-			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Website User Id'); ?></dt>
+			<?php if (!Configure::read('feature.manage_accounts')): ?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php printf(__('%s User Id', true), Configure::read('feature.manage_name')); ?></dt>
+			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+				<?php echo $person['user_id']; ?>
+			</dd>
+			<?php endif; ?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Zuluru User Id'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php echo $person['id']; ?>
-
 			</dd>
 		<?php endif; ?>
 		<?php if ($view_contact || ($is_logged_in && $person['publish_email'])):?>

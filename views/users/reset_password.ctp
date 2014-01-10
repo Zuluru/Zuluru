@@ -8,11 +8,11 @@ $this->Html->addCrumb (__('Reset Password', true));
 <?php // TODO: Security question method ?>
 
 <div class="users form">
-<?php echo $this->Form->create('User');?>
+<?php echo $this->Form->create($user_model, array('url' => Router::normalize($this->here)));?>
 	<fieldset>
 	<?php
-		echo $this->Form->input('user_name');
-		echo $this->Form->input('email');
+		echo $this->Form->input($user_field, array('label' => 'User Name'));
+		echo $this->Form->input($email_field, array('label' => 'Email'));
 	?>
 	<p class="highlight-message">Only one of these is typically required.</p>
 	</fieldset>

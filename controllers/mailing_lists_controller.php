@@ -201,7 +201,7 @@ class MailingListsController extends AppController {
 		$this->Configuration->loadAffiliate($this->MailingList->affiliate($list_id));
 
 		$person_id = $this->_arg('person');
-		$my_id = $this->Auth->user('id');
+		$my_id = $this->Auth->user('zuluru_person_id');
 		if (!$person_id) {
 			$person_id = $my_id;
 			if (!$person_id) {

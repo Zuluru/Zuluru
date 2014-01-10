@@ -80,7 +80,7 @@ class TeamsController extends AppController {
 			// If no player id is specified, it's always the logged-in user
 			$person = $this->_arg('person');
 			$relatives = $this->UserCache->read('RelativeIDs');
-			if (!$person || $person == $this->Auth->user('id') || in_array($person, $relatives)) {
+			if (!$person || $person == $this->Auth->user('zuluru_person_id') || in_array($person, $relatives)) {
 				return true;
 			}
 		}
@@ -97,7 +97,7 @@ class TeamsController extends AppController {
 				}
 				// Check past teams too
 				$count = $this->Team->TeamsPerson->find('count', array('conditions' => array(
-					'person_id' => array_merge(array($this->Auth->user('id')), $this->UserCache->read('RelativeIDs')),
+					'person_id' => array_merge(array($this->Auth->user('zuluru_person_id')), $this->UserCache->read('RelativeIDs')),
 					'team_id' => $team,
 				)));
 				if ($count) {
@@ -688,7 +688,7 @@ class TeamsController extends AppController {
 		if ($this->is_logged_in || Configure::read('feature.public')) {
 			$contain['Person'] = array();
 			if (Configure::read('feature.annotations')) {
-				$contain['Note'] = array('conditions' => array('created_person_id' => $this->Auth->user('id')));
+				$contain['Note'] = array('conditions' => array('created_person_id' => $this->Auth->user('zuluru_person_id')));
 			}
 
 			if (Configure::read('feature.badges')) {
@@ -941,7 +941,7 @@ class TeamsController extends AppController {
 			'Person' => array('conditions' => array('TeamsPerson.role' => Configure::read('extended_playing_roster_roles'))),
 		);
 		if (Configure::read('feature.annotations') && $this->params['url']['ext'] != 'csv') {
-			$contain['Note'] = array('conditions' => array('created_person_id' => $this->Auth->user('id')));
+			$contain['Note'] = array('conditions' => array('created_person_id' => $this->Auth->user('zuluru_person_id')));
 		}
 		$this->Team->contain($contain);
 
@@ -1077,7 +1077,7 @@ class TeamsController extends AppController {
 			'Division' => array('League'),
 		);
 		if (Configure::read('feature.annotations') && $this->is_logged_in) {
-			$contain['Note'] = array('conditions' => array('created_person_id' => $this->Auth->user('id')));
+			$contain['Note'] = array('conditions' => array('created_person_id' => $this->Auth->user('zuluru_person_id')));
 		}
 		$this->Team->contain($contain);
 
@@ -1106,7 +1106,7 @@ class TeamsController extends AppController {
 			$this->Team->create();
 			if (!$this->is_admin && (!empty($this->data['Team']['affiliate_id']) && !in_array($this->data['Team']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs')))) {
 				$this->data['Person'] = array(array(
-					'person_id' => $this->Auth->user('id'),
+					'person_id' => $this->Auth->user('zuluru_person_id'),
 					'role' => 'captain',
 					'status' => ROSTER_APPROVED,
 				));
@@ -1196,7 +1196,7 @@ class TeamsController extends AppController {
 
 	function note() {
 		$id = $this->_arg('team');
-		$my_id = $this->Auth->user('id');
+		$my_id = $this->Auth->user('zuluru_person_id');
 
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
@@ -1256,7 +1256,7 @@ class TeamsController extends AppController {
 
 	function delete_note() {
 		$id = $this->_arg('team');
-		$my_id = $this->Auth->user('id');
+		$my_id = $this->Auth->user('zuluru_person_id');
 
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
@@ -1626,15 +1626,16 @@ class TeamsController extends AppController {
 		$this->Team->contain(array (
 			'Person' => array(
 				'fields' => array(
-					'Person.first_name', 'Person.last_name', 'Person.email',
+					'Person.first_name', 'Person.last_name',
 				),
 				'order' => array(
 					'TeamsPerson.role', 'Person.gender DESC', 'Person.last_name', 'Person.first_name',
 				),
 				'conditions' => array(
-					'Person.id !=' => $this->Auth->User('id'),
+					'Person.id !=' => $this->Auth->user('zuluru_person_id'),
 					'TeamsPerson.status' => ROSTER_APPROVED,
 				),
+				$this->Auth->authenticate->name,
 			),
 			'Division' => 'League',
 		));
@@ -1693,7 +1694,7 @@ class TeamsController extends AppController {
 				'order' => 'Team.id desc',
 			),
 		));
-		$teams = $this->Team->Person->read(null, $this->Auth->User('id'));
+		$teams = $this->Team->Person->read(null, $this->Auth->user('zuluru_person_id'));
 		// Only show teams from divisions that have some schedule type
 		// TODO: May need to change this once we can schedule playoffs
 		$teams = Set::extract("/Division[id!={$team['Team']['division_id']}][schedule_type!=none]/..", $teams['Team']);
@@ -1757,10 +1758,9 @@ class TeamsController extends AppController {
 		$this->Team->contain(array (
 			'Division' => 'League',
 			'Person' => array(
+				$this->Auth->authenticate->name,
 				'fields' => array(
-					'Person.id', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.status',
-					'Person.home_phone', 'Person.work_phone', 'Person.work_ext', 'Person.mobile_phone',
-					'Person.publish_email', 'Person.publish_home_phone', 'Person.publish_work_phone', 'Person.publish_mobile_phone',
+					'Person.id', 'Person.first_name', 'Person.last_name', 'Person.status',
 				),
 				'order' => array(
 					'Person.gender DESC', 'Person.last_name', 'Person.first_name',
@@ -1870,18 +1870,16 @@ class TeamsController extends AppController {
 		$conditions = array(
 			'Registration.event_id' => $this->data['event'],
 			'Registration.payment' => 'Paid',
-			'NOT' => array('Person.id' => $current),
+			'NOT' => array('Registration.person_id' => $current),
 		);
 
 		// Read the list of registrations
 		$this->Team->Person->Registration->contain(array (
 			'Person' => array(
+				$this->Auth->authenticate->name,
 				'fields' => array(
-					'Person.id', 'Person.gender', 'Person.first_name', 'Person.last_name', 'Person.email', 'Person.status',
-					'Person.home_phone', 'Person.work_phone', 'Person.work_ext', 'Person.mobile_phone',
-					'Person.publish_email', 'Person.publish_home_phone', 'Person.publish_work_phone', 'Person.publish_mobile_phone',
+					'Person.id', 'Person.gender', 'Person.first_name', 'Person.last_name', 'Person.status',
 				),
-				'conditions' => $conditions,
 			),
 		));
 		$event['Registration'] = $this->Team->Person->Registration->find('all', array(
@@ -1932,7 +1930,7 @@ class TeamsController extends AppController {
 
 	function roster_role() {
 		$person_id = $this->_arg('person');
-		$my_id = $this->Auth->user('id');
+		$my_id = $this->Auth->user('zuluru_person_id');
 		if (!$person_id) {
 			$person_id = $my_id;
 			if (!$person_id) {
@@ -2000,7 +1998,7 @@ class TeamsController extends AppController {
 
 	function roster_position() {
 		$person_id = $this->_arg('person');
-		$my_id = $this->Auth->user('id');
+		$my_id = $this->Auth->user('zuluru_person_id');
 		if (!$person_id) {
 			$person_id = $my_id;
 			if (!$person_id) {
@@ -2069,7 +2067,7 @@ class TeamsController extends AppController {
 		}
 
 		// Read the bare player record
-		$this->Team->Person->contain();
+		$this->Team->Person->contain($this->Auth->authenticate->name);
 		$person = $this->Team->Person->read(null, $person_id);
 
 		// If a role was submitted, try to set it. Whether it succeeds or fails,
@@ -2100,7 +2098,7 @@ class TeamsController extends AppController {
 	}
 
 	function roster_request() {
-		$my_id = $this->Auth->user('id');
+		$my_id = $this->Auth->user('zuluru_person_id');
 
 		list ($team, $person) = $this->_initTeamForRosterChange($my_id);
 		$team_id = $team['Team']['id'];
@@ -2111,7 +2109,7 @@ class TeamsController extends AppController {
 		}
 
 		// Read the bare player record
-		$this->Team->Person->contain();
+		$this->Team->Person->contain($this->Auth->authenticate->name);
 		$person = $this->Team->Person->read(null, $my_id);
 
 		// Check if this person can even be added
@@ -2141,7 +2139,7 @@ class TeamsController extends AppController {
 	}
 
 	function roster_accept() {
-		$my_id = $this->Auth->user('id');
+		$my_id = $this->Auth->user('zuluru_person_id');
 		$person_id = $this->_arg('person');
 		if (!$person_id) {
 			$person_id = $my_id;
@@ -2178,7 +2176,7 @@ class TeamsController extends AppController {
 			// Check for coordinator or admin override
 			if (!$this->effective_admin && !$this->effective_coordinator &&
 				// Players can accept when they are invited
-				!($person['Person']['TeamsPerson']['status'] == ROSTER_INVITED && $person_id == $this->Auth->user('id')) &&
+				!($person['Person']['TeamsPerson']['status'] == ROSTER_INVITED && $person_id == $this->Auth->user('zuluru_person_id')) &&
 				// Captains can accept requests to join their teams
 				!($person['Person']['TeamsPerson']['status'] == ROSTER_REQUESTED && in_array ($team_id, $this->UserCache->read('OwnedTeamIDs')))
 			)
@@ -2222,7 +2220,7 @@ class TeamsController extends AppController {
 	}
 
 	function roster_decline() {
-		$my_id = $this->Auth->user('id');
+		$my_id = $this->Auth->user('zuluru_person_id');
 		$person_id = $this->_arg('person');
 		if (!$person_id) {
 			$person_id = $my_id;
@@ -2260,7 +2258,7 @@ class TeamsController extends AppController {
 			if (!$this->effective_admin && !$this->effective_coordinator &&
 				// Players or captains can either decline an invite or request from the other,
 				// or remove one that they made themselves.
-				!($person_id == $this->Auth->user('id')) &&
+				!($person_id == $this->Auth->user('zuluru_person_id')) &&
 				!(in_array ($team_id, $this->UserCache->read('OwnedTeamIDs')))
 			)
 			{
@@ -2304,11 +2302,11 @@ class TeamsController extends AppController {
 		// Read the team record
 		$this->Team->contain(array(
 			'Person' => array(
+				$this->Auth->authenticate->name,
 				'fields' => array(
 					'Person.id',
 					'Person.first_name',
 					'Person.last_name',
-					'Person.email',
 					'Person.gender',
 					'Person.status',
 					'Person.complete',
@@ -2692,7 +2690,7 @@ class TeamsController extends AppController {
 		$this->_initRosterEmail($person, $team, $role);
 
 		if ($status == ROSTER_INVITED) {
-			$is_player = ($this->_arg('code') !== null || $person['Person']['id'] == $this->Auth->user('id'));
+			$is_player = ($this->_arg('code') !== null || $person['Person']['id'] == $this->Auth->user('zuluru_person_id'));
 			$is_captain = in_array($team['Team']['id'], $this->UserCache->read('OwnedTeamIDs'));
 
 			if ($is_player || $this->effective_admin || $this->effective_coordinator) {
@@ -2760,7 +2758,7 @@ class TeamsController extends AppController {
 			'old_role' => $person['Person']['TeamsPerson']['role'],
 		));
 
-		if ($person['Person']['id'] == $this->Auth->user('id')) {
+		if ($person['Person']['id'] == $this->Auth->user('zuluru_person_id')) {
 			// A player has changed themselves
 			$captains = $this->_initRosterCaptains ($team);
 
@@ -2804,7 +2802,7 @@ class TeamsController extends AppController {
 			'old_role' => $person['Person']['TeamsPerson']['role'],
 		));
 
-		if ($person['Person']['id'] == $this->Auth->user('id')) {
+		if ($person['Person']['id'] == $this->Auth->user('zuluru_person_id')) {
 			// A player has removed themselves
 			$captains = $this->_initRosterCaptains ($team);
 
@@ -2855,11 +2853,12 @@ class TeamsController extends AppController {
 		// Find the list of captains and assistants for the team
 		$this->Team->contain(array(
 			'Person' => array(
+				$this->Auth->authenticate->name,
 				'conditions' => array(
 					'TeamsPerson.role' => Configure::read('privileged_roster_roles'),
 					'TeamsPerson.status' => ROSTER_APPROVED,
 				),
-				'fields' => array('id', 'first_name', 'last_name', 'email'),
+				'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
 			),
 		));
 		$captains = $this->Team->read (null, $team['Team']['id']);
@@ -2938,14 +2937,16 @@ class TeamsController extends AppController {
 								),
 							),
 							'Person' => array(
+								$this->Auth->authenticate->name,
 								'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-								'fields' => array('Person.id', 'Person.first_name', 'Person.last_name', 'Person.email'),
+								'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
 								'order' => 'TeamsPerson.id',
 							),
 							'fields' => array('Team.id', 'Team.name'),
 						),
 						'Person' => array(
-							'fields' => array('Person.id', 'Person.first_name', 'Person.last_name', 'Person.email'),
+							$this->Auth->authenticate->name,
+							'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
 						),
 					),
 			));

@@ -9,17 +9,22 @@ class UserCacheComponent extends Object
 		static $instance = array();
 		if (!$instance) {
 			$instance[0] =& new UserCacheComponent();
-			$instance[0]->my_id = null;
-			$instance[0]->other_id = null;
-			$instance[0]->data = array();
+			$instance[0]->initializeData();
 		}
 		return $instance[0];
+	}
+
+	function initializeData() {
+		$self =& UserCacheComponent::getInstance();
+		$self->my_id = null;
+		$self->other_id = null;
+		$self->data = array();
 	}
 
 	function initialize(&$controller) {
 		$self =& UserCacheComponent::getInstance();
 		$self->_controller =& $controller;
-		$self->my_id = null;
+		$self->initializeData();
 		$self->initializeId();
 	}
 
@@ -27,7 +32,7 @@ class UserCacheComponent extends Object
 		if ($this->my_id) {
 			return;
 		}
-		$this->my_id = $this->_controller->Auth->user('id');
+		$this->my_id = $this->_controller->Auth->user('zuluru_person_id');
 		if ($this->my_id) {
 			$this->data[$this->my_id] = array();
 		}
@@ -182,7 +187,7 @@ class UserCacheComponent extends Object
 					if (!isset($self->_controller->Person)) {
 						$self->_controller->Person = ClassRegistry::init('Person');
 					}
-					$self->data[$id][$key] = $self->_findData($self->_controller->Person, $id);
+					$self->data[$id][$key] = $self->_findData($self->_controller->Person, $id, array($self->_controller->Auth->authenticate->name));
 					break;
 
 				case 'Preregistrations':
@@ -312,6 +317,10 @@ class UserCacheComponent extends Object
 					}
 					break;
 
+				case 'User':
+					$self->read('Person', $id, true);
+					break;
+
 				case 'Waivers':
 					if (!isset($self->_controller->Waiver)) {
 						$self->_controller->Waiver = ClassRegistry::init('Waiver');
@@ -399,19 +408,22 @@ class UserCacheComponent extends Object
 		Cache::write("person/$id", $self->data[$id], 'file');
 	}
 
-	function _findData(&$model, $find) {
+	function _findData(&$model, $find, $contain = array()) {
 		if (is_numeric($find)) {
-			$model->contain();
+			$model->contain($contain);
 			$data = $model->read(null, $find);
-			$data = $data[$model->alias];
+			$return = $data[$model->alias];
+			foreach ($contain as $c) {
+				$return[$c] = $data[$c];
+			}
 		} else {
-			$data = $model->find('all', $find);
+			$return = $model->find('all', $find);
 		}
 
 		// We don't want this data hanging around in $model->data to mess up later saves
 		$model->data = null;
 
-		return $data;
+		return $return;
 	}
 
 	/**

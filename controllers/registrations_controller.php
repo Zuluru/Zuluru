@@ -105,7 +105,7 @@ class RegistrationsController extends AppController {
 		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], null, true);
 
 		if ($this->params['url']['ext'] == 'csv') {
-			$this->Registration->contain ('Person', 'Response');
+			$this->Registration->contain (array('Person' => $this->Auth->authenticate->name, 'Response'));
 			$this->set('registrations', $this->Registration->find ('all', array(
 					'conditions' => array('Registration.event_id' => $id),
 					'order' => array('Registration.payment' => 'DESC', 'Registration.created' => 'DESC'),
@@ -359,7 +359,7 @@ class RegistrationsController extends AppController {
 
 		// Re-do "can register" checks to make sure someone hasn't hand-fed us a URL
 		$waiting = $this->_arg('waiting');
-		$test = $this->CanRegister->test ($this->Auth->user('id'), $event, false, true, $waiting);
+		$test = $this->CanRegister->test ($this->Auth->user('zuluru_person_id'), $event, false, true, $waiting);
 		if (!$test['allowed']) {
 			if ($this->is_logged_in && !empty($test['redirect'])) {
 				$this->redirect(array_merge($test['redirect'], array('return' => true)), $this->here);
@@ -374,7 +374,7 @@ class RegistrationsController extends AppController {
 		}
 
 		$event_obj = $this->_getComponent ('EventType', $event['EventType']['type'], $this);
-		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], $this->Auth->user('id'));
+		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], $this->Auth->user('zuluru_person_id'));
 		$this->set(compact ('id', 'event', 'event_obj', 'waiting'));
 
 		// Wrap the whole thing in a transaction, for safety.
@@ -493,7 +493,7 @@ class RegistrationsController extends AppController {
 		));
 		$registrations = $this->Registration->find('all', array(
 				'conditions' => array(
-					'person_id' => $this->Auth->user('id'),
+					'person_id' => $this->Auth->user('zuluru_person_id'),
 					'payment' => array('Unpaid', 'Pending'),
 				),
 		));
@@ -508,8 +508,8 @@ class RegistrationsController extends AppController {
 			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
 
-		$this->Registration->Person->contain();
-		$person = $this->Registration->Person->read (null, $this->Auth->user('id'));
+		$this->Registration->Person->contain($this->Auth->authenticate->name);
+		$person = $this->Registration->Person->read (null, $this->Auth->user('zuluru_person_id'));
 
 		$full = array();
 		$affiliate = $this->_arg('affiliate');
@@ -581,7 +581,7 @@ class RegistrationsController extends AppController {
 
 		if (!$this->is_admin &&
 			!($this->is_manager && in_array($registration['Event']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'))) &&
-			$registration['Registration']['person_id'] != $this->Auth->user('id')
+			$registration['Registration']['person_id'] != $this->Auth->user('zuluru_person_id')
 		)
 		{
 			$this->Session->setFlash(__('You may only unregister from events that you have registered for!', true), 'default', array('class' => 'info'));

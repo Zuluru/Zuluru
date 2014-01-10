@@ -240,11 +240,22 @@ class RuleComponent extends Object
 		}
 
 		// Merge in invariant conditions and fields
+		$user_model = $this->_controller->Auth->authenticate->name;
+		$id_field = $this->_controller->Auth->authenticate->primaryKey;
+		$email_field = $this->_controller->Auth->authenticate->emailField;
 		$conditions = array_merge(array(
 				'Person.complete' => true,
 				'Person.status' => 'active',
-				'Person.email !=' => '',
+				"$user_model.$email_field !=" => '',
+				'NOT' => array("$user_model.$email_field" => null),
 		), $conditions);
+		$joins[$user_model] = array(
+			'table' => "{$this->_controller->Auth->authenticate->tablePrefix}{$this->_controller->Auth->authenticate->useTable}",
+			'alias' => $user_model,
+			'type' => 'INNER',
+			'foreignKey' => false,
+			'conditions' => "$user_model.$id_field = Person.user_id",
+		);
 		$fields['Person.id'] = 'Person.id';
 
 		if (Configure::read('feature.affiliate')) {

@@ -232,7 +232,7 @@ class LeaguesController extends AppController {
 		}
 
 		$this->League->contain (array(
-			'Division' => array('Team' => array('Person')),
+			'Division' => array('Team' => array('Person' => $this->Auth->authenticate->name)),
 		));
 		$league = $this->League->read(null, $id);
 		if (!$league) {

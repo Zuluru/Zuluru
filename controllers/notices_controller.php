@@ -38,7 +38,7 @@ class NoticesController extends AppController {
 		// Find the list of all notices the user has seen
 		$notices = $this->Notice->NoticesPerson->find('all', array(
 				'conditions' => array(
-					'person_id' => $this->Auth->user('id'),
+					'person_id' => $this->Auth->user('zuluru_person_id'),
 				),
 		));
 		$notice_ids = Set::extract('/NoticesPerson/notice_id', $notices);
@@ -85,7 +85,7 @@ class NoticesController extends AppController {
 				if (!isset($person)) {
 					$this->Person = ClassRegistry::init('Person');
 					$this->Person->contain();
-					$person = $this->Person->read (null, $this->Auth->user('id'));
+					$person = $this->Person->read (null, $this->Auth->user('zuluru_person_id'));
 				}
 				$notice['Notice']['notice'] = $matches[1] . $person['Person'][$matches[2]] . $matches[3];
 			}
@@ -97,7 +97,7 @@ class NoticesController extends AppController {
 	function viewed($id, $remind = 0) {
 		$this->Notice->NoticesPerson->save(array(
 				'notice_id' => $id,
-				'person_id' => $this->Auth->user('id'),
+				'person_id' => $this->Auth->user('zuluru_person_id'),
 				'remind' => $remind,
 		));
 	}

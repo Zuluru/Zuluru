@@ -9,8 +9,8 @@ $this->Html->addCrumb (__('List', true));
 	<tr>
 		<th><?php echo $this->Paginator->sort('first_name'); ?></th>
 		<th><?php echo $this->Paginator->sort('last_name'); ?></th>
-		<th><?php echo $this->Paginator->sort('user_name'); ?></th>
-		<th><?php echo $this->Paginator->sort('email'); ?></th>
+		<th><?php __('User Name'); ?></th>
+		<th><?php __('Email'); ?></th>
 		<th><?php echo $this->Paginator->sort('gender'); ?></th>
 		<th><?php echo $this->Paginator->sort('status'); ?></th>
 		<th class="actions"><?php __('Actions'); ?></th>

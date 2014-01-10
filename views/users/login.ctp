@@ -2,7 +2,7 @@
 <h2><?php __('Login'); ?></h2>	
 <?php echo $this->element('users/login_notice'); ?>
 <?php if ($failed): ?>
-<p><strong>NOTE:</strong> If you already have an account from a previous season, <strong>DO NOT CREATE ANOTHER ONE</strong>! Instead, please <a href="<?php echo Configure::read('urls.password_reset'); ?>">follow these instructions</a> to regain access to your account.</p>
+<p><strong>NOTE:</strong> If you already have an account from a previous season, <strong>DO NOT CREATE ANOTHER ONE</strong>! Instead, please <?php echo $this->Html->link('follow these instructions', array('controller' => 'users', 'action' => 'reset_password')); ?> to regain access to your account.</p>
 <?php endif; ?>
 <?php
 	echo $this->Form->create('User', array('action' => 'login'));

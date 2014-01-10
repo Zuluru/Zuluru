@@ -17,7 +17,7 @@ class TaskSlotsController extends AppController {
 				// If a person id is specified, check the id
 				$person = $this->_arg('person');
 				$relatives = $this->UserCache->read('RelativeIDs');
-				if ($person && ($person == $this->Auth->user('id') || in_array($person, $relatives))) {
+				if ($person && ($person == $this->Auth->user('zuluru_person_id') || in_array($person, $relatives))) {
 					return true;
 				}
 			}
@@ -306,10 +306,10 @@ class TaskSlotsController extends AppController {
 		if ($taskSlot['Task']['auto_approve'] || $this->is_admin || $this->is_manager) {
 			$update = array(
 				'approved' => true,
-				'approved_by' => $this->Auth->user('id'),
+				'approved_by' => $this->Auth->user('zuluru_person_id'),
 			);
 			$this->TaskSlot->Person->contain();
-			$this->set('approved_by', $this->TaskSlot->Person->read(null, $this->Auth->user('id')));
+			$this->set('approved_by', $this->TaskSlot->Person->read(null, $this->Auth->user('zuluru_person_id')));
 		} else {
 			$update = array(
 				'approved' => false,
@@ -389,10 +389,10 @@ class TaskSlotsController extends AppController {
 
 		$update = array(
 			'approved' => true,
-			'approved_by' => $this->Auth->user('id'),
+			'approved_by' => $this->Auth->user('zuluru_person_id'),
 		);
 		$this->TaskSlot->Person->contain();
-		$this->set('approved_by', $this->TaskSlot->Person->read(null, $this->Auth->user('id')));
+		$this->set('approved_by', $this->TaskSlot->Person->read(null, $this->Auth->user('zuluru_person_id')));
 
 		if (!$this->TaskSlot->save($update)) {
 			$this->set(array('error' => __('Error approving the task slot', true)));
