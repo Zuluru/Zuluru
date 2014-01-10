@@ -17,7 +17,7 @@ if (isset ($add)) {
 <p><?php echo $this->ZuluruHtml->icon('gears_32.png', array('class' => 'basic', 'style' => 'vertical-align:middle; padding-right: 5px;')); ?><a class="show_advanced basic" href="#">Show advanced configuration</a>
 <?php echo $this->ZuluruHtml->icon('gear_32.png', array('class' => 'advanced', 'style' => 'vertical-align:middle; padding-right: 5px;')); ?><a class="show_basic advanced" href="#">Show basic configuration</a></p>
 	<fieldset>
- 		<legend><?php __('Division Information'); ?></legend>
+		<legend><?php __('Division Information'); ?></legend>
 	<?php
 		if (!isset ($add)) {
 			echo $this->Form->input('id');
@@ -59,7 +59,7 @@ if (isset ($add)) {
 	?>
 	</fieldset>
 	<fieldset>
- 		<legend><?php __('Dates'); ?></legend>
+		<legend><?php __('Dates'); ?></legend>
 	<?php
 		echo $this->ZuluruForm->input('open', array(
 			'label' => 'First Game',
@@ -87,7 +87,7 @@ if (isset ($add)) {
 	?>
 	</fieldset>
 	<fieldset>
- 		<legend><?php __('Specifics'); ?></legend>
+		<legend><?php __('Specifics'); ?></legend>
 	<?php
 		echo $this->Form->input('Day', array(
 			'label' => 'Day(s) of play',
@@ -140,7 +140,7 @@ if (isset ($add)) {
 	?>
 	</fieldset>
 	<fieldset>
- 		<legend><?php __('Scheduling'); ?></legend>
+		<legend><?php __('Scheduling'); ?></legend>
 	<?php
 		echo $this->ZuluruForm->input('schedule_type', array(
 			'options' => Configure::read('options.schedule_type'),
@@ -179,7 +179,7 @@ if (isset ($add)) {
 	?>
 	</fieldset>
 	<fieldset>
- 		<legend><?php __('Scoring'); ?></legend>
+		<legend><?php __('Scoring'); ?></legend>
 	<?php
 		echo $this->ZuluruForm->input('rating_calculator', array(
 			'options' => Configure::read('options.rating_calculator'),

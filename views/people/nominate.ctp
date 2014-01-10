@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('Nominate', true));
 <div class="badges form">
 <?php echo $this->Form->create(false, array('url' => Router::normalize($this->here)));?>
 	<fieldset>
- 		<legend><?php __('Nominate for a Badge'); ?></legend>
+		<legend><?php __('Nominate for a Badge'); ?></legend>
 	<?php
 		echo $this->Form->input('badge', array(
 				'options' => $badges,

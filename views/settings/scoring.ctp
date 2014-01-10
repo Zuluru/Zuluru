@@ -18,7 +18,7 @@ echo $this->ZuluruForm->create('Settings', array(
 echo $this->element('settings/banner');
 ?>
 	<fieldset>
- 		<legend><?php __('Defaulted Games'); ?></legend>
+		<legend><?php __('Defaulted Games'); ?></legend>
 	<?php
 	echo $this->element('settings/input', array(
 		'category' => 'scoring',
@@ -50,7 +50,7 @@ echo $this->element('settings/banner');
 
 	<?php if (Configure::read('feature.spirit')): ?>
 	<fieldset>
- 		<legend><?php __('Spirit Scores'); ?></legend>
+		<legend><?php __('Spirit Scores'); ?></legend>
 	<?php
 	echo $this->element('settings/input', array(
 		'category' => 'scoring',
@@ -96,7 +96,7 @@ echo $this->element('settings/banner');
 	<?php endif; ?>
 
 	<fieldset>
- 		<legend><?php __('Score Entry Features'); ?></legend>
+		<legend><?php __('Score Entry Features'); ?></legend>
 	<?php
 	echo $this->element('settings/input', array(
 		'category' => 'scoring',

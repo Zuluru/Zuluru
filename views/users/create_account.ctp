@@ -19,7 +19,7 @@ Configure::load("sport/$sport");
 <div class="users form">
 <?php echo $this->Form->create('Person', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
- 		<legend><?php __('Identity'); ?></legend>
+		<legend><?php __('Identity'); ?></legend>
 	<?php
 		echo $this->ZuluruForm->input('first_name', array(
 			'after' => $this->Html->para (null, __('First (and, if desired, middle) name.', true)),
@@ -34,7 +34,7 @@ Configure::load("sport/$sport");
 	?>
 	</fieldset>
 	<fieldset>
- 		<legend><?php __('Password'); ?></legend>
+		<legend><?php __('Password'); ?></legend>
 	<?php
 		echo $this->ZuluruForm->input("$user_model.passwd", array('type' => 'password', 'label' => 'Password'));
 		echo $this->ZuluruForm->input("$user_model.confirm_passwd", array('type' => 'password', 'label' => 'Confirm Password'));
@@ -42,7 +42,7 @@ Configure::load("sport/$sport");
 	</fieldset>
 	<?php if (Configure::read('feature.affiliates')): ?>
 	<fieldset>
- 		<legend><?php __('Affiliate'); ?></legend>
+		<legend><?php __('Affiliate'); ?></legend>
 	<?php
 		if (Configure::read('feature.multiple_affiliates')) {
 			echo $this->ZuluruForm->input('Affiliate', array(
@@ -60,7 +60,7 @@ Configure::load("sport/$sport");
 	</fieldset>
 	<?php endif; ?>
 	<fieldset>
- 		<legend><?php __('Online Contact'); ?></legend>
+		<legend><?php __('Online Contact'); ?></legend>
 	<?php
 		echo $this->ZuluruForm->input("$user_model.$email_field");
 		echo $this->ZuluruForm->input('publish_email', array(
@@ -72,7 +72,7 @@ Configure::load("sport/$sport");
 				Configure::read('profile.addr_prov') || Configure::read('profile.addr_country') ||
 				Configure::read('profile.addr_postalcode')): ?>
 	<fieldset>
- 		<legend><?php __('Street Address'); ?></legend>
+		<legend><?php __('Street Address'); ?></legend>
 	<?php
 		if (Configure::read('profile.addr_street')) {
 			echo $this->ZuluruForm->input('addr_street', array(
@@ -117,7 +117,7 @@ Configure::load("sport/$sport");
 	<?php if (Configure::read('profile.home_phone') || Configure::read('profile.work_phone') ||
 				Configure::read('profile.mobile_phone')): ?>
 	<fieldset>
- 		<legend><?php __('Telephone Numbers'); ?></legend>
+		<legend><?php __('Telephone Numbers'); ?></legend>
 	<?php
 		if (Configure::read('profile.home_phone')) {
 			echo $this->ZuluruForm->input('home_phone', array(
@@ -152,7 +152,7 @@ Configure::load("sport/$sport");
 	<?php endif; ?>
 	<?php if ($is_admin) : ?>
 	<fieldset>
- 		<legend><?php __('Account Information'); ?></legend>
+		<legend><?php __('Account Information'); ?></legend>
 	<?php
 		echo $this->ZuluruForm->input('group_id', array(
 			'label' => __('Account Type', true),
@@ -174,7 +174,7 @@ Configure::load("sport/$sport");
 				in_array(Configure::read('profile.willing_to_volunteer'), $access) ||
 				in_array(Configure::read('profile.contact_for_feedback'), $access)): ?>
 	<fieldset>
- 		<legend><?php __('Player and Skill Information'); ?></legend>
+		<legend><?php __('Player and Skill Information'); ?></legend>
 	<?php
 		if (Configure::read('profile.skill_level')) {
 			if (Configure::read('sport.rating_questions')) {

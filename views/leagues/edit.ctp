@@ -14,7 +14,7 @@ $collapse = !empty($this->data['Division']['id']);
 <p><?php echo $this->ZuluruHtml->icon('gears_32.png', array('class' => 'basic', 'style' => 'vertical-align:middle; padding-right: 5px;')); ?><a class="show_advanced basic" href="#">Show advanced configuration</a>
 <?php echo $this->ZuluruHtml->icon('gear_32.png', array('class' => 'advanced', 'style' => 'vertical-align:middle; padding-right: 5px;')); ?><a class="show_basic advanced" href="#">Show basic configuration</a></p>
 	<fieldset>
- 		<legend><?php __('League Information'); ?></legend>
+		<legend><?php __('League Information'); ?></legend>
 	<?php
 		if (!isset ($add)) {
 			echo $this->Form->input('id');
@@ -84,7 +84,7 @@ $collapse = !empty($this->data['Division']['id']);
 	</fieldset>
 	<?php if ($collapse): ?>
 	<fieldset>
- 		<legend><?php __('Dates'); ?></legend>
+		<legend><?php __('Dates'); ?></legend>
 	<?php
 		echo $this->ZuluruForm->input('Division.open', array(
 			'label' => 'First Game',
@@ -112,7 +112,7 @@ $collapse = !empty($this->data['Division']['id']);
 	?>
 	</fieldset>
 	<fieldset>
- 		<legend><?php __('Specifics'); ?></legend>
+		<legend><?php __('Specifics'); ?></legend>
 	<?php
 		echo $this->Form->input('Day', array(
 			'label' => 'Day(s) of play',
@@ -166,7 +166,7 @@ $collapse = !empty($this->data['Division']['id']);
 	</fieldset>
 	<?php endif; ?>
 	<fieldset<?php if (!$collapse) echo ' class="advanced"'; ?>>
- 		<legend><?php __('Scheduling'); ?></legend>
+		<legend><?php __('Scheduling'); ?></legend>
 	<?php
 		if ($collapse) {
 			echo $this->ZuluruForm->input('Division.schedule_type', array(
@@ -214,7 +214,7 @@ $collapse = !empty($this->data['Division']['id']);
 	?>
 	</fieldset>
 	<fieldset<?php if (!$collapse && !Configure::read('feature.spirit') && !Configure::read('scoring.stat_tracking')) echo ' class="advanced"'; ?>>
- 		<legend><?php __('Scoring'); ?></legend>
+		<legend><?php __('Scoring'); ?></legend>
 	<?php
 		if (Configure::read('feature.spirit') && !Configure::read('sport.competition')) {
 			echo $this->Html->para('warning-message', __('NOTE: If you set the questionnaire to "' . Configure::read('options.spirit_questions.none') . '" and disable numeric entry, spirit will not be tracked for this league.', true));

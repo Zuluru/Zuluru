@@ -1,7 +1,7 @@
 <div class="questions form">
 <?php echo $this->Form->create('Question');?>
 	<fieldset>
- 		<legend><?php printf(__('Add %s', true), __('Question', true)); ?></legend>
+		<legend><?php printf(__('Add %s', true), __('Question', true)); ?></legend>
 	<?php
 		echo $this->ZuluruForm->input('name', array(
 			'size' => 60,

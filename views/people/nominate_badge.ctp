@@ -15,18 +15,18 @@ $this->Html->addCrumb ($badge['Badge']['name']);
 
 <div class="badges form">
 	<fieldset>
- 		<legend><?php
- 		if ($badge['Badge']['category'] == 'assigned') {
- 			__('Assign a Badge');
- 		} else {
- 			__('Nominate for a Badge');
- 		}
+		<legend><?php
+		if ($badge['Badge']['category'] == 'assigned') {
+			__('Assign a Badge');
+		} else {
+			__('Nominate for a Badge');
+		}
 		echo ': ';
 		if (count($affiliates) > 1) {
 			echo "{$badge['Affiliate']['name']} ";
 		}
 		echo $badge['Badge']['name'];
- 		?></legend>
+		?></legend>
 		<p><?php echo $this->ZuluruHtml->icon($badge['Badge']['icon'] . '_64.png') . ' ' . $badge['Badge']['description']; ?></p>
 
 <?php echo $this->element('people/search_form', array('affiliate_id' => $badge['Badge']['affiliate_id'])); ?>

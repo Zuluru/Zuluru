@@ -12,7 +12,7 @@ if (isset ($add)) {
 <div class="teamEvents form">
 <?php echo $this->Form->create('TeamEvent', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
- 		<legend><?php __('Edit Team Event'); ?></legend>
+		<legend><?php __('Edit Team Event'); ?></legend>
 	<?php
 		if (!isset ($add)) {
 			echo $this->Form->input('id');

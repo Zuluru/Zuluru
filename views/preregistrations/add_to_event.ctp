@@ -11,7 +11,7 @@ $this->Html->addCrumb ($event['Event']['name']);
 
 <div class="preregistrations form">
 	<fieldset>
- 		<legend><?php
+		<legend><?php
 		__('Add Preregistration');
 		echo ': ';
 		if (count($affiliates) > 1) {

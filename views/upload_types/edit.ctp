@@ -11,7 +11,7 @@ if (isset ($add)) {
 <div class="uploadTypes form">
 <?php echo $this->Form->create('UploadType', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
- 		<legend><?php printf(__(isset($add) ? 'Create %s' : 'Edit %s', true), __('Upload Type', true)); ?></legend>
+		<legend><?php printf(__(isset($add) ? 'Create %s' : 'Edit %s', true), __('Upload Type', true)); ?></legend>
 	<?php
 		if (!isset ($add)) {
 			echo $this->Form->input('id');

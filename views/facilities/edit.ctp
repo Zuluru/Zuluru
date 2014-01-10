@@ -11,7 +11,7 @@ if (isset ($add)) {
 <div class="facilities form">
 <?php echo $this->Form->create('Facility', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
- 		<legend><?php printf(__(isset($add) ? 'Create %s' : 'Edit %s', true), __('Facility', true)); ?></legend>
+		<legend><?php printf(__(isset($add) ? 'Create %s' : 'Edit %s', true), __('Facility', true)); ?></legend>
 		<?php
 		if (!isset ($add)) {
 			echo $this->Form->input('id');

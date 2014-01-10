@@ -18,7 +18,7 @@ echo $this->ZuluruForm->create('Settings', array(
 echo $this->element('settings/banner');
 ?>
 	<fieldset>
- 		<legend><?php __('Common Options'); ?></legend>
+		<legend><?php __('Common Options'); ?></legend>
 	<?php
 	if (!$affiliate) {
 		$options = Configure::read('options.payment_provider');

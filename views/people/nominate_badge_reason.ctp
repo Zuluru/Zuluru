@@ -15,16 +15,16 @@ $this->Html->addCrumb ($person['Person']['full_name']);
 <div class="badges form">
 <?php echo $this->Form->create('BadgesPerson', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
- 		<legend><?php
+		<legend><?php
 		if (count($affiliates) > 1) {
 			echo "{$badge['Affiliate']['name']} ";
 		}
- 		if ($badge['Badge']['category'] == 'assigned') {
- 			echo sprintf(__('Assign "%s" Badge to %s', true), $badge['Badge']['name'], $person['Person']['full_name']);
- 		} else {
- 			echo sprintf(__('Nominate %s for the "%s" Badge', true), $person['Person']['full_name'], $badge['Badge']['name']);
- 		}
- 		?></legend>
+		if ($badge['Badge']['category'] == 'assigned') {
+			echo sprintf(__('Assign "%s" Badge to %s', true), $badge['Badge']['name'], $person['Person']['full_name']);
+		} else {
+			echo sprintf(__('Nominate %s for the "%s" Badge', true), $person['Person']['full_name'], $badge['Badge']['name']);
+		}
+		?></legend>
 		<p><?php echo $this->ZuluruHtml->icon($badge['Badge']['icon'] . '_64.png') . ' ' . $badge['Badge']['description']; ?></p>
 	<?php if ($badge['Badge']['category'] == 'nominated'): ?>
 	<p>Most badges are a sign of prestige, and are not simply granted to everyone. Here you can provide a reason why this person deserves this badge, which will be provided to the administrator to aid their decision. If approved, this reason will also be visible to anyone logged into the system as part of the nominee's permanent record.</p>

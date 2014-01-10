@@ -9,7 +9,7 @@ if (isset ($contact)) {
 <div class="contacts form">
 <?php echo $this->Form->create('Message', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
- 		<legend><?php __('Message Details'); ?></legend>
+		<legend><?php __('Message Details'); ?></legend>
 	<?php
 		if (isset ($contacts)) {
 			echo $this->Form->input('contact_id', array(

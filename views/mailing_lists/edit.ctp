@@ -11,7 +11,7 @@ if (isset ($add)) {
 <div class="mailingLists form">
 <?php echo $this->Form->create('MailingList', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
- 		<legend><?php printf(__(isset($add) ? 'Create %s' : 'Edit %s', true), __('Mailing List', true)); ?></legend>
+		<legend><?php printf(__(isset($add) ? 'Create %s' : 'Edit %s', true), __('Mailing List', true)); ?></legend>
 	<?php
 		if (!isset ($add)) {
 			echo $this->Form->input('id');

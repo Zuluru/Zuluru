@@ -11,7 +11,7 @@ if (isset ($add)) {
 <div class="holidays form">
 <?php echo $this->Form->create('Holiday');?>
 	<fieldset>
- 		<legend><?php printf(__(isset($add) ? 'Create %s' : 'Edit %s', true), __('Holiday', true)); ?></legend>
+		<legend><?php printf(__(isset($add) ? 'Create %s' : 'Edit %s', true), __('Holiday', true)); ?></legend>
 	<?php
 		if (!isset($add)) {
 			echo $this->Form->input('id');

@@ -409,7 +409,7 @@ if (League::hasSpirit($game) &&
 <?php if ($is_admin || $is_coordinator): ?>
 	<?php if (Configure::read('scoring.allstars') && $game['Division']['allstars'] && !empty($game['Allstar'])):?>
 	<fieldset>
- 		<legend><?php __('Allstars'); ?></legend>
+		<legend><?php __('Allstars'); ?></legend>
 		<table class="list">
 		<tr>
 			<th><?php __('Player'); ?></th>
@@ -432,7 +432,7 @@ if (League::hasSpirit($game) &&
 
 	<?php if (Configure::read('scoring.incident_reports') && !empty($game['Incident'])):?>
 	<fieldset>
- 		<legend><?php __('Incident Reports'); ?></legend>
+		<legend><?php __('Incident Reports'); ?></legend>
 		<table class="list">
 		<tr>
 			<th><?php __('Reporting Team'); ?></th>
@@ -461,7 +461,7 @@ if (League::hasSpirit($game) &&
 
 <?php if (!empty($game['Note'])): ?>
 	<fieldset>
- 		<legend><?php __('Notes'); ?></legend>
+		<legend><?php __('Notes'); ?></legend>
 		<table class="list">
 		<tr>
 			<th><?php __('From'); ?></th>

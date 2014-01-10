@@ -23,7 +23,7 @@ if ($person_id):
 else:
 ?>
 	<fieldset>
- 		<legend><?php __('Shirt Numbers'); ?></legend>
+		<legend><?php __('Shirt Numbers'); ?></legend>
 	<?php
 	foreach ($team['Person'] as $key => $person) {
 		echo $this->ZuluruForm->input("TeamsPerson.$key.number", array(

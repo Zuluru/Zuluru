@@ -1,5 +1,5 @@
 	<fieldset>
- 		<legend><?php __('Paypal Options'); ?></legend>
+		<legend><?php __('Paypal Options'); ?></legend>
 	<p>To find this information, log in to <a href="http://paypal.com/">PayPal</a>, then go to My Account -> Profile -> My selling tools -> Selling online -> API access -> <a href="https://www.paypal.com/ca/cgi-bin/webscr?cmd=_profile-api-signature">View API signature</a>.</p>
 	<?php
 	echo $this->element('settings/input', array(

@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('Confirm', true));
 <div class="gameSlots form">
 <?php echo $this->Form->create('GameSlot', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
- 		<legend><?php printf(__('Confirm %s', true), __('Game Slots', true)); ?></legend>
+		<legend><?php printf(__('Confirm %s', true), __('Game Slots', true)); ?></legend>
 		<?php
 		// Some of the last form's fields need to be carried through as hidden fields
 		$hidden = $this->data;

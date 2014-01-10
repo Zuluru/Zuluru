@@ -18,7 +18,7 @@ echo $this->ZuluruForm->create('Settings', array(
 echo $this->element('settings/banner');
 ?>
 	<fieldset>
- 		<legend><?php __('Organization'); ?></legend>
+		<legend><?php __('Organization'); ?></legend>
 	<?php
 	if (!$affiliate) {
 		echo $this->element('settings/input', array(
@@ -96,7 +96,7 @@ echo $this->element('settings/banner');
 	</fieldset>
 
 	<fieldset>
- 		<legend><?php __('Location and Mapping'); ?></legend>
+		<legend><?php __('Location and Mapping'); ?></legend>
 	<?php
 	echo $this->element('settings/input', array(
 		'category' => 'organization',
@@ -129,7 +129,7 @@ echo $this->element('settings/banner');
 	if (!empty($seasons)):
 	?>
 	<fieldset>
- 		<legend><?php __('Dates'); ?></legend>
+		<legend><?php __('Dates'); ?></legend>
 	<p>The following settings are used for determining which season is currently in effect, for the purposes of providing links to current <?php __(Configure::read('ui.field')); ?> permits.</p>
 	<?php
 	foreach ($seasons as $season) {

@@ -1,5 +1,5 @@
 	<fieldset>
- 		<legend><?php __('Chase Paymentech Options'); ?></legend>
+		<legend><?php __('Chase Paymentech Options'); ?></legend>
 	<?php
 	echo $this->element('settings/input', array(
 		'category' => 'payment',

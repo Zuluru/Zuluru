@@ -28,7 +28,7 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 
 <?php if ($is_me && empty($this->data['Upload'])): ?>
 	<fieldset>
- 		<legend><?php __('Photo'); ?></legend>
+		<legend><?php __('Photo'); ?></legend>
 <?php echo $this->ZuluruHtml->icon('blank_profile.jpg', array('class' => 'thumbnail', 'style' => 'float: left; margin-bottom: 7px;')); ?>
 		<div style="float: left;">
 <?php
@@ -44,7 +44,7 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 
 <?php echo $this->Form->create('Person', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
- 		<legend><?php __('Identity'); ?></legend>
+		<legend><?php __('Identity'); ?></legend>
 	<?php
 		echo $this->Form->input('id');
 		if (in_array (Configure::read('profile.first_name'), $access)) {
@@ -89,7 +89,7 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 		(Configure::read('feature.multiple_affiliates') || !$is_manager)):
 	?>
 	<fieldset>
- 		<legend><?php __('Affiliate'); ?></legend>
+		<legend><?php __('Affiliate'); ?></legend>
 	<?php
 		if (Configure::read('feature.multiple_affiliates')) {
 			$after = __('Select all affiliates you are interested in.', true);
@@ -112,7 +112,7 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 	</fieldset>
 	<?php endif; ?>
 	<fieldset>
- 		<legend><?php __('Online Contact'); ?></legend>
+		<legend><?php __('Online Contact'); ?></legend>
 	<?php
 		echo $this->ZuluruForm->input("$user_model.$email_field", array(
 			'label' => __('Email', true),
@@ -126,7 +126,7 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 				Configure::read('profile.addr_prov') || Configure::read('profile.addr_country') ||
 				Configure::read('profile.addr_postalcode')): ?>
 	<fieldset>
- 		<legend><?php __('Street Address'); ?></legend>
+		<legend><?php __('Street Address'); ?></legend>
 	<?php
 		if (in_array (Configure::read('profile.addr_street'), $access)) {
 			echo $this->ZuluruForm->input('addr_street', array(
@@ -201,14 +201,14 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 	<?php if (Configure::read('profile.home_phone') || Configure::read('profile.work_phone') ||
 				Configure::read('profile.mobile_phone')): ?>
 	<fieldset>
- 		<legend><?php
- 		if (Configure::read('profile.home_phone') + Configure::read('profile.work_phone') +
- 			Configure::read('profile.mobile_phone') > 1)
- 		{
- 			$number = 'Numbers';
- 		} else {
- 			$number = 'Number';
- 		}
+		<legend><?php
+		if (Configure::read('profile.home_phone') + Configure::read('profile.work_phone') +
+			Configure::read('profile.mobile_phone') > 1)
+		{
+			$number = 'Numbers';
+		} else {
+			$number = 'Number';
+		}
 		__("Telephone $number");
 		?></legend>
 	<?php
@@ -270,7 +270,7 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 	<?php endif; ?>
 	<?php if ($is_admin) : ?>
 	<fieldset>
- 		<legend><?php __('Account Information'); ?></legend>
+		<legend><?php __('Account Information'); ?></legend>
 	<?php
 		echo $this->ZuluruForm->input('group_id', array(
 			'label' => __('Account Type', true),
@@ -292,7 +292,7 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 				in_array(Configure::read('profile.willing_to_volunteer'), $access) ||
 				in_array(Configure::read('profile.contact_for_feedback'), $access)): ?>
 	<fieldset>
- 		<legend><?php __('Player Information'); ?></legend>
+		<legend><?php __('Player Information'); ?></legend>
 	<?php
 		if (in_array (Configure::read('profile.skill_level'), $access)) {
 			if (Configure::read('sport.rating_questions')) {

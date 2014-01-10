@@ -10,7 +10,7 @@ $this->Html->addCrumb (__('Edit', true));
 <?php echo $this->Form->create('Registration', array('url' => Router::normalize($this->here)));?>
 
 	<fieldset>
- 		<legend><?php __('Registration Details'); ?></legend>
+		<legend><?php __('Registration Details'); ?></legend>
 	<?php
 		echo $this->Form->input('id', array(
 				'value' => $registration['Registration']['id'],

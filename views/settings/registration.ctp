@@ -18,7 +18,7 @@ echo $this->ZuluruForm->create('Settings', array(
 echo $this->element('settings/banner');
 ?>
 	<fieldset>
- 		<legend><?php __('Registration Configuration'); ?></legend>
+		<legend><?php __('Registration Configuration'); ?></legend>
 	<?php
 	if (!$affiliate) {
 		echo $this->element('settings/input', array(

@@ -13,7 +13,7 @@ $this->Html->addCrumb (__('Add Teams', true));
 	?>
 
 	<fieldset>
- 		<legend><?php __('Team Names'); ?></legend>
+		<legend><?php __('Team Names'); ?></legend>
 	<?php
 	$colours = Configure::read('automatic_team_colours');
 	echo $this->Html->para(null, sprintf(__('This can be used to create up to %d teams at once. To create less, simply leave those names blank.', true), count($colours)));
@@ -31,7 +31,7 @@ $this->Html->addCrumb (__('Add Teams', true));
 	</fieldset>
 
 	<fieldset>
- 		<legend><?php __('Team Details'); ?></legend>
+		<legend><?php __('Team Details'); ?></legend>
 	<?php
 		echo $this->ZuluruForm->input('0.open_roster', array(
 			'after' => $this->Html->para (null, __('If the team roster is open, others can request to join; otherwise, only the captain can add players.', true)),

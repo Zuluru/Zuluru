@@ -6,7 +6,7 @@ $this->Html->addCrumb ("{$person['first_name']} {$person['last_name']}");
 <div class="settings form">
 <?php echo $this->Form->create('People', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
- 		<legend><?php __('Preferences'); ?></legend>
+		<legend><?php __('Preferences'); ?></legend>
 	<?php
 	echo $this->element('settings/input', array(
 		'person_id' => $id,
@@ -82,7 +82,7 @@ $this->Html->addCrumb ("{$person['first_name']} {$person['last_name']}");
 	if (Configure::read('feature.twitter')):
 	?>
 		<fieldset>
-	 		<legend><?php __('Twitter'); ?></legend>
+			<legend><?php __('Twitter'); ?></legend>
 <?php
 		if (!empty($person['twitter_token'])) {
 			echo $this->Html->para(null, sprintf(__('You have authorized your account to post updates to Twitter. You can %s if you no longer want to tweet updates.', true),

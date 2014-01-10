@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('Add', true));
 <div class="preregistrations form">
 <?php echo $this->Form->create(false, array('url' => Router::normalize($this->here)));?>
 	<fieldset>
- 		<legend><?php __('Add Preregistration'); ?></legend>
+		<legend><?php __('Add Preregistration'); ?></legend>
 	<?php
 		echo $this->Form->input('event', array(
 				'options' => $events,

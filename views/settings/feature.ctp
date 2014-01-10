@@ -18,7 +18,7 @@ echo $this->ZuluruForm->create('Settings', array(
 echo $this->element('settings/banner');
 ?>
 	<fieldset>
- 		<legend><?php __('Primary Options'); ?></legend>
+		<legend><?php __('Primary Options'); ?></legend>
 	<?php
 	if (!$affiliate) {
 		echo $this->element('settings/input', array(
@@ -124,7 +124,7 @@ echo $this->element('settings/banner');
 	</fieldset>
 
 	<fieldset>
- 		<legend><?php __('Team-related Features'); ?></legend>
+		<legend><?php __('Team-related Features'); ?></legend>
 	<?php
 	echo $this->element('settings/input', array(
 		'category' => 'feature',
@@ -206,7 +206,7 @@ echo $this->element('settings/banner');
 	</fieldset>
 
 	<fieldset>
- 		<legend><?php __('User-related Features'); ?></legend>
+		<legend><?php __('User-related Features'); ?></legend>
 	<?php
 	echo $this->element('settings/input', array(
 		'category' => 'feature',
@@ -310,7 +310,7 @@ echo $this->element('settings/banner');
 	</fieldset>
 
 	<fieldset>
- 		<legend><?php __('Twitter Features'); ?></legend>
+		<legend><?php __('Twitter Features'); ?></legend>
 	<?php
 	if (function_exists('curl_init')) {
 		echo $this->element('settings/input', array(

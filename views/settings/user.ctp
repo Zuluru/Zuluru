@@ -18,7 +18,7 @@ echo $this->ZuluruForm->create('Settings', array(
 echo $this->element('settings/banner');
 ?>
 	<fieldset>
- 		<legend><?php __('Profile Requirements'); ?></legend>
+		<legend><?php __('Profile Requirements'); ?></legend>
 	<?php
 	echo $this->element('settings/input', array(
 		'category' => 'profile',

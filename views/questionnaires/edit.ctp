@@ -11,7 +11,7 @@ if (isset ($add)) {
 <div class="questionnaires form">
 <?php echo $this->Form->create('Questionnaire', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
- 		<legend><?php printf(__(isset($add) ? 'Create %s' : 'Edit %s', true), __('Questionnaire', true)); ?></legend>
+		<legend><?php printf(__(isset($add) ? 'Create %s' : 'Edit %s', true), __('Questionnaire', true)); ?></legend>
 	<?php
 		if (!isset ($add)) {
 			echo $this->Form->input('id');
@@ -31,7 +31,7 @@ if (isset ($add)) {
 	</fieldset>
 	<?php if (!isset ($add)): ?>
 	<fieldset>
- 		<legend><?php __('Questions'); ?></legend>
+		<legend><?php __('Questions'); ?></legend>
 	<?php
 		echo $this->element('questionnaires/edit', array('questionnaire' => $this->data));
 	?>

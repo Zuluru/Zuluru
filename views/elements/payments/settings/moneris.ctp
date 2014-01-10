@@ -1,5 +1,5 @@
 	<fieldset>
- 		<legend><?php __('Moneris Options'); ?></legend>
+		<legend><?php __('Moneris Options'); ?></legend>
 	<?php
 	echo $this->element('settings/input', array(
 		'category' => 'payment',
