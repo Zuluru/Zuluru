@@ -3,67 +3,86 @@ class Zuluru24Schema extends CakeSchema {
 	var $name = 'Zuluru24';
 
 	function after($event = array()) {
-		$this->Team = ClassRegistry::init('Team');
-		$this->Team->contain(array());
-		$teams = $this->Team->find('list', array('fields' => 'rating'));
+		switch ($event['update']) {
+			case 'facilities':
+				$this->Team = ClassRegistry::init('Team');
+				$this->Team->contain(array());
+				$teams = $this->Team->find('list', array('fields' => 'rating'));
 
-		// Bare-bones models have already been created for the database introspection process.
-		// Use of an alias here gets us the full model, with the required relations.
-		$this->Game = ClassRegistry::init(array(array('class' => 'Game', 'alias' => 'GameAlias')));
-		foreach (array_keys($teams) as $team_id) {
-			$home_game = $this->Game->find('first', array(
-					'conditions' => array('home_team' => $team_id),
-					'order' => array('GameSlot.game_date', 'GameSlot.game_start'),
-					'contain' => 'GameSlot',
-			));
-			$away_game = $this->Game->find('first', array(
-					'conditions' => array('away_team' => $team_id),
-					'order' => array('GameSlot.game_date', 'GameSlot.game_start'),
-					'contain' => 'GameSlot',
-			));
-			if ($home_game === false) {
-				$use_game = $away_game;
-			} else if ($away_game === false) {
-				$use_game = $home_game;
-			} else if ("{$home_game['GameSlot']['game_date']} {$home_game['GameSlot']['game_start']}" < "{$away_game['GameSlot']['game_date']} {$away_game['GameSlot']['game_start']}") {
-				$use_game = $home_game;
-				$field = 'rating_home';
-			} else {
-				$use_game = $away_game;
-				$field = 'rating_away';
-			}
-
-			// If the game doesn't have a rating, it might just be a very old game, from
-			// before rating_home and rating_away fields were in use. Check all games this
-			// team was in and wind back the ratings to find where they started.
-			if ($use_game === false || $use_game['GameAlias'][$field] === null) {
-				// Start with their current rating
-				$rating = $teams[$team_id];
-				$games = $this->Game->find('all', array(
-						'conditions' => array('OR' => array(
-								'home_team' => $team_id,
-								'away_team' => $team_id,
-						)),
-						'contain' => array(),
-				));
-				foreach ($games as $game) {
-					if (($game['GameAlias']['home_team'] == $team_id && $game['GameAlias']['home_score'] >= $game['GameAlias']['away_score']) ||
-						($game['GameAlias']['away_team'] == $team_id && $game['GameAlias']['home_score'] < $game['GameAlias']['away_score']))
-					{
-						$rating -= $game['GameAlias']['rating_points'];
+				// Bare-bones models have already been created for the database introspection process.
+				// Use of an alias here gets us the full model, with the required relations.
+				$this->Game = ClassRegistry::init(array(array('class' => 'Game', 'alias' => 'GameAlias')));
+				foreach (array_keys($teams) as $team_id) {
+					$home_game = $this->Game->find('first', array(
+							'conditions' => array('home_team' => $team_id),
+							'order' => array('GameSlot.game_date', 'GameSlot.game_start'),
+							'contain' => 'GameSlot',
+					));
+					$away_game = $this->Game->find('first', array(
+							'conditions' => array('away_team' => $team_id),
+							'order' => array('GameSlot.game_date', 'GameSlot.game_start'),
+							'contain' => 'GameSlot',
+					));
+					if ($home_game === false) {
+						$use_game = $away_game;
+					} else if ($away_game === false) {
+						$use_game = $home_game;
+					} else if ("{$home_game['GameSlot']['game_date']} {$home_game['GameSlot']['game_start']}" < "{$away_game['GameSlot']['game_date']} {$away_game['GameSlot']['game_start']}") {
+						$use_game = $home_game;
+						$field = 'rating_home';
 					} else {
-						$rating += $game['GameAlias']['rating_points'];
+						$use_game = $away_game;
+						$field = 'rating_away';
 					}
+
+					// If the game doesn't have a rating, it might just be a very old game, from
+					// before rating_home and rating_away fields were in use. Check all games this
+					// team was in and wind back the ratings to find where they started.
+					if ($use_game === false || $use_game['GameAlias'][$field] === null) {
+						// Start with their current rating
+						$rating = $teams[$team_id];
+						$games = $this->Game->find('all', array(
+								'conditions' => array('OR' => array(
+										'home_team' => $team_id,
+										'away_team' => $team_id,
+								)),
+								'contain' => array(),
+						));
+						foreach ($games as $game) {
+							if (($game['GameAlias']['home_team'] == $team_id && $game['GameAlias']['home_score'] >= $game['GameAlias']['away_score']) ||
+								($game['GameAlias']['away_team'] == $team_id && $game['GameAlias']['home_score'] < $game['GameAlias']['away_score']))
+							{
+								$rating -= $game['GameAlias']['rating_points'];
+							} else {
+								$rating += $game['GameAlias']['rating_points'];
+							}
+						}
+					} else {
+						$rating = $use_game['GameAlias'][$field];
+					}
+
+					$this->Team->updateAll(array('initial_rating' => $rating), array('id' => $team_id));
 				}
-			} else {
-				$rating = $use_game['GameAlias'][$field];
-			}
+				return array('teams' => __('updated.', true));
 
-			$this->Team->updateAll(array('initial_rating' => $rating), array('id' => $team_id));
+			default:
+				return;
 		}
-
-		return array('teams' => __('updated.', true));
 	}
+
+	// A much later schema introduces the pools table, but it also introduces
+	// a dependency from the Games model to the Pools model, which will cause
+	// the migration to fail if the Games model code has been updated to at
+	// least that version. There's no harm in adding the pools table at this
+	// stage in the migration, and it allows the Games model to be created.
+	var $pools = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'division_id' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'key' => 'index'),
+		'stage' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 2),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'division' => array('column' => 'division_id', 'unique' => 0)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
 
 	var $teams = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
