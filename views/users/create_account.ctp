@@ -66,6 +66,17 @@ Configure::load("sport/$sport");
 		echo $this->ZuluruForm->input('publish_email', array(
 			'label' => __('Allow other players to view my email address', true),
 		));
+		if (Configure::read('feature.gravatar')) {
+			if (Configure::read('feature.photos')) {
+				$after = 'You can have an image shown on your account by uploading a photo directly, or by enabling this setting and then create a <a href="http://www.gravatar.com">gravatar.com</a> account using the email address you\'ve associated with your %s account.';
+			} else {
+				$after = 'You can have an image shown on your account if you enable this setting and then create a <a href="http://www.gravatar.com">gravatar.com</a> account using the email address you\'ve associated with your %s account.';
+			}
+			echo $this->ZuluruForm->input('show_gravatar', array(
+				'label' => __('Show Gravatar image for your account?', true),
+				'after' => $this->Html->para (null, sprintf(__($after, true), Configure::read('organization.short_name'))),
+			));
+		}
 	?>
 	</fieldset>
 	<?php if (Configure::read('profile.addr_street') || Configure::read('profile.addr_city') ||
