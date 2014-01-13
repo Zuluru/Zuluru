@@ -2279,6 +2279,7 @@ class PeopleController extends AppController {
 	function list_new() {
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$user_model = $this->Auth->authenticate->name;
+		$id_field = $this->Auth->authenticate->primaryKey;
 		$new = $this->Person->find ('all', array(
 			'joins' => array(
 				array(
@@ -2288,13 +2289,20 @@ class PeopleController extends AppController {
 					'foreignKey' => false,
 					'conditions' => 'AffiliatePerson.person_id = Person.id',
 				),
+				array(
+					'table' => "{$this->Auth->authenticate->tablePrefix}{$this->Auth->authenticate->useTable}",
+					'alias' => $user_model,
+					'type' => 'LEFT',
+					'foreignKey' => false,
+					'conditions' => "$user_model.$id_field = Person.user_id",
+				),
 			),
 			'conditions' => array(
 				'Person.status' => 'new',
 				'Person.complete' => 1,
 				'AffiliatePerson.affiliate_id' => $affiliates,
 			),
-			'contain' => array($user_model),
+			'contain' => array(),
 			'fields' => array('Person.*', 'AffiliatePerson.*', "$user_model.*"),
 			'order' => array('Person.last_name' => 'DESC', 'Person.first_name' => 'DESC'),
 		));
