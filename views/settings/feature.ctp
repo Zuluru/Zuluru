@@ -250,6 +250,15 @@ echo $this->element('settings/banner');
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'feature',
+		'name' => 'gravatar',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'after' => 'Enable or disable the option for players to use Gravatar for their photo.',
+		),
+	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
 		'name' => 'documents',
 		'options' => array(
 			'type' => 'radio',

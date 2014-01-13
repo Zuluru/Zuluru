@@ -6,9 +6,7 @@ $this->Html->addCrumb (__('View', true));
 
 <div class="people view">
 <h2><?php
-if (!empty($photo)) {
-	echo $this->element('people/player_photo', array('person' => $person, 'upload' => $photo['Upload']));
-}
+echo $this->element('people/player_photo', array('person' => $person, 'upload' => $photo));
 echo $person['full_name'];
 $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_captain || $is_my_captain || $is_my_coordinator || $is_division_captain;
 ?></h2>
