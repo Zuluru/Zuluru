@@ -1,8 +1,6 @@
 <h2><?php
 echo $person['full_name'];
-if (!empty($photo)) {
-	echo $this->element('people/player_photo', array('person' => $person, 'upload' => $photo['Upload']));
-}
+echo $this->element('people/player_photo', array('person' => $person, 'photo' => $photo));
 ?></h2>
 <?php
 $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_captain || $is_my_captain || $is_my_coordinator || $is_division_captain;
