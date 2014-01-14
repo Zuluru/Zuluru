@@ -776,15 +776,6 @@ class PeopleController extends AppController {
 		$is_me = ($id === $this->Auth->user('zuluru_person_id'));
 		$this->set(compact('id', 'is_me'));
 
-		// Any time that we come here (whether manually or forced), we want to clear the
-		// cached user data so that it will be reloaded. Do this even when it's not a save,
-		// because when we use third-party auth modules, this page might just have a
-		// link to some other edit page, but we still want to refresh the session next
-		// time we load any Zuluru page.
-		if ($is_me) {
-			$this->UserCache->clear('Person', $id);
-		}
-
 		$this->_loadAddressOptions();
 		$this->_loadGroupOptions();
 		$this->_loadAffiliateOptions();

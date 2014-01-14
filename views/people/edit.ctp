@@ -5,9 +5,13 @@ $this->Html->addCrumb (__('Edit', true));
 
 $short = Configure::read('organization.short_name');
 $admin = Configure::read('email.admin_email');
+$complete = $this->UserCache->read('Person.complete', $this->Form->value('Person.id'));
 
 $access = array(1);
-if ($is_admin) {
+// People with incomplete profiles can update any of the fields that
+// normally only admins can edit, so that they can successfully fill
+// out all of the profile.
+if ($is_admin || !$complete) {
 	$access[] = 2;
 }
 
@@ -76,6 +80,12 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 				'type' => 'select',
 				'empty' => '---',
 				'options' => Configure::read('options.gender'),
+			));
+		} else {
+			echo $this->ZuluruForm->input('gender', array(
+				'value' => $this->data['Person']['gender'],
+				'disabled' => 'true',
+				'after' => $this->Html->para (null, __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your gender to ', true) . $this->Html->link ($admin, "mailto:$admin") . '.', true),
 			));
 		}
 	?>
