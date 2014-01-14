@@ -26,6 +26,7 @@ class LoginDrupalComponent extends LoginComponent
 			if ($user && !empty($user['Session']['uid'])) {
 				// Parameter to Auth->login must be a string
 				$this->_controller->Auth->login($user['Session']['uid'] . '');
+				$this->_controller->Session->write('Zuluru.drupal_session', $_COOKIE[$session_name]);
 			}
 		}
 
@@ -37,7 +38,7 @@ class LoginDrupalComponent extends LoginComponent
 		$prefix = ini_get('session.cookie_secure') ? 'SSESS' : 'SESS';
 		$session_name = Configure::read('security.auth_session');
 		$session_name = $prefix . substr(hash('sha256', $session_name), 0, 32);
-		if (empty($_COOKIE[$session_name])) {
+		if (empty($_COOKIE[$session_name]) || $_COOKIE[$session_name] != $this->_controller->Session->read('Zuluru.drupal_session')) {
 			return true;
 		}
 		return false;
