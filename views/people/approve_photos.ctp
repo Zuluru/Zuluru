@@ -11,7 +11,7 @@ $this->Html->addCrumb (__('Approve Photos', true));
 <?php $rand = 'row_' . mt_rand(); ?>
 <tr id="<?php echo $rand; ?>">
 	<td><?php echo $this->element('people/block', array('person' => $photo)); ?></td>
-	<td><?php echo $this->element('people/player_photo', array('person' => $photo['Person'], 'upload' => $photo['Upload'])); ?></td>
+	<td><?php echo $this->element('people/player_photo', array('person' => $photo['Person'], 'photo' => $photo)); ?></td>
 	<td class="actions"><?php
 	echo $this->Js->link (__('Approve', true),
 			array('controller' => 'people', 'action' => 'approve_photo', 'id' => $photo['Upload']['id'], 'row' => $rand),
