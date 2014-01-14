@@ -14,6 +14,7 @@ class LoginZikulaComponent extends LoginComponent
 		if ($uid) {
 			// Parameter to Auth->login must be a string
 			$this->_controller->Auth->login($uid . '');
+			$this->_controller->Session->write('Zuluru.zikula_session', $uid);
 		}
 
 		parent::login();
@@ -22,7 +23,7 @@ class LoginZikulaComponent extends LoginComponent
 	// We might have session information but the user has logged out of Zikula
 	function expired() {
 		$uid = $this->_controller->Session->read('PNSVuid');
-		if (!$uid) {
+		if (!$uid || $uid != $this->_controller->Session->read('Zuluru.zikula_session')) {
 			return true;
 		}
 	}
