@@ -2999,6 +2999,8 @@ class TeamsController extends AppController {
 				$log->saveAll ($activity);
 			}
 		}
+
+		$this->Lock->unlock();
 	}
 
 	function _rosterRemind($person, $captains, $team, $division, $roster, $second = false) {

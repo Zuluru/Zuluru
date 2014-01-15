@@ -526,6 +526,8 @@ class LeaguesController extends AppController {
 		if (!empty($to_open)) {
 			$this->League->updateAll (array('League.is_open' => true), array('League.id' => Set::extract('/League/id', $to_open)));
 		}
+
+		$this->Lock->unlock();
 	}
 }
 ?>
