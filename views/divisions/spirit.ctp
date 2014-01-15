@@ -238,22 +238,46 @@ foreach ($spirit_obj->questions as $detail) {
 	}
 }
 
+$colcount = count($header);
+$date = null;
+
 $rows = array();
 foreach ($division['Game'] as $game) {
+	if ($date != $game['GameSlot']['game_date']) {
+		$date = $game['GameSlot']['game_date'];
+		$date_row = array(
+				array($this->Html->tag('h3', $this->ZuluruTime->date ($game['GameSlot']['game_date'])), array('colspan' => $colcount)),
+		);
+	}
+
 	foreach (array('HomeTeam' => 'AwayTeam', 'AwayTeam' => 'HomeTeam') as $team => $opp) {
 		foreach ($game['SpiritEntry'] as $entry) {
+			if ($date_row) {
+				$rows[] = $date_row;
+				$date_row = null;
+			}
+
 			if ($entry['created_team_id'] == $game[$team]['id']) {
 				$row = array(
-						$this->Html->link ($game['Game']['id'], array('controller' => 'games', 'action' => 'view', 'game' => $game['Game']['id'])) . ' ' .
-							$this->ZuluruTime->date ($game['GameSlot']['game_date']),
+						$this->Html->link ($game['Game']['id'], array('controller' => 'games', 'action' => 'view', 'game' => $game['Game']['id'])),
 						$this->element('teams/block', array('team' => $game[$team], 'show_shirt' => false)),
 						$this->element('teams/block', array('team' => $game[$opp], 'show_shirt' => false)),
 				);
 				if ($division['League']['numeric_sotg']) {
-					$row[] = $entry['entered_sotg'];
+					$row[] = $this->element ('spirit/symbol', array(
+							'spirit_obj' => $spirit_obj,
+							'league' => $division['League'],
+							'is_coordinator' => true,	// only ones allowed to even run this report
+							'value' => $entry['entered_sotg'],
+					));
 				}
 				if ($division['League']['sotg_questions'] != 'none') {
-					$row[] = $spirit_obj->calculate($entry);
+					$row[] = $this->element ('spirit/symbol', array(
+							'spirit_obj' => $spirit_obj,
+							'league' => $division['League'],
+							'is_coordinator' => true,	// only ones allowed to even run this report
+							'value' => $spirit_obj->calculate($entry),
+					));
 				}
 				foreach ($spirit_obj->questions as $question => $detail) {
 					if ($detail['type'] != 'text') {
@@ -267,7 +291,6 @@ foreach ($division['Game'] as $game) {
 					}
 				}
 				$rows[] = $row;
-				$colcount = count($row);
 				if (!empty ($entry['comments'])) {
 					$rows[] = array(
 							array(__('Comment for entry above:', true), array('colspan' => 2)),
