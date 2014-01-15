@@ -89,7 +89,9 @@ class SpiritComponent extends Object
 	 * @return mixed Maximum value
 	 */
 	function max($q = null) {
-		if (array_key_exists ($q, $this->questions))
+		if ($q == 'score_entry_penalty') {
+			return - Configure::read('scoring.missing_score_spirit_penalty');
+		} else if (array_key_exists ($q, $this->questions))
 			return $this->maxq ($q);
 		else
 			return $this->maxs();

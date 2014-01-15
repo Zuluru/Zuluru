@@ -20,6 +20,9 @@ if (!isset($value) || $value === null) {
 	}
 }
 $ratio = $value / $max;
+if ($max < 0) {
+	$ratio = 1 - $ratio;
+}
 $file = $spirit_obj->symbol ($ratio);
 echo $this->ZuluruHtml->icon("spirit_$file.png");
 
