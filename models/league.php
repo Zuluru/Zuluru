@@ -20,6 +20,7 @@ class League extends AppModel {
 			'inlist' => array(
 				'rule' => array('inconfig', 'options.sport'),
 				'message' => 'You must select a valid sport.',
+				'on' => 'create',
 			),
 		),
 		'season' => array(
