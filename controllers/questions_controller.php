@@ -331,7 +331,7 @@ class QuestionsController extends AppController {
 		}
 
 		$result &= $this->Question->Answer->deleteAll (array('question_id' => $two['Question']['id']), false);
-		$result &= $this->Question->deleteAll (array('id' => $two['Question']['id']), false);
+		$result &= $this->Question->deleteAll (array('Question.id' => $two['Question']['id']), false);
 
 		return ($result ? true : 'Failed to merge');
 	}
