@@ -302,7 +302,7 @@ class QuestionnairesController extends AppController {
 				array('questionnaire_id' => $two['Questionnaire']['id']), false
 			) &&
 			$this->Questionnaire->deleteAll (
-				array('id' => $two['Questionnaire']['id']), false
+				array('Questionnaire.id' => $two['Questionnaire']['id']), false
 			);
 
 		return ($result ? true : 'Failed to merge');
