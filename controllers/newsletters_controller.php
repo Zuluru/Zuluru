@@ -263,9 +263,6 @@ class NewslettersController extends AppController {
 					'conditions' => array(
 						'Person.id' => $people,
 					),
-					'fields' => array(
-						'Person.id', 'Person.first_name', 'Person.last_name', "$user_model.$email_field",
-					),
 					'limit' => $newsletter['Newsletter']['batch_size'],
 					'order' => array('Person.first_name', 'Person.last_name', 'Person.id'),
 				));
