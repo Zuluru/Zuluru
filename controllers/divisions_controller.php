@@ -87,6 +87,7 @@ class DivisionsController extends AppController {
 			if (in_array ($this->params['action'], array(
 					'edit',
 					'add_coordinator',
+					'remove_coordinator',
 					'delete',
 					'add_teams',
 					'approve_scores',
