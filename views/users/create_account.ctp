@@ -25,7 +25,8 @@ Configure::load("sport/$sport");
 			'after' => $this->Html->para (null, __('First (and, if desired, middle) name.', true)),
 		));
 		echo $this->ZuluruForm->input('last_name');
-		echo $this->ZuluruForm->input("$user_model.$user_field");
+		echo $this->ZuluruForm->input("$user_model.$user_field", array(
+			'label' => __('User Name', true),
 		echo $this->ZuluruForm->input('gender', array(
 			'type' => 'select',
 			'empty' => '---',
