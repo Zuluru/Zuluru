@@ -321,6 +321,14 @@ class Person extends AppModel {
 		);
 		$this->$user_model = ClassRegistry::init($user_model);
 
+		if (Configure::read('security.drupal_migration')) {
+			$this->belongsTo['User'] = array(
+				'className' => 'User',
+				'foreignKey' => 'user_id',
+			);
+			$this->User = ClassRegistry::init('User');
+		}
+
 		// Parent constructor comes last, as it adds missing fields to the belongsTo array
 		parent::__construct($id, $table, $ds);
 	}
@@ -342,6 +350,7 @@ class Person extends AppModel {
 
 	function _afterFind ($record) {
 		$user_model = Configure::read('security.auth_model');
+
 		if (!empty($record[$this->alias][$user_model])) {
 			$user = $record[$this->alias][$user_model];
 		} else if (!empty($record[$user_model])) {
@@ -349,6 +358,19 @@ class Person extends AppModel {
 		} else {
 			$user = array();
 		}
+
+		if ($user_model != 'User' && !empty($record[$this->alias]['User'])) {
+			$user2 = $record[$this->alias]['User'];
+		} else if ($user_model != 'User' && !empty($record['User'])) {
+			$user2 = $record['User'];
+		} else {
+			$user2 = array();
+		}
+		if (!empty($user) && !empty($user2) && !empty($user2['id']) && $user['id'] == $record[$this->alias]['id'] && $user['user_name'] != $user2['user_name']) {
+			$user = $user2;
+			$record[$this->alias]['user_id'] = 'N/A';
+		}
+
 		if (array_key_exists('email', $user)) {
 			// We want the email column copied if it exists, even if it's blank
 			$record[$this->alias]['email'] = $user['email'];
@@ -410,8 +432,10 @@ class Person extends AppModel {
 	function findDuplicates($person) {
 		if (array_key_exists('AffiliatePerson', $person)) {
 			$affiliate = $person['AffiliatePerson']['affiliate_id'];
-		} else {
+		} else if (!empty($person['Affiliate'][0]['Affiliate'])) {
 			$affiliate = Set::extract('/Affiliate/Affiliate/id', $person);
+		} else {
+			$affiliate = Set::extract('/Affiliate/id', $person);
 		}
 
 		$user_model = Configure::read('security.auth_model');
