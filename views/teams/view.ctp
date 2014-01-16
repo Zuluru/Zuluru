@@ -202,7 +202,7 @@ if (!empty($team['Team']['short_name'])) {
 	if (Configure::read('feature.shirt_numbers') && count($numbers) > 1 && $numbers[0] !== null) {
 		$has_numbers = true;
 	}
-	if (Configure::read('feature.shirt_numbers') && !$has_numbers && ($is_effective_admin || $is_effective_coordinator || $is_captain)) {
+	if (Configure::read('feature.shirt_numbers') && !$has_numbers && ($is_effective_admin || $is_manager || $is_effective_coordinator || $is_captain)) {
 		$extra[] = $this->ZuluruHtml->link(__('Jersey Numbers', true), array('action' => 'numbers', 'team' => $team['Team']['id']));
 	}
 
@@ -363,13 +363,13 @@ if (!empty($team['Team']['short_name'])) {
 		<?php endif; ?>
 		<td colspan="<?php echo 3 + (!empty($positions)); ?>"><?php __('Average Skill Rating') ?></td>
 		<td><?php printf("%.2f", $skill_total / $skill_count) ?></td>
-		<?php if ($is_admin || $is_coordinator) echo '<td></td>'; ?>
+		<?php if ($is_admin || $is_manager || $is_coordinator) echo '<td></td>'; ?>
 		<td></td>
 	</tr>
 	<?php endif; ?>
 	</table>
 
-	<?php if (($is_admin || $is_coordinator || $is_captain) && $roster_count < $roster_required && !Division::rosterDeadlinePassed($team['Division'])):?>
+	<?php if (($is_admin || $is_manager || $is_coordinator || $is_captain) && $roster_count < $roster_required && !Division::rosterDeadlinePassed($team['Division'])):?>
 	<p class="warning-message">
 		<?php if (!$team['Division']['is_playoff']): ?>
 		This team currently has only <?php echo $roster_count ?> full-time players listed. Your team roster must have a minimum of <?php echo $roster_required ?> rostered 'regular' players by the start of your division. For playoffs, your roster must be finalized by the team roster deadline (<?php

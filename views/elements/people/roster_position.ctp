@@ -11,6 +11,7 @@ if ($is_admin) {
 
 $permission = ($effective_admin ||
 	(!Division::rosterDeadlinePassed($division) && (
+		(isset ($is_manager) && $is_manager) ||
 		(isset ($is_coordinator) && $is_coordinator) ||
 		(isset ($my_id) && $roster['person_id'] == $my_id) ||
 		in_array($roster['person_id'], $this->UserCache->read('RelativeIDs')) ||
