@@ -155,11 +155,6 @@ class User extends AppModel {
 	function hashPasswords($data) {
 		if (is_array($data) && isset($data[$this->alias])) {
 			if (isset($data[$this->alias][$this->pwdField])) {
-if (empty($data[$this->alias]['remember_me']) && (!isset($data[$this->alias]['passwd']) || !isset($data[$this->alias]['confirm_passwd']))) {
-	pr($data);
-	trigger_error('unexpected hashing!', E_USER_ERROR);
-}
-
 				$data[$this->alias][$this->pwdField] = $this->hashPassword($data[$this->alias][$this->pwdField]);
 			}
 		}
