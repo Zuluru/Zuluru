@@ -7,6 +7,7 @@ class Zuluru29Schema extends CakeSchema {
 			case 'schema':
 				$commands = array(
 					'waivers' => 'ALTER TABLE `waivers` DROP KEY `key`;',
+					'drop_temp_waivers_people' => 'DROP TABLE IF EXISTS `waivers_people`;',
 					'waivers_people' => 'RENAME TABLE `waivers` TO `waivers_people`;',
 				);
 				break;
