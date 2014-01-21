@@ -15,7 +15,7 @@ if (isset ($max_length)) {
 	$options['max_length'] = $max_length;
 }
 
-echo $this->ZuluruHtml->link($team['name'],
+echo $this->ZuluruHtml->link(html_entity_decode($team['name']),
 	array('controller' => 'teams', 'action' => 'view', 'team' => $team['id']),
 	$options);
 if (Configure::read('feature.shirt_colour') && array_key_exists ('shirt_colour', $team) && (!isset($show_shirt) || $show_shirt)) {
