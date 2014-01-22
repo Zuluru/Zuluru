@@ -1120,6 +1120,8 @@ class TeamsController extends AppController {
 				$this->Configuration->loadAffiliate($this->data['Team']['affiliate_id']);
 			}
 		}
+		$sport = reset(array_keys(Configure::read('options.sport')));
+		Configure::load("sport/$sport");
 		$affiliates = $this->_applicableAffiliates();
 		$regions = $this->Team->Division->Game->GameSlot->Field->Facility->Region->find('list', array(
 				'conditions' => array('affiliate_id' => array_keys($affiliates)),
@@ -2843,10 +2845,15 @@ class TeamsController extends AppController {
 			'person' => $person['Person'],
 			'team' => $team['Team'],
 			'division' => $team['Division'],
-			'league' => $team['Division']['League'],
 			'role' => $role,
 		));
-		Configure::load("sport/{$team['Division']['League']['sport']}");
+		if (!empty($team['Division']['League'])) {
+			$this->set('league', $team['Division']['League']);
+			$sport = $team['Division']['League']['sport'];
+		} else {
+			$sport = reset(array_keys(Configure::read('options.sport')));
+		}
+		Configure::load("sport/$sport");
 	}
 
 	function _initRosterCaptains ($team) {
