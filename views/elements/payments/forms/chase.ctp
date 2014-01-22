@@ -45,10 +45,17 @@ $invoice_num = sprintf($order_fmt, $registrations[0]['Registration']['id']);
 $unique_order_num = $invoice_num . sprintf('-%010d', $time);
 
 // Build the online payment form
-$login = Configure::read('payment.chase_live_store');
-$key = Configure::read('payment.chase_live_password');
+if ($payment_obj->isTest()) {
+	$login = Configure::read('payment.chase_test_store');
+	$key = Configure::read('payment.chase_test_password');
+	$server = 'rpm-demo';
+} else {
+	$login = Configure::read('payment.chase_live_store');
+	$key = Configure::read('payment.chase_live_password');
+	$server = 'checkout';
+}
 
-$form_options = array('url' => 'https://checkout.e-xact.com/payment', 'name' => 'payment_form');
+$form_options = array('url' => "https://$server.e-xact.com/payment", 'name' => 'payment_form');
 $submit_options = array('div' => false);
 
 if (Configure::read('payment.popup')) {

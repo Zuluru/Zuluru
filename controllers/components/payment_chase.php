@@ -45,8 +45,13 @@ class PaymentChaseComponent extends PaymentComponent
 		$audit['time'] = $matches[2];
 
 		// Validate the hash
-		$login = Configure::read('payment.chase_live_store');
-		$key = Configure::read('payment.chase_live_password');
+		if (Configure::read('payment.test_payments')) {
+			$login = Configure::read('payment.chase_test_store');
+			$key = Configure::read('payment.chase_test_response');
+		} else {
+			$login = Configure::read('payment.chase_live_store');
+			$key = Configure::read('payment.chase_live_response');
+		}
 		$calculated_hash = md5("$key$login{$audit['transaction_id']}{$audit['charge_total']}");
 
 		// Validate the response code
