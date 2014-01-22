@@ -359,17 +359,6 @@ class Person extends AppModel {
 			$user = array();
 		}
 
-		if ($user_model != 'User' && !empty($record[$this->alias]['User'])) {
-			$user2 = $record[$this->alias]['User'];
-		} else if ($user_model != 'User' && !empty($record['User'])) {
-			$user2 = $record['User'];
-		} else {
-			$user2 = array();
-		}
-		if (!empty($user) && !empty($user2) && !empty($user2['id']) && $user['id'] == $record[$this->alias]['id'] && $user['user_name'] != $user2['user_name']) {
-			$user = $user2;
-			$record[$this->alias]['user_id'] = 'N/A';
-		}
 
 		if (array_key_exists('email', $user)) {
 			// We want the email column copied if it exists, even if it's blank
