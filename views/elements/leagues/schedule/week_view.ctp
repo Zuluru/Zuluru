@@ -13,7 +13,7 @@ foreach ($division['Game'] as $game) {
 	if ($date == $game['GameSlot']['game_date']) {
 		$finalized &= Game::_is_finalized($game);
 		$is_tournament |= ($game['type'] != SEASON_GAME);
-		$has_dependent_games |= (!empty($game['HomePoolTeam']['dependency_type']) || !empty($game['AwaayPoolTeam']['dependency_type']));
+		$has_dependent_games |= (!empty($game['HomePoolTeam']['dependency_type']) || !empty($game['AwayPoolTeam']['dependency_type']));
 	}
 }
 ?>
