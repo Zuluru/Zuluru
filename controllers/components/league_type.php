@@ -464,31 +464,33 @@ class LeagueTypeComponent extends Object
 	 * Sort based on configured list of tie-breakers
 	 */
 	function compareTeamsTieBreakers($a, $b) {
-		if (array_key_exists ('Season', $a))
-		{
-			$round = $this->division['Division']['current_round'];
-			if ($round != 1) {
-				if (array_key_exists($round, $a['Season']['rounds'])) {
-					$a_results = $a['Season']['rounds'][$round];
-					$a_results['id'] = $a['id'];
-				} else {
-					$a_results = array('id' => $a['id'], 'W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'gf' => 0, 'ga' => 0, 'vs' => array(), 'vspm' => array());
-				}
-				if (array_key_exists($round, $b['Season']['rounds'])) {
-					$b_results = $b['Season']['rounds'][$round];
-					$b_results['id'] = $b['id'];
-				} else {
-					$b_results = array('id' => $b['id'], 'W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'gf' => 0, 'ga' => 0, 'vs' => array(), 'vspm' => array());
-				}
-			} else {
-				$a_results = $a['Season'];
-				$b_results = $b['Season'];
-			}
-
-			return $this->compareTeamsResults($a_results, $b_results);
+		// Teams with no season results are ranked lower than those with
+		if (!array_key_exists ('Season', $a)) {
+			return 1;
+		} else if (!array_key_exists ('Season', $b)) {
+			return -1;
 		}
 
-		return 0;
+		$round = $this->division['Division']['current_round'];
+		if ($round != 1) {
+			if (array_key_exists($round, $a['Season']['rounds'])) {
+				$a_results = $a['Season']['rounds'][$round];
+				$a_results['id'] = $a['id'];
+			} else {
+				$a_results = array('id' => $a['id'], 'W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'gf' => 0, 'ga' => 0, 'vs' => array(), 'vspm' => array());
+			}
+			if (array_key_exists($round, $b['Season']['rounds'])) {
+				$b_results = $b['Season']['rounds'][$round];
+				$b_results['id'] = $b['id'];
+			} else {
+				$b_results = array('id' => $b['id'], 'W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'gf' => 0, 'ga' => 0, 'vs' => array(), 'vspm' => array());
+			}
+		} else {
+			$a_results = $a['Season'];
+			$b_results = $b['Season'];
+		}
+
+		return $this->compareTeamsResults($a_results, $b_results);
 	}
 
 	/**
@@ -631,13 +633,18 @@ class LeagueTypeComponent extends Object
 		));
 		$round = $this->division['Division']['current_round'];
 		foreach ($tied as $i) {
-			foreach ($tied as $j) {
-				if ($i != $j) {
-					$compare[$i]['hthpm'] += $teams[$i]['rounds'][$round]['vspm'][$teams[$j]['id']];
+			if (!empty($teams[$i]['rounds'])) {
+				foreach ($tied as $j) {
+					if ($i != $j) {
+						$compare[$i]['hthpm'] += $teams[$i]['rounds'][$round]['vspm'][$teams[$j]['id']];
+					}
 				}
+				$compare[$i]['pm'] = $teams[$i]['rounds'][$round]['gf'] - $teams[$i]['rounds'][$round]['ga'];
+				$compare[$i]['initial_seed'] = $teams[$i]['initial_seed'];
+			} else {
+				// A huge seed will place a team with no results in last place
+				$compare[$i]['initial_seed'] = 10000;
 			}
-			$compare[$i]['pm'] = $teams[$i]['rounds'][$round]['gf'] - $teams[$i]['rounds'][$round]['ga'];
-			$compare[$i]['initial_seed'] = $teams[$i]['initial_seed'];
 		}
 		uasort($compare, array($this, 'compareHTH'));
 
