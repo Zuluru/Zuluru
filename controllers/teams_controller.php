@@ -2432,6 +2432,7 @@ class TeamsController extends AppController {
 					if (Configure::read('feature.generate_roster_email')) {
 						$this->_sendRemove($person, $team);
 					}
+					$this->UserCache->_deleteTeamData($person['Person']['id']);
 					return true;
 				}
 			}
@@ -2481,6 +2482,7 @@ class TeamsController extends AppController {
 
 		// If we were successful in the update, there may be emails to send
 		if ($success) {
+			$this->UserCache->_deleteTeamData($person['Person']['id']);
 			if (!Configure::read('feature.generate_roster_email')) {
 				return true;
 			}
