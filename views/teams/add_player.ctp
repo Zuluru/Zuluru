@@ -9,7 +9,14 @@ $this->Html->addCrumb ($team['Team']['name']);
 <div class="teams add_player">
 <h2><?php echo sprintf(__('Add %s', true), __('Player', true)) . ': ' . $team['Team']['name'];?></h2>
 
-<?php echo $this->element('people/search_form', array('affiliate_id' => $team['Division']['League']['affiliate_id'])); ?>
+<?php
+if (empty($team['Division']['League'])) {
+	$affiliate_id = $team['Team']['affiliate_id'];
+} else {
+	$affiliate_id = $team['Division']['League']['affiliate_id'];
+}
+echo $this->element('people/search_form', array('affiliate_id' => $affiliate_id));
+?>
 
 <div id="SearchResults">
 <?php endif; ?>
@@ -57,6 +64,12 @@ if (!empty ($events)) {
 </div>
 
 <div class="actions">
-	<?php echo $this->element('teams/actions', array('team' => $team['Team'], 'division' => $team['Division'], 'league' => $team['Division']['League'], 'format' => 'list')); ?>
+	<?php
+	$args = array('team' => $team['Team'], 'division' => $team['Division'], 'format' => 'list');
+	if (!empty($team['Division']['League'])) {
+		$args['league'] = $team['Division']['League'];
+	}
+	echo $this->element('teams/actions', $args);
+	?>
 </div>
 <?php endif; ?>
