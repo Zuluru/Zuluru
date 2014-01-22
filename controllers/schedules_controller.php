@@ -977,7 +977,7 @@ class SchedulesController extends AppController {
 	 * Override the redirect function; if it's a view and there's only one division, view the league instead
 	 */
 	function redirect($url = null, $next = null) {
-		if ($url['action'] == 'view' && $url['controller'] == 'divisions') {
+		if (isset($url['action']) && $url['action'] == 'view' && isset($url['controller']) && $url['controller'] == 'divisions') {
 			$league = $this->Division->league($url['division']);
 			$division_count = $this->requestAction(array('controller' => 'leagues', 'action' => 'division_count'),
 					array('named' => compact('league')));
