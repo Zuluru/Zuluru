@@ -131,7 +131,7 @@ if ($is_manager) {
 ?>
 	<tr<?php echo $class;?>>
 		<td class="splash_item"><?php echo $league['League']['full_name']; ?></td>
-		<td class="actions"><?php echo $this->element('leagues/actions', array('league' => $league['League'], 'return' => true)); ?></td>
+		<td class="actions"><?php echo $this->element('leagues/actions', array('league' => $league, 'return' => true)); ?></td>
 	</tr>
 <?php endforeach; ?>
 </table>
