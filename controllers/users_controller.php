@@ -125,7 +125,7 @@ class UsersController extends AppController {
 
 					if (!$this->is_logged_in) {
 						// Automatically log the user in
-						$this->data['User']['password'] = $this->data['User']['passwd'];
+						$this->data[$this->Auth->authenticate->alias]['password'] = $this->data[$this->Auth->authenticate->alias]['passwd'];
 						$this->Auth->login($this->Auth->hashPasswords($this->data));
 					}
 
@@ -212,10 +212,32 @@ class UsersController extends AppController {
 					}
 				}
 				if (!empty ($this->data[$user_model])) {
+					$config = new DATABASE_CONFIG;
+					$prefix = $this->Auth->authenticate->tablePrefix;
+					if ($this->Auth->authenticate->useDbConfig != 'default') {
+						$config_name = $this->Auth->authenticate->useDbConfig;
+						$config = $config->$config_name;
+						$prefix = "{$config['database']}.$prefix";
+					}
+
 					// Find the user and send the email
-					$this->Person->contain($user_model);
+					if ($user_model == 'User') {
+						$joins = array();
+					} else {
+						$joins = array(
+							array(
+								'table' => "$prefix{$this->Auth->authenticate->useTable}",
+								'alias' => $user_model,
+								'type' => 'LEFT',
+								'foreignKey' => false,
+								'conditions' => "$user_model.{$this->Auth->authenticate->primaryKey} = Person.user_id",
+							),
+						);
+					}
 					$matches = $this->Person->find ('all', array(
 							'conditions' => $this->data[$user_model],
+							'joins' => $joins,
+							'contain' => array($user_model),
 					));
 					switch (count($matches)) {
 						case 0:

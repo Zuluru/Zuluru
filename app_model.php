@@ -211,7 +211,7 @@ class AppModel extends Model {
 	}
 
 	function comparepassword($password, $hash) {
-		$compare = $this->hashPassword($value);
+		$compare = $this->hashPassword($password);
 		return ($compare == $hash);
 	}
 

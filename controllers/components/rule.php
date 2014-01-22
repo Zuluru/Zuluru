@@ -249,8 +249,16 @@ class RuleComponent extends Object
 				"$user_model.$email_field !=" => '',
 				'NOT' => array("$user_model.$email_field" => null),
 		), $conditions);
+
+		$config = new DATABASE_CONFIG;
+		$prefix = $this->_controller->Auth->authenticate->tablePrefix;
+		if ($this->_controller->Auth->authenticate->useDbConfig != 'default') {
+			$config_name = $this->_controller->Auth->authenticate->useDbConfig;
+			$config = $config->$config_name;
+			$prefix = "{$config['database']}.$prefix";
+		}
 		$joins[$user_model] = array(
-			'table' => "{$this->_controller->Auth->authenticate->tablePrefix}{$this->_controller->Auth->authenticate->useTable}",
+			'table' => "$prefix{$this->_controller->Auth->authenticate->useTable}",
 			'alias' => $user_model,
 			'type' => 'INNER',
 			'foreignKey' => false,

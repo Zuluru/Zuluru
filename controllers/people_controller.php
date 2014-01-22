@@ -100,6 +100,15 @@ class PeopleController extends AppController {
 
 		$user_model = $this->Auth->authenticate->name;
 		$id_field = $this->Auth->authenticate->primaryKey;
+
+		$config = new DATABASE_CONFIG;
+		$prefix = $this->Auth->authenticate->tablePrefix;
+		if ($this->Auth->authenticate->useDbConfig != 'default') {
+			$config_name = $this->Auth->authenticate->useDbConfig;
+			$config = $config->$config_name;
+			$prefix = "{$config['database']}.$prefix";
+		}
+
 		$this->paginate = array(
 				'conditions' => array(
 					'Affiliate.id' => $affiliates
@@ -120,7 +129,7 @@ class PeopleController extends AppController {
 						'conditions' => 'Affiliate.id = AffiliatePerson.affiliate_id',
 					),
 					array(
-						'table' => "{$this->Auth->authenticate->tablePrefix}{$this->Auth->authenticate->useTable}",
+						'table' => "$prefix{$this->Auth->authenticate->useTable}",
 						'alias' => $user_model,
 						'type' => 'LEFT',
 						'foreignKey' => false,
@@ -2271,6 +2280,15 @@ class PeopleController extends AppController {
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$user_model = $this->Auth->authenticate->name;
 		$id_field = $this->Auth->authenticate->primaryKey;
+
+		$config = new DATABASE_CONFIG;
+		$prefix = $this->Auth->authenticate->tablePrefix;
+		if ($this->Auth->authenticate->useDbConfig != 'default') {
+			$config_name = $this->Auth->authenticate->useDbConfig;
+			$config = $config->$config_name;
+			$prefix = "{$config['database']}.$prefix";
+		}
+
 		$new = $this->Person->find ('all', array(
 			'joins' => array(
 				array(
@@ -2281,7 +2299,7 @@ class PeopleController extends AppController {
 					'conditions' => 'AffiliatePerson.person_id = Person.id',
 				),
 				array(
-					'table' => "{$this->Auth->authenticate->tablePrefix}{$this->Auth->authenticate->useTable}",
+					'table' => "$prefix{$this->Auth->authenticate->useTable}",
 					'alias' => $user_model,
 					'type' => 'LEFT',
 					'foreignKey' => false,

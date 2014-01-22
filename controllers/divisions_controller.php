@@ -1332,6 +1332,15 @@ class DivisionsController extends AppController {
 
 		$user_model = $this->Auth->authenticate->name;
 		$email_field = $this->Auth->authenticate->emailField;
+
+		$config = new DATABASE_CONFIG;
+		$prefix = $this->Auth->authenticate->tablePrefix;
+		if ($this->Auth->authenticate->useDbConfig != 'default') {
+			$config_name = $this->Auth->authenticate->useDbConfig;
+			$config = $config->$config_name;
+			$prefix = "{$config['database']}.$prefix";
+		}
+
 		$allstars = $this->Division->Game->Allstar->find ('all', array(
 				'contain' => array(),
 				'fields' => array(
@@ -1359,7 +1368,7 @@ class DivisionsController extends AppController {
 						'conditions' => 'Person.id = Allstar.person_id',
 					),
 						array(
-							'table' => "{$this->Auth->authenticate->tablePrefix}{$this->Auth->authenticate->useTable}",
+							'table' => "$prefix{$this->Auth->authenticate->useTable}",
 							'alias' => $this->Auth->authenticate->name,
 							'type' => 'LEFT',
 							'foreignKey' => false,

@@ -482,6 +482,14 @@ class Person extends AppModel {
 			$conditions['OR']['Person.addr_street'] = $person['Person']['addr_street'];
 		}
 
+		$config = new DATABASE_CONFIG;
+		$prefix = $this->$user_model->tablePrefix;
+		if ($this->$user_model->useDbConfig != 'default') {
+			$config_name = $this->$user_model->useDbConfig;
+			$config = $config->$config_name;
+			$prefix = "{$config['database']}.$prefix";
+		}
+
 		return $this->find('all', array(
 				'fields' => array('Person.*', "$user_model.*"),
 				'joins' => array(
@@ -493,7 +501,7 @@ class Person extends AppModel {
 						'conditions' => 'AffiliatePerson.person_id = Person.id',
 					),
 					array(
-						'table' => "{$this->$user_model->tablePrefix}{$this->$user_model->useTable}",
+						'table' => "$prefix{$this->$user_model->useTable}",
 						'alias' => $user_model,
 						'type' => 'LEFT',
 						'foreignKey' => false,
