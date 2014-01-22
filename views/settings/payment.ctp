@@ -84,7 +84,7 @@ echo $this->element('settings/banner');
 		'options' => array(
 			'type' => 'radio',
 			'options' => Configure::read('options.test_payment'),
-			'after' => 'Who should get test instead of live payments?',
+			'after' => 'Who should get test instead of live payments? If set to admins, then admins are the only ones who will get the online payment option.',
 		),
 	));
 	echo $this->element('settings/input', array(

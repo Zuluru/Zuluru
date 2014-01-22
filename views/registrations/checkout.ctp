@@ -15,7 +15,8 @@ if (!empty($registrations)):
 	echo $this->Html->para(null, sprintf (__('You may also %s and register for something else before paying.', true),
 		$this->Html->link(__('view the event list', true), array('controller' => 'events', 'action' => 'wizard'))
 	));
-	if (Configure::read('registration.online_payments')) {
+	$test_payments = Configure::read('payment.test_payments');
+	if (Configure::read('registration.online_payments') && ($test_payments <= 1 || ($is_admin && Configure::read('payment.test_payments') == 2))) {
 		echo $this->Html->para(null, __('If you want to pay online with ' . Configure::read('payment.options') . ', click the "Pay" button below.', true));
 	}
 	echo $this->element('payments/offline');
@@ -54,7 +55,7 @@ if (!empty($registrations)):
 		<th><?php __('Total'); ?>:</th>
 		<th><?php echo $this->Number->currency ($total); ?></th>
 		<th class="actions"><?php
-		if (Configure::read ('registration.online_payments')) {
+		if (Configure::read('registration.online_payments') && ($test_payments <= 1 || ($is_admin && Configure::read('payment.test_payments') == 2))) {
 			echo $this->element('payments/forms/' . Configure::read('payment.payment_implementation'));
 		}
 		?></th>
