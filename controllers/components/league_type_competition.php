@@ -74,7 +74,7 @@ class LeagueTypeCompetitionComponent extends LeagueTypeComponent
 		if (!$ret) {
 			return false;
 		}
-		return $this->finishSchedule($division_id, $data['publish']);
+		return $this->finishSchedule($division_id, $data['publish'], $data['double_booking']);
 	}
 
 	/*

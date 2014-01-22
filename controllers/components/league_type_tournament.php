@@ -276,24 +276,24 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			$start_date = $data['start_date'];
 		}
 
-		if (!$this->startSchedule($division_id, $exclude_teams, $start_date, $pool) ||
+		if (!$this->startSchedule($division_id, $exclude_teams, $start_date, $data['double_booking'], $pool) ||
 			!$this->createScheduleBlock($data['type']) ||
 			!$this->assignFieldsByRound($data['start_date']))
 		{
 			return false;
 		}
 
-		return $this->finishSchedule($division_id, $data['publish']);
+		return $this->finishSchedule($division_id, $data['publish'], $data['double_booking']);
 	}
 
-	function startSchedule($division_id, $exclude_teams, $start_date, $pool) {
+	function startSchedule($division_id, $exclude_teams, $start_date, $double_booking, $pool) {
 		$this->pool = $pool;
 		$this->pool_name = $this->pool['Pool']['name'];
 		if (!empty($this->pool_name)) {
 			$this->pool_name .= '-';
 		}
 
-		$ret = parent::startSchedule($division_id, $exclude_teams, $start_date);
+		$ret = parent::startSchedule($division_id, $exclude_teams, $start_date, $double_booking);
 		$prior_teams = Set::extract("/Pool[stage={$this->pool['Pool']['stage']}][name<{$this->pool['Pool']['name']}]/PoolsTeam/alias", $this->division);
 		$this->first_team = count($prior_teams);
 		return $ret;

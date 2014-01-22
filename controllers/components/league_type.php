@@ -810,6 +810,12 @@ class LeagueTypeComponent extends Object
 			$field_contain = array();
 		}
 
+		$conditions = array(
+			'game_date >=' => $start_date,
+		);
+		if (!$double_booking) {
+			$conditions['assigned'] = false;
+		}
 		$this->_controller->Division->contain (array (
 			'Day',
 			'Team' => array(
@@ -831,10 +837,7 @@ class LeagueTypeComponent extends Object
 					// This will still return all of the Availability records, but many will have
 					// empty GameSlot arrays, so Set::Extract calls won't match and they're ignored
 					// TODO: Can a better query improve the efficiency of this?
-					'conditions' => array(
-						'game_date >=' => $start_date,
-						'assigned' => false,
-					),
+					'conditions' => $conditions,
 					'Field' => 'Facility',
 				),
 			),
@@ -893,7 +896,7 @@ class LeagueTypeComponent extends Object
 		return true;
 	}
 
-	function finishSchedule($division_id, $publish) {
+	function finishSchedule($division_id, $publish, $double_booking) {
 		if (empty ($this->games)) {
 			return false;
 		}
@@ -908,15 +911,17 @@ class LeagueTypeComponent extends Object
 		}
 
 		// Check that chosen game slots didn't somehow get allocated elsewhere in the meantime
-		$slots = Set::extract ('/game_slot_id', $this->games);
-		$this->_controller->Division->Game->GameSlot->contain();
-		$taken = $this->_controller->Division->Game->GameSlot->find('all', array('conditions' => array(
-				'id' => $slots,
-				'assigned' => true,
-		)));
-		if (!empty ($taken)) {
-			$this->_controller->Session->setFlash(__('A game slot chosen for this schedule has been allocated elsewhere in the interim. Please try again.', true), 'default', array('class' => 'warning'));
-			return false;
+		if (!$double_booking) {
+			$slots = Set::extract ('/game_slot_id', $this->games);
+			$this->_controller->Division->Game->GameSlot->contain();
+			$taken = $this->_controller->Division->Game->GameSlot->find('all', array('conditions' => array(
+					'id' => $slots,
+					'assigned' => true,
+			)));
+			if (!empty ($taken)) {
+				$this->_controller->Session->setFlash(__('A game slot chosen for this schedule has been allocated elsewhere in the interim. Please try again.', true), 'default', array('class' => 'warning'));
+				return false;
+			}
 		}
 
 		$transaction = new DatabaseTransaction($this->_controller->Division->Game);
@@ -1170,7 +1175,7 @@ class LeagueTypeComponent extends Object
 	/**
 	 * Select a random gameslot
 	 *
-	 * @param mixed $date The possible dates of the game
+	 * @param mixed $dates The possible dates of the game
 	 * @param mixed $remaining The number of games still to be scheduled, including this one
 	 * @return mixed The id of the selected slot
 	 *

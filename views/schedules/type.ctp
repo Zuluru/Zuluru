@@ -78,7 +78,7 @@ else:
 <?php endif; ?>
 
 <?php
-if ($division['Division']['schedule_type'] == 'competition'):
+if ($division['Division']['double_booking']):
 	echo $this->ZuluruForm->input ('double_booking', array(
 			'label' => __('Allow double-booking?', true),
 			'type' => 'checkbox',

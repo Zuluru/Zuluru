@@ -511,12 +511,15 @@ class SchedulesController extends AppController {
 		}
 
 		// Find the list of available dates for scheduling this division
+		$conditions = array(
+			'DivisionGameslotAvailability.division_id' => $id,
+			'GameSlot.game_date >= CURDATE()',
+		);
+		if (empty($this->data['Game']['double_booking'])) {
+			$conditions['GameSlot.assigned'] = false;
+		}
 		$dates = $this->Division->DivisionGameslotAvailability->find('all', array(
-				'conditions' => array(
-					'GameSlot.assigned' => false,
-					'DivisionGameslotAvailability.division_id' => $id,
-					'GameSlot.game_date >= CURDATE()',
-				),
+				'conditions' => $conditions,
 				'fields' => $field,
 				'order' => array('GameSlot.game_date', 'GameSlot.game_start'),
 		));
@@ -633,13 +636,16 @@ class SchedulesController extends AppController {
 			return false;
 		}
 
+		$conditions = array(
+			'GameSlot.game_date >=' => $start_date,
+			'DivisionGameslotAvailability.division_id' => $id,
+		);
+		if (empty($this->data['Game']['double_booking'])) {
+			$conditions['GameSlot.assigned'] = false;
+		}
 		$field_counts = $this->Division->DivisionGameslotAvailability->find('all', array(
 				'fields' => array('count(GameSlot.id) AS count'),
-				'conditions' => array(
-					'GameSlot.assigned' => false,
-					'GameSlot.game_date >=' => $start_date,
-					'DivisionGameslotAvailability.division_id' => $id,
-				),
+				'conditions' => $conditions,
 				'group' => array('GameSlot.game_date', 'GameSlot.game_start'),
 				'order' => array('GameSlot.game_date', 'GameSlot.game_start'),
 		));

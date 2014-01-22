@@ -79,7 +79,7 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 	}
 
 	function createSchedule($division_id, $exclude_teams, $data) {
-		if (!$this->startSchedule($division_id, $exclude_teams, $data['start_date']))
+		if (!$this->startSchedule($division_id, $exclude_teams, $data['start_date'], $data['double_booking']))
 			return false;
 
 		switch($data['type']) {
@@ -96,7 +96,7 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 		if (!$ret) {
 			return false;
 		}
-		return $this->finishSchedule($division_id, $data['publish']);
+		return $this->finishSchedule($division_id, $data['publish'], $data['double_booking']);
 	}
 
 	/*
