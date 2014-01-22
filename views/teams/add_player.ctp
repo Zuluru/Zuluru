@@ -35,7 +35,7 @@ if (!empty ($teams)) {
 	foreach ($teams as $history) {
 		$options[$history['id']] = "{$history['name']} ({$history['Division']['full_league_name']})";
 	}
-	echo $this->Form->create(false, array('url' => array('action' => 'add_from_team', 'team' => $team['Team']['id'])));
+	echo $this->Form->create(false, array('url' => array('action' => 'add_from_team', 'team' => $team['Team']['id'], 'return' => true)));
 	echo $this->Form->input ('team', array(
 			'label' => false,
 			'options' => $options,
