@@ -2671,9 +2671,11 @@ class TeamsController extends AppController {
 			}
 		} else {
 			// A captain has accepted a request
-			$this->set (array(
-				'captain' => $this->UserCache->read('Person.full_name'),
-			));
+			$captain = $this->UserCache->read('Person.full_name');
+			if (empty($captain)) {
+				$captain = 'A captain';
+			}
+			$this->set (compact('captain'));
 
 			if (!$this->_sendMail (array (
 					'to' => $person,
@@ -2733,9 +2735,12 @@ class TeamsController extends AppController {
 			}
 		} else {
 			// A captain has declined a request
-			$this->set (array(
-				'captain' => $this->UserCache->read('Person.full_name'),
-			));
+			$captain = $this->UserCache->read('Person.full_name');
+			if (empty($captain)) {
+				$captain = 'A captain';
+			}
+			$this->set (compact('captain'));
+
 			if (!$this->_sendMail (array (
 					'to' => $person,
 					'replyTo' => $this->UserCache->read('Person'),
