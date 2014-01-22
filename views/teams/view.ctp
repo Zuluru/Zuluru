@@ -234,7 +234,10 @@ if (!empty($team['Team']['short_name'])) {
 		<th><?php __('Role'); ?></th>
 		<?php if (!empty($positions)): ?>
 		<th><?php __('Position'); ?></th>
-		<?php endif; ?>
+		<?php
+			++$cols;
+		endif;
+		?>
 		<th><?php __('Gender'); ?></th>
 		<?php if (Configure::read('profile.skill_level')): ?>
 		<th><?php __('Rating'); ?></th>
@@ -363,7 +366,7 @@ if (!empty($team['Team']['short_name'])) {
 		<?php endif; ?>
 		<td colspan="<?php echo 3 + (!empty($positions)); ?>"><?php __('Average Skill Rating') ?></td>
 		<td><?php printf("%.2f", $skill_total / $skill_count) ?></td>
-		<?php if ($is_admin || $is_manager || $is_coordinator) echo '<td></td>'; ?>
+		<td></td>
 		<td></td>
 	</tr>
 	<?php endif; ?>
