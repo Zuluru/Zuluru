@@ -321,14 +321,6 @@ class Person extends AppModel {
 		);
 		$this->$user_model = ClassRegistry::init($user_model);
 
-		if (Configure::read('security.drupal_migration')) {
-			$this->belongsTo['User'] = array(
-				'className' => 'User',
-				'foreignKey' => 'user_id',
-			);
-			$this->User = ClassRegistry::init('User');
-		}
-
 		// Parent constructor comes last, as it adds missing fields to the belongsTo array
 		parent::__construct($id, $table, $ds);
 	}
@@ -358,7 +350,6 @@ class Person extends AppModel {
 		} else {
 			$user = array();
 		}
-
 
 		if (array_key_exists('email', $user)) {
 			// We want the email column copied if it exists, even if it's blank
