@@ -2378,7 +2378,7 @@ class PeopleController extends AppController {
 		switch($disposition) {
 			case 'approved_player':
 				$data = array(
-					'id' => $person['Person']['id'],
+					'id' => $person_id,
 					// TODO: 'Player' is hard-coded here, but also in the database
 					'group_id' => $this->Person->Group->field('id', array('name' => 'Player')),
 					'status' => 'active',
@@ -2386,9 +2386,9 @@ class PeopleController extends AppController {
 				$saved = $this->Person->save ($data, false, array_keys ($data));
 				if (!$saved) {
 					$this->Session->setFlash(__('Couldn\'t save new member activation', true), 'default', array('class' => 'warning'));
-					$this->redirect(array('action' => 'approve', 'person' => $person['Person']['id']));
+					$this->redirect(array('action' => 'approve', 'person' => $person_id));
 				}
-				$this->UserCache->clear('Person', $person['Person']['id']);
+				$this->UserCache->clear('Person', $person_id);
 
 				$this->set('person', $saved);
 
@@ -2405,7 +2405,7 @@ class PeopleController extends AppController {
 
 			case 'approved_visitor':
 				$data = array(
-					'id' => $person['Person']['id'],
+					'id' => $person_id,
 					// TODO: 'Non-player account' is hard-coded here, but also in the database
 					'group_id' => $this->Person->Group->field('id', array('name' => 'Non-player account')),
 					'status' => 'inactive',
@@ -2413,9 +2413,9 @@ class PeopleController extends AppController {
 				$saved = $this->Person->save ($data, false, array_keys ($data));
 				if (!$saved) {
 					$this->Session->setFlash(__('Couldn\'t save new member activation', true), 'default', array('class' => 'warning'));
-					$this->redirect(array('action' => 'approve', 'person' => $person['Person']['id']));
+					$this->redirect(array('action' => 'approve', 'person' => $person_id));
 				}
-				$this->UserCache->clear('Person', $person['Person']['id']);
+				$this->UserCache->clear('Person', $person_id);
 
 				$this->set('person', $saved);
 
@@ -2434,7 +2434,7 @@ class PeopleController extends AppController {
 				if (method_exists ($this->Auth->authenticate, 'delete_duplicate_user')) {
 					$this->Auth->authenticate->delete_duplicate_user($person['Person']['user_id']);
 				}
-				if (! $this->Person->delete($person['Person']['id']) ) {
+				if (! $this->Person->delete($person_id) ) {
 					$this->Session->setFlash(sprintf (__('Failed to delete %s', true), $person['Person']['full_name']), 'default', array('class' => 'warning'));
 				}
 				Cache::delete("person/$person_id", 'file');
@@ -2445,7 +2445,7 @@ class PeopleController extends AppController {
 					$this->Auth->authenticate->delete_duplicate_user($person['Person']['user_id']);
 				}
 
-				if (! $this->Person->delete($person['Person']['id']) ) {
+				if (! $this->Person->delete($person_id) ) {
 					$this->Session->setFlash(sprintf (__('Failed to delete %s', true), $person['Person']['full_name']), 'default', array('class' => 'warning'));
 					break;
 				}
@@ -2472,11 +2472,13 @@ class PeopleController extends AppController {
 					$this->Auth->authenticate->merge_duplicate_user($person['Person']['user_id'], $existing['Person']['user_id']);
 				}
 
+				$this->Person->AffiliatesPerson->deleteAll(array('AffiliatesPerson.person_id' => $dup_id));
+
 				// Update all related records
 				foreach ($this->Person->hasMany as $class => $details) {
 					$this->Person->$class->updateAll(
 						array("$class.{$details['foreignKey']}" => $dup_id),
-						array("$class.{$details['foreignKey']}" => $person['Person']['id'])
+						array("$class.{$details['foreignKey']}" => $person_id)
 					);
 				}
 
@@ -2484,18 +2486,18 @@ class PeopleController extends AppController {
 					if (array_key_exists ('with', $details)) {
 						$this->Person->$class->{$details['with']}->updateAll(
 							array("{$details['with']}.{$details['foreignKey']}" => $dup_id),
-							array("{$details['with']}.{$details['foreignKey']}" => $person['Person']['id'])
+							array("{$details['with']}.{$details['foreignKey']}" => $person_id)
 						);
 					}
 				}
 
-				if (! $this->Person->delete($person['Person']['id'], false) ) {
+				if (! $this->Person->delete($person_id, false) ) {
 					$this->Session->setFlash(sprintf (__('Failed to delete %s', true), $person['Person']['full_name']), 'default', array('class' => 'warning'));
 					break;
 				}
 
 				// Unset a few fields that we want to retain from the old record
-				foreach (array('group_id', 'status', 'user_id') as $field) {
+				foreach (array('group_id', 'status', 'user_id', 'year_started') as $field) {
 					unset ($person['Person'][$field]);
 				}
 				$person['Person']['id'] = $dup_id;
