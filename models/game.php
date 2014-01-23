@@ -508,7 +508,7 @@ class Game extends AppModel {
 			$entry = $game['SpiritEntry'][$team_id];
 		}
 
-		if (Configure::read('scoring.spirit_default')) {
+		if (isset($spirit_obj) && Configure::read('scoring.spirit_default')) {
 			if ($game['status'] == 'home_default') {
 				if ($team_id == $game['home_team']) {
 					$entry = $spirit_obj->defaulted();
