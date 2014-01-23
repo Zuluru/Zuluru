@@ -24,24 +24,8 @@ if (Configure::read('scoring.missing_score_spirit_penalty')) {
 	$questions[] = 'score_entry_penalty';
 }
 
-$defaulted_entry = array(
-	'entered_sotg' => '',
-	'assigned_sotg' => '',
-	'score_entry_penalty' => '',
-);
-$automatic_entry = array(
-	'entered_sotg' => $spirit_obj->max(),
-	'assigned_sotg' => $spirit_obj->max(),
-	'score_entry_penalty' => '',
-);
-foreach ($spirit_obj->questions as $question => $detail) {
-	$defaulted_entry[$question] = '';
-	if ($detail['type'] != 'text') {
-		$automatic_entry[$question] = $spirit_obj->max($question);
-	} else {
-		$automatic_entry[$question] = '--';
-	}
-}
+$defaulted_entry = $spirit_obj->defaulted();
+$automatic_entry = $spirit_obj->expected();
 
 $teams = Set::extract('/Team/id', $division);
 $team_records = array();
@@ -60,10 +44,15 @@ foreach ($division['Game'] as $game) {
 				);
 			}
 
-			if (strpos ($game['Game']['status'], 'default') !== false) {
-				$spirit_entry = $defaulted_entry;
-			} else {
-				$spirit_entry = $automatic_entry;
+			$spirit_entry = null;
+			if (Configure::read('scoring.spirit_default')) {
+				if (($team == 'HomeTeam' && $game['Game']['status'] == 'home_default') ||
+					($team == 'AwayTeam' && $game['Game']['status'] == 'away_default'))
+				{
+					$spirit_entry = $defaulted_entry;
+				} else {
+					$spirit_entry = $automatic_entry;
+				}
 			}
 
 			foreach ($game['SpiritEntry'] as $entry) {
@@ -72,9 +61,11 @@ foreach ($division['Game'] as $game) {
 					$spirit_entry['assigned_sotg'] = $spirit_obj->calculate ($spirit_entry);
 				}
 			}
-			++ $team_records[$id]['games'];
-			foreach ($questions as $question) {
-				$team_records[$id]['summary'][$question] += $spirit_entry[$question];
+			if ($spirit_entry) {
+				++ $team_records[$id]['games'];
+				foreach ($questions as $question) {
+					$team_records[$id]['summary'][$question] += $spirit_entry[$question];
+				}
 			}
 		}
 	}

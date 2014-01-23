@@ -26,10 +26,10 @@ if (count ($classes)) {
 	?></td>
 	<?php if (League::hasSpirit($division)): ?>
 	<td><?php
-	if (!array_key_exists('Season', $team) || $team['Season']['games'] == 0) {
+	if (!array_key_exists('Season', $team) || $team['Season']['spirit_games'] == 0) {
 		$spirit = null;
 	} else {
-		$spirit = $team['Season']['spirit'] / $team['Season']['games'];
+		$spirit = $team['Season']['spirit'] / $team['Season']['spirit_games'];
 	}
 	echo $this->element ('spirit/symbol', array(
 			'spirit_obj' => $spirit_obj,

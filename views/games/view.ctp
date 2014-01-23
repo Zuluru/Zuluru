@@ -163,6 +163,21 @@ foreach ($game['SpiritEntry'] as $spiritEntry) {
 		$awaySpiritEntry = $spiritEntry;
 	}
 }
+if (Configure::read('scoring.spirit_default')) {
+	if ($game['Game']['status'] == 'home_default') {
+		$homeSpiritEntry = $spirit_obj->defaulted();
+		$awaySpiritEntry = $spirit_obj->expected();
+	} else if ($game['Game']['status'] == 'away_default') {
+		$homeSpiritEntry = $spirit_obj->expected();
+		$awaySpiritEntry = $spirit_obj->defaulted();
+	}
+	if ($homeSpiritEntry == null) {
+		$homeSpiritEntry = $spirit_obj->expected();
+	}
+	if ($awaySpiritEntry == null) {
+		$awaySpiritEntry = $spirit_obj->expected();
+	}
+}
 $team_names = array(
 	$game['HomeTeam']['id'] => $game['HomeTeam']['name'],
 	$game['AwayTeam']['id'] => $game['AwayTeam']['name']

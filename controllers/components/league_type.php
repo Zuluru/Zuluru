@@ -201,11 +201,11 @@ class LeagueTypeComponent extends Object
 				if (Game::_is_finalized($game)) {
 					$this->addGameResult ($division, $results, $game['home_team'], $game['away_team'],
 							$round, $game['home_score'], $game['away_score'],
-							Game::_get_spirit_entry ($game, $game['home_team']), $spirit_obj,
+							Game::_get_spirit_entry ($game, $game['home_team'], $spirit_obj), $spirit_obj,
 							$game['status'] == 'home_default');
 					$this->addGameResult ($division, $results, $game['away_team'], $game['home_team'],
 							$round, $game['away_score'], $game['home_score'],
-							Game::_get_spirit_entry ($game, $game['away_team']), $spirit_obj,
+							Game::_get_spirit_entry ($game, $game['away_team'], $spirit_obj), $spirit_obj,
 							$game['status'] == 'away_default');
 				} else {
 					$this->addUnplayedGame ($division, $results, $game['home_team'], $game['away_team'], $round);
@@ -236,7 +236,7 @@ class LeagueTypeComponent extends Object
 
 		// Make sure the team record exists in the results
 		if (! array_key_exists ($team, $results)) {
-			$results[$team] = array('id' => $team, 'W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'games' => 0,
+			$results[$team] = array('id' => $team, 'W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'games' => 0, 'spirit_games' => 0,
 									'gf' => 0, 'ga' => 0, 'str' => 0, 'str_type' => '', 'spirit' => 0,
 									'rounds' => array(), 'vs' => array(), 'vspm' => array());
 		}
@@ -277,6 +277,7 @@ class LeagueTypeComponent extends Object
 		// TODO: drop high and low spirit?
 		if ($spirit_obj) {
 			if (is_array ($spirit_for)) {
+				++ $results[$team]['spirit_games'];
 				if (!$division['League']['numeric_sotg']) {
 					$results[$team]['spirit'] += $spirit_obj->calculate($spirit_for);
 				} else {
@@ -302,7 +303,7 @@ class LeagueTypeComponent extends Object
 	function addUnplayedGame($division, &$results, $team, $opp, $round) {
 		// Make sure the team record exists in the results
 		if (! array_key_exists ($team, $results)) {
-			$results[$team] = array('id' => $team, 'W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'games' => 0,
+			$results[$team] = array('id' => $team, 'W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'games' => 0, 'spirit_games' => 0,
 									'gf' => 0, 'ga' => 0, 'str' => 0, 'str_type' => '', 'spirit' => 0,
 									'rounds' => array(), 'vs' => array(), 'vspm' => array());
 		}
@@ -552,10 +553,12 @@ class LeagueTypeComponent extends Object
 					break;
 
 				case 'spirit':
-					if ($a['spirit'] / $a['games'] < $b['spirit'] / $b['games'])
-						return 1;
-					if ($a['spirit'] / $a['games'] > $b['spirit'] / $b['games'])
-						return -1;
+					if ($a['spirit_games'] && $b['spirit_games']) {
+						if ($a['spirit'] / $a['spirit_games'] < $b['spirit'] / $b['spirit_games'])
+							return 1;
+						if ($a['spirit'] / $a['spirit_games'] > $b['spirit'] / $b['spirit_games'])
+							return -1;
+					}
 					break;
 			}
 		}
@@ -584,10 +587,12 @@ class LeagueTypeComponent extends Object
 		if ($a['gf'] / $a['games'] > $b['gf'] / $b['games'])
 			return -1;
 
-		if ($a['spirit'] / $a['games'] < $b['spirit'] / $b['games'])
-			return 1;
-		if ($a['spirit'] / $a['games'] > $b['spirit'] / $b['games'])
-			return -1;
+		if ($a['spirit_games'] && $b['spirit_games']) {
+			if ($a['spirit'] / $a['spirit_games'] < $b['spirit'] / $b['spirit_games'])
+				return 1;
+			if ($a['spirit'] / $a['spirit_games'] > $b['spirit'] / $b['spirit_games'])
+				return -1;
+		}
 
 		// For lack of a better idea, we'll use initial seed as the final tie breaker
 		if ($a['initial_seed'] < $b['initial_seed'])

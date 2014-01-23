@@ -73,7 +73,11 @@ class SpiritComponent extends Object
 	 * Return an array with expected scores
 	 */
 	function expected() {
-		$expected = array('entered_sotg' => $this->maxs());
+		$expected = array(
+				'entered_sotg' => $this->maxs(),
+				'assigned_sotg' => $this->maxs(),
+				'score_entry_penalty' => 0,
+		);
 		foreach ($this->questions as $key => $question) {
 			if ($question['type'] != 'text') {
 				$expected[$key] = $this->maxq($key);
@@ -140,7 +144,11 @@ class SpiritComponent extends Object
 	 * Return an array with scores for a defaulted game
 	 */
 	function defaulted() {
-		$default = array('entered_sotg' => $this->mins());
+		$default = array(
+				'entered_sotg' => $this->mins(),
+				'assigned_sotg' => $this->mins(),
+				'score_entry_penalty' => 0,
+		);
 		foreach ($this->questions as $key => $question) {
 			if ($question['type'] != 'text') {
 				$default[$key] = $this->minq($key);
@@ -148,7 +156,7 @@ class SpiritComponent extends Object
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Return the min value for a question, or the entire survey
 	 *

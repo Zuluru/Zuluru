@@ -19,22 +19,9 @@ foreach ($spirit_obj->questions as $question => $detail) {
 fputcsv($fp, $header);
 
 $teams = Set::extract('/Team/id', $division);
-$defaulted_entry = array(
-	'entered_sotg' => '',
-	'assigned_sotg' => '',
-);
-$automatic_entry = array(
-	'entered_sotg' => $spirit_obj->max(),
-	'assigned_sotg' => $spirit_obj->max(),
-);
-foreach ($spirit_obj->questions as $question => $detail) {
-	$defaulted_entry[$question] = '';
-	if ($detail['type'] != 'text') {
-		$automatic_entry[$question] = $spirit_obj->max($question);
-	} else {
-		$automatic_entry[$question] = '--';
-	}
-}
+
+$defaulted_entry = $spirit_obj->defaulted();
+$automatic_entry = $spirit_obj->expected();
 
 $teams = Set::extract('/Team/id', $division);
 $team_results = array();
@@ -55,10 +42,13 @@ foreach ($division['Game'] as $game) {
 			$team_results[$id][] = ($team == 'HomeTeam' ? $game['Game']['home_score'] : $game['Game']['away_score']);
 			$team_results[$id][] = ($team == 'HomeTeam' ? $game['Game']['away_score'] : $game['Game']['home_score']);
 
-			if (strpos ($game['Game']['status'], 'default') !== false) {
-				$spirit_entry = $defaulted_entry;
-			} else {
-				$spirit_entry = $automatic_entry;
+			$spirit_entry = null;
+			if (Configure::read('scoring.spirit_default')) {
+				if (strpos ($game['Game']['status'], 'default') !== false) {
+					$spirit_entry = $defaulted_entry;
+				} else {
+					$spirit_entry = $automatic_entry;
+				}
 			}
 
 			foreach ($game['SpiritEntry'] as $entry) {
@@ -67,14 +57,27 @@ foreach ($division['Game'] as $game) {
 					$spirit_entry['assigned_sotg'] = $spirit_obj->calculate ($spirit_entry);
 				}
 			}
+
 			if ($division['League']['numeric_sotg']) {
-				$team_results[$id][] = $spirit_entry['entered_sotg'];
+				if ($spirit_entry) {
+					$team_results[$id][] = $spirit_entry['entered_sotg'];
+				} else {
+					$team_results[$id][] = '';
+				}
 			}
 			if ($division['League']['sotg_questions'] != 'none') {
-				$team_results[$id][] = $spirit_entry['assigned_sotg'];
+				if ($spirit_entry) {
+					$team_results[$id][] = $spirit_entry['assigned_sotg'];
+				} else {
+					$team_results[$id][] = '';
+				}
 			}
 			foreach ($spirit_obj->questions as $question => $detail) {
-				$team_results[$id][] = $spirit_entry[$question];
+				if ($spirit_entry) {
+					$team_results[$id][] = $spirit_entry[$question];
+				} else {
+					$team_results[$id][] = '';
+				}
 			}
 		}
 	}

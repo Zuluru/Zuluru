@@ -12,6 +12,8 @@ foreach ($questions as $question => $details) {
 		}
 		if (array_key_exists ($question, $answers)) {
 			$answer = $answers[$question];
+		} else {
+			$answer = null;
 		}
 		echo $this->element("/formbuilder/view/{$details['type']}", compact('options', 'answer'));
 	}

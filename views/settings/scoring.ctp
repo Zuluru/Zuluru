@@ -65,7 +65,7 @@ echo $this->element('settings/banner');
 		'category' => 'scoring',
 		'name' => 'spirit_numeric',
 		'options' => array(
-			'type' => 'select',
+			'type' => 'radio',
 			'options' => Configure::read ('options.enable'),
 			'after' => 'Default enable or disable entry of numeric spirit scores when creating a new league.',
 		),
@@ -89,6 +89,16 @@ echo $this->element('settings/banner');
 		'options' => array(
 			'label' => 'Spirit penalty for not entering score',
 			'size' => 6,
+		),
+	));
+
+	echo $this->element('settings/input', array(
+		'category' => 'scoring',
+		'name' => 'spirit_default',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read ('options.enable'),
+			'after' => 'Include a default spirit score when not entered.',
 		),
 	));
 	?>

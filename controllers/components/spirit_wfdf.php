@@ -176,6 +176,8 @@ class SpiritWfdfComponent extends SpiritComponent
 	function expected() {
 		return array(
 			'entered_sotg' => 15,
+			'assigned_sotg' => 15,
+			'score_entry_penalty' => 0,
 			'q1' => 3,
 			'q2' => 3,
 			'q3' => 3,

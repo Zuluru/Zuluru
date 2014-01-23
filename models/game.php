@@ -500,13 +500,34 @@ class Game extends AppModel {
 	 *
 	 * @return mixed Array with the requested spirit entry, or false if the other team hasn't entered spirit yet.
 	 */
-	static function _get_spirit_entry ($game, $team_id)
+	static function _get_spirit_entry ($game, $team_id, &$spirit_obj)
 	{
+		$entry = false;
+
 		if (array_key_exists ('SpiritEntry', $game) && array_key_exists ($team_id, $game['SpiritEntry'])) {
-			return $game['SpiritEntry'][$team_id];
+			$entry = $game['SpiritEntry'][$team_id];
 		}
 
-		return false;
+		if (Configure::read('scoring.spirit_default')) {
+			if ($game['status'] == 'home_default') {
+				if ($team_id == $game['home_team']) {
+					$entry = $spirit_obj->defaulted();
+				} else {
+					$entry = $spirit_obj->expected();
+				}
+			} else if ($game['status'] == 'away_default') {
+				if ($team_id == $game['home_team']) {
+					$entry = $spirit_obj->expected();
+				} else {
+					$entry = $spirit_obj->defaulted();
+				}
+			}
+			if ($entry == false) {
+				$entry = $spirit_obj->expected();
+			}
+		}
+
+		return $entry;
 	}
 
 	/**
