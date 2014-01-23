@@ -21,7 +21,7 @@ class ZuluruTimeHelper extends TimeHelper {
 			return __('unknown', true);
 		} else if (strpos($date, '00-00') !== false) {
 			// Some dates may only have a valid year portion
-			$date_format = 'Y';
+			return substr($date, 0, 4);
 		} else {
 			$date_format = Configure::read('personal.date_format');
 		}
