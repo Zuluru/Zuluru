@@ -26,6 +26,10 @@ foreach ($spirit_obj->questions as $detail) {
 	}
 }
 
+if (Configure::read('scoring.missing_score_spirit_penalty')) {
+	$header[] = __('Score Submitted?', true);
+}
+
 $rows = array();
 foreach ($team['Game'] as $game) {
 	foreach ($game['SpiritEntry'] as $entry) {
@@ -56,6 +60,15 @@ foreach ($team['Game'] as $game) {
 							'entry' => $entry,
 					));
 				}
+			}
+			if (Configure::read('scoring.missing_score_spirit_penalty')) {
+				$row[] = $this->element ('spirit/symbol', array(
+						'spirit_obj' => $spirit_obj,
+						'league' => $team['Division']['League'],
+						'question' => 'score_entry_penalty',
+						'is_coordinator' => true,	// only ones allowed to even run this report
+						'value' => $entry['score_entry_penalty'],
+				));
 			}
 			$rows[] = $row;
 			$colcount = count($row);
