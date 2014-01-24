@@ -25,7 +25,7 @@ if ($this->params['controller'] != 'leagues' || $this->params['action'] != 'view
 		array('controller' => 'leagues', 'action' => 'view', 'league' => $league['League']['id']),
 		array('alt' => __('Details', true), 'title' => __('View League Details', true)));
 }
-if ($is_admin || $is_manager) {
+if ($is_admin || $is_manager || ($collapse && $is_coordinator)) {
 	if ($this->params['controller'] != 'leagues' || $this->params['action'] != 'edit') {
 		$links[] = $this->ZuluruHtml->iconLink("edit_$size.png",
 			array('controller' => 'leagues', 'action' => 'edit', 'league' => $league['League']['id'], 'return' => true),
