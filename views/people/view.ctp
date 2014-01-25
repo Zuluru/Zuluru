@@ -110,8 +110,17 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 			<?php if (Configure::read('profile.birthdate')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Birthdate'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-				<?php echo $this->ZuluruTime->date($person['birthdate']); ?>
-				&nbsp;
+				<?php
+				if (Configure::read('feature.birth_year_only')) {
+					if (empty($person['birthdate']) || substr($person['birthdate'], 0, 4) == '0000') {
+						__('unknown');
+					} else {
+						echo substr($person['birthdate'], 0, 4);
+					}
+				} else {
+					echo $this->ZuluruTime->date($person['birthdate']);
+				}
+				?>
 			</dd>
 			<?php endif; ?>
 		<?php endif; ?>

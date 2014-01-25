@@ -333,6 +333,13 @@ class Person extends AppModel {
 			);
 		}
 
+		if (Configure::read('feature.birth_year_only')) {
+			$this->validate['birthdate']['date'] = array(
+				'rule' => array('date', 'y', '/^(\\d{4})/'),
+				'message' => 'You must provide a valid birthdate.',
+			);
+		}
+
 		foreach (array_keys($this->validate) as $field) {
 			if (!Configure::read("profile.$field")) {
 				unset($this->validate[$field]);

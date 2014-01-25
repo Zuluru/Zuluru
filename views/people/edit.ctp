@@ -353,11 +353,22 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 			));
 		}
 		if (in_array (Configure::read('profile.birthdate'), $access)) {
-			echo $this->ZuluruForm->input('birthdate', array(
-				'minYear' => Configure::read('options.year.born.min'),
-				'maxYear' => Configure::read('options.year.born.max'),
-				'after' => $this->Html->para(null, __('Please enter a correct birthdate; having accurate information is important for insurance purposes.', true)),
-			));
+			if (Configure::read('feature.birth_year_only')) {
+				echo $this->ZuluruForm->input('birthdate', array(
+					'dateFormat' => 'Y',
+					'minYear' => Configure::read('options.year.born.min'),
+					'maxYear' => Configure::read('options.year.born.max'),
+					'after' => $this->Html->para(null, __('Please enter a correct birthdate; having accurate information is important for insurance purposes.', true)),
+				));
+				echo $this->Form->hidden('birthdate.month', array('value' => 1));
+				echo $this->Form->hidden('birthdate.day', array('value' => 1));
+			} else {
+				echo $this->ZuluruForm->input('birthdate', array(
+					'minYear' => Configure::read('options.year.born.min'),
+					'maxYear' => Configure::read('options.year.born.max'),
+					'after' => $this->Html->para(null, __('Please enter a correct birthdate; having accurate information is important for insurance purposes.', true)),
+				));
+			}
 		} else if (Configure::read('profile.birthdate')) {
 			echo $this->ZuluruForm->input('birthdate', array(
 				'disabled' => 'true',

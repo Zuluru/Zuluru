@@ -138,6 +138,15 @@ echo $this->element('settings/banner');
 		),
 	));
 	echo $this->element('settings/input', array(
+		'category' => 'feature',
+		'name' => 'birth_year_only',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'after' => 'If enabled, the system will not ask for birth month and day.',
+		),
+	));
+	echo $this->element('settings/input', array(
 		'category' => 'profile',
 		'name' => 'height',
 		'options' => array(
