@@ -72,8 +72,11 @@ class ZuluruFormHelper extends FormHelper {
 				} else {
 					$year = date('Y', strtotime($value));
 				}
-				$options['minYear'] = min($options['minYear'], $year - 1);
-				$options['maxYear'] = max($options['maxYear'], $year + 1);
+				// Account for null values in the database; we don't really want to give all options back to Roman times...
+				if ($year > 0) {
+					$options['minYear'] = min($options['minYear'], $year - 1);
+					$options['maxYear'] = max($options['maxYear'], $year + 1);
+				}
 			}
 		}
 
