@@ -16,6 +16,11 @@ if (array_key_exists('name', $this->data['Game'])) {
 ?></p>
 <?php
 if (is_array($start_date)):
+	// Seems that the asort algorithm will reverse the order of things that are equal.
+	// We'll reverse the starting array, so that when asort re-reverses it, it will be
+	// in the right order.
+	// TODO: A more robust solution using usort
+	$start_date = array_reverse($start_date, true);
 	asort($start_date);
 ?>
 <h3>Rounds to be scheduled at:</h3>
