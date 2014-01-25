@@ -1349,7 +1349,21 @@ class LeagueTypeComponent extends Object
 		}
 
 		if (!$skip) {
-			$dates = array_unique(Set::extract("/GameSlot[game_date>$date]/game_date", $this->division['DivisionGameslotAvailability']));
+			// Leagues that operate on multiple nights of the week may have more
+			// game slots available later in the same week, but we don't want to
+			// use them.
+			$days = Set::extract('/Day/id', $this->division);
+			$match_dates = Game::_matchDates($date, $days);
+			$last_date = max($match_dates);
+
+			$dates = array_unique(Set::extract("/GameSlot[game_date>$last_date]/game_date", $this->division['DivisionGameslotAvailability']));
+
+			// Tournaments, on the other hand, will not want to do this. We detect
+			// the difference by whether or not there are any more dates available.
+			if (empty($dates)) {
+				$dates = array_unique(Set::extract("/GameSlot[game_date>$date]/game_date", $this->division['DivisionGameslotAvailability']));
+			}
+
 			return min($dates);
 		}
 
