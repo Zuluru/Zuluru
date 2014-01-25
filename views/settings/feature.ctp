@@ -78,6 +78,15 @@ echo $this->element('settings/banner');
 			'after' => 'Enable or disable Spirit of the Game options. If enabled here, Spirit can still be disabled on a per-league basis.',
 		),
 	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
+		'name' => 'allow_past_games',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'after' => 'Enable or disable the option to schedule games in the past.',
+		),
+	));
 	if (!$affiliate) {
 		echo $this->element('settings/input', array(
 			'category' => 'feature',

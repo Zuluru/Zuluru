@@ -10,6 +10,7 @@ $this->Html->addCrumb (__('Select Date', true));
 
 <?php
 echo $this->Form->create ('Game', array('url' => Router::normalize($this->here)));
+$saved_data = $this->data;
 $this->data['Game']['step'] = 'date';
 echo $this->element('hidden', array('fields' => $this->data));
 ?>
@@ -64,4 +65,13 @@ If you leave all rounds at the earliest possible time, the system will schedule 
 </fieldset>
 
 <?php echo $this->Form->end(__('Next step', true)); ?>
+
+<?php
+if (Configure::read('feature.allow_past_games') && empty($this->data['Game']['past'])) {
+	echo $this->Form->create ('Game', array('url' => Router::normalize($this->here)));
+	echo $this->element('hidden', array('fields' => $saved_data));
+	echo $this->Form->hidden('Game.past', array('value' => true));
+	echo $this->Form->end(__('Schedule games in the past', true));
+}
+?>
 </div>

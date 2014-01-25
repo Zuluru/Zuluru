@@ -513,8 +513,10 @@ class SchedulesController extends AppController {
 		// Find the list of available dates for scheduling this division
 		$conditions = array(
 			'DivisionGameslotAvailability.division_id' => $id,
-			'GameSlot.game_date >= CURDATE()',
 		);
+		if (empty($this->data['Game']['past'])) {
+			$conditions[] = 'GameSlot.game_date >= CURDATE()';
+		}
 		if (empty($this->data['Game']['double_booking'])) {
 			$conditions['GameSlot.assigned'] = false;
 		}
