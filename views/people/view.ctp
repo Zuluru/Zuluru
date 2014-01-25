@@ -458,9 +458,10 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 <?php endif; ?>
 <?php endif; ?>
 
-<?php if (($is_admin || $is_manager || $is_me) && !empty($waivers)):?>
+<?php if ($is_admin || $is_manager || $is_me): ?>
 <div class="related">
 	<h3><?php __('Waivers');?></h3>
+<?php if(!empty($waivers)): ?>
 	<table class="list">
 	<tr>
 		<th><?php __('Waiver');?></th>
@@ -486,6 +487,9 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 		</tr>
 		<?php endforeach; ?>
 	</table>
+<?php else: ?>
+	<p>No current waiver is in effect.</p>
+<?php endif; ?>
 
 	<div class="actions">
 		<ul>

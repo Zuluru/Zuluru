@@ -106,22 +106,29 @@ class Waiver extends AppModel {
 		}
 	}
 
-	function validRange($date) {
-		switch ($this->data['Waiver']['expiry_type']) {
+	function validRange($date, $waiver = null) {
+		if (!$waiver) {
+			$waiver = $this->data['Waiver'];
+		}
+		return $this->_validRange($date, $waiver);
+	}
+
+	function _validRange($date, $waiver) {
+		switch ($waiver['expiry_type']) {
 			case 'fixed_dates':
 				$target = strtotime($date);
 				$y = date('Y', $target);
 				while (true) {
-					$end = mktime(23, 59, 59, $this->data['Waiver']['end_month'], $this->data['Waiver']['end_day'], $y);
+					$end = mktime(23, 59, 59, $waiver['end_month'], $waiver['end_day'], $y);
 					if ($end > $target) {
 						break;
 					}
 					++ $y;
 				}
-				$start = mktime(0, 0, 0, $this->data['Waiver']['start_month'], $this->data['Waiver']['start_day'], $y);
+				$start = mktime(0, 0, 0, $waiver['start_month'], $waiver['start_day'], $y);
 				if ($end < $start) {
 					-- $y;
-					$start = mktime(0, 0, 0, $this->data['Waiver']['start_month'], $this->data['Waiver']['start_day'], $y);
+					$start = mktime(0, 0, 0, $waiver['start_month'], $waiver['start_day'], $y);
 				}
 				if ($start <= $target && $target <= $end) {
 					return array(date('Y-m-d', $start), date('Y-m-d', $end));
@@ -129,7 +136,7 @@ class Waiver extends AppModel {
 				return array(false, false);
 
 			case 'elapsed_time':
-				return array($date, date('Y-m-d', strtotime("+{$this->data['Waiver']['duration']} days", strtotime($date))));
+				return array($date, date('Y-m-d', strtotime("+{$waiver['duration']} days", strtotime($date))));
 
 			case 'event':
 				return array($date, $date);

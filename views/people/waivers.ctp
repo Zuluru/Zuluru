@@ -7,7 +7,7 @@ $this->Html->addCrumb (__('Waiver History', true));
 <div class="waivers index">
 <h2><?php echo __('Waiver History', true) . ': ' . $person['Person']['full_name'];?></h2>
 <?php if (empty($person['Waiver'])): ?>
-<p>This person has never signed a waiver.</p>
+<p><?php __($person['Person']['id'] == $this->UserCache->read('Person.id') ? 'You have never signed a waiver.' : 'This person has never signed a waiver.'); ?></p>
 <?php else: ?>
 
 <table class="list">
@@ -48,6 +48,46 @@ $this->Html->addCrumb (__('Waiver History', true));
 	<?php endforeach; ?>
 </table>
 
+<?php endif; ?>
+
+<?php if (!empty($waivers)): ?>
+<h3>You have not signed the following waivers for a period covering today's date.</h3>
+<table class="list">
+	<?php
+	$i = 0;
+	$affiliate_id = null;
+	foreach ($waivers as $waiver):
+		if (count($affiliates) > 1 && $waiver['Waiver']['affiliate_id'] != $affiliate_id):
+			$affiliate_id = $waiver['Waiver']['affiliate_id'];
+	?>
+	<tr>
+		<th colspan="2">
+			<h3 class="affiliate"><?php echo $waiver['Affiliate']['name']; ?></h3>
+		</th>
+	</tr>
+	<?php
+		endif;
+
+		$class = null;
+		if ($i++ % 2 == 0) {
+			$class = ' class="altrow"';
+		}
+	?>
+	<tr<?php echo $class;?>>
+		<td><?php
+		list ($valid_from, $valid_until) = Waiver::_validRange(date('Y-m-d'), $waiver['Waiver']);
+		echo $waiver['Waiver']['name'] . ' ' . __('covering', true) . ' ' .
+				$this->ZuluruTime->date($valid_from) . ' ' . __('to', true) . ' ' .
+				$this->ZuluruTime->date($valid_until);
+		?></td>
+		<td class="actions">
+		<?php
+		echo $this->ZuluruHtml->link(__('Sign', true), array('controller' => 'waivers', 'action' => 'sign', 'waiver' => $waiver['Waiver']['id'], 'date' => date('Y-m-d')));
+		?>
+		</td>
+	</tr>
+<?php endforeach; ?>
+</table>
 <?php endif; ?>
 
 </div>

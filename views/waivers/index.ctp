@@ -73,7 +73,7 @@ $this->Html->addCrumb (__('List', true));
 		</td>
 	</tr>
 <?php endforeach; ?>
-	</table>
+</table>
 </div>
 <div class="actions">
 	<ul>

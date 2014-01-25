@@ -2647,8 +2647,25 @@ class PeopleController extends AppController {
 				'conditions' => array('Waiver.affiliate_id' => $affiliates),
 				'order' => array('Waiver.affiliate_id', 'WaiversPerson.created' => 'DESC'),
 		)));
-		$this->set('person', $this->Person->read(null, $id));
-		$this->set(compact('affiliates'));
+		$person = $this->Person->read(null, $id);
+
+		if ($id == $my_id) {
+			$waivers = array();
+			foreach ($affiliates as $affiliate) {
+				$signed_names = Set::extract("/Waiver[affiliate_id=$affiliate]/name", $this->UserCache->read('WaiversCurrent'));
+				$waivers = array_merge($waivers, $this->Person->Waiver->find('all', array(
+						'contain' => array('Affiliate'),
+						'conditions' => array(
+							'Waiver.active' => true,
+							'Waiver.expiry_type !=' => 'event',
+							'Waiver.affiliate_id' => $affiliate,
+							'NOT' => array('Waiver.name' => $signed_names),
+						),
+				)));
+			}
+		}
+
+		$this->set(compact('person', 'affiliates', 'waivers'));
 	}
 
 	function cron() {
