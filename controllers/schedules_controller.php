@@ -85,7 +85,7 @@ class SchedulesController extends AppController {
 
 		// Non-tournament divisions must currently have even # of teams for scheduling unless the exclude_teams flag is set
 		if ($this->_numTeams() % 2 && !$this->division['Division']['exclude_teams'] &&
-			$this->division['Division']['schedule_type'] != 'tournament' && !$this->_arg('playoff'))
+			$this->division['Division']['schedule_type'] != 'tournament' && !$this->_arg('playoff') && !$this->pool)
 		{
 			// TODO: Embed a link to "edit your division" into this, in a way that doesn't break i18n
 			$this->Session->setFlash(__('Must currently have an even number of teams in your division. ' . 
