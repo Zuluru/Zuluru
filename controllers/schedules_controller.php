@@ -3,10 +3,15 @@ class SchedulesController extends AppController {
 
 	var $name = 'Schedules';
 	var $uses = array('Division');
+	var $helpers = array('ZuluruGame');
 	var $components = array('Lock');
 
 	var $numTeams = null;
 	var $pool = null;
+
+	function publicActions() {
+		return array('today', 'day');
+	}
 
 	function isAuthorized() {
 		// People can perform these operations on divisions they coordinate
@@ -973,6 +978,78 @@ class SchedulesController extends AppController {
 		}
 
 		$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
+	}
+
+	function today() {
+		Configure::write ('debug', 0);
+		$this->layout = 'iframe';
+
+		$games = $this->Division->Game->find('count', array(
+				'contain' => array('GameSlot'),
+				'conditions' => array(
+					'GameSlot.game_date' => date('Y-m-d'),
+					'Game.published' => true,
+				),
+		));
+		$this->set(compact('games'));
+	}
+
+	function day() {
+		if (!empty($this->data)) {
+			$date = $this->data['date']['year'] . '-' . $this->data['date']['month'] . '-' . $this->data['date']['day'];
+		} else {
+			$date = $this->_arg('date');
+		}
+		if (empty($date)) {
+			$date = date('Y-m-d');
+		}
+
+		// Hopefully, everything we need is already cached
+		$cache_key = "schedule/$date";
+		$cached = Cache::read($cache_key, 'long_term');
+		if ($cached) {
+			$games = $cached;
+		}
+		if (empty($games)) {
+			$affiliates = $this->_applicableAffiliateIDs(true);
+
+			// Find divisions that match the affiliates, and specified date
+			$divisions = $this->Division->find('all', array(
+					'contain' => array('League'),
+					'conditions' => array(
+						'League.affiliate_id' => $affiliates,
+						'Division.open <=' => $date,
+						'Division.close >=' => $date,
+					),
+			));
+			$divisions = Set::extract('/Division/id', $divisions);
+
+			$games = $this->Division->Game->find('all', array(
+					'contain' => array(
+						'GameSlot' => array('Field' => 'Facility'),
+						'Division' => array('League' => 'Affiliate'),
+						'ScoreEntry',
+						'HomeTeam',
+						'HomePoolTeam' => 'DependencyPool',
+						'AwayTeam',
+						'AwayPoolTeam' => 'DependencyPool',
+					),
+					'conditions' => array(
+						'Division.id' => $divisions,
+						'GameSlot.game_date' => $date,
+						'Game.published' => true,
+						'OR' => array(
+							'Game.home_dependency_type !=' => 'copy',
+							'Game.home_dependency_type' => null,
+						),
+					),
+			));
+
+			// Sort games by date, time and field
+			usort ($games, array ('Game', 'compareDateAndField'));
+		}
+
+		$this->set(compact('date', 'games'));
 	}
 
 	/**
