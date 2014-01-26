@@ -26,7 +26,7 @@ foreach ($teams as $team):
 ?>
 	<tr<?php echo $class;?>>
 		<td>
-			<?php echo $this->Html->link($team['Team']['name'], array('action' => 'view', 'team' => $team['Team']['id'])); ?>
+			<?php echo $this->element('teams/block', compact('team')); ?>
 		</td>
 		<td class="actions">
 			<?php echo $this->element('teams/actions', array('team' => $team['Team'], 'format' => 'links')); ?>
