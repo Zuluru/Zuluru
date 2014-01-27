@@ -2,6 +2,9 @@
 if (!isset($is_manager)) {
 	$is_manager = false;
 }
+if (!isset($is_coordinator)) {
+	$is_coordinator = false;
+}
 if (!isset($format)) {
 	$format = 'links';
 }
