@@ -23,7 +23,7 @@ $this->Html->addCrumb (__('List', true));
 			$affiliate_id = $person['Affiliate']['id'];
 	?>
 	<tr>
-		<th colspan="2">
+		<th colspan="7">
 			<h3 class="affiliate"><?php echo $person['Affiliate']['name']; ?></h3>
 		</th>
 	</tr>
