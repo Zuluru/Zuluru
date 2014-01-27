@@ -414,7 +414,9 @@ class UserCacheComponent extends Object
 			$data = $model->read(null, $find);
 			$return = $data[$model->alias];
 			foreach ($contain as $c) {
-				$return[$c] = $data[$c];
+				if (!empty($data[$c])) {
+					$return[$c] = $data[$c];
+				}
 			}
 		} else {
 			$return = $model->find('all', $find);
