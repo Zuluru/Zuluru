@@ -52,7 +52,9 @@ class LeagueTypeComponent extends Object
 			usort ($division['Team'], array($this, 'compareTeamsTournament'));
 		} else {
 			usort ($division['Team'], array($this, 'compareTeams'));
-			$this->detectAndResolveTies($division['Team'], 'compareTeams');
+			if (!empty($division['Game'])) {
+				$this->detectAndResolveTies($division['Team'], 'compareTeams');
+			}
 		}
 	}
 
