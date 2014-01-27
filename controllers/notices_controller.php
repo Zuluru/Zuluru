@@ -84,7 +84,7 @@ class NoticesController extends AppController {
 			while (preg_match('#(.*)<%person (.*?) %>(.*)#', $notice['Notice']['notice'], $matches)) {
 				if (!isset($person)) {
 					$this->Person = ClassRegistry::init('Person');
-					$this->Person->contain();
+					$this->Person->contain($this->Auth->authenticate->name);
 					$person = $this->Person->read (null, $this->Auth->user('zuluru_person_id'));
 				}
 				$notice['Notice']['notice'] = $matches[1] . $person['Person'][$matches[2]] . $matches[3];
