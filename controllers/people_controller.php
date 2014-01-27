@@ -641,6 +641,8 @@ class PeopleController extends AppController {
 							'approved' => true,
 						),
 				));
+			} else {
+				$photo = null;
 			}
 			if (Configure::read('feature.documents')) {
 				$documents = $this->UserCache->read('Documents', $person['id']);
