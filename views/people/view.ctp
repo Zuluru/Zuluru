@@ -214,11 +214,14 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 			echo $this->Html->tag ('li', $this->Html->link(__($link, true), array('action' => 'note', 'person' => $person['id'])));
 		}
 		if ($is_me || $is_admin || $is_manager) {
-			echo $this->Html->tag ('li', $this->Html->link(__('Edit Profile', true), array('action' => 'edit', 'person' => $person['id'], 'return' => true)));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('edit_24.png', array('action' => 'edit', 'person' => $person['id'], 'return' => true), array('alt' => __('Edit Profile', true), 'title' => __('Edit Profile', true))));
 			echo $this->Html->tag ('li', $this->Html->link(__('Edit Preferences', true), array('action' => 'preferences', 'person' => $person['id'])));
+			if (!empty($person['user_id'])) {
+				echo $this->Html->tag ('li', $this->Html->link(__('Change Password', true), array('controller' => 'users', 'action' => 'change_password', 'user' => $person['user_id'])));
+			}
 		}
 		if ($is_admin || $is_manager) {
-			echo $this->Html->tag ('li', $this->Html->link(__('Delete Player', true), array('action' => 'delete', 'person' => $person['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $person['id'])));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('delete_24.png', array('action' => 'delete', 'person' => $person['id']), array('alt' => __('Delete Player', true), 'title' => __('Delete Player', true)), array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $person['id']))));
 		}
 		?>
 	</ul>

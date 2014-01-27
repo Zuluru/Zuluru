@@ -149,7 +149,7 @@ class UsersController extends AppController {
 	function change_password() {
 		$id = $this->_arg('user');
 		if (!$id) {
-			$id = $this->Auth->user('zuluru_person_id');
+			$id = $this->UserCache->read('Person.user_id');
 		}
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('user', true)), 'default', array('class' => 'info'));
@@ -159,8 +159,8 @@ class UsersController extends AppController {
 		// Read this before trying to save, so that things like the current password are
 		// available for validation
 		$user_model = $this->Auth->authenticate->name;
-		$this->Person->contain($user_model);
-		$user = $this->Person->read(null, $id);
+		$this->Auth->authenticate->contain('Person');
+		$user = $this->Auth->authenticate->read(null, $id);
 
 		if (!empty($this->data)) {
 			$this->data[$user_model]['password'] = $user[$user_model]['password'];
@@ -174,7 +174,7 @@ class UsersController extends AppController {
 			$this->data = $user;
 		}
 		$this->set(compact('user'));
-		$this->set('is_me', ($this->Auth->user('zuluru_person_id') == $id));
+		$this->set('is_me', ($this->UserCache->read('Person.user_id') == $id));
 		$this->set(array(
 				'user_model' => $this->Auth->authenticate->name,
 				'id_field' => $this->Auth->authenticate->primaryKey,
