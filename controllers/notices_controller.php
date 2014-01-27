@@ -3,6 +3,10 @@ class NoticesController extends AppController {
 
 	var $name = 'Notices';
 
+	function publicActions() {
+		return array('next', 'viewed');
+	}
+
 	function isAuthorized() {
 		// Anyone that's logged in can perform these operations
 		if (in_array ($this->params['action'], array(
