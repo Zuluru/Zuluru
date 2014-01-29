@@ -690,6 +690,7 @@ class PeopleController extends AppController {
 		if (empty($person)) {
 			return;
 		}
+		$photo = null;
 
 		if ($this->is_logged_in) {
 			if (Configure::read('feature.photos')) {
