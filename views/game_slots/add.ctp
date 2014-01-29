@@ -71,7 +71,7 @@ if (isset ($field)) {
 
 			// Build the facility input
 			echo $this->Form->input("Facility.{$facility['id']}", array(
-					'div' => 'input checkbox field',
+					'div' => 'input checkbox field link_like',
 					'label' => $facility['name'],
 					'type' => 'checkbox',
 					'hiddenField' => false,

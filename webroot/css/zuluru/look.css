@@ -99,6 +99,10 @@ dl .altrow
 {
 	color: #e32;
 }
+#zuluru .link_like>label, #zuluru span.link_like
+{
+	cursor: pointer;
+}
 #zuluru input,
 #zuluru select,
 #zuluru textarea
