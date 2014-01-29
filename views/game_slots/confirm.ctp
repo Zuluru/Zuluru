@@ -8,9 +8,8 @@ $this->Html->addCrumb (__('Confirm', true));
 	<fieldset>
 		<legend><?php printf(__('Confirm %s', true), __('Game Slots', true)); ?></legend>
 		<?php
-		// Some of the last form's fields need to be carried through as hidden fields
+		// The last form's fields need to be carried through as hidden fields
 		$hidden = $this->data;
-		unset ($hidden['Field']);
 		// ...and one new field
 		$hidden['confirm'] = true;
 		echo $this->element('hidden', array('fields' => $hidden));
