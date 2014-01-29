@@ -10,7 +10,6 @@ $tr_id = 'tr_' . mt_rand();
 	echo $this->Form->hidden("Question.$i.id", array('value' => $question['id']));
 	echo $this->Form->hidden("Question.$i.question", array('value' => $question['question']));
 	echo $this->Form->hidden("Question.$i.type", array('value' => $question['type']));
-	echo $this->Form->hidden("Question.$i.active");
 	echo $this->Form->hidden("Question.$i.anonymous");
 	echo $this->Form->hidden("Question.$i.QuestionnairesQuestion.question_id", array('value' => $question['id']));
 	echo $this->Form->hidden("Question.$i.QuestionnairesQuestion.sort");

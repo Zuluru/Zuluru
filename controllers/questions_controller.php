@@ -129,23 +129,33 @@ class QuestionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('question', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+
+		$this->Question->contain(array('Answer' => array('order' => 'Answer.sort')));
+		$question = $this->Question->read(null, $id);
+		if (!$question) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('question', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+		$this->Configuration->loadAffiliate($question['Question']['affiliate_id']);
+
 		if (!empty($this->data)) {
 			if ($this->Question->saveAll($this->data)) {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('question', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('question', true)), 'default', array('class' => 'warning'));
-				$this->Configuration->loadAffiliate($this->Question->affiliate($id));
 			}
 		}
+
 		if (empty($this->data)) {
-			$this->Question->contain(array('Answer' => array('order' => 'Answer.sort')));
-			$this->data = $this->Question->read(null, $id);
-			if (!$this->data) {
-				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('question', true)), 'default', array('class' => 'info'));
-				$this->redirect(array('action' => 'index'));
+			$this->data = $question;
+		} else {
+			if (!empty($this->data['Answer'])) {
+				foreach ($this->data['Answer'] as $key => $answer) {
+					$active = Set::extract("/Answer[id={$answer['id']}]/active", $question);
+					$this->data['Answer'][$key]['active'] = $active[0];
+				}
 			}
-			$this->Configuration->loadAffiliate($this->data['Question']['affiliate_id']);
 		}
 
 		$this->set('affiliates', $this->_applicableAffiliates(true));
@@ -209,7 +219,11 @@ class QuestionsController extends AppController {
 		$id = $this->_arg('question');
 		$this->Question->contain(array('Answer' => array('order' => 'Answer.sort')));
 		$question = $this->Question->read(null, $id);
-		$sort = max (Set::extract('/Answer/sort', $question)) + 1;
+		if (empty($question['Answer'])) {
+			$sort = 1;
+		} else {
+			$sort = max (Set::extract('/Answer/sort', $question)) + 1;
+		}
 		$answer = array(
 			'question_id' => $id,
 			'sort' => $sort,

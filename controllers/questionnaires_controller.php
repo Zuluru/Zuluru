@@ -135,23 +135,33 @@ class QuestionnairesController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('questionnaire', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
+
+		$this->Questionnaire->contain(array('Question' => array('Answer')));
+		$questionnaire = $this->Questionnaire->read(null, $id);
+		if (!$questionnaire) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('questionnaire', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+		$this->Configuration->loadAffiliate($questionnaire['Questionnaire']['affiliate_id']);
+
 		if (!empty($this->data)) {
 			if ($this->Questionnaire->saveAll($this->data)) {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('questionnaire', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('questionnaire', true)), 'default', array('class' => 'warning'));
-				$this->Configuration->loadAffiliate($this->Questionnaire->affiliate($id));
 			}
 		}
+
 		if (empty($this->data)) {
-			$this->Questionnaire->contain(array('Question' => array('Answer')));
-			$this->data = $this->Questionnaire->read(null, $id);
-			if (!$this->data) {
-				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('questionnaire', true)), 'default', array('class' => 'info'));
-				$this->redirect(array('action' => 'index'));
+			$this->data = $questionnaire;
+		} else {
+			if (!empty($this->data['Question'])) {
+				foreach ($this->data['Question'] as $key => $question) {
+					$active = Set::extract("/Question[id={$question['id']}]/active", $questionnaire);
+					$this->data['Question'][$key]['active'] = $active[0];
+				}
 			}
-			$this->Configuration->loadAffiliate($this->data['Questionnaire']['affiliate_id']);
 		}
 
 		$questions = $this->Questionnaire->Question->find('list');

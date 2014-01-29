@@ -42,9 +42,11 @@ $this->Html->addCrumb (__('Edit', true));
 		<tbody>
 		<?php $i = 0; ?>
 		<?php
-		foreach ($this->data['Answer'] as $answer) {
-			++$i;
-			echo $this->element('questions/edit_answer', compact('answer', 'i'));
+		if (!empty($this->data['Answer'])) {
+			foreach ($this->data['Answer'] as $answer) {
+				++$i;
+				echo $this->element('questions/edit_answer', compact('answer', 'i'));
+			}
 		}
 		?>
 
