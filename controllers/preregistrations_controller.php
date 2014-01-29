@@ -146,7 +146,7 @@ class PreregistrationsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		if ($this->Preregistration->delete($id)) {
-			$this->UserCache->clear('Preregistrations', $prereg['Preregistration']['person']);
+			$this->UserCache->clear('Preregistrations', $prereg['Preregistration']['person_id']);
 			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Preregistration', true)), 'default', array('class' => 'success'));
 			$this->redirect(array('action' => 'index'));
 		}
