@@ -540,6 +540,7 @@ class PeopleController extends AppController {
 
 		$group = $this->UserCache->read('Group', $person['id']);
 		$teams = $this->UserCache->read('Teams', $person['id']);
+		$photo = null;
 
 		if ($this->is_logged_in) {
 			$relatives = $this->UserCache->read('Relatives', $person['id']);
@@ -641,8 +642,6 @@ class PeopleController extends AppController {
 							'approved' => true,
 						),
 				));
-			} else {
-				$photo = null;
 			}
 			if (Configure::read('feature.documents')) {
 				$documents = $this->UserCache->read('Documents', $person['id']);
