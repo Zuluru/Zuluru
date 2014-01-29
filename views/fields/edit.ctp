@@ -25,10 +25,12 @@ if (isset ($add)) {
 		echo $this->ZuluruForm->input('surface', array(
 				'options' => Configure::read('options.surface'),
 				'empty' => '---',
+				'hide_single' => true,
 		));
 		echo $this->ZuluruForm->input('rating', array(
 				'options' => Configure::read('options.field_rating'),
 				'empty' => '---',
+				'hide_single' => true,
 		));
 		echo $this->ZuluruForm->input('layout_url');
 	?>
