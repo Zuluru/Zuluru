@@ -10,8 +10,10 @@ $this->Html->addCrumb (__('Team History', true));
 <?php
 $years = array();
 foreach ($teams as $team) {
-	$years[] = date ('Y', strtotime ($team['Division']['open']));
-	$seasons[] = $team['Division']['League']['season'];
+	if (substr($team['Division']['open'], 0, 4) != '0000') {
+		$years[] = date ('Y', strtotime ($team['Division']['open']));
+		$seasons[] = $team['Division']['League']['season'];
+	}
 }
 echo $this->element('selector', array('title' => 'Year', 'options' => array_unique($years)));
 
@@ -30,7 +32,12 @@ echo $this->element('selector', array('title' => 'Role', 'options' => array_inte
 <?php
 $last_year = null;
 foreach ($teams as $team):
-	$year = date ('Y', strtotime ($team['Division']['open']));
+	if (substr($team['Division']['open'], 0, 4) != '0000') {
+		$year = $year_text = date ('Y', strtotime ($team['Division']['open']));
+	} else {
+		$year = '0000';
+		$year_text = __('N/A', true);
+	}
 	if ($last_year != $year):
 		$last_year = $year;
 		$seasons = array_unique(Set::extract("/Division[open>=$year-01-01][open<=$year-12-31]/League/season", $teams));
@@ -38,7 +45,7 @@ foreach ($teams as $team):
 		$roles = array_unique(Set::extract("/Division[open>=$year-01-01][open<=$year-12-31]/../TeamsPerson/role", $teams));
 ?>
 <tr class="<?php echo $this->element('selector_classes', array('title' => 'Year', 'options' => $year)); ?> <?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $seasons)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $days)); ?> <?php echo $this->element('selector_classes', array('title' => 'Role', 'options' => $roles)); ?>">
-	<th colspan="3"><?php echo $year; ?></th>
+	<th colspan="3"><?php echo $year_text; ?></th>
 </tr>
 <?php endif; ?>
 <tr class="<?php echo $this->element('selector_classes', array('title' => 'Year', 'options' => $year)); ?> <?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $team['Division']['League']['season'])); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => array_unique(Set::extract('/Division/Day/name', $team)))); ?> <?php echo $this->element('selector_classes', array('title' => 'Role', 'options' => $team['TeamsPerson']['role'])); ?>">
