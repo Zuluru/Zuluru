@@ -997,6 +997,11 @@ class GamesController extends AppController {
 			$this->redirect('/');
 		}
 
+		if (empty($person['Team'])) {
+			$this->Session->setFlash(__('That person is not on this team.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
 		$is_me = ($person_id == $this->Auth->user('zuluru_person_id'));
 		$is_captain = in_array ($team_id, $this->UserCache->read('OwnedTeamIDs'));
 		$is_coordinator = in_array ($team['division_id'], $this->UserCache->read('DivisionIDs'));
