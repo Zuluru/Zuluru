@@ -1652,17 +1652,23 @@ class DivisionsController extends AppController {
 			$conditions['Game.pool_id'] = $pool;
 		}
 
-		$count = $this->Division->Game->find('count', array(
+		$games = $this->Division->Game->find('all', array(
 				'contain' => array(
 					'HomePoolTeam',
 					'AwayPoolTeam',
+					'GameSlot',
 				),
 				'conditions' => $conditions,
 		));
-		if ($count == 0) {
+		if ($date) {
+			$games = Set::extract("/GameSlot[game_date=$date]/..", $games);
+		}
+		if (empty($games)) {
 			$this->Session->setFlash(__('There are currently no dependencies to initialize in this division.', true), 'default', array('class' => 'warning'));
 			$this->redirect(array('action' => 'schedule', 'division' => $id));
 		}
+
+		$pools = array_unique(Set::extract('/Game/pool_id', $games));
 
 		if ($division['Division']['schedule_type'] == 'tournament') {
 			$seeds = Set::extract('/Team/initial_seed', $division);
@@ -1683,13 +1689,7 @@ class DivisionsController extends AppController {
 
 		// Go through all games, updating seed dependencies
 		foreach ($division['Game'] as $game) {
-			if ($date && ($date != $game['GameSlot']['game_date'])) {
-				continue;
-			}
-			if ($pool && ($pool != $game['pool_id'])) {
-				continue;
-			}
-			if (in_array($game['pool_id'], $finalized_pools)) {
+			if (!in_array($game['pool_id'], $pools)) {
 				continue;
 			}
 			if (Game::_is_finalized($game)) {
