@@ -276,14 +276,14 @@ if (!empty($relatives)):
 					?></td>
 					<td class="actions splash_item"><?php
 					if (in_array($item['HomeTeam']['id'], $team_ids) && $item['HomeTeam']['track_attendance']) {
-						$role = Set::extract("/TeamsPerson[person_id=$id][team_id={$item['HomeTeam']['id']}]/role", $teams);
-						if (!empty($role)) {
+						$roster = Set::extract("/TeamsPerson[person_id=$id][team_id={$item['HomeTeam']['id']}]/.", $teams);
+						if (!empty($roster) && $roster[0]['status'] == ROSTER_APPROVED) {
 							echo $this->element('games/attendance_change', array(
 								'team' => $item['HomeTeam'],
 								'game_id' => $item['Game']['id'],
 								'game_date' => $item['GameSlot']['game_date'],
 								'game_time' => $item['GameSlot']['game_start'],
-								'role' => $role[0],
+								'role' => $roster[0]['role'],
 								'status' => (array_key_exists ($id, $item['Attendance']) ? $item['Attendance'][$id]['status'] : ATTENDANCE_UNKNOWN),
 								'comment' => (array_key_exists ($id, $item['Attendance']) ? $item['Attendance'][$id]['comment'] : null),
 								'future_only' => false,
@@ -291,14 +291,14 @@ if (!empty($relatives)):
 							));
 						}
 					} else if (in_array($item['AwayTeam']['id'], $team_ids) && $item['AwayTeam']['track_attendance']) {
-						$role = Set::extract("/TeamsPerson[person_id=$id][team_id={$item['AwayTeam']['id']}]/role", $teams);
-						if (!empty($role)) {
+						$roster = Set::extract("/TeamsPerson[person_id=$id][team_id={$item['AwayTeam']['id']}]/.", $teams);
+						if (!empty($roster) && $roster[0]['status'] == ROSTER_APPROVED) {
 							echo $this->element('games/attendance_change', array(
 								'team' => $item['AwayTeam'],
 								'game_id' => $item['Game']['id'],
 								'game_date' => $item['GameSlot']['game_date'],
 								'game_time' => $item['GameSlot']['game_start'],
-								'role' => $role[0],
+								'role' => $roster[0]['role'],
 								'status' => (array_key_exists ($id, $item['Attendance']) ? $item['Attendance'][$id]['status'] : ATTENDANCE_UNKNOWN),
 								'comment' => (array_key_exists ($id, $item['Attendance']) ? $item['Attendance'][$id]['comment'] : null),
 								'future_only' => false,
@@ -310,15 +310,15 @@ if (!empty($relatives)):
 					<?php foreach ($approved_relatives as $relative): ?>
 					<td class="actions splash_item"><?php
 					if (in_array($item['HomeTeam']['id'], $team_ids) && $item['HomeTeam']['track_attendance']) {
-						$role = Set::extract("/TeamsPerson[person_id={$relative['Relative']['id']}][team_id={$item['HomeTeam']['id']}]/role", $teams);
-						if (!empty($role)) {
+						$roster = Set::extract("/TeamsPerson[person_id={$relative['Relative']['id']}][team_id={$item['HomeTeam']['id']}]/.", $teams);
+						if (!empty($roster) && $roster[0]['status'] == ROSTER_APPROVED) {
 							echo $this->element('games/attendance_change', array(
 								'team' => $item['HomeTeam'],
 								'game_id' => $item['Game']['id'],
 								'game_date' => $item['GameSlot']['game_date'],
 								'game_time' => $item['GameSlot']['game_start'],
 								'person_id' => $relative['Relative']['id'],
-								'role' => $role[0],
+								'role' => $roster[0]['role'],
 								'status' => (array_key_exists ($relative['Relative']['id'], $item['Attendance']) ? $item['Attendance'][$relative['Relative']['id']]['status'] : ATTENDANCE_UNKNOWN),
 								'comment' => (array_key_exists ($relative['Relative']['id'], $item['Attendance']) ? $item['Attendance'][$relative['Relative']['id']]['comment'] : null),
 								'is_captain' => in_array($item['HomeTeam']['id'], $this->UserCache->read('OwnedTeamIDs')),
@@ -327,15 +327,15 @@ if (!empty($relatives)):
 							));
 						}
 					} else if (in_array($item['AwayTeam']['id'], $team_ids) && $item['AwayTeam']['track_attendance']) {
-						$role = Set::extract("/TeamsPerson[person_id={$relative['Relative']['id']}][team_id={$item['AwayTeam']['id']}]/role", $teams);
-						if (!empty($role)) {
+						$roster = Set::extract("/TeamsPerson[person_id={$relative['Relative']['id']}][team_id={$item['AwayTeam']['id']}]/.", $teams);
+						if (!empty($roster) && $roster[0]['status'] == ROSTER_APPROVED) {
 							echo $this->element('games/attendance_change', array(
 								'team' => $item['AwayTeam'],
 								'game_id' => $item['Game']['id'],
 								'game_date' => $item['GameSlot']['game_date'],
 								'game_time' => $item['GameSlot']['game_start'],
 								'person_id' => $relative['Relative']['id'],
-								'role' => $role[0],
+								'role' => $roster[0]['role'],
 								'status' => (array_key_exists ($relative['Relative']['id'], $item['Attendance']) ? $item['Attendance'][$relative['Relative']['id']]['status'] : ATTENDANCE_UNKNOWN),
 								'comment' => (array_key_exists ($relative['Relative']['id'], $item['Attendance']) ? $item['Attendance'][$relative['Relative']['id']]['comment'] : null),
 								'is_captain' => in_array($item['AwayTeam']['id'], $this->UserCache->read('OwnedTeamIDs')),
@@ -369,15 +369,15 @@ if (!empty($relatives)):
 					?></td>
 					<td class="actions splash_item"><?php
 						if ($item['Team']['track_attendance'] && array_key_exists ($id, $item['Attendance'])) {
-							$role = Set::extract("/TeamsPerson[person_id=$id][team_id={$item['Team']['id']}]/role", $teams);
-							if (!empty($role)) {
+							$roster = Set::extract("/TeamsPerson[person_id=$id][team_id={$item['Team']['id']}]/.", $teams);
+							if (!empty($roster) && $roster[0]['status'] == ROSTER_APPROVED) {
 								echo $this->element('team_events/attendance_change', array(
 									'team' => $item['Team'],
 									'event_id' => $item['TeamEvent']['id'],
 									'date' => $item['TeamEvent']['date'],
 									'time' => $item['TeamEvent']['start'],
 									'person_id' => $id,
-									'role' => $role[0],
+									'role' => $roster[0]['role'],
 									'status' => $item['Attendance'][$id]['status'],
 									'comment' => $item['Attendance'][$id]['comment'],
 									'is_captain' => in_array($item['Team']['id'], $this->UserCache->read('OwnedTeamIDs')),
@@ -389,15 +389,15 @@ if (!empty($relatives)):
 					<?php foreach ($approved_relatives as $relative): ?>
 					<td class="actions splash_item"><?php
 						if ($item['Team']['track_attendance'] && array_key_exists ($relative['Relative']['id'], $item['Attendance'])) {
-							$role = Set::extract("/TeamsPerson[person_id={$relative['Relative']['id']}][team_id={$item['Team']['id']}]/role", $teams);
-							if (!empty($role)) {
+							$roster = Set::extract("/TeamsPerson[person_id={$relative['Relative']['id']}][team_id={$item['Team']['id']}]/.", $teams);
+							if (!empty($roster) && $roster[0]['status'] == ROSTER_APPROVED) {
 								echo $this->element('team_events/attendance_change', array(
 									'team' => $item['Team'],
 									'event_id' => $item['TeamEvent']['id'],
 									'date' => $item['TeamEvent']['date'],
 									'time' => $item['TeamEvent']['start'],
 									'person_id' => $relative['Relative']['id'],
-									'role' => $role[0],
+									'role' => $roster[0]['role'],
 									'status' => $item['Attendance'][$relative['Relative']['id']]['status'],
 									'comment' => $item['Attendance'][$relative['Relative']['id']]['comment'],
 									'is_captain' => in_array($item['Team']['id'], $this->UserCache->read('OwnedTeamIDs')),

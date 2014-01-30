@@ -67,30 +67,32 @@ foreach ($items as $item):
 			$team = $item['AwayTeam'];
 		}
 		if ($team['track_attendance']) {
-			$role = Set::extract("/TeamsPerson[team_id={$team['id']}]/role", $teams);
-			$is_captain = in_array($team['id'], $this->UserCache->read('OwnedTeamIDs'));
-			echo $this->element('games/attendance_change', array(
-				'team' => $team,
-				'game_id' => $item['Game']['id'],
-				'game_date' => $item['GameSlot']['game_date'],
-				'game_time' => $item['GameSlot']['game_start'],
-				'person_id' => $person_id,
-				'role' => $role[0],
-				'status' => (array_key_exists (0, $item['Attendance']) ? $item['Attendance'][0]['status'] : ATTENDANCE_UNKNOWN),
-				'comment' => (array_key_exists (0, $item['Attendance']) ? $item['Attendance'][0]['comment'] : null),
-				'is_captain' => $is_captain,
-				'future_only' => true,
-			));
-			if ($item['GameSlot']['game_date'] >= date('Y-m-d')) {
-				echo $this->ZuluruHtml->iconLink('attendance_24.png',
-					array('controller' => 'games', 'action' => 'attendance', 'team' => $team['id'], 'game' => $item['Game']['id']),
-					array('alt' => __('Attendance', true), 'title' => __('View Game Attendance Report', true)));
+			$roster = reset(Set::extract("/TeamsPerson[team_id={$team['id']}]/.", $teams));
+			if ($roster['status'] == ROSTER_APPROVED) {
+				$is_captain = in_array($team['id'], $this->UserCache->read('OwnedTeamIDs'));
+				echo $this->element('games/attendance_change', array(
+					'team' => $team,
+					'game_id' => $item['Game']['id'],
+					'game_date' => $item['GameSlot']['game_date'],
+					'game_time' => $item['GameSlot']['game_start'],
+					'person_id' => $person_id,
+					'role' => $roster['role'],
+					'status' => (array_key_exists (0, $item['Attendance']) ? $item['Attendance'][0]['status'] : ATTENDANCE_UNKNOWN),
+					'comment' => (array_key_exists (0, $item['Attendance']) ? $item['Attendance'][0]['comment'] : null),
+					'is_captain' => $is_captain,
+					'future_only' => true,
+				));
+				if ($item['GameSlot']['game_date'] >= date('Y-m-d')) {
+					echo $this->ZuluruHtml->iconLink('attendance_24.png',
+						array('controller' => 'games', 'action' => 'attendance', 'team' => $team['id'], 'game' => $item['Game']['id']),
+						array('alt' => __('Attendance', true), 'title' => __('View Game Attendance Report', true)));
 
-				if ($is_captain && Configure::read('scoring.stat_tracking') && League::hasStats($item['Division']['League'])) {
-					echo $this->ZuluruHtml->iconLink('pdf_24.png',
-							array('controller' => 'games', 'action' => 'stat_sheet', 'team' => $team['id'], 'game' => $item['Game']['id']),
-							array('alt' => __('Stat Sheet', true), 'title' => __('Stat Sheet', true)),
-							array('confirm' => __('This stat sheet will only include players who have indicated that they are playing, plus a couple of blank lines.\n\nFor a stat sheet with your full roster, use the link from the team view page.', true)));
+					if ($is_captain && Configure::read('scoring.stat_tracking') && League::hasStats($item['Division']['League'])) {
+						echo $this->ZuluruHtml->iconLink('pdf_24.png',
+								array('controller' => 'games', 'action' => 'stat_sheet', 'team' => $team['id'], 'game' => $item['Game']['id']),
+								array('alt' => __('Stat Sheet', true), 'title' => __('Stat Sheet', true)),
+								array('confirm' => __('This stat sheet will only include players who have indicated that they are playing, plus a couple of blank lines.\n\nFor a stat sheet with your full roster, use the link from the team view page.', true)));
+					}
 				}
 			}
 		}
@@ -123,15 +125,15 @@ foreach ($items as $item):
 		?></td>
 		<td class="actions splash_action"><?php
 			if ($item['Team']['track_attendance']) {
-				$role = Set::extract("/TeamsPerson[team_id={$item['Team']['id']}]/role", $teams);
-				if (!empty($role)) {
+				$roster = Set::extract("/TeamsPerson[team_id={$item['Team']['id']}]/.", $teams);
+				if (!empty($roster) && $roster[0]['status'] == ROSTER_APPROVED) {
 					echo $this->element('team_events/attendance_change', array(
 						'team' => $item['Team'],
 						'event_id' => $item['TeamEvent']['id'],
 						'date' => $item['TeamEvent']['date'],
 						'time' => $item['TeamEvent']['start'],
 						'person_id' => $person_id,
-						'role' => $role[0],
+						'role' => $roster[0]['role'],
 						'status' => (array_key_exists (0, $item['Attendance']) ? $item['Attendance'][0]['status'] : ATTENDANCE_UNKNOWN),
 						'comment' => (array_key_exists (0, $item['Attendance']) ? $item['Attendance'][0]['comment'] : null),
 						'is_captain' => in_array($item['Team']['id'], $this->UserCache->read('OwnedTeamIDs')),
