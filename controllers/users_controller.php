@@ -212,18 +212,21 @@ class UsersController extends AppController {
 					}
 				}
 				if (!empty ($this->data[$user_model])) {
-					$config = new DATABASE_CONFIG;
-					$prefix = $this->Auth->authenticate->tablePrefix;
-					if ($this->Auth->authenticate->useDbConfig != 'default') {
-						$config_name = $this->Auth->authenticate->useDbConfig;
-						$config = $config->$config_name;
-						$prefix = "{$config['database']}.$prefix";
-					}
-
 					// Find the user and send the email
 					if ($user_model == 'User') {
 						$joins = array();
+						$contain = array($user_model);
 					} else {
+						// To do a name or email lookup on a third-party database, we need that model
+						// joined in explicitly, which doesn't always happen with a contain.
+						$config = new DATABASE_CONFIG;
+						$prefix = $this->Auth->authenticate->tablePrefix;
+						if ($this->Auth->authenticate->useDbConfig != 'default') {
+							$config_name = $this->Auth->authenticate->useDbConfig;
+							$config = $config->$config_name;
+							$prefix = "{$config['database']}.$prefix";
+						}
+
 						$joins = array(
 							array(
 								'table' => "$prefix{$this->Auth->authenticate->useTable}",
@@ -233,11 +236,13 @@ class UsersController extends AppController {
 								'conditions' => "$user_model.{$this->Auth->authenticate->primaryKey} = Person.user_id",
 							),
 						);
+						$contain = array();
 					}
 					$matches = $this->Person->find ('all', array(
 							'conditions' => $this->data[$user_model],
+							'fields' => array('Person.*', "$user_model.*"),
 							'joins' => $joins,
-							'contain' => array($user_model),
+							'contain' => $contain,
 					));
 					switch (count($matches)) {
 						case 0:
