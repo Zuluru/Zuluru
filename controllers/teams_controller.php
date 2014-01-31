@@ -3031,7 +3031,7 @@ class TeamsController extends AppController {
 		if ($roster['status'] == ROSTER_INVITED) {
 			if (!$this->_sendMail (array (
 					'to' => $person,
-					'replyTo' => $captains[0],
+					'replyTo' => empty($captains) ? null : $captains[0],
 					'subject' => "Reminder of invitation to join {$team['name']}",
 					'template' => 'roster_invite_reminder',
 					'sendAs' => 'both',
@@ -3042,7 +3042,7 @@ class TeamsController extends AppController {
 			}
 
 			// If this is the second reminder, we also tell the captain(s)
-			if ($second) {
+			if ($second && !empty($captains)) {
 				if (!$this->_sendMail (array (
 						'to' => $captains,
 						'replyTo' => $person,
@@ -3056,7 +3056,7 @@ class TeamsController extends AppController {
 				}
 			}
 		} else {
-			if (!$this->_sendMail (array (
+			if (!empty($captains) && !$this->_sendMail (array (
 					'to' => $captains,
 					'replyTo' => $person,
 					'subject' => "Reminder of {$person['full_name']} request to join {$team['name']}",
@@ -3072,7 +3072,7 @@ class TeamsController extends AppController {
 			if ($second) {
 				if (!$this->_sendMail (array (
 						'to' => $person,
-						'replyTo' => $captains[0],
+						'replyTo' => empty($captains) ? null : $captains[0],
 						'subject' => "Unanswered request to join {$team['name']}",
 						'template' => 'roster_request_player_reminder',
 						'sendAs' => 'both',
