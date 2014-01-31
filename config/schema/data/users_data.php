@@ -1,5 +1,5 @@
 <?php
-class UserData {
+class UsersData {
 
 	public $table = 'users';
 
