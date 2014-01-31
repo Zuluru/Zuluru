@@ -10,8 +10,9 @@ $header = array(
 		__('Last Name', true),
 		__('Payment', true),
 		__('Amount', true),
+		__('Notes', true),
 );
-if (count($affiliates) && empty($affiliate)) {
+if (count($affiliates) > 1 && empty($affiliate)) {
 	array_unshift($header, __('Affiliate', true));
 }
 fputcsv($fp, $header);
@@ -31,8 +32,9 @@ foreach ($registrations as $registration) {
 			$registration['Person']['last_name'],
 			$registration['Registration']['payment'],
 			$registration['Event']['cost'] + $registration['Event']['tax1'] + $registration['Event']['tax2'],
+			$registration['Registration']['notes'],
 	);
-	if (count($affiliates) && empty($affiliate)) {
+	if (count($affiliates) > 1 && empty($affiliate)) {
 		array_unshift($data, $registration['Event']['Affiliate']['name']);
 	}
 
