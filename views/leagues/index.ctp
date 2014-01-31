@@ -73,6 +73,7 @@ foreach ($leagues as $league):
 	$collapse = (count($league['Division']) == 1);
 	if ($collapse):
 		$class = 'inner-border';
+		$is_coordinator = in_array($league['Division'][0]['id'], $this->UserCache->read('DivisionIDs'));
 	else:
 		$class = '';
 		$days = array_unique(Set::extract('/Division/Day/name', $league));
