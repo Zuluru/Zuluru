@@ -291,7 +291,7 @@ class NewslettersController extends AppController {
 			$this->Configuration->loadAffiliate($newsletter['MailingList']['affiliate_id']);
 
 			if ($test) {
-				$this->Person->contain();
+				$this->Person->contain($this->Auth->authenticate->name);
 				$person = $this->Person->read(null, $this->Auth->user('zuluru_person_id'));
 				$people = array($person);
 			} else {
