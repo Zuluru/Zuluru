@@ -6,7 +6,7 @@
 class BadgeLeagueChampionComponent extends Object
 {
 	function applicable($game, $team_id) {
-		if (Game::_is_finalized($game) && $game['Game']['type'] == BRACKET_GAME && $game['Game']['name'] == '1st') {
+		if (Game::_is_finalized($game) && $game['Game']['type'] == BRACKET_GAME && ($game['Game']['name'] == '1st' || strpos($game['Game']['name'], '-1st') !== false)) {
 			if ($game['Game']['home_team'] == $team_id && $game['Game']['home_score'] > $game['Game']['away_score']) {
 				return true;
 			}
