@@ -3162,7 +3162,7 @@ class GamesController extends AppController {
 			return false;
 		}
 
-		$this->Game->contain (array (
+		$contain = array (
 			'GameSlot',
 			'Division' => array(
 				'Person' => array(
@@ -3173,24 +3173,9 @@ class GamesController extends AppController {
 			),
 			'ScoreEntry',
 			'SpiritEntry',
-			// Get the list of captains for each team, we may need to email them
-			'HomeTeam' => array(
-				'Person' => array(
-					$this->Auth->authenticate->name,
-					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
-				),
-			),
-			'AwayTeam' => array(
-				'Person' => array(
-					$this->Auth->authenticate->name,
-					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
-				),
-			),
 			'ScoreReminderEmail',
 			'ScoreMismatchEmail',
-		));
+		);
 		$offset = Configure::read('timezone.adjust') * 60;
 		$games = $this->Game->find ('all', array(
 				'conditions' => array(
@@ -3207,8 +3192,45 @@ class GamesController extends AppController {
 						'Division.finalize_after >' => 0,
 					)),
 				),
+				'contain' => $contain,
 				'order' => array('Division.id', 'GameSlot.game_date', 'GameSlot.game_start', 'Game.id'),
 		));
+
+		// Get the list of captains for each team, we may need to email them
+		// TODO: If we include this in the contain above, sometimes it reads not
+		// just captains but all players, plus their lists of teams and badges
+		// and other things, plus a bunch of extra details about the division
+		// like games and game slot availability. No idea why containment is
+		// breaking in this case, but it is... Revisit this (use a git version
+		// from before 38f27ca411dd6d4c12b00b8ce16fca87134e821a to compare) when
+		// we move to a newer version of CakePHP.
+		$teams = array();
+		foreach ($games as $key => $game) {
+			if (!array_key_exists($game['Game']['home_team'], $teams)) {
+				$this->Game->Division->Team->contain(array('Person' => array(
+					$this->Auth->authenticate->name,
+					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
+					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
+				)));
+				$team = $this->Game->Division->Team->read(null, $game['Game']['home_team']);
+				$teams[$game['Game']['home_team']] = $team['Team'];
+				$teams[$game['Game']['home_team']]['Person'] = $team['Person'];
+			}
+
+			if (!array_key_exists($game['Game']['away_team'], $teams)) {
+				$this->Game->Division->Team->contain(array('Person' => array(
+					$this->Auth->authenticate->name,
+					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
+					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
+				)));
+				$team = $this->Game->Division->Team->read(null, $game['Game']['away_team']);
+				$teams[$game['Game']['away_team']] = $team['Team'];
+				$teams[$game['Game']['away_team']]['Person'] = $team['Person'];
+			}
+
+			$games[$key]['HomeTeam'] = $teams[$game['Game']['home_team']];
+			$games[$key]['AwayTeam'] = $teams[$game['Game']['away_team']];
+		}
 
 		$this->Game->_adjustEntryIndices($games);
 		$now = time();
