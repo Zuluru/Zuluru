@@ -1,3 +1,5 @@
+#ZULURU
+
 Zuluru is a web-based sports league management application.
 
 Copyright 2011-2014 Greg Schmidt
@@ -21,9 +23,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 The license is located in gpl-3.0.txt.
 
 For more information about Zuluru or to contact the author, visit
-http://zuluru.org/
+[http://zuluru.org/](http://zuluru.org/)
 
 Zuluru is based in part on Leaguerunner, written by
+
 	Dave O'Neill
 	Mackenzie King
 	Tony Argentina
