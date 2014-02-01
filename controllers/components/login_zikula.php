@@ -22,9 +22,12 @@ class LoginZikulaComponent extends LoginComponent
 
 	// We might have session information but the user has logged out of Zikula
 	function expired() {
-		$uid = $this->_controller->Session->read('PNSVuid');
-		if (!$uid || $uid != $this->_controller->Session->read('Zuluru.zikula_session')) {
-			return true;
+		if ($this->_controller->Session->read('Zuluru.external_login')) {
+			$uid = $this->_controller->Session->read('PNSVuid');
+			if (!$uid || $uid != $this->_controller->Session->read('Zuluru.zikula_session')) {
+trigger_error('expired', E_USER_ERROR);
+				return true;
+			}
 		}
 	}
 }

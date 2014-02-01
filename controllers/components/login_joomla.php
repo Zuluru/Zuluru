@@ -23,11 +23,13 @@ class LoginJoomlaComponent extends LoginComponent
 
 	// We might have session information but the user has logged out of Joomla
 	function expired() {
-		$user = $this->_controller->Session->read('__default.user');
-		if (!$user || !$user->id || $user->id != $this->_controller->Session->read('Zuluru.joomla_session')) {
-			return true;
+		if ($this->_controller->Session->read('Zuluru.external_login')) {
+			$user = $this->_controller->Session->read('__default.user');
+			if (!$user || !$user->id || $user->id != $this->_controller->Session->read('Zuluru.joomla_session')) {
+				return true;
+			}
+			return false;
 		}
-		return false;
 	}
 }
 
