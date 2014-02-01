@@ -1010,7 +1010,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		usort($this->slots, array($this, 'sortByDateAndTime'));
 
 		foreach ($this->games as $key => $game) {
-			if ($game['home_dependency_type'] != 'copy') {
+			if (empty($game['home_dependency_type']) || $game['home_dependency_type'] != 'copy') {
 				if (is_array($start_date)) {
 					list ($date, $time) = explode(' ', $start_date[$game['round']]);
 					$game_slot_id = $this->selectRoundGameslot($date, $time, $game['round'], false);
