@@ -267,7 +267,7 @@ class AppModel extends Model {
 		$value = array_values($check);
 		$value = $value[0];
 		$data = current($this->data);
-		return ($value > $data[$field]);
+		return ($value >= $data[$field]);
 	}
 
 	// Check a combined date and time, using standard separate date and time validators

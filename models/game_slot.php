@@ -12,6 +12,7 @@ class GameSlot extends AppModel {
 			'range' => array(
 				'rule' => array('indateconfig', 'gameslot'),
 				'message' => 'You must provide a valid game date.',
+				'on' => 'create',
 			),
 		),
 	);

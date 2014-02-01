@@ -53,6 +53,7 @@ class Event extends AppModel {
 			'range' => array(
 				'rule' => array('indateconfig', 'event'),
 				'message' => 'Event open date must be between last year and next year.',
+				'on' => 'create',
 			),
 		),
 		'close' => array(
@@ -63,10 +64,11 @@ class Event extends AppModel {
 			'range' => array(
 				'rule' => array('indateconfig', 'event'),
 				'message' => 'Event close date must be between last year and next year.',
+				'on' => 'create',
 			),
 			'greater' => array(
 				'rule' => array('greaterdate', 'open'),
-				'message' => 'The event close date must be after the open date.',
+				'message' => 'The event close date cannot be before the open date.',
 			),
 		),
 		'cap_male' => array(

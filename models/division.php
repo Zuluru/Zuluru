@@ -9,11 +9,25 @@ class Division extends AppModel {
 				'rule' => array('date'),
 				'message' => 'You must provide a valid date for the first game.',
 			),
+			'range' => array(
+				'rule' => array('indateconfig', 'event'),
+				'message' => 'First game date must be between last year and next year.',
+				'on' => 'create',
+			),
 		),
 		'close' => array(
 			'date' => array(
 				'rule' => array('date'),
 				'message' => 'You must provide a valid date for the last game.',
+			),
+			'range' => array(
+				'rule' => array('indateconfig', 'event'),
+				'message' => 'Last game date must be between last year and next year.',
+				'on' => 'create',
+			),
+			'greater' => array(
+				'rule' => array('greaterdate', 'open'),
+				'message' => 'The last game cannot be before the first game.',
 			),
 		),
 		'ratio' => array(
