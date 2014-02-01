@@ -190,10 +190,12 @@ if (isset ($add)) {
 		));
 		echo $this->ZuluruForm->input('email_after', array(
 			'size' => 5,
+			'default' => 0,
 			'after' => $this->Html->para (null, __('Email captains who haven\'t scored games after this many hours, no reminder if 0.', true)),
 		));
 		echo $this->ZuluruForm->input('finalize_after', array(
 			'size' => 5,
+			'default' => 0,
 			'after' => $this->Html->para (null, __('Games which haven\'t been scored will be automatically finalized after this many hours, no finalization if 0.', true)),
 		));
 		if (Configure::read('scoring.allstars')) {
