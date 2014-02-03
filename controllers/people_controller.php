@@ -655,7 +655,7 @@ class PeopleController extends AppController {
 						),
 				));
 			}
-			if (Configure::read('feature.tasks')) {
+			if (Configure::read('feature.tasks') && ($id == $my_id || $this->is_admin || $this->is_manager)) {
 				$tasks = $this->UserCache->read('Tasks', $person['id']);
 			}
 			if (Configure::read('feature.badges')) {
