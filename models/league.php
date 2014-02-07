@@ -376,5 +376,32 @@ class League extends AppModel {
 	function affiliate($id) {
 		return $this->field('affiliate_id', array('League.id' => $id));
 	}
+
+	function divisions($league_id) {
+		return $this->Division->find('list', array(
+				'contain' => array(),
+				'fields' => array('id', 'id'),
+				'conditions' => compact('league_id'),
+		));
+	}
+
+	function is_coordinator($league, $person_id = null, $all = false) {
+		$coordinated_divisions = UserCacheComponent::getInstance()->read('DivisionIDs', $person_id);
+		if (empty($coordinated_divisions)) {
+			return false;
+		}
+
+		if (is_array($league)) {
+			$league_divisions = Set::extract('/Division/id', $league);
+		} else {
+			$league_divisions = $this->divisions($league_id);
+		}
+		$intersection = array_intersect($coordinated_divisions, $league_divisions);
+		if ($all) {
+			return (count($league_divisions) == count($intersection));
+		} else {
+			return (!empty($intersection));
+		}
+	}
 }
 ?>
