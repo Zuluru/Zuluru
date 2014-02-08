@@ -12,21 +12,21 @@
 </tr>
 <tr>
 	<?php if ($division['current_round'] != 1): ?>
-	<th><?php __('W'); ?></th>
-	<th><?php __('L'); ?></th>
-	<th><?php __('T'); ?></th>
-	<th><?php __('D'); ?></th>
-	<th><?php __('P'); ?></th>
-	<th><?php __('GF'); ?></th>
-	<th><?php __('GA'); ?></th>
-	<th><?php __('+/-'); ?></th>
+	<th title="<?php __('Wins'); ?>"><?php __('W'); ?></th>
+	<th title="<?php __('Losses'); ?>"><?php __('L'); ?></th>
+	<th title="<?php __('Ties'); ?>"><?php __('T'); ?></th>
+	<th title="<?php __('Defaults'); ?>"><?php __('D'); ?></th>
+	<th title="<?php __('Points'); ?>"><?php __('P'); ?></th>
+	<th title="<?php __('Goals For'); ?>"><?php __('GF'); ?></th>
+	<th title="<?php __('Goals Against'); ?>"><?php __('GA'); ?></th>
+	<th title="<?php __('Plus/Minus'); ?>"><?php __('+/-'); ?></th>
 	<?php endif; ?>
-	<th><?php __('W'); ?></th>
-	<th><?php __('L'); ?></th>
-	<th><?php __('T'); ?></th>
-	<th><?php __('D'); ?></th>
-	<th><?php __('P'); ?></th>
-	<th><?php __('GF'); ?></th>
-	<th><?php __('GA'); ?></th>
-	<th><?php __('+/-'); ?></th>
+	<th title="<?php __('Wins'); ?>"><?php __('W'); ?></th>
+	<th title="<?php __('Losses'); ?>"><?php __('L'); ?></th>
+	<th title="<?php __('Ties'); ?>"><?php __('T'); ?></th>
+	<th title="<?php __('Defaults'); ?>"><?php __('D'); ?></th>
+	<th title="<?php __('Points'); ?>"><?php __('P'); ?></th>
+	<th title="<?php __('Goals For'); ?>"><?php __('GF'); ?></th>
+	<th title="<?php __('Goals Against'); ?>"><?php __('GA'); ?></th>
+	<th title="<?php __('Plus/Minus'); ?>"><?php __('+/-'); ?></th>
 </tr>
