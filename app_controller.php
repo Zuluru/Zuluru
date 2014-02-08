@@ -652,6 +652,7 @@ class AppController extends Controller {
 						),
 					));
 					if ($new > 0) {
+						$this->set('new_nominations', $new);
 						$this->_addMenuItem ("Approve nominations ($new pending)", array('controller' => 'people', 'action' => 'approve_badges'), array('Players', 'Badges'));
 					}
 					$this->_addMenuItem ('Deactivated', array('controller' => 'badges', 'action' => 'deactivated'), array('Players', 'Badges'));
@@ -686,6 +687,7 @@ class AppController extends Controller {
 				),
 			));
 			if ($new > 0) {
+				$this->set('new_accounts', $new);
 				$this->_addMenuItem ("Approve new accounts ($new pending)", array('controller' => 'people', 'action' => 'list_new'), 'Players');
 			}
 
@@ -703,6 +705,7 @@ class AppController extends Controller {
 					),
 				));
 				if ($new > 0) {
+					$this->set('new_photos', $new);
 					$this->_addMenuItem ("Approve new photos ($new pending)", array('controller' => 'people', 'action' => 'approve_photos'), 'Players');
 				}
 			}
@@ -715,6 +718,7 @@ class AppController extends Controller {
 					),
 				));
 				if ($new > 0) {
+					$this->set('new_documents', $new);
 					$this->_addMenuItem ("Approve new documents ($new pending)", array('controller' => 'people', 'action' => 'approve_documents'), 'Players');
 				}
 			}

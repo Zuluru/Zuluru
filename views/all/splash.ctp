@@ -7,6 +7,22 @@ $this->Html->addCrumb ($this->UserCache->read('Person.full_name'));
 <?php
 if ($is_admin) {
 	echo $this->element('version_check');
+	if (isset($new_accounts)) {
+		echo $this->Html->para(null, sprintf(__('There are %d new %s.', true), $new_accounts,
+			$this->Html->link(__('accounts to approve', true), array('controller' => 'people', 'action' => 'list_new'))));
+	}
+	if (isset($new_photos)) {
+		echo $this->Html->para(null, sprintf(__('There are %d new %s.', true), $new_photos,
+			$this->Html->link(__('profile photos to approve', true), array('controller' => 'people', 'action' => 'approve_photos'))));
+	}
+	if (isset($new_documents)) {
+		echo $this->Html->para(null, sprintf(__('There are %d new %s.', true), $new_documents,
+			$this->Html->link(__('uploaded documents to approve', true), array('controller' => 'people', 'action' => 'approve_documents'))));
+	}
+	if (isset($new_nominations)) {
+		echo $this->Html->para(null, sprintf(__('There are %d new %s.', true), $new_nominations,
+			$this->Html->link(__('badge nominations to approve', true), array('controller' => 'people', 'action' => 'approve_badges'))));
+	}
 }
 
 $id = $this->requestAction(array('controller' => 'users', 'action' => 'id'));
