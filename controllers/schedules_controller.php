@@ -922,38 +922,19 @@ class SchedulesController extends AppController {
 	}
 
 	function publish() {
-		$id = $this->_arg('division');
-		$date = $this->_arg('date');
-
-		$this->Division->Game->contain (array (
-			'GameSlot',
-		));
-		$games = Set::extract ('/Game/id', $this->Division->Game->find ('all', array(
-				'conditions' => array(
-					'Game.division_id' => $id,
-					'GameSlot.game_date' => $date,
-				),
-				'fields' => 'Game.id',
-		)));
-
-		if ($this->Division->Game->updateAll (
-			array('published' => 1),
-			array('Game.id' => $games)
-		))
-		{
-			Cache::delete('division/' . intval($id) . '/standings', 'long_term');
-			Cache::delete('division/' . intval($id) . '/schedule', 'long_term');
-
-			$this->Session->setFlash(__('Published games on the requested date.', true), 'default', array('class' => 'success'));
-		} else {
-			$this->Session->setFlash(__('Failed to publish games on the requested date.', true), 'default', array('class' => 'warning'));
-		}
-
-		$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
+		$this->_publish(1, 'publish', 'Published');
 	}
 
 	function unpublish() {
-		$id = $this->_arg('division');
+		$this->_publish(0, 'unpublish', 'Unpublished');
+	}
+
+	function _publish($true, $publish, $published) {
+		$division_id = $this->_arg('division');
+		if (!$division_id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+		}
 		$date = $this->_arg('date');
 
 		$this->Division->Game->contain (array (
@@ -961,26 +942,26 @@ class SchedulesController extends AppController {
 		));
 		$games = Set::extract ('/Game/id', $this->Division->Game->find ('all', array(
 				'conditions' => array(
-					'Game.division_id' => $id,
+					'Game.division_id' => $division_id,
 					'GameSlot.game_date' => $date,
 				),
 				'fields' => 'Game.id',
 		)));
 
 		if ($this->Division->Game->updateAll (
-			array('published' => 0),
+			array('published' => $true),
 			array('Game.id' => $games)
 		))
 		{
-			Cache::delete('division/' . intval($id) . '/standings', 'long_term');
-			Cache::delete('division/' . intval($id) . '/schedule', 'long_term');
+			Cache::delete('division/' . intval($division_id) . '/standings', 'long_term');
+			Cache::delete('division/' . intval($division_id) . '/schedule', 'long_term');
 
-			$this->Session->setFlash(__('Unpublished games on the requested date.', true), 'default', array('class' => 'success'));
+			$this->Session->setFlash(sprintf(__('%s games on the requested date.', true), __($published, true)), 'default', array('class' => 'success'));
 		} else {
-			$this->Session->setFlash(__('Failed to unpublish games on the requested date.', true), 'default', array('class' => 'warning'));
+			$this->Session->setFlash(sprintf(__('Failed to %s games on the requested date.', true), __($publish, true)), 'default', array('class' => 'warning'));
 		}
 
-		$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
+		$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $division_id));
 	}
 
 	function today() {
