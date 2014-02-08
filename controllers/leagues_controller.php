@@ -6,7 +6,7 @@ class LeaguesController extends AppController {
 	var $components = array('Lock');
 
 	function publicActions() {
-		return array('cron', 'index', 'view', 'tooltip', 'division_count');
+		return array('cron', 'index', 'view', 'schedule', 'standings', 'tooltip', 'division_count');
 	}
 
 	function freeActions() {
