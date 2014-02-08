@@ -446,6 +446,8 @@ class DivisionsController extends AppController {
 
 				Cache::delete('division/' . intval($id) . '/standings', 'long_term');
 				Cache::delete('division/' . intval($id) . '/schedule', 'long_term');
+				Cache::delete('league/' . $this->Division->league($id) . '/standings', 'long_term');
+				Cache::delete('league/' . $this->Division->league($id) . '/schedule', 'long_term');
 
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('division', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
@@ -788,6 +790,8 @@ class DivisionsController extends AppController {
 				if ($ret === true || !empty($ret['result'])) {
 					Cache::delete($cache_key, 'long_term');
 					Cache::delete('division/' . intval($id) . '/standings', 'long_term');
+					Cache::delete('league/' . $this->Division->league($id) . '/standings', 'long_term');
+					Cache::delete('league/' . $this->Division->league($id) . '/schedule', 'long_term');
 					$this->redirect (array('action' => 'schedule', 'division' => $id));
 				}
 			}
@@ -1485,6 +1489,8 @@ class DivisionsController extends AppController {
 
 		Cache::delete('division/' . intval($id) . '/standings', 'long_term');
 		Cache::delete('division/' . intval($id) . '/schedule', 'long_term');
+		Cache::delete('league/' . $this->Division->league($id) . '/standings', 'long_term');
+		Cache::delete('league/' . $this->Division->league($id) . '/schedule', 'long_term');
 
 		$this->redirect(array('action' => 'view', 'division' => $id));
 	}
@@ -1698,6 +1704,8 @@ class DivisionsController extends AppController {
 
 		Cache::delete('division/' . intval($id) . '/standings', 'long_term');
 		Cache::delete('division/' . intval($id) . '/schedule', 'long_term');
+		Cache::delete('league/' . $this->Division->league($id) . '/standings', 'long_term');
+		Cache::delete('league/' . $this->Division->league($id) . '/schedule', 'long_term');
 
 		$this->redirect(array('action' => 'schedule', 'division' => $id));
 	}
@@ -1751,6 +1759,8 @@ class DivisionsController extends AppController {
 
 				Cache::delete('division/' . intval($id) . '/standings', 'long_term');
 				Cache::delete('division/' . intval($id) . '/schedule', 'long_term');
+				Cache::delete('league/' . $this->Division->league($id) . '/standings', 'long_term');
+				Cache::delete('league/' . $this->Division->league($id) . '/schedule', 'long_term');
 
 				$this->Session->setFlash(sprintf(__('%s deleted', true), __('All pools in this stage', true)), 'default', array('class' => 'success'));
 			}

@@ -1157,6 +1157,8 @@ class TeamsController extends AppController {
 				}
 				Cache::delete("division/{$team['Team']['division_id']}/standings", 'long_term');
 				Cache::delete("division/{$team['Team']['division_id']}/schedule", 'long_term');
+				Cache::delete('league/' . $this->Team->Division->league($team['Team']['division_id']) . '/standings', 'long_term');
+				Cache::delete('league/' . $this->Team->Division->league($team['Team']['division_id']) . '/schedule', 'long_term');
 
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('team', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
@@ -1291,6 +1293,7 @@ class TeamsController extends AppController {
 		if ($this->Team->delete($id)) {
 			if ($division) {
 				Cache::delete("division/$division/standings", 'long_term');
+				Cache::delete('league/' . $this->Team->Division->league($division) . '/standings', 'long_term');
 			}
 			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Team', true)), 'default', array('class' => 'success'));
 			$this->redirect(array('action' => 'index'));

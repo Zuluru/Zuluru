@@ -1,8 +1,16 @@
 <?php
-$games = $division['Game'];
-$competition = ($division['Division']['schedule_type'] == 'competition');
-$id = $division['Division']['id'];
-$id_field = 'division';
+if (isset($division)) {
+	$games = $division['Game'];
+	$competition = ($division['Division']['schedule_type'] == 'competition');
+	$id = $division['Division']['id'];
+	$id_field = 'division';
+} else {
+	$games = $league['Game'];
+	$schedule_types = array_unique(Set::extract('/Division/schedule_type', $league));
+	$competition = (count($schedule_types) == 1 && $schedule_types[0] == 'competition');
+	$id = $league['League']['id'];
+	$id_field = 'league';
+}
 $published = array_unique (Set::extract ("/GameSlot[game_date=$date]/../published", $games));
 if (count ($published) != 1 || $published[0] == 0) {
 	$published = false;

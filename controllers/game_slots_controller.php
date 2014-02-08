@@ -427,6 +427,8 @@ class GameSlotsController extends AppController {
 					foreach ($gameSlot['Game'] as $i => $game) {
 						Cache::delete("division/{$game['Division']['id']}/standings", 'long_term');
 						Cache::delete("division/{$game['Division']['id']}/schedule", 'long_term');
+						Cache::delete('league/' . $this->GameSlot->Game->Division->league($game['Division']['id']) . '/standings', 'long_term');
+						Cache::delete('league/' . $this->GameSlot->Game->Division->league($game['Division']['id']) . '/schedule', 'long_term');
 					}
 
 					$resultMessage = __('Scores have been saved and game results posted.', true);

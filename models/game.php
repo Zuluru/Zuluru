@@ -973,6 +973,12 @@ class Game extends AppModel {
 		} else {
 			$allow_double_booking = false;
 		}
+		if (array_key_exists('cross_division', $data['Game'])) {
+			$allow_cross_division = $data['Game']['cross_division'];
+			unset ($data['Game']['cross_division']);
+		} else {
+			$allow_cross_division = false;
+		}
 
 		$games = count($data['Game']);
 		// TODO: Remove workaround for Set::extract bug
@@ -1047,6 +1053,34 @@ class Game extends AppModel {
 				} else {
 					return array('text' => sprintf (__('Team %s was selected more than once!', true), $team_names[$team_id]), 'class' => 'info');
 				}
+			}
+		}
+
+		$divisions = $this->Division->Team->find('list', array(
+				'contain' => array(),
+				'fields' => array('Team.id', 'Team.division_id'),
+				'conditions' => array('Team.id' => $teams),
+		));
+
+		foreach ($data['Game'] as $key => $game) {
+			if ($divisions[$game['home_team']] != $divisions[$game['away_team']] && !$allow_cross_division) {
+				return array('text' => sprintf(__('You have scheduled teams from different divisions against each other (%s vs %s), but not checked the box allowing cross-division games.', true), $team_names[$game['home_team']], $team_names[$game['away_team']]), 'class' => 'info');
+			} else {
+				// Make sure that the game slot selected is available to one of the teams
+				$available_to_home = Set::extract("/GameSlot[id={$game['game_slot_id']}]", $available_slots[$divisions[$game['home_team']]]);
+				if (empty($available_to_home)) {
+					$available_to_away = Set::extract("/GameSlot[id={$game['game_slot_id']}]", $available_slots[$divisions[$game['away_team']]]);
+					if (empty($available_to_away)) {
+						return array('text' => sprintf(__('You have scheduled a game between %s and %s in a game slot not available to them.', true), $team_names[$game['home_team']], $team_names[$game['away_team']]), 'class' => 'info');
+					} else {
+						// Game is happening on a field only available to the away team, so make them the home team instead
+						$data['Game'][$key]['division_id'] = $divisions[$game['away_team']];
+						list($data['Game'][$key]['home_team'], $data['Game'][$key]['away_team']) = array($game['away_team'], $game['home_team']);
+					}
+				}
+				// At this point, we know that the home team has access to the game slot,
+				// so we will make the division id of the game match that team
+				$data['Game'][$key]['division_id'] = $divisions[$game['home_team']];
 			}
 		}
 

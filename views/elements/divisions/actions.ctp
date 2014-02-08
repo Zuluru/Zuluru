@@ -32,19 +32,22 @@ if (!$collapse) {
 			array('controller' => 'divisions', 'action' => 'view', 'division' => $division['id']),
 			array('alt' => __('Details', true), 'title' => __('View Division Details', true)));
 	}
+
+	if ($division['schedule_type'] != 'none') {
+		if ($this->params['controller'] != 'divisions' || $this->params['action'] != 'schedule') {
+			$links[] = $this->ZuluruHtml->iconLink("schedule_$size.png",
+				array('controller' => 'divisions', 'action' => 'schedule', 'division' => $division['id']),
+				array('alt' => __('Schedule', true), 'title' => __('Schedule', true)));
+		}
+		if ($this->params['controller'] != 'divisions' || $this->params['action'] != 'standings') {
+			$links[] = $this->ZuluruHtml->iconLink("standings_$size.png",
+				array('controller' => 'divisions', 'action' => 'standings', 'division' => $division['id']),
+				array('alt' => __('Standings', true), 'title' => __('Standings', true)));
+		}
+	}
 }
 
 if ($division['schedule_type'] != 'none') {
-	if ($this->params['controller'] != 'divisions' || $this->params['action'] != 'schedule') {
-		$links[] = $this->ZuluruHtml->iconLink("schedule_$size.png",
-			array('controller' => 'divisions', 'action' => 'schedule', 'division' => $division['id']),
-			array('alt' => __('Schedule', true), 'title' => __('Schedule', true)));
-	}
-	if ($this->params['controller'] != 'divisions' || $this->params['action'] != 'standings') {
-		$links[] = $this->ZuluruHtml->iconLink("standings_$size.png",
-			array('controller' => 'divisions', 'action' => 'standings', 'division' => $division['id']),
-			array('alt' => __('Standings', true), 'title' => __('Standings', true)));
-	}
 	if ($this->params['controller'] != 'divisions' || $this->params['action'] != 'stats') {
 		if (($is_logged_in || Configure::read('feature.public')) && Configure::read('scoring.stat_tracking') && League::hasStats($league)) {
 			$links[] = $this->ZuluruHtml->iconLink("stats_$size.png",
@@ -53,6 +56,7 @@ if ($division['schedule_type'] != 'none') {
 		}
 	}
 }
+
 if ($is_admin || $is_manager || $is_coordinator) {
 	if (!$collapse && ($this->params['controller'] != 'divisions' || $this->params['action'] != 'edit')) {
 		$links[] = $this->ZuluruHtml->iconLink("edit_$size.png",

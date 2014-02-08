@@ -36,6 +36,11 @@ class SchedulesController extends AppController {
 				}
 			}
 
+			// If a league id is specified, check if we're a coordinator of all divisions in that league
+			$league = $this->_arg('league');
+			if ($league && $this->Division->League->is_coordinator($league)) {
+				return true;
+			}
 		}
 
 		return false;
@@ -601,6 +606,8 @@ class SchedulesController extends AppController {
 		if ($this->league_obj->createSchedule($id, $exclude_teams, $this->data['Game'], $this->pool)) {
 			Cache::delete('division/' . intval($id) . '/standings', 'long_term');
 			Cache::delete('division/' . intval($id) . '/schedule', 'long_term');
+			Cache::delete('league/' . $this->Division->league($id) . '/standings', 'long_term');
+			Cache::delete('league/' . $this->Division->league($id) . '/schedule', 'long_term');
 
 			if ($this->_unscheduledPools($id)) {
 				return $this->_type($id);
@@ -828,6 +835,8 @@ class SchedulesController extends AppController {
 
 				Cache::delete('division/' . intval($id) . '/standings', 'long_term');
 				Cache::delete('division/' . intval($id) . '/schedule', 'long_term');
+				Cache::delete('league/' . $this->Division->league($id) . '/standings', 'long_term');
+				Cache::delete('league/' . $this->Division->league($id) . '/schedule', 'long_term');
 
 				$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
 			} else {
@@ -890,6 +899,8 @@ class SchedulesController extends AppController {
 						$this->Session->setFlash(__('Games rescheduled', true), 'default', array('class' => 'success'));
 						Cache::delete('division/' . intval($id) . '/standings', 'long_term');
 						Cache::delete('division/' . intval($id) . '/schedule', 'long_term');
+						Cache::delete('league/' . $this->Division->league($id) . '/standings', 'long_term');
+						Cache::delete('league/' . $this->Division->league($id) . '/schedule', 'long_term');
 						$this->redirect (array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
 					} else {
 						$this->Session->setFlash(__('Games were rescheduled, but failed to clear unused slots!', true), 'default', array('class' => 'warning'));
@@ -932,8 +943,27 @@ class SchedulesController extends AppController {
 	function _publish($true, $publish, $published) {
 		$division_id = $this->_arg('division');
 		if (!$division_id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+			$league_id = $this->_arg('league');
+			if (!$league_id) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+			}
+
+			$this->Division->League->contain('Division');
+			$league = $this->Division->League->read(null, $league_id);
+			if (!$league) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+			}
+
+			$divisions = Set::extract('/Division/id', $league);
+			if (empty($divisions)) {
+				$this->Session->setFlash(__('This league has no divisions yet.', true), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+			}
+		} else {
+			$divisions = array($division_id);
+			$league_id = $this->Division->league($division_id);
 		}
 		$date = $this->_arg('date');
 
@@ -942,7 +972,7 @@ class SchedulesController extends AppController {
 		));
 		$games = Set::extract ('/Game/id', $this->Division->Game->find ('all', array(
 				'conditions' => array(
-					'Game.division_id' => $division_id,
+					'Game.division_id' => $divisions,
 					'GameSlot.game_date' => $date,
 				),
 				'fields' => 'Game.id',
@@ -953,15 +983,23 @@ class SchedulesController extends AppController {
 			array('Game.id' => $games)
 		))
 		{
-			Cache::delete('division/' . intval($division_id) . '/standings', 'long_term');
-			Cache::delete('division/' . intval($division_id) . '/schedule', 'long_term');
+			foreach ($divisions as $id) {
+				Cache::delete("division/$id/standings", 'long_term');
+				Cache::delete("division/$id/schedule", 'long_term');
+			}
+			Cache::delete("league/$league_id/standings", 'long_term');
+			Cache::delete("league/$league_id/schedule", 'long_term');
 
 			$this->Session->setFlash(sprintf(__('%s games on the requested date.', true), __($published, true)), 'default', array('class' => 'success'));
 		} else {
 			$this->Session->setFlash(sprintf(__('Failed to %s games on the requested date.', true), __($publish, true)), 'default', array('class' => 'warning'));
 		}
 
-		$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $division_id));
+		if ($division_id) {
+			$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $division_id));
+		} else {
+			$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $league_id));
+		}
 	}
 
 	function today() {

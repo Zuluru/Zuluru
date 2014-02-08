@@ -28,6 +28,19 @@ if ($this->params['controller'] != 'leagues' || $this->params['action'] != 'view
 		array('controller' => 'leagues', 'action' => 'view', 'league' => $league['League']['id']),
 		array('alt' => __('Details', true), 'title' => __('View League Details', true)));
 }
+$schedule_types = array_unique(Set::extract('/Division/schedule_type', $league));
+if (!empty($schedule_types) && ($schedule_types[0] != 'none' || count($schedule_types) > 1)) {
+	if ($this->params['controller'] != 'leagues' || $this->params['action'] != 'schedule') {
+		$links[] = $this->ZuluruHtml->iconLink("schedule_$size.png",
+			array('controller' => 'leagues', 'action' => 'schedule', 'league' => $league['League']['id']),
+			array('alt' => __('Schedule', true), 'title' => __('Schedule', true)));
+	}
+	if ($this->params['controller'] != 'leagues' || $this->params['action'] != 'standings') {
+		$links[] = $this->ZuluruHtml->iconLink("standings_$size.png",
+			array('controller' => 'leagues', 'action' => 'standings', 'league' => $league['League']['id']),
+			array('alt' => __('Standings', true), 'title' => __('Standings', true)));
+	}
+}
 if ($is_admin || $is_manager || ($collapse && $is_coordinator)) {
 	if ($this->params['controller'] != 'leagues' || $this->params['action'] != 'edit') {
 		$links[] = $this->ZuluruHtml->iconLink("edit_$size.png",
