@@ -43,21 +43,14 @@ class LeaguesController extends AppController {
 
 		// Coordinators can perform these operations on leagues where they coordinate the only division
 		if (in_array ($this->params['action'], array(
+				'add',
 				'edit',
 		)))
 		{
-			// If a league id is specified, check if we're a coordinator of that league's only division
+			// If a league id is specified, check if we're a coordinator of all of that league's divisions
 			$league = $this->_arg('league');
-			if ($league) {
-				foreach ($this->UserCache->read('DivisionIDs') as $division) {
-					if ($this->League->Division->league($division) == $league &&
-						$this->requestAction(array('controller' => 'leagues', 'action' => 'division_count'),
-							array('named' => array('league' => $league))) == 1
-						)
-					{
-						return true;
-					}
-				}
+			if ($league && $this->League->is_coordinator($league_id, null, true)) {
+				return true;
 			}
 		}
 
@@ -174,14 +167,7 @@ class LeaguesController extends AppController {
 		$this->set(compact ('league', 'league_obj'));
 
 		$this->set('is_manager', $this->is_manager && in_array($league['League']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs')));
-
-		$divisions = $this->UserCache->read('DivisionIDs');
-		if (!empty($divisions)) {
-			$coordinated_divisions = array_intersect(Set::extract('/Division/id', $league), $divisions);
-		} else {
-			$coordinated_divisions = null;
-		}
-		$this->set('is_coordinator', !empty($coordinated_divisions));
+		$this->set('is_coordinator', $this->League->is_coordinator($league));
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('affiliates'));
