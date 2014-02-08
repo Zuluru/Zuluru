@@ -522,14 +522,17 @@ class PeopleController extends AppController {
 
 	function view() {
 		$id = $this->_arg('person');
+		$user_id = $this->_arg('user');
 		$my_id = $this->Auth->user('zuluru_person_id');
 
-		if (!$id) {
+		if ($user_id) {
+			$id = $this->Person->field('id', compact('user_id'));
+		} else if (!$id) {
 			$id = $my_id;
-			if (!$id) {
-				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
-				$this->redirect('/');
-			}
+		}
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
 		}
 
 		$person = $this->UserCache->read('Person', $id);
