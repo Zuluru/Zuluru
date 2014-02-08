@@ -4,7 +4,7 @@
 	<th rowspan="2"><?php __('Rating'); ?></th>
 	<th colspan="7"><?php __('Season To Date'); ?></th>
 	<th rowspan="2"><?php __('Streak'); ?></th>
-	<?php if (League::hasSpirit($division)): ?>
+	<?php if (League::hasSpirit($league)): ?>
 	<th rowspan="2"><?php __('Spirit'); ?></th>
 	<?php endif; ?>
 </tr>

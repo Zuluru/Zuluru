@@ -48,7 +48,7 @@ class GameSlot extends AppModel {
 		return $record;
 	}
 
-	function getAvailable($division_id, $date, $is_tournament, $allow_double_booking) {
+	function getAvailable($divisions, $date, $is_tournament, $allow_double_booking) {
 		// Find available slots
 		$join = array( array(
 				'table' => "{$this->tablePrefix}division_gameslot_availabilities",
@@ -58,16 +58,11 @@ class GameSlot extends AppModel {
 				'conditions' => 'DivisionGameslotAvailability.game_slot_id = GameSlot.id',
 		));
 
-		$this->contain (array (
-				'Game',
-				'Field' => array(
-					'Facility',
-				),
-		));
-
-		$conditions = array('DivisionGameslotAvailability.division_id' => $division_id);
+		if (!is_array($divisions)) {
+			$divisions = array($divisions);
+		}
 		if ($is_tournament) {
-			$conditions['OR'] = array(
+			$conditions = array('OR' => array(
 				'AND' => array(
 					"GameSlot.game_date >= DATE_ADD('$date', INTERVAL -6 DAY)",
 					"GameSlot.game_date <= DATE_ADD('$date', INTERVAL 6 DAY)",
@@ -75,21 +70,35 @@ class GameSlot extends AppModel {
 					'GameSlot.assigned' => false,
 				),
 				'GameSlot.game_date' => $date,
-			);
+			));
 		} else {
-			$conditions['GameSlot.game_date'] = $date;
+			$conditions = array('GameSlot.game_date' => $date);
 		}
 
-		$game_slots = $this->find('all', array(
-			'conditions' => $conditions,
-			'joins' => $join,
-		));
+		$game_slots = array();
+		foreach ($divisions as $division_id) {
+			$conditions['DivisionGameslotAvailability.division_id'] = $division_id;
 
-		if (!$allow_double_booking) {
-			foreach ($game_slots as $key => $slot) {
-				$divisions = Set::extract('/Game/division_id', $slot);
-				if (!empty($divisions) && !in_array($division_id, $divisions)) {
-					unset ($game_slots[$key]);
+			$game_slots[$division_id] = $this->find('all', array(
+				'conditions' => $conditions,
+				'joins' => $join,
+				'contain' => array (
+					'Game',
+					'Field' => array(
+						'Facility',
+					),
+				),
+			));
+
+			if (!$allow_double_booking) {
+				// Remove any game slots that are exclusively assigned to a division
+				// that we are not interested in
+				foreach ($game_slots[$division_id] as $key => $slot) {
+					$assigned_to_divisions = array_unique(Set::extract('/Game/division_id', $slot));
+					$intersect = array_intersect($assigned_to_divisions, $divisions);
+					if (!empty($assigned_to_divisions) && empty($intersect)) {
+						unset ($game_slots[$division_id][$key]);
+					}
 				}
 			}
 		}

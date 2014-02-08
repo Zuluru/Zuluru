@@ -168,11 +168,13 @@ class DivisionsController extends AppController {
 						'SpiritEntry',
 					),
 			));
+		} else {
+			$division['Game'] = array();
 		}
 
 		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
 		$spirit_obj = $this->_getComponent ('Spirit', $division['League']['sotg_questions'], $this);
-		$league_obj->sort($division, $spirit_obj, false);
+		$league_obj->sort($division['Team'], $division['Division'], $division['League'], $division['Game'], $spirit_obj, false);
 
 		if (!empty($unseeded)) {
 			$seed = 0;
@@ -716,8 +718,7 @@ class DivisionsController extends AppController {
 		$cached = Cache::read($cache_key, 'long_term');
 		if ($cached) {
 			$division = $cached;
-		}
-		if (empty($division)) {
+		} else {
 			$this->Division->contain(array (
 				'Day' => array('order' => 'day_id'),
 				'Team',
@@ -749,6 +750,8 @@ class DivisionsController extends AppController {
 
 			// Sort games by date, time and field
 			usort ($division['Game'], array ('Game', 'compareDateAndField'));
+
+			Cache::write($cache_key, $division, 'long_term');
 		}
 		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 		Configure::load("sport/{$division['League']['sport']}");
@@ -775,132 +778,24 @@ class DivisionsController extends AppController {
 
 		// Save posted data
 		if (!empty ($this->data) && ($this->is_admin || $is_manager || $is_coordinator)) {
-			if ($this->_validateAndSaveSchedule($game_slots)) {
-				Cache::delete($cache_key, 'long_term');
-				Cache::delete('division/' . intval($id) . '/standings', 'long_term');
-				$this->redirect (array('action' => 'schedule', 'division' => $id));
+			if ($this->Lock->lock ('scheduling', $this->Division->affiliate($id), 'schedule creation or edit')) {
+				$ret = $this->Division->Game->_validateAndSaveSchedule($this->data, $game_slots);
+				if ($ret === true) {
+					$this->Session->setFlash(__('Schedule changes saved!', true), 'default', array('class' => 'success'));
+				} else {
+					$this->Session->setFlash($ret['text'], 'default', array('class' => $ret['class']));
+				}
+				if ($ret === true || !empty($ret['result'])) {
+					Cache::delete($cache_key, 'long_term');
+					Cache::delete('division/' . intval($id) . '/standings', 'long_term');
+					$this->redirect (array('action' => 'schedule', 'division' => $id));
+				}
 			}
 		}
-
-		Cache::write($cache_key, $division, 'long_term');
 
 		$this->set(compact ('id', 'division', 'edit_date', 'game_slots', 'is_coordinator', 'is_tournament'));
 
 		$this->_addDivisionMenuItems ($division['Division'], $division['League']);
-	}
-
-	function _validateAndSaveSchedule($available_slots) {
-		$publish = $this->data['Game']['publish'];
-		unset ($this->data['Game']['publish']);
-		if (array_key_exists('double_header', $this->data['Game'])) {
-			$allow_double_header = $this->data['Game']['double_header'];
-			unset ($this->data['Game']['double_header']);
-		} else {
-			$allow_double_header = false;
-		}
-		if (array_key_exists('double_booking', $this->data['Game'])) {
-			$allow_double_booking = $this->data['Game']['double_booking'];
-			unset ($this->data['Game']['double_booking']);
-		} else {
-			$allow_double_booking = false;
-		}
-
-		$games = count($this->data['Game']);
-		// TODO: Remove workaround for Set::extract bug
-		$this->data['Game'] = array_values($this->data['Game']);
-		$slots = Set::extract ('/Game/game_slot_id', $this->data);
-		if (in_array ('', $slots)) {
-			$this->Session->setFlash(__('You cannot choose the "---" as the game time/place!', true), 'default', array('class' => 'info'));
-			return false;
-		}
-
-		if (!$allow_double_booking) {
-			$slot_counts = array_count_values ($slots);
-			foreach ($slot_counts as $slot_id => $count) {
-				if ($count > 1) {
-					$this->Division->Game->GameSlot->contain(array(
-							'Field' => 'Facility',
-					));
-					$slot = $this->Division->Game->GameSlot->read(null, $slot_id);
-					$slot_field = $slot['Field']['long_name'];
-					$slot_time = "{$slot['GameSlot']['game_date']} {$slot['GameSlot']['game_start']}";
-					$this->Session->setFlash(sprintf (__('Game slot at %s on %s was selected more than once!', true), $slot_field, $slot_time), 'default', array('class' => 'info'));
-					return false;
-				}
-			}
-		}
-
-		$teams = array_merge (
-				Set::extract ('/Game/home_team', $this->data),
-				Set::extract ('/Game/away_team', $this->data)
-		);
-		if (in_array ('', $teams)) {
-			$this->Session->setFlash(__('You cannot choose the "---" as the team!', true), 'default', array('class' => 'info'));
-			return false;
-		}
-
-		$team_counts = array_count_values ($teams);
-		foreach ($team_counts as $team_id => $count) {
-			if ($count > 1) {
-				$this->Division->Team->contain();
-				$team = $this->Division->Team->read(null, $team_id);
-
-				if ($allow_double_header) {
-					// Check that the double-header doesn't cause conflicts; must be at the same facility, but different times
-					$team_slot_ids = array_merge(
-						Set::extract ("/Game[home_team=$team_id]/game_slot_id", $this->data),
-						Set::extract ("/Game[away_team=$team_id]/game_slot_id", $this->data)
-					);
-					if (count ($team_slot_ids) != count (array_unique ($team_slot_ids))) {
-						$this->Session->setFlash(sprintf (__('Team %s was scheduled twice in the same time slot!', true), $team['Team']['name']), 'default', array('class' => 'info'));
-						return false;
-					}
-
-					$this->Division->Game->GameSlot->contain(array(
-							'Field',
-					));
-					$team_slots = $this->Division->Game->GameSlot->find('all', array('conditions' => array(
-							'GameSlot.id' => $team_slot_ids,
-					)));
-					foreach ($team_slots as $key1 => $slot1) {
-						foreach ($team_slots as $key2 => $slot2) {
-							if ($key1 != $key2) {
-								if ($slot1['GameSlot']['game_date'] == $slot2['GameSlot']['game_date'] &&
-									$slot1['GameSlot']['game_start'] >= $slot2['GameSlot']['game_start'] &&
-									$slot1['GameSlot']['game_start'] < $slot2['GameSlot']['display_game_end'])
-								{
-									$this->Session->setFlash(sprintf (__('Team %s was scheduled in overlapping time slots!', true), $team['Team']['name']), 'default', array('class' => 'info'));
-									return false;
-								}
-								if ($slot1['Field']['facility_id'] != $slot2['Field']['facility_id']) {
-									$this->Session->setFlash(sprintf (__('Team %s was scheduled on %s at different facilities!', true), $team['Team']['name'], Configure::read('ui.fields')), 'default', array('class' => 'info'));
-									return false;
-								}
-							}
-						}
-					}
-				} else {
-					$this->Session->setFlash(sprintf (__('Team %s was selected more than once!', true), $team['Team']['name']), 'default', array('class' => 'info'));
-					return false;
-				}
-			}
-		}
-
-		if (!$this->Lock->lock ('scheduling', $this->Division->affiliate($this->_arg('division')), 'schedule creation or edit')) {
-			return false;
-		}
-		if (!$this->Division->Game->_saveGames($this->data['Game'], $publish)) {
-			return false;
-		}
-
-		$unused_slots = array_diff (Set::extract ('/Game/game_slot_id', $available_slots), $slots);
-		if ($this->Division->Game->GameSlot->updateAll (array('assigned' => 0), array('GameSlot.id' => $unused_slots))) {
-			$this->Session->setFlash(__('Schedule changes saved!', true), 'default', array('class' => 'success'));
-			return true;
-		} else {
-			$this->Session->setFlash(__('Saved schedule changes, but failed to clear unused slots!', true), 'default', array('class' => 'warning'));
-			return false;
-		}
 	}
 
 	function standings() {
@@ -979,7 +874,7 @@ class DivisionsController extends AppController {
 
 			$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
 			$spirit_obj = $this->_getComponent ('Spirit', $division['League']['sotg_questions'], $this);
-			$league_obj->sort($division, $spirit_obj, false);
+			$league_obj->sort($division['Team'], $division['Division'], $division['League'], $division['Game'], $spirit_obj, false);
 
 			// If there's anyone without seed information, save the seeds
 			$unseeded = Set::extract('/Team[seed=0]', $division);
@@ -1089,7 +984,7 @@ class DivisionsController extends AppController {
 		Game::_adjustEntryIndices($division['Game']);
 		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
 		$spirit_obj = $this->_getComponent ('Spirit', $division['League']['sotg_questions'], $this);
-		$league_obj->sort($division, $spirit_obj, false);
+		$league_obj->sort($division['Team'], $division['Division'], $division['League'], $division['Game'], $spirit_obj, false);
 
 		// Move the teams into an array indexed by team id, for easier use in the view
 		$teams = array();
@@ -1152,7 +1047,7 @@ class DivisionsController extends AppController {
 		Configure::load("sport/{$division['League']['sport']}");
 		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
 		$spirit_obj = $this->_getComponent ('Spirit', $division['League']['sotg_questions'], $this);
-		$league_obj->sort($division, $spirit_obj, false);
+		$league_obj->sort($division['Team'], $division['Division'], $division['League'], $division['Game'], $spirit_obj, false);
 
 		// Gather all possible facility/time slot combinations this division can use
 		$join = array(
@@ -1680,7 +1575,7 @@ class DivisionsController extends AppController {
 
 		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
 		$spirit_obj = $this->_getComponent ('Spirit', $division['League']['sotg_questions'], $this);
-		$league_obj->sort($division, $spirit_obj, false);
+		$league_obj->sort($division['Team'], $division['Division'], $division['League'], $division['Game'], $spirit_obj, false);
 		$reset = $this->_arg('reset');
 		$operation = ($reset ? 'reset' : 'update');
 

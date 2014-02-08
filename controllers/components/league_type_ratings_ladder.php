@@ -116,7 +116,7 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 		}
 
 		// Sort teams so ratings scheduling works properly
-		$this->sort($this->division);
+		$this->sort($this->division['Team'], $this->division['Division'], $this->division['League'], $this->division['Game']);
 
 		return $this->scheduleOneSet($date, $this->division['Team']);
 	}

@@ -425,8 +425,7 @@ class Game extends AppModel {
 				'NOT' => array('id' => $game_ids),
 		)));
 		if (!empty ($taken)) {
-			$this->Session->setFlash(__('A game slot chosen for this schedule has been allocated elsewhere in the interim. Please try again.', true), 'default', array('class' => 'info'));
-			return false;
+			return array('text' => __('A game slot chosen for this schedule has been allocated elsewhere in the interim. Please try again.', true), 'class' => 'info');
 		}
 
 		$this->_validateForScheduleEdit();
@@ -434,8 +433,7 @@ class Game extends AppModel {
 			$games[$key]['published'] = $publish;
 		}
 		if (!$this->saveAll($games)) {
-			$this->Session->setFlash(__('Failed to save schedule changes!', true), 'default', array('class' => 'warning'));
-			return false;
+			return array('text' => __('Failed to save schedule changes!', true), 'class' => 'warning');
 		}
 		return true;
 	}
@@ -957,6 +955,115 @@ class Game extends AppModel {
 			if (!$badge_obj->update('game', $this->data)) {
 				return false;
 			}
+		}
+	}
+
+	function _validateAndSaveSchedule($data, $available_slots) {
+		$publish = $data['Game']['publish'];
+		unset ($data['Game']['publish']);
+		if (array_key_exists('double_header', $data['Game'])) {
+			$allow_double_header = $data['Game']['double_header'];
+			unset ($data['Game']['double_header']);
+		} else {
+			$allow_double_header = false;
+		}
+		if (array_key_exists('double_booking', $data['Game'])) {
+			$allow_double_booking = $data['Game']['double_booking'];
+			unset ($data['Game']['double_booking']);
+		} else {
+			$allow_double_booking = false;
+		}
+
+		$games = count($data['Game']);
+		// TODO: Remove workaround for Set::extract bug
+		$data['Game'] = array_values($data['Game']);
+		$used_slots = Set::extract ('/Game/game_slot_id', $data);
+		if (in_array ('', $used_slots)) {
+			return array('text' => __('You cannot choose the "---" as the game time/place!', true), 'class' => 'info');
+		}
+
+		if (!$allow_double_booking) {
+			$slot_counts = array_count_values ($used_slots);
+			foreach ($slot_counts as $slot_id => $count) {
+				if ($count > 1) {
+					$this->GameSlot->contain(array(
+							'Field' => 'Facility',
+					));
+					$slot = $this->GameSlot->read(null, $slot_id);
+					$slot_field = $slot['Field']['long_name'];
+					$slot_time = "{$slot['GameSlot']['game_date']} {$slot['GameSlot']['game_start']}";
+					return array('text' => sprintf (__('Game slot at %s on %s was selected more than once!', true), $slot_field, $slot_time), 'class' => 'info');
+				}
+			}
+		}
+
+		$teams = array_merge (
+				Set::extract ('/Game/home_team', $data),
+				Set::extract ('/Game/away_team', $data)
+		);
+		if (in_array ('', $teams)) {
+			return array('text' => __('You cannot choose the "---" as the team!', true), 'class' => 'info');
+		}
+
+		$team_names = $this->Division->Team->find('list', array(
+				'contain' => false,
+				'conditions' => array('Team.id' => $teams),
+		));
+
+		$team_counts = array_count_values ($teams);
+		foreach ($team_counts as $team_id => $count) {
+			if ($count > 1) {
+				if ($allow_double_header) {
+					// Check that the double-header doesn't cause conflicts; must be at the same facility, but different times
+					$team_slot_ids = array_merge(
+						Set::extract ("/Game[home_team=$team_id]/game_slot_id", $data),
+						Set::extract ("/Game[away_team=$team_id]/game_slot_id", $data)
+					);
+					if (count ($team_slot_ids) != count (array_unique ($team_slot_ids))) {
+						return array('text' => sprintf (__('Team %s was scheduled twice in the same time slot!', true), $team_names[$team_id]), 'class' => 'info');
+					}
+
+					$this->GameSlot->contain(array(
+							'Field',
+					));
+					$team_slots = $this->GameSlot->find('all', array('conditions' => array(
+							'GameSlot.id' => $team_slot_ids,
+					)));
+					foreach ($team_slots as $key1 => $slot1) {
+						foreach ($team_slots as $key2 => $slot2) {
+							if ($key1 != $key2) {
+								if ($slot1['GameSlot']['game_date'] == $slot2['GameSlot']['game_date'] &&
+									$slot1['GameSlot']['game_start'] >= $slot2['GameSlot']['game_start'] &&
+									$slot1['GameSlot']['game_start'] < $slot2['GameSlot']['display_game_end'])
+								{
+									return array('text' => sprintf (__('Team %s was scheduled in overlapping time slots!', true), $team_names[$team_id]), 'class' => 'info');
+								}
+								if ($slot1['Field']['facility_id'] != $slot2['Field']['facility_id']) {
+									return array('text' => sprintf (__('Team %s was scheduled on %s at different facilities!', true), $team_names[$team_id], Configure::read('ui.fields')), 'class' => 'info');
+								}
+							}
+						}
+					}
+				} else {
+					return array('text' => sprintf (__('Team %s was selected more than once!', true), $team_names[$team_id]), 'class' => 'info');
+				}
+			}
+		}
+
+		$ret = $this->_saveGames($data['Game'], $publish);
+		if ($ret !== true) {
+			return $ret;
+		}
+
+		$available_slot_ids = array();
+		foreach ($available_slots as $slots) {
+			$available_slot_ids = array_merge($available_slot_ids, Set::extract ('/Game/game_slot_id', $slots));
+		}
+		$unused_slots = array_diff ($available_slot_ids, $used_slots);
+		if (empty($unused_slots) || $this->GameSlot->updateAll (array('assigned' => 0), array('GameSlot.id' => $unused_slots))) {
+			return true;
+		} else {
+			return array('text' => __('Saved schedule changes, but failed to clear unused slots!', true), 'class' => 'warning', 'result' => true);
 		}
 	}
 }

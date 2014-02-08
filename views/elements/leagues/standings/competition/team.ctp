@@ -9,7 +9,7 @@ if (count ($classes)) {
 	echo $this->element('teams/block', array('team' => $team));
 	?></td>
 	<td><?php echo $team['rating']; ?></td>
-	<?php if (League::hasSpirit($division)): ?>
+	<?php if (League::hasSpirit($league)): ?>
 	<td><?php
 	if (!array_key_exists('Season', $team) || $team['Season']['spirit_games'] == 0) {
 		$spirit = null;
@@ -18,7 +18,7 @@ if (count ($classes)) {
 	}
 	echo $this->element ('spirit/symbol', array(
 			'spirit_obj' => $spirit_obj,
-			'league' => $division['League'],
+			'league' => $league,
 			'is_coordinator' => $is_coordinator,
 			'value' => $spirit,
 	));

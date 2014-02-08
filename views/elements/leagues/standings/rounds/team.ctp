@@ -10,9 +10,9 @@ if (count ($classes)) {
 	echo $this->element('teams/block', array('team' => $team));
 	?></td>
 	<?php
-	if ($division['Division']['current_round'] != 1):
-		if (array_key_exists($division['Division']['current_round'], $team['Season']['rounds'])) {
-			$round = $team['Season']['rounds'][$division['Division']['current_round']];
+	if ($division['current_round'] != 1):
+		if (array_key_exists($division['current_round'], $team['Season']['rounds'])) {
+			$round = $team['Season']['rounds'][$division['current_round']];
 		} else {
 			$round = array('W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'gf' => 0, 'ga' => 0);
 		}
@@ -41,7 +41,7 @@ if (count ($classes)) {
 		echo '-';
 	}
 	?></td>
-	<?php if (League::hasSpirit($division)): ?>
+	<?php if (League::hasSpirit($league)): ?>
 	<td><?php
 	if (!array_key_exists('Season', $team) || $team['Season']['spirit_games'] == 0) {
 		$spirit = null;
@@ -50,7 +50,7 @@ if (count ($classes)) {
 	}
 	echo $this->element ('spirit/symbol', array(
 			'spirit_obj' => $spirit_obj,
-			'league' => $division['League'],
+			'league' => $league,
 			'is_coordinator' => $is_coordinator,
 			'value' => $spirit,
 	));

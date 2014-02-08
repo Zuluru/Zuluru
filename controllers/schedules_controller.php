@@ -883,7 +883,8 @@ class SchedulesController extends AppController {
 				return false;
 			}
 			if ($league_obj->assignFieldsByPreferences($this->data['new_date'], $division['Game'])) {
-				if ($this->Division->Game->_saveGames ($league_obj->games, $this->data['publish'])) {
+				$ret = $this->Division->Game->_saveGames ($league_obj->games, $this->data['publish']);
+				if ($ret === true) {
 					$unused_slots = Set::extract ('/GameSlot/id', $division['Game']);
 					if ($this->Division->Game->GameSlot->updateAll (array('assigned' => 0), array('GameSlot.id' => $unused_slots))) {
 						$this->Session->setFlash(__('Games rescheduled', true), 'default', array('class' => 'success'));
@@ -893,6 +894,8 @@ class SchedulesController extends AppController {
 					} else {
 						$this->Session->setFlash(__('Games were rescheduled, but failed to clear unused slots!', true), 'default', array('class' => 'warning'));
 					}
+				} else {
+					$this->Session->setFlash($ret['text'], 'default', array('class' => $ret['class']));
 				}
 			}
 			// Failure flash message will have been set by whatever failed

@@ -41,19 +41,19 @@ class LeagueTypeComponent extends Object
 	 * @param mixed $division Division to sort (teams are in ['Team'] key)
 	 *
 	 */
-	function sort(&$division, $spirit_obj = null, $include_tournament = true) {
-		if (!empty($division['Game'])) {
-			$this->presort ($division, $spirit_obj);
+	function sort(&$teams, &$division, $league, $games, $spirit_obj = null, $include_tournament = true) {
+		if (!empty($games)) {
+			$this->presort ($teams, $division, $league, $games, $spirit_obj);
 		}
-		$unseeded = Set::extract('/Team[seed=0]', $division);
+		$unseeded = Set::extract('/Team[seed=0]', array('Team' => $teams));
 		if (empty($unseeded)) {
-			usort ($division['Team'], array($this, 'compareSeed'));
-		} else if ($division['Division']['schedule_type'] == 'tournament' || $include_tournament) {
-			usort ($division['Team'], array($this, 'compareTeamsTournament'));
+			usort ($teams, array($this, 'compareSeed'));
+		} else if ($division['schedule_type'] == 'tournament' || $include_tournament) {
+			usort ($teams, array($this, 'compareTeamsTournament'));
 		} else {
-			usort ($division['Team'], array($this, 'compareTeams'));
-			if (!empty($division['Game'])) {
-				$this->detectAndResolveTies($division['Team'], 'compareTeams');
+			usort ($teams, array($this, 'compareTeams'));
+			if (!empty($games)) {
+				$this->detectAndResolveTies($teams, 'compareTeams');
 			}
 		}
 	}
@@ -65,12 +65,12 @@ class LeagueTypeComponent extends Object
 	 * @param mixed $division Division to perform calculations on
 	 *
 	 */
-	function presort(&$division, $spirit_obj) {
+	function presort(&$teams, &$division, $league, $games, $spirit_obj) {
 		// Different read methods create arrays in different formats.
 		// This puts them all in the same format. At the same time,
 		// we split them into various groupings.
 		$bracket_games = array();
-		foreach ($division['Game'] as $game) {
+		foreach ($games as $game) {
 			if (array_key_exists ('Game', $game)) {
 				$game = array_merge($game['Game'], $game);
 				unset($game['Game']);
@@ -93,14 +93,14 @@ class LeagueTypeComponent extends Object
 
 		// Process each group of games to generate interim results
 		if (!empty($division['Season'])) {
-			$division['Season']['Results'] = $this->roundRobinResults($division, $division['Season']['Game'], $spirit_obj);
+			$division['Season']['Results'] = $this->roundRobinResults($division, $league, $division['Season']['Game'], $spirit_obj);
 		}
 
 		if (!empty($division['Pools'])) {
 			ksort($division['Pools']);
 			foreach ($division['Pools'] as $stage_num => $stage) {
 				foreach ($stage as $pool_num => $pool) {
-					$division['Pools'][$stage_num][$pool_num]['Results'] = $this->roundRobinResults($division, $pool['Game'], $spirit_obj);
+					$division['Pools'][$stage_num][$pool_num]['Results'] = $this->roundRobinResults($division, $league, $pool['Game'], $spirit_obj);
 				}
 			}
 		}
@@ -133,37 +133,38 @@ class LeagueTypeComponent extends Object
 
 		// Put the results into the top team records for easy access.
 		// Also, put teams into arrays for each grouping and sort them.
-		foreach ($division['Team'] as $key => $team) {
+		foreach ($teams as $key => $team) {
 			if (!empty($division['Season']['Results'][$team['id']])) {
-				$division['Team'][$key]['Season'] = $division['Season']['Results'][$team['id']];
-				$division['Season']['Team'][] = $division['Team'][$key];
+				$teams[$key]['Season'] = $division['Season']['Results'][$team['id']];
+				$division['Season']['Team'][] = $teams[$key];
 			}
 			if (!empty($division['Pools'])) {
 				foreach ($division['Pools'] as $stage_num => $stage) {
 					foreach ($stage as $pool_num => $pool) {
 						if (!empty($pool['Results'][$team['id']])) {
-							$x = $division['Team'][$key];
+							$x = $teams[$key];
 							unset($x['Season']);
 							unset($x['Pools']);
 							$x += $pool['Results'][$team['id']];
 							$division['Pools'][$stage_num][$pool_num]['Team'][] = $x;
 
-							$division['Team'][$key]['Pools'][$stage_num][$pool_num] = $pool['Results'][$team['id']];
+							$teams[$key]['Pools'][$stage_num][$pool_num] = $pool['Results'][$team['id']];
 						}
 					}
 				}
 			}
 			if (!empty($division['Bracket']['Results'][$team['id']])) {
-				$division['Team'][$key]['Bracket'] = $division['Bracket']['Results'][$team['id']];
+				$teams[$key]['Bracket'] = $division['Bracket']['Results'][$team['id']];
 
-				$x = $division['Team'][$key];
+				$x = $teams[$key];
 				unset($x['Season']);
 				unset($x['Pools']);
 				$division['Bracket']['Team'][] = $x;
 			}
 		}
 
-		$this->division = $division;
+		$this->division_for_sort = $division;
+		$this->league_for_sort = $league;
 
 		if (!empty($division['Season']['Team'])) {
 			usort ($division['Season']['Team'], array($this, 'compareTeams'));
@@ -182,10 +183,10 @@ class LeagueTypeComponent extends Object
 			usort ($division['Bracket']['Team'], array($this, 'compareTeamsTournament'));
 		}
 
-		$this->division = $division;
+		$this->division_for_sort = $division;
 	}
 
-	function roundRobinResults($division, $games, $spirit_obj) {
+	function roundRobinResults($division, $league, $games, $spirit_obj) {
 		$results = array();
 
 		foreach ($games as $game) {
@@ -201,11 +202,11 @@ class LeagueTypeComponent extends Object
 
 			if (!in_array($game['status'], Configure::read('unplayed_status'))) {
 				if (Game::_is_finalized($game)) {
-					$this->addGameResult ($division, $results, $game['home_team'], $game['away_team'],
+					$this->addGameResult ($division, $league, $results, $game['home_team'], $game['away_team'],
 							$round, $game['home_score'], $game['away_score'],
 							Game::_get_spirit_entry ($game, $game['home_team'], $spirit_obj), $spirit_obj,
 							$game['status'] == 'home_default');
-					$this->addGameResult ($division, $results, $game['away_team'], $game['home_team'],
+					$this->addGameResult ($division, $league, $results, $game['away_team'], $game['home_team'],
 							$round, $game['away_score'], $game['home_score'],
 							Game::_get_spirit_entry ($game, $game['away_team'], $spirit_obj), $spirit_obj,
 							$game['status'] == 'away_default');
@@ -219,9 +220,9 @@ class LeagueTypeComponent extends Object
 		return $results;
 	}
 
-	function addGameResult($division, &$results, $team, $opp, $round, $score_for, $score_against, $spirit_for, $spirit_obj, $default) {
+	function addGameResult($division, $league, &$results, $team, $opp, $round, $score_for, $score_against, $spirit_for, $spirit_obj, $default) {
 		if (!isset($this->sport_obj)) {
-			$this->sport_obj = $this->_controller->_getComponent ('Sport', $division['League']['sport'], $this->_controller);
+			$this->sport_obj = $this->_controller->_getComponent ('Sport', $league['sport'], $this->_controller);
 		}
 
 		// What type of result was this?
@@ -280,7 +281,7 @@ class LeagueTypeComponent extends Object
 		if ($spirit_obj) {
 			if (is_array ($spirit_for)) {
 				++ $results[$team]['spirit_games'];
-				if (!$division['League']['numeric_sotg']) {
+				if (!$league['numeric_sotg']) {
 					$results[$team]['spirit'] += $spirit_obj->calculate($spirit_for);
 				} else {
 					$results[$team]['spirit'] += $spirit_for['entered_sotg'];
@@ -474,7 +475,7 @@ class LeagueTypeComponent extends Object
 			return -1;
 		}
 
-		$round = $this->division['Division']['current_round'];
+		$round = $this->division_for_sort['current_round'];
 		if ($round != 1) {
 			if (array_key_exists($round, $a['Season']['rounds'])) {
 				$a_results = $a['Season']['rounds'][$round];
@@ -510,7 +511,7 @@ class LeagueTypeComponent extends Object
 		if ($a['W'] > $b['W'])
 			return -1;
 
-		$order = Configure::read("tie_breakers.{$this->division['League']['tie_breaker']}");
+		$order = Configure::read("tie_breakers.{$this->league_for_sort['tie_breaker']}");
 		foreach ($order as $option) {
 			switch ($option) {
 				case 'hth':
@@ -638,7 +639,7 @@ class LeagueTypeComponent extends Object
 				'hthpm' => 0,
 				'pm' => 0,
 		));
-		$round = $this->division['Division']['current_round'];
+		$round = $this->division_for_sort['current_round'];
 		foreach ($tied as $i) {
 			if (!empty($teams[$i]['rounds'])) {
 				foreach ($tied as $j) {

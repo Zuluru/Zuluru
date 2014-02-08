@@ -1,38 +1,28 @@
 <?php
-$published = array_unique (Set::extract ("/GameSlot[game_date=$date]/../published", $division['Game']));
+$games = $division['Game'];
+$competition = ($division['Division']['schedule_type'] == 'competition');
+$double_booking = $division['Division']['double_booking'];
+$id = $division['Division']['id'];
+$id_field = 'division';
+$teams = Set::combine ($division['Team'], '{n}.id', '{n}.name');
+natcasesort ($teams);
+$published = array_unique (Set::extract ("/GameSlot[game_date=$date]/../published", $games));
 if (count ($published) != 1 || $published[0] == 0) {
 	$published = false;
 } else {
 	$published = true;
 }
 
-$teams = Set::combine ($division['Team'], '{n}.id', '{n}.name');
-natcasesort ($teams);
+
+echo $this->element('leagues/schedule/edit_header', compact('date', 'competition', 'id_field', 'id', 'is_tournament'));
 ?>
 
-<tr>
-	<th colspan="3"><a name="<?php echo $date; ?>"><?php echo $this->ZuluruTime->fulldate($date); ?></a></th>
-	<th colspan="<?php echo 2 + ($division['Division']['schedule_type'] != 'competition'); ?>" class="actions splash_action">
-	<?php echo $this->ZuluruHtml->iconLink('field_24.png',
-			array('action' => 'slots', 'division' => $division['Division']['id'], 'date' => $date),
-			array('alt' => __(Configure::read('sport.fields_cap'), true), 'title' => sprintf(__('Available %s', true), __(Configure::read('sport.fields_cap'), true)))); ?>
-	</th>
-</tr>
-<tr>
-	<th><?php if ($is_tournament): ?><?php __('Game'); ?><?php endif; ?></th>
-	<th colspan="2"><?php printf(__('Time/%s', true), __(Configure::read('sport.field_cap'), true)); ?></th>
-	<th><?php __($division['Division']['schedule_type'] == 'competition' ? 'Team' : 'Home'); ?></th>
-	<?php if ($division['Division']['schedule_type'] != 'competition'): ?>
-	<th><?php __('Away'); ?></th>
-	<?php endif; ?>
-	<th></th>
-</tr>
-
 <?php
-foreach ($division['Game'] as $game):
+foreach ($games as $game):
 	if ($date != $game['GameSlot']['game_date']) {
 		continue;
 	}
+
 	Game::_readDependencies($game);
 
 	if (empty ($this->data)) {
@@ -43,7 +33,7 @@ foreach ($division['Game'] as $game):
 ?>
 
 <tr<?php if (!$game['published']) echo ' class="unpublished"'; ?>>
-	<td><?php if ($is_tournament): ?><?php
+	<td><?php if ($game['type'] != SEASON_GAME): ?><?php
 	if (!empty($data['name'])) {
 		echo $data['name'];
 	}
@@ -59,7 +49,7 @@ foreach ($division['Game'] as $game):
 	));
 	?></td>
 	<td><?php
-	if ($is_tournament) {
+	if ($game['type'] != SEASON_GAME) {
 		if (empty ($game['HomeTeam'])) {
 			if (array_key_exists ('home_dependency', $game)) {
 				echo $game['home_dependency'];
@@ -79,9 +69,9 @@ foreach ($division['Game'] as $game):
 		));
 	}
 	?></td>
-	<?php if ($division['Division']['schedule_type'] != 'competition'): ?>
+	<?php if (!$competition): ?>
 	<td><?php
-	if ($is_tournament) {
+	if ($game['type'] != SEASON_GAME) {
 		if (empty ($game['AwayTeam'])) {
 			if (array_key_exists ('away_dependency', $game)) {
 				echo $game['away_dependency'];
@@ -110,7 +100,7 @@ endforeach;
 ?>
 
 <tr>
-	<td colspan="<?php echo 4 + ($division['Division']['schedule_type'] != 'competition'); ?>"><?php
+	<td colspan="<?php echo 3 + !$competition; ?>"><?php
 	echo $this->Form->input ('publish', array(
 			'label' => __('Set as published for player viewing?', true),
 			'type' => 'checkbox',
@@ -123,7 +113,7 @@ endforeach;
 				'checked' => false,
 		));
 	}
-	if ($division['Division']['double_booking']) {
+	if ($double_booking) {
 		echo $this->Form->input ('double_booking', array(
 				'label' => __('Allow double-booking?', true),
 				'type' => 'checkbox',
@@ -131,7 +121,7 @@ endforeach;
 		));
 	}
 	?></td>
-	<td class="actions splash_action">
+	<td colspan="2" class="actions splash_action">
 		<?php echo $this->Form->hidden ('edit_date', array('value' => $date)); ?>
 		<?php echo $this->Form->submit (__('Reset', true), array('type' => 'reset', 'div' => false)); ?>
 		<?php echo $this->Form->submit (__('Submit', true), array('div' => false)); ?>
