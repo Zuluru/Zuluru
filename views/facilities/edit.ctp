@@ -6,6 +6,7 @@ if (isset ($add)) {
 	$this->Html->addCrumb ($this->Form->value('Facility.name'));
 	$this->Html->addCrumb (__('Edit', true));
 }
+$collapse = !empty($this->data['Field']['id']);
 ?>
 
 <div class="facilities form">
@@ -15,6 +16,9 @@ if (isset ($add)) {
 		<?php
 		if (!isset ($add)) {
 			echo $this->Form->input('id');
+			if ($collapse) {
+				echo $this->Form->input('Field.id');
+			}
 		}
 
 		echo $this->ZuluruForm->input('name');
@@ -40,7 +44,31 @@ if (isset ($add)) {
 		echo $this->ZuluruForm->input('public_instructions', array('cols' => 70, 'class' => 'mceSimple'));
 		echo $this->ZuluruForm->input('site_instructions', array('cols' => 70, 'class' => 'mceSimple'));
 		echo $this->ZuluruForm->input('sponsor', array('cols' => 70, 'class' => 'mceAdvanced'));
-	?>
+
+		if ($collapse || isset ($add)):
+		?>
+		<fieldset>
+			<legend><?php __(Configure::read('ui.field_cap')); ?></legend>
+		<?php
+			echo $this->ZuluruForm->input('Field.num', array('label' => 'Number'));
+			echo $this->ZuluruForm->input('Field.is_open');
+			echo $this->ZuluruForm->input('Field.indoor');
+			echo $this->ZuluruForm->input('Field.surface', array(
+					'options' => Configure::read('options.surface'),
+					'empty' => '---',
+					'hide_single' => true,
+			));
+			echo $this->ZuluruForm->input('Field.rating', array(
+					'options' => Configure::read('options.field_rating'),
+					'empty' => '---',
+					'hide_single' => true,
+			));
+			echo $this->ZuluruForm->input('Field.layout_url');
+		?>
+		</fieldset>
+		<?php
+		endif;
+		?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>

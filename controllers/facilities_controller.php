@@ -131,9 +131,14 @@ class FacilitiesController extends AppController {
 		if (!empty($this->data)) {
 			$this->Facility->create();
 
+			$transaction = new DatabaseTransaction($this->Facility);
 			if ($this->Facility->save($this->data)) {
-				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('facility', true)), 'default', array('class' => 'success'));
-				$this->redirect(array('action' => 'index'));
+				$this->data['Field']['facility_id'] = $this->Facility->id;
+				if ($this->Facility->Field->save($this->data['Field'])) {
+					$transaction->commit();
+					$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('facility', true)), 'default', array('class' => 'success'));
+					$this->redirect(array('action' => 'index'));
+				}
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('facility', true)), 'default', array('class' => 'warning'));
 				$this->Configuration->loadAffiliate($this->Facility->Region->affiliate($this->data['Facility']['region_id']));
@@ -177,10 +182,12 @@ class FacilitiesController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		if (!empty($this->data)) {
-			if ($this->Facility->save($this->data)) {
+			$transaction = new DatabaseTransaction($this->Facility);
+			if ($this->Facility->save($this->data) && $this->Facility->Field->save($this->data)) {
 				if (!$this->data['Facility']['is_open']) {
 					$this->Facility->Field->updateAll (array('is_open' => 0), array('Field.facility_id' => $id));
 				}
+				$transaction->commit();
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('facility', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
@@ -189,8 +196,13 @@ class FacilitiesController extends AppController {
 			}
 		}
 		if (empty($this->data)) {
-			$this->Facility->contain('Region');
+			$this->Facility->contain(array('Region', 'Field'));
 			$this->data = $this->Facility->read(null, $id);
+			if (count($this->data['Field']) == 1) {
+				// Adjust loaded data
+				$this->data['Field'] = array_pop($this->data['Field']);
+			}
+
 			if (!$this->data) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('facility', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
