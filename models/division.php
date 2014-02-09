@@ -208,6 +208,20 @@ class Division extends AppModel {
 		return true;
 	}
 
+	function beforeSave() {
+		if (!empty($this->data['Division']['open'])) {
+			// Does the division need to be opened immediately?
+			if ($this->data['Division']['open'] < date('Y-m-d', time() + 21 * DAY) &&
+				$this->data['Division']['close'] > date('Y-m-d', time() - 7 * DAY))
+			{
+				$this->data['Division']['is_open'] = true;
+			} else {
+				$this->data['Division']['is_open'] = false;
+			}
+		}
+		return true;
+	}
+
 	function afterSave() {
 		if (!empty($this->data['Division']['league_id'])) {
 			$league_id = $this->data['Division']['league_id'];
@@ -217,7 +231,7 @@ class Division extends AppModel {
 
 		// Update this division's league open and close dates, if required
 		$this->League->contain();
-		$league = $this->League->read(array('open', 'close'), $league_id);
+		$league = $this->League->read(array('open', 'close', 'is_open'), $league_id);
 
 		if (empty($league['League']['open']) || $league['League']['open'] == '0000-00-00') {
 			$league['League']['open'] = $this->data['Division']['open'];
@@ -225,6 +239,7 @@ class Division extends AppModel {
 			$league['League']['open'] = min($league['League']['open'], $this->data['Division']['open']);
 		}
 		$league['League']['close'] = max($league['League']['close'], $this->data['Division']['close']);
+		$league['League']['is_open'] |= $this->data['Division']['is_open'];
 		$this->League->save($league, false);
 	}
 

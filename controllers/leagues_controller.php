@@ -294,10 +294,17 @@ class LeaguesController extends AppController {
 			if (array_key_exists('Day', $this->data['League'])) {
 				$this->data['Day'] = $this->data['League']['Day'];
 			}
-			if ($this->League->save($this->data) && (!array_key_exists('Division', $this->data) || $this->League->Division->saveAll($this->data))) {
+			$transaction = new DatabaseTransaction($this->League);
+
+			// Division->saveAll needs to not have League data in it
+			if (array_key_exists('Division', $this->data)) {
+				$division = $this->data;
+				unset($division['League']);
+			}
+			if ($this->League->save($this->data) && (!isset($division) || $this->League->Division->saveAll($division))) {
 				// Any time that this is called, the division seeding might change.
 				// We just reset it here, and it will be recalculated as required elsewhere.
-				if (array_key_exists('Division', $this->data)) {
+				if (isset($division)) {
 					$divisions = array($this->data['Division']['id']);
 				} else {
 					$divisions = $this->League->Division->find('list', array(
@@ -314,6 +321,7 @@ class LeaguesController extends AppController {
 				Cache::delete("league/$id/standings", 'long_term');
 				Cache::delete("league/$id/schedule", 'long_term');
 
+				$transaction->commit();
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('league', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {

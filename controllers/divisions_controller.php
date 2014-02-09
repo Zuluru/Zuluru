@@ -355,24 +355,8 @@ class DivisionsController extends AppController {
 
 		if (!empty($this->data)) {
 			$this->Division->create();
-
-			$this->Division->set($this->data);
-
-			// Does the division need to be opened immediately?
-			$open_division = false;
-			if ($this->Division->data['Division']['open'] < date('Y-m-d', time() + 21 * DAY)) {
-				$this->Division->set(array('is_open' => true));
-				$open_division = true;
-			}
-
 			if ($this->Division->save()) {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('division', true)), 'default', array('class' => 'success'));
-
-				// Does the league need to be opened?
-				if ($open_division) {
-					$this->Division->League->updateAll(array('League.is_open' => true), array('League.id' => $this->data['Division']['league_id']));
-				}
-
 				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('division', true)), 'default', array('class' => 'warning'));
