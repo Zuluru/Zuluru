@@ -237,13 +237,17 @@ class LeaguesController extends AppController {
 	function add() {
 		if (!empty($this->data)) {
 			$this->League->create();
+			$transaction = new DatabaseTransaction($this->League);
 			if ($this->League->save($this->data)) {
-				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('league', true)), 'default', array('class' => 'success'));
-				$this->redirect(array('action' => 'index'));
-			} else {
-				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('league', true)), 'default', array('class' => 'warning'));
-				$this->Configuration->loadAffiliate($this->data['League']['affiliate_id']);
+				$this->data['Division']['league_id'] = $this->League->id;
+				if ($this->League->Division->save($this->data['Division'])) {
+					$transaction->commit();
+					$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('league', true)), 'default', array('class' => 'success'));
+					$this->redirect(array('action' => 'index'));
+				}
 			}
+			$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('league', true)), 'default', array('class' => 'warning'));
+			$this->Configuration->loadAffiliate($this->data['League']['affiliate_id']);
 		} else if ($this->_arg('league')) {
 			// To clone a league, read the old one and remove the id
 			$this->League->contain();
@@ -256,6 +260,7 @@ class LeaguesController extends AppController {
 			unset($this->data['League']['id']);
 		}
 
+		$this->set('days', $this->League->Division->Day->find('list'));
 		$sports = Configure::read('options.sport');
 		if (count($sports) == 1) {
 			$sport = reset(array_keys($sports));

@@ -27,6 +27,13 @@ $collapse = !empty($this->data['Division']['id']);
 			'after' => $this->Html->para (null, __('The full name of the league. Year and season will be automatically added.', true)),
 		));
 
+		if ($collapse || isset ($add)) {
+			echo $this->ZuluruForm->input('Division.name', array(
+				'size' => 70,
+				'after' => $this->Html->para (null, __('The name of the first division in the league. If the league will only have one division, you can leave this blank.', true)),
+			));
+		}
+
 		if (isset ($add)) {
 			echo $this->ZuluruForm->input('affiliate_id', array(
 				'options' => $affiliates,
@@ -52,7 +59,7 @@ $collapse = !empty($this->data['Division']['id']);
 			'after' => $this->Html->para (null, __('Season during which this league\'s games take place.', true)),
 		));
 
-		if ($collapse) {
+		if ($collapse || isset ($add)) {
 			echo $this->ZuluruForm->input('Division.coord_list', array(
 				'div' => 'input advanced',
 				'label' => __('Coordinator Email List', true),
@@ -82,7 +89,7 @@ $collapse = !empty($this->data['Division']['id']);
 		}
 	?>
 	</fieldset>
-	<?php if ($collapse): ?>
+	<?php if ($collapse || isset ($add)): ?>
 	<fieldset>
 		<legend><?php __('Dates'); ?></legend>
 	<?php
@@ -165,10 +172,10 @@ $collapse = !empty($this->data['Division']['id']);
 	?>
 	</fieldset>
 	<?php endif; ?>
-	<fieldset<?php if (!$collapse) echo ' class="advanced"'; ?>>
+	<fieldset<?php if (!$collapse && !isset($add)) echo ' class="advanced"'; ?>>
 		<legend><?php __('Scheduling'); ?></legend>
 	<?php
-		if ($collapse) {
+		if ($collapse || isset ($add)) {
 			echo $this->ZuluruForm->input('Division.schedule_type', array(
 				'options' => Configure::read('options.schedule_type'),
 				'hide_single' => true,
@@ -213,7 +220,7 @@ $collapse = !empty($this->data['Division']['id']);
 		));
 	?>
 	</fieldset>
-	<fieldset<?php if (!$collapse && !Configure::read('feature.spirit') && !Configure::read('scoring.stat_tracking')) echo ' class="advanced"'; ?>>
+	<fieldset<?php if (!$collapse && !isset($add) && !Configure::read('feature.spirit') && !Configure::read('scoring.stat_tracking')) echo ' class="advanced"'; ?>>
 		<legend><?php __('Scoring'); ?></legend>
 	<?php
 		if (Configure::read('feature.spirit') && !Configure::read('sport.competition')) {
@@ -256,7 +263,7 @@ $collapse = !empty($this->data['Division']['id']);
 			'after' => $this->Html->para (null, __('Order of tie-breakers to use in standings.', true)),
 		));
 
-		if ($collapse) {
+		if ($collapse || isset ($add)) {
 			echo $this->ZuluruForm->input('Division.rating_calculator', array(
 				'options' => Configure::read('options.rating_calculator'),
 				'hide_single' => true,
@@ -266,10 +273,12 @@ $collapse = !empty($this->data['Division']['id']);
 			));
 			echo $this->ZuluruForm->input('Division.email_after', array(
 				'size' => 5,
+				'default' => 0,
 				'after' => $this->Html->para (null, __('Email captains who haven\'t scored games after this many hours, no reminder if 0.', true)),
 			));
 			echo $this->ZuluruForm->input('Division.finalize_after', array(
 				'size' => 5,
+				'default' => 0,
 				'after' => $this->Html->para (null, __('Games which haven\'t been scored will be automatically finalized after this many hours, no finalization if 0.', true)),
 			));
 			if (Configure::read('scoring.allstars')) {
@@ -374,7 +383,7 @@ function selectAll(id) {
 }
 ");
 
-if ($collapse) {
+if ($collapse || isset ($add)) {
 	echo $this->ZuluruHtml->script ('datepicker', array('inline' => false));
 }
 $this->Js->get('.show_advanced')->event('click', 'jQuery(".advanced").show(); jQuery(".basic").hide();');
