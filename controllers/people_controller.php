@@ -2438,6 +2438,8 @@ class PeopleController extends AppController {
 			case 'delete':
 				if (method_exists ($this->Auth->authenticate, 'delete_duplicate_user')) {
 					$this->Auth->authenticate->delete_duplicate_user($person['Person']['user_id']);
+				} else {
+					$this->Auth->authenticate->delete($person['Person']['user_id']);
 				}
 				if (! $this->Person->delete($person_id) ) {
 					$this->Session->setFlash(sprintf (__('Failed to delete %s', true), $person['Person']['full_name']), 'default', array('class' => 'warning'));
@@ -2448,6 +2450,8 @@ class PeopleController extends AppController {
 			case 'delete_duplicate':
 				if (method_exists ($this->Auth->authenticate, 'delete_duplicate_user')) {
 					$this->Auth->authenticate->delete_duplicate_user($person['Person']['user_id']);
+				} else {
+					$this->Auth->authenticate->delete($person['Person']['user_id']);
 				}
 
 				if (! $this->Person->delete($person_id) ) {
