@@ -1367,6 +1367,9 @@ class LeagueTypeComponent extends Object
 				$dates = array_unique(Set::extract("/GameSlot[game_date>$date]/game_date", $this->division['DivisionGameslotAvailability']));
 			}
 
+			if (empty($dates)) {
+				return false;
+			}
 			return min($dates);
 		}
 
