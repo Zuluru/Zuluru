@@ -355,7 +355,7 @@ class DivisionsController extends AppController {
 
 		if (!empty($this->data)) {
 			$this->Division->create();
-			if ($this->Division->save()) {
+			if ($this->Division->save($this->data)) {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('division', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 			} else {
