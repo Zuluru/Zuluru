@@ -394,7 +394,7 @@ class League extends AppModel {
 		if (is_array($league)) {
 			$league_divisions = Set::extract('/Division/id', $league);
 		} else {
-			$league_divisions = $this->divisions($league_id);
+			$league_divisions = $this->divisions($league);
 		}
 		$intersection = array_intersect($coordinated_divisions, $league_divisions);
 		if ($all) {

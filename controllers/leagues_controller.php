@@ -49,7 +49,7 @@ class LeaguesController extends AppController {
 		{
 			// If a league id is specified, check if we're a coordinator of all of that league's divisions
 			$league = $this->_arg('league');
-			if ($league && $this->League->is_coordinator($league_id, null, true)) {
+			if ($league && $this->League->is_coordinator($league, null, true)) {
 				return true;
 			}
 		}
