@@ -669,7 +669,7 @@ class LeagueTypeComponent extends Object
 			$worst = $teams[array_pop($sorted)];
 			foreach ($leftovers as $key => $team) {
 				// Is the leftover team better than the best team among those tied?
-				if ($this->compareTeamsResults($teams[$team], $best) < 1) {
+				if ($this->compareTeamsResults($teams[$team]['Season'], $best['Season']) < 1) {
 					$new_teams[] = $teams[$team];
 					unset($leftovers[$key]);
 				}
