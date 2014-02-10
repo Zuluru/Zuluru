@@ -66,11 +66,11 @@ $this->Html->addCrumb (__('Standings', true));
 		echo $this->element('leagues/standings/tournament/bracket', array('division' => $division, 'games' => $division['Bracket']['Game'], 'teams' => $division['Team']));
 	endif;
 	?>
-	</div>
 	<?php if (!empty($division['footer']) && !empty($division['Game'])): ?>
 	<div class="division_footer"><?php echo $division['footer']; ?></div>
 	<?php endif; ?>
 <?php endforeach; ?>
+</div>
 
 <div class="actions"><?php echo $this->element('leagues/actions', array(
 		'league' => $league,
