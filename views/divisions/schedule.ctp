@@ -26,6 +26,7 @@ if (!empty ($edit_date)) {
 
 	// Put the slots into a more useful form for us
 	$slots = array();
+	$game_slots = reset($game_slots);
 	usort($game_slots, array('GameSlot', 'compareTimeAndField'));
 	foreach ($game_slots as $slot) {
 		if ($is_tournament) {
