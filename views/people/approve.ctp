@@ -75,9 +75,7 @@ if (Configure::read('profile.skill_level')) {
 
 $rows[] = 'year_started';
 
-if (Configure::read('profile.birthdate')) {
-	$rows['status'] = array('name' => 'Account Status');
-}
+$rows['status'] = array('name' => 'Account Status');
 
 $cols = array('name' => array(), 'person' => array());
 foreach ($rows as $key => $data) {
@@ -171,7 +169,15 @@ jQuery(document).ready(function() {
 
 // Helper functions for formatting data
 function format_date($data, $ths) {
-	return $ths->ZuluruTime->date ($data);
+	if (Configure::read('feature.birth_year_only')) {
+		if (empty($data) || substr($data, 0, 4) == '0000') {
+			return __('unknown', true);
+		} else {
+			return substr($data, 0, 4);
+		}
+	} else {
+		return $this->ZuluruTime->date($data);
+	}
 }
 function format_height($data, $ths) {
 	return "$data inches";
