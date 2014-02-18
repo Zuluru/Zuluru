@@ -193,7 +193,7 @@ class UsersController extends AppController {
 			// Look up the provided code
 			$this->Person->contain($user_model);
 			$matches = $this->Person->read (null, $id);
-			if (!$matches || substr ($matches[$user_model]['password'], -8) != $code) {
+			if (!$matches || str_replace('/', '_', substr($matches[$user_model]['password'], -8)) != $code) {
 				$this->Session->setFlash(__('The provided code is not valid!', true), 'default', array('class' => 'warning'));
 			} else {
 				if ($this->_email_new_password($matches['Person'])) {
@@ -275,7 +275,7 @@ class UsersController extends AppController {
 
 	function _email_reset_code($user) {
 		$this->set ($user);
-		$this->set ('code', substr ($user['password'], -8));
+		$this->set ('code', str_replace('/', '_', substr($user['password'], -8)));
 		return $this->_sendMail (array (
 				'to' => $user['email_formatted'],
 				'subject' => 'Password reset code',
