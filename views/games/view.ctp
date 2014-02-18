@@ -171,11 +171,13 @@ if (Configure::read('scoring.spirit_default')) {
 		$homeSpiritEntry = $spirit_obj->expected();
 		$awaySpiritEntry = $spirit_obj->defaulted();
 	}
-	if ($homeSpiritEntry == null) {
-		$homeSpiritEntry = $spirit_obj->expected();
-	}
-	if ($awaySpiritEntry == null) {
-		$awaySpiritEntry = $spirit_obj->expected();
+	if (Game::_is_finalized($game)) {
+		if ($homeSpiritEntry == null) {
+			$homeSpiritEntry = $spirit_obj->expected();
+		}
+		if ($awaySpiritEntry == null) {
+			$awaySpiritEntry = $spirit_obj->expected();
+		}
 	}
 }
 $team_names = array(
