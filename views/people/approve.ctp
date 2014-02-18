@@ -176,7 +176,7 @@ function format_date($data, $ths) {
 			return substr($data, 0, 4);
 		}
 	} else {
-		return $this->ZuluruTime->date($data);
+		return $ths->ZuluruTime->date($data);
 	}
 }
 function format_height($data, $ths) {
