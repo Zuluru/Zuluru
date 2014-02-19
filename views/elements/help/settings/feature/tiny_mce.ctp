@@ -12,9 +12,15 @@ $ git pull git://github.com/CakeDC/TinyMCE.git 1.3</code></pre>
 with
 <pre><code>public $configs = array(
     'simple' => array(
-        'mode' => 'textareas',
-        'theme' => 'simple',
-        'editor_selector' => 'mceSimple',
+		'mode' => 'textareas',
+		'theme' => 'advanced',
+		'theme_advanced_buttons1' => 'bold,italic,underline,strikethrough,|,undo,redo,|,cleanup,|,formatselect,bullist,numlist',
+		'theme_advanced_buttons2' => '',
+		'theme_advanced_buttons3' => '',
+		'theme_advanced_statusbar_location' => 'bottom',
+		'theme_advanced_path' => false,
+		'theme_advanced_resizing' => true,
+		'editor_selector' => 'mceSimple',
     ),
     'advanced' => array(
         'mode' => 'textareas',
