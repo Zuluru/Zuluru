@@ -28,11 +28,11 @@
 }
 
 /** Tables **/
-#zuluru table.list
+#zuluru table.list, #zuluru table.multi_row_list
 {
 	border-color: #ccc;
 }
-#zuluru table.list th
+#zuluru table.list th, #zuluru table.multi_row_list th
 {
 	border-color:#555;
 }
@@ -42,15 +42,25 @@
 	color: #336699;
 }
 
+#zuluru table.list th, #zuluru table.multi_row_list th,
+#zuluru table.list th h1, #zuluru table.multi_row_list th h1,
+#zuluru table.list th h2, #zuluru table.multi_row_list th h2,
+#zuluru table.list th h3, #zuluru table.multi_row_list th h3,
+#zuluru table.list th h4, #zuluru table.multi_row_list th h4,
+#zuluru table.list th h5, #zuluru table.multi_row_list th h5,
+#zuluru table.list th h6, #zuluru table.multi_row_list th h6
+{
+	color: #333;
+	background: #b9d3fb;
+}
 #zuluru table.list tr:nth-child(2n) td
 {
 	background: #f5f5f5;
 }
-#zuluru table.list .altrow td
+#zuluru table.list .altrow td, #zuluru table.multi_row_list .altrow td
 {
 	background: #f5f5f5;
 }
-
 #zuluru table td.inner-border
 {
 	border-top: 1px solid #ccc;
@@ -166,12 +176,14 @@ dl .altrow
 	color: #fff;
 }
 
-#zuluru div.message {
+#zuluru div.message
+{
 	border: 1px solid;
 	margin: 10px 0px;
 	padding:15px 10px;
 }
-#zuluru #authMessage, #zuluru #SystemNotice, #zuluru div.info, #zuluru div.success, #zuluru div.warning, #zuluru div.error {
+#zuluru #authMessage, #zuluru #SystemNotice, #zuluru div.info, #zuluru div.success, #zuluru div.warning, #zuluru div.error
+{
 	border: 1px solid;
 	margin: 10px 0px;
 	padding:15px 10px 15px 50px;
@@ -179,23 +191,27 @@ dl .altrow
 	background-position: 10px center;
 	font-size: 125%;
 }
-#zuluru #authMessage, #zuluru #SystemNotice, #zuluru div.info {
+#zuluru #authMessage, #zuluru #SystemNotice, #zuluru div.info
+{
 	border-color: #00529B;
 	background-color: #BDE5F8;
 	background-image: url('images/message/info.png');
 }
-#zuluru div.success {
+#zuluru div.success
+{
 	color: black;
 	border-color: #4F8A10;
 	background-color: #DFF2BF;
 	background-image:url('images/message/success.png');
 }
-#zuluru div.warning {
+#zuluru div.warning
+{
 	border-color: #9F6000;
 	background-color: #FFFABF;
 	background-image: url('images/message/warning.png');
 }
-#zuluru div.error {
+#zuluru div.error
+{
 	border-color: #D8000C;
 	background-color: #FFBABA;
 	background-image: url('images/message/error.png');

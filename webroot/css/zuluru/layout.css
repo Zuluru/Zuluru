@@ -111,7 +111,7 @@ body.map
 	vertical-align: top;
 }
 
-#zuluru table.list
+#zuluru table.list, #zuluru table.multi_row_list
 {
 	border-collapse: collapse;
 	border: 1px solid;
@@ -127,7 +127,7 @@ body.map
 	border: 0;
 }
 
-#zuluru table.list th
+#zuluru table.list th, #zuluru table.multi_row_list th
 {
 	border: 0;
 	border-bottom: 2px solid;
@@ -135,24 +135,25 @@ body.map
 	padding:4px;
 	font-size: 100%;
 }
+#zuluru .events.index table.multi_row_list th,
 #zuluru .leagues.index table.list th,
 #zuluru .divisions.schedule table.list th
 {
 	border: 0;
 	border-top: 2px solid;
 }
-#zuluru table.list th a
+#zuluru table.list th a, #zuluru table.multi_row_list th a
 {
 	padding: 2px 4px;
 }
-#zuluru table.list td
+#zuluru table.list td, #zuluru table.multi_row_list td
 {
 	text-align: left;
 	vertical-align: top;
 	padding: 4px;
 	border: 0;
 }
-#zuluru table.list p
+#zuluru table.list p, #zuluru table.multi_row_list p
 {
 	text-indent: 0;
 	margin: 0 0 1em;
@@ -425,8 +426,8 @@ body.map
 {
 	margin-top: 4px;
 }
-#zuluru table.list th.splash_action,
-#zuluru table.list td.splash_action
+#zuluru table.list th.splash_action, #zuluru table.multi_row_list th.splash_action,
+#zuluru table.list td.splash_action, #zuluru table.multi_row_list td.splash_action
 {
 	text-align: right;
 }
