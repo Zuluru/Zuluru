@@ -16,48 +16,28 @@ class Registration extends AppModel {
 //		),
 	);
 
-	var $hasOne = array(
-		'RegistrationAudit' => array(
-			'className' => 'RegistrationAudit',
-			'foreignKey' => 'registration_id',
-			'dependent' => true,
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
-		)
-	);
-
 	var $belongsTo = array(
 		'Person' => array(
 			'className' => 'Person',
 			'foreignKey' => 'person_id',
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
 		),
 		'Event' => array(
 			'className' => 'Event',
 			'foreignKey' => 'event_id',
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
-		)
+		),
 	);
 
 	var $hasMany = array(
+		'Payment' => array(
+			'className' => 'Payment',
+			'foreignKey' => 'registration_id',
+			'dependent' => true,
+		),
 		'Response' => array(
 			'className' => 'Response',
 			'foreignKey' => 'registration_id',
 			'dependent' => true,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
-		)
+		),
 	);
 
 	function affiliate($id) {

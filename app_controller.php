@@ -561,6 +561,7 @@ class AppController extends Controller {
 				$this->_addMenuItem ('List', array('controller' => 'preregistrations', 'action' => 'index'), array('Registration', 'Preregistrations'));
 				$this->_addMenuItem ('Add', array('controller' => 'preregistrations', 'action' => 'add'), array('Registration', 'Preregistrations'));
 				$this->_addMenuItem ('Unpaid', array('controller' => 'registrations', 'action' => 'unpaid'), 'Registration');
+				$this->_addMenuItem ('Credits', array('controller' => 'registrations', 'action' => 'credits'), 'Registration');
 				$this->_addMenuItem ('Report', array('controller' => 'registrations', 'action' => 'report'), 'Registration');
 				$this->_addMenuItem ('Create event', array('controller' => 'events', 'action' => 'add'), 'Registration');
 				$this->_addMenuItem ('Questionnaires', array('controller' => 'questionnaires', 'action' => 'index'), 'Registration');

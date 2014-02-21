@@ -16,7 +16,7 @@ $this->Html->addCrumb (__('Unpaid', true));
 	</tr>
 	<?php
 	$i = 0;
-	$total = array('Unpaid' => 0, 'Pending' => 0);
+	$total = array_fill_keys(Configure::read('registration_unpaid'), 0);
 	$order_id_format = Configure::read('registration.order_id_format');
 	$affiliate_id = null;
 	foreach ($registrations as $registration) {
@@ -40,8 +40,11 @@ $this->Html->addCrumb (__('Unpaid', true));
 		<td><?php echo $registration['Registration']['payment']; ?></td>
 		<td class="actions"><?php
 		echo $this->Html->link(__('Unregister', true), array('action' => 'unregister', 'registration' => $registration['Registration']['id'], 'return' => true), array(),
-					__('Are you sure you want to delete this registration?', true));
-		echo $this->Html->link(__('Edit', true), array('action' => 'edit', 'registration' => $registration['Registration']['id'], 'return' => true));
+				__('Are you sure you want to delete this registration?', true));
+		echo $this->ZuluruHtml->iconLink('view_24.png', array('action' => 'view', 'registration' => $registration['Registration']['id']),
+				array('alt' => __('View', true), 'title' => __('View Registration', true)));
+		echo $this->ZuluruHtml->iconLink('edit_24.png', array('action' => 'edit', 'registration' => $registration['Registration']['id'], 'return' => true),
+				array('alt' => __('Edit', true), 'title' => __('Edit Registration', true)));
 		?></td>
 	</tr>
 	<tr>

@@ -251,6 +251,14 @@ $config['schedule_type'] = array(
 	'none' => SCHEDULE_TYPE_NONE,
 );
 
+$config['registration_paid'] = array('Paid', 'Deposit', 'Partial', 'Pending');
+$config['registration_unpaid'] = array('Deposit', 'Partial', 'Pending', 'Reserved', 'Unpaid');
+$config['registration_reserved'] = array('Paid', 'Deposit', 'Partial', 'Pending', 'Reserved');
+$config['registration_not_reserved'] = array('Unpaid', 'Waiting', 'Refunded');
+$config['registration_cancelled'] = array('Refunded');
+
+$config['payment_payment'] = array('Full', 'Deposit', 'Installment', 'Remaining Balance');
+
 $config['tie_breakers'] = array(
 	TIE_BREAKER_HTH_HTHPM_PM_GF_LOSS => array('hth', 'hthpm', 'pm', 'gf', 'loss'),
 	TIE_BREAKER_HTH_HTHPM_PM_GF_LOSS_SPIRIT => array('hth', 'hthpm', 'pm', 'gf', 'loss', 'spirit'),

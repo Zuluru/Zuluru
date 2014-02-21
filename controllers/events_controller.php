@@ -504,7 +504,7 @@ class EventsController extends AppController {
 		foreach ($events as $event) {
 			if ($event['Event']['membership_begins'] <= $today) {
 				$this->Event->contain(array('Registration' => array(
-						'conditions' => array('Registration.payment' => array('Paid', 'Pending')),
+						'conditions' => array('Registration.payment' => Configure::read('registration_paid')),
 				)));
 				$event = $this->Event->read(null, $event['Event']['id']);
 				foreach ($event['Registration'] as $person) {
@@ -538,7 +538,7 @@ class EventsController extends AppController {
 		foreach ($events as $event) {
 			if ($event['Event']['membership_ends'] < $today) {
 				$this->Event->contain(array('Registration' => array(
-						'conditions' => array('Registration.payment' => array('Paid', 'Pending')),
+						'conditions' => array('Registration.payment' => Configure::read('registration_paid')),
 				)));
 				$event = $this->Event->read(null, $event['Event']['id']);
 				foreach ($event['Registration'] as $person) {

@@ -5,6 +5,8 @@
 
 class PaymentComponent extends Object
 {
+	var $can_refund = false;
+
 	function __construct(&$controller) {
 		$this->_controller =& $controller;
 	}

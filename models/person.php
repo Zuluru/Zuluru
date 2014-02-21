@@ -224,6 +224,11 @@ class Person extends AppModel {
 			'foreignKey' => 'person_id',
 			'dependent' => false,
 		),
+		'Credit' => array(
+			'className' => 'Credit',
+			'foreignKey' => 'person_id',
+			'dependent' => false,
+		),
 		'Setting' => array(
 			'className' => 'Setting',
 			'foreignKey' => 'person_id',

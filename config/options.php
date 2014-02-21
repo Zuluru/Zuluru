@@ -125,6 +125,8 @@ $config['options'] = array(
 	'payment'				=> make_options(array(
 		'Unpaid',
 		'Pending',
+		'Deposit',
+		'Partial',
 		'Paid',
 		'Refunded',
 		'Waiting',

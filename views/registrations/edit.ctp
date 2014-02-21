@@ -32,6 +32,7 @@ $this->Html->addCrumb (__('Edit', true));
 		));
 		echo $this->ZuluruForm->input('payment', array(
 				'options' => Configure::read('options.payment'),
+				'after' => $this->Html->para('warning-message', 'Change this only in extreme circumstances; for proper accounting, refunds and payments should be entered through links on the registration view page.'),
 		));
 		echo $this->Form->input('notes', array(
 				'type' => 'textbox',

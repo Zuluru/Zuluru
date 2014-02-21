@@ -66,7 +66,7 @@ class CanRegisterComponent extends Object
 		// Find the registration cap and how many are already registered.
 		$conditions = array(
 			'event_id' => $event['Event']['id'],
-			'payment' => array('Paid', 'Pending'),
+			'payment' => Configure::read('registration_reserved'),
 		);
 		if ($event['Event']['cap_female'] != -2) {
 			$conditions['gender'] = $this->person['Person']['gender'];

@@ -103,6 +103,19 @@ class UserCacheComponent extends Object
 					}
 					break;
 
+				case 'Credits':
+					if (!isset($self->_controller->Credit)) {
+						$self->_controller->Credit = ClassRegistry::init('Credit');
+					}
+					$self->data[$id][$key] = $self->_findData($self->_controller->Credit, array(
+							'contain' => array(),
+							'conditions' => array(
+								'person_id' => $id,
+								'amount != amount_used',
+							),
+					));
+					break;
+
 				case 'Divisions':
 					if (!isset($self->_controller->Division)) {
 						$self->_controller->Division = ClassRegistry::init('Division');
@@ -227,10 +240,11 @@ class UserCacheComponent extends Object
 
 				case 'RegistrationsUnpaid':
 					if ($self->read('Registrations', $id, true)) {
-						$self->data[$id][$key] = array_merge(
-							Set::extract('/Registration[payment=Unpaid]/..', $self->data[$id]['Registrations']),
-							Set::extract('/Registration[payment=Pending]/..', $self->data[$id]['Registrations'])
-						);
+						$self->data[$id][$key] = array();
+						foreach (Configure::read('registration_unpaid') as $payment) {
+							$self->data[$id][$key] = array_merge($self->data[$id][$key],
+									Set::extract("/Registration[payment=$payment]/..", $self->data[$id]['Registrations']));
+						}
 					}
 					break;
 

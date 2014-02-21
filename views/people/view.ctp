@@ -468,6 +468,41 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 	</div>
 </div>
 <?php endif; ?>
+
+<?php if (($is_admin || $is_manager || $is_me) && !empty($credits)):?>
+	<div class="related">
+	<h3><?php __('Available Credits');?></h3>
+	<p>These credits can be applied to future registrations.</p>
+	<table class="list">
+	<tr>
+		<th><?php __('Date'); ?></th>
+		<th><?php __('Initial Amount'); ?></th>
+		<th><?php __('Amount Used'); ?></th>
+		<th><?php __('Notes'); ?></th>
+	</tr>
+	<?php
+		$i = 0;
+		foreach ($credits as $credit):
+			$class = null;
+			if ($i++ % 2 == 0) {
+				$class = ' class="altrow"';
+			}
+		?>
+		<tr<?php echo $class;?>>
+			<td><?php echo $this->ZuluruTime->date($credit['Credit']['created']);?></td>
+			<td><?php echo $credit['Credit']['amount'];?></td>
+			<td><?php echo $credit['Credit']['amount_used'];?></td>
+			<td><?php echo $credit['Credit']['notes'];?></td>
+		</tr>
+		<?php endforeach; ?>
+	</table>
+	<div class="actions">
+		<ul>
+			<li><?php echo $this->Html->link(__('Show Credit History', true), array('controller' => 'people', 'action' => 'credits', 'person' => $person['id'])); ?> </li>
+		</ul>
+	</div>
+</div>
+<?php endif; ?>
 <?php endif; ?>
 
 <?php if ($is_admin || $is_manager || $is_me): ?>

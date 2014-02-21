@@ -31,6 +31,7 @@ class RegistrationsController extends AppController {
 			if (in_array ($this->params['action'], array(
 					'report',
 					'unpaid',
+					'credits',
 					'statistics',
 			)))
 			{
@@ -70,6 +71,23 @@ class RegistrationsController extends AppController {
 				$registration = $this->_arg('registration');
 				if ($registration) {
 					if (in_array($this->Registration->affiliate($registration), $this->UserCache->read('ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+
+			// Managers can perform these operations in affiliates they manage
+			if (in_array ($this->params['action'], array(
+					'add_payment',
+					'refund_payment',
+					'credit_payment',
+					'transfer_payment',
+			)))
+			{
+				// If a payment id is specified, check if we're a manager of that payment's registration's event's affiliate
+				$payment = $this->_arg('payment');
+				if ($payment) {
+					if (in_array($this->Payment->affiliate($payment), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -317,7 +335,7 @@ class RegistrationsController extends AppController {
 				'Division' => 'League',
 			),
 			'Response',
-			'RegistrationAudit',
+			'Payment' => array('RegistrationAudit', 'order' => 'Payment.id'),
 		));
 		$registration = $this->Registration->read(null, $id);
 		if (!$registration) {
@@ -430,6 +448,7 @@ class RegistrationsController extends AppController {
 
 		if (isset ($save)) {
 			$data['Registration']['event_id'] = $id;
+			$data['Registration']['total_amount'] = $event['Event']['cost'] + $event['Event']['tax1'] + $event['Event']['tax2'];
 
 			// Next, we do the event registration
 			$result = $event_obj->register($event, $data);
@@ -494,7 +513,7 @@ class RegistrationsController extends AppController {
 		$registrations = $this->Registration->find('all', array(
 				'conditions' => array(
 					'person_id' => $this->Auth->user('zuluru_person_id'),
-					'payment' => array('Unpaid', 'Pending'),
+					'payment' => Configure::read('registration_unpaid'),
 				),
 		));
 
@@ -517,7 +536,7 @@ class RegistrationsController extends AppController {
 			// Find the registration cap and how many are already registered.
 			$conditions = array(
 				'event_id' => $registration['Event']['id'],
-				'payment' => array('Paid', 'Pending'),
+				'payment' => Configure::read('registration_reserved'),
 			);
 			if ($registration['Event']['cap_female'] != -2) {
 				$conditions['gender'] = $person['Person']['gender'];
@@ -600,7 +619,7 @@ class RegistrationsController extends AppController {
 			while ($this->_unregisterDependencies($registration['Registration']['person_id'])) {}
 
 			$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
-			if (in_array($registration['Registration']['payment'], array('Paid', 'Pending'))) {
+			if (in_array($registration['Registration']['payment'], Configure::read('registration_paid'))) {
 				if (!$event_obj->unpaid($registration, $registration)) {
 					$success = false;
 					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
@@ -685,10 +704,21 @@ class RegistrationsController extends AppController {
 				$errors[] = sprintf (__('Your payment was approved, but there was an error updating your payment status in the database. Contact the office to ensure that your information is updated, quoting order #<b>%s</b>, or you may not be allowed to be added to rosters, etc.', true), $audit['order_id']);
 			}
 
+			$this->Registration->Payment->RegistrationAudit->create();
+			if (!$this->Registration->Payment->RegistrationAudit->save ($audit)) {
+				$errors[] = sprintf (__('There was an error updating the audit record in the database. Contact the office to ensure that your information is updated, quoting order #<b>%s</b>, or you may not be allowed to be added to rosters, etc.', true), $audit['order_id']);
+			}
+
 			foreach ($registration_ids as $id) {
-				$this->Registration->RegistrationAudit->create();
-				if (!$this->Registration->RegistrationAudit->save (array_merge($audit, array('registration_id' => $id)))) {
-					$errors[] = sprintf (__('There was an error updating the audit record in the database. Contact the office to ensure that your information is updated, quoting order #<b>%s</b>, or you may not be allowed to be added to rosters, etc.', true), $audit['order_id']);
+				$this->Registration->Payment->create();
+				if (!$this->Registration->Payment->save(array(
+						'registration_id' => $id,
+						'registration_audit_id' => $this->Registration->Payment->RegistrationAudit->id,
+						'payment_type' => 'Paid',
+						'payment_amount' => $this->Registration->field('total_amount', array('Registration.id' => $id)),
+				)))
+				{
+					$errors[] = sprintf (__('There was an error updating the payment record in the database. Contact the office to ensure that your information is updated, quoting order #<b>%s</b>, or you may not be allowed to be added to rosters, etc.', true), $audit['order_id']);
 				}
 			}
 
@@ -731,6 +761,563 @@ class RegistrationsController extends AppController {
 			}
 		}
 		$this->set (compact ('result', 'audit', 'registrations', 'errors'));
+	}
+
+	function add_payment() {
+		$id = $this->_arg('registration');
+		if (!$id && empty($this->data)) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('registration', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$this->Registration->contain (array(
+			'Person',
+			'Event' => array(
+				// Some of these details are needed if we're completing payment
+				'EventType',
+				'Questionnaire' => array(
+					'Question' => array(
+						'Answer' => array(
+							'conditions' => array('active' => true),
+						),
+						'conditions' => array('active' => true),
+					),
+				),
+				'Division' => 'League',
+			),
+			'Response',
+			'Payment',
+		));
+		$registration = $this->Registration->read(null, $id);
+		if (!$registration) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('registration', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		if (!in_array($registration['Registration']['payment'], Configure::read('registration_unpaid'))) {
+			$this->Session->setFlash(sprintf(__('This registration is marked as %s.', true), __($registration['Registration']['payment'], true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'registration' => $registration['Registration']['id']));
+		}
+
+		$outstanding = $registration['Registration']['total_amount'] - array_sum(Set::extract('/Payment/payment_amount', $registration));
+		if ($outstanding <= 0) {
+			$this->Session->setFlash(__('This registration is already paid in full; you may need to edit it manually to mark it as paid.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'registration' => $registration['Registration']['id']));
+		}
+
+		$this->Configuration->loadAffiliate($registration['Event']['affiliate_id']);
+		$this->set(compact('registration'));
+
+		if (!empty($this->data)) {
+			if ($this->data['Payment']['payment_amount'] <= 0) {
+				$this->Registration->Payment->validationErrors['amount'] = 'Payment amounts must be positive.';
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('refund', true)), 'default', array('class' => 'warning'));
+				return;
+			}
+
+			if ($outstanding < $this->data['Payment']['payment_amount']) {
+				$this->Registration->Payment->validationErrors['amount'] = 'This would pay more than the amount owing.';
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('refund', true)), 'default', array('class' => 'warning'));
+				return;
+			}
+
+			$this->data['Payment']['registration_id'] = $id;
+			if ($this->data['Payment']['payment_amount'] == $registration['Registration']['total_amount']) {
+				$this->data['Payment']['payment_type'] = 'Full';
+				$new_payment = 'Paid';
+			} else if ($this->data['Payment']['payment_amount'] == $outstanding) {
+				$this->data['Payment']['payment_type'] = 'Remaining Balance';
+				$new_payment = 'Paid';
+			} else if ($registration['Registration']['total_amount'] == $outstanding) {
+				$this->data['Payment']['payment_type'] = 'Deposit';
+				$new_payment = 'Deposit';
+			} else {
+				$this->data['Payment']['payment_type'] = 'Installment';
+				$new_payment = 'Partial';
+			}
+
+			$transaction = new DatabaseTransaction($this->Registration->Payment);
+
+			$this->Registration->Payment->create();
+			if ($this->Registration->Payment->save($this->data)) {
+				$this->Registration->id = $registration['Registration']['id'];
+				if (!$this->Registration->saveField('payment', $new_payment)) {
+					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+					return;
+				}
+
+				$paid = Configure::read('registration_paid');
+				$was_paid = in_array ($registration['Registration']['payment'], $paid);
+				$now_paid = in_array ($new_payment, $paid);
+				if (!$was_paid && $now_paid) {
+					$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
+					$this->UserCache->clear('RegistrationsPaid', $registration['Registration']['person_id']);
+					$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
+
+					$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
+					$result = $event_obj->paid($registration, $registration);
+					if (!$result) {
+						$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+						return;
+					}
+					if (is_array ($result)) {
+						// Now manually add the event id to all of the responses :-(
+						foreach (array_keys ($result) as $key) {
+							$result[$key]['event_id'] = $registration['Event']['id'];
+						}
+
+						if (!$this->Registration->Response->saveAll($result, array('validate' => false))) {
+							$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+							return;
+						}
+					}
+				}
+
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('payment', true)), 'default', array('class' => 'success'));
+				$transaction->commit();
+				$this->redirect(array('action' => 'view', 'registration' => $registration['Registration']['id']));
+			} else {
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('transfer', true)), 'default', array('class' => 'warning'));
+			}
+		}
+	}
+
+	function refund_payment() {
+		$id = $this->_arg('payment');
+		if (!$id && empty($this->data)) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('payment', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$this->Registration->Payment->contain (array(
+			'Registration' => array(
+				'Person',
+				'Event' => array(
+					// Some of these details are needed if we're unregistering someone
+					'EventType',
+					'Questionnaire' => array(
+						'Question' => array(
+							'Answer' => array(
+								'conditions' => array('active' => true),
+							),
+							'conditions' => array('active' => true),
+						),
+					),
+					'Division' => 'League',
+				),
+				'Response',
+			),
+		));
+		$payment = $this->Registration->Payment->read(null, $id);
+		if (!$payment) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('payment', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		if ($payment['Payment']['payment_amount'] == $payment['Payment']['refunded_amount']) {
+			$this->Session->setFlash(__('This payment has already been fully refunded.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		if (!in_array($payment['Payment']['payment_type'], Configure::read('payment_payment'))) {
+			$this->Session->setFlash(__('Only payments can be refunded.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$this->Configuration->loadAffiliate($payment['Registration']['Event']['affiliate_id']);
+
+		$payment_obj = $this->_getComponent ('payment', Configure::read('payment.payment_implementation'), $this);
+		$this->set(compact('payment', 'payment_obj'));
+
+		if (!empty($this->data)) {
+			if ($this->data['Payment']['amount'] <= 0) {
+				$this->Registration->Payment->validationErrors['amount'] = 'Refund amounts must be positive.';
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('refund', true)), 'default', array('class' => 'warning'));
+				return;
+			}
+
+			$payment['Payment']['refunded_amount'] += $this->data['Payment']['amount'];
+			if ($payment['Payment']['refunded_amount'] > $payment['Payment']['payment_amount']) {
+				$this->Registration->Payment->validationErrors['amount'] = 'This would refund more than the amount paid.';
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('refund', true)), 'default', array('class' => 'warning'));
+				return;
+			}
+
+			$transaction = new DatabaseTransaction($this->Registration->Payment);
+
+			if ($this->Registration->Payment->save($payment['Payment'])) {
+				$this->Registration->Payment->create();
+				if (!$this->Registration->Payment->save(array(
+						'registration_id' => $payment['Payment']['registration_id'],
+						'payment_type' => 'Refund',
+						'payment_amount' => - $this->data['Payment']['amount'],
+						'notes' => $this->data['Payment']['notes'],
+				)))
+				{
+					$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('refund', true)), 'default', array('class' => 'warning'));
+					return;
+				}
+
+				if ($payment_obj->can_refund && $this->data['Payment']['online_refund']) {
+					if (!$payment_obj->refund($payment)) {
+						$this->Session->setFlash(__('Failed to issue refund through online processor. Refund data was NOT saved. You can try again, or uncheck the "Issue refund through online payment provider" box and issue the refund manually.', true), 'default', array('class' => 'warning'));
+						return;
+					}
+				}
+
+				if ($this->data['Payment']['mark_refunded']) {
+					$this->Registration->id = $payment['Registration']['id'];
+					if (!$this->Registration->saveField('payment', 'Refunded')) {
+						$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+						return;
+					}
+
+					if (in_array ($payment['Registration']['payment'], Configure::read('registration_paid'))) {
+						$this->UserCache->clear('Registrations', $payment['Registration']['person_id']);
+						$this->UserCache->clear('RegistrationsPaid', $payment['Registration']['person_id']);
+						$this->UserCache->clear('RegistrationsUnpaid', $payment['Registration']['person_id']);
+
+						$event_obj = $this->_getComponent ('EventType', $payment['Registration']['Event']['EventType']['type'], $this);
+						$result = $event_obj->unpaid($payment['Registration'], $payment['Registration']);
+						if (!$result) {
+							$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+							return;
+						} else if (is_array($result) && !$this->Registration->Response->deleteAll (array('id' => $result), false)) {
+							$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+							return;
+						}
+					}
+				}
+
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('refund', true)), 'default', array('class' => 'success'));
+				$transaction->commit();
+				$this->redirect(array('action' => 'view', 'registration' => $payment['Registration']['id']));
+			} else {
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('refund', true)), 'default', array('class' => 'warning'));
+			}
+		} else {
+			$this->data = $payment;
+		}
+	}
+
+	function credit_payment() {
+		$id = $this->_arg('payment');
+		if (!$id && empty($this->data)) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('payment', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$this->Registration->Payment->contain (array(
+			'Registration' => array(
+				'Person',
+				'Event' => array(
+					// Some of these details are needed if we're unregistering someone
+					'EventType',
+					'Questionnaire' => array(
+						'Question' => array(
+							'Answer' => array(
+								'conditions' => array('active' => true),
+							),
+							'conditions' => array('active' => true),
+						),
+					),
+					'Division' => 'League',
+				),
+				'Response',
+			),
+		));
+		$payment = $this->Registration->Payment->read(null, $id);
+		if (!$payment) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('payment', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		if ($payment['Payment']['payment_amount'] == $payment['Payment']['refunded_amount']) {
+			$this->Session->setFlash(__('This payment has already been fully refunded.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		if (!in_array($payment['Payment']['payment_type'], Configure::read('payment_payment'))) {
+			$this->Session->setFlash(__('Only payments can be credited.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$this->Configuration->loadAffiliate($payment['Registration']['Event']['affiliate_id']);
+
+		$this->set(compact('payment'));
+
+		if (!empty($this->data)) {
+			if ($this->data['Payment']['amount'] <= 0) {
+				$this->Registration->Payment->validationErrors['amount'] = 'Credit amounts must be positive.';
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('credit', true)), 'default', array('class' => 'warning'));
+				return;
+			}
+
+			$payment['Payment']['refunded_amount'] += $this->data['Payment']['amount'];
+			if ($payment['Payment']['refunded_amount'] > $payment['Payment']['payment_amount']) {
+				$this->Registration->Payment->validationErrors['amount'] = 'This would credit more than the amount paid.';
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('credit', true)), 'default', array('class' => 'warning'));
+				return;
+			}
+
+			$transaction = new DatabaseTransaction($this->Registration->Payment);
+
+			if ($this->Registration->Payment->save($payment['Payment'])) {
+				$this->Registration->Payment->create();
+				if (!$this->Registration->Payment->save(array(
+						'registration_id' => $payment['Payment']['registration_id'],
+						'payment_type' => 'Credit',
+						'payment_amount' => - $this->data['Payment']['amount'],
+						'notes' => $this->data['Payment']['payment_notes'],
+				)))
+				{
+					$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('credit', true)), 'default', array('class' => 'warning'));
+					return;
+				}
+
+				$this->Registration->Person->Credit->create();
+				if (!$this->Registration->Person->Credit->save(array(
+						'affiliate_id' => $payment['Registration']['Event']['affiliate_id'],
+						'person_id' => $payment['Registration']['person_id'],
+						'amount' => $this->data['Payment']['amount'],
+						'notes' => $this->data['Payment']['credit_notes'],
+				)))
+				{
+					$this->Session->setFlash(sprintf(__('The %s could not be saved.', true), __('credit', true)), 'default', array('class' => 'warning'));
+					return;
+				}
+				$this->UserCache->clear('Credits', $payment['Registration']['person_id']);
+
+				if ($this->data['Payment']['mark_refunded']) {
+					$this->Registration->id = $payment['Registration']['id'];
+					if (!$this->Registration->saveField('payment', 'Refunded')) {
+						$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+						return;
+					}
+
+					if (in_array ($payment['Registration']['payment'], Configure::read('registration_paid'))) {
+						$this->UserCache->clear('Registrations', $payment['Registration']['person_id']);
+						$this->UserCache->clear('RegistrationsPaid', $payment['Registration']['person_id']);
+						$this->UserCache->clear('RegistrationsUnpaid', $payment['Registration']['person_id']);
+
+						$event_obj = $this->_getComponent ('EventType', $payment['Registration']['Event']['EventType']['type'], $this);
+						$result = $event_obj->unpaid($payment['Registration'], $payment['Registration']);
+						if (!$result) {
+							$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+							return;
+						} else if (is_array($result) && !$this->Registration->Response->deleteAll (array('id' => $result), false)) {
+							$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+							return;
+						}
+					}
+				}
+
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('credit', true)), 'default', array('class' => 'success'));
+				$transaction->commit();
+				$this->redirect(array('action' => 'view', 'registration' => $payment['Registration']['id']));
+			} else {
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('credit', true)), 'default', array('class' => 'warning'));
+			}
+		} else {
+			$this->data = $payment;
+		}
+	}
+
+	function transfer_payment() {
+		$id = $this->_arg('payment');
+		if (!$id && empty($this->data)) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('payment', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$this->Registration->Payment->contain (array(
+			'Registration' => array(
+				'Person',
+				'Event' => array(
+					// Some of these details are needed if we're unregistering someone
+					'EventType',
+					'Questionnaire' => array(
+						'Question' => array(
+							'Answer' => array(
+								'conditions' => array('active' => true),
+							),
+							'conditions' => array('active' => true),
+						),
+					),
+					'Division' => 'League',
+				),
+				'Response',
+			),
+		));
+		$payment = $this->Registration->Payment->read(null, $id);
+		if (!$payment) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('payment', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		if ($payment['Payment']['payment_amount'] == $payment['Payment']['refunded_amount']) {
+			$this->Session->setFlash(__('This payment has already been fully refunded.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		if (!in_array($payment['Payment']['payment_type'], Configure::read('payment_payment'))) {
+			$this->Session->setFlash(__('Only payments can be transferred.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+		$this->Configuration->loadAffiliate($payment['Registration']['Event']['affiliate_id']);
+
+		$unpaid = $this->UserCache->read('RegistrationsUnpaid', $payment['Registration']['person_id']);
+		if (empty($unpaid)) {
+			$this->Session->setFlash(__('This user has no unpaid registrations to transfer the payment to.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$this->set(compact('payment', 'unpaid'));
+
+		if (!empty($this->data)) {
+			if ($this->data['Payment']['amount'] <= 0) {
+				$this->Registration->Payment->validationErrors['amount'] = 'Transfer amounts must be positive.';
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('transfer', true)), 'default', array('class' => 'warning'));
+				return;
+			}
+
+			$this->Registration->contain (array(
+				'Event' => array(
+					// Some of these details are needed if we're completing payment
+					'EventType',
+					'Questionnaire' => array(
+						'Question' => array(
+							'Answer' => array(
+								'conditions' => array('active' => true),
+							),
+							'conditions' => array('active' => true),
+						),
+					),
+					'Division' => 'League',
+				),
+				'Response',
+				'Payment',
+			));
+			$registration = $this->Registration->read(null, $this->data['Payment']['registration_id']);
+			if (!$registration) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('registration', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'view', 'registration' => $payment['Registration']['id']));
+			}
+
+			if (!in_array($registration['Registration']['payment'], Configure::read('registration_unpaid'))) {
+				$this->Session->setFlash(sprintf(__('This registration is marked as %s.', true), __($registration['Registration']['payment'], true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'view', 'registration' => $payment['Registration']['id']));
+			}
+
+			$outstanding = $registration['Registration']['total_amount'] - array_sum(Set::extract('/Payment/payment_amount', $registration));
+			if ($outstanding <= 0) {
+				$this->Session->setFlash(__('This registration is already paid in full; you may need to edit it manually to mark it as paid.', true), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'view', 'registration' => $payment['Registration']['id']));
+			}
+
+			$amount = min($outstanding, $this->data['Payment']['amount']);
+			$payment['Payment']['refunded_amount'] += $amount;
+			if ($payment['Payment']['refunded_amount'] > $payment['Payment']['payment_amount']) {
+				$this->Registration->Payment->validationErrors['amount'] = 'This would transfer more than the amount paid.';
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('transfer', true)), 'default', array('class' => 'warning'));
+				return;
+			}
+
+			$transaction = new DatabaseTransaction($this->Registration->Payment);
+
+			if ($this->Registration->Payment->save($payment['Payment'])) {
+				$this->Registration->Payment->create();
+				if (!$this->Registration->Payment->save(array(
+						'registration_id' => $payment['Payment']['registration_id'],
+						'payment_type' => 'Transfer',
+						'payment_amount' => - $amount,
+						'notes' => $this->data['Payment']['transfer_from_notes'],
+				)))
+				{
+					$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('transfer', true)), 'default', array('class' => 'warning'));
+					return;
+				}
+
+				$this->Registration->Payment->create();
+				if (!$this->Registration->Payment->save(array(
+						'registration_id' => $this->data['Payment']['registration_id'],
+						'payment_type' => 'Transfer',
+						'payment_amount' => $amount,
+						'notes' => $this->data['Payment']['transfer_to_notes'],
+				)))
+				{
+					$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('transfer', true)), 'default', array('class' => 'warning'));
+					return;
+				}
+
+				if ($this->data['Payment']['mark_refunded']) {
+					$this->Registration->id = $payment['Registration']['id'];
+					if (!$this->Registration->saveField('payment', 'Refunded')) {
+						$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+						return;
+					}
+
+					if (in_array ($payment['Registration']['payment'], Configure::read('registration_paid'))) {
+						$this->UserCache->clear('Registrations', $payment['Registration']['person_id']);
+						$this->UserCache->clear('RegistrationsPaid', $payment['Registration']['person_id']);
+						$this->UserCache->clear('RegistrationsUnpaid', $payment['Registration']['person_id']);
+
+						$event_obj = $this->_getComponent ('EventType', $payment['Registration']['Event']['EventType']['type'], $this);
+						$result = $event_obj->unpaid($payment['Registration'], $payment['Registration']);
+						if (!$result) {
+							$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+							return;
+						} else if (is_array($result) && !$this->Registration->Response->deleteAll (array('id' => $result), false)) {
+							$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+							return;
+						}
+					}
+				}
+
+				if ($amount == $outstanding) {
+					$new_payment = 'Paid';
+				} else {
+					$new_payment = 'Pending';
+				}
+
+				$this->Registration->id = $registration['Registration']['id'];
+				if (!$this->Registration->saveField('payment', $new_payment)) {
+					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+					return;
+				}
+
+				$paid = Configure::read('registration_paid');
+				$was_paid = in_array ($registration['Registration']['payment'], $paid);
+				$now_paid = in_array ($new_payment, $paid);
+				if (!$was_paid && $now_paid) {
+					$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
+					$this->UserCache->clear('RegistrationsPaid', $registration['Registration']['person_id']);
+					$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
+
+					$result = $event_obj->paid($registration, $registration);
+					if (!$result) {
+						$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+						return;
+					}
+					if (is_array ($result)) {
+						// Now manually add the event id to all of the responses :-(
+						foreach (array_keys ($result) as $key) {
+							$result[$key]['event_id'] = $registration['Event']['id'];
+						}
+
+						if (!$this->Registration->Response->saveAll($result, array('validate' => false))) {
+							$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+							return;
+						}
+					}
+				}
+
+				$this->Session->setFlash(sprintf(__('Transferred $%0.2f', true), $amount), 'default', array('class' => 'success'));
+				$transaction->commit();
+
+				// Which registration we redirect to from here depends on how much was transferred
+				if ($payment['Payment']['refunded_amount'] < $payment['Payment']['payment_amount']) {
+					// There is still unrefunded money on the old registration, go back there
+					$this->redirect(array('action' => 'view', 'registration' => $payment['Registration']['id']));
+				} else {
+					// Go to the registration the money was just transferred to
+					$this->redirect(array('action' => 'view', 'registration' => $registration['Registration']['id']));
+				}
+			} else {
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('transfer', true)), 'default', array('class' => 'warning'));
+			}
+		} else {
+			$this->data = $payment;
+		}
 	}
 
 	function edit() {
@@ -794,7 +1381,7 @@ class RegistrationsController extends AppController {
 			}
 
 			// If the payment status has changed, we may need to do extra processing
-			$paid = array('Paid', 'Pending');
+			$paid = Configure::read('registration_paid');
 			$was_paid = in_array ($registration['Registration']['payment'], $paid);
 			$now_paid = in_array ($data['Registration']['payment'], $paid);
 			if (!$was_paid && $now_paid) {
@@ -898,7 +1485,7 @@ class RegistrationsController extends AppController {
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$registrations = $this->Registration->find('all', array(
 			'conditions' => array(
-				'Registration.payment' => array('Unpaid', 'Pending'),
+				'Registration.payment' => Configure::read('registration_unpaid'),
 				'Event.affiliate_id' => $affiliates,
 			),
 			'contain' => array(
@@ -907,8 +1494,33 @@ class RegistrationsController extends AppController {
 			),
 			'order' => array('Event.affiliate_id', 'Registration.payment', 'Registration.modified'),
 		));
+		if (empty($registrations)) {
+			$this->Session->setFlash(__('There are no unpaid registrations.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
 
 		$this->set(compact('registrations', 'affiliates'));
+	}
+
+	function credits() {
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$credits = $this->Registration->Person->Credit->find('all', array(
+			'conditions' => array(
+				'Credit.amount != Credit.amount_used',
+				'Credit.affiliate_id' => $affiliates,
+			),
+			'contain' => array(
+				'Affiliate',
+				'Person',
+			),
+			'order' => array('Credit.affiliate_id', 'Credit.created'),
+		));
+		if (empty($credits)) {
+			$this->Session->setFlash(__('There are no unused credits.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$this->set(compact('credits', 'affiliates'));
 	}
 
 	function waiting() {
@@ -936,6 +1548,10 @@ class RegistrationsController extends AppController {
 			),
 			'order' => array('Registration.created'),
 		));
+		if (empty($registrations)) {
+			$this->Session->setFlash(__('There is nobody on the waiting list for this event.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
 
 		$this->set(compact('event', 'registrations'));
 	}

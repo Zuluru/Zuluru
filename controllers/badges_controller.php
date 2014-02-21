@@ -261,7 +261,7 @@ class BadgesController extends AppController {
 						$people = $this->Registration->find('all', array(
 							'conditions' => array(
 								'Registration.event_id' => $event['Event']['id'],
-								'Registration.payment' => array('Paid', 'Pending'),
+								'Registration.payment' => Configure::read('registration_paid'),
 							),
 							'contain' => array(),
 						));

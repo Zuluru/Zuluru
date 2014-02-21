@@ -40,6 +40,7 @@ class PeopleController extends AppController {
 				'photo_resize',
 				'document_upload',
 				'registrations',
+				'credits',
 		)))
 		{
 			// If a player id is specified, check if it's the logged-in user, or a relative
@@ -76,8 +77,8 @@ class PeopleController extends AppController {
 			}
 
 			if (in_array ($this->params['action'], array(
-				'approve_badge',
-				'delete_badge',
+				'registrations',
+				'credits',
 			)))
 			{
 				// If a badge id is specified, check if we're a manager of that badge's affiliate
@@ -85,6 +86,22 @@ class PeopleController extends AppController {
 				$badge = $this->_arg('badge');
 				if ($badge) {
 					if (in_array($this->Person->BadgesPerson->affiliate($badge), $this->UserCache->read('ManagedAffiliateIDs'))) {
+						return true;
+					}
+				}
+			}
+
+			if (in_array ($this->params['action'], array(
+				'waivers',
+				'approve_badge',
+				'delete_badge',
+			)))
+			{
+				// If a person id is specified, check if we're a manager of that person's affiliate
+				$person = $this->_arg('person');
+				if ($person) {
+					$intersect = array_intersect($this->UserCache->read('AffiliateIDs', $person), $this->UserCache->read('ManagedAffiliateIDs'));
+					if (!empty($intersect)) {
 						return true;
 					}
 				}
@@ -473,7 +490,7 @@ class PeopleController extends AppController {
 			}
 
 			foreach (array_keys($past_events) as $past) {
-				$this->Person->Registration->unbindModel(array('belongsTo' => array('Person', 'Event'), 'hasOne' => array('RegistrationAudit')));
+				$this->Person->Registration->unbindModel(array('belongsTo' => array('Person', 'Event'), 'hasMany' => array('Payment')));
 				$people = $this->Person->Registration->find('count', array(
 						'conditions' => array(
 							'Registration.event_id' => $event['Event']['id'],
@@ -485,7 +502,7 @@ class PeopleController extends AppController {
 			}
 
 			if (!empty($past_events)) {
-				$this->Person->Registration->unbindModel(array('belongsTo' => array('Person', 'Event'), 'hasOne' => array('RegistrationAudit')));
+				$this->Person->Registration->unbindModel(array('belongsTo' => array('Person', 'Event'), 'hasMany' => array('Payment')));
 				$event_list[$key]['total'] = $this->Person->Registration->find('count', array(
 						'conditions' => array(
 							'Registration.event_id' => $event['Event']['id'],
@@ -497,7 +514,7 @@ class PeopleController extends AppController {
 				$event_list[$key]['total'] = 0;
 			}
 
-			$this->Person->Registration->unbindModel(array('belongsTo' => array('Person', 'Event'), 'hasOne' => array('RegistrationAudit')));
+			$this->Person->Registration->unbindModel(array('belongsTo' => array('Person', 'Event'), 'hasMany' => array('Payment')));
 			$event_list[$key]['count'] = $this->Person->Registration->find('count', array(
 					'conditions' => array(
 						'Registration.event_id' => $event['Event']['id'],
@@ -553,6 +570,7 @@ class PeopleController extends AppController {
 			if (Configure::read('feature.registration')) {
 				$registrations = array_slice($this->UserCache->read('Registrations', $person['id']), 0, 4);
 				$preregistrations = $this->UserCache->read('Preregistrations', $person['id']);
+				$credits = $this->UserCache->read('Credits', $person['id']);
 			}
 			if (Configure::read('scoring.allstars')) {
 				// Unfortunate that we have to manually specify the joins, but it seems
@@ -678,7 +696,7 @@ class PeopleController extends AppController {
 			}
 		}
 
-		$this->set(compact('person', 'group', 'teams', 'relatives', 'related_to', 'divisions', 'waivers', 'registrations', 'preregistrations', 'allstars', 'photo', 'documents', 'note', 'tasks', 'badges'));
+		$this->set(compact('person', 'group', 'teams', 'relatives', 'related_to', 'divisions', 'waivers', 'registrations', 'preregistrations', 'credits', 'allstars', 'photo', 'documents', 'note', 'tasks', 'badges'));
 		$this->set('is_me', ($id === $my_id));
 		$this->set($this->_connections($id));
 	}
@@ -2618,6 +2636,30 @@ class PeopleController extends AppController {
 				'limit' => Configure::read('feature.items_per_page'),
 		);
 		$this->set('registrations', $this->paginate ('Registration', array('person_id' => $id)));
+		$this->set(compact('affiliates'));
+	}
+
+	function credits() {
+		$id = $this->_arg('person');
+		$my_id = $this->Auth->user('zuluru_person_id');
+
+		if (!$id) {
+			$id = $my_id;
+			if (!$id) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+				$this->redirect('/');
+			}
+		}
+
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->Person->contain(array(
+				'Credit' => array(
+					'Affiliate',
+					'conditions' => array('Credit.affiliate_id' => $affiliates),
+					'order' => array('Credit.affiliate_id', 'Credit.created'),
+				),
+		));
+		$this->set('person', $this->Person->read(null, $id));
 		$this->set(compact('affiliates'));
 	}
 

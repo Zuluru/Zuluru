@@ -111,6 +111,18 @@ class ZuluruSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
+	var $credits = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'affiliate_id' => array('type' => 'integer', 'null' => false, 'default' => '1'),
+		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
+		'amount' => array('type' => 'float', 'null' => true, 'default' => '0.00', 'length' => '7,2'),
+		'amount_used' => array('type' => 'float', 'null' => true, 'default' => '0.00', 'length' => '7,2'),
+		'notes' => array('type' => 'text', 'null' => true, 'default' => NULL),
+		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
+		'created_person_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'person_id' => array('column' => 'person_id', 'unique' => 0)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
 	var $days = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'name' => array('type' => 'string', 'null' => false, 'length' => 10),
@@ -400,6 +412,7 @@ class ZuluruSchema extends CakeSchema {
 		'created_person_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'note' => array('type' => 'text', 'null' => true, 'default' => NULL),
 		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
+		'updated' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
@@ -421,6 +434,20 @@ class ZuluruSchema extends CakeSchema {
 		'remind' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'notice' => array('column' => 'notice_id', 'unique' => 0), 'person' => array('column' => 'person_id', 'unique' => 0), 'full' => array('column' => array('notice_id', 'person_id'), 'unique' => 0)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
+	var $payments = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'registration_id' => array('type' => 'integer', 'null' => false, 'default' => NULL),
+		'registration_audit_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'payment_type' => array('type' => 'string', 'null' => false, 'default' => 'Full', 'length' => '32'),
+		'payment_amount' => array('type' => 'float', 'null' => true, 'default' => '0.00', 'length' => '7,2'),
+		'refunded_amount' => array('type' => 'float', 'null' => false, 'default' => '0.00', 'length' => '7,2'),
+		'notes' => array('type' => 'text', 'null' => true, 'default' => NULL),
+		'created' => array('type' => 'date', 'null' => false, 'default' => NULL),
+		'created_person_id' => array('type' => 'integer', 'null' => true),
+		'updated_person_id' => array('type' => 'integer', 'null' => true),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'registration_id' => array('column' => array('registration_id', 'payment_type'), 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $people = array(
@@ -539,7 +566,6 @@ class ZuluruSchema extends CakeSchema {
 	);
 	var $registration_audits = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
-		'registration_id' => array('type' => 'integer', 'null' => false, 'default' => '0'),
 		'response_code' => array('type' => 'integer', 'null' => false, 'default' => '0', 'length' => 5),
 		'iso_code' => array('type' => 'integer', 'null' => false, 'default' => '0', 'length' => 5),
 		'date' => array('type' => 'text', 'null' => false, 'default' => NULL),
@@ -566,8 +592,9 @@ class ZuluruSchema extends CakeSchema {
 		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
 		'modified' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
 		'payment' => array('type' => 'string', 'null' => false, 'default' => 'Unpaid', 'length' => 16),
+		'total_amount' => array('type' => 'float', 'null' => true, 'default' => '0.00', 'length' => '7,2'),
 		'notes' => array('type' => 'text', 'null' => true, 'default' => NULL),
-		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'user_id' => array('column' => array('person_id', 'event_id'), 'unique' => 0)),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'person_id' => array('column' => array('person_id', 'event_id'), 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $responses = array(
