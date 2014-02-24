@@ -198,16 +198,16 @@ class FacilitiesController extends AppController {
 		if (empty($this->data)) {
 			$this->Facility->contain(array('Region', 'Field'));
 			$this->data = $this->Facility->read(null, $id);
-			if (count($this->data['Field']) == 1) {
-				// Adjust loaded data
-				$this->data['Field'] = array_pop($this->data['Field']);
-			}
-
 			if (!$this->data) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('facility', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
 			$this->Configuration->loadAffiliate($this->data['Region']['affiliate_id']);
+
+			if (count($this->data['Field']) == 1) {
+				// Adjust loaded data
+				$this->data['Field'] = array_pop($this->data['Field']);
+			}
 		}
 
 		$affiliates = $this->_applicableAffiliates(true);
