@@ -47,6 +47,11 @@ foreach ($people as $person):
 		<td class="actions">
 			<?php echo $this->Html->link(__('View', true), array('controller' => 'people', 'action' => 'view', 'person' => $person['Person']['id'])); ?>
 			<?php
+			if ($is_logged_in) {
+				echo $this->Html->link(__('VCF', true), array('action' => 'vcf', 'person' => $person['Person']['id']));
+			}
+			?>
+			<?php
 			if ($is_logged_in && Configure::read('feature.annotations')) {
 				if (!empty($person['Note'])) {
 					echo $this->Html->link(__('Delete Note', true), array('controller' => 'people', 'action' => 'delete_note', 'person' => $person['Person']['id'], 'return' => true));

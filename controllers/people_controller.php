@@ -20,6 +20,7 @@ class PeopleController extends AppController {
 				'search',
 				'teams',
 				'photo',
+				'vcf',
 				'document',
 				'delete_document',
 				'note',
@@ -2552,6 +2553,24 @@ class PeopleController extends AppController {
 				}
 				break;
 		}
+	}
+
+	function vcf() {
+		$this->layout = 'vcf';
+		$id = $this->_arg('person');
+		if (!$id) {
+			return;
+		}
+
+		$person = $this->UserCache->read('Person', $id);
+		if (empty($person)) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$this->set(compact('person'));
+		$this->set('download_file_name', $person['full_name']);
+		$this->set($this->_connections($id));
 	}
 
 	// This function takes the parameter the old-fashioned way, to try to be more third-party friendly

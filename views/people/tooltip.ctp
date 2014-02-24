@@ -30,26 +30,30 @@ if (!empty($person['mobile_phone']) &&
 	echo $this->Html->tag('br') . $person['mobile_phone'] . ' (' . __('mobile', true) . ')';
 }
 
-if ($is_logged_in && Configure::read('feature.annotations')) {
-	if (!empty($note)) {
-		// Extra paragraph tags screw up the display...
-		$note = $note['Note']['note'];
-		if (substr($note, 0, 3) == '<p>') {
-			$note = substr($note, 3);
-		}
-		if (substr($note, -4) == '</p>') {
-			$note = substr($note, 0, -4);
-		}
-	}
+if ($is_logged_in) {
 	echo $this->Html->tag('br');
-	if (!empty($note)) {
-		echo __('Private Note', true) . ': ' . $note . $this->Html->tag('br');
-		echo $this->Html->link(__('Delete Note', true), array('action' => 'delete_note', 'person' => $person['id'])) . ' / ';
-		$link = 'Edit Note';
-	} else {
-		$link = 'Add Note';
+	echo $this->Html->link(__('VCF', true), array('action' => 'vcf', 'person' => $person['id']));
+
+	if (Configure::read('feature.annotations')) {
+		if (!empty($note)) {
+			// Extra paragraph tags screw up the display...
+			$note = $note['Note']['note'];
+			if (substr($note, 0, 3) == '<p>') {
+				$note = substr($note, 3);
+			}
+			if (substr($note, -4) == '</p>') {
+				$note = substr($note, 0, -4);
+			}
+		}
+		if (!empty($note)) {
+			echo __('Private Note', true) . ': ' . $note . $this->Html->tag('br');
+			echo $this->Html->link(__('Delete Note', true), array('action' => 'delete_note', 'person' => $person['id'])) . ' / ';
+			$link = 'Edit Note';
+		} else {
+			$link = 'Add Note';
+		}
+		echo ' ' . $this->Html->link(__($link, true), array('action' => 'note', 'person' => $person['id']));
 	}
-	echo $this->Html->link(__($link, true), array('action' => 'note', 'person' => $person['id']));
 }
 
 if ($is_logged_in && Configure::read('feature.badges') && !empty($badges['Badge'])) {

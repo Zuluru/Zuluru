@@ -204,6 +204,9 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 <div class="actions">
 	<ul>
 		<?php
+		if ($is_logged_in) {
+			echo $this->Html->tag ('li', $this->Html->link(__('VCF', true), array('action' => 'vcf', 'person' => $person['id'])));
+		}
 		if ($is_logged_in && Configure::read('feature.annotations')) {
 			if (!empty($note)) {
 				echo $this->Html->tag ('li', $this->Html->link(__('Delete Note', true), array('action' => 'delete_note', 'person' => $person['id'])));
