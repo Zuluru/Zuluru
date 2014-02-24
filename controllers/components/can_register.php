@@ -16,12 +16,16 @@ class CanRegisterComponent extends Object
 	 *
 	 * @param mixed $person_id Person id
 	 * @param mixed $event Event id
-	 * @param mixed $ignore_date When adding preregistrations, we must be able to ignore the date
-	 * @param mixed $strict If false, we will allow things with prerequisites that are not yet filled but can easily be
-	 * @param mixed $waiting If true, we will ignore the cap to allow waiting list registrations
+	 * @param mixed $options Options controlling the returned data
+	 *		'ignore_date': If true, ignore open and close dates (default false)
+	 *		'strict': If false, allow things with prerequisites that are not yet filled but can easily be (default true)
+	 *		'waiting' If true, ignore the cap to allow waiting list registrations (default false)
+	 *		'all_rules': If true, test rules for all price points and return an array of results (default false)
 	 * @return mixed True if the user can register for the event
 	 */
-	function test($person_id, $event, $ignore_date = false, $strict = true, $waiting = false) {
+	function test($person_id, $event, $options = array()) {
+		extract(array_merge(array('ignore_date' => false, 'strict' => true, 'waiting' => false, 'all_rules' => false), $options));
+
 		if (!isset ($this->Html)) {
 			App::import ('helper', 'Html');
 			$this->Html = new HtmlHelper();
@@ -52,16 +56,6 @@ class CanRegisterComponent extends Object
 		// Pull out the registration record(s) for the current event, if any.
 		$registrations = Set::extract ("/Event[id={$event['Event']['id']}]/..", $this->person['Registration']);
 		$is_registered = !empty ($registrations);
-
-		// Check the registration rule, if any
-		if (!empty ($event['Event']['register_rule'])) {
-			$rule_obj = AppController::_getComponent ('Rule');
-			if (!$rule_obj->init ($event['Event']['register_rule'])) {
-				$this->_controller->Session->setFlash(__('Failed to parse the rule', true), 'default', array('class' => 'error'));
-			}
-
-			$rule_allowed = $rule_obj->evaluate($event['Event']['affiliate_id'], $this->person, null, $strict, false);
-		}
 
 		// Find the registration cap and how many are already registered.
 		$conditions = array(
@@ -127,18 +121,25 @@ class CanRegisterComponent extends Object
 			}
 		}
 
+		// Price data comes in different forms, depending on how it was read
+		if (array_key_exists('Price', $event)) {
+			$prices = $event['Price'];
+		} else {
+			$prices = $event['Event']['Price'];
+		}
+
 		// If there is a preregistration record, we ignore open and close times.
 		$prereg = Set::extract ("/Preregistration[event_id={$event['Event']['id']}]", $this->person['Preregistration']);
 		if (empty ($prereg) && !$ignore_date) {
+			$open = strtotime(min(Set::extract('/open', $prices)));
+			$close = strtotime(max(Set::extract('/close', $prices)));
 			// Admins can test registration before it opens...
-			if (!$this->_controller->is_admin) {
-				if (strtotime ($event['Event']['open']) + Configure::read('timezone.adjust') * 60 > time()) {
-					$messages[] = array('text' => __('This event is not yet open for registration.', true), 'class' => 'closed');
-					$continue = false;
-				}
+			if (!$this->_controller->is_admin && $open + Configure::read('timezone.adjust') * 60 > time()) {
+				$messages[] = array('text' => sprintf(__('Registration for %s is not yet open.', true), __('this event', true)), 'class' => 'closed');
+				$continue = false;
 			}
-			if (time() > strtotime ($event['Event']['close']) + Configure::read('timezone.adjust') * 60) {
-				$messages[] = array('text' => __('Registration for this event has closed.', true), 'class' => 'closed');
+			if (time() > $close + Configure::read('timezone.adjust') * 60) {
+				$messages[] = array('text' => sprintf(__('Registration for %s has closed.', true), __('this event', true)), 'class' => 'closed');
 				$continue = false;
 			}
 		}
@@ -157,6 +158,7 @@ class CanRegisterComponent extends Object
 				// Check if this event is already full
 				// -1 means there is no cap, so don't check in that case.
 				if ($paid >= $cap) {
+					// TODO: Move unpaid registrations to waiting list
 					$messages[] = array('text' => sprintf (__('This event is already full.  You may however %s to be put on a waiting list in case others drop out.', true),
 							$this->Html->link (__('continue with registration', true), array('controller' => 'registrations', 'action' => 'register', 'event' => $event['Event']['id'], 'waiting' => true))),
 							'class' => 'highlight-message');
@@ -170,23 +172,96 @@ class CanRegisterComponent extends Object
 			if ($continue !== true) {
 				$messages[] = $continue;
 			}
-			if (isset ($rule_allowed)) {
-				if ($rule_allowed) {
-					$messages[] = __('You may register for this event.', true);
-					$allowed = true;
-				} else {
-					$messages[] = array('text' => __('To register for this event, you must', true) . ' ' . $rule_obj->reason . '.', 'class' => 'error-message');
-					if ($strict && $rule_obj->redirect) {
-						$redirect = $rule_obj->redirect;
+
+			// Check each price point
+			$rule_obj = AppController::_getComponent ('Rule');
+			$rule_allowed = array();
+			foreach ($prices as $key => $price) {
+				$name = empty($prices[$key]['name']) ? __('this event', true) : $prices[$key]['name'];
+
+				// Admins can test registration before it opens...
+				if (!$this->_controller->is_admin && strtotime($price['open']) + Configure::read('timezone.adjust') * 60 > time()) {
+					if ($all_rules) {
+						$rule_allowed[$key] = array(
+							'allowed' => false,
+							'message' => sprintf(__('Registration for %s is not yet open.', true), $name),
+						);
 					}
+					continue;
 				}
-			} else {
+				if (time() > strtotime($price['close']) + Configure::read('timezone.adjust') * 60) {
+					if ($all_rules) {
+						$rule_allowed[$key] = array(
+							'allowed' => false,
+							'message' => sprintf(__('Registration for %s has closed.', true), $name),
+						);
+					}
+					continue;
+				}
+
+				// Check the registration rule, if any
+				if (!empty ($price['register_rule'])) {
+					if (!$rule_obj->init ($price['register_rule'])) {
+						$this->_controller->Session->setFlash(__('Failed to parse the rule', true), 'default', array('class' => 'error'));
+					} else {
+						$rule_allowed[$key] = array(
+							'allowed' => $rule_obj->evaluate($event['Event']['affiliate_id'], $this->person, null, $strict, false),
+							'reason' => $rule_obj->reason,
+							'message' => sprintf(__('To register for %s, you must %s.', true), $name, $rule_obj->reason),
+							'redirect' => $rule_obj->redirect,
+						);
+						if ($rule_allowed[$key]['allowed']) {
+							$allowed = true;
+							$msg = sprintf(__('You may register for %s.', true), $name);
+							if ($all_rules) {
+								$rule_allowed[$key]['message'] = $msg;
+							} else {
+								$messages[] = $msg;
+								break;
+							}
+						}
+					}
+				} else if ($all_rules) {
+					$rule_allowed[$key] = array(
+						'allowed' => true,
+						'message' => __('You may register for this because there are no prerequisites.', true),
+					);
+				}
+			}
+
+			// We checked earlier that there is at least one price point currently applicable,
+			// which means that at least one thing went through the rule check above.
+			if ($allowed) {
+				// Nothing to do here
+			} else if (empty($rule_allowed)) {
 				$messages[] = __('You may register for this because there are no prerequisites.', true);
 				$allowed = true;
+			} else {
+				if (count($rule_allowed)) {
+					if ($rule_allowed[0]['allowed']) {
+						$messages[] = $rule_allowed[0]['message'];
+						$allowed = true;
+					} else {
+						$messages[] = array('text' => sprintf(__('To register for %s, you must %s.', true), __('this event', true), $rule_allowed[0]['reason']), 'class' => 'error-message');
+						if ($strict && $rule_allowed[0]['redirect']) {
+							$redirect = $rule_allowed[0]['redirect'];
+						}
+					}
+				} else {
+					$reasons = array_unique(Set::extract('/reason', $rule_allowed));
+					if (count($reasons) == 1) {
+						$messages[] = array('text' => sprintf(__('To register for %s, you must %s.', true), __('this event', true), reset($reasons)), 'class' => 'error-message');
+					} else {
+						foreach ($rule_allowed as $key => $reason) {
+							$name = empty($prices[$key]['name']) ? __('this event', true) : $prices[$key]['name'];
+							$messages[] = array('text' => sprintf(__('To register for %s, you must %s', true), $name, $reason['reason']), 'class' => 'error-message');
+						}
+					}
+				}
 			}
 		}
 
-		return compact('allowed', 'messages', 'redirect');
+		return compact('allowed', 'messages', 'redirect', 'rule_allowed');
 	}
 }
 ?>

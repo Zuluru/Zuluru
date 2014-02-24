@@ -267,6 +267,14 @@ dl .altrow
 {
 	color: #00cc00;
 }
+#zuluru .open
+{
+	color: green;
+}
+#zuluru .closed
+{
+	color: red;
+}
 
 /* Attendance styling. */
 #zuluru .attending, #zuluru .attending a:link, #zuluru .attending a:visited

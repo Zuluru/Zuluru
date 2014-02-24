@@ -31,7 +31,7 @@ foreach ($registrations as $registration) {
 			$registration['Person']['first_name'],
 			$registration['Person']['last_name'],
 			$registration['Registration']['payment'],
-			$registration['Event']['cost'] + $registration['Event']['tax1'] + $registration['Event']['tax2'],
+			$registration['Registration']['total_amount'],
 			$registration['Registration']['notes'],
 	);
 	if (count($affiliates) > 1 && empty($affiliate)) {

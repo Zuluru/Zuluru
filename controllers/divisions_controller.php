@@ -129,7 +129,7 @@ class DivisionsController extends AppController {
 			'Day' => array('order' => 'day_id'),
 			'Team' => array ('Person', 'Franchise'),
 			'League',
-			'Event' => 'EventType',
+			'Event' => array('EventType', 'Price'),
 		));
 		$division = $this->Division->read(null, $id);
 		if (!$division) {
@@ -200,7 +200,7 @@ class DivisionsController extends AppController {
 		$my_id = $this->Auth->user('zuluru_person_id');
 		if ($my_id) {
 			foreach ($division['Event'] as $key => $event) {
-				$test = $this->CanRegister->test ($my_id, array('Event' => $event), false, false);
+				$test = $this->CanRegister->test ($my_id, array('Event' => $event), array('strict' => false));
 				if (!$test['allowed']) {
 					unset ($division['Event'][$key]);
 				}

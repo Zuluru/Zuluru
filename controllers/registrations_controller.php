@@ -303,6 +303,7 @@ class RegistrationsController extends AppController {
 
 		$contain = array(
 			'Event' => array('EventType', 'Affiliate'),
+			'Price',
 			'Person',
 		);
 		$order = array('Event.affiliate_id', 'Registration.payment' => 'DESC', 'Registration.created');
@@ -356,8 +357,19 @@ class RegistrationsController extends AppController {
 			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
 
+		$price = $this->_arg('option');
+		if ($price) {
+			$price_condition = array('Price.id' => $price);
+		} else {
+			$price_condition = array();
+		}
+
 		$this->Registration->Event->contain (array(
 			'EventType',
+			'Price' => array(
+				'order' => array('Price.open', 'Price.close', 'Price.id'),
+				'conditions' => $price_condition,
+			),
 			'Questionnaire' => array(
 				'Question' => array(
 					'Answer' => array(
@@ -373,11 +385,15 @@ class RegistrationsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
+		if (empty($event['Price'])) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('option', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
+		}
 		$this->Configuration->loadAffiliate($event['Event']['affiliate_id']);
 
 		// Re-do "can register" checks to make sure someone hasn't hand-fed us a URL
 		$waiting = $this->_arg('waiting');
-		$test = $this->CanRegister->test ($this->Auth->user('zuluru_person_id'), $event, false, true, $waiting);
+		$test = $this->CanRegister->test ($this->Auth->user('zuluru_person_id'), $event, array('waiting' => $waiting, 'all_rules' => true));
 		if (!$test['allowed']) {
 			if ($this->is_logged_in && !empty($test['redirect'])) {
 				$this->redirect(array_merge($test['redirect'], array('return' => true)), $this->here);
@@ -391,12 +407,20 @@ class RegistrationsController extends AppController {
 			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
 
+		if (count($event['Price']) > 1) {
+			$this->set(compact('event'));
+			$this->set($test);
+			$this->render('options');
+			return;
+		} else {
+			$price = $event['Price'][0]['id'];
+		}
+
+		$cost = $event['Price'][0]['cost'] + $event['Price'][0]['tax1'] + $event['Price'][0]['tax2'];
+
 		$event_obj = $this->_getComponent ('EventType', $event['EventType']['type'], $this);
 		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], $this->Auth->user('zuluru_person_id'));
-		$this->set(compact ('id', 'event', 'event_obj', 'waiting'));
-
-		// Wrap the whole thing in a transaction, for safety.
-		$transaction = new DatabaseTransaction($this->Registration);
+		$this->set(compact('id', 'event', 'event_obj', 'waiting'));
 
 		// Data was posted, save it and proceed
 		if (!empty($this->data)) {
@@ -414,7 +438,16 @@ class RegistrationsController extends AppController {
 			// Registration->saveAll to validate properly.
 			$this->Registration->Response->set ($data);
 
-			if (!$this->Registration->Response->validates()) {
+			// Validation of payment amounts is a manual process
+			if ($event['Price'][0]['allow_deposit'] && $this->data['Registration']['payment_type'] == 'Deposit') {
+				if ($event['Price'][0]['fixed_deposit']) {
+					$this->data['Registration']['deposit_amount'] = $event['Price'][0]['minimum_deposit'];
+				} else if ($this->data['Registration']['deposit_amount'] < $event['Price'][0]['minimum_deposit']) {
+					$this->Registration->validationErrors['deposit_amount'] = sprintf(__('A minimum deposit of $%s is required.', true), $event['Price'][0]['minimum_deposit']);
+				}
+			}
+
+			if (!$this->Registration->Response->validates() || !empty($this->Registration->validationErrors)) {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('registration', true)), 'default', array('class' => 'warning'));
 				return;
 			}
@@ -425,7 +458,7 @@ class RegistrationsController extends AppController {
 			}
 
 			// Set the flash message that will be used, if there are no errors
-			if ($event['Event']['cost'] == 0) {
+			if ($cost == 0) {
 				$this->Session->setFlash(__('Your preferences have been saved and your registration confirmed.', true), 'default', array('class' => 'success'));
 			} else {
 				$this->Session->setFlash(__('Your preferences for this registration have been saved.', true), 'default', array('class' => 'success'));
@@ -447,8 +480,13 @@ class RegistrationsController extends AppController {
 		}
 
 		if (isset ($save)) {
+			// Wrap the whole thing in a transaction, for safety.
+			$transaction = new DatabaseTransaction($this->Registration);
+
 			$data['Registration']['event_id'] = $id;
-			$data['Registration']['total_amount'] = $event['Event']['cost'] + $event['Event']['tax1'] + $event['Event']['tax2'];
+			$data['Registration']['total_amount'] = $cost;
+			$data['Registration']['price_id'] = $price;
+			$data['Registration']['deposit_amount'] = $this->data['Registration']['deposit_amount'];
 
 			// Next, we do the event registration
 			$result = $event_obj->register($event, $data);
@@ -462,7 +500,7 @@ class RegistrationsController extends AppController {
 
 			if ($waiting) {
 				$data['Registration']['payment'] = 'Waiting';
-			} else if ($event['Event']['cost'] == 0) {
+			} else if ($cost == 0) {
 				$this->UserCache->clear('RegistrationsPaid');
 				// Free events may need even more processing
 				$result = $event_obj->paid($event, $data);
@@ -508,6 +546,8 @@ class RegistrationsController extends AppController {
 	function checkout($op = null) {
 		$this->Registration->contain (array(
 			'Event' => array('EventType'),
+			'Price',
+			'Payment',
 			'Response',
 		));
 		$registrations = $this->Registration->find('all', array(
@@ -530,13 +570,14 @@ class RegistrationsController extends AppController {
 		$this->Registration->Person->contain($this->Auth->authenticate->name);
 		$person = $this->Registration->Person->read (null, $this->Auth->user('zuluru_person_id'));
 
-		$full = array();
+		$other = array();
 		$affiliate = $this->_arg('affiliate');
 		foreach ($registrations as $key => $registration) {
 			// Find the registration cap and how many are already registered.
 			$conditions = array(
-				'event_id' => $registration['Event']['id'],
-				'payment' => Configure::read('registration_reserved'),
+				'Registration.event_id' => $registration['Event']['id'],
+				'Registration.payment' => Configure::read('registration_reserved'),
+				'Registration.person_id !=' => $person['Person']['id'],
 			);
 			if ($registration['Event']['cap_female'] != -2) {
 				$conditions['gender'] = $person['Person']['gender'];
@@ -545,7 +586,7 @@ class RegistrationsController extends AppController {
 			if ($cap != -1) {
 				$paid = $this->Registration->find ('count', array('conditions' => $conditions));
 				if ($cap <= $paid) {
-					$full[] = $registration;
+					$other[] = array_merge($registration, array('reason' => 'Filled up since you registered'));
 					unset ($registrations[$key]);
 					continue;
 				}
@@ -555,6 +596,14 @@ class RegistrationsController extends AppController {
 			if (!$affiliate) {
 				$affiliate = $registration['Event']['affiliate_id'];
 			} else if ($affiliate != $registration['Event']['affiliate_id']) {
+				$other[] = array_merge($registration, array('reason' => 'In a different affiliate'));
+				unset ($registrations[$key]);
+				continue;
+			}
+
+			// Don't allow further payment on "deposit only" items
+			if ($registration['Price']['deposit_only'] && in_array($registration['Registration']['payment'], Configure::read('registration_some_paid'))) {
+				$other[] = array_merge($registration, array('reason' => 'Deposit paid; balance must be paid off-line'));
 				unset ($registrations[$key]);
 				continue;
 			}
@@ -563,6 +612,7 @@ class RegistrationsController extends AppController {
 			$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
 			$registrations[$key]['Event']['payment_desc'] = $event_obj->longDescription($registration);
 		}
+
 		// Reset the array to 0-indexed keys
 		$registrations = array_values ($registrations);
 
@@ -570,7 +620,7 @@ class RegistrationsController extends AppController {
 
 		$payment_obj = $this->_getComponent ('payment', Configure::read('payment.payment_implementation'), $this);
 
-		$this->set(compact ('registrations', 'full', 'person', 'payment_obj'));
+		$this->set(compact ('registrations', 'other', 'person', 'payment_obj'));
 
 		if ($op == 'payment') {
 			$this->render ('payment');
@@ -589,11 +639,11 @@ class RegistrationsController extends AppController {
 		));
 		$registration = $this->Registration->read(null, $id);
 
-		if ($registration['Registration']['payment'] == 'Paid' && $registration['Event']['cost'] > 0) {
+		if (in_array($registration['Registration']['payment'], Configure::read('registration_some_paid')) && $registration['Event']['cost'] > 0) {
 			$this->Session->setFlash(__('You have already paid for this! Contact the office to arrange a refund.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'checkout'));
 		}
-		if ($registration['Registration']['payment'] == 'Refunded') {
+		if (in_array($registration['Registration']['payment'], Configure::read('registration_cancelled'))) {
 			$this->Session->setFlash(__('You have already received a refund for this. Refunded records are kept on file for accounting purposes.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'checkout'));
 		}
@@ -689,6 +739,8 @@ class RegistrationsController extends AppController {
 					'EventType',
 					'Division' => 'League',
 				),
+				'Price',
+				'Payment',
 				'Response',
 			));
 			$registrations = $this->Registration->find ('all', array(
@@ -696,26 +748,44 @@ class RegistrationsController extends AppController {
 			));
 			$this->Configuration->loadAffiliate($registrations[0]['Event']['affiliate_id']);
 
-			if (!$this->Registration->updateAll (
-				array('Registration.payment' => '"Paid"'),
-				array('Registration.id' => $registration_ids)
-			))
-			{
-				$errors[] = sprintf (__('Your payment was approved, but there was an error updating your payment status in the database. Contact the office to ensure that your information is updated, quoting order #<b>%s</b>, or you may not be allowed to be added to rosters, etc.', true), $audit['order_id']);
-			}
-
 			$this->Registration->Payment->RegistrationAudit->create();
 			if (!$this->Registration->Payment->RegistrationAudit->save ($audit)) {
 				$errors[] = sprintf (__('There was an error updating the audit record in the database. Contact the office to ensure that your information is updated, quoting order #<b>%s</b>, or you may not be allowed to be added to rosters, etc.', true), $audit['order_id']);
 			}
 
-			foreach ($registration_ids as $id) {
+			foreach ($registrations as $key => $registration) {
+				list ($cost, $tax1, $tax2) = Registration::paymentAmounts($registration);
+				$paid = array_sum(Set::extract('/Payment/payment_amount', $registration));
+				if ($paid == 0) {
+					if ($cost == $registration['Price']['cost']) {
+						$payment_type = 'Full';
+						$payment_status = 'Paid';
+					} else {
+						$payment_type = $payment_status = 'Deposit';
+					}
+				} else {
+					if ($paid + $cost + $tax1 + $tax2 == $registration['Price']['cost'] + $registration['Price']['tax1'] + $registration['Price']['tax2']) {
+						$payment_type = 'Remaining Balance';
+						$payment_status = 'Paid';
+					} else {
+						$payment_type = 'Installment';
+						$payment_status = 'Partial';
+					}
+				}
+
+				$this->Registration->id = $registration['Registration']['id'];
+				if (!$this->Registration->saveField('payment', $payment_status)) {
+					$errors[] = sprintf (__('Your payment was approved, but there was an error updating your payment status in the database. Contact the office to ensure that your information is updated, quoting order #<b>%s</b>, or you may not be allowed to be added to rosters, etc.', true), $audit['order_id']);
+				} else {
+					$registrations[$key]['new_payment'] = $payment_status;
+				}
+
 				$this->Registration->Payment->create();
 				if (!$this->Registration->Payment->save(array(
-						'registration_id' => $id,
+						'registration_id' => $registration['Registration']['id'],
 						'registration_audit_id' => $this->Registration->Payment->RegistrationAudit->id,
-						'payment_type' => 'Paid',
-						'payment_amount' => $this->Registration->field('total_amount', array('Registration.id' => $id)),
+						'payment_type' => $payment_type,
+						'payment_amount' => $cost + $tax1 + $tax2,
 				)))
 				{
 					$errors[] = sprintf (__('There was an error updating the payment record in the database. Contact the office to ensure that your information is updated, quoting order #<b>%s</b>, or you may not be allowed to be added to rosters, etc.', true), $audit['order_id']);
@@ -730,30 +800,37 @@ class RegistrationsController extends AppController {
 
 			// Do any event payment processing
 			$success = true;
+			$paid = Configure::read('registration_paid');
 			foreach ($registrations as $registration) {
-				$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
-				$extra = $event_obj->paid($registration, $registration);
-				if ($extra) {
-					if (is_array ($extra)) {
-						// Manually add the event id to all of the responses :-(
-						foreach (array_keys ($extra) as $key) {
-							$extra[$key]['event_id'] = $registration['Event']['id'];
+				$was_paid = in_array ($registration['Registration']['payment'], $paid);
+				$now_paid = in_array ($registration['Registration']['new_payment'], $paid);
+				if (!$was_paid && $now_paid) {
+					$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
+					$extra = $event_obj->paid($registration, $registration);
+					if ($extra) {
+						if (is_array ($extra)) {
+							// Manually add the event id to all of the responses :-(
+							foreach (array_keys ($extra) as $key) {
+								$extra[$key]['event_id'] = $registration['Event']['id'];
+							}
+							$success = $this->Registration->Response->saveAll($extra, array('atomic' => false, 'validate' => false));
+							if (!$success) {
+								$this->Session->setFlash(sprintf (__('There was an error updating the database. Contact the office to ensure that your information is updated, quoting order #<b>%s</b>, or you may not be allowed to be added to rosters, etc.', true), $registration['Registration']['id']), 'default', array('class' => 'error'));
+							}
 						}
-						$success = $this->Registration->Response->saveAll($extra, array('atomic' => false, 'validate' => false));
+					} else if ($extra === false) {
+						$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+						$success = false;
 					}
-				} else if ($extra === false) {
-					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-					$success = false;
-				}
-				if (!$success) {
-					$this->Session->setFlash(sprintf (__('There was an error updating the database. Contact the office to ensure that your information is updated, quoting order #<b>%s</b>, or you may not be allowed to be added to rosters, etc.', true), $registration['Registration']['id']), 'default', array('class' => 'error'));
-					break;
-				}
+					if (!$success) {
+						break;
+					}
 
-				// If a parent is registering kids, there might be different person IDs for each registration
-				$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
-				$this->UserCache->clear('RegistrationsPaid', $registration['Registration']['person_id']);
-				$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
+					// If a parent is registering kids, there might be different person IDs for each registration
+					$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
+					$this->UserCache->clear('RegistrationsPaid', $registration['Registration']['person_id']);
+					$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
+				}
 			}
 
 			if ($success) {
@@ -1490,6 +1567,7 @@ class RegistrationsController extends AppController {
 			),
 			'contain' => array(
 				'Event' => array('EventType', 'Affiliate'),
+				'Price',
 				'Person',
 			),
 			'order' => array('Event.affiliate_id', 'Registration.payment', 'Registration.modified'),
@@ -1545,6 +1623,7 @@ class RegistrationsController extends AppController {
 			),
 			'contain' => array(
 				'Person',
+				'Price',
 			),
 			'order' => array('Registration.created'),
 		));

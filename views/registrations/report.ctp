@@ -112,7 +112,7 @@ foreach ($registrations as $registration):
 			<?php echo $registration['Registration']['payment']; ?>
 		</td>
 		<td>
-			<?php echo $registration['Event']['cost'] + $registration['Event']['tax1'] + $registration['Event']['tax2']; ?>
+			<?php echo $registration['Registration']['total_amount']; ?>
 		</td>
 	</tr>
 <?php endforeach; ?>

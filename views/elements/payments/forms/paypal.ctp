@@ -26,27 +26,29 @@ $fields = array(
 		'PAYMENTREQUEST_0_CURRENCYCODE' => Configure::read('payment.currency'),
 );
 
-$amount = $tax = 0;
+$total_amount = $total_tax = 0;
 $ids = array();
 $m = 0;
 foreach ($registrations as $registration) {
+	list ($cost, $tax1, $tax2) = Registration::paymentAmounts($registration);
+
 	$fields["L_PAYMENTREQUEST_0_NAME$m"] = $registration['Event']['name'];
 	$fields["L_PAYMENTREQUEST_0_DESC$m"] = $registration['Event']['payment_desc'];
-	$fields["L_PAYMENTREQUEST_0_AMT$m"] = sprintf ('%.2f', $registration['Event']['cost']);
-	$fields["L_PAYMENTREQUEST_0_TAXAMT$m"] = sprintf ('%.2f', $registration['Event']['tax1'] + $registration['Event']['tax2']);
+	$fields["L_PAYMENTREQUEST_0_AMT$m"] = sprintf ('%.2f', $cost);
+	$fields["L_PAYMENTREQUEST_0_TAXAMT$m"] = sprintf ('%.2f', $tax1 + $tax2);
 	$fields["L_PAYMENTREQUEST_0_NUMBER$m"] = sprintf(Configure::read('payment.reg_id_format'), $registration['Event']['id']);
 	$fields["L_PAYMENTREQUEST_0_QTY$m"] = 1;
-	
-	$amount += $registration['Event']['cost'] + $registration['Event']['tax1'] + $registration['Event']['tax2'];
-	$tax += $registration['Event']['tax1'] + $registration['Event']['tax2'];
+
+	$total_amount += $cost + $tax1 + $tax2;
+	$total_tax += $cost;
 	$ids[] = $registration['Registration']['id'];
 	++ $m;
 }
 $fields['PAYMENTREQUEST_0_CUSTOM'] = $person['Person']['id'] . ':' . implode (',', $ids);
-$fields['PAYMENTREQUEST_0_AMT'] = sprintf('%.2f', $amount);
-$fields['PAYMENTREQUEST_0_ITEMAMT'] = sprintf('%.2f', $amount - $tax);
-if ($tax > 0) {
-	$fields['PAYMENTREQUEST_0_TAXAMT'] = $tax;
+$fields['PAYMENTREQUEST_0_AMT'] = sprintf('%.2f', $total_amount);
+$fields['PAYMENTREQUEST_0_ITEMAMT'] = sprintf('%.2f', $total_amount - $total_tax);
+if ($total_tax > 0) {
+	$fields['PAYMENTREQUEST_0_TAXAMT'] = $total_tax;
 }
 
 $response = $payment_obj->fetch('SetExpressCheckout', $fields);

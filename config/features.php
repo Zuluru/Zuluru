@@ -253,6 +253,8 @@ $config['schedule_type'] = array(
 
 $config['registration_paid'] = array('Paid', 'Deposit', 'Partial', 'Pending');
 $config['registration_unpaid'] = array('Deposit', 'Partial', 'Pending', 'Reserved', 'Unpaid');
+$config['registration_none_paid'] = array('Pending', 'Reserved', 'Unpaid');
+$config['registration_some_paid'] = array('Paid', 'Deposit', 'Partial');
 $config['registration_reserved'] = array('Paid', 'Deposit', 'Partial', 'Pending', 'Reserved');
 $config['registration_not_reserved'] = array('Unpaid', 'Waiting', 'Refunded');
 $config['registration_cancelled'] = array('Refunded');

@@ -27,50 +27,6 @@ class Event extends AppModel {
 				'message' => 'You must select a valid event type.',
 			),
 		),
-		'cost' => array(
-			'money' => array(
-				'rule' => array('numeric'),
-				'message' => 'You must enter a valid cost.',
-			),
-		),
-		'tax1' => array(
-			'money' => array(
-				'rule' => array('numeric'),
-				'message' => 'You must enter a valid tax amount.',
-			),
-		),
-		'tax2' => array(
-			'money' => array(
-				'rule' => array('numeric'),
-				'message' => 'You must enter a valid tax amount.',
-			),
-		),
-		'open' => array(
-			'date' => array(
-				'rule' => array('datetime'),
-				'message' => 'You must select a valid opening date.',
-			),
-			'range' => array(
-				'rule' => array('indateconfig', 'event'),
-				'message' => 'Event open date must be between last year and next year.',
-				'on' => 'create',
-			),
-		),
-		'close' => array(
-			'date' => array(
-				'rule' => array('datetime'),
-				'message' => 'You must select a valid closing date.',
-			),
-			'range' => array(
-				'rule' => array('indateconfig', 'event'),
-				'message' => 'Event close date must be between last year and next year.',
-				'on' => 'create',
-			),
-			'greater' => array(
-				'rule' => array('greaterdate', 'open'),
-				'message' => 'The event close date cannot be before the open date.',
-			),
-		),
 		'cap_male' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
@@ -113,59 +69,36 @@ class Event extends AppModel {
 		'EventType' => array(
 			'className' => 'EventType',
 			'foreignKey' => 'event_type_id',
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
 		),
 		'Questionnaire' => array(
 			'className' => 'Questionnaire',
 			'foreignKey' => 'questionnaire_id',
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
 		),
 		'Division' => array(
 			'className' => 'Division',
 			'foreignKey' => 'division_id',
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
 		),
 		'Affiliate' => array(
 			'className' => 'Affiliate',
 			'foreignKey' => 'affiliate_id',
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
 		),
 	);
 
 	var $hasMany = array(
+		'Price' => array(
+			'className' => 'Price',
+			'foreignKey' => 'event_id',
+			'dependent' => true,
+		),
 		'Preregistration' => array(
 			'className' => 'Preregistration',
 			'foreignKey' => 'event_id',
 			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 		'Registration' => array(
 			'className' => 'Registration',
 			'foreignKey' => 'event_id',
 			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
 		),
 	);
 
@@ -177,13 +110,7 @@ class Event extends AppModel {
 			'associationForeignKey' => 'connected_event_id',
 			'unique' => true,
 			'conditions' => array('connection' => EVENT_PREDECESSOR),
-			'fields' => '',
 			'order' => array('Predecessor.event_type_id', 'Predecessor.open', 'Predecessor.close', 'Predecessor.id'),
-			'limit' => '',
-			'offset' => '',
-			'finderQuery' => '',
-			'deleteQuery' => '',
-			'insertQuery' => ''
 		),
 		'Successor' => array(
 			'className' => 'Event',
@@ -192,13 +119,7 @@ class Event extends AppModel {
 			'associationForeignKey' => 'connected_event_id',
 			'unique' => true,
 			'conditions' => array('connection' => EVENT_SUCCESSOR),
-			'fields' => '',
 			'order' => array('Successor.event_type_id', 'Successor.open', 'Successor.close', 'Successor.id'),
-			'limit' => '',
-			'offset' => '',
-			'finderQuery' => '',
-			'deleteQuery' => '',
-			'insertQuery' => ''
 		),
 		'Alternate' => array(
 			'className' => 'Event',
@@ -207,13 +128,7 @@ class Event extends AppModel {
 			'associationForeignKey' => 'connected_event_id',
 			'unique' => true,
 			'conditions' => array('connection' => EVENT_ALTERNATE),
-			'fields' => '',
 			'order' => array('Alternate.event_type_id', 'Alternate.open', 'Alternate.close', 'Alternate.id'),
-			'limit' => '',
-			'offset' => '',
-			'finderQuery' => '',
-			'deleteQuery' => '',
-			'insertQuery' => ''
 		),
 		'PredecessorTo' => array(
 			'className' => 'Event',
@@ -222,13 +137,7 @@ class Event extends AppModel {
 			'associationForeignKey' => 'event_id',
 			'unique' => true,
 			'conditions' => array('connection' => EVENT_PREDECESSOR),
-			'fields' => '',
 			'order' => array('PredecessorTo.event_type_id', 'PredecessorTo.open', 'PredecessorTo.close', 'PredecessorTo.id'),
-			'limit' => '',
-			'offset' => '',
-			'finderQuery' => '',
-			'deleteQuery' => '',
-			'insertQuery' => ''
 		),
 		'SuccessorTo' => array(
 			'className' => 'Event',
@@ -237,13 +146,7 @@ class Event extends AppModel {
 			'associationForeignKey' => 'event_id',
 			'unique' => true,
 			'conditions' => array('connection' => EVENT_SUCCESSOR),
-			'fields' => '',
 			'order' => array('SuccessorTo.event_type_id', 'SuccessorTo.open', 'SuccessorTo.close', 'SuccessorTo.id'),
-			'limit' => '',
-			'offset' => '',
-			'finderQuery' => '',
-			'deleteQuery' => '',
-			'insertQuery' => ''
 		),
 		'AlternateTo' => array(
 			'className' => 'Event',
@@ -252,13 +155,7 @@ class Event extends AppModel {
 			'associationForeignKey' => 'event_id',
 			'unique' => true,
 			'conditions' => array('connection' => EVENT_ALTERNATE),
-			'fields' => '',
 			'order' => array('AlternateTo.event_type_id', 'AlternateTo.open', 'AlternateTo.close', 'AlternateTo.id'),
-			'limit' => '',
-			'offset' => '',
-			'finderQuery' => '',
-			'deleteQuery' => '',
-			'insertQuery' => ''
 		),
 	);
 

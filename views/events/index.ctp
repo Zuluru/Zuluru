@@ -38,7 +38,7 @@ echo $this->element('selector', array('title' => 'Day', 'options' => $days));
 $play_types = array('team', 'individual');
 ?>
 
-<table class="list">
+<table class="multi_row_list">
 <tr>
 	<th><?php __('Registration'); ?></th>
 	<th><?php __('Cost'); ?></th>
@@ -79,9 +79,7 @@ foreach ($events as $event):
 	}
 	if ($event['EventType']['name'] != $last_name) {
 		$classes = array();
-		if ($i++ % 2 == 0) {
-			$classes[] = 'altrow';
-		}
+		$i = 0;
 		if (in_array($event['EventType']['type'], $play_types)) {
 			$divisions = Set::extract("/Event[event_type_id={$event['Event']['event_type_id']}]/../Division", $events);
 
@@ -98,7 +96,7 @@ foreach ($events as $event):
 		} else {
 			$class = '';
 		}
-		echo "<tr$class><td colspan='5'><h4>{$event['EventType']['name']}</h4></td></tr>";
+		echo "<tr><th colspan='5'><h4>{$event['EventType']['name']}</h4></th></tr>";
 		$last_name = $event['EventType']['name'];
 	}
 	$classes = array();
@@ -121,6 +119,8 @@ foreach ($events as $event):
 	} else {
 		$class = '';
 	}
+
+	if (count($event['Price']) == 1):
 ?>
 	<tr<?php echo $class;?>>
 		<td>
@@ -128,7 +128,7 @@ foreach ($events as $event):
 		</td>
 		<td>
 			<?php
-			$cost = $event['Event']['cost'] + $event['Event']['tax1'] + $event['Event']['tax2'];
+			$cost = $event['Price'][0]['cost'] + $event['Price'][0]['tax1'] + $event['Price'][0]['tax2'];
 			if ($cost > 0) {
 				echo '$' . $cost;
 			} else {
@@ -137,10 +137,10 @@ foreach ($events as $event):
 			?>
 		</td>
 		<td>
-			<?php echo $this->ZuluruTime->datetime($event['Event']['open']); ?>
+			<?php echo $this->ZuluruTime->datetime($event['Price'][0]['open']); ?>
 		</td>
 		<td>
-			<?php echo $this->ZuluruTime->datetime($event['Event']['close']); ?>
+			<?php echo $this->ZuluruTime->datetime($event['Price'][0]['close']); ?>
 		</td>
 		<td class="actions">
 			<?php
@@ -154,6 +154,9 @@ foreach ($events as $event):
 				echo $this->ZuluruHtml->iconLink('edit_24.png',
 					array('action' => 'edit', 'event' => $event['Event']['id']),
 					array('alt' => __('Edit', true), 'title' => __('Edit', true)));
+				echo $this->ZuluruHtml->iconLink('add_24.png',
+					array('controller' => 'prices', 'action' => 'add', 'event' => $event['Event']['id'], 'return' => true),
+					array('alt' => __('Add price', true), 'title' => __('Add a new price point', true)));
 				$alt = sprintf(__('Manage %s', true), __('Connections', true));
 				echo $this->ZuluruHtml->iconLink('connections_24.png',
 					array('action' => 'connections', 'event' => $event['Event']['id']),
@@ -175,6 +178,92 @@ foreach ($events as $event):
 			?>
 		</td>
 	</tr>
+	<?php else: ?>
+	<tr<?php echo $class;?>>
+		<td colspan="4">
+			<h4><?php echo $this->Html->link(__($event['Event']['name'], true), array('action' => 'view', 'event' => $event['Event']['id'])); ?></h4>
+		</td>
+		<td class="actions">
+			<?php
+			echo $this->ZuluruHtml->iconLink('view_24.png',
+				array('action' => 'view', 'event' => $event['Event']['id']),
+				array('alt' => __('View', true), 'title' => __('View', true)));
+			if (Configure::read('registration.register_now')) {
+				echo $this->Html->link(__('Register Now', true), array('controller' => 'registrations', 'action' => 'register', 'event' => $event['Event']['id']));
+			}
+			if ($is_admin || $is_manager) {
+				echo $this->ZuluruHtml->iconLink('edit_24.png',
+					array('action' => 'edit', 'event' => $event['Event']['id']),
+					array('alt' => __('Edit', true), 'title' => __('Edit', true)));
+				echo $this->ZuluruHtml->iconLink('add_24.png',
+					array('controller' => 'prices', 'action' => 'add', 'event' => $event['Event']['id'], 'return' => true),
+					array('alt' => __('Add price', true), 'title' => __('Add a new price point', true)));
+				$alt = sprintf(__('Manage %s', true), __('Connections', true));
+				echo $this->ZuluruHtml->iconLink('connections_24.png',
+					array('action' => 'connections', 'event' => $event['Event']['id']),
+					array('alt' => $alt, 'title' => $alt));
+				echo $this->ZuluruHtml->iconLink('delete_24.png',
+					array('action' => 'delete', 'event' => $event['Event']['id']),
+					array('alt' => __('Delete', true), 'title' => __('Delete', true)),
+					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $event['Event']['id'])));
+				echo $this->Html->link(__('Waiting List', true),
+					array('controller' => 'registrations', 'action' => 'waiting', 'event' => $event['Event']['id']));
+				echo $this->ZuluruHtml->iconLink('summary_24.png',
+					array('controller' => 'registrations', 'action' => 'summary', 'event' => $event['Event']['id']),
+					array('alt' => __('Summary', true), 'title' => __('Summary', true)));
+				$alt = sprintf(__('Add %s', true), __('Preregistration', true));
+				echo $this->ZuluruHtml->iconLink('preregistration_add_24.png',
+					array('controller' => 'preregistrations', 'action' => 'add', 'event' => $event['Event']['id']),
+					array('alt' => $alt, 'title' => $alt));
+			}
+			?>
+		</td>
+	</tr>
+		<?php
+		foreach ($event['Price'] as $price):
+		?>
+	<tr<?php echo $class;?>>
+		<td>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $this->Html->link(__($price['name'], true), array('action' => 'view', 'event' => $event['Event']['id'])); ?>
+		</td>
+		<td>
+			<?php
+			$cost = $price['cost'] + $price['tax1'] + $price['tax2'];
+			if ($cost > 0) {
+				echo '$' . $cost;
+			} else {
+				echo $this->Html->tag ('span', 'FREE', array('class' => 'free'));
+			}
+			?>
+		</td>
+		<td>
+			<?php echo $this->ZuluruTime->datetime($price['open']); ?>
+		</td>
+		<td>
+			<?php echo $this->ZuluruTime->datetime($price['close']); ?>
+		</td>
+		<td class="actions">
+			<?php
+			echo $this->ZuluruHtml->iconLink('view_24.png',
+				array('action' => 'view', 'event' => $event['Event']['id']),
+				array('alt' => __('View', true), 'title' => __('View', true)));
+			if (Configure::read('registration.register_now')) {
+				echo $this->Html->link(__('Register Now', true), array('controller' => 'registrations', 'action' => 'register', 'event' => $event['Event']['id'], 'price' => $price['id']));
+			}
+			if ($is_admin || $is_manager) {
+				echo $this->ZuluruHtml->iconLink('edit_24.png',
+					array('controller' => 'prices', 'action' => 'edit', 'price' => $price['id']),
+					array('alt' => __('Edit', true), 'title' => __('Edit', true)));
+				echo $this->ZuluruHtml->iconLink('delete_24.png',
+					array('controller' => 'prices', 'action' => 'delete', 'price' => $price['id']),
+					array('alt' => __('Delete', true), 'title' => __('Delete', true)),
+					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $price['id'])));
+			}
+			?>
+		</td>
+	</tr>
+		<?php endforeach; ?>
+	<?php endif; ?>
 <?php endforeach; ?>
 </table>
 <?php endif; ?>

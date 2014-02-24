@@ -70,7 +70,12 @@ class EventsController extends AppController {
 				'Event.affiliate_id' => $affiliates,
 			),
 			'order' => array('Affiliate.name', 'Event.event_type_id', 'Event.open', 'Event.close', 'Event.id'),
-			'contain' => array('EventType', 'Affiliate', 'Division' => array('League', 'Day')),
+			'contain' => array(
+				'EventType',
+				'Affiliate',
+				'Price' => array('order' => array('Price.open', 'Price.close', 'Price.id')),
+				'Division' => array('League', 'Day')
+			),
 		));
 
 		if (!empty($this->params['requested'])) {
@@ -125,7 +130,12 @@ class EventsController extends AppController {
 				'Event.affiliate_id' => $affiliates,
 			),
 			'order' => array('Event.event_type_id', 'Event.open', 'Event.close', 'Event.id'),
-			'contain' => array('EventType', 'Affiliate', 'Division' => array('League', 'Day')),
+			'contain' => array(
+				'EventType',
+				'Affiliate',
+				'Price' => array('order' => array('Price.open', 'Price.close', 'Price.id')),
+				'Division' => array('League', 'Day')
+			),
 		));
 
 		$types = $this->Event->EventType->find('all', array(
@@ -134,7 +144,7 @@ class EventsController extends AppController {
 
 		// Prune out the events that are not possible
 		foreach ($events as $key => $event) {
-			$test = $this->CanRegister->test ($id, $event, false, false, true);
+			$test = $this->CanRegister->test ($id, $event, array('strict' => false, 'waiting' => true));
 			if (!$test['allowed']) {
 				unset ($events[$key]);
 			}
@@ -164,6 +174,7 @@ class EventsController extends AppController {
 
 		$this->Event->contain (array(
 			'EventType',
+			'Price' => array('order' => array('Price.open', 'Price.close', 'Price.id')),
 			'Division' => array(
 				'DivisionGameslotAvailability' => array(
 					'GameSlot' => array(
@@ -207,7 +218,7 @@ class EventsController extends AppController {
 		}
 
 		if ($this->is_logged_in) {
-			$this->set ($this->CanRegister->test ($this->Auth->user('zuluru_person_id'), $event));
+			$this->set ($this->CanRegister->test ($this->Auth->user('zuluru_person_id'), $event, array('all_rules' => true)));
 		}
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
@@ -225,9 +236,15 @@ class EventsController extends AppController {
 			$this->data = array_merge ($this->data, $type);
 
 			$this->Event->create();
+
+			$transaction = new DatabaseTransaction($this->Event);
 			if ($this->Event->save($this->data)) {
-				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('event', true)), 'default', array('class' => 'success'));
-				$this->redirect(array('action' => 'index'));
+				$this->data['Price']['event_id'] = $this->Event->id;
+				if ($this->Event->Price->save($this->data['Price'])) {
+					$transaction->commit();
+					$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('event', true)), 'default', array('class' => 'success'));
+					$this->redirect(array('action' => 'index'));
+				}
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('event', true)), 'default', array('class' => 'warning'));
 				$this->Configuration->loadAffiliate($this->data['Event']['affiliate_id']);
@@ -271,7 +288,9 @@ class EventsController extends AppController {
 			}
 			$this->data = array_merge ($this->data, $type);
 
-			if ($this->Event->save($this->data)) {
+			$transaction = new DatabaseTransaction($this->Event);
+			if ($this->Event->save($this->data) && $this->Event->Price->save($this->data)) {
+				$transaction->commit();
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('event', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
@@ -282,6 +301,7 @@ class EventsController extends AppController {
 		if (empty($this->data)) {
 			$this->Event->contain (array (
 				'EventType',
+				'Price' => array('order' => array('Price.open', 'Price.close', 'Price.id')),
 			));
 			$this->data = $this->Event->read(null, $id);
 			if (!$this->data) {
@@ -289,6 +309,11 @@ class EventsController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			}
 			$this->Configuration->loadAffiliate($this->data['Event']['affiliate_id']);
+
+			if (count($this->data['Price']) == 1) {
+				// Adjust loaded data
+				$this->data['Price'] = array_pop($this->data['Price']);
+			}
 		}
 
 		$affiliates = $this->_applicableAffiliates(true);
@@ -453,7 +478,57 @@ class EventsController extends AppController {
 	}
 
 	function cron() {
-		if (!Configure::read('feature.registration') || !Configure::read('feature.badges')) {
+		if (!Configure::read('feature.registration')) {
+			return;
+		}
+
+		$this->layout = 'bare';
+		if (!ini_get('safe_mode')) { 
+			set_time_limit(1800);
+		}
+
+		if (!$this->Lock->lock ('cron')) {
+			return false;
+		}
+		$transaction = new DatabaseTransaction($this->Event);
+
+		// Update any event open and close dates that have changed because of prices
+		// being added or edited
+		$prices = $this->Event->Price->find('all', array(
+				'conditions' => array('OR' => array(
+					'Price.open != Event.open',
+					'Price.close != Event.close',
+				)),
+				'contain' => 'Event',
+		));
+
+		$events = array();
+		foreach ($prices as $price) {
+			if (!array_key_exists($price['Price']['event_id'], $events)) {
+				$events[$price['Price']['event_id']] = array(
+					'id' => $price['Price']['event_id'],
+					'open' => $price['Price']['open'],
+					'close' => $price['Price']['close'],
+				);
+			} else {
+				$events[$price['Price']['event_id']]['open'] = min($events[$price['Price']['event_id']]['open'], $price['Price']['open']);
+				$events[$price['Price']['event_id']]['close'] = max($events[$price['Price']['event_id']]['close'], $price['Price']['close']);
+			}
+		}
+		foreach ($events as $id => $event) {
+			$saved = Set::extract("/Event[id=$id]", $prices);
+			if ($saved[0]['Event']['open'] == $event['open'] && $saved[0]['Event']['close'] == $event['close']) {
+				unset($events[$id]);
+			}
+		}
+		if (!empty($events)) {
+			$this->Event->saveAll ($events);
+		}
+
+		$transaction->commit();
+
+		if (!Configure::read('feature.badges')) {
+			$this->Lock->unlock();
 			return;
 		}
 
@@ -465,22 +540,14 @@ class EventsController extends AppController {
 				'contain' => array(),
 		));
 		if (empty($badges)) {
+			$this->Lock->unlock();
 			return;
 		}
 		$badge_obj = $this->_getComponent('badge', '', $this);
-
-		$this->layout = 'bare';
-		if (!ini_get('safe_mode')) { 
-			set_time_limit(1800);
-		}
-
-		if (!$this->Lock->lock ('cron')) {
-			return false;
-		}
+		$transaction = new DatabaseTransaction($this->Event);
 
 		$activity_log = ClassRegistry::init('ActivityLog');
 		$today = date('Y-m-d');
-		$transaction = new DatabaseTransaction($this->Event);
 
 		// Find all membership events for which the membership has started,
 		// but we haven't opened it. The only ones that can possibly be

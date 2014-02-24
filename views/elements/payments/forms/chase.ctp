@@ -80,27 +80,29 @@ echo quick_hidden($this, 'x_relay_response', 'TRUE');
 
 $join = '<|>';
 $currency = Configure::read('payment.currency');
-$amount = $tax = 0;
+$total_amount = $total_tax = 0;
 $ids = array();
 foreach ($registrations as $registration) {
+	list ($cost, $tax1, $tax2) = Registration::paymentAmounts($registration);
+
 	echo quick_hidden($this, 'x_line_item', implode ($join, array(
 			sprintf(Configure::read('payment.reg_id_format'), $registration['Event']['id']),
 			$registration['Event']['name'],
 			$registration['Event']['payment_desc'],
 			'1',
-			$registration['Event']['cost'],
-			($registration['Event']['tax1'] + $registration['Event']['tax2'] > 0) ? 'YES' : 'NO',
+			$cost,
+			($tax1 + $tax2 > 0) ? 'YES' : 'NO',
 	)) . $join);
-	$amount += $registration['Event']['cost'] + $registration['Event']['tax1'] + $registration['Event']['tax2'];
-	$tax += $registration['Event']['tax1'] + $registration['Event']['tax2'];
+	$total_amount += $cost + $tax1 + $tax2;
+	$total_tax += $tax1 + $tax2;
 	$ids[] = $registration['Registration']['id'];
 }
-$amount = sprintf('%.2f', $amount);
+$total_amount = sprintf('%.2f', $total_amount);
 $hash_source = implode ('^', array (
 		$login,
 		$unique_order_num,
 		$time,
-		$amount,
+		$total_amount,
 		$currency,
 ));
 echo quick_hidden($this, 'x_fp_hash', hmac($key, $hash_source));
@@ -110,9 +112,9 @@ echo quick_hidden($this, 'x_cust_id', $person['Person']['id']);
 echo quick_hidden($this, 'x_email', $person['Person']['email']);
 echo quick_hidden($this, 'x_invoice_num', $invoice_num);
 echo quick_hidden($this, 'x_currency_code', $currency);
-echo quick_hidden($this, 'x_amount', $amount);
-if ($tax > 0) {
-	echo quick_hidden($this, 'x_tax', $tax);
+echo quick_hidden($this, 'x_amount', $total_amount);
+if ($total_tax > 0) {
+	echo quick_hidden($this, 'x_tax', $total_tax);
 }
 echo quick_hidden($this, 'x_first_name', $person['Person']['first_name']);
 echo quick_hidden($this, 'x_last_name', $person['Person']['last_name']);

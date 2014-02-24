@@ -51,7 +51,7 @@ class EventTypeMembershipComponent extends EventTypeComponent
 	}
 
 	function longDescription($data) {
-		return "{$data['Event']['name']}: Valid from {$data['Event']['membership_begins']} to {$data['Event']['membership_ends']}";
+		return parent::longDescription($data) . ": Valid from {$data['Event']['membership_begins']} to {$data['Event']['membership_ends']}";
 	}
 }
 

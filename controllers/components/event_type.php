@@ -86,7 +86,7 @@ class EventTypeComponent extends Object
 	}
 
 	function longDescription($data) {
-		return $data['Event']['name'];
+		return Registration::longDescription($data);
 	}
 
 	static function _extractAnswer($data, $question) {

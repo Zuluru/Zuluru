@@ -9,7 +9,7 @@ echo $this->element('selector', array('title' => 'Day', 'options' => $days));
 
 $play_types = array('team', 'individual');
 ?>
-<table class="list">
+<table class="multi_row_list">
 <tr>
 	<th><?php __('Registration'); ?></th>
 	<th><?php __('Cost'); ?></th>
@@ -52,6 +52,8 @@ foreach ($events as $event):
 	} else {
 		$class = '';
 	}
+
+	if (count($event['Price']) == 1):
 ?>
 	<tr<?php echo $class;?>>
 		<td>
@@ -59,7 +61,7 @@ foreach ($events as $event):
 		</td>
 		<td>
 			<?php
-			$cost = $event['Event']['cost'] + $event['Event']['tax1'] + $event['Event']['tax2'];
+			$cost = $event['Price'][0]['cost'] + $event['Price'][0]['tax1'] + $event['Price'][0]['tax2'];
 			if ($cost > 0) {
 				echo '$' . $cost;
 			} else {
@@ -68,10 +70,10 @@ foreach ($events as $event):
 			?>
 		</td>
 		<td>
-			<?php echo $this->ZuluruTime->datetime($event['Event']['open']); ?>
+			<?php echo $this->ZuluruTime->datetime($event['Price'][0]['open']); ?>
 		</td>
 		<td>
-			<?php echo $this->ZuluruTime->datetime($event['Event']['close']); ?>
+			<?php echo $this->ZuluruTime->datetime($event['Price'][0]['close']); ?>
 		</td>
 		<td class="actions">
 			<?php
@@ -84,5 +86,57 @@ foreach ($events as $event):
 			?>
 		</td>
 	</tr>
+	<?php else: ?>
+	<tr<?php echo $class;?>>
+		<td colspan="4">
+			<h4><?php echo $this->Html->link(__($event['Event']['name'], true), array('action' => 'view', 'event' => $event['Event']['id'])); ?></h4>
+		</td>
+		<td class="actions">
+			<?php
+			echo $this->ZuluruHtml->iconLink('view_24.png',
+				array('action' => 'view', 'event' => $event['Event']['id']),
+				array('alt' => __('View', true), 'title' => __('View', true)));
+			if (Configure::read('registration.register_now')) {
+				echo $this->Html->link(__('Register Now', true), array('controller' => 'registrations', 'action' => 'register', 'event' => $event['Event']['id']));
+			}
+			?>
+		</td>
+	</tr>
+		<?php
+		foreach ($event['Price'] as $price):
+		?>
+	<tr<?php echo $class;?>>
+		<td>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $this->Html->link(__($price['name'], true), array('action' => 'view', 'event' => $event['Event']['id'])); ?>
+		</td>
+		<td>
+			<?php
+			$cost = $price['cost'] + $price['tax1'] + $price['tax2'];
+			if ($cost > 0) {
+				echo '$' . $cost;
+			} else {
+				echo $this->Html->tag ('span', 'FREE', array('class' => 'free'));
+			}
+			?>
+		</td>
+		<td>
+			<?php echo $this->ZuluruTime->datetime($price['open']); ?>
+		</td>
+		<td>
+			<?php echo $this->ZuluruTime->datetime($price['close']); ?>
+		</td>
+		<td class="actions">
+			<?php
+			echo $this->ZuluruHtml->iconLink('view_24.png',
+				array('action' => 'view', 'event' => $event['Event']['id']),
+				array('alt' => __('View', true), 'title' => __('View', true)));
+			if (Configure::read('registration.register_now')) {
+				echo $this->Html->link(__('Register Now', true), array('controller' => 'registrations', 'action' => 'register', 'event' => $event['Event']['id'], 'price' => $price['id']));
+			}
+			?>
+		</td>
+	</tr>
+		<?php endforeach; ?>
+	<?php endif; ?>
 <?php endforeach; ?>
 </table>

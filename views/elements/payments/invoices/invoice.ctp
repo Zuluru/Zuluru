@@ -92,31 +92,34 @@ $reg_id_format = Configure::read('payment.reg_id_format');
 		<td bgcolor="#DDDDDD" width=100 align="right"><strong>Unit Cost</strong></td>
 		<td bgcolor="#DDDDDD" width=100 align="right"><strong>Subtotal</strong></td>
 	</tr>
-<?php foreach ($registrations as $registration): ?>
+<?php
+foreach ($registrations as $registration):
+	list ($cost, $tax1, $tax2) = Registration::paymentAmounts($registration);
+?>
 	<tr>
 		<td valign="top"><?php echo sprintf($reg_id_format, $registration['Event']['id']); ?></td>
-		<td valign="top"><?php echo $registration['Event']['name']; ?></td>
+		<td valign="top"><?php echo Registration::longDescription($registration); ?></td>
 		<td valign="top">1</td>
-		<td valign="top" align="right">$<?php echo $registration['Event']['cost']; ?></td>
-		<td valign="top" align="right">$<?php echo $registration['Event']['cost']; ?></td>
+		<td valign="top" align="right">$<?php echo $cost; ?></td>
+		<td valign="top" align="right">$<?php echo $cost; ?></td>
 	</tr>
 
-	<?php if ($registration['Event']['tax1'] > 0): ?>
+	<?php if ($tax1 > 0): ?>
 	<tr>
 		<td></td><td></td><td></td>
 		<td align="right"><?php echo Configure::read('payment.tax1_name'); ?>:</td>
-		<td align="right">$<?php echo $registration['Event']['tax1']; ?></td>
+		<td align="right">$<?php echo $tax1; ?></td>
 	</tr>
 	<?php else: ?>
 	<tr><td>&nbsp;</td></tr>
 	<?php endif; ?>
 
 	</tr>
-	<?php if ($registration['Event']['tax2'] > 0): ?>
+	<?php if ($tax2 > 0): ?>
 	<tr>
 		<td></td><td></td><td></td>
 		<td align="right"><?php echo Configure::read('payment.tax2_name'); ?>:</td>
-		<td align="right">$<?php echo $registration['Event']['tax2']; ?></td>
+		<td align="right">$<?php echo $tax2; ?></td>
 	<?php else: ?>
 	<tr><td>&nbsp;</td></tr>
 	<?php endif; ?>

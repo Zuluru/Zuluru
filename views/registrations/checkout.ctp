@@ -32,7 +32,9 @@ if (!empty($registrations)):
 <?php
 	$total = $i = 0;
 	foreach ($registrations as $registration):
-		$total += $registration['Event']['cost'] + $registration['Event']['tax1'] + $registration['Event']['tax2'];
+	list ($cost, $tax1, $tax2) = Registration::paymentAmounts($registration);
+		$total += $cost + $tax1 + $tax2;
+
 		$class = null;
 		if ($i++ % 2 == 0) {
 			$class = ' class="altrow"';
@@ -40,13 +42,17 @@ if (!empty($registrations)):
 ?>
 	<tr<?php echo $class;?>>
 		<td><?php printf ($order_id_format, $registration['Registration']['id']); ?></td>
-		<td><?php echo $this->Html->link ($registration['Event']['name'], array('controller' => 'events', 'action' => 'view', 'event' => $registration['Event']['id'])); ?></td>
-		<td><?php echo $this->Number->currency ($registration['Event']['cost'] + $registration['Event']['tax1'] + $registration['Event']['tax2']); ?></td>
+		<td><?php
+		echo $this->Html->link (Registration::longDescription($registration), array('controller' => 'events', 'action' => 'view', 'event' => $registration['Event']['id']));
+		?></td>
+		<td><?php echo $this->Number->currency ($cost + $tax1 + $tax2); ?></td>
 		<td class="actions"><?php
+		if (in_array($registration['Registration']['payment'], Configure::read('registration_none_paid'))) {
 			echo $this->Html->link (__('Unregister', true),
 					array('action' => 'unregister', 'registration' => $registration['Registration']['id']),
 					array(),
 					__('Are you sure you want to unregister from this event? This will delete all of your preferences and you may lose the spot that is currently tentatively reserved for you.', true));
+		}
 		?></td>
 	</tr>
 <?php endforeach; ?>
@@ -64,19 +70,21 @@ if (!empty($registrations)):
 <?php endif; ?>
 
 <?php
-if (!empty($full)):
-	echo $this->Html->para('error-message', 'You have registered for the following events, but cannot pay right now as they have filled up since you registered:');
+if (!empty($other)):
+	echo $this->Html->para('error-message', 'You have registered for the following events, but cannot pay right now:');
 ?>
 <table class="list">
 	<tr>
 		<th><?php __('Order ID'); ?></th>
 		<th><?php __('Event'); ?></th>
 		<th><?php __('Cost'); ?></th>
+		<th><?php __('Reason'); ?></th>
 		<th><?php __('Actions'); ?></th>
 	</tr>
 <?php
 	$i = 0;
-	foreach ($full as $registration):
+	foreach ($other as $registration):
+		list ($cost, $tax1, $tax2) = Registration::paymentAmounts($registration);
 		$class = null;
 		if ($i++ % 2 == 0) {
 			$class = ' class="altrow"';
@@ -85,12 +93,15 @@ if (!empty($full)):
 	<tr<?php echo $class;?>>
 		<td><?php printf ($order_id_format, $registration['Registration']['id']); ?></td>
 		<td><?php echo $this->Html->link ($registration['Event']['name'], array('controller' => 'events', 'action' => 'view', 'event' => $registration['Event']['id'])); ?></td>
-		<td><?php echo $this->Number->currency ($registration['Event']['cost'] + $registration['Event']['tax1'] + $registration['Event']['tax2']); ?></td>
+		<td><?php echo $this->Number->currency ($cost + $tax1 + $tax2); ?></td>
+		<td><?php __($registration['reason']); ?></td>
 		<td class="actions"><?php
-			echo $this->Html->link (__('Unregister', true),
-					array('action' => 'unregister', 'registration' => $registration['Registration']['id']),
-					array(),
-					__('Are you sure you want to unregister from this event? This will delete all of your preferences and you may lose the spot that is currently tentatively reserved for you.', true));
+			if (!in_array($registration['Registration']['payment'], Configure::read('registration_some_paid'))) {
+				echo $this->Html->link (__('Unregister', true),
+						array('action' => 'unregister', 'registration' => $registration['Registration']['id']),
+						array(),
+						__('Are you sure you want to unregister from this event? This will delete all of your preferences and you may lose the spot that is currently tentatively reserved for you.', true));
+			}
 		?></td>
 	</tr>
 	<?php endforeach; ?>

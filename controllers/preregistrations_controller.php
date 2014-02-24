@@ -62,7 +62,7 @@ class PreregistrationsController extends AppController {
 		$params = $url = $this->_extractSearchParams();
 		unset ($params['event']);
 		if (array_key_exists('event', $url)) {
-			$this->Preregistration->Event->contain();
+			$this->Preregistration->Event->contain('Price');
 			$event = $this->Preregistration->Event->read(null, $url['event']);
 			if (!$event) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
@@ -84,7 +84,7 @@ class PreregistrationsController extends AppController {
 				$this->Session->setFlash(__('This player already has a preregistration for this event', true), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'add', 'event' => $url['event']));
 			}
-			$test = $this->CanRegister->test ($url['person'], $event, true, false, false);
+			$test = $this->CanRegister->test ($url['person'], $event, array('ignore_date' => true, 'strict' => false));
 			if (!$test['allowed']) {
 				$this->Session->setFlash(implode ('<br>', Set::extract('/messages/text', $test)), 'default', array('class' => 'warning'));
 				$this->redirect(array('action' => 'add', 'event' => $url['event']));

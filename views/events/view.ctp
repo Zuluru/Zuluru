@@ -9,6 +9,9 @@ $this->Html->addCrumb (__('View', true));
 if ($is_manager && !in_array($event['Event']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'))) {
 	$is_manager = false;
 }
+
+$deposit = Set::extract('/Price[allow_deposit=1]', $event);
+$deposit = !empty($deposit);
 ?>
 
 <div class="events view">
@@ -111,28 +114,6 @@ if ($is_manager && !in_array($event['Event']['affiliate_id'], $this->UserCache->
 		</dd>
 <?php endif; ?>
 
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Cost'); ?></dt>
-		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php
-			$cost = $event['Event']['cost'] + $event['Event']['tax1'] + $event['Event']['tax2'];
-			if ($cost > 0) {
-				echo '$' . $cost;
-			} else {
-				echo $this->Html->tag ('span', 'FREE', array('class' => 'free'));
-			}
-			?>
-
-		</dd>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Registration Opens'); ?></dt>
-		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $this->ZuluruTime->DateTime ($event['Event']['open']); ?>
-
-		</dd>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Registration  Closes'); ?></dt>
-		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $this->ZuluruTime->DateTime ($event['Event']['close']); ?>
-
-		</dd>
 <?php if ($event['Event']['cap_female'] == -2): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Registration Cap'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
@@ -160,19 +141,138 @@ if ($is_manager && !in_array($event['Event']['affiliate_id'], $this->UserCache->
 			<?php __($event['Event']['multiple'] ? 'Allowed' : 'Not allowed'); ?>
 
 		</dd>
+
+<?php if (count($event['Price']) == 1): ?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Registration Opens'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo $this->ZuluruTime->DateTime ($event['Price'][0]['open']); ?>
+
+		</dd>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Registration  Closes'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo $this->ZuluruTime->DateTime ($event['Price'][0]['close']); ?>
+
+		</dd>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Cost'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php
+			$cost = $event['Price'][0]['cost'] + $event['Price'][0]['tax1'] + $event['Price'][0]['tax2'];
+			if ($cost > 0) {
+				echo '$' . $cost;
+			} else {
+				echo $this->Html->tag ('span', 'FREE', array('class' => 'free'));
+			}
+			?>
+
+		</dd>
+		<?php if ($deposit): ?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Deposit'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php
+			echo '$' . $event['Price'][0]['minimum_deposit'];
+			if (!$event['Price'][0]['fixed_deposit']) {
+				echo '+';
+			}
+			?>
+
+		</dd>
+		<?php endif; ?>
+
+<?php endif; ?>
 	</dl>
+
+<?php if (count($event['Price']) > 1): ?>
+	<div class="related">
+	<h3><?php __('Registration Options');?></h3>
+	<table class="multi_row_list">
+	<tr>
+		<th><?php __('Option'); ?></th>
+		<th><?php __('Registration Opens'); ?></th>
+		<th><?php __('Registration Closes'); ?></th>
+		<th><?php __('Cost'); ?></th>
+		<?php if ($deposit): ?>
+		<th><?php __('Deposit'); ?></th>
+		<?php endif; ?>
+		<th><?php __('Actions'); ?></th>
+	</tr>
+	<?php
+		$i = 0;
+		foreach ($event['Price'] as $key => $price):
+			$class = null;
+			if ($i++ % 2 == 0) {
+				$class = ' class="altrow"';
+			}
+		?>
+	<tr<?php echo $class;?>>
+		<td><?php echo $price['name'];?></td>
+		<td><?php echo $this->ZuluruTime->DateTime ($price['open']); ?></td>
+		<td><?php echo $this->ZuluruTime->DateTime ($price['close']); ?></td>
+		<td><?php
+		$cost = $price['cost'] + $price['tax1'] + $price['tax2'];
+		if ($cost > 0) {
+			echo '$' . $cost;
+		} else {
+			echo $this->Html->tag ('span', 'FREE', array('class' => 'free'));
+		}
+		?></td>
+		<?php if ($deposit): ?>
+		<td><?php
+		if ($price['allow_deposit']) {
+			echo '$' . $price['minimum_deposit'];
+			if (!$price['fixed_deposit']) {
+				echo '+';
+			}
+		} else {
+			__('N/A');
+		}
+		?></td>
+		<?php endif; ?>
+		<td class="actions"><?php
+		if (!empty($rule_allowed[$key]['allowed'])) {
+			echo $this->Html->link(__('Register now!', true),
+					array('controller' => 'registrations', 'action' => 'register', 'event' => $id, 'option' => $price['id']),
+					array('title' => __('Register for ', true) . $event['Event']['name'] . ' ' . $price['name'])
+			);
+		}
+		if ($is_admin || $is_manager) {
+			echo $this->ZuluruHtml->iconLink('edit_24.png',
+					array('controller' => 'prices', 'action' => 'edit', 'price' => $price['id']),
+					array('alt' => __('Edit', true), 'title' => __('Edit', true)));
+			echo $this->ZuluruHtml->iconLink('delete_24.png',
+					array('controller' => 'prices', 'action' => 'delete', 'price' => $price['id']),
+					array('alt' => __('Delete', true), 'title' => __('Delete', true)),
+					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $price['id'])));
+		}
+		?></td>
+	</tr>
+	<?php if (!empty($price['description'])): ?>
+	<tr<?php echo $class;?>>
+		<td colspan="<?php echo 5 + $deposit; ?>"><?php echo $price['description']; ?></td>
+	</tr>
+	<?php endif; ?>
+	<?php if (!empty($rule_allowed[$key]['message'])): ?>
+	<tr<?php echo $class;?>>
+		<td colspan="<?php echo 5 + $deposit; ?>"><?php echo $rule_allowed[$key]['message']; ?></td>
+	</tr>
+	<?php endif; ?>
+	<?php endforeach; ?>
+	</table>
+</div>
+<?php endif; ?>
 
 <?php
 if (!$is_logged_in):
 	echo $this->element('events/not_logged_in');
 else:
-	foreach ($messages as $message) {
-		$class = null;
-		if (is_array($message)) {
-			$class = $message['class'];
-			$message = $message['text'];
+	if (empty($rule_allowed)) {
+		foreach ($messages as $message) {
+			$class = null;
+			if (is_array($message)) {
+				$class = $message['class'];
+				$message = $message['text'];
+			}
+			echo $this->Html->para ($class, $message);
 		}
-		echo $this->Html->para ($class, $message);
 	}
 	if ($allowed) {
 		echo $this->Html->tag ('h2', $this->Html->link(__('Register now!', true),
@@ -233,6 +333,9 @@ else:
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('edit_32.png',
 				array('action' => 'edit', 'event' => $event['Event']['id'], 'return' => true),
 				array('alt' => __('Edit', true), 'title' => __('Edit', true))));
+			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('add_32.png',
+				array('controller' => 'prices', 'action' => 'add', 'event' => $event['Event']['id'], 'return' => true),
+				array('alt' => __('Add price', true), 'title' => __('Add a new price point', true))));
 			$alt = sprintf(__('Manage %s', true), __('Connections', true));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('connections_32.png',
 				array('action' => 'connections', 'event' => $event['Event']['id']),

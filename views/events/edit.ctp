@@ -6,6 +6,7 @@ if (isset ($add)) {
 	$this->Html->addCrumb ($this->Form->value('Event.name'));
 	$this->Html->addCrumb (__('Edit', true));
 }
+$collapse = !empty($this->data['Price']['id']);
 ?>
 
 <div class="events form">
@@ -15,6 +16,9 @@ if (isset ($add)) {
 	<?php
 		if (!isset ($add)) {
 			echo $this->Form->input('id');
+			if ($collapse) {
+				echo $this->Form->input('Price.id');
+			}
 		}
 		echo $this->ZuluruForm->input('name', array(
 			'size' => 70,
@@ -39,35 +43,57 @@ if (isset ($add)) {
 			'empty' => '---',
 			'after' => $this->Html->para (null, __('Note that any team type will result in team records being created. If you don\'t want this, then use the appropriate individual type.', true)),
 		));
-		echo $this->ZuluruForm->input('cost', array(
-			'after' => $this->Html->para (null, __('Cost of this event, may be 0, <span class="error">not including tax</span>.', true)),
-		));
-		if (Configure::read('payment.tax1_enable')) {
-			echo $this->ZuluruForm->input('tax1', array(
-				'label' => Configure::read('payment.tax1_name'),
+
+		if ($collapse || isset ($add)) {
+			echo $this->ZuluruForm->input('Price.cost', array(
+				'after' => $this->Html->para (null, __('Cost of this event, may be 0, <span class="error">not including tax</span>.', true)),
+			));
+			if (Configure::read('payment.tax1_enable')) {
+				echo $this->ZuluruForm->input('Price.tax1', array(
+					'label' => Configure::read('payment.tax1_name'),
+				));
+			}
+			if (Configure::read('payment.tax2_enable')) {
+				echo $this->ZuluruForm->input('Price.tax2', array(
+					'label' => Configure::read('payment.tax2_name'),
+				));
+			}
+			echo $this->ZuluruForm->input('Price.open', array(
+				'label' => 'Opens on',
+				'minYear' => Configure::read('options.year.event.min'),
+				'maxYear' => Configure::read('options.year.event.max'),
+				'looseYears' => true,
+				// TODO: JavaScript link on "12:01AM" to set the time in the inputs
+				'after' => $this->Html->para (null, __('The date and time at which registration for this event will open (12:01AM recommended to disambiguate noon from midnight).', true)),
+			));
+			echo $this->ZuluruForm->input('Price.close', array(
+				'label' => 'Closes on',
+				'minYear' => Configure::read('options.year.event.min'),
+				'maxYear' => Configure::read('options.year.event.max'),
+				'looseYears' => true,
+				// TODO: JavaScript link on "11:59PM" to set the time in the inputs
+				'after' => $this->Html->para (null, __('The date and time at which registration for this event will close (11:59PM recommended to disambiguate midnight from noon).', true)),
+			));
+			echo $this->ZuluruForm->input('Price.allow_deposit', array(
+				'options' => Configure::read('options.enable'),
+				'empty' => '---',
+				'default' => false,
+			));
+			echo $this->ZuluruForm->input('Price.fixed_deposit', array(
+				'options' => Configure::read('options.enable'),
+				'empty' => '---',
+				'default' => false,
+			));
+			echo $this->ZuluruForm->input('Price.deposit_only', array(
+				'options' => Configure::read('options.enable'),
+				'empty' => '---',
+				'default' => false,
+			));
+			echo $this->ZuluruForm->input('Price.minimum_deposit', array(
+				'after' => $this->Html->para (null, __('Minimum allowable deposit that the registrant must make, if deposits are enabled above. If fixed deposits are selected, this will be the only allowable deposit amount.', true)),
 			));
 		}
-		if (Configure::read('payment.tax2_enable')) {
-			echo $this->ZuluruForm->input('tax2', array(
-				'label' => Configure::read('payment.tax2_name'),
-			));
-		}
-		echo $this->ZuluruForm->input('open', array(
-			'label' => 'Opens on',
-			'minYear' => Configure::read('options.year.event.min'),
-			'maxYear' => Configure::read('options.year.event.max'),
-			'looseYears' => true,
-			// TODO: JavaScript link on "12:01AM" to set the time in the inputs
-			'after' => $this->Html->para (null, __('The date and time at which registration for this event will open (12:01AM recommended to disambiguate noon from midnight).', true)),
-		));
-		echo $this->ZuluruForm->input('close', array(
-			'label' => 'Closes on',
-			'minYear' => Configure::read('options.year.event.min'),
-			'maxYear' => Configure::read('options.year.event.max'),
-			'looseYears' => true,
-			// TODO: JavaScript link on "11:59PM" to set the time in the inputs
-			'after' => $this->Html->para (null, __('The date and time at which registration for this event will close (11:59PM recommended to disambiguate midnight from noon).', true)),
-		));
+
 		echo $this->ZuluruForm->input('cap_male', array(
 			'label' => 'Male cap',
 			'after' => $this->Html->para (null, __('-1 for no limit.', true)),
@@ -97,11 +123,13 @@ if (isset ($add)) {
 		?>
 		</div>
 	<?php
-		echo $this->Form->input('register_rule', array(
-			'cols' => 70,
-			'after' => $this->Html->para (null, __('Rules that must be passed to allow a person to register for this event.', true) .
-				' ' . $this->ZuluruHtml->help(array('action' => 'rules', 'rules'))),
-		));
+		if ($collapse || isset ($add)) {
+			echo $this->Form->input('Price.register_rule', array(
+				'cols' => 70,
+				'after' => $this->Html->para (null, __('Rules that must be passed to allow a person to register for this event.', true) .
+					' ' . $this->ZuluruHtml->help(array('action' => 'rules', 'rules'))),
+			));
+		}
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
