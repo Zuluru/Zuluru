@@ -920,7 +920,7 @@ class AppController extends Controller {
 		$key = "{$team['Team']['name']}::{$team['Team']['id']}";
 
 		if (!empty($team['Team']['division_id'])) {
-			$this->_addMenuItem (html_entity_decode($team['Team']['name']) . ' (' . $team['Division']['long_league_name'] . ')', array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']), $path, $key);
+			$this->_addMenuItem ($team['Team']['name'] . ' (' . $team['Division']['long_league_name'] . ')', array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']), $path, $key);
 			$this->_addMenuItem ('Schedule', array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['Team']['id']), array_merge($path, array($key)));
 			$this->_addMenuItem ('Standings', array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Division']['id'], 'team' => $team['Team']['id']), array_merge($path, array($key)));
 			if ($team['Team']['track_attendance'] &&
@@ -935,7 +935,7 @@ class AppController extends Controller {
 			}
 			$this->_addDivisionMenuItems($team['Division'], $team['Division']['League'], $relative);
 		} else {
-			$this->_addMenuItem (html_entity_decode($team['Team']['name']), array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']), $path, $key);
+			$this->_addMenuItem ($team['Team']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']), $path, $key);
 		}
 
 		if ($this->is_admin || $is_manager || $is_captain) {
