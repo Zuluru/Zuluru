@@ -28,29 +28,29 @@ if ($game['Division']['League']['numeric_sotg']) {
 	), $opts);
 
 	$spirit .= $this->ZuluruForm->input("SpiritEntry.$team_id.entered_sotg", $opts);
+}
 
-	// Don't show this when submitting scores, just when editing. We don't need
-	// to check admin/coordinator permissions, as that's already been done.
-	if ($this->action == 'edit') {
-		$checked = false;
-		if (array_key_exists ($team_id, $game['SpiritEntry']) &&
-			array_key_exists ('score_entry_penalty', $game['SpiritEntry'][$team_id]) &&
-			$game['SpiritEntry'][$team_id]['score_entry_penalty'] != 0)
-		{
-			$checked = true;
-		} else if (!Game::_is_finalized($game) &&
-			!array_key_exists ($team_id, $game['ScoreEntry']) &&
-			!array_key_exists (null, $game['ScoreEntry']))
-		{
-			$checked = true;
-		}
-		$spirit .= $this->Form->input("SpiritEntry.$team_id.score_entry_penalty", array(
-				'type' => 'checkbox',
-				'label' => __('Assign penalty for missing score entry?', true),
-				'value' => -Configure::read('scoring.missing_score_spirit_penalty'),
-				'checked' => $checked,
-		));
+// Don't show this when submitting scores, just when editing. We don't need
+// to check admin/coordinator permissions, as that's already been done.
+if ($this->action == 'edit') {
+	$checked = false;
+	if (array_key_exists ($team_id, $game['SpiritEntry']) &&
+		array_key_exists ('score_entry_penalty', $game['SpiritEntry'][$team_id]) &&
+		$game['SpiritEntry'][$team_id]['score_entry_penalty'] != 0)
+	{
+		$checked = true;
+	} else if (!Game::_is_finalized($game) &&
+		!array_key_exists ($team_id, $game['ScoreEntry']) &&
+		!array_key_exists (null, $game['ScoreEntry']))
+	{
+		$checked = true;
 	}
+	$spirit .= $this->Form->input("SpiritEntry.$team_id.score_entry_penalty", array(
+			'type' => 'checkbox',
+			'label' => __('Assign penalty for missing score entry?', true),
+			'value' => -Configure::read('scoring.missing_score_spirit_penalty'),
+			'checked' => $checked,
+	));
 }
 
 if ($spirit) {
