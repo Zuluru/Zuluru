@@ -309,10 +309,7 @@ class LeaguesController extends AppController {
 				if (isset($division)) {
 					$divisions = array($this->data['Division']['id']);
 				} else {
-					$divisions = $this->League->Division->find('list', array(
-							'conditions' => array('Division.league_id' => $id),
-							'fields' => array('Division.id', 'Division.id'),
-					));
+					$divisions = $this->League->divisions($id);
 				}
 				$this->League->Division->Team->updateAll(array('seed' => 0), array('Team.division_id' => $divisions));
 
@@ -596,7 +593,7 @@ class LeaguesController extends AppController {
 					$unseeded = Set::extract('/Team[seed=0]', $division);
 					if (!empty($unseeded)) {
 						$seed = 0;
-						foreach ($division['Team'] as $tkey => $team) {
+						foreach ($league['Division'][$key]['Team'] as $tkey => $team) {
 							$this->League->Division->Team->id = $team['id'];
 							$this->League->Division->Team->saveField('seed', ++$seed);
 							$league['Division'][$key]['Team'][$tkey]['seed'] = $seed;
