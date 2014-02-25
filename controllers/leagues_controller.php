@@ -272,6 +272,7 @@ class LeaguesController extends AppController {
 		} else {
 			// TODO: Limit by sport, presumably with JavaScript later on
 		}
+		Configure::load("sport/$sport");
 		$this->set('affiliates', $this->_applicableAffiliates(true));
 		$this->set('add', true);
 
