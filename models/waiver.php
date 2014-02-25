@@ -87,6 +87,8 @@ class Waiver extends AppModel {
 				return $range[0];
 
 			case 'elapsed_time':
+				return date('Y-m-d');
+
 			case 'event':
 				return $date;
 		}
@@ -99,7 +101,7 @@ class Waiver extends AppModel {
 				return $range[1];
 
 			case 'elapsed_time':
-				return date('Y-m-d', strtotime("+{$this->data['Waiver']['duration']} days", strtotime($date)));
+				return date('Y-m-d', strtotime("+{$this->data['Waiver']['duration']} days"));
 
 			case 'event':
 				return $date;
@@ -136,7 +138,7 @@ class Waiver extends AppModel {
 				return array(false, false);
 
 			case 'elapsed_time':
-				return array($date, date('Y-m-d', strtotime("+{$waiver['duration']} days", strtotime($date))));
+				return array(date('Y-m-d'), date('Y-m-d', strtotime("+{$waiver['duration']} days")));
 
 			case 'event':
 				return array($date, $date);
