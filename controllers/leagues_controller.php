@@ -236,6 +236,7 @@ class LeaguesController extends AppController {
 
 	function add() {
 		if (!empty($this->data)) {
+			Configure::load("sport/{$this->data['League']['sport']}");
 			$this->League->create();
 			$transaction = new DatabaseTransaction($this->League);
 			if ($this->League->save($this->data)) {
