@@ -155,12 +155,12 @@ class GameSlotsController extends AppController {
 										'game_date' => $weeks[$date],
 										'OR' => array(
 											array(
-												'game_start >=' => $this->data['GameSlot']['game_start'],
+												'game_start >' => $this->data['GameSlot']['game_start'],
 												'game_start <' => $actual_game_end,
 											),
 											array(
 												'game_start <' => $this->data['GameSlot']['game_start'],
-												'game_end >=' => $this->data['GameSlot']['game_start'],
+												'game_end >' => $this->data['GameSlot']['game_start'],
 											),
 										),
 									),
