@@ -264,7 +264,7 @@ $deposit = !empty($deposit);
 if (!$is_logged_in):
 	echo $this->element('events/not_logged_in');
 else:
-	if (empty($rule_allowed)) {
+	if (count($event['Price']) == 1) {
 		foreach ($messages as $message) {
 			$class = null;
 			if (is_array($message)) {

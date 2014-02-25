@@ -637,11 +637,12 @@ class RegistrationsController extends AppController {
 		}
 		$this->Registration->contain (array(
 			'Event' => array('EventType'),
+			'Price',
 			'Response',
 		));
 		$registration = $this->Registration->read(null, $id);
 
-		if (in_array($registration['Registration']['payment'], Configure::read('registration_some_paid')) && $registration['Event']['cost'] > 0) {
+		if (in_array($registration['Registration']['payment'], Configure::read('registration_some_paid')) && $registration['Price']['cost'] > 0) {
 			$this->Session->setFlash(__('You have already paid for this! Contact the office to arrange a refund.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'checkout'));
 		}
@@ -697,6 +698,7 @@ class RegistrationsController extends AppController {
 		$this->Registration->Person->contain (array (
 			'Registration' => array(
 				'Event' => array('EventType'),
+				'Price',
 				'Response',
 				'conditions' => array('payment !=' => 'Refunded'),
 			),
@@ -709,9 +711,9 @@ class RegistrationsController extends AppController {
 
 		foreach ($unpaid as $key => $registration) {
 			// Check the registration rule, if any
-			if (!empty ($registration['Event']['register_rule'])) {
+			if (!empty ($registration['Price']['register_rule'])) {
 				$rule_obj = AppController::_getComponent ('Rule');
-				if ($rule_obj->init ($registration['Event']['register_rule']) &&
+				if ($rule_obj->init ($registration['Price']['register_rule']) &&
 					!$rule_obj->evaluate ($registration['Event']['affiliate_id'], $person))
 				{
 					$this->Registration->delete($registration['id']);
@@ -779,7 +781,7 @@ class RegistrationsController extends AppController {
 				if (!$this->Registration->saveField('payment', $payment_status)) {
 					$errors[] = sprintf (__('Your payment was approved, but there was an error updating your payment status in the database. Contact the office to ensure that your information is updated, quoting order #<b>%s</b>, or you may not be allowed to be added to rosters, etc.', true), $audit['order_id']);
 				} else {
-					$registrations[$key]['new_payment'] = $payment_status;
+					$registrations[$key]['Registration']['new_payment'] = $payment_status;
 				}
 
 				$this->Registration->Payment->create();
