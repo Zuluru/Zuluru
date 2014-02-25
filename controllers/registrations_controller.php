@@ -486,7 +486,9 @@ class RegistrationsController extends AppController {
 			$data['Registration']['event_id'] = $id;
 			$data['Registration']['total_amount'] = $cost;
 			$data['Registration']['price_id'] = $price;
-			$data['Registration']['deposit_amount'] = $this->data['Registration']['deposit_amount'];
+			if (!empty($this->data['Registration']['deposit_amount'])) {
+				$data['Registration']['deposit_amount'] = $this->data['Registration']['deposit_amount'];
+			}
 
 			// Next, we do the event registration
 			$result = $event_obj->register($event, $data);

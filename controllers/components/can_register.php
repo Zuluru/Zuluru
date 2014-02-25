@@ -237,14 +237,15 @@ class CanRegisterComponent extends Object
 				$messages[] = __('You may register for this because there are no prerequisites.', true);
 				$allowed = true;
 			} else {
-				if (count($rule_allowed)) {
-					if ($rule_allowed[0]['allowed']) {
-						$messages[] = $rule_allowed[0]['message'];
+				if (count($rule_allowed) == 1) {
+					$x = reset($rule_allowed);
+					if ($x['allowed']) {
+						$messages[] = $x['message'];
 						$allowed = true;
 					} else {
-						$messages[] = array('text' => sprintf(__('To register for %s, you must %s.', true), __('this event', true), $rule_allowed[0]['reason']), 'class' => 'error-message');
-						if ($strict && $rule_allowed[0]['redirect']) {
-							$redirect = $rule_allowed[0]['redirect'];
+						$messages[] = array('text' => sprintf(__('To register for %s, you must %s.', true), __('this event', true), $x['reason']), 'class' => 'error-message');
+						if ($strict && $x['redirect']) {
+							$redirect = $x['redirect'];
 						}
 					}
 				} else {
