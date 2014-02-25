@@ -1707,12 +1707,22 @@ class TeamsController extends AppController {
 
 		// Admins and coordinators get to add people based on registration events
 		if ($this->effective_admin || $this->effective_coordinator) {
+			$conditions = array(
+				'Event.open < NOW()',
+				'Event.close > DATE_ADD(CURDATE(), INTERVAL -30 DAY)',
+			);
+			if (!empty($team['Team']['division_id'])) {
+				$divisions = $this->Team->Division->League->divisions($team['Division']['league_id']);
+				if (!empty($divisions)) {
+					// The first element of this array is an array, because those conditions need
+					// to be ANDed together. This is NOT suitable for array_merge.
+					$conditions = array('OR' => array($conditions, 'Event.division_id' => $divisions));
+				}
+			}
+
 			$this->Team->Person->Registration->Event->contain();
 			$events = $this->Team->Person->Registration->Event->find('all', array(
-					'conditions' => array(
-						'Event.open < NOW()',
-						'Event.close > DATE_ADD(CURDATE(), INTERVAL -30 DAY)',
-					),
+					'conditions' => $conditions,
 					'order' => array('Event.event_type_id', 'Event.open', 'Event.close', 'Event.id'),
 			));
 			$this->set(compact('events'));
