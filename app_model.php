@@ -266,7 +266,11 @@ class AppModel extends Model {
 		// have to extract the value to make the function generic
 		$value = array_values($check);
 		$value = $value[0];
-		$data = current($this->data);
+		if (array_key_exists($this->alias, $this->data)) {
+			$data = $this->data[$this->alias];
+		} else {
+			$data = current($this->data);
+		}
 		return ($value >= $data[$field]);
 	}
 
