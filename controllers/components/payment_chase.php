@@ -40,9 +40,10 @@ class PaymentChaseComponent extends PaymentComponent
 			$audit['issuer_invoice'] = $data['x_invoice_num'];
 			$audit['issuer_confirmation'] = $data['exact_issconf'];
 		}
-		preg_match ('#DATE/TIME   : (\d+ [a-z]{3} \d+) (\d+:\d+:\d+)#im', $data['exact_ctr'], $matches);
-		$audit['date'] = $matches[1];
-		$audit['time'] = $matches[2];
+		if (preg_match ('#DATE/TIME   : (\d+ [a-z]{3} \d+) (\d+:\d+:\d+)#im', $data['exact_ctr'], $matches)) {
+			$audit['date'] = $matches[1];
+			$audit['time'] = $matches[2];
+		}
 
 		// Validate the hash
 		if (Configure::read('payment.test_payments')) {
@@ -59,9 +60,7 @@ class PaymentChaseComponent extends PaymentComponent
 		{
 			$registration_ids = explode (',', $data['x_description']);
 			return array(true, $audit, $registration_ids);
-		}
-
-		else {
+		} else {
 			return array(false, $audit, array());
 		}
 	}
