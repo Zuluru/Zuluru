@@ -103,6 +103,42 @@ class UserCacheComponent extends Object
 					}
 					break;
 
+				case 'AllOwnedTeamIDs':
+					if (!isset($self->_controller->Team)) {
+						$self->_controller->Team = ClassRegistry::init('Team');
+					}
+					$self->data[$id][$key] = $self->_controller->Team->TeamsPerson->find('list', array(
+							'conditions' => array(
+								'TeamsPerson.person_id' => $id,
+								'TeamsPerson.role' => Configure::read('privileged_roster_roles'),
+							),
+							'fields' => array('TeamsPerson.team_id'),
+					));
+					break;
+
+				case 'AllRelativeTeamIDs':
+					$relatives = $this->UserCache->read('RelativeIDs', $id);
+					if (!empty($relatives)) {
+						if (!isset($self->_controller->Team)) {
+							$self->_controller->Team = ClassRegistry::init('Team');
+						}
+						$self->data[$id][$key] = $self->_controller->Team->TeamsPerson->find('list', array(
+								'conditions' => array('TeamsPerson.person_id' => $relatives),
+								'fields' => array('TeamsPerson.team_id'),
+						));
+					}
+					break;
+
+				case 'AllTeamIDs':
+					if (!isset($self->_controller->Team)) {
+						$self->_controller->Team = ClassRegistry::init('Team');
+					}
+					$self->data[$id][$key] = $self->_controller->Team->TeamsPerson->find('list', array(
+							'conditions' => array('TeamsPerson.person_id' => $id),
+							'fields' => array('TeamsPerson.team_id'),
+					));
+					break;
+
 				case 'Credits':
 					if (!isset($self->_controller->Credit)) {
 						$self->_controller->Credit = ClassRegistry::init('Credit');

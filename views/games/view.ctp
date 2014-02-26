@@ -116,7 +116,7 @@ $preliminary = ($game['Game']['home_team'] === null || ($game['Division']['sched
 </dl>
 
 <?php
-$my_teams = $this->UserCache->read('TeamIDs');
+$my_teams = $this->UserCache->read('AllTeamIDs');
 if (in_array($game['Game']['home_team'], $my_teams)) {
 	$my_team = $game['HomeTeam'];
 } else if (in_array($game['Game']['away_team'], $my_teams)) {

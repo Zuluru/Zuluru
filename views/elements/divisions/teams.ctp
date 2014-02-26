@@ -5,7 +5,7 @@
 	echo $this->element("leagues/view/{$league_obj->render_element}/heading", compact ('is_manager', 'division', 'league'));
 	$seed = $i = 0;
 	foreach ($teams as $team) {
-		$is_captain = in_array($team['id'], $this->UserCache->read('OwnedTeamIDs'));
+		$is_captain = in_array($team['id'], $this->UserCache->read('AllOwnedTeamIDs'));
 		$classes = array();
 		if (floor ($seed++ / 8) % 2 == 1) {
 			if (++$i % 2 == 1) {
@@ -20,7 +20,7 @@
 		}
 		Team::consolidateRoster ($team);
 		echo $this->element("leagues/view/{$league_obj->render_element}/team",
-				compact('is_manager', 'team', 'division', 'league', 'seed', 'classes'));
+				compact('is_manager', 'is_captain', 'team', 'division', 'league', 'seed', 'classes'));
 	}
 	?>
 	</table>

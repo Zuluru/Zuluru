@@ -175,12 +175,12 @@ class GamesController extends AppController {
 			$contain['Note'] = array(
 				'CreatedPerson',
 				'conditions' => array(
-					'Note.created_team_id' => $this->UserCache->read('TeamIDs'),
+					'Note.created_team_id' => $this->UserCache->read('AllTeamIDs'),
 					'OR' => array(
 						'Note.visibility' => VISIBILITY_TEAM,
 						array('AND' => array(
 							'Note.visibility' => VISIBILITY_CAPTAINS,
-							'Note.created_team_id' => $this->UserCache->read('OwnedTeamIDs'),
+							'Note.created_team_id' => $this->UserCache->read('AllOwnedTeamIDs'),
 						)),
 						array('AND' => array(
 							'Note.visibility' => VISIBILITY_PRIVATE,

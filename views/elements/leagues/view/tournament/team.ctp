@@ -29,6 +29,6 @@ if (count ($classes)) {
 	<?php endif; ?>
 	<?php endif; ?>
 	<td class="actions">
-	<?php echo $this->element('teams/actions', compact('team', 'division', 'league', 'is_manager')); ?>
+	<?php echo $this->element('teams/actions', compact('team', 'division', 'league', 'is_manager', 'is_captain')); ?>
 	</td>
 </tr>

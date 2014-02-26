@@ -52,7 +52,7 @@ class FranchisesController extends AppController {
 			if ($franchise && in_array ($franchise, $this->UserCache->read('FranchiseIDs'))) {
 				// If no team id is specified, or if we're the owner of the specified team, we can proceed
 				$team = $this->_arg('team');
-				if (!$team || in_array ($team, $this->UserCache->read('OwnedTeamIDs'))) {
+				if (!$team || in_array ($team, $this->UserCache->read('AllOwnedTeamIDs'))) {
 					return true;
 				}
 			}

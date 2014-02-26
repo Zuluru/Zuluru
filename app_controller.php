@@ -924,7 +924,7 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Schedule', array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['Team']['id']), array_merge($path, array($key)));
 			$this->_addMenuItem ('Standings', array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Division']['id'], 'team' => $team['Team']['id']), array_merge($path, array($key)));
 			if ($team['Team']['track_attendance'] &&
-				in_array($team['Team']['id'], $this->UserCache->read('TeamIDs')))
+				in_array($team['Team']['id'], $this->UserCache->read('AllTeamIDs')))
 			{
 				$this->_addMenuItem ('Attendance', array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['Team']['id']), array_merge($path, array($key)));
 			}

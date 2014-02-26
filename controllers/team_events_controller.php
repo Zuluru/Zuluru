@@ -58,15 +58,7 @@ class TeamEventsController extends AppController {
 			if ($event) {
 				$team = $this->TeamEvent->field('team_id', array('id' => $event));
 				if ($team) {
-					if (in_array($team, $this->UserCache->read('TeamIDs')) || in_array($team, $this->UserCache->read('RelativeTeamIDs'))) {
-						return true;
-					}
-					// Check past teams too
-					$count = $this->TeamEvent->Team->TeamsPerson->find('count', array('conditions' => array(
-						'person_id' => array_merge(array($this->Auth->user('zuluru_person_id')), $this->UserCache->read('RelativeIDs')),
-						'team_id' => $team,
-					)));
-					if ($count) {
+					if (in_array($team, $this->UserCache->read('AllTeamIDs')) || in_array($team, $this->UserCache->read('AllRelativeTeamIDs'))) {
 						return true;
 					}
 				}
@@ -101,7 +93,6 @@ class TeamEventsController extends AppController {
 		// _read_attendance returns an array, but we only want one event
 		$attendance = reset($this->TeamEvent->_read_attendance($event['Team'], $id));
 		$this->set(compact('event', 'attendance'));
-		$this->set('is_captain', in_array($event['Team']['id'], $this->UserCache->read('OwnedTeamIDs')));
 	}
 
 	function add() {

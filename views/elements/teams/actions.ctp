@@ -50,7 +50,7 @@ if (Configure::read('feature.attendance') && $team['track_attendance']) {
 	}
 
 	if ($this->params['controller'] != 'teams' || $this->params['action'] != 'attendance') {
-		if (in_array($team['id'], $this->UserCache->read('TeamIDs'))) {
+		if (in_array($team['id'], $this->UserCache->read('AllTeamIDs'))) {
 			$links[] = $this->ZuluruHtml->iconLink("attendance_$size.png",
 				array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['id']),
 				array('alt' => __('Attendance', true), 'title' => __('View Season Attendance Report', true)));

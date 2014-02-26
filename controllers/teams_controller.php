@@ -92,15 +92,7 @@ class TeamsController extends AppController {
 		{
 			$team = $this->_arg('team');
 			if ($team) {
-				if (in_array($team, $this->UserCache->read('TeamIDs')) || in_array($team, $this->UserCache->read('RelativeTeamIDs'))) {
-					return true;
-				}
-				// Check past teams too
-				$count = $this->Team->TeamsPerson->find('count', array('conditions' => array(
-					'person_id' => array_merge(array($this->Auth->user('zuluru_person_id')), $this->UserCache->read('RelativeIDs')),
-					'team_id' => $team,
-				)));
-				if ($count) {
+				if (in_array($team, $this->UserCache->read('AllTeamIDs')) || in_array($team, $this->UserCache->read('AllRelativeTeamIDs'))) {
 					return true;
 				}
 			}
@@ -1423,7 +1415,7 @@ class TeamsController extends AppController {
 		));
 
 		// Find any non-game team events
-		if (in_array ($team['Team']['id'], $this->UserCache->read('TeamIDs'))) {
+		if (in_array ($team['Team']['id'], $this->UserCache->read('AllTeamIDs'))) {
 			$team['Game'] = array_merge ($team['Game'], $this->Team->TeamEvent->_read_attendance($team));
 		}
 
@@ -1437,9 +1429,9 @@ class TeamsController extends AppController {
 
 		$this->set(compact('team'));
 		$this->set('is_coordinator', in_array($team['Team']['division_id'], $this->UserCache->read('DivisionIDs')));
-		$this->set('is_captain', in_array($id, $this->UserCache->read('OwnedTeamIDs')));
+		$this->set('is_captain', in_array($id, $this->UserCache->read('AllOwnedTeamIDs')));
 		$this->set('spirit_obj', $this->_getComponent ('Spirit', $team['Division']['League']['sotg_questions'], $this));
-		$this->set('display_attendance', $team['Team']['track_attendance'] && in_array($team['Team']['id'], $this->UserCache->read('TeamIDs')));
+		$this->set('display_attendance', $team['Team']['track_attendance'] && in_array($team['Team']['id'], $this->UserCache->read('AllTeamIDs')));
 		$this->set('annotate', Configure::read('feature.annotations') && in_array($team['Team']['id'], $this->UserCache->read('TeamIDs')));
 		$this->_addTeamMenuItems ($this->Team->data);
 	}
@@ -2899,10 +2891,7 @@ class TeamsController extends AppController {
 		if (!$person) {
 			return 0;
 		}
-		return $this->Team->TeamsPerson->find('count', array(
-				'conditions' => array('person_id' => $person),
-				'contain' => array(),
-		)) - count($this->UserCache->read('TeamIDs', $person));
+		return count($this->UserCache->read('AllTeamIDs', $person)) - count($this->UserCache->read('TeamIDs', $person));
 	}
 
 	function open_count() {
