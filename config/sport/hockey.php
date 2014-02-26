@@ -32,4 +32,8 @@ $config['sport'] = array(
 
 $config['sport']['ratio'] = make_human_options(array_keys($config['sport']['roster_requirements']));
 
+if (file_exists(CONFIGS . 'sport/hockey_custom.php')) {
+	include(CONFIGS . 'sport/hockey_custom.php');
+}
+
 ?>
