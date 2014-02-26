@@ -40,7 +40,7 @@ foreach ($registrations as $registration) {
 	$fields["L_PAYMENTREQUEST_0_QTY$m"] = 1;
 
 	$total_amount += $cost + $tax1 + $tax2;
-	$total_tax += $cost;
+	$total_tax += $tax1 + $tax2;
 	$ids[] = $registration['Registration']['id'];
 	++ $m;
 }
