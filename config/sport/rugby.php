@@ -47,10 +47,10 @@ $config['sport'] = array(
 	'rating_questions' => false,
 );
 
-$config['sport']['ratio'] = make_human_options(array_keys($config['sport']['roster_requirements']));
-
 if (file_exists(CONFIGS . 'sport/rugby_custom.php')) {
 	include(CONFIGS . 'sport/rugby_custom.php');
 }
+
+$config['sport']['ratio'] = make_human_options(array_keys($config['sport']['roster_requirements']));
 
 ?>
