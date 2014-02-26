@@ -91,8 +91,13 @@ class CanRegisterComponent extends Object
 		$continue = true;
 		$messages = array();
 
+		if (in_array($this->person['Person']['status'], array('inactive', 'locked'))) {
+			$messages[] = array('text' => __('Your account is currently inactive, please contact an administrator to reactivate it.', true), 'class' => 'warning-message');
+			$continue = false;
+		}
+
 		// First, some tests based on whether the person has already registered for this.
-		if ($is_registered) {
+		if ($continue && $is_registered) {
 			if ($registrations[0]['Registration']['payment'] == 'Paid' ) {
 				$messages[] = array('text' => __('You have already registered and paid for this event.', true), 'class' => 'open');
 			} else if ($registrations[0]['Registration']['payment'] == 'Waiting' ) {
@@ -130,7 +135,7 @@ class CanRegisterComponent extends Object
 
 		// If there is a preregistration record, we ignore open and close times.
 		$prereg = Set::extract ("/Preregistration[event_id={$event['Event']['id']}]", $this->person['Preregistration']);
-		if (empty ($prereg) && !$ignore_date) {
+		if ($continue && empty ($prereg) && !$ignore_date) {
 			$open = strtotime(min(Set::extract('/open', $prices)));
 			$close = strtotime(max(Set::extract('/close', $prices)));
 			// Admins can test registration before it opens...

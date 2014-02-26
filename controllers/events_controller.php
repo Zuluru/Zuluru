@@ -91,10 +91,15 @@ class EventsController extends AppController {
 		}
 		$id = $this->Auth->user('zuluru_person_id');
 
+		if (in_array($this->UserCache->read('Person.status'), array('inactive', 'locked'))) {
+			$this->Session->setFlash(__('Your account is currently inactive, please contact an administrator to reactivate it.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
 		// Check whether this user is considered active for the purposes of registration
 		$is_active = ($this->UserCache->read('Person.status') == 'active');
 		// If the user is not yet approved, we may let them register but not pay
-		if (!$is_active && $this->UserCache->read('Person.status') == 'new' && Configure::read('registration.allow_tentative')) {
+		if ($this->UserCache->read('Person.status') == 'new' && Configure::read('registration.allow_tentative')) {
 			$person = array(
 				'Person' => $this->UserCache->read('Person'),
 				'Affiliate' => $this->UserCache->read('Affiliates'),
