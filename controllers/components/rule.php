@@ -73,6 +73,14 @@ class RuleComponent extends Object
 		'have a gender of female'						=> 'be female',
 		'have a gender of male'							=> 'be male',
 
+		'have a publish_email of 1'						=> 'publish your email address',
+		'have a publish_home_phone of 1'				=> 'publish your home phone',
+		'have a publish_work_phone of 1'				=> 'publish your work phone',
+		'have a publish_mobile_phone of 1'				=> 'publish your mobile phone',
+
+		'publish your home phone OR publish your work phone OR publish your mobile phone' => 'publish a phone number',
+		'publish your email address OR publish a phone number' => 'publish your email address or a phone number',
+
 		'have a team count of 0'						=> 'not be on another roster',
 	);
 
