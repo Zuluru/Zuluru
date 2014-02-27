@@ -13,9 +13,15 @@ echo Router::url(array('controller' => 'games', 'action' => 'submit_score', 'gam
 
 
 <?php if ($division['finalize_after'] > 0): ?>
-Note that failure to report your score within <?php echo intval($division['finalize_after'] / 24); ?> days of your game will result in automatic score approval<?php
+Remember to report the score within <?php
+if ($division['finalize_after'] > 48) {
+	echo intval($division['finalize_after'] / 24) . ' ' . __('days', true);
+} else {
+	echo $division['finalize_after'] . ' ' . __('hours', true);
+}
+?> of your game to avoid automatic score approval<?php
 if (Configure::read('scoring.missing_score_spirit_penalty') > 0): ?>
- and a loss of <?php echo Configure::read('scoring.missing_score_spirit_penalty'); ?> Spirit points (not including Spirit points deducted by your opponent)<?php endif; ?>.
+ and a loss of <?php echo Configure::read('scoring.missing_score_spirit_penalty'); ?> Spirit points<?php endif; ?>.
 
 <?php endif; ?>
 Thanks,

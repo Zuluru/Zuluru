@@ -16,9 +16,15 @@ $url = Router::url(array('controller' => 'games', 'action' => 'submit_score', 'g
 echo $this->Html->link('here', $url);
 ?>.</p>
 <?php if ($division['finalize_after'] > 0): ?>
-<p>Note that failure to report your score within <?php echo intval($division['finalize_after'] / 24); ?> days of your game will result in automatic score approval<?php
+<p>Remember to report the score within <?php
+if ($division['finalize_after'] > 48) {
+	echo intval($division['finalize_after'] / 24) . ' ' . __('days', true);
+} else {
+	echo $division['finalize_after'] . ' ' . __('hours', true);
+}
+?> of your game to avoid automatic score approval<?php
 if (Configure::read('scoring.missing_score_spirit_penalty') > 0): ?>
- and a loss of <?php echo Configure::read('scoring.missing_score_spirit_penalty'); ?> Spirit points (not including Spirit points deducted by your opponent)<?php endif; ?>.</p>
+ and a loss of <?php echo Configure::read('scoring.missing_score_spirit_penalty'); ?> Spirit points<?php endif; ?>.</p>
 <?php endif; ?>
 <p>Thanks,
 <br /><?php echo Configure::read('email.admin_name'); ?>
