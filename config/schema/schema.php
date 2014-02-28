@@ -533,7 +533,7 @@ class ZuluruSchema extends CakeSchema {
 		'allow_deposit' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'fixed_deposit' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'deposit_only' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
-		'minimum_deposit' => array('type' => 'float', 'null' => true, 'default' => NULL, 'length' => '7,2'),
+		'minimum_deposit' => array('type' => 'float', 'null' => false, 'default' => '0', 'length' => '7,2'),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
