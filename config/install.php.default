@@ -45,6 +45,9 @@ $config['additional_css'] = array();
 // Set up where certain resources are found in the filesystem.
 $config['folders'] = array(
 	// The filesystem location where files for permits, etc, shall live.
+	// The league_base setting in the 'urls' section below will be the URL
+	// where this folder is visible at. If you are allowing profile photos,
+	// this must have a webserver-writable folder called "temp" in it.
 	'league_base'		=> '{webroot}/files',
 
 	// The filesystem location where uploaded files go
@@ -55,7 +58,21 @@ $config['folders'] = array(
 );
 
 // Set up where certain resources are found in the web site.
+//
+// Note that, if Zuluru is running in a subfolder (e.g.
+// http://example.com/zuluru), URLs below will all have the
+// subfolder name automatically prefixed, unless you include
+// http:// at the beginning.
+//
+// Some examples of where Zuluru will look for CSS files based
+// on the configuration:
+// zuluru_css                 Zuluru URL                    CSS URL
+// /css/                      http://example.com/           http://example.com/css/
+// /css/                      http://example.com/zuluru/    http://example.com/zuluru/css/
+// http://example.com/css/    http://example.com/zuluru/    http://example.com/css/
+// 
 $config['urls'] = array(
+	// Name of the domain this copy of Zuluru is running on
 	'domain'			=> '{domain}',
 
 	// Location of Zuluru CSS and JS files, must end in /
@@ -65,9 +82,6 @@ $config['urls'] = array(
 
 	// URL where files for permits, etc., shall live.
 	'league_base'		=> '/files',
-
-	// URL for uploadable files (e.g. player photos)
-	'uploads'			=> '/img/upload',
 
 	// URL for your organization's privacy policy
 	'privacy_policy'	=> '/privacy',
