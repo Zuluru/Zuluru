@@ -20,8 +20,12 @@ $this->Html->addCrumb (__('Search', true));
 <?php endif; ?>
 
 <?php
-echo $this->element('people/search_results', array('extra_url' => array('Change password' => array('controller' => 'users', 'action' => 'change_password')),
-		'extra_url_parameter' => 'user', 'extra_url_field' => 'user_id'));
+if ($is_admin || $is_manager) {
+	echo $this->element('people/search_results', array('extra_url' => array('Change password' => array('controller' => 'users', 'action' => 'change_password')),
+			'extra_url_parameter' => 'user', 'extra_url_field' => 'user_id'));
+} else {
+	echo $this->element('people/search_results');
+}
 ?>
 
 <?php if (!$this->params['isAjax']): ?>
