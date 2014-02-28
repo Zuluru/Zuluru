@@ -271,11 +271,13 @@ class GamesController extends AppController {
 			'HomeTeam',
 			'AwayTeam',
 			'GameSlot' => array('Field' => array('Facility' => 'Region')),
+			'Division',
 		));
 		$game = $this->Game->read(null, $game_id);
-		if (!$game || !$game['Game']['published'] ||
+		if (!$game || !$game['Game']['published'] || strtotime($game['Division']['close']) < time() - 14 * DAY ||
 			($team_id != $game['Game']['home_team'] && $team_id != $game['Game']['away_team']))
 		{
+			$this->header('HTTP/1.1 410 Gone');
 			return;
 		}
 		$this->Configuration->loadAffiliate($game['GameSlot']['Field']['Facility']['Region']['affiliate_id']);

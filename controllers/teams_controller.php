@@ -1445,11 +1445,9 @@ class TeamsController extends AppController {
 
 		$this->Team->contain(array ('Division' => 'League'));
 		$team = $this->Team->read(null, $id);
-		if (!$team) {
+		if (!$team || empty($team['Division']['id']) || strtotime($team['Division']['close']) < time() - 14 * DAY) {
+			$this->header('HTTP/1.1 410 Gone');
 			return;
-		}
-		if (empty($team['Division']['id'])) {
-			$this->Configuration->loadAffiliate($team['Team']['affiliate_id']);
 		} else {
 			$this->Configuration->loadAffiliate($team['Division']['League']['affiliate_id']);
 		}
