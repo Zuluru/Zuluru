@@ -6,7 +6,7 @@ $this->Html->addCrumb ("{$field['Facility']['name']} ({$field['Facility']['code'
 <?php
 $map_vars = array('id', 'num', 'latitude', 'longitude', 'angle', 'width', 'length', 'zoom', 'surface');
 
-$zuluru_base = Configure::read('urls.zuluru_base');
+$zuluru_base = Configure::read('urls.zuluru_img');
 $gmaps_key = Configure::read('site.gmaps_key');
 $address = "{$field['Facility']['location_street']}, {$field['Facility']['location_city']}";
 $full_address = "{$field['Facility']['location_street']}, {$field['Facility']['location_city']}, {$field['Facility']['location_province']}";

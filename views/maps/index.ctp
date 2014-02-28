@@ -5,7 +5,7 @@ $this->Html->addCrumb (sprintf(__('All %s', true), Configure::read('ui.fields_ca
 <?php
 $map_vars = array('id', 'name', 'code', 'location_street');
 
-$zuluru_base = Configure::read('urls.zuluru_base');
+$zuluru_base = Configure::read('urls.zuluru_img');
 $gmaps_key = Configure::read('site.gmaps_key');
 
 // Build the list of variables to set for the JS.

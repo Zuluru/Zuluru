@@ -58,9 +58,6 @@ $config['folders'] = array(
 $config['urls'] = array(
 	'domain'			=> '{domain}',
 
-	// Base URL for Zuluru, must not end in / (use '' if Zuluru lives in your root)
-	'zuluru_base'		=> '',
-
 	// Location of Zuluru CSS and JS files, must end in /
 	'zuluru_css'		=> '/css/',
 	'zuluru_js'			=> '/js/',
