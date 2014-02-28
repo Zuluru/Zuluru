@@ -84,7 +84,7 @@ $config['urls'] = array(
 	'league_base'		=> '/files',
 
 	// URL for your organization's privacy policy
-	'privacy_policy'	=> '/privacy',
+	'privacy_policy'	=> '/pages/privacy',
 
 	// URLs for various user management pages.
 	// These values are defaults and only need to be changed if you're using
