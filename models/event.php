@@ -47,14 +47,6 @@ class Event extends AppModel {
 				'message' => 'Indicate whether multiple registrations are allowed.',
 			),
 		),
-		'register_rule' => array(
-			'valid' => array(
-				'rule' => array('rule'),
-				'required' => false,
-				'allowEmpty' => true,
-				'message' => 'There is an error in the rule syntax.',
-			),
-		),
 		'division_id' => array(
 			'numeric' => array(
 				'rule' => array('inquery', 'Division', 'id'),

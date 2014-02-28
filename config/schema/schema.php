@@ -203,7 +203,6 @@ class ZuluruSchema extends CakeSchema {
 		'questionnaire_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'division_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'custom' => array('type' => 'text', 'null' => true, 'default' => NULL),
-		'register_rule' => array('type' => 'text', 'null' => true, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'name' => array('column' => 'name', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
