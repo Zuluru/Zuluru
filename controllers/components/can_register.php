@@ -189,7 +189,7 @@ class CanRegisterComponent extends Object
 					if ($all_rules) {
 						$rule_allowed[$key] = array(
 							'allowed' => false,
-							'message' => sprintf(__('Registration for %s is not yet open.', true), $name),
+							'reason' => sprintf(__('Registration for %s is not yet open.', true), $name),
 						);
 					}
 					continue;
@@ -198,7 +198,7 @@ class CanRegisterComponent extends Object
 					if ($all_rules) {
 						$rule_allowed[$key] = array(
 							'allowed' => false,
-							'message' => sprintf(__('Registration for %s has closed.', true), $name),
+							'reason' => sprintf(__('Registration for %s has closed.', true), $name),
 						);
 					}
 					continue;
