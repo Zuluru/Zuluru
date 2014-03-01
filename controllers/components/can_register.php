@@ -231,6 +231,7 @@ class CanRegisterComponent extends Object
 						'allowed' => true,
 						'message' => __('You may register for this because there are no prerequisites.', true),
 					);
+					$allowed = true;
 				}
 			}
 

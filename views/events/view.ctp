@@ -250,12 +250,12 @@ $deposit = !empty($deposit);
 		<td colspan="<?php echo 5 + $deposit; ?>"><?php echo $price['description']; ?></td>
 	</tr>
 	<?php endif; ?>
-	<?php if (!$rule_allowed[$key]['allowed'] && !empty($rule_allowed[$key]['reason'])): ?>
+	<?php if (isset($rule_allowed) && !$rule_allowed[$key]['allowed'] && !empty($rule_allowed[$key]['reason'])): ?>
 	<tr<?php echo $class;?>>
 		<td colspan="<?php echo 5 + $deposit; ?>"><?php echo $rule_allowed[$key]['reason']; ?></td>
 	</tr>
 	<?php endif; ?>
-	<?php if ($rule_allowed[$key]['allowed'] && !empty($rule_allowed[$key]['message'])): ?>
+	<?php if (isset($rule_allowed) && $rule_allowed[$key]['allowed'] && !empty($rule_allowed[$key]['message'])): ?>
 	<tr<?php echo $class;?>>
 		<td colspan="<?php echo 5 + $deposit; ?>"><?php echo $rule_allowed[$key]['message']; ?></td>
 	</tr>
@@ -269,15 +269,13 @@ $deposit = !empty($deposit);
 if (!$is_logged_in):
 	echo $this->element('events/not_logged_in');
 else:
-	if (count($event['Price']) == 1) {
-		foreach ($messages as $message) {
-			$class = null;
-			if (is_array($message)) {
-				$class = $message['class'];
-				$message = $message['text'];
-			}
-			echo $this->Html->para ($class, $message);
+	foreach ($messages as $message) {
+		$class = null;
+		if (is_array($message)) {
+			$class = $message['class'];
+			$message = $message['text'];
 		}
+		echo $this->Html->para ($class, $message);
 	}
 	if ($allowed) {
 		echo $this->Html->tag ('h2', $this->Html->link(__('Register now!', true),
