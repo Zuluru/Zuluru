@@ -629,6 +629,7 @@ class LeagueTypeComponent extends Object
 						}
 					}
 					$this->resolveTies($teams, $tied);
+					$j = max($j, $i + 1);
 				}
 			}
 		}
