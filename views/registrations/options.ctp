@@ -69,9 +69,16 @@ $deposit = !empty($deposit);
 		<td colspan="<?php echo 5 + $deposit; ?>"><?php echo $price['description']; ?></td>
 	</tr>
 	<?php endif; ?>
+	<?php if (!$rule_allowed[$key]['allowed'] && !empty($rule_allowed[$key]['reason'])): ?>
+	<tr<?php echo $class;?>>
+		<td colspan="<?php echo 5 + $deposit; ?>"><?php echo $rule_allowed[$key]['reason']; ?></td>
+	</tr>
+	<?php endif; ?>
+	<?php if ($rule_allowed[$key]['allowed'] && !empty($rule_allowed[$key]['message'])): ?>
 	<tr<?php echo $class;?>>
 		<td colspan="<?php echo 5 + $deposit; ?>"><?php echo $rule_allowed[$key]['message']; ?></td>
 	</tr>
+	<?php endif; ?>
 	<?php endforeach; ?>
 	</table>
 </div>
