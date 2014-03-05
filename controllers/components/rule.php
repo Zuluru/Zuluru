@@ -73,6 +73,9 @@ class RuleComponent extends Object
 		'have a gender of female'						=> 'be female',
 		'have a gender of male'							=> 'be male',
 
+		'have a has_dog of 0'							=> 'not have a dog',
+		'have a has_dog of 1'							=> 'have a dog',
+
 		'have a publish_email of 1'						=> 'publish your email address',
 		'have a publish_home_phone of 1'				=> 'publish your home phone',
 		'have a publish_work_phone of 1'				=> 'publish your work phone',
