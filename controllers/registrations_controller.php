@@ -1347,7 +1347,7 @@ class RegistrationsController extends AppController {
 				if ($amount == $outstanding) {
 					$new_payment = 'Paid';
 				} else {
-					$new_payment = 'Pending';
+					$new_payment = 'Deposit';
 				}
 
 				$this->Registration->id = $registration['Registration']['id'];
