@@ -47,6 +47,8 @@ if (!empty($registrations)):
 		?></td>
 		<td><?php echo $this->Number->currency ($cost + $tax1 + $tax2); ?></td>
 		<td class="actions"><?php
+		echo $this->Html->link (__('Edit', true),
+				array('action' => 'edit', 'registration' => $registration['Registration']['id']));
 		if (in_array($registration['Registration']['payment'], Configure::read('registration_none_paid'))) {
 			echo $this->Html->link (__('Unregister', true),
 					array('action' => 'unregister', 'registration' => $registration['Registration']['id']),
@@ -96,6 +98,11 @@ if (!empty($other)):
 		<td><?php echo $this->Number->currency ($cost + $tax1 + $tax2); ?></td>
 		<td><?php __($registration['reason']); ?></td>
 		<td class="actions"><?php
+			if (!empty($registration['change_price'])) {
+				echo $this->Html->link (__('Reregister', true),
+						array('action' => 'edit', 'registration' => $registration['Registration']['id']));
+			}
+
 			if (!in_array($registration['Registration']['payment'], Configure::read('registration_some_paid'))) {
 				echo $this->Html->link (__('Unregister', true),
 						array('action' => 'unregister', 'registration' => $registration['Registration']['id']),

@@ -20,11 +20,13 @@ class CanRegisterComponent extends Object
 	 *		'ignore_date': If true, ignore open and close dates (default false)
 	 *		'strict': If false, allow things with prerequisites that are not yet filled but can easily be (default true)
 	 *		'waiting' If true, ignore the cap to allow waiting list registrations (default false)
-	 *		'all_rules': If true, test rules for all price points and return an array of results (default false)
+	 *		'all_rules': If true, test tries all price points instead of exiting as soon as an allowed one is found (default false)
+	 *		'for_edit': If true, we are editing a registration, so skip tests related to already being registered (default false)
+	 *		'simple_output': If true, output messages are consolidated into a single string (default false)
 	 * @return mixed True if the user can register for the event
 	 */
 	function test($person_id, $event, $options = array()) {
-		extract(array_merge(array('ignore_date' => false, 'strict' => true, 'waiting' => false, 'all_rules' => false), $options));
+		extract(array_merge(array('ignore_date' => false, 'strict' => true, 'waiting' => false, 'all_rules' => false, 'for_edit' => false, 'simple_output' => false), $options));
 
 		if (!isset ($this->Html)) {
 			App::import ('helper', 'Html');
@@ -32,10 +34,6 @@ class CanRegisterComponent extends Object
 		}
 
 		// Get everything from the user record that the decisions below might need
-		if (!isset ($this->_controller->Person)) {
-			$this->_controller->Person = ClassRegistry::init ('Person');
-		}
-
 		if ($person_id != $this->person_id) {
 			$this->person_id = $person_id;
 			$this->person = array(
@@ -80,6 +78,9 @@ class CanRegisterComponent extends Object
 		// If the user is not yet approved, we may let them register but not pay
 		if ($this->person['Person']['status'] == 'new' && Configure::read('registration.allow_tentative')) {
 			if ($this->person_duplicates === null) {
+				if (!isset ($this->_controller->Person)) {
+					$this->_controller->Person = ClassRegistry::init ('Person');
+				}
 				$this->person_duplicates = $this->_controller->Person->findDuplicates ($this->person);
 			}
 			if (empty ($this->person_duplicates)) {
@@ -97,7 +98,7 @@ class CanRegisterComponent extends Object
 		}
 
 		// First, some tests based on whether the person has already registered for this.
-		if ($continue && $is_registered) {
+		if ($continue && $is_registered && !$for_edit) {
 			if ($registrations[0]['Registration']['payment'] == 'Paid' ) {
 				$messages[] = array('text' => __('You have already registered and paid for this event.', true), 'class' => 'open');
 			} else if ($registrations[0]['Registration']['payment'] == 'Waiting' ) {
@@ -127,10 +128,16 @@ class CanRegisterComponent extends Object
 		}
 
 		// Price data comes in different forms, depending on how it was read
-		if (array_key_exists('Price', $event)) {
-			$prices = $event['Price'];
-		} else {
+		if (!empty($event['Event']['Price'])) {
 			$prices = $event['Event']['Price'];
+		} else {
+			$prices = $event['Price'];
+			if (array_key_exists('id', $prices)) {
+				$prices = array($prices);
+			}
+		}
+		if (isset($price_id)) {
+			$prices = Set::extract("/Price[id={$price_id}]/.", array('Price' => $prices));
 		}
 
 		// If there is a preregistration record, we ignore open and close times.
@@ -154,7 +161,7 @@ class CanRegisterComponent extends Object
 			$continue = false;
 		}
 
-		if ($continue) {
+		if ($continue && !$for_edit) {
 			if ($cap == 0) {
 				// 0 means that nobody of this gender is allowed.
 				$messages[] = array('text' => __('This event is for the opposite gender only.', true), 'class' => 'error-message');
@@ -180,27 +187,23 @@ class CanRegisterComponent extends Object
 
 			// Check each price point
 			$rule_obj = AppController::_getComponent ('Rule');
-			$rule_allowed = array();
-			foreach ($prices as $key => $price) {
-				$name = empty($prices[$key]['name']) ? __('this event', true) : $prices[$key]['name'];
+			$price_allowed = array();
+			foreach ($prices as $price) {
+				$name = empty($price['name']) ? __('this event', true) : $price['name'];
 
 				// Admins can test registration before it opens...
 				if (!$this->_controller->is_admin && strtotime($price['open']) + Configure::read('timezone.adjust') * 60 > time()) {
-					if ($all_rules) {
-						$rule_allowed[$key] = array(
-							'allowed' => false,
-							'reason' => sprintf(__('Registration for %s is not yet open.', true), $name),
-						);
-					}
+					$price_allowed[$price['id']] = array(
+						'allowed' => false,
+						'messages' => sprintf(__('Registration for %s is not yet open.', true), $name),
+					);
 					continue;
 				}
 				if (time() > strtotime($price['close']) + Configure::read('timezone.adjust') * 60) {
-					if ($all_rules) {
-						$rule_allowed[$key] = array(
-							'allowed' => false,
-							'reason' => sprintf(__('Registration for %s has closed.', true), $name),
-						);
-					}
+					$price_allowed[$price['id']] = array(
+						'allowed' => false,
+						'messages' => sprintf(__('Registration for %s has closed.', true), $name),
+					);
 					continue;
 				}
 
@@ -209,27 +212,25 @@ class CanRegisterComponent extends Object
 					if (!$rule_obj->init ($price['register_rule'])) {
 						$this->_controller->Session->setFlash(__('Failed to parse the rule', true), 'default', array('class' => 'error'));
 					} else {
-						$rule_allowed[$key] = array(
+						$price_allowed[$price['id']] = array(
 							'allowed' => $rule_obj->evaluate($event['Event']['affiliate_id'], $this->person, null, $strict, false),
 							'reason' => $rule_obj->reason,
-							'message' => sprintf(__('To register for %s, you must %s.', true), $name, $rule_obj->reason),
-							'redirect' => $rule_obj->redirect,
 						);
-						if ($rule_allowed[$key]['allowed']) {
+						if ($price_allowed[$price['id']]['allowed']) {
 							$allowed = true;
-							$msg = sprintf(__('You may register for %s.', true), $name);
-							if ($all_rules) {
-								$rule_allowed[$key]['message'] = $msg;
-							} else {
-								$messages[] = $msg;
+							$price_allowed[$price['id']]['messages'] = sprintf(__('You may register for %s.', true), $name);
+							if (!$all_rules) {
 								break;
 							}
+						} else {
+							$price_allowed[$price['id']]['messages'] = sprintf(__('To register for %s, you must %s.', true), $name, $rule_obj->reason);
+							$price_allowed[$price['id']]['redirect'] = $rule_obj->redirect;
 						}
 					}
-				} else if ($all_rules) {
-					$rule_allowed[$key] = array(
+				} else {
+					$price_allowed[$price['id']] = array(
 						'allowed' => true,
-						'message' => __('You may register for this because there are no prerequisites.', true),
+						'messages' => __('You may register for this because there are no prerequisites.', true),
 					);
 					$allowed = true;
 				}
@@ -239,36 +240,44 @@ class CanRegisterComponent extends Object
 			// which means that at least one thing went through the rule check above.
 			if ($allowed) {
 				// Nothing to do here
-			} else if (empty($rule_allowed)) {
+			} else if (empty($price_allowed)) {
 				$messages[] = __('You may register for this because there are no prerequisites.', true);
 				$allowed = true;
 			} else {
-				if (count($rule_allowed) == 1) {
-					$x = reset($rule_allowed);
-					if ($x['allowed']) {
-						$messages[] = $x['message'];
+				if (count($price_allowed) == 1) {
+					$price_result = reset($price_allowed);
+					if ($price_result['allowed']) {
+						$messages[] = $price_result['messages'];
 						$allowed = true;
 					} else {
-						$messages[] = array('text' => sprintf(__('To register for %s, you must %s.', true), __('this event', true), $x['reason']), 'class' => 'error-message');
-						if ($strict && $x['redirect']) {
-							$redirect = $x['redirect'];
+						$messages[] = array('text' => sprintf(__('To register for %s, you must %s.', true), __('this event', true), $price_result['reason']), 'class' => 'error-message');
+						if ($strict && $price_result['redirect']) {
+							$redirect = $price_result['redirect'];
 						}
 					}
 				} else {
-					$reasons = array_unique(Set::extract('/reason', $rule_allowed));
+					$reasons = array_unique(Set::extract('/reason', $price_allowed));
 					if (count($reasons) == 1) {
 						$messages[] = array('text' => sprintf(__('To register for %s, you must %s.', true), __('this event', true), reset($reasons)), 'class' => 'error-message');
 					} else {
-						foreach ($rule_allowed as $key => $reason) {
-							$name = empty($prices[$key]['name']) ? __('this event', true) : $prices[$key]['name'];
-							$messages[] = array('text' => sprintf(__('To register for %s, you must %s', true), $name, $reason['reason']), 'class' => 'error-message');
+						foreach ($price_allowed as $price_result) {
+							$messages[] = array('text' => $price_result['messages'], 'class' => 'error-message');
 						}
 					}
 				}
 			}
 		}
 
-		return compact('allowed', 'messages', 'redirect', 'rule_allowed');
+		if ($simple_output) {
+			foreach ($messages as $key => $message) {
+				if (is_array($message)) {
+					$messages[$key] = $message['text'];
+				}
+			}
+			$messages = implode('<br>', $messages);
+		}
+
+		return compact('allowed', 'messages', 'redirect', 'price_allowed');
 	}
 }
 ?>

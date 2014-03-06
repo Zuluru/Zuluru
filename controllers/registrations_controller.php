@@ -19,11 +19,24 @@ class RegistrationsController extends AppController {
 		// Anyone that's logged in can perform these operations
 		if (in_array ($this->params['action'], array(
 				'register',
+				'register_payment_fields',
 				'unregister',
 				'checkout',
 		)))
 		{
 			return true;
+		}
+
+		// Anyone can perform these operations on their own unpaid registrations
+		if (in_array ($this->params['action'], array(
+				'edit',
+		)))
+		{
+			// If a registration id is specified, check if we're the owner of that registration
+			$registration = $this->_arg('registration');
+			if ($registration) {
+				return in_array($registration, Set::extract('/Registration/id', $this->UserCache->read('RegistrationsUnpaid')));
+			}
 		}
 
 		if ($this->is_manager) {
@@ -357,18 +370,11 @@ class RegistrationsController extends AppController {
 			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
 
-		$price = $this->_arg('option');
-		if ($price) {
-			$price_condition = array('Price.id' => $price);
-		} else {
-			$price_condition = array();
-		}
-
+		$price_id = $this->_arg('option');
 		$this->Registration->Event->contain (array(
 			'EventType',
 			'Price' => array(
 				'order' => array('Price.open', 'Price.close', 'Price.id'),
-				'conditions' => $price_condition,
 			),
 			'Questionnaire' => array(
 				'Question' => array(
@@ -385,42 +391,19 @@ class RegistrationsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
-		if (empty($event['Price'])) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('option', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
-		}
 		$this->Configuration->loadAffiliate($event['Event']['affiliate_id']);
 
 		// Re-do "can register" checks to make sure someone hasn't hand-fed us a URL
 		$waiting = $this->_arg('waiting');
-		$test = $this->CanRegister->test ($this->Auth->user('zuluru_person_id'), $event, array('waiting' => $waiting, 'all_rules' => true));
+		$test = $this->CanRegister->test ($this->Auth->user('zuluru_person_id'), $event, array('waiting' => $waiting, 'all_rules' => true, 'simple_output' => true));
 		if (!$test['allowed']) {
-			if ($this->is_logged_in && !empty($test['redirect'])) {
-				$this->redirect(array_merge($test['redirect'], array('return' => true)), $this->here);
-			}
-			foreach ($test['messages'] as $key => $message) {
-				if (is_array ($message)) {
-					$test['messages'][$key] = $message['text'];
-				}
-			}
-			$this->Session->setFlash(implode ('<br>', $test['messages']), 'default', array('class' => 'warning'));
+			$this->Session->setFlash($test['messages'], 'default', array('class' => 'warning'));
 			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
 
-		if (count($event['Price']) > 1) {
-			$this->set(compact('event'));
-			$this->set($test);
-			$this->render('options');
-			return;
-		} else {
-			$price = $event['Price'][0]['id'];
-		}
-
-		$cost = $event['Price'][0]['cost'] + $event['Price'][0]['tax1'] + $event['Price'][0]['tax2'];
-
 		$event_obj = $this->_getComponent ('EventType', $event['EventType']['type'], $this);
 		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], $this->Auth->user('zuluru_person_id'));
-		$this->set(compact('id', 'event', 'event_obj', 'waiting'));
+		$this->set(compact('id', 'event', 'price_id', 'event_obj', 'waiting'));
 
 		// Data was posted, save it and proceed
 		if (!empty($this->data)) {
@@ -438,12 +421,33 @@ class RegistrationsController extends AppController {
 			// Registration->saveAll to validate properly.
 			$this->Registration->Response->set ($data);
 
-			// Validation of payment amounts is a manual process
-			if ($event['Price'][0]['allow_deposit'] && $this->data['Registration']['payment_type'] == 'Deposit') {
-				if ($event['Price'][0]['fixed_deposit']) {
-					$this->data['Registration']['deposit_amount'] = $event['Price'][0]['minimum_deposit'];
-				} else if ($this->data['Registration']['deposit_amount'] < $event['Price'][0]['minimum_deposit']) {
-					$this->Registration->validationErrors['deposit_amount'] = sprintf(__('A minimum deposit of $%s is required.', true), $event['Price'][0]['minimum_deposit']);
+			// Find the requested price option
+			$price = Set::extract("/Price[id={$data['Registration']['price_id']}]/.", $event);
+
+			// Validation of payment data is a manual process
+			if (empty($price)) {
+				$this->Registration->validationErrors['price_id'] = 'Select a valid price option.';
+			} else {
+				$price = reset($price);
+				$cost = $price['cost'] + $price['tax1'] + $price['tax2'];
+				$test = $test['price_allowed'][$price['id']];
+				$this->set(compact('price'));
+				$this->set($test);
+
+				if (!$test['allowed']) {
+					$this->Registration->validationErrors['price_id'] = $test['reason'];
+				} else {
+					if (!$price['allow_deposit']) {
+						$data['Registration']['payment_type'] = 'Full';
+					} else if ($this->data['Registration']['payment_type'] == 'Deposit') {
+						if ($price['fixed_deposit']) {
+							$this->data['Registration']['deposit_amount'] = $price['minimum_deposit'];
+						} else if ($this->data['Registration']['deposit_amount'] < $price['minimum_deposit']) {
+							$this->Registration->validationErrors['deposit_amount'] = sprintf(__('A minimum deposit of $%s is required.', true), $price['minimum_deposit']);
+						} else if ($this->data['Registration']['deposit_amount'] >= $cost) {
+							$this->Registration->validationErrors['deposit_amount'] = sprintf(__('This deposit exceeds the total cost of $%s.', true), $cost);
+						}
+					}
 				}
 			}
 
@@ -464,6 +468,22 @@ class RegistrationsController extends AppController {
 				$this->Session->setFlash(__('Your preferences for this registration have been saved.', true), 'default', array('class' => 'success'));
 			}
 			$save = true;
+		} else if (!empty($price_id)) {
+			$price = Set::extract("/Price[id={$price_id}]/.", $event);
+
+			if (empty($price)) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('price point', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
+			} else {
+				$price = reset($price);
+				$test = $test['price_allowed'][$price['id']];
+				$this->set(compact('price'));
+				$this->set($test);
+			}
+		} else if (count($event['Price']) == 1) {
+			$test = $test['price_allowed'][$event['Price'][0]['id']];
+			$this->set('price', $event['Price'][0]);
+			$this->set($test);
 		}
 
 		if (empty ($event['Questionnaire']['Question'])) {
@@ -485,7 +505,6 @@ class RegistrationsController extends AppController {
 
 			$data['Registration']['event_id'] = $id;
 			$data['Registration']['total_amount'] = $cost;
-			$data['Registration']['price_id'] = $price;
 			if (!empty($this->data['Registration']['deposit_amount'])) {
 				$data['Registration']['deposit_amount'] = $this->data['Registration']['deposit_amount'];
 			}
@@ -514,6 +533,8 @@ class RegistrationsController extends AppController {
 					$data['Response'] = array_merge($data['Response'], $result);
 				}
 				$data['Registration']['payment'] = 'Paid';
+			} else {
+				unset($data['Registration']['payment']);
 			}
 
 			if (empty ($data['Response'])) {
@@ -545,9 +566,29 @@ class RegistrationsController extends AppController {
 		}
 	}
 
+	function register_payment_fields() {
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
+		if (!empty($this->params['url']['data']['Registration']['price_id'])) {
+			$contain = array('Event');
+			$registration = $this->_arg('registration');
+			if ($registration) {
+				$contain['Registration'] = array('conditions' => array('Registration.id' => $registration));
+			}
+
+			$this->Registration->Price->contain ($contain);
+			$price = $this->Registration->Price->read(null, $this->params['url']['data']['Registration']['price_id']);
+			if (!empty($price)) {
+				$test = $this->CanRegister->test ($this->Auth->user('zuluru_person_id'), $price, array('for_edit' => $this->_arg('for_edit')));
+				$this->set(compact('price'));
+				$this->set($test);
+			}
+		}
+	}
+
 	function checkout($op = null) {
 		$this->Registration->contain (array(
-			'Event' => array('EventType'),
+			'Event' => array('EventType', 'Price'),
 			'Price',
 			'Payment',
 			'Response',
@@ -575,6 +616,15 @@ class RegistrationsController extends AppController {
 		$other = array();
 		$affiliate = $this->_arg('affiliate');
 		foreach ($registrations as $key => $registration) {
+			// Check that we're still allowed to pay for this
+			if (!$registration['Price']['allow_late_payment'] && time() > strtotime($registration['Price']['close']) + Configure::read('timezone.adjust') * 60) {
+				$now = date('Y-m-d H:i:s', time() - Configure::read('timezone.adjust') * 60);
+				$other_prices = Set::extract("/Price[close>$now]", $registration['Event']);
+				$other[] = array_merge($registration, array('reason' => 'Payment deadline has passed', 'change_price' => !empty($other_prices)));
+				unset ($registrations[$key]);
+				continue;
+			}
+
 			// Find the registration cap and how many are already registered.
 			$conditions = array(
 				'Registration.event_id' => $registration['Event']['id'],
@@ -1323,7 +1373,7 @@ class RegistrationsController extends AppController {
 				if ($this->data['Payment']['mark_refunded']) {
 					$this->Registration->id = $payment['Registration']['id'];
 					if (!$this->Registration->saveField('payment', 'Refunded')) {
-						$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+						$this->Session->setFlash(__('Failed to mark the original registration as refunded.', true), 'default', array('class' => 'warning'));
 						return;
 					}
 
@@ -1352,7 +1402,7 @@ class RegistrationsController extends AppController {
 
 				$this->Registration->id = $registration['Registration']['id'];
 				if (!$this->Registration->saveField('payment', $new_payment)) {
-					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+					$this->Session->setFlash(__('Failed to update the payment status of the new registration.', true), 'default', array('class' => 'warning'));
 					return;
 				}
 
@@ -1411,6 +1461,7 @@ class RegistrationsController extends AppController {
 			'Person',
 			'Event' => array(
 				'EventType',
+				'Price',
 				'Questionnaire' => array(
 					'Question' => array(
 						'Answer' => array(
@@ -1421,6 +1472,7 @@ class RegistrationsController extends AppController {
 				),
 				'Division' => 'League',
 			),
+			'Price',
 			'Response',
 		));
 		$registration = $this->Registration->read(null, $id);
@@ -1428,13 +1480,25 @@ class RegistrationsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('registration', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
+		if (!$this->is_admin && !$this->is_manager && !in_array($registration['Registration']['payment'], Configure::read('registration_none_paid'))) {
+			$this->Session->setFlash(__('You cannot edit a registration once a payment has been made.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
 		$this->Configuration->loadAffiliate($registration['Event']['affiliate_id']);
+
+		$test = $this->CanRegister->test ($this->Auth->user('zuluru_person_id'), $registration, array('for_edit' => true, 'all_rules' => true));
 
 		$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
 		$this->_mergeAutoQuestions ($registration, $event_obj, $registration['Event']['Questionnaire'], $registration['Person']['id']);
 		$this->set(compact('registration'));
 
 		if (!empty($this->data)) {
+			// Adjust data for saving, to prevent shenanigans
+			$this->data['Registration']['id'] = $id;
+			if (!$this->is_admin && !$this->is_manager) {
+				unset($this->data['Registration']['payment']);
+			}
+
 			$this->Registration->Response->validate = array_merge(
 				$this->Questionnaire->validation($registration['Event']['Questionnaire'], true),
 				$event_obj->registrationFieldsValidation ($registration, true)
@@ -1448,7 +1512,40 @@ class RegistrationsController extends AppController {
 			// Registration->saveAll to validate properly.
 			$this->Registration->Response->set ($data);
 
-			if (!$this->Registration->Response->validates()) {
+			// Find the requested price option
+			$price = Set::extract("/Price[id={$data['Registration']['price_id']}]/.", $registration);
+
+			// Validation of payment data is a manual process
+			if (empty($price)) {
+				$this->Registration->validationErrors['price_id'] = 'Select a valid price option.';
+			} else {
+				$price = reset($price);
+				$cost = $price['cost'] + $price['tax1'] + $price['tax2'];
+				$test = $test['price_allowed'][$price['id']];
+				$this->set(compact('price'));
+				$this->set($test);
+
+				if (!$test['allowed']) {
+					$this->Registration->validationErrors['price_id'] = $test['reason'];
+				} else {
+					if (!$price['allow_deposit']) {
+						$data['Registration']['payment_type'] = 'Full';
+					} else if ($this->data['Registration']['payment_type'] == 'Deposit') {
+						if ($price['fixed_deposit']) {
+							$data['Registration']['deposit_amount'] = $price['minimum_deposit'];
+						} else if ($this->data['Registration']['deposit_amount'] < $price['minimum_deposit']) {
+							$this->Registration->validationErrors['deposit_amount'] = sprintf(__('A minimum deposit of $%s is required.', true), $price['minimum_deposit']);
+						} else if ($this->data['Registration']['deposit_amount'] >= $cost) {
+							$this->Registration->validationErrors['deposit_amount'] = sprintf(__('This deposit exceeds the total cost of $%s.', true), $cost);
+						}
+					}
+					if ($data['Registration']['payment_type'] == 'Full') {
+						$data['Registration']['deposit_amount'] = 0;
+					}
+				}
+			}
+
+			if (!$this->Registration->Response->validates() || !empty($this->Registration->validationErrors)) {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('registration', true)), 'default', array('class' => 'warning'));
 				return;
 			}
@@ -1461,40 +1558,45 @@ class RegistrationsController extends AppController {
 				$data['Response'] = array_values($data['Response']);
 			}
 
-			// If the payment status has changed, we may need to do extra processing
-			$paid = Configure::read('registration_paid');
-			$was_paid = in_array ($registration['Registration']['payment'], $paid);
-			$now_paid = in_array ($data['Registration']['payment'], $paid);
-			if (!$was_paid && $now_paid) {
-				$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
-				$this->UserCache->clear('RegistrationsPaid', $registration['Registration']['person_id']);
-				$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
+			if ($is_admin || $is_manager) {
+				// If the payment status has changed, we may need to do extra processing
+				$paid = Configure::read('registration_paid');
+				$was_paid = in_array ($registration['Registration']['payment'], $paid);
+				$now_paid = in_array ($data['Registration']['payment'], $paid);
+				if (!$was_paid && $now_paid) {
+					$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
+					$this->UserCache->clear('RegistrationsPaid', $registration['Registration']['person_id']);
+					$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
 
-				// When it's marked as paid, the responses that the event object
-				// should use are the new ones just now submitted.
-				$result = $event_obj->paid($registration, $data);
-				if (!$result) {
-					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-					return;
-				}
-				if (is_array ($result)) {
-					$data['Response'] = array_merge($data['Response'], $result);
-				}
-			} else if ($was_paid && !$now_paid) {
-				$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
-				$this->UserCache->clear('RegistrationsPaid', $registration['Registration']['person_id']);
-				$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
+					// When it's marked as paid, the responses that the event object
+					// should use are the new ones just now submitted.
+					$result = $event_obj->paid($registration, $data);
+					if (!$result) {
+						$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+						return;
+					}
+					if (is_array ($result)) {
+						$data['Response'] = array_merge($data['Response'], $result);
+					}
+				} else if ($was_paid && !$now_paid) {
+					$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
+					$this->UserCache->clear('RegistrationsPaid', $registration['Registration']['person_id']);
+					$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
 
-				// When it's marked as unpaid, the responses that the event object
-				// should use are the saved ones.
-				$result = $event_obj->unpaid($registration, $registration);
-				if (!$result) {
-					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-					return;
+					// When it's marked as unpaid, the responses that the event object
+					// should use are the saved ones.
+					$result = $event_obj->unpaid($registration, $registration);
+					if (!$result) {
+						$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+						return;
+					}
+					if (is_array ($result)) {
+						$delete = array_merge ($delete, $result);
+					}
 				}
-				if (is_array ($result)) {
-					$delete = array_merge ($delete, $result);
-				}
+			} else {
+				// Players cannot change their own payment status
+				unset($data['Registration']['payment']);
 			}
 
 			// TODO: Redo the event registration, in case anything has changed. But
@@ -1529,12 +1631,21 @@ class RegistrationsController extends AppController {
 			}
 
 			if ($transaction->commit() !== false) {
-				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('registration', true)), 'default', array('class' => 'success'));
-				$this->redirect(array('controller' => 'people', 'action' => 'registrations', 'person' => $registration['Person']['id']));
+				if ($is_admin || $is_manager) {
+					$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('registration', true)), 'default', array('class' => 'success'));
+					$this->redirect(array('controller' => 'people', 'action' => 'registrations', 'person' => $registration['Person']['id']));
+				} else {
+					$this->Session->setFlash(__('Your preferences for this registration have been saved.', true), 'default', array('class' => 'success'));
+					$this->redirect(array('action' => 'checkout'));
+				}
 			}
 		} else {
 			// Convert saved response data into the format required by the output
 			$this->data = $registration;
+			if ($this->data['Registration']['deposit_amount'] == 0) {
+				// Unset the deposit amount if it's zero, so the default is correct
+				unset($this->data['Registration']['deposit_amount']);
+			}
 			$responses = array();
 			foreach ($registration['Event']['Questionnaire']['Question'] as $question) {
 				if (array_key_exists ('id', $question)) {
@@ -1559,6 +1670,15 @@ class RegistrationsController extends AppController {
 				}
 			}
 			$this->data['Response'] = $responses;
+
+			// Find the saved price option
+			$price = Set::extract("/Price[id={$registration['Registration']['price_id']}]/.", $registration);
+			if (!empty($price)) {
+				$price = reset($price);
+				$test = $test['price_allowed'][$price['id']];
+				$this->set(compact('price'));
+				$this->set($test);
+			}
 		}
 	}
 

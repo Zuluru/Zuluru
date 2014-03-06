@@ -530,6 +530,7 @@ class ZuluruSchema extends CakeSchema {
 		'open' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
 		'close' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
 		'register_rule' => array('type' => 'text', 'null' => true, 'default' => NULL),
+		'allow_late_payment' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'allow_deposit' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'fixed_deposit' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'deposit_only' => array('type' => 'boolean', 'null' => false, 'default' => '0'),

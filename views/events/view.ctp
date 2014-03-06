@@ -197,7 +197,7 @@ $deposit = !empty($deposit);
 	</tr>
 	<?php
 		$i = 0;
-		foreach ($event['Price'] as $key => $price):
+		foreach ($event['Price'] as $price):
 			$class = null;
 			if ($i++ % 2 == 0) {
 				$class = ' class="altrow"';
@@ -228,7 +228,7 @@ $deposit = !empty($deposit);
 		?></td>
 		<?php endif; ?>
 		<td class="actions"><?php
-		if (!empty($rule_allowed[$key]['allowed'])) {
+		if (!empty($price_allowed[$price['id']]['allowed'])) {
 			echo $this->Html->link(__('Register now!', true),
 					array('controller' => 'registrations', 'action' => 'register', 'event' => $id, 'option' => $price['id']),
 					array('title' => __('Register for ', true) . $event['Event']['name'] . ' ' . $price['name'])
@@ -250,14 +250,9 @@ $deposit = !empty($deposit);
 		<td colspan="<?php echo 5 + $deposit; ?>"><?php echo $price['description']; ?></td>
 	</tr>
 	<?php endif; ?>
-	<?php if (isset($rule_allowed) && !$rule_allowed[$key]['allowed'] && !empty($rule_allowed[$key]['reason'])): ?>
+	<?php if (isset($price_allowed) && !empty($price_allowed[$price['id']]['messages'])): ?>
 	<tr<?php echo $class;?>>
-		<td colspan="<?php echo 5 + $deposit; ?>"><?php echo $rule_allowed[$key]['reason']; ?></td>
-	</tr>
-	<?php endif; ?>
-	<?php if (isset($rule_allowed) && $rule_allowed[$key]['allowed'] && !empty($rule_allowed[$key]['message'])): ?>
-	<tr<?php echo $class;?>>
-		<td colspan="<?php echo 5 + $deposit; ?>"><?php echo $rule_allowed[$key]['message']; ?></td>
+		<td colspan="<?php echo 5 + $deposit; ?>"><?php echo $price_allowed[$price['id']]['messages']; ?></td>
 	</tr>
 	<?php endif; ?>
 	<?php endforeach; ?>
@@ -269,14 +264,7 @@ $deposit = !empty($deposit);
 if (!$is_logged_in):
 	echo $this->element('events/not_logged_in');
 else:
-	foreach ($messages as $message) {
-		$class = null;
-		if (is_array($message)) {
-			$class = $message['class'];
-			$message = $message['text'];
-		}
-		echo $this->Html->para ($class, $message);
-	}
+	echo $this->element('messages');
 	if ($allowed) {
 		echo $this->Html->tag ('h2', $this->Html->link(__('Register now!', true),
 				array('controller' => 'registrations', 'action' => 'register', 'event' => $id),

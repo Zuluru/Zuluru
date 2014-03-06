@@ -89,7 +89,7 @@ foreach ($registrations as $registration):
 		<td>
 			<?php
 			$order = sprintf (Configure::read('registration.order_id_format'), $registration['Registration']['id']);
-			if ($is_admin) {
+			if ($is_admin || $is_manager) {
 				echo $this->Html->link ($order, array('controller' => 'registrations', 'action' => 'view', 'registration' => $registration['Registration']['id']));
 			} else {
 				echo $order;
@@ -104,11 +104,16 @@ foreach ($registrations as $registration):
 		</td>
 		<td class="actions">
 			<?php
-			if ($is_admin) {
+			if ($is_admin || $is_manager) {
 				echo $this->Html->link (__('View', true), array('controller' => 'registrations', 'action' => 'view', 'registration' => $registration['Registration']['id']));
 				echo $this->Html->link(__('Edit', true), array('controller' => 'registrations', 'action' => 'edit', 'registration' => $registration['Registration']['id']));
 			}
-			echo $this->Html->link(__('Unregister', true), array('controller' => 'registrations', 'action' => 'unregister', 'registration' => $registration['Registration']['id'], 'return' => true), null, sprintf(__('Are you sure you want to delete # %s?', true), $registration['Registration']['id']));
+			if (in_array($registration['Registration']['payment'], Configure::read('registration_none_paid')) || $registration['Registration']['total_amount'] == 0) {
+				if (!$is_admin && !$is_manager) {
+					echo $this->Html->link(__('Edit', true), array('controller' => 'registrations', 'action' => 'edit', 'registration' => $registration['Registration']['id'], 'return' => true));
+				}
+				echo $this->Html->link(__('Unregister', true), array('controller' => 'registrations', 'action' => 'unregister', 'registration' => $registration['Registration']['id'], 'return' => true), null, sprintf(__('Are you sure you want to delete # %s?', true), $registration['Registration']['id']));
+			}
 			?>
 		</td>
 	</tr>

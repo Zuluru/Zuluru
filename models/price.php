@@ -61,6 +61,12 @@ class Price extends AppModel {
 				'message' => 'There is an error in the rule syntax.',
 			),
 		),
+		'allow_late_payment' => array(
+			'inlist' => array(
+				'rule' => array('inconfig', 'options.enable'),
+				'message' => 'You must select whether or not payment will be accepted after the close date.',
+			),
+		),
 		'allow_deposit' => array(
 			'inlist' => array(
 				'rule' => array('inconfig', 'options.enable'),

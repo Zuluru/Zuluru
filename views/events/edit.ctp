@@ -74,6 +74,11 @@ $collapse = !empty($this->data['Price']['id']);
 				// TODO: JavaScript link on "11:59PM" to set the time in the inputs
 				'after' => $this->Html->para (null, __('The date and time at which registration for this event will close (11:59PM recommended to disambiguate midnight from noon).', true)),
 			));
+			echo $this->ZuluruForm->input('Price.allow_late_payment', array(
+				'options' => Configure::read('options.enable'),
+				'empty' => '---',
+				'default' => false,
+			));
 			echo $this->ZuluruForm->input('Price.allow_deposit', array(
 				'options' => Configure::read('options.enable'),
 				'empty' => '---',

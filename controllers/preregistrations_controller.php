@@ -84,9 +84,9 @@ class PreregistrationsController extends AppController {
 				$this->Session->setFlash(__('This player already has a preregistration for this event', true), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'add', 'event' => $url['event']));
 			}
-			$test = $this->CanRegister->test ($url['person'], $event, array('ignore_date' => true, 'strict' => false));
+			$test = $this->CanRegister->test ($url['person'], $event, array('ignore_date' => true, 'strict' => false, 'simple_output' => true));
 			if (!$test['allowed']) {
-				$this->Session->setFlash(implode ('<br>', Set::extract('/messages/text', $test)), 'default', array('class' => 'warning'));
+				$this->Session->setFlash($test['messages'], 'default', array('class' => 'warning'));
 				$this->redirect(array('action' => 'add', 'event' => $url['event']));
 			}
 			$this->Preregistration->create();

@@ -65,6 +65,11 @@ if (isset ($add)) {
 			'after' => $this->Html->para (null, __('Rules that must be passed to allow a person to register for this event.', true) .
 				' ' . $this->ZuluruHtml->help(array('action' => 'rules', 'rules'))),
 		));
+		echo $this->ZuluruForm->input('allow_late_payment', array(
+			'options' => Configure::read('options.enable'),
+			'empty' => '---',
+			'default' => false,
+		));
 		echo $this->ZuluruForm->input('allow_deposit', array(
 			'options' => Configure::read('options.enable'),
 			'empty' => '---',

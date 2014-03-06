@@ -459,7 +459,12 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 				<?php echo $this->Html->link(__('View', true), array('controller' => 'registrations', 'action' => 'view', 'registration' => $registration['Registration']['id']));?>
 				<?php echo $this->Html->link(__('Edit', true), array('controller' => 'registrations', 'action' => 'edit', 'registration' => $registration['Registration']['id'], 'return' => true)); ?>
 			<?php endif; ?>
+			<?php if (in_array($registration['Registration']['payment'], Configure::read('registration_none_paid')) || $registration['Registration']['total_amount'] == 0): ?>
+				<?php if (!$is_admin && !$is_manager): ?>
+					<?php echo $this->Html->link(__('Edit', true), array('controller' => 'registrations', 'action' => 'edit', 'registration' => $registration['Registration']['id'], 'return' => true)); ?>
+				<?php endif; ?>
 				<?php echo $this->Html->link(__('Unregister', true), array('controller' => 'registrations', 'action' => 'unregister', 'registration' => $registration['Registration']['id'], 'return' => true), null, sprintf(__('Are you sure you want to delete # %s?', true), $registration['Registration']['id'])); ?>
+			<?php endif; ?>
 			</td>
 		</tr>
 		<?php endforeach; ?>
