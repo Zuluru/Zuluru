@@ -74,7 +74,7 @@ $this->Html->addCrumb (__('View', true));
 				<?php echo $this->ZuluruHtml->iconLink('edit_24.png',
 						array('controller' => 'newsletters', 'action' => 'edit', 'newsletter' => $newsletter['id'], 'return' => true),
 						array('alt' => __('Edit', true), 'title' => __('Edit', true))); ?>
-				<?php echo $this->Html->link(__('Delivery Report', true), array('action' => 'delivery', 'newsletter' => $newsletter['id'])); ?>
+				<?php echo $this->Html->link(__('Delivery Report', true), array('controller' => 'newsletters', 'action' => 'delivery', 'newsletter' => $newsletter['id'])); ?>
 				<?php echo $this->ZuluruHtml->iconLink('newsletter_send_24.png',
 						array('controller' => 'newsletters', 'action' => 'send', 'newsletter' => $newsletter['id']),
 						array('alt' => __('Send', true), 'title' => __('Send', true))); ?>
