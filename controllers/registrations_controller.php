@@ -439,7 +439,7 @@ class RegistrationsController extends AppController {
 				} else {
 					if (!$price['allow_deposit']) {
 						$data['Registration']['payment_type'] = 'Full';
-					} else if ($this->data['Registration']['payment_type'] == 'Deposit') {
+					} else if ($price['deposit_only'] || $this->data['Registration']['payment_type'] == 'Deposit') {
 						if ($price['fixed_deposit']) {
 							$this->data['Registration']['deposit_amount'] = $price['minimum_deposit'];
 						} else if ($this->data['Registration']['deposit_amount'] < $price['minimum_deposit']) {
@@ -1530,7 +1530,7 @@ class RegistrationsController extends AppController {
 				} else {
 					if (!$price['allow_deposit']) {
 						$data['Registration']['payment_type'] = 'Full';
-					} else if ($this->data['Registration']['payment_type'] == 'Deposit') {
+					} else if ($price['deposit_only'] || $this->data['Registration']['payment_type'] == 'Deposit') {
 						if ($price['fixed_deposit']) {
 							$data['Registration']['deposit_amount'] = $price['minimum_deposit'];
 						} else if ($this->data['Registration']['deposit_amount'] < $price['minimum_deposit']) {
