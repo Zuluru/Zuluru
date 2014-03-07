@@ -1675,9 +1675,11 @@ class RegistrationsController extends AppController {
 			$price = Set::extract("/Price[id={$registration['Registration']['price_id']}]/.", $registration);
 			if (!empty($price)) {
 				$price = reset($price);
-				$test = $test['price_allowed'][$price['id']];
 				$this->set(compact('price'));
-				$this->set($test);
+				if (array_key_exists('price_allowed', $test)) {
+					$test = $test['price_allowed'][$price['id']];
+					$this->set($test);
+				}
 			}
 		}
 	}
