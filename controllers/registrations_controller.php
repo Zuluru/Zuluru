@@ -1495,9 +1495,6 @@ class RegistrationsController extends AppController {
 		if (!empty($this->data)) {
 			// Adjust data for saving, to prevent shenanigans
 			$this->data['Registration']['id'] = $id;
-			if (!$this->is_admin && !$this->is_manager) {
-				unset($this->data['Registration']['payment']);
-			}
 
 			$this->Registration->Response->validate = array_merge(
 				$this->Questionnaire->validation($registration['Event']['Questionnaire'], true),
@@ -1512,35 +1509,37 @@ class RegistrationsController extends AppController {
 			// Registration->saveAll to validate properly.
 			$this->Registration->Response->set ($data);
 
-			// Find the requested price option
-			$price = Set::extract("/Price[id={$data['Registration']['price_id']}]/.", $registration);
+			if ($registration['Registration']['person_id'] == $this->Auth->user('zuluru_person_id')) {
+				// Find the requested price option
+				$price = Set::extract("/Price[id={$data['Registration']['price_id']}]/.", $registration);
 
-			// Validation of payment data is a manual process
-			if (empty($price)) {
-				$this->Registration->validationErrors['price_id'] = 'Select a valid price option.';
-			} else {
-				$price = reset($price);
-				$cost = $price['cost'] + $price['tax1'] + $price['tax2'];
-				$test = $test['price_allowed'][$price['id']];
-				$this->set(compact('price'));
-				$this->set($test);
-
-				if (!$test['allowed']) {
-					$this->Registration->validationErrors['price_id'] = $test['reason'];
+				// Validation of payment data is a manual process
+				if (empty($price)) {
+					$this->Registration->validationErrors['price_id'] = 'Select a valid price option.';
 				} else {
-					if (!$price['allow_deposit']) {
-						$data['Registration']['payment_type'] = 'Full';
-					} else if ($price['deposit_only'] || $this->data['Registration']['payment_type'] == 'Deposit') {
-						if ($price['fixed_deposit']) {
-							$data['Registration']['deposit_amount'] = $price['minimum_deposit'];
-						} else if ($this->data['Registration']['deposit_amount'] < $price['minimum_deposit']) {
-							$this->Registration->validationErrors['deposit_amount'] = sprintf(__('A minimum deposit of $%s is required.', true), $price['minimum_deposit']);
-						} else if ($this->data['Registration']['deposit_amount'] >= $cost) {
-							$this->Registration->validationErrors['deposit_amount'] = sprintf(__('This deposit exceeds the total cost of $%s.', true), $cost);
+					$price = reset($price);
+					$cost = $price['cost'] + $price['tax1'] + $price['tax2'];
+					$test = $test['price_allowed'][$price['id']];
+					$this->set(compact('price'));
+					$this->set($test);
+
+					if (!$test['allowed']) {
+						$this->Registration->validationErrors['price_id'] = $test['reason'];
+					} else {
+						if (!$price['allow_deposit']) {
+							$data['Registration']['payment_type'] = 'Full';
+						} else if ($price['deposit_only'] || $this->data['Registration']['payment_type'] == 'Deposit') {
+							if ($price['fixed_deposit']) {
+								$data['Registration']['deposit_amount'] = $price['minimum_deposit'];
+							} else if ($this->data['Registration']['deposit_amount'] < $price['minimum_deposit']) {
+								$this->Registration->validationErrors['deposit_amount'] = sprintf(__('A minimum deposit of $%s is required.', true), $price['minimum_deposit']);
+							} else if ($this->data['Registration']['deposit_amount'] >= $cost) {
+								$this->Registration->validationErrors['deposit_amount'] = sprintf(__('This deposit exceeds the total cost of $%s.', true), $cost);
+							}
 						}
-					}
-					if ($data['Registration']['payment_type'] == 'Full') {
-						$data['Registration']['deposit_amount'] = 0;
+						if ($data['Registration']['payment_type'] == 'Full') {
+							$data['Registration']['deposit_amount'] = 0;
+						}
 					}
 				}
 			}
@@ -1558,7 +1557,7 @@ class RegistrationsController extends AppController {
 				$data['Response'] = array_values($data['Response']);
 			}
 
-			if ($is_admin || $is_manager) {
+			if ($this->is_admin || $this->is_manager) {
 				// If the payment status has changed, we may need to do extra processing
 				$paid = Configure::read('registration_paid');
 				$was_paid = in_array ($registration['Registration']['payment'], $paid);
@@ -1631,7 +1630,7 @@ class RegistrationsController extends AppController {
 			}
 
 			if ($transaction->commit() !== false) {
-				if ($is_admin || $is_manager) {
+				if ($this->is_admin || $this->is_manager) {
 					$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('registration', true)), 'default', array('class' => 'success'));
 					$this->redirect(array('controller' => 'people', 'action' => 'registrations', 'person' => $registration['Person']['id']));
 				} else {
