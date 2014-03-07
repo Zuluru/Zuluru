@@ -729,6 +729,9 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Newsletters', array('controller' => 'newsletters', 'action' => 'index'));
 			$this->_addMenuItem ('Upcoming', array('controller' => 'newsletters', 'action' => 'index'), 'Newsletters');
 			$this->_addMenuItem ('Mailing lists', array('controller' => 'mailing_lists', 'action' => 'index'), 'Newsletters');
+			$this->_addMenuItem ('List', array('controller' => 'mailing_lists', 'action' => 'index'), array('Newsletters', 'Mailing lists'));
+			$this->_addMenuItem ('Create mailing list', array('controller' => 'mailing_lists', 'action' => 'add'), array('Newsletters', 'Mailing lists'));
+			$this->_addMenuItem ('Create newsletter', array('controller' => 'newsletters', 'action' => 'add'), 'Newsletters');
 			$this->_addMenuItem ('All newsletters', array('controller' => 'newsletters', 'action' => 'past'), 'Newsletters');
 		}
 
