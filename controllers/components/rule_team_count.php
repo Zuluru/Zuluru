@@ -8,7 +8,27 @@ class RuleTeamCountComponent extends RuleComponent
 	var $query_having = 'Person.id HAVING team_count';
 
 	function parse($config) {
-		$this->config = trim ($config, '"\'');
+		if (strpos($config, ',') !== false) {
+			$this->config = array('params' => explode(',', $config));
+		}
+
+		$sub_key = array_search('include_subs', $this->config['params']);
+		if ($sub_key !== false) {
+			$this->config['roles'] = Configure::read('extended_playing_roster_roles');
+			unset($this->config['params'][$sub_key]);
+		} else {
+			$this->config['roles'] = Configure::read('playing_roster_roles');
+		}
+		$this->config['params'] = trim (implode(',', $this->config['params']), '"\'');
+
+		if ($this->config['params'][0] == '<') {
+			$this->config['params'] = array('0000-00-00', substr($this->config['params'], 1));
+		} else if ($this->config['params'][0] == '>') {
+			$this->config['params'] = array(substr($this->config['params'], 1), '9999-12-31');
+		} else if (strpos($this->config['params'], ',') !== false) {
+			$this->config['params'] = explode(',', $this->config['params']);
+		}
+
 		return true;
 	}
 
@@ -18,15 +38,19 @@ class RuleTeamCountComponent extends RuleComponent
 		if (empty($params['Team'])) {
 			return 0;
 		}
-		$date = strtotime ($this->config);
+		if (is_array($this->config['params'])) {
+			$date_from = strtotime ($this->config['params'][0]);
+			$date_to = strtotime ($this->config['params'][1]);
+		} else {
+			$date_from = $date_to = strtotime ($this->config['params']);
+		}
 		$count = 0;
-		$roles = Configure::read('playing_roster_roles');
 		foreach ($params['Team'] as $team) {
-			if (in_array($team['TeamsPerson']['role'], $roles) &&
+			if (in_array($team['TeamsPerson']['role'], $this->config['roles']) &&
 				$team['TeamsPerson']['status'] == ROSTER_APPROVED &&
 				$team['Division']['League']['affiliate_id'] == $affiliate &&
-				strtotime ($team['Division']['open']) <= $date &&
-				$date <= strtotime ($team['Division']['close']))
+				strtotime ($team['Division']['open']) <= $date_to &&
+				$date_from <= strtotime ($team['Division']['close']))
 			{
 				++ $count;
 			}
@@ -35,7 +59,12 @@ class RuleTeamCountComponent extends RuleComponent
 	}
 
 	function build_query($affiliate, &$joins, &$fields) {
-		$date = date('Y-m-d', strtotime ($this->config));
+		if (is_array($this->config['params'])) {
+			$date_from = date('Y-m-d', strtotime ($this->config['params'][0]));
+			$date_to = date('Y-m-d', strtotime ($this->config['params'][1]));
+		} else {
+			$date_from = $date_to = date('Y-m-d', strtotime ($this->config['params']));
+		}
 		$fields['team_count'] = 'COUNT(Team.id) as team_count';
 		$joins['TeamsPerson'] = array(
 			'table' => 'teams_people',
@@ -59,9 +88,9 @@ class RuleTeamCountComponent extends RuleComponent
 			'conditions' => 'Division.id = Team.division_id',
 		);
 		$query = array(
-			'Division.open <=' => $date,
-			'Division.close >=' => $date,
-			'TeamsPerson.role' => Configure::read('playing_roster_roles'),
+			'Division.open <=' => $date_to,
+			'Division.close >=' => $date_from,
+			'TeamsPerson.role' => $this->config['roles'],
 			'TeamsPerson.status' => ROSTER_APPROVED,
 		);
 
