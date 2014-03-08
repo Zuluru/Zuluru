@@ -21,9 +21,17 @@ $header = array(
 		__('Order ID', true),
 		__('Created Date', true),
 		__('Modified Date', true),
-		__('Payment', true),
-		__('Notes', true),
+		__('Payment Status', true),
+		__('Total Amount', true),
+		__('Amount Paid', true),
 );
+if (count($event['Price'] > 0)) {
+	$header[] = __('Price Point', true);
+}
+if (Configure::read('registration.online_payments')) {
+	$header[] = __('Transaction ID', true);
+}
+$header[] = __('Notes', true);
 foreach ($event['Questionnaire']['Question'] as $question) {
 	if (!array_key_exists('anonymous', $question) || !$question['anonymous']) {
 		if (in_array ($question['type'], array('text', 'textbox', 'radio', 'select'))) {
@@ -66,8 +74,16 @@ foreach($registrations as $registration) {
 		$registration['Registration']['created'],
 		$registration['Registration']['modified'],
 		$registration['Registration']['payment'],
-		$registration['Registration']['notes'],
+		$registration['Registration']['total_amount'],
+		array_sum(Set::extract('/Payment/payment_amount', $registration)),
 	);
+	if (count($event['Price'] > 0)) {
+		$row[] = $event['Price'][$registration['Registration']['price_id']]['name'];
+	}
+	if (Configure::read('registration.online_payments')) {
+		$row[] = implode(';', array_unique(Set::extract('/Payment/RegistrationAudit/transaction_id', $registration)));
+	}
+	$row[] = $registration['Registration']['notes'];
 	foreach ($event['Questionnaire']['Question'] as $question) {
 		if (!array_key_exists('anonymous', $question) || !$question['anonymous']) {
 			if (in_array ($question['type'], array('text', 'textbox', 'radio', 'select'))) {

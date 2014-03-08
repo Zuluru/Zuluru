@@ -5,7 +5,7 @@ class RegistrationsController extends AppController {
 	var $components = array('Questionnaire', 'CanRegister');
 	var $paginate = array(
 		'Registration' => array(
-			'contain' => array('Person'),
+			'contain' => array('Person', 'Payment'),
 			'order' => array('Registration.payment' => 'DESC', 'Registration.created' => 'DESC'),
 		),
 	);
@@ -123,6 +123,7 @@ class RegistrationsController extends AppController {
 		$this->Registration->Event->contain (array(
 			'EventType',
 			'Questionnaire' => array('Question' => array('Answer')),
+			'Price',
 			'Division' => 'League',
 		));
 		$event = $this->Registration->Event->read(null, $id);
@@ -130,13 +131,18 @@ class RegistrationsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'events', 'action' => 'index'));
 		}
+		AppModel::_reindexInner($event, 'Price', 'id');
 		$this->Configuration->loadAffiliate($event['Event']['affiliate_id']);
 
 		$event_obj = $this->_getComponent ('EventType', $event['EventType']['type'], $this);
 		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], null, true);
 
 		if ($this->params['url']['ext'] == 'csv') {
-			$this->Registration->contain (array('Person' => $this->Auth->authenticate->name, 'Response'));
+			$this->Registration->contain (array(
+				'Person' => $this->Auth->authenticate->name,
+				'Payment' => 'RegistrationAudit',
+				'Response',
+			));
 			$this->set('registrations', $this->Registration->find ('all', array(
 					'conditions' => array('Registration.event_id' => $id),
 					'order' => array('Registration.payment' => 'DESC', 'Registration.created' => 'DESC'),
@@ -317,6 +323,7 @@ class RegistrationsController extends AppController {
 		$contain = array(
 			'Event' => array('EventType', 'Affiliate'),
 			'Price',
+			'Payment' => 'RegistrationAudit',
 			'Person',
 		);
 		$order = array('Event.affiliate_id', 'Registration.payment' => 'DESC', 'Registration.created');

@@ -57,11 +57,13 @@ echo $this->Paginator->counter(array(
 	<th><?php echo $this->Paginator->sort(__('Order ID', true), 'Registration.id', array('buffer' => false));?></th>
 	<th><?php echo $this->Paginator->sort(__('Event ID', true), 'Event.id', array('buffer' => false));?></th>
 	<th><?php __('Event');?></th>
+	<th><?php __('Price Point'); ?></th>
 	<th><?php echo $this->Paginator->sort(__('User ID', true), 'Person.id', array('buffer' => false));?></th>
 	<th><?php __('First Name');?></th>
 	<th><?php __('Last Name');?></th>
 	<th><?php __('Payment');?></th>
-	<th><?php __('Amount');?></th>
+	<th><?php __('Total Amount');?></th>
+	<th><?php __('Amount Paid');?></th>
 </tr>
 <?php
 $order_fmt = Configure::read('registration.order_id_format');
@@ -99,6 +101,9 @@ foreach ($registrations as $registration):
 			<?php echo $registration['Event']['name']; ?>
 		</td>
 		<td>
+			<?php echo $registration['Price']['name']; ?>
+		</td>
+		<td>
 			<?php echo $registration['Person']['id']; ?>
 		</td>
 		<td>
@@ -112,6 +117,9 @@ foreach ($registrations as $registration):
 		</td>
 		<td>
 			<?php echo $registration['Registration']['total_amount']; ?>
+		</td>
+		<td>
+			<?php echo array_sum(Set::extract('/Payment/payment_amount', $registration)); ?>
 		</td>
 	</tr>
 <?php endforeach; ?>
