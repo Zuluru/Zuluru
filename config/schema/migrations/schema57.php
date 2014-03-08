@@ -11,7 +11,7 @@ class Zuluru57Schema extends CakeSchema {
 					// Where we have a single audit record covering multiple registrations, take the total from the event, and hope that it didn't change
 					'total_from_event' => 'UPDATE `registrations` r, `events` e SET `r`.`total_amount` = `e`.`cost` + IFNULL(`e`.`tax1`,0) + IFNULL(`e`.`tax2`,0) WHERE `r`.`event_id` = `e`.`id` AND `r`.`total_amount` = 0;',
 					'payments' => 'INSERT INTO `payments` (`registration_id`, `registration_audit_id`, `payment_amount`, `created`) SELECT `registrations`.`id`, `registration_audits`.`id`, `total_amount`, `created` FROM `registrations`, `registration_audits` WHERE `registrations`.`id` = `registration_audits`.`registration_id`;',
-					'refunds' => 'INSERT INTO `payments` (`registration_id`, `payment_type`, `payment_amount`, `created`) SELECT `registrations`.`id`, \'Refund\', `total_amount`, `modified` FROM `registrations` WHERE `registrations`.`payment` = \'Refunded\';',
+					'refunds' => 'INSERT INTO `payments` (`registration_id`, `payment_type`, `payment_amount`, `created`) SELECT `registrations`.`id`, \'Refund\', -`total_amount`, `modified` FROM `registrations` WHERE `registrations`.`payment` = \'Refunded\';',
 					'refund_amounts' => 'UPDATE `payments` p, `registrations` r SET `p`.`refunded_amount` = `p`.`payment_amount` WHERE `p`.`registration_id` = `r`.`id` AND `r`.`payment` = \'Refunded\';',
 				);
 				break;
