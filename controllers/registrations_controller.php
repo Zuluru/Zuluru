@@ -757,14 +757,17 @@ class RegistrationsController extends AppController {
 				'Event' => array('EventType'),
 				'Price',
 				'Response',
-				'conditions' => array('payment !=' => 'Refunded'),
+				'conditions' => array('NOT' => array('payment' => Configure::read('registration_cancelled'))),
 			),
 		));
 		$person = $this->Registration->Person->read(null, $person_id);
 		$unregistered = false;
 
 		// Pull out the list of unpaid registrations; these are the ones that might be removed
-		$unpaid = Set::extract ('/Registration[payment!=Paid]/.', $person);
+		$unpaid = array();
+		foreach (Configure::read('registration_none_paid') as $payment) {
+			$unpaid = array_merge($unpaid, Set::extract ("/Registration[payment=$payment]/.", $person));
+		}
 
 		foreach ($unpaid as $key => $registration) {
 			// Check the registration rule, if any
@@ -775,6 +778,9 @@ class RegistrationsController extends AppController {
 				{
 					$this->Registration->delete($registration['id']);
 					$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
+					if (in_array($registration['payment'], Configure::read('registration_reserved'))) {
+						$event_obj->unpaid($registration, $registration);
+					}
 					$event_obj->unregister($registration, $registration);
 					unset ($person['Registration'][$key]);
 					$unregistered = true;
