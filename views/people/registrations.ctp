@@ -16,13 +16,12 @@ $this->Html->addCrumb (__('Registration History', true));
 <div class="index">
 <p>
 <?php
-// TODO: Test when JS is disabled
 $this->Paginator->options(array(
 	'update' => '#RegistrationList',
 	'evalScripts' => true,
 ));
 echo $this->Paginator->counter(array(
-'format' => __('Page %page% of %pages%, showing %current% records out of %count% total, starting on record %start%, ending on %end%', true)
+	'format' => __('Page %page% of %pages%, showing %current% records out of %count% total, starting on record %start%, ending on %end%', true)
 ));
 ?></p>
 
