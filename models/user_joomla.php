@@ -65,9 +65,13 @@ class UserJoomla extends User {
 		require_once JPATH_BASE . '/includes/defines.php';
 		require_once JPATH_LIBRARIES . '/joomla/user/helper.php';
 
-		list($hash, $salt) = explode(':', $saved);
-		$crypt = crypt($password, $hash);
-		return ("$crypt:$salt" == $saved);
+		if (strpos(':', $saved) !== false) {
+			list($hash, $salt) = explode(':', $saved);
+			$crypt = crypt($password, $hash);
+			return ("$crypt:$salt" == $saved);
+		} else {
+			return JUserHelper::verifyPassword($password, $saved);
+		}
 	}
 
 	function hashPassword($password) {
