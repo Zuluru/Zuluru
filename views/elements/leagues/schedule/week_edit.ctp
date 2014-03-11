@@ -5,9 +5,9 @@ if (isset($division)) {
 	$double_booking = $division['Division']['double_booking'];
 	$id = $division['Division']['id'];
 	$id_field = 'division';
+	$my_divisions = array();
 	$teams = Set::combine ($division['Team'], '{n}.id', '{n}.name');
 	natcasesort ($teams);
-	$cross_division = false;
 	$only_some_divisions = false;
 } else {
 	$games = $league['Game'];
@@ -18,9 +18,10 @@ if (isset($division)) {
 	$id = $league['League']['id'];
 	$id_field = 'league';
 
+	$my_divisions = $this->UserCache->read('DivisionIDs');
 	$teams = array();
 	foreach ($league['Division'] as $division) {
-		if ($is_admin || $is_manager || in_array($division['id'], $this->UserCache->read('DivisionIDs'))) {
+		if ($is_admin || $is_manager || in_array($division['id'], $my_divisions)) {
 			$division_teams = array_merge(
 					Set::extract ("/Game/HomeTeam[division_id={$division['id']}]/.", $league),
 					Set::extract ("/Game/AwayTeam[division_id={$division['id']}]/.", $league));
@@ -31,13 +32,11 @@ if (isset($division)) {
 		}
 	}
 	$only_some_divisions = (count($league['Division']) != count($teams));
-	if (count($teams) > 1) {
-		$cross_division = true;
-	} else {
+	if (count($teams) == 1) {
 		$teams = reset($teams);
-		$cross_division = false;
 	}
 }
+
 $published = array_unique (Set::extract ("/GameSlot[game_date=$date]/../published", $games));
 if (count ($published) != 1 || $published[0] == 0) {
 	$published = false;
@@ -45,23 +44,45 @@ if (count ($published) != 1 || $published[0] == 0) {
 	$published = true;
 }
 
-if ($only_some_divisions) {
-	// Spin through the games before building headers, to eliminate edit-type actions on completed weeks.
-	$finalized = true;
-	$is_tournament = $has_dependent_games = false;
-	foreach ($games as $game) {
-		if ($date == $game['GameSlot']['game_date']) {
+$dependency_types = array(
+	'game_winner' => __('Winner of', true),
+	'game_loser' => __('Loser of', true),
+);
+
+// Spin through the games before building headers, to eliminate edit-type actions on completed weeks.
+$finalized = true;
+$is_season = $is_tournament = $editing_tournament = $has_dependent_games = false;
+$season_divisions = array();
+foreach ($games as $game) {
+	if ($date == $game['GameSlot']['game_date']) {
+		if ($game['type'] != SEASON_GAME) {
+			$is_tournament = true;
+			if ($is_admin || $is_manager || in_array($game['division_id'], $my_divisions)) {
+				$editing_tournament = true;
+			}
+		} else {
+			$is_season = true;
+			$season_divisions[$game['division_id']] = true;
+		}
+		if ($is_admin || $is_manager || in_array($game['division_id'], $my_divisions)) {
 			$finalized &= Game::_is_finalized($game);
-			$is_tournament |= ($game['type'] != SEASON_GAME);
 			$has_dependent_games |= (!empty($game['HomePoolTeam']['dependency_type']) || !empty($game['AwayPoolTeam']['dependency_type']));
 		}
 	}
+}
 
+$cross_division = (count($season_divisions) > 1);
+
+if ($only_some_divisions || $is_season) {
 	echo $this->element('leagues/schedule/view_header', compact('date', 'competition', 'id_field', 'id', 'published', 'finalized', 'is_tournament', 'has_dependent_games'));
 } else {
 	echo $this->element('leagues/schedule/edit_header', compact('date', 'competition', 'id_field', 'id', 'is_tournament'));
 }
 ?>
+
+<?php if ($editing_tournament): ?>
+<tr><td colspan="<?php echo 5 + !$competition; ?>" class="warning-message"><?php echo sprintf(__('For normal usage, it is safest to only change %s values for tournament or playoff games; editing of other values should be reserved for extreme situations', true), sprintf(__('Time/%s', true), __(Configure::read('sport.field_cap'), true))); ?></td></tr>
+<?php endif; ?>
 
 <?php if ($this->Session->check('Message.schedule_edit')): ?>
 <tr><td colspan="<?php echo 5 + !$competition; ?>"><?php echo $this->Session->flash('schedule_edit'); ?></td></tr>
@@ -93,9 +114,12 @@ foreach ($games as $game):
 
 <tr<?php if (!$game['published']) echo ' class="unpublished"'; ?>>
 	<td><?php if ($game['type'] != SEASON_GAME): ?><?php
-	if (!empty($data['name'])) {
-		echo $data['name'];
-	}
+	echo $this->Form->input ("Game.{$game['id']}.name", array(
+			'div' => false,
+			'label' => false,
+			'size' => 5,
+			'default' => $data['name'],
+	));
 	?><?php endif; ?></td>
 	<td colspan="2"><?php
 	echo $this->Form->hidden ("Game.{$game['id']}.id", array('value' => $game['id']));
@@ -109,14 +133,61 @@ foreach ($games as $game):
 	?></td>
 	<td><?php
 	if ($game['type'] != SEASON_GAME) {
-		if (empty ($game['HomeTeam'])) {
-			if (array_key_exists ('home_dependency', $game)) {
-				echo $game['home_dependency'];
-			} else {
-				__('Unassigned');
+		if ($game['home_dependency_type'] == 'pool') {
+			// Get the list of seeds in the pool
+			$ids = array();
+			foreach ($games as $other_game) {
+				if ($other_game['division_id'] == $game['division_id'] && $other_game['type'] != SEASON_GAME && $other_game['round'] == $game['round'] && $other_game['pool_id'] == $game['pool_id']) {
+					if (!in_array($other_game['HomePoolTeam']['id'], $ids)) {
+						$dependency = Pool::_dependency($other_game['HomePoolTeam']);
+						$alias = $other_game['HomePoolTeam']['alias'];
+						if (!empty($alias)) {
+							$dependency = "$alias [$dependency]";
+						}
+						$ids[$other_game['HomePoolTeam']['id']] = $dependency;
+					}
+
+					if (!in_array($other_game['AwayPoolTeam']['id'], $ids)) {
+						$dependency = Pool::_dependency($other_game['AwayPoolTeam']);
+						$alias = $other_game['AwayPoolTeam']['alias'];
+						if (!empty($alias)) {
+							$dependency = "$alias [$dependency]";
+						}
+						$ids[$other_game['AwayPoolTeam']['id']] = $dependency;
+					}
+				}
 			}
+
+			echo $this->Form->input ("Game.{$game['id']}.home_pool_team_id", array(
+					'div' => false,
+					'label' => false,
+					'options' => $ids,
+					'empty' => '---',
+					'selected' => $data['home_pool_team_id'],
+			));
 		} else {
-			echo $this->element('teams/block', array('team' => $game['HomeTeam'], 'options' => array('max_length' => 16)));
+			// Get the list of games in the previous round
+			$ids = array();
+			foreach ($games as $other_game) {
+				if ($other_game['division_id'] == $game['division_id'] && $other_game['type'] != SEASON_GAME && $other_game['round'] == $game['round'] - 1) {
+					$ids[$other_game['id']] = $other_game['name'];
+				}
+			}
+
+			echo $this->Form->input ("Game.{$game['id']}.home_dependency_type", array(
+					'div' => false,
+					'label' => false,
+					'options' => $dependency_types,
+					'empty' => '---',
+					'selected' => $data['home_dependency_type'],
+			));
+			echo $this->Form->input ("Game.{$game['id']}.home_dependency_id", array(
+					'div' => false,
+					'label' => false,
+					'options' => $ids,
+					'empty' => '---',
+					'selected' => $data['home_dependency_id'],
+			));
 		}
 	} else {
 		echo $this->Form->input ("Game.{$game['id']}.home_team", array(
@@ -131,14 +202,61 @@ foreach ($games as $game):
 	<?php if (!$competition): ?>
 	<td><?php
 	if ($game['type'] != SEASON_GAME) {
-		if (empty ($game['AwayTeam'])) {
-			if (array_key_exists ('away_dependency', $game)) {
-				echo $game['away_dependency'];
-			} else {
-				__('Unassigned');
+		if ($game['away_dependency_type'] == 'pool') {
+			// Get the list of seeds in the pool
+			$ids = array();
+			foreach ($games as $other_game) {
+				if ($other_game['division_id'] == $game['division_id'] && $other_game['type'] != SEASON_GAME && $other_game['round'] == $game['round'] && $other_game['pool_id'] == $game['pool_id']) {
+					if (!in_array($other_game['HomePoolTeam']['id'], $ids)) {
+						$dependency = Pool::_dependency($other_game['HomePoolTeam']);
+						$alias = $other_game['HomePoolTeam']['alias'];
+						if (!empty($alias)) {
+							$dependency = "$alias [$dependency]";
+						}
+						$ids[$other_game['HomePoolTeam']['id']] = $dependency;
+					}
+
+					if (!in_array($other_game['AwayPoolTeam']['id'], $ids)) {
+						$dependency = Pool::_dependency($other_game['AwayPoolTeam']);
+						$alias = $other_game['AwayPoolTeam']['alias'];
+						if (!empty($alias)) {
+							$dependency = "$alias [$dependency]";
+						}
+						$ids[$other_game['AwayPoolTeam']['id']] = $dependency;
+					}
+				}
 			}
+
+			echo $this->Form->input ("Game.{$game['id']}.away_pool_team_id", array(
+					'div' => false,
+					'label' => false,
+					'options' => $ids,
+					'empty' => '---',
+					'selected' => $data['away_pool_team_id'],
+			));
 		} else {
-			echo $this->element('teams/block', array('team' => $game['AwayTeam'], 'options' => array('max_length' => 16)));
+			// Get the list of games in the previous round
+			$ids = array();
+			foreach ($games as $other_game) {
+				if ($other_game['division_id'] == $game['division_id'] && $other_game['type'] != SEASON_GAME && $other_game['round'] == $game['round'] - 1) {
+					$ids[$other_game['id']] = $other_game['name'];
+				}
+			}
+
+			echo $this->Form->input ("Game.{$game['id']}.away_dependency_type", array(
+					'div' => false,
+					'label' => false,
+					'options' => $dependency_types,
+					'empty' => '---',
+					'selected' => $data['away_dependency_type'],
+			));
+			echo $this->Form->input ("Game.{$game['id']}.away_dependency_id", array(
+					'div' => false,
+					'label' => false,
+					'options' => $ids,
+					'empty' => '---',
+					'selected' => $data['away_dependency_id'],
+			));
 		}
 	} else {
 		echo $this->Form->input ("Game.{$game['id']}.away_team", array(
@@ -165,7 +283,7 @@ endforeach;
 			'type' => 'checkbox',
 			'checked' => $published,
 	));
-	if (!$is_tournament) {
+	if ($is_season) {
 		echo $this->Form->input ('double_header', array(
 				'label' => __('Allow double-headers?', true),
 				'type' => 'checkbox',

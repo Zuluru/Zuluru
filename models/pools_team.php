@@ -1,6 +1,7 @@
 <?php
 class PoolsTeam extends AppModel {
 	var $name = 'PoolsTeam';
+	var $displayField = 'alias';
 
 	var $belongsTo = array(
 		'Pool' => array(

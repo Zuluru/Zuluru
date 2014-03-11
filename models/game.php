@@ -980,7 +980,6 @@ class Game extends AppModel {
 			$allow_cross_division = false;
 		}
 
-		$games = count($data['Game']);
 		// TODO: Remove workaround for Set::extract bug
 		$data['Game'] = array_values($data['Game']);
 		$used_slots = Set::extract ('/Game/game_slot_id', $data);
@@ -1007,80 +1006,203 @@ class Game extends AppModel {
 				Set::extract ('/Game/home_team', $data),
 				Set::extract ('/Game/away_team', $data)
 		);
-		if (in_array ('', $teams)) {
-			return array('text' => __('You cannot choose the "---" as the team!', true), 'class' => 'info');
-		}
+		if (!empty($teams)) {
+			if (in_array ('', $teams)) {
+				return array('text' => __('You cannot choose the "---" as the team!', true), 'class' => 'info');
+			}
 
-		$team_names = $this->Division->Team->find('list', array(
-				'contain' => false,
-				'conditions' => array('Team.id' => $teams),
-		));
+			$team_names = $this->Division->Team->find('list', array(
+					'contain' => false,
+					'conditions' => array('Team.id' => $teams),
+			));
 
-		$team_counts = array_count_values ($teams);
-		foreach ($team_counts as $team_id => $count) {
-			if ($count > 1) {
-				if ($allow_double_header) {
-					// Check that the double-header doesn't cause conflicts; must be at the same facility, but different times
-					$team_slot_ids = array_merge(
-						Set::extract ("/Game[home_team=$team_id]/game_slot_id", $data),
-						Set::extract ("/Game[away_team=$team_id]/game_slot_id", $data)
-					);
-					if (count ($team_slot_ids) != count (array_unique ($team_slot_ids))) {
-						return array('text' => sprintf (__('Team %s was scheduled twice in the same time slot!', true), $team_names[$team_id]), 'class' => 'info');
-					}
+			$team_counts = array_count_values ($teams);
+			foreach ($team_counts as $team_id => $count) {
+				if ($count > 1) {
+					if ($allow_double_header) {
+						// Check that the double-header doesn't cause conflicts; must be at the same facility, but different times
+						$team_slot_ids = array_merge(
+							Set::extract ("/Game[home_team=$team_id]/game_slot_id", $data),
+							Set::extract ("/Game[away_team=$team_id]/game_slot_id", $data)
+						);
+						if (count ($team_slot_ids) != count (array_unique ($team_slot_ids))) {
+							return array('text' => sprintf (__('Team %s was scheduled twice in the same time slot!', true), $team_names[$team_id]), 'class' => 'info');
+						}
 
-					$this->GameSlot->contain(array(
-							'Field',
-					));
-					$team_slots = $this->GameSlot->find('all', array('conditions' => array(
-							'GameSlot.id' => $team_slot_ids,
-					)));
-					foreach ($team_slots as $key1 => $slot1) {
-						foreach ($team_slots as $key2 => $slot2) {
-							if ($key1 != $key2) {
-								if ($slot1['GameSlot']['game_date'] == $slot2['GameSlot']['game_date'] &&
-									$slot1['GameSlot']['game_start'] >= $slot2['GameSlot']['game_start'] &&
-									$slot1['GameSlot']['game_start'] < $slot2['GameSlot']['display_game_end'])
-								{
-									return array('text' => sprintf (__('Team %s was scheduled in overlapping time slots!', true), $team_names[$team_id]), 'class' => 'info');
-								}
-								if ($slot1['Field']['facility_id'] != $slot2['Field']['facility_id']) {
-									return array('text' => sprintf (__('Team %s was scheduled on %s at different facilities!', true), $team_names[$team_id], Configure::read('ui.fields')), 'class' => 'info');
+						$this->GameSlot->contain(array(
+								'Field',
+						));
+						$team_slots = $this->GameSlot->find('all', array('conditions' => array(
+								'GameSlot.id' => $team_slot_ids,
+						)));
+						foreach ($team_slots as $key1 => $slot1) {
+							foreach ($team_slots as $key2 => $slot2) {
+								if ($key1 != $key2) {
+									if ($slot1['GameSlot']['game_date'] == $slot2['GameSlot']['game_date'] &&
+										$slot1['GameSlot']['game_start'] >= $slot2['GameSlot']['game_start'] &&
+										$slot1['GameSlot']['game_start'] < $slot2['GameSlot']['display_game_end'])
+									{
+										return array('text' => sprintf (__('Team %s was scheduled in overlapping time slots!', true), $team_names[$team_id]), 'class' => 'info');
+									}
+									if ($slot1['Field']['facility_id'] != $slot2['Field']['facility_id']) {
+										return array('text' => sprintf (__('Team %s was scheduled on %s at different facilities!', true), $team_names[$team_id], Configure::read('ui.fields')), 'class' => 'info');
+									}
 								}
 							}
 						}
+					} else {
+						return array('text' => sprintf (__('Team %s was selected more than once!', true), $team_names[$team_id]), 'class' => 'info');
 					}
-				} else {
-					return array('text' => sprintf (__('Team %s was selected more than once!', true), $team_names[$team_id]), 'class' => 'info');
+				}
+			}
+
+			$team_divisions = $this->Division->Team->find('list', array(
+					'contain' => array(),
+					'fields' => array('Team.id', 'Team.division_id'),
+					'conditions' => array('Team.id' => $teams),
+			));
+		}
+
+		$seeds = array_merge (
+				Set::extract ('/Game/home_pool_team_id', $data),
+				Set::extract ('/Game/away_pool_team_id', $data)
+		);
+		if (!empty($seeds)) {
+			if (in_array ('', $seeds)) {
+				return array('text' => __('You cannot choose the "---" as the seed!', true), 'class' => 'info');
+			}
+
+			$seed_names = $this->Division->Game->Pool->PoolsTeam->find('list', array(
+					'contain' => false,
+					'conditions' => array('PoolsTeam.id' => $seeds),
+			));
+
+			$seed_counts = array_count_values ($seeds);
+			foreach ($seed_counts as $seed_id => $count) {
+				if ($count > 1) {
+					return array('text' => sprintf (__('Seed %s was selected more than once!', true), $seed_names[$seed_id]), 'class' => 'info');
+				}
+			}
+
+			$seed_divisions = $this->Division->Game->Pool->PoolsTeam->find('list', array(
+					'contain' => array(),
+					'joins' => array(
+						array(
+							'table' => "{$this->tablePrefix}pools",
+							'alias' => 'Pool',
+							'type' => 'LEFT',
+							'foreignKey' => false,
+							'conditions' => 'PoolsTeam.pool_id = Pool.id',
+						),
+					),
+					'fields' => array('PoolsTeam.id', 'Pool.division_id'),
+					'conditions' => array('PoolsTeam.id' => $seeds),
+			));
+		}
+
+		$no_dependencies = array_merge (
+				Set::extract ('/Game[home_dependency_type=]', $data),
+				Set::extract ('/Game[away_dependency_type=]', $data)
+		);
+		if (!empty($no_dependencies)) {
+			return array('text' => __('You cannot choose the "---" as the dependency type!', true), 'class' => 'info');
+		}
+
+		$winners = array_merge (
+				Set::extract ('/Game[home_dependency_type=game_winner]/home_dependency_id', $data),
+				Set::extract ('/Game[away_dependency_type=game_winner]/away_dependency_id', $data)
+		);
+		if (!empty($winners)) {
+			if (in_array ('', $winners)) {
+				return array('text' => __('You cannot choose the "---" as the game dependency!', true), 'class' => 'info');
+			}
+
+			$game_names = $this->Division->Game->find('list', array(
+					'contain' => false,
+					'fields' => array('Game.id', 'Game.name'),
+					'conditions' => array('Game.id' => $winners),
+			));
+
+			$winner_counts = array_count_values ($winners);
+			foreach ($winner_counts as $winner_id => $count) {
+				if ($count > 1) {
+					return array('text' => sprintf (__('Winner of game %s was selected more than once!', true), $game_names[$winner_id]), 'class' => 'info');
 				}
 			}
 		}
 
-		$divisions = $this->Division->Team->find('list', array(
-				'contain' => array(),
-				'fields' => array('Team.id', 'Team.division_id'),
-				'conditions' => array('Team.id' => $teams),
-		));
+		$losers = array_merge (
+				Set::extract ('/Game[home_dependency_type=game_loser]/home_dependency_id', $data),
+				Set::extract ('/Game[away_dependency_type=game_loser]/away_dependency_id', $data)
+		);
+		if (!empty($losers)) {
+			if (in_array ('', $losers)) {
+				return array('text' => __('You cannot choose the "---" as the game dependency!', true), 'class' => 'info');
+			}
+
+			$game_names = $this->Division->Game->find('list', array(
+					'contain' => false,
+					'fields' => array('Game.id', 'Game.name'),
+					'conditions' => array('Game.id' => $losers),
+			));
+
+			$loser_counts = array_count_values ($losers);
+			foreach ($loser_counts as $loser_id => $count) {
+				if ($count > 1) {
+					return array('text' => sprintf (__('Loser of game %s was selected more than once!', true), $game_names[$loser_id]), 'class' => 'info');
+				}
+			}
+		}
+
+		if (!empty($winners) || !empty($losers)) {
+			$game_divisions = $this->Division->Game->find('list', array(
+					'contain' => array(),
+					'fields' => array('Game.id', 'Game.division_id'),
+					'conditions' => array('Game.id' => array_merge($winners, $losers)),
+			));
+		}
 
 		foreach ($data['Game'] as $key => $game) {
-			if ($divisions[$game['home_team']] != $divisions[$game['away_team']] && !$allow_cross_division) {
+			if (array_key_exists('home_team', $game)) {
+				$home_division = $team_divisions[$game['home_team']];
+				$home_name = $team_names[$game['home_team']];
+			} else if (array_key_exists('home_pool_team_id', $game)) {
+				$home_division = $seed_divisions[$game['home_pool_team_id']];
+				$home_name = $seed_names[$game['home_pool_team_id']];
+			} else if (array_key_exists('home_dependency_id', $game)) {
+				$home_division = $game_divisions[$game['home_dependency_id']];
+				$home_name = $game['home_dependency_type'] . ' ' . $game_names[$game['home_dependency_id']];
+			}
+
+			if (array_key_exists('away_team', $game)) {
+				$away_division = $team_divisions[$game['away_team']];
+				$away_name = $team_names[$game['away_team']];
+			} else if (array_key_exists('away_pool_team_id', $game)) {
+				$away_division = $seed_divisions[$game['away_pool_team_id']];
+				$away_name = $seed_names[$game['away_pool_team_id']];
+			} else if (array_key_exists('away_dependency_id', $game)) {
+				$away_division = $game_divisions[$game['away_dependency_id']];
+				$away_name = $game['away_dependency_type'] . ' ' . $game_names[$game['away_dependency_id']];
+			}
+
+			if ($home_division != $away_division && !$allow_cross_division) {
 				return array('text' => sprintf(__('You have scheduled teams from different divisions against each other (%s vs %s), but not checked the box allowing cross-division games.', true), $team_names[$game['home_team']], $team_names[$game['away_team']]), 'class' => 'info');
 			} else {
 				// Make sure that the game slot selected is available to one of the teams
-				$available_to_home = Set::extract("/GameSlot[id={$game['game_slot_id']}]", $available_slots[$divisions[$game['home_team']]]);
+				$available_to_home = Set::extract("/GameSlot[id={$game['game_slot_id']}]", $available_slots[$home_division]);
 				if (empty($available_to_home)) {
-					$available_to_away = Set::extract("/GameSlot[id={$game['game_slot_id']}]", $available_slots[$divisions[$game['away_team']]]);
+					$available_to_away = Set::extract("/GameSlot[id={$game['game_slot_id']}]", $available_slots[$away_division]);
 					if (empty($available_to_away)) {
-						return array('text' => sprintf(__('You have scheduled a game between %s and %s in a game slot not available to them.', true), $team_names[$game['home_team']], $team_names[$game['away_team']]), 'class' => 'info');
+						return array('text' => sprintf(__('You have scheduled a game between %s and %s in a game slot not available to them.', true), $home_name, $away_name), 'class' => 'info');
 					} else {
 						// Game is happening on a field only available to the away team, so make them the home team instead
-						$data['Game'][$key]['division_id'] = $divisions[$game['away_team']];
+						$data['Game'][$key]['division_id'] = $away_division;
 						list($data['Game'][$key]['home_team'], $data['Game'][$key]['away_team']) = array($game['away_team'], $game['home_team']);
 					}
 				}
 				// At this point, we know that the home team has access to the game slot,
 				// so we will make the division id of the game match that team
-				$data['Game'][$key]['division_id'] = $divisions[$game['home_team']];
+				$data['Game'][$key]['division_id'] = $home_division;
 			}
 		}
 
