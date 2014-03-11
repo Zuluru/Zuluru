@@ -63,6 +63,10 @@ if ($only_some_divisions) {
 }
 ?>
 
+<?php if ($this->Session->check('Message.schedule_edit')): ?>
+<tr><td colspan="<?php echo 5 + !$competition; ?>"><?php echo $this->Session->flash('schedule_edit'); ?></td></tr>
+<?php endif; ?>
+
 <?php
 $last_slot = null;
 foreach ($games as $game):

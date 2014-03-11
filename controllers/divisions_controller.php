@@ -770,6 +770,7 @@ class DivisionsController extends AppController {
 					$this->Session->setFlash(__('Schedule changes saved!', true), 'default', array('class' => 'success'));
 				} else {
 					$this->Session->setFlash($ret['text'], 'default', array('class' => $ret['class']));
+					$this->Session->setFlash($ret['text'], 'default', array('class' => $ret['class']), 'schedule_edit');
 				}
 				if ($ret === true || !empty($ret['result'])) {
 					Cache::delete($cache_key, 'long_term');
