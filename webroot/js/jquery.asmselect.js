@@ -99,7 +99,6 @@
 					if ( jQuery.browser.browser ) {
 						jQuery.browser[ jQuery.browser.browser ] = true;
 					}
-					alert(jQuery.browser.browser + ' ' + jQuery.browser.version);
 				}
 			}
 
