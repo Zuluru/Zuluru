@@ -489,13 +489,21 @@ class RegistrationsController extends AppController {
 			}
 		} else if (count($event['Price']) == 1) {
 			$test = $test['price_allowed'][$event['Price'][0]['id']];
-			$this->set('price', $event['Price'][0]);
+			$price = $event['Price'][0];
+			$this->set(compact('price'));
 			$this->set($test);
 		}
 
-		if (empty ($event['Questionnaire']['Question'])) {
+		if (empty ($event['Questionnaire']['Question']) && !empty($price) && (!$price['allow_deposit'] || $price['deposit_only'])) {
 			// The event has no questionnaire, save trivial registration data and proceed
-			$data = array('Registration' => array(), 'Response' => array());
+			$data = array('Registration' => array('price_id' => $price['id']), 'Response' => array());
+			$cost = $price['cost'] + $price['tax1'] + $price['tax2'];
+			if (!$price['allow_deposit']) {
+				$data['Registration']['payment_type'] = 'Full';
+			} else {
+				$data['Registration']['deposit_amount'] = $price['minimum_deposit'];
+				$data['Registration']['payment_type'] = 'Deposit';
+			}
 
 			// Set the flash message that will be used, if there are no errors
 			if ($waiting) {
