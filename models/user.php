@@ -90,7 +90,6 @@ class User extends AppModel {
 	 * Function to use for hashing passwords. This must match the type given
 	 * in the hash call in the install controller.
 	 */
-	// TODO: Use md5 for converted Leaguerunner databases.
 	var $hashMethod = 'sha256';
 
 	/**
