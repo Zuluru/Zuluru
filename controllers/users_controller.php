@@ -146,6 +146,248 @@ class UsersController extends AppController {
 		));
 	}
 
+	function import() {
+		$columns = $this->Person->_schema;
+		foreach (array('id', 'user_id', 'group_id', 'user_name', 'email', 'complete', 'twitter_token', 'twitter_secret') as $no_import) {
+			unset($columns[$no_import]);
+		}
+		foreach (array_keys($columns) as $column) {
+			if (!Configure::read("profile.$column")) {
+				unset($columns[$column]);
+			}
+		}
+		$columns['password'] = true;
+		$this->set('columns', array_keys($columns));
+
+		// Add other columns that we'll accept but are mentioned separately in the view
+		// Columns set to "true" are for the user record; anything else goes in the person record
+		$columns['id'] = array(true);
+		$columns['user_name'] = true;
+		$columns['email'] = true;
+
+		if (!empty($this->data)) {
+			// Handle affiliations
+			if (Configure::read('feature.affiliates')) {
+				if (Configure::read('feature.multiple_affiliates')) {
+					if (empty($this->data['Affiliate']['Affiliate'][0])) {
+						$this->Affiliate->Affiliate->validationErrors['Affiliate'] = __('You must select at least one affiliate.', true);
+					}
+				} else {
+					if (empty($this->data['Affiliate']['Affiliate'][0]) || count($this->data['Affiliate']['Affiliate']) > 1) {
+						$this->Affiliate->Affiliate->validationErrors['Affiliate'] = __('You must select an affiliate.', true);
+					}
+				}
+			}
+
+			$continue = true;
+			if (empty($this->data['Person']['on_error'])) {
+				$this->Person->validationErrors['on_error'] = __('Select how to handle fields with errors in them.', true);
+				$continue = false;
+			}
+			if (empty($this->data['Person']['status'])) {
+				$this->Person->validationErrors['status'] = __('Select a status for imported accounts.', true);
+				$continue = false;
+			}
+			if (!empty($this->data['file']['error'])) {
+				$this->Session->setFlash(__('There was an error uploading the file.', true), 'default', array('class' => 'info'));
+				$continue = false;
+			} else if ($this->data['file']['type'] != 'text/x-csv') {
+				$this->Session->setFlash(__('Only import from CSV files is currently supported.', true), 'default', array('class' => 'info'));
+				$continue = false;
+			}
+
+			if ($continue) {
+				$file = fopen($this->data['file']['tmp_name'], 'r');
+				$header = fgetcsv($file);
+				$skip = array();
+				foreach ($header as $key => $column) {
+					if (!array_key_exists($column, $columns)) {
+						unset($header[$key]);
+						$skip[] = $column;
+					}
+				}
+				if (!in_array('email', $header)) {
+					$this->Session->setFlash(__('No email column was found.', true), 'default', array('class' => 'info'));
+				} else {
+					$this->set(compact('header', 'skip'));
+					$remap = array(
+						'user_name' => $this->Auth->authenticate->userField,
+						'email' => $this->Auth->authenticate->emailField,
+						'password' => 'passwd', // beforeSave looks for this and hashes it
+					);
+					$unmap = array_flip($remap);
+
+					$succeeded = $resolved = $failed = array();
+
+					while (($row = fgetcsv($file)) !== false) {
+						// Skip rows starting with a #
+						if ($row[0][0] == '#') {
+							continue;
+						}
+
+						$continue = true;
+						$errors = array();
+						$data = array(
+							// TODO: Hardcoded group id
+							'Person' => array('group_id' => 1),
+							$this->Auth->authenticate->alias => array(),
+							'Affiliate' => $this->data['Affiliate'],
+						);
+						foreach ($header as $key => $column) {
+							if (array_key_exists($column, $remap)) {
+								$mapped_column = $remap[$column];
+							} else {
+								$mapped_column = $column;
+							}
+							if ($columns[$column] === true) {
+								$data[$this->Auth->authenticate->alias][$mapped_column] = $row[$key];
+							} else {
+								$data['Person'][$mapped_column] = $row[$key];
+							}
+						}
+						if (!empty($data['Person']['id'])) {
+							$matches = $this->Person->find('count', array(
+									'contain' => array(),
+									'conditions' => array('id' => $data['Person']['id']),
+							));
+							if ($matches) {
+								$errors[] = "id ({$data['Person']['id']} already taken)";
+								$continue = false;
+							}
+						}
+						if (empty($data[$this->Auth->authenticate->alias][$this->Auth->authenticate->userField])) {
+							$user_name = $data[$this->Auth->authenticate->alias][$this->Auth->authenticate->emailField];
+							if ($this->data['Person']['trim_email_domain']) {
+								$user_name = $base_name = substr($user_name, 0, strpos($user_name, '@'));
+								$append = 2;
+								while (true) {
+									if (!in_array($user_name, $succeeded) && !in_array($user_name, $resolved)) {
+										$matches = $this->Auth->authenticate->find('count', array(
+												'contain' => array(),
+												'conditions' => array($this->Auth->authenticate->userField => $user_name),
+										));
+										if (!$matches) {
+											break;
+										}
+									}
+									$user_name = "$base_name$append";
+									++ $append;
+								}
+							}
+							$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->userField] = $user_name;
+						}
+						if (empty($data[$this->Auth->authenticate->alias]['passwd'])) {
+							$data[$this->Auth->authenticate->alias]['passwd'] = $this->_password(10);
+						}
+						$names = array();
+						if (!empty($data['Person']['first_name'])) {
+							$names[] = $data['Person']['first_name'];
+						}
+						if (!empty($data['Person']['last_name'])) {
+							$names[] = $data['Person']['last_name'];
+						}
+						$data['Person']['full_name'] = implode(' ', $names);
+						$data['Person']['email_formatted'] = "{$data['Person']['full_name']} <{$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->emailField]}>";
+						if (!empty($this->Auth->authenticate->nameField) && empty($data[$this->Auth->authenticate->alias][$this->Auth->authenticate->nameField])) {
+							$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->nameField] = $data['Person']['full_name'];
+						}
+						if (empty($data['Person']['status'])) {
+							$data['Person']['status'] = $this->data['Person']['status'];
+						}
+
+						$success = $this->Person->saveAll($data, array('validate' => 'only'));
+
+						foreach (array_keys($this->Auth->authenticate->validationErrors) as $column) {
+							if (array_key_exists($column, $unmap)) {
+								$mapped_column = $unmap[$column];
+							} else {
+								$mapped_column = $column;
+							}
+							$errors[] = "$mapped_column ({$data[$this->Auth->authenticate->alias][$column]})";
+							$continue = false;
+						}
+
+						if ($continue && !$this->data['Person']['trial_run']) {
+							if ($success) {
+								$success = $this->Person->saveAll($data);
+							} else {
+								$old_validate = $this->Person->validate;
+								if ($this->data['Person']['on_error'] == 'blank') {
+									foreach (array_keys($this->Person->validationErrors) as $column) {
+										unset($data['Person'][$column]);
+										unset($this->Person->validate[$column]);
+										$errors[] = "$column ('{$data['Person'][$column]}' blanked)";
+									}
+								} else if ($this->data['Person']['on_error'] == 'ignore') {
+									foreach (array_keys($this->Person->validationErrors) as $column) {
+										unset($this->Person->validate[$column]);
+										$errors[] = "$column ('{$data['Person'][$column]}' imported anyway)";
+									}
+								} else {
+									$continue = false;
+								}
+
+								if ($continue) {
+									$success = $this->Person->saveAll($data, array('validate' => 'first'));
+								}
+								$this->Person->validate = $old_validate;
+							}
+						}
+
+						if ($continue && $success) {
+							if (empty($errors)) {
+								$succeeded[] = "{$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->userField]} ({$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->emailField]})";
+							} else {
+								$resolved[] = "{$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->userField]} ({$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->emailField]})" .
+										': ' . implode(', ', $errors);
+							}
+							if (!$this->data['Person']['trial_run'] && $this->data['Person']['notify_new_users']) {
+								$this->set (array(
+										'user' => $data,
+										'user_model' => $this->Auth->authenticate->alias,
+										'user_field' => $this->Auth->authenticate->userField,
+								));
+								$this->_sendMail (array (
+										'to' => $data,
+										'subject' => 'New account',
+										'template' => 'account_new',
+										'sendAs' => 'both',
+								));
+							}
+						} else {
+							unset($this->Person->validationErrors[$this->Auth->authenticate->alias]);
+							foreach (array_keys($this->Person->validationErrors) as $column) {
+								$errors[] = "$column ({$data['Person'][$column]})";
+								if ($this->data['Person']['on_error'] == 'skip') {
+									$continue = false;
+								}
+							}
+
+							if ($continue) {
+								$resolved[] = "{$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->userField]} ({$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->emailField]})" .
+										': ' . implode(', ', $errors);
+							} else {
+								$failed[] = "{$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->userField]} ({$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->emailField]})" .
+										': ' . implode(', ', $errors);
+							}
+						}
+					}
+				}
+			}
+		} else {
+			// Set default state for checkboxes, since Cake doesn't allow default
+			// settings in the input call for them.
+			$this->data = array('Person' => array(
+					'trim_email_domain' => true,
+					'trial_run' => true,
+					'notify_new_users' => true,
+			));
+		}
+
+		$affiliates = $this->_applicableAffiliates(true);
+		$this->set(compact('affiliates', 'succeeded', 'resolved', 'failed'));
+	}
+
 	function change_password() {
 		$id = $this->_arg('user');
 		if (!$id) {
