@@ -54,7 +54,7 @@ foreach ($games as $game):
 ?>
 
 <tr<?php if (!$game['Game']['published']) echo ' class="unpublished"'; ?>>
-	<td><?php if ($is_tournament && !$same_slot): ?><?php echo $game['name']; ?><?php endif; ?></td>
+	<td><?php if ($is_tournament && !$same_slot): ?><?php echo $game['Game']['name']; ?><?php endif; ?></td>
 	<td><?php
 	if (!$same_slot) {
 		$time = $this->ZuluruTime->time($game['GameSlot']['game_start']) . '-' .
