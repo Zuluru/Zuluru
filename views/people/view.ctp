@@ -130,14 +130,14 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 
 		</dd>
 		<?php if ($is_me || $is_admin || $is_manager || $is_coordinator || $is_captain):?>
-			<?php if (Configure::read('profile.height')): ?>
+			<?php if (Configure::read('profile.height') && !empty($person['height'])): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Height'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php echo $person['height'] . ' ' . __('inches', true); ?>
 
 			</dd>
 			<?php endif; ?>
-			<?php if (Configure::read('profile.shirt_size')): ?>
+			<?php if (Configure::read('profile.shirt_size') && !empty($person['shirt_size'])): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Shirt Size'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php __($person['shirt_size']); ?>
