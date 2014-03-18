@@ -2958,6 +2958,10 @@ class GamesController extends AppController {
 				'subject' => "{$team['name']} $subject",
 				'template' => $template,
 				'sendAs' => 'both',
+				'header' => array(
+					'Auto-Submitted' => 'auto-generated',
+					'X-Auto-Response-Suppress' => 'OOF',
+				),
 		)))
 		{
 			return false;
@@ -3397,6 +3401,10 @@ class GamesController extends AppController {
 							'subject' => "{$team['name']} attendance reminder",
 							'template' => 'attendance_reminder',
 							'sendAs' => 'both',
+							'header' => array(
+								'Auto-Submitted' => 'auto-generated',
+								'X-Auto-Response-Suppress' => 'OOF',
+							),
 					)))
 					{
 						++$sent;
@@ -3441,6 +3449,10 @@ class GamesController extends AppController {
 				'subject' => "{$team['name']} attendance summary",
 				'template' => 'attendance_summary',
 				'sendAs' => 'both',
+				'header' => array(
+					'Auto-Submitted' => 'auto-generated',
+					'X-Auto-Response-Suppress' => 'OOF',
+				),
 		)))
 		{
 			$this->Game->AttendanceSummaryEmail->create();

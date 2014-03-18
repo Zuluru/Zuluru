@@ -306,12 +306,24 @@ class NewslettersController extends AppController {
 				'subject' => $newsletter['Newsletter']['subject'],
 				'sendAs' => 'html',
 				'template' => 'newsletter',
+				'header' => array(
+					'Auto-Submitted' => 'auto-generated',
+					'X-Auto-Response-Suppress' => 'OOF',
+					'Precedence' => 'list',
+				),
 		);
+
 		if ($newsletter['Newsletter']['personalize']) {
 			foreach ($people as $person) {
 				$params['to'] = $person;
 				$code = $this->_hash($person['Person']['id'], $newsletter['MailingList']['id']);
 				$this->set(compact('person', 'code'));
+
+				if ($newsletter['MailingList']['opt_out']) {
+					$url = Router::url(array('controller' => 'mailing_lists', 'action' => 'unsubscribe', 'list' => $newsletter['MailingList']['id'], 'person' => $person['Person']['id'], 'code' => $code), true);
+					$params['header']['List-Unsubscribe'] = "<$url>";
+				}
+
 				$this->_sendMail ($params);
 
 				if ($execute) {
@@ -334,6 +346,12 @@ class NewslettersController extends AppController {
 			if (!empty($newsletter['Newsletter']['replyto'])) {
 				$params['replyTo'] = $newsletter['Newsletter']['replyto'];
 			}
+
+			if ($newsletter['MailingList']['opt_out']) {
+				$url = Router::url(array('controller' => 'mailing_lists', 'action' => 'unsubscribe', 'list' => $newsletter['MailingList']['id']), true);
+				$params['header']['List-Unsubscribe'] = "<$url>";
+			}
+
 			$this->_sendMail ($params);
 
 			if ($execute) {

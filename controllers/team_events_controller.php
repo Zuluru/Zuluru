@@ -629,6 +629,10 @@ class TeamEventsController extends AppController {
 							'subject' => "{$team['name']} attendance reminder",
 							'template' => 'event_attendance_reminder',
 							'sendAs' => 'both',
+							'header' => array(
+								'Auto-Submitted' => 'auto-generated',
+								'X-Auto-Response-Suppress' => 'OOF',
+							),
 					)))
 					{
 						++$sent;
@@ -678,6 +682,10 @@ class TeamEventsController extends AppController {
 				'subject' => "{$team['name']} attendance summary",
 				'template' => 'event_attendance_summary',
 				'sendAs' => 'both',
+				'header' => array(
+					'Auto-Submitted' => 'auto-generated',
+					'X-Auto-Response-Suppress' => 'OOF',
+				),
 		)))
 		{
 			$this->TeamEvent->AttendanceSummaryEmail->create();

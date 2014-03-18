@@ -2784,6 +2784,10 @@ class PeopleController extends AppController {
 								'subject' => Configure::read('organization.name') . " $year Membership",
 								'template' => 'membership_letter',
 								'sendAs' => 'both',
+								'header' => array(
+									'Auto-Submitted' => 'auto-generated',
+									'X-Auto-Response-Suppress' => 'OOF',
+								),
 						)))
 						{
 							// Update the activity log

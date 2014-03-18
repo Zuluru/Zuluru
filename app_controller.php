@@ -1219,6 +1219,11 @@ class AppController extends Controller {
 			return (array_key_exists('ignore_empty_address', $opts) && $opts['ignore_empty_address']);
 		}
 
+		// Add any custom headers
+		if (array_key_exists ('header', $opts)) {
+			$email->header($opts['header']);
+		}
+
 		// Get ready and send it
 		$email->initialize ($this, $opts);
 		if (array_key_exists('content', $opts)) {

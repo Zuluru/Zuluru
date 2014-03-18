@@ -3036,6 +3036,10 @@ class TeamsController extends AppController {
 					'template' => 'roster_invite_reminder',
 					'sendAs' => 'both',
 					'ignore_empty_address' => true,
+					'header' => array(
+						'Auto-Submitted' => 'auto-generated',
+						'X-Auto-Response-Suppress' => 'OOF',
+					),
 			)))
 			{
 				return false;
@@ -3050,6 +3054,10 @@ class TeamsController extends AppController {
 						'template' => 'roster_invite_captain_reminder',
 						'sendAs' => 'both',
 						'ignore_empty_address' => true,
+						'header' => array(
+							'Auto-Submitted' => 'auto-generated',
+							'X-Auto-Response-Suppress' => 'OOF',
+						),
 				)))
 				{
 					return false;
@@ -3063,6 +3071,10 @@ class TeamsController extends AppController {
 					'template' => 'roster_request_reminder',
 					'sendAs' => 'both',
 					'ignore_empty_address' => true,
+					'header' => array(
+						'Auto-Submitted' => 'auto-generated',
+						'X-Auto-Response-Suppress' => 'OOF',
+					),
 			)))
 			{
 				return false;
@@ -3077,6 +3089,10 @@ class TeamsController extends AppController {
 						'template' => 'roster_request_player_reminder',
 						'sendAs' => 'both',
 						'ignore_empty_address' => true,
+						'header' => array(
+							'Auto-Submitted' => 'auto-generated',
+							'X-Auto-Response-Suppress' => 'OOF',
+						),
 				)))
 				{
 					return false;
@@ -3105,6 +3121,10 @@ class TeamsController extends AppController {
 					'template' => 'roster_invite_expire',
 					'sendAs' => 'both',
 					'ignore_empty_address' => true,
+					'header' => array(
+						'Auto-Submitted' => 'auto-generated',
+						'X-Auto-Response-Suppress' => 'OOF',
+					),
 			)))
 			{
 				return false;
@@ -3118,6 +3138,10 @@ class TeamsController extends AppController {
 					'template' => 'roster_request_expire',
 					'sendAs' => 'both',
 					'ignore_empty_address' => true,
+					'header' => array(
+						'Auto-Submitted' => 'auto-generated',
+						'X-Auto-Response-Suppress' => 'OOF',
+					),
 			)))
 			{
 				return false;
