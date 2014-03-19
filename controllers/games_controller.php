@@ -278,7 +278,7 @@ class GamesController extends AppController {
 			($team_id != $game['Game']['home_team'] && $team_id != $game['Game']['away_team']))
 		{
 			$this->header('HTTP/1.1 410 Gone');
-			return;
+			exit;
 		}
 		$this->Configuration->loadAffiliate($game['GameSlot']['Field']['Facility']['Region']['affiliate_id']);
 
