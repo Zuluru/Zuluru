@@ -1697,9 +1697,11 @@ class PeopleController extends AppController {
 		}
 		$this->set(compact('document'));
 
+$x = new DatabaseTransaction($this->Person->Upload);
 		if (!empty($this->data)) {
 			if ($this->Person->Upload->save($this->data)) {
 				// Read updated version
+				$this->Person->Upload->contain(array('Person' => $this->Auth->authenticate->name, 'UploadType'));
 				$document = $this->Person->Upload->read (null, $id);
 				$this->UserCache->clear('Documents', $document['Person']['id']);
 				$this->set(compact('document'));
