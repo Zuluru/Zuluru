@@ -760,15 +760,19 @@ class RegistrationsController extends AppController {
 
 	function _unregisterDependencies($person_id) {
 		// Get everything from the user record that the decisions below might need
-		$this->Registration->Person->contain (array (
-			'Registration' => array(
-				'Event' => array('EventType'),
-				'Price',
-				'Response',
-				'conditions' => array('NOT' => array('payment' => Configure::read('registration_cancelled'))),
+		$person = array(
+			'Person' => $this->UserCache->read('Person', $person_id),
+			'Team' => $this->UserCache->read('Teams', $person_id),
+			'Preregistration' => $this->UserCache->read('Preregistrations', $person_id),
+			'Registration' => array_merge(
+				$this->UserCache->read('RegistrationsPaid', $person_id),
+				$this->UserCache->read('RegistrationsUnpaid', $person_id)
 			),
-		));
-		$person = $this->Registration->Person->read(null, $person_id);
+			'Upload' => $this->UserCache->read('Documents', $person_id),
+			'Affiliate' => $this->UserCache->read('Affiliates', $person_id),
+			'Waiver' => $this->UserCache->read('Waivers', $person_id),
+		);
+
 		$unregistered = false;
 
 		// Pull out the list of unpaid registrations; these are the ones that might be removed
