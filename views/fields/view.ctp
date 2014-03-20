@@ -140,6 +140,10 @@ if ($field['Field']['length'] > 0) {
 		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __(Configure::read('ui.field_cap'), true)), array('action' => 'edit', 'field' => $field['Field']['id'], 'return' => true)); ?> </li>
 		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Layout', true)), array('controller' => 'maps', 'action' => 'edit', 'field' => $field['Field']['id'], 'return' => true)); ?> </li>
 		<li><?php echo $this->Html->link(sprintf(__('Add %s', true), __('Game Slots', true)), array('controller' => 'game_slots', 'action' => 'add', 'field' => $field['Field']['id'])); ?> </li>
+		<li><?php echo $this->ZuluruHtml->iconLink('delete_32.png',
+				array('action' => 'delete', 'field' => $field['Field']['id']),
+				array('alt' => __('Delete', true), 'title' => __('Delete', true)),
+				array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $field['Field']['id']))); ?></li>
 <?php endif; ?>
 		<li><?php echo $this->Html->link(sprintf(__('View %s', true), __('Bookings ', true)), array('action' => 'bookings', 'field' => $field['Field']['id'])); ?> </li>
 	</ul>

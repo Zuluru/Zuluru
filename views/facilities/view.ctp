@@ -150,6 +150,10 @@ $surfaces = array_map(array('Inflector', 'humanize'), $surfaces);
 					<?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Layout', true)), array('controller' => 'maps', 'action' => 'edit', 'field' => $related['id'], 'return' => true)); ?>
 					<?php echo $this->Html->link(sprintf(__('Add %s', true), __('Game Slots', true)), array('controller' => 'game_slots', 'action' => 'add', 'field' => $related['id'])); ?>
 					<?php echo $this->Html->link(sprintf(__('View %s', true), __('Bookings', true)), array('controller' => 'fields', 'action' => 'bookings', 'field' => $related['id'])); ?>
+					<?php echo $this->ZuluruHtml->iconLink('delete_24.png',
+							array('controller' => 'fields', 'action' => 'delete', 'field' => $related['id'], 'return' => true),
+							array('alt' => __('Delete', true), 'title' => __('Delete', true)),
+							array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $related['id']))); ?>
 					<span id="span_<?php echo $related['id']; ?>">
 					<?php
 					if ($related['is_open']) {
@@ -182,8 +186,16 @@ $surfaces = array_map(array('Inflector', 'humanize'), $surfaces);
 <div class="actions">
 	<ul>
 <?php if ($is_admin || $is_manager): ?>
-		<li><?php echo $this->Html->link(sprintf(__('Edit %s', true), __('Facility', true)), array('action' => 'edit', 'facility' => $facility['Facility']['id'], 'return' => true)); ?> </li>
-		<li><?php echo $this->Html->link(sprintf(__('Add %s', true), __(Configure::read('ui.field_cap'), true)), array('controller' => 'fields', 'action' => 'add', 'facility' => $facility['Facility']['id'])); ?> </li>
+		<li><?php echo $this->ZuluruHtml->iconLink('edit_32.png',
+				array('action' => 'edit', 'facility' => $facility['Facility']['id'], 'return' => true),
+				array('alt' => __('Edit', true), 'title' => __('Edit', true))); ?></li>
+		<li><?php echo $this->ZuluruHtml->iconLink('add_32.png',
+				array('controller' => 'fields', 'action' => 'add', 'facility' => $facility['Facility']['id'], 'return' => true),
+				array('alt' => sprintf(__('Add %s', true), __(Configure::read('ui.field'), true)), 'title' => sprintf(__('Add %s', true), __(Configure::read('ui.field'), true)))); ?></li>
+		<li><?php echo $this->ZuluruHtml->iconLink('delete_32.png',
+				array('action' => 'delete', 'facility' => $facility['Facility']['id']),
+				array('alt' => __('Delete', true), 'title' => __('Delete', true)),
+				array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $facility['Facility']['id']))); ?></li>
 <?php endif; ?>
 	</ul>
 </div>
