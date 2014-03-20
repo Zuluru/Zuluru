@@ -1697,7 +1697,6 @@ class PeopleController extends AppController {
 		}
 		$this->set(compact('document'));
 
-$x = new DatabaseTransaction($this->Person->Upload);
 		if (!empty($this->data)) {
 			if ($this->Person->Upload->save($this->data)) {
 				// Read updated version
