@@ -10,9 +10,15 @@ class RuleMemberTypeComponent extends RuleComponent
 	function parse($config) {
 		$this->config = trim ($config, '"\'');
 		if ($this->config[0] == '<') {
-			$this->config = array('0000-00-00', substr($this->config, 1));
+			$to = substr($this->config, 1);
+			$to = date('Y-m-d', strtotime($to) - DAY);
+			$this->config = array('0000-00-00', $to);
+			$this->desc = 'have a past membership type';
 		} else if ($this->config[0] == '>') {
-			$this->config = array(substr($this->config, 1), '9999-12-31');
+			$from = substr($this->config, 1);
+			$from = date('Y-m-d', strtotime($to) + DAY);
+			$this->config = array($from, '9999-12-31');
+			$this->desc = 'have an upcoming membership type';
 		} else if (strpos($this->config, ',') !== false) {
 			$this->config = explode(',', $this->config);
 		}
