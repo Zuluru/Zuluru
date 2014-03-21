@@ -41,8 +41,12 @@ foreach ($event['Questionnaire']['Question'] as $question) {
 				$header[] = $question['question'];
 			}
 		} else if ($question['type'] == 'checkbox') {
-			foreach ($question['Answer'] as $answer) {
-				$header[] = $answer['answer'];
+			if (!empty($question['Answer'])) {
+				foreach ($question['Answer'] as $answer) {
+					$header[] = $answer['answer'];
+				}
+			} else {
+				$header[] = $question['question'];
 			}
 		}
 	}
@@ -93,8 +97,14 @@ foreach($registrations as $registration) {
 				}
 				$row[] = $answer['answer'];
 			} else if ($question['type'] == 'checkbox') {
-				foreach ($question['Answer'] as $answer) {
-					$answers = Set::extract ("/Response[question_id={$question['id']}][answer_id={$answer['id']}]/.", $registration);
+				if (!empty($question['Answer'])) {
+					foreach ($question['Answer'] as $answer) {
+						$answers = Set::extract ("/Response[question_id={$question['id']}][answer_id={$answer['id']}]/.", $registration);
+						$row[] = __(empty ($answers) ? 'no' : 'yes', true);
+					}
+				} else {
+					// Auto questions may fall into this category
+					$answers = Set::extract ("/Response[question_id={$question['id']}][answer_id=1]/.", $registration);
 					$row[] = __(empty ($answers) ? 'no' : 'yes', true);
 				}
 			}
