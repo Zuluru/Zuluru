@@ -51,6 +51,12 @@ class CanRegisterComponent extends Object
 			$this->person_duplicates = null;
 		}
 
+		// If we're editing a registration, remove it from the user's list,
+		// as it only causes problems with rules in the CanRegister test
+		if ($for_edit && array_key_exists('Registration', $event)) {
+			$this->person['Registration'] = Set::extract ("/Registration[id!={$event['Registration']['id']}]/..", $this->person['Registration']);
+		}
+
 		// Pull out the registration record(s) for the current event, if any.
 		$registrations = Set::extract ("/Event[id={$event['Event']['id']}]/..", $this->person['Registration']);
 		$is_registered = !empty ($registrations);
