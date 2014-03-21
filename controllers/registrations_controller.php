@@ -728,35 +728,35 @@ class RegistrationsController extends AppController {
 
 		// Wrap the rest in a transaction, for safety.
 		$transaction = new DatabaseTransaction($this->Registration);
+		$success = true;
 
-		if ($this->Registration->delete()) {
-			$success = true;
-			$this->Session->setFlash(__('Successfully unregistered from this event.', true), 'default', array('class' => 'success'));
-
-			// Check if anything else must be removed as a result (e.g. team reg after removing membership)
-			while ($this->_unregisterDependencies($registration['Registration']['person_id'])) {
-				$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
-			}
-
-			$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
-			if (in_array($registration['Registration']['payment'], Configure::read('registration_paid'))) {
-				if (!$event_obj->unpaid($registration, $registration)) {
-					$success = false;
-					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-				}
-			}
-			if (!$event_obj->unregister($registration, $registration)) {
+		$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
+		if (in_array($registration['Registration']['payment'], Configure::read('registration_paid'))) {
+			if (!$event_obj->unpaid($registration, $registration)) {
 				$success = false;
 				$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
 			}
+		}
+		if (!$event_obj->unregister($registration, $registration)) {
+			$success = false;
+			$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+		}
 
-			if ($success) {
+		if ($success) {
+			if ($this->Registration->delete()) {
+				$this->Session->setFlash(__('Successfully unregistered from this event.', true), 'default', array('class' => 'success'));
+
+				// Check if anything else must be removed as a result (e.g. team reg after removing membership)
+				while ($this->_unregisterDependencies($registration['Registration']['person_id'])) {
+					$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
+				}
+
 				$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
 				$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
 				$transaction->commit();
+			} else {
+				$this->Session->setFlash(__('Failed to unregister from this event!', true), 'default', array('class' => 'warning'));
 			}
-		} else {
-			$this->Session->setFlash(__('Failed to unregister from this event!', true), 'default', array('class' => 'warning'));
 		}
 
 		$this->redirect(array('action' => 'checkout'));
@@ -792,12 +792,12 @@ class RegistrationsController extends AppController {
 				if ($rule_obj->init ($registration['Price']['register_rule']) &&
 					!$rule_obj->evaluate ($registration['Event']['affiliate_id'], $person))
 				{
-					$this->Registration->delete($registration['id']);
 					$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
 					if (in_array($registration['payment'], Configure::read('registration_reserved'))) {
 						$event_obj->unpaid($registration, $registration);
 					}
 					$event_obj->unregister($registration, $registration);
+					$this->Registration->delete($registration['id']);
 					unset ($person['Registration'][$key]);
 					$unregistered = true;
 				}
