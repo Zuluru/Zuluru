@@ -734,7 +734,9 @@ class RegistrationsController extends AppController {
 			$this->Session->setFlash(__('Successfully unregistered from this event.', true), 'default', array('class' => 'success'));
 
 			// Check if anything else must be removed as a result (e.g. team reg after removing membership)
-			while ($this->_unregisterDependencies($registration['Registration']['person_id'])) {}
+			while ($this->_unregisterDependencies($registration['Registration']['person_id'])) {
+				$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
+			}
 
 			$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
 			if (in_array($registration['Registration']['payment'], Configure::read('registration_paid'))) {
@@ -749,6 +751,8 @@ class RegistrationsController extends AppController {
 			}
 
 			if ($success) {
+				$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
+				$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
 				$transaction->commit();
 			}
 		} else {
