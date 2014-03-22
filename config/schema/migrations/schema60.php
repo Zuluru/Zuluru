@@ -42,7 +42,7 @@ class Zuluru60Schema extends CakeSchema {
 		'registration_id' => array('type' => 'integer', 'null' => false, 'default' => NULL),
 		'registration_audit_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'payment_type' => array('type' => 'string', 'null' => false, 'default' => 'Full', 'length' => '32'),
-		'payment_method' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => '32'),
+		'payment_method' => array('type' => 'string', 'null' => false, 'default' => 'Other', 'length' => '32'),
 		'payment_amount' => array('type' => 'float', 'null' => true, 'default' => '0.00', 'length' => '7,2'),
 		'refunded_amount' => array('type' => 'float', 'null' => false, 'default' => '0.00', 'length' => '7,2'),
 		'notes' => array('type' => 'text', 'null' => true, 'default' => NULL),
