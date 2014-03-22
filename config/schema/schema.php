@@ -437,6 +437,7 @@ class ZuluruSchema extends CakeSchema {
 		'registration_id' => array('type' => 'integer', 'null' => false, 'default' => NULL),
 		'registration_audit_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'payment_type' => array('type' => 'string', 'null' => false, 'default' => 'Full', 'length' => '32'),
+		'payment_method' => array('type' => 'string', 'null' => false, 'default' => 'Other', 'length' => '32'),
 		'payment_amount' => array('type' => 'float', 'null' => true, 'default' => '0.00', 'length' => '7,2'),
 		'refunded_amount' => array('type' => 'float', 'null' => false, 'default' => '0.00', 'length' => '7,2'),
 		'notes' => array('type' => 'text', 'null' => true, 'default' => NULL),
@@ -534,7 +535,7 @@ class ZuluruSchema extends CakeSchema {
 		'allow_deposit' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'fixed_deposit' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'deposit_only' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
-		'minimum_deposit' => array('type' => 'float', 'null' => false, 'default' => '0', 'length' => '7,2'),
+		'minimum_deposit' => array('type' => 'float', 'null' => false, 'default' => '0.00', 'length' => '7,2'),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);

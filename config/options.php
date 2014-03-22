@@ -132,6 +132,16 @@ $config['options'] = array(
 		'Waiting',
 	)),
 
+	'payment_method'		=> make_options(array(
+		'Online',
+		'Credit Card',
+		'Cheque',
+		'Electronic Funds Transfer',
+		'Cash',
+		'Money Order',
+		'Other',
+	)),
+
 	'incident_types'		=> make_options(array(
 		Configure::read('ui.field_cap') . ' condition',
 		'Injury',

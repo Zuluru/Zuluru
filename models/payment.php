@@ -6,6 +6,14 @@ class Payment extends AppModel {
 		'modified_by_field' => 'updated_person_id',
 		'auto_bind' => false,
 	));
+	var $validate = array(
+		'payment_method' => array(
+			'inlist' => array(
+				'rule' => array('inconfig', 'options.payment_method'),
+				'message' => 'Select a valid payment method.',
+			),
+		),
+	);
 
 	var $belongsTo = array(
 		'Registration' => array(

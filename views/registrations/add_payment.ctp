@@ -16,6 +16,10 @@ $this->Html->addCrumb (sprintf(__('%s Payment', true), __('Add', true)));
 		echo $this->ZuluruForm->input('payment_amount', array(
 				'default' => $registration['Registration']['total_amount'] - $payments,
 		));
+		echo $this->ZuluruForm->input('payment_method', array(
+				'empty' => 'Select one:',
+				'options' => Configure::read('options.payment_method'),
+		));
 
 		echo $this->ZuluruForm->input('notes', array(
 				'type' => 'textbox',

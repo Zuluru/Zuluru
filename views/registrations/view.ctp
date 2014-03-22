@@ -77,6 +77,11 @@ $balance = $registration['Registration']['total_amount'];
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $payment['payment_type'];?>
 		</dd>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Payment Method');?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo $payment['payment_method'];?>
+		</dd>
+		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Payment Amount');?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php
@@ -96,16 +101,12 @@ $balance = $registration['Registration']['total_amount'];
 			<?php echo $payment['notes'];?>
 		</dd>
 		<?php endif; ?>
+		<?php if ($payment['created_person_id'] !== null): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Entered By');?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php
-			if ($payment['created_person_id'] !== null) {
-				echo $this->UserCache->read('Person.full_name', $payment['created_person_id']);
-			} else {
-				__('Online payment');
-			}
-			?>
+			<?php echo $this->UserCache->read('Person.full_name', $payment['created_person_id']); ?>
 		</dd>
+		<?php endif; ?>
 		<?php if ($payment['updated_person_id'] !== null): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Updated By');?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
