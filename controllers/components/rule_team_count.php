@@ -9,7 +9,9 @@ class RuleTeamCountComponent extends RuleComponent
 
 	function parse($config) {
 		if (strpos($config, ',') !== false) {
-			$this->config = array('params' => explode(',', $config));
+			$this->config = array('params' => array_map('trim', explode(',', $config)));
+		} else {
+			$this->config = array('params' => array(trim($config)));
 		}
 
 		$sub_key = array_search('include_subs', $this->config['params']);
