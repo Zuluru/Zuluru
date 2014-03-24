@@ -65,7 +65,7 @@ if ($is_manager) {
 			}
 			if (!empty($facilities)):
 ?>
-<p class="warning-message">The following facilities do not yet have <?php echo Configure::read('ui.fields'); ?>:</p>
+<p class="warning-message">The following facilities are open but do not have any open <?php echo Configure::read('ui.fields'); ?>:</p>
 <table class="list">
 <tr>
 	<th><?php __('Facility'); ?></th>
