@@ -50,7 +50,7 @@ if ($is_admin) {
 
 if ($is_manager) {
 	$my_affiliates = $this->UserCache->read('ManagedAffiliates');
-	if (!empty($my_affiliates)) {
+	if ($is_admin || !empty($my_affiliates)) {
 		$facilities = $this->requestAction(array('controller' => 'facilities', 'action' => 'index'));
 		$facilities = Set::extract('/Facility[id>0]', $facilities);
 		if (empty($facilities)) {
