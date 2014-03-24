@@ -9,7 +9,7 @@
 <?php
 usort($items, array('Game', 'compareDateAndField'));
 if (!isset($person_id)) {
-	$person_id = null;
+	$person_id = $my_id;
 }
 $i = 0;
 foreach ($items as $item):
@@ -70,6 +70,7 @@ foreach ($items as $item):
 			$roster = reset(Set::extract("/TeamsPerson[team_id={$team['id']}]/.", $teams));
 			if ($roster['status'] == ROSTER_APPROVED) {
 				$is_captain = in_array($team['id'], $this->UserCache->read('OwnedTeamIDs'));
+				$record = Set::extract("/Attendance[person_id=$person_id]/.", $item);
 				echo $this->element('games/attendance_change', array(
 					'team' => $team,
 					'game_id' => $item['Game']['id'],
@@ -77,8 +78,8 @@ foreach ($items as $item):
 					'game_time' => $item['GameSlot']['game_start'],
 					'person_id' => $person_id,
 					'role' => $roster['role'],
-					'status' => (array_key_exists (0, $item['Attendance']) ? $item['Attendance'][0]['status'] : ATTENDANCE_UNKNOWN),
-					'comment' => (array_key_exists (0, $item['Attendance']) ? $item['Attendance'][0]['comment'] : null),
+					'status' => (array_key_exists (0, $record) ? $record[0]['status'] : ATTENDANCE_UNKNOWN),
+					'comment' => (array_key_exists (0, $record) ? $record[0]['comment'] : null),
 					'is_captain' => $is_captain,
 					'future_only' => true,
 				));
@@ -126,6 +127,7 @@ foreach ($items as $item):
 		<td class="actions splash_action"><?php
 			if ($item['Team']['track_attendance']) {
 				$roster = Set::extract("/TeamsPerson[team_id={$item['Team']['id']}]/.", $teams);
+				$record = Set::extract("/Attendance[person_id=$person_id]/.", $item);
 				if (!empty($roster) && $roster[0]['status'] == ROSTER_APPROVED) {
 					echo $this->element('team_events/attendance_change', array(
 						'team' => $item['Team'],
@@ -134,8 +136,8 @@ foreach ($items as $item):
 						'time' => $item['TeamEvent']['start'],
 						'person_id' => $person_id,
 						'role' => $roster[0]['role'],
-						'status' => (array_key_exists (0, $item['Attendance']) ? $item['Attendance'][0]['status'] : ATTENDANCE_UNKNOWN),
-						'comment' => (array_key_exists (0, $item['Attendance']) ? $item['Attendance'][0]['comment'] : null),
+						'status' => (array_key_exists (0, $record) ? $record[0]['status'] : ATTENDANCE_UNKNOWN),
+						'comment' => (array_key_exists (0, $record) ? $record[0]['comment'] : null),
 						'is_captain' => in_array($item['Team']['id'], $this->UserCache->read('OwnedTeamIDs')),
 					));
 				}
