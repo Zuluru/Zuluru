@@ -251,12 +251,16 @@ class LeaguesController extends AppController {
 			$this->Configuration->loadAffiliate($this->data['League']['affiliate_id']);
 		} else if ($this->_arg('league')) {
 			// To clone a league, read the old one and remove the id
-			$this->League->contain();
+			$this->League->contain(array('Division' => 'Day'));
 			$this->data = $this->League->read(null, $this->_arg('league'));
 			if (!$this->data) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
+			// Just keep the first division's data
+			$this->data['Division'] = reset($this->data['Division']);
+			$this->data['Day'] = $this->data['Division']['Day'];
+
 			$this->Configuration->loadAffiliate($this->data['League']['affiliate_id']);
 			unset($this->data['League']['id']);
 		}
