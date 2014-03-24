@@ -8,6 +8,10 @@ class Event extends AppModel {
 				'rule' => array('notempty'),
 				'message' => 'A valid event name must be entered.',
 			),
+			'isunique' => array(
+				'rule' => array('isUnique'),
+				'message' => 'An event with that name already exists.',
+			),
 		),
 		'affiliate_id' => array(
 			'inlist' => array(
