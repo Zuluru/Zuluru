@@ -29,7 +29,7 @@ class UsersController extends AppController {
 			// If a player id is specified, check if it's the logged-in user
 			// If no player id is specified, it's always the logged-in user
 			$person = $this->_arg('user');
-			if (!$person || $person == $this->Auth->user('zuluru_person_id')) {
+			if (!$person || $person == $this->UserCache->read('Person.user_id')) {
 				return true;
 			}
 		}
