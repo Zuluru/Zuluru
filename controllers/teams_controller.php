@@ -2519,6 +2519,9 @@ class TeamsController extends AppController {
 	}
 
 	function _canAdd ($person, $team, $role = null, $status = null, $strict = true, $text_reason = false, $absolute_url = false) {
+		if (in_array($person['Person']['status'], array('inactive', 'locked'))) {
+			return __('Your account is currently inactive. You must contact an administrator to reactivate it before you can be added to a team.', true);
+		}
 		if ($person['Person']['status'] != 'active') {
 			return __('New players must be approved by an administrator before they can be added to a team; this normally happens within one business day.', true);
 		}
