@@ -278,11 +278,20 @@ class AppController extends Controller {
 		// the Auth user information may be updated by this process
 		$login = $this->_getComponent ('Login', $auth->loginComponent, $this);
 		if (empty($this->params['requested']) && (!$user || $login->expired())) {
+			// If there is a redirect requested, logout will erase it, so remember it!
+			if ($this->Session->check('Auth.redirect')) {
+				$redirect = $this->Session->read('Auth.redirect');
+			}
+
 			$this->Session->delete('Zuluru');
 			$this->Auth->logout();
 			$this->UserCache->initializeData();
 			$login->login();
 			$user = $this->Auth->user();
+
+			if (isset($redirect)) {
+				$this->Session->write('Auth.redirect', $redirect);
+			}
 		}
 
 		// Do we already have the corresponding person record?
