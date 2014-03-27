@@ -83,6 +83,9 @@ if ($is_manager) {
 		<td class="splash_item"><?php echo $facility['Facility']['name']; ?></td>
 		<td class="actions">
 			<?php
+					echo $this->ZuluruHtml->iconLink('view_24.png',
+						array('controller' => 'facilities', 'action' => 'view', 'facility' => $facility['Facility']['id']),
+						array('alt' => __('View', true), 'title' => __('View Facility', true)));
 					echo $this->ZuluruHtml->iconLink('edit_24.png',
 						array('controller' => 'facilities', 'action' => 'edit', 'facility' => $facility['Facility']['id'], 'return' => true),
 						array('alt' => __('Edit', true), 'title' => __('Edit Facility', true)));
