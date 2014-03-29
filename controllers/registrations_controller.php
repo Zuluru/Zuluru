@@ -847,7 +847,7 @@ class RegistrationsController extends AppController {
 						$payment_type = $payment_status = 'Deposit';
 					}
 				} else {
-					if ($paid + $cost + $tax1 + $tax2 == $registration['Price']['cost'] + $registration['Price']['tax1'] + $registration['Price']['tax2']) {
+					if ($paid + $cost + $tax1 + $tax2 == $registration['Registration']['total_amount']) {
 						$payment_type = 'Remaining Balance';
 						$payment_status = 'Paid';
 					} else {

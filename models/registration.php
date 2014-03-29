@@ -49,13 +49,14 @@ class Registration extends AppModel {
 	}
 
 	static function paymentAmounts($registration) {
-		if ($registration['Registration']['deposit_amount'] > 0) {
-			// TODO: Handle other situations, like additional installments
-			$current_total = $registration['Price']['cost'] + $registration['Price']['tax1'] + $registration['Price']['tax2'];
-			$tax1_percent = $registration['Price']['tax1'] / $current_total;
-			$tax2_percent = $registration['Price']['tax2'] / $current_total;
+		// TODO: Handle other situations, like additional installments
+		$current_total = $registration['Price']['cost'] + $registration['Price']['tax1'] + $registration['Price']['tax2'];
+		$tax1_percent = $registration['Price']['tax1'] / $current_total;
+		$tax2_percent = $registration['Price']['tax2'] / $current_total;
 
-			$total = $registration['Registration']['total_amount'];
+		$total = $registration['Registration']['total_amount'];
+
+		if ($registration['Registration']['deposit_amount'] > 0) {
 			if ($registration['Registration']['payment'] == 'Deposit') {
 				// Break apart the outstanding amount
 				$payment = $total - $registration['Registration']['deposit_amount'];
@@ -63,15 +64,13 @@ class Registration extends AppModel {
 				// Break apart the deposit being paid
 				$payment = $registration['Registration']['deposit_amount'];
 			}
-
-			$tax1 = round($payment * $tax1_percent, 2);
-			$tax2 = round($payment * $tax2_percent, 2);
-			$cost = $payment - $tax1 - $tax2;
 		} else {
-			$cost = $registration['Price']['cost'];
-			$tax1 = $registration['Price']['tax1'];
-			$tax2 = $registration['Price']['tax2'];
+			$payment = $total;
 		}
+
+		$tax1 = round($payment * $tax1_percent, 2);
+		$tax2 = round($payment * $tax2_percent, 2);
+		$cost = $payment - $tax1 - $tax2;
 
 		return array($cost, $tax1, $tax2);
 	}

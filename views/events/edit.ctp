@@ -46,7 +46,7 @@ $collapse = !empty($this->data['Price']['id']);
 
 		if ($collapse || isset ($add)) {
 			echo $this->ZuluruForm->input('Price.cost', array(
-				'after' => $this->Html->para (null, __('Cost of this event, may be 0, <span class="error">not including tax</span>.', true)),
+				'after' => $this->Html->para (null, __('Cost of this event, may be 0, <span class="warning-message">not including tax</span>. If you change the price, anyone who has registered for this but not yet paid will still be changed their original registration price, not the new price. If you need to charge them the new price, close this price point (via the "Closes on" field below), make sure that "Allow Late Payment" is disabled, and add a new price point with the new price.', true)),
 			));
 			if (Configure::read('payment.tax1_enable')) {
 				echo $this->ZuluruForm->input('Price.tax1', array(
