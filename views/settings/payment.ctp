@@ -43,7 +43,17 @@ echo $this->element('settings/banner');
 			'name' => 'options',
 			'options' => array(
 				'type' => 'text',
-				'after' => 'List the payment options offered by your payment provider, or provide generic text.',
+				'after' => 'List the payment options offered by your payment provider, or provide generic text. This will go in the sentence "To pay online with ____, click ...".',
+			),
+		));
+		echo $this->element('settings/input', array(
+			'category' => 'registration',
+			'name' => 'online_payment_text',
+			'options' => array(
+				'type' => 'textarea',
+				'label' => 'Text of online payment directions',
+				'after' => 'Customize any text to add to the default online payment directions.',
+				'class' => 'mceSimple',
 			),
 		));
 	}
@@ -143,3 +153,4 @@ echo $this->element('settings/banner');
 
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
+<?php if (Configure::read('feature.tiny_mce')) $this->TinyMce->editor('simple'); ?>

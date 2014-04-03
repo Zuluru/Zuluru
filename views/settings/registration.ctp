@@ -75,12 +75,20 @@ echo $this->element('settings/banner');
 		),
 	));
 	echo $this->element('settings/input', array(
+		'category' => 'payment',
+		'name' => 'offline_options',
+		'options' => array(
+			'type' => 'text',
+			'after' => 'List the offline payment options you offer, or provide generic text. This will go in the sentence "If you prefer to pay offline (via ____), the ...".',
+		),
+	));
+	echo $this->element('settings/input', array(
 		'category' => 'registration',
 		'name' => 'offline_payment_text',
 		'options' => array(
 			'type' => 'textarea',
 			'label' => 'Text of offline payment directions',
-			'after' => 'Customize the text of your offline payment policy.',
+			'after' => 'Customize the text of your offline payment policy. If this is blank, offline payment options will not be offered.',
 			'class' => 'mceSimple',
 		),
 	));

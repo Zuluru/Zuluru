@@ -68,6 +68,18 @@ body.map
 .clear
 {
 	clear: both;
+	line-height: 0;
+}
+
+#zuluru div.caption
+{
+	float: left;
+}
+
+#zuluru div.checkout div.caption
+{
+	width: 100px;
+	text-align: center;
 }
 
 /** Specific areas **/
@@ -525,6 +537,22 @@ div.help_dialog
 div.help_dialog p
 {
 	margin: 1em 0;
+}
+
+div.register_help
+{
+	border: 1px solid #555;
+	padding: 0 10px 0 44px;
+	margin: 0 0 10px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+div.register_help img
+{
+	float: left;
+	margin-left: -29px;
 }
 
 /* Live scoring styling. */

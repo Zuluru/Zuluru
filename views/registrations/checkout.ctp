@@ -3,29 +3,88 @@ $this->Html->addCrumb (__('Registration', true));
 $this->Html->addCrumb (__('Checkout', true));
 ?>
 
-<div class="registrations form">
+<div class="registrations checkout form">
 <h2><?php __('Registration Checkout');?></h2>
 
 <?php
 $order_id_format = Configure::read('registration.order_id_format');
 
 if (!empty($registrations)):
-	echo $this->Html->para(null, __('These are your current unpaid registrations. To remove one, click the "Unregister" button; note that this will delete all of your preferences and you may lose the spot that is currently tentatively reserved for you.', true));
-	echo $this->Html->para(null, __('<span class="highlight-message">Payment completes your registration and confirms your booking/purchase.</span>', true));
-	echo $this->Html->para(null, sprintf (__('You may also %s and register for something else before paying.', true),
-		$this->Html->link(__('view the event list', true), array('controller' => 'events', 'action' => 'wizard'))
-	));
+	echo $this->Html->para(null, __('These are your current unpaid registrations. <span class="highlight-message">Payment completes your registration and confirms your booking/purchase.</span>', true));
+?>
+<div>
+	<div class="caption">
+	<?php
+		echo $this->ZuluruHtml->iconLink('cart_add.png', array('controller' => 'events', 'action' => 'wizard'), array('title' => __('Add something else', true)));
+		echo $this->Html->para(null, $this->Html->link(__('Add something else', true), array('controller' => 'events', 'action' => 'wizard')));
+	?>
+	</div>
+
+	<div class="caption">
+	<?php
+	echo $this->ZuluruHtml->iconLink('cart_remove.png', '#', array('class' => 'show_unregister', 'title' => __('Click for instructions', true)));
+	echo $this->Html->para(null, $this->Html->link(__('Remove something', true), '#', array('class' => 'show_unregister', 'title' => __('Click for instructions', true))));
+	$this->Js->get('.show_unregister')->event('click', 'jQuery(".register_help").hide(); jQuery(".unregister_help").show();');
+	?>
+	</div>
+
+	<?php
 	$test_payments = Configure::read('payment.test_payments');
-	if (Configure::read('registration.online_payments') && ($test_payments <= 1 || ($is_admin && Configure::read('payment.test_payments') == 2))) {
-		$provider = Configure::read('payment.payment_implementation');
-		if ($provider == 'paypal') {
-			$button = 'Check out with PayPal';
-		} else {
-			$button = 'Pay';
-		}
-		echo $this->Html->para(null, sprintf(__('If you want to pay online with %s, click the "%s" button below.', true), Configure::read('payment.options'), $button));
+	if (Configure::read('registration.online_payments') && ($test_payments <= 1 || ($is_admin && Configure::read('payment.test_payments') == 2))):
+	?>
+	<div class="caption">
+	<?php
+		echo $this->ZuluruHtml->iconLink('pay_online.png', '#', array('class' => 'show_online', 'title' => __('Click for instructions', true)));
+		echo $this->Html->para(null, $this->Html->link(__('Pay online', true), '#', array('class' => 'show_online', 'title' => __('Click for instructions', true))));
+		$this->Js->get('.show_online')->event('click', 'jQuery(".register_help").hide(); jQuery(".online_help").show();');
+	?>
+	</div>
+	<?php endif; ?>
+
+	<?php if (Configure::read('registration.offline_payment_text')): ?>
+	<div class="caption">
+	<?php
+	echo $this->ZuluruHtml->iconLink('pay_offline.png', '#', array('class' => 'show_offline', 'title' => __('Click for instructions', true)));
+	echo $this->Html->para(null, $this->Html->link(__('Pay offline', true), '#', array('class' => 'show_offline', 'title' => __('Click for instructions', true))));
+	$this->Js->get('.show_offline')->event('click', 'jQuery(".register_help").hide(); jQuery(".offline_help").show();');
+	?>
+	</div>
+	<?php endif; ?>
+</div>
+
+<div class="clear">&nbsp;</div>
+
+<div class="unregister_help register_help">
+	<p><?php echo $this->ZuluruHtml->icon('help_24.png'); ?></p>
+	<p><?php __('To remove an item, click the "Unregister" button next to it.'); ?></p>
+	<p><?php __('Note that this will delete all of your preferences and you may lose the spot that is currently tentatively reserved for you.'); ?></p>
+</div></li>
+
+<div class="online_help register_help">
+<?php
+	$provider = Configure::read('payment.payment_implementation');
+	if ($provider == 'paypal') {
+		$button = 'Check out with PayPal';
+	} else {
+		$button = 'Pay';
 	}
-	echo $this->element('payments/offline');
+?>
+	<p><?php echo $this->ZuluruHtml->icon('help_24.png'); ?></p>
+	<p><?php printf(__('To pay online with %s, click the "%s" button below.', true), Configure::read('payment.options'), $button); ?></p>
+	<?php echo Configure::read('registration.online_payment_text'); ?>
+</div>
+
+<div class="offline_help register_help">
+<?php
+echo $this->Html->para(null, $this->ZuluruHtml->icon('help_24.png'));
+echo $this->element('payments/offline');
+?>
+</div>
+
+<?php
+	$this->Js->buffer('
+jQuery(".register_help").hide();
+	');
 ?>
 
 <table class="list">
