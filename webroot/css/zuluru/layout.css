@@ -54,6 +54,9 @@ body.map
 #zuluru a img
 {
 	border: none;
+	padding: 0;
+	background: transparent;
+	box-shadow: 0;
 }
 #zuluru ol,
 #zuluru ul
@@ -201,6 +204,7 @@ body.map
 {
 	font-weight: bold;
 	padding-left: 4px;
+	margin-bottom: 0;
 	vertical-align: top;
 }
 #zuluru dd
@@ -506,6 +510,7 @@ div.related
 .ui-tooltip dt
 {
 	line-height: 1.5em;
+	margin-bottom: 0;
 }
 
 .ui-tooltip dd
