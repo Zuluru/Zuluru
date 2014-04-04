@@ -1039,6 +1039,7 @@ class RegistrationsController extends AppController {
 				if (!$this->Registration->Payment->save(array(
 						'registration_id' => $registration['Registration']['id'],
 						'registration_audit_id' => $this->Registration->Payment->RegistrationAudit->id,
+						'payment_method' => 'Online',
 						'payment_type' => $payment_type,
 						'payment_amount' => $cost + $tax1 + $tax2,
 				)))
