@@ -41,12 +41,14 @@ class RuleSignedWaiverComponent extends RuleComponent
 		$this->redirect = array('controller' => 'waivers', 'action' => 'sign', 'waiver' => $this->config[0], 'date' => $this->date);
 
 		if (!$strict) {
+			$this->invariant = true;
 			return true;
 		}
 
 		if (is_array($params) && array_key_exists ('Waiver', $params)) {
 			$matches = array_intersect($this->config, Set::extract ("/Waiver/WaiversPerson[valid_from<={$this->date}][valid_until>={$this->date}]/waiver_id", $params));
 			if (!empty ($matches)) {
+				$this->invariant = true;
 				return true;
 			}
 		}
