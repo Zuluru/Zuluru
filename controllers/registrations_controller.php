@@ -680,7 +680,7 @@ class RegistrationsController extends AppController {
 
 		if ($credit) {
 			$paid = array_sum(Set::extract('/Payment/payment_amount', $registration));
-			$balance = $registration['Registration']['total_amount'] - $paid;
+			$outstanding = $registration['Registration']['total_amount'] - $paid;
 			$credit = $credit_record['amount'] - $credit_record['amount_used'];
 
 			$notes = array("Credit applied to registration {$registration['Registration']['id']}: {$registration['Event']['name']}");
@@ -690,7 +690,7 @@ class RegistrationsController extends AppController {
 
 			$transaction = new DatabaseTransaction($this->Registration);
 
-			if ($credit >= $balance) {
+			if ($credit >= $outstanding) {
 				$success = $this->Registration->saveAll(array(
 					'Registration' => array(
 						'id' => $registration['Registration']['id'],
@@ -700,13 +700,13 @@ class RegistrationsController extends AppController {
 						'registration_id' => $registration['Registration']['id'],
 						'payment_type' => ($paid == 0 ? 'Full' : 'Remaining Balance'),
 						'payment_method' => 'Credit Redeemed',
-						'payment_amount' => $balance,
+						'payment_amount' => $outstanding,
 						'notes' => "Applied credit #{$credit_record['id']}",
 					)),
 				));
 				$success &= $this->Registration->Person->Credit->save(array(
 					'id' => $credit_record['id'],
-					'amount_used' => $credit_record['amount_used'] + $balance,
+					'amount_used' => $credit_record['amount_used'] + $outstanding,
 					'notes' => implode("\n", $notes),
 				));
 			} else {
@@ -1147,6 +1147,28 @@ class RegistrationsController extends AppController {
 				return;
 			}
 
+			// Handle credit redemptions
+			if (array_key_exists('credit_id', $this->data['Payment'])) {
+				$this->Registration->Person->Credit->contain(array());
+				$credit_record = $this->Registration->Person->Credit->read(null, $this->data['Payment']['credit_id']);
+				if (!$credit_record) {
+					$this->Session->setFlash(sprintf(__('Invalid %s', true), __('credit', true)), 'default', array('class' => 'info'));
+					return;
+				}
+
+				$credit = $credit_record['Credit']['amount'] - $credit_record['Credit']['amount_used'];
+
+				$notes = array("Credit applied to registration {$registration['Registration']['id']}: {$registration['Event']['name']}");
+				if (!empty($credit_record['Credit']['notes'])) {
+					array_unshift($notes, $credit_record['Credit']['notes']);
+				}
+
+				$this->data['Payment']['payment_amount'] = min($this->data['Payment']['payment_amount'], $outstanding, $credit);
+				$this->data['Payment']['notes'] = "Applied credit #{$credit_record['Credit']['id']}";
+				$credit_record['Credit']['amount_used'] += $this->data['Payment']['payment_amount'];
+				$credit_record['Credit']['notes'] = implode("\n", $notes);
+			}
+
 			if ($outstanding < $this->data['Payment']['payment_amount']) {
 				$this->Registration->Payment->validationErrors['amount'] = 'This would pay more than the amount owing.';
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('refund', true)), 'default', array('class' => 'warning'));
@@ -1171,7 +1193,7 @@ class RegistrationsController extends AppController {
 			$transaction = new DatabaseTransaction($this->Registration->Payment);
 
 			$this->Registration->Payment->create();
-			if ($this->Registration->Payment->save($this->data)) {
+			if ($this->Registration->Payment->save($this->data) && $this->Registration->Person->Credit->save($credit_record)) {
 				$this->Registration->id = $registration['Registration']['id'];
 				if (!$this->Registration->saveField('payment', $new_payment)) {
 					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
