@@ -50,6 +50,15 @@ if (!empty($registrations)):
 	?>
 	</div>
 	<?php endif; ?>
+
+	<?php if (!empty($person['Credit'])): ?>
+	<div class="caption">
+	<?php
+	echo $this->ZuluruHtml->iconLink('redeem.png', '#', array('class' => 'show_credit', 'title' => __('Click for instructions', true)));
+	echo $this->Html->para(null, $this->Html->link(__('Redeem credit', true), '#', array('class' => 'show_credit', 'title' => __('Click for instructions', true))));
+	$this->Js->get('.show_credit')->event('click', 'jQuery(".register_help").hide(); jQuery(".credit_help").show();');
+	?>
+	<?php endif; ?>
 </div>
 
 <div class="clear">&nbsp;</div>
@@ -81,6 +90,12 @@ echo $this->element('payments/offline');
 ?>
 </div>
 
+<div class="credit_help register_help">
+	<p><?php echo $this->ZuluruHtml->icon('help_24.png'); ?></p>
+	<p><?php __('To redeem a credit, click the "Redeem credit" button next to the registration that you want the credit to be applied to.'); ?></p>
+	<p><?php __('You will be given options on the resulting page, including opting not to redeem the credit at this time.'); ?></p>
+</div></li>
+
 <?php
 	$this->Js->buffer('
 jQuery(".register_help").hide();
@@ -91,13 +106,13 @@ jQuery(".register_help").hide();
 	<tr>
 		<th><?php __('Order ID'); ?></th>
 		<th><?php __('Event'); ?></th>
-		<th><?php __('Cost'); ?></th>
+		<th><?php __('Balance'); ?></th>
 		<th><?php __('Actions'); ?></th>
 	</tr>
 <?php
 	$total = $i = 0;
 	foreach ($registrations as $registration):
-	list ($cost, $tax1, $tax2) = Registration::paymentAmounts($registration);
+		list ($cost, $tax1, $tax2) = Registration::paymentAmounts($registration);
 		$total += $cost + $tax1 + $tax2;
 
 		$class = null;
@@ -119,6 +134,9 @@ jQuery(".register_help").hide();
 					array('action' => 'unregister', 'registration' => $registration['Registration']['id']),
 					array(),
 					__('Are you sure you want to unregister from this event? This will delete all of your preferences and you may lose the spot that is currently tentatively reserved for you.', true));
+		}
+		if (!empty($person['Credit'])) {
+			echo $this->Html->link (__('Redeem credit', true), array('action' => 'redeem', 'registration' => $registration['Registration']['id']));
 		}
 		?></td>
 	</tr>

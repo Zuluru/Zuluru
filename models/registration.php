@@ -49,23 +49,18 @@ class Registration extends AppModel {
 	}
 
 	static function paymentAmounts($registration) {
-		// TODO: Handle other situations, like additional installments
 		$current_total = $registration['Price']['cost'] + $registration['Price']['tax1'] + $registration['Price']['tax2'];
 		$tax1_percent = $registration['Price']['tax1'] / $current_total;
 		$tax2_percent = $registration['Price']['tax2'] / $current_total;
 
 		$total = $registration['Registration']['total_amount'];
 
-		if ($registration['Registration']['deposit_amount'] > 0) {
-			if ($registration['Registration']['payment'] == 'Deposit') {
-				// Break apart the outstanding amount
-				$payment = $total - $registration['Registration']['deposit_amount'];
-			} else {
-				// Break apart the deposit being paid
-				$payment = $registration['Registration']['deposit_amount'];
-			}
+		if ($registration['Registration']['deposit_amount'] > 0 && in_array($registration['Registration']['payment'], Configure::read('registration_none_paid'))) {
+			// Payment amount is the deposit to be paid
+			$payment = $registration['Registration']['deposit_amount'];
 		} else {
-			$payment = $total;
+			// Break apart the outstanding amount
+			$payment = $total - array_sum(Set::extract('/Payment/payment_amount', $registration));
 		}
 
 		$tax1 = round($payment * $tax1_percent, 2);

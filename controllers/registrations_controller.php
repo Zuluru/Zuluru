@@ -21,6 +21,7 @@ class RegistrationsController extends AppController {
 				'register',
 				'register_payment_fields',
 				'unregister',
+				'redeem',
 				'checkout',
 		)))
 		{
@@ -601,7 +602,176 @@ class RegistrationsController extends AppController {
 		}
 	}
 
-	function checkout($op = null) {
+	function redeem() {
+		$id = $this->_arg('registration');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('registration', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
+		}
+
+		$this->Registration->contain (array(
+			'Person' => array(
+				'Credit' => array(
+					'conditions' => array('Credit.amount_used < Credit.amount'),
+				),
+			),
+			'Event' => array(
+				'EventType',
+				'Division' => 'League',
+			),
+			'Price',
+			'Payment',
+			'Response',
+		));
+		$registration = $this->Registration->read(null, $id);
+		if (!$registration) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('registration', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
+		}
+
+		$registration['Person']['Credit'] = Set::extract("/Person/Credit[affiliate_id={$registration['Event']['affiliate_id']}]/.", $registration);
+		if (empty($registration['Person']['Credit'])) {
+			$this->Session->setFlash(__('You have no available credits.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'checkout'));
+		}
+
+		$credit = $this->_arg('credit');
+		if ($credit) {
+			$credit_record = Set::extract("/Person/Credit[id=$credit]/.", $registration);
+			if (empty($credit_record)) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('credit', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'checkout'));
+			}
+			$credit_record = reset($credit_record);
+		}
+
+		$this->Configuration->loadAffiliate($registration['Event']['affiliate_id']);
+
+		// Check that we're still allowed to pay for this
+		if (!$registration['Price']['allow_late_payment'] && time() > strtotime($registration['Price']['close']) + Configure::read('timezone.adjust') * 60) {
+			$now = date('Y-m-d H:i:s', time() - Configure::read('timezone.adjust') * 60);
+			$other_prices = Set::extract("/Price[close>$now]", $registration['Event']);
+			if (!empty($other_prices)) {
+				$this->Session->setFlash(__('The payment deadline has passed. Please choose another payment option.', true), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'edit', 'registration' => $registration['Registration']['id']));
+			} else {
+				$this->Session->setFlash(__('The payment deadline has passed.', true), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'checkout'));
+			}
+		}
+
+		// Find the registration cap and how many are already registered.
+		$cap = $this->Registration->Event->cap($registration['Event']['cap_male'], $registration['Event']['cap_female'], $registration['Person']['gender']);
+		if ($cap != -1) {
+			$conditions = array(
+				'Registration.event_id' => $registration['Event']['id'],
+				'Registration.payment' => Configure::read('registration_reserved'),
+				'Registration.person_id !=' => $registration['Person']['id'],
+			);
+			if ($registration['Event']['cap_female'] != -2) {
+				$conditions['gender'] = $registration['Person']['gender'];
+			}
+			$paid = $this->Registration->find ('count', array('conditions' => $conditions));
+			if ($cap <= $paid) {
+				$this->Session->setFlash(__('The event has filled up since you registered.', true), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'checkout'));
+			}
+		}
+
+		if ($credit) {
+			$paid = array_sum(Set::extract('/Payment/payment_amount', $registration));
+			$balance = $registration['Registration']['total_amount'] - $paid;
+			$credit = $credit_record['amount'] - $credit_record['amount_used'];
+
+			$notes = array("Credit applied to registration {$registration['Registration']['id']}: {$registration['Event']['name']}");
+			if (!empty($credit_record['notes'])) {
+				array_unshift($notes, $credit_record['notes']);
+			}
+
+			$transaction = new DatabaseTransaction($this->Registration);
+
+			if ($credit >= $balance) {
+				$success = $this->Registration->saveAll(array(
+					'Registration' => array(
+						'id' => $registration['Registration']['id'],
+						'payment' => 'Paid',
+					),
+					'Payment' => array(array(
+						'registration_id' => $registration['Registration']['id'],
+						'payment_type' => ($paid == 0 ? 'Full' : 'Remaining Balance'),
+						'payment_method' => 'Credit Redeemed',
+						'payment_amount' => $balance,
+						'notes' => "Applied credit #{$credit_record['id']}",
+					)),
+				));
+				$success &= $this->Registration->Person->Credit->save(array(
+					'id' => $credit_record['id'],
+					'amount_used' => $credit_record['amount_used'] + $balance,
+					'notes' => implode("\n", $notes),
+				));
+			} else {
+				$success = $this->Registration->saveAll(array(
+					'Registration' => array(
+						'id' => $registration['Registration']['id'],
+						'payment' => 'Partial',
+					),
+					'Payment' => array(array(
+						'registration_id' => $registration['Registration']['id'],
+						'payment_type' => 'Installment',
+						'payment_method' => 'Credit Redeemed',
+						'payment_amount' => $credit,
+						'notes' => "Applied credit #{$credit_record['id']}",
+					)),
+				));
+				$success &= $this->Registration->Person->Credit->save(array(
+					'id' => $credit_record['id'],
+					'amount_used' => $credit_record['amount'],
+					'notes' => implode("\n", $notes),
+				));
+			}
+
+			if (!$success) {
+				$this->Session->setFlash(__('There was an error redeeming the credit.', true), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'checkout'));
+			}
+
+			// Perform post-processing
+			$was_paid = in_array ($registration['Registration']['payment'], Configure::read('registration_paid'));
+			if (!$was_paid) {
+				$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
+				$extra = $event_obj->paid($registration, $registration);
+				if ($extra) {
+					if (is_array ($extra)) {
+						// Manually add the event id to all of the responses :-(
+						foreach (array_keys ($extra) as $key) {
+							$extra[$key]['event_id'] = $registration['Event']['id'];
+						}
+						if (!$this->Registration->Response->saveAll($extra, array('atomic' => false, 'validate' => false))) {
+							$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+							$this->redirect(array('action' => 'checkout'));
+						}
+					}
+				} else if ($extra === false) {
+					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+					$this->redirect(array('action' => 'checkout'));
+				}
+			}
+
+			$transaction->commit();
+			$this->Session->setFlash(__('The credit has been applied to the chosen registration.', true), 'default', array('class' => 'success'));
+
+			$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
+			$this->UserCache->clear('RegistrationsPaid', $registration['Registration']['person_id']);
+			$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
+			$this->UserCache->clear('Credits', $registration['Registration']['person_id']);
+
+			$this->redirect(array('action' => 'checkout'));
+		}
+
+		$this->set(compact ('registration'));
+	}
+
+	function checkout() {
 		$this->Registration->contain (array(
 			'Event' => array('EventType', 'Price'),
 			'Price',
@@ -625,7 +795,12 @@ class RegistrationsController extends AppController {
 			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
 
-		$this->Registration->Person->contain($this->Auth->authenticate->name);
+		$this->Registration->Person->contain(array(
+				$this->Auth->authenticate->name,
+				'Credit' => array(
+					'conditions' => array('Credit.amount_used < Credit.amount'),
+				),
+		));
 		$person = $this->Registration->Person->read (null, $this->Auth->user('zuluru_person_id'));
 
 		$other = array();
@@ -641,16 +816,16 @@ class RegistrationsController extends AppController {
 			}
 
 			// Find the registration cap and how many are already registered.
-			$conditions = array(
-				'Registration.event_id' => $registration['Event']['id'],
-				'Registration.payment' => Configure::read('registration_reserved'),
-				'Registration.person_id !=' => $person['Person']['id'],
-			);
-			if ($registration['Event']['cap_female'] != -2) {
-				$conditions['gender'] = $person['Person']['gender'];
-			}
 			$cap = $this->Registration->Event->cap($registration['Event']['cap_male'], $registration['Event']['cap_female'], $person['Person']['gender']);
 			if ($cap != -1) {
+				$conditions = array(
+					'Registration.event_id' => $registration['Event']['id'],
+					'Registration.payment' => Configure::read('registration_reserved'),
+					'Registration.person_id !=' => $person['Person']['id'],
+				);
+				if ($registration['Event']['cap_female'] != -2) {
+					$conditions['gender'] = $person['Person']['gender'];
+				}
 				$paid = $this->Registration->find ('count', array('conditions' => $conditions));
 				if ($cap <= $paid) {
 					$other[] = array_merge($registration, array('reason' => 'Filled up since you registered'));
@@ -684,14 +859,11 @@ class RegistrationsController extends AppController {
 		$registrations = array_values ($registrations);
 
 		$this->Configuration->loadAffiliate($affiliate);
+		$person['Credit'] = Set::extract("/Credit[affiliate_id={$affiliate}]/.", $person);
 
 		$payment_obj = $this->_getComponent ('payment', Configure::read('payment.payment_implementation'), $this);
 
 		$this->set(compact ('registrations', 'other', 'person', 'payment_obj'));
-
-		if ($op == 'payment') {
-			$this->render ('payment');
-		}
 	}
 
 	function unregister() {
