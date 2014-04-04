@@ -2941,32 +2941,31 @@ class TeamsController extends AppController {
 						'TeamsPerson.created < DATE_ADD(CURDATE(), INTERVAL -7 DAY)',
 					),
 					'contain' => array(
-						'Team' => array(
-							'Division' => array(
-								'Day',
-								'League' => array(
-									'fields' => array(
-										'League.id', 'League.name', 'League.sport',
-									),
-								),
-								'fields' => array(
-									'Division.id', 'Division.name', 'Division.open', 'Division.ratio', 'Division.roster_deadline', 'Division.close',
-								),
-							),
-							'Person' => array(
-								$this->Auth->authenticate->name,
-								'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-								'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
-								'order' => 'TeamsPerson.id',
-							),
-							'fields' => array('Team.id', 'Team.name'),
-						),
 						'Person' => array(
 							$this->Auth->authenticate->name,
 							'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
 						),
 					),
 			));
+
+			// Read all required team records
+			$teams = $this->Team->find ('all', array(
+					'conditions' => array(
+						'Team.id' => array_unique(Set::extract('/TeamsPerson/team_id', $people)),
+					),
+					'contain' => array(
+						'Division' => array(
+							'Day',
+							'League',
+						),
+						'Person' => array(
+							$this->Auth->authenticate->name,
+							'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
+							'order' => 'TeamsPerson.id',
+						),
+					),
+			));
+			AppModel::_reindexOuter($teams, 'Team', 'id');
 
 			$log = ClassRegistry::init ('ActivityLog');
 			$emailed = $reminded = $expired = $outstanding = 0;
@@ -2978,22 +2977,23 @@ class TeamsController extends AppController {
 			$expire = 7.5 * DAY;
 
 			foreach ($people as $person) {
+				$team_id = $person['TeamsPerson']['team_id'];
 				$conditions = array(
 					'type' => ($person['TeamsPerson']['status'] == ROSTER_INVITED ? 'roster_invite_reminder' : 'roster_request_reminder'),
-					'team_id' => $person['Team']['id'],
+					'team_id' => $team_id,
 					'person_id' => $person['Person']['id'],
 				);
 				$sent = $log->find('all', array('conditions' => $conditions, 'order' => 'ActivityLog.created'));
 				if (!empty ($sent)) {
 					$age = time() - strtotime ($sent[0]['ActivityLog']['created']);
 					if ($age > $expire) {
-						$success = $this->_rosterExpire($person['Person'], $person['Team']['Person'], $person['Team'], $person['Team']['Division'], $person['TeamsPerson']);
+						$success = $this->_rosterExpire($person['Person'], $teams[$team_id]['Person'], $teams[$team_id]['Team'], $teams[$team_id]['Division'], $person['TeamsPerson']);
 						if ($success) {
 							$activity[] = $conditions;
 							++$expired;
 						}
 					} else if ($age > $second && count($sent) < 2) {
-						$success = $this->_rosterRemind($person['Person'], $person['Team']['Person'], $person['Team'], $person['Team']['Division'], $person['TeamsPerson'], true);
+						$success = $this->_rosterRemind($person['Person'], $teams[$team_id]['Person'], $teams[$team_id]['Team'], $teams[$team_id]['Division'], $person['TeamsPerson'], true);
 						if ($success) {
 							$activity[] = $conditions;
 							++$reminded;
@@ -3002,7 +3002,7 @@ class TeamsController extends AppController {
 						++$outstanding;
 					}
 				} else {
-					$success = $this->_rosterRemind($person['Person'], $person['Team']['Person'], $person['Team'], $person['Team']['Division'], $person['TeamsPerson']);
+					$success = $this->_rosterRemind($person['Person'], $teams[$team_id]['Person'], $teams[$team_id]['Team'], $teams[$team_id]['Division'], $person['TeamsPerson']);
 					if ($success) {
 						$activity[] = $conditions;
 						++$emailed;
