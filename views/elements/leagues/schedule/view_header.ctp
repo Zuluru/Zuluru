@@ -6,10 +6,10 @@
 		<?php
 		if ($has_dependent_games) {
 			echo $this->ZuluruHtml->iconLink('initialize_24.png',
-					array('action' => 'initialize_dependencies', $id_field => $id, 'date' => $date),
+					array('controller' => 'divisions', 'action' => 'initialize_dependencies', $id_field => $id, 'date' => $date),
 					array('alt' => __('Initialize', true), 'title' => __('Initialize schedule dependencies', true)));
 			echo $this->ZuluruHtml->iconLink('reset_24.png',
-					array('action' => 'initialize_dependencies', $id_field => $id, 'date' => $date, 'reset' => true),
+					array('controller' => 'divisions', 'action' => 'initialize_dependencies', $id_field => $id, 'date' => $date, 'reset' => true),
 					array('alt' => __('Reset', true), 'title' => __('Reset schedule dependencies', true)));
 		}
 		?>
