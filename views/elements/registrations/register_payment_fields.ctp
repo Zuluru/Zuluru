@@ -44,6 +44,11 @@ if ($allowed) {
 				'default' => $default_deposit,
 		));
 	}
+
+	if (empty($for_edit) && $price['allow_reservations']) {
+		echo $this->Html->para('warning-message', sprintf(__('After clicking "Submit", your registration will be reserved for you for %s. During this time, your spot is guaranteed. After this time, if you have not yet paid, it will revert to "unpaid" status, meaning that someone else can take it.', true), Price::duration($price['reservation_duration'])));
+	}
+
 	echo $this->Html->scriptBlock("
 function typeChanged() {
 	if (jQuery('#RegistrationPaymentType').val() == 'Full') {

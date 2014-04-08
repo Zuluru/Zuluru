@@ -378,6 +378,8 @@ class RegistrationsController extends AppController {
 			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
 
+		$this->_expireReservations();
+
 		$price_id = $this->_arg('option');
 		$this->Registration->Event->contain (array(
 			'EventType',
@@ -549,6 +551,9 @@ class RegistrationsController extends AppController {
 					$data['Response'] = array_merge($data['Response'], $result);
 				}
 				$data['Registration']['payment'] = 'Paid';
+			} else if ($price['allow_reservations']) {
+				$data['Registration']['payment'] = 'Reserved';
+				$data['Registration']['reservation_expires'] = date('Y-m-d H:i:s', time() + $price['reservation_duration'] * MINUTE);
 			} else {
 				unset($data['Registration']['payment']);
 			}

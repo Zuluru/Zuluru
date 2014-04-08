@@ -153,6 +153,11 @@ $deposit = !empty($deposit);
 			<?php echo $this->ZuluruTime->DateTime ($event['Price'][0]['close']); ?>
 
 		</dd>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Reservations'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo ($event['Price'][0]['allow_reservations'] ? Price::duration($event['Price'][0]['reservation_duration']) : __('No', true)); ?>
+
+		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Cost'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php
@@ -189,6 +194,7 @@ $deposit = !empty($deposit);
 		<th><?php __('Option'); ?></th>
 		<th><?php __('Registration Opens'); ?></th>
 		<th><?php __('Registration Closes'); ?></th>
+		<th><?php __('Reservations?'); ?></th>
 		<th><?php __('Cost'); ?></th>
 		<?php if ($deposit): ?>
 		<th><?php __('Deposit'); ?></th>
@@ -207,6 +213,7 @@ $deposit = !empty($deposit);
 		<td><?php echo $price['name'];?></td>
 		<td><?php echo $this->ZuluruTime->DateTime ($price['open']); ?></td>
 		<td><?php echo $this->ZuluruTime->DateTime ($price['close']); ?></td>
+		<td><?php echo ($price['allow_reservations'] ? Price::duration($price['reservation_duration']) : __('No', true)); ?></td>
 		<td><?php
 		$cost = $price['cost'] + $price['tax1'] + $price['tax2'];
 		if ($cost > 0) {
@@ -247,12 +254,12 @@ $deposit = !empty($deposit);
 	</tr>
 	<?php if (!empty($price['description'])): ?>
 	<tr<?php echo $class;?>>
-		<td colspan="<?php echo 5 + $deposit; ?>"><?php echo $price['description']; ?></td>
+		<td colspan="<?php echo 6 + $deposit; ?>"><?php echo $price['description']; ?></td>
 	</tr>
 	<?php endif; ?>
 	<?php if (isset($price_allowed) && !empty($price_allowed[$price['id']]['messages'])): ?>
 	<tr<?php echo $class;?>>
-		<td colspan="<?php echo 5 + $deposit; ?>"><?php echo $price_allowed[$price['id']]['messages']; ?></td>
+		<td colspan="<?php echo 6 + $deposit; ?>"><?php echo $price_allowed[$price['id']]['messages']; ?></td>
 	</tr>
 	<?php endif; ?>
 	<?php endforeach; ?>

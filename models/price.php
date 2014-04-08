@@ -91,6 +91,18 @@ class Price extends AppModel {
 				'message' => 'You must enter a valid cost.',
 			),
 		),
+		'allow_reservations' => array(
+			'inlist' => array(
+				'rule' => array('inconfig', 'options.enable'),
+				'message' => 'You must select whether reservations are allowed.',
+			),
+		),
+		'reservation_duration' => array(
+			'numeric' => array(
+				'rule' => array('numeric'),
+				'message' => 'You must enter a valid reservation duration.',
+			),
+		),
 	);
 
 	var $belongsTo = array(
@@ -130,6 +142,28 @@ class Price extends AppModel {
 
 	function affiliate($id) {
 		return $this->Event->affiliate($this->field('event_id', array('Price.id' => $id)));
+	}
+
+	static function duration($duration) {
+		$ret = array();
+
+		$days = floor($duration / 1440);
+		if ($days) {
+			$duration -= $days * 1440;
+			$ret[] = $days . ' ' . __(pluralize_if_necessary('day', $days), true);
+		}
+
+		$hours = floor($duration / 60);
+		if ($hours) {
+			$duration -= $hours * 60;
+			$ret[] = $hours . ' ' . __(pluralize_if_necessary('hour', $hours), true);
+		}
+
+		if ($duration || empty($ret)) {
+			$ret[] = $duration . ' ' . __(pluralize_if_necessary('minute', $duration), true);
+		}
+
+		return implode(', ', $ret);
 	}
 }
 ?>

@@ -165,6 +165,9 @@ class EventsController extends AppController {
 			$this->redirect(array('action' => 'wizard'));
 		}
 
+		// Revert any expired reservations to unpaid status
+		$this->_expireReservations();
+
 		if ($this->is_manager && !in_array($this->Event->affiliate($id), $this->UserCache->read('ManagedAffiliateIDs'))) {
 			$this->is_manager = false;
 		}

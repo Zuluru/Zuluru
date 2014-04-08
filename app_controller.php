@@ -1416,5 +1416,25 @@ class AppController extends Controller {
 		}
 		return $affiliate_id;
 	}
+
+	function _expireReservations() {
+		if (!isset ($this->Registration)) {
+			$this->Team = ClassRegistry::init ('Registration');
+		}
+
+		$expired = $this->Registration->find('all', array(
+				'contain' => array(),
+				'conditions' => array(
+					'payment' => 'Reserved',
+					'reservation_expires < NOW()',
+				),
+		));
+		foreach ($expired as $registration) {
+			$this->Registration->id = $registration['Registration']['id'];
+			$this->Registration->saveField('payment', 'Unpaid');
+			$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
+			$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
+		}
+	}
 }
 ?>
