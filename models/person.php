@@ -140,7 +140,7 @@ class Person extends AppModel {
 		),
 		'height' => array(
 			'range' => array(
-				'rule' => array('range', 48, 84),
+				'rule' => array('range', 35, 85),
 				'message' => 'You must enter a valid height.',
 			),
 		),
@@ -343,6 +343,10 @@ class Person extends AppModel {
 				'rule' => array('date', 'y', '/^(\\d{4})/'),
 				'message' => 'You must provide a valid birthdate.',
 			);
+		}
+
+		if (Configure::read('feature.units') == 'Metric') {
+			$this->validate['height']['range']['rule'] = array('range', 90, 215);
 		}
 
 		foreach (array_keys($this->validate) as $field) {

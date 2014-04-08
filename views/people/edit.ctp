@@ -378,9 +378,14 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 			));
 		}
 		if (in_array (Configure::read('profile.height'), $access)) {
+			if (Configure::read('feature.units') == 'Metric') {
+				$units = 'centimeters';
+			} else {
+				$units = 'inches (5 feet is 60 inches; 6 feet is 72 inches)';
+			}
 			echo $this->ZuluruForm->input('height', array(
 				'size' => 6,
-				'after' => $this->Html->para(null, __('Please enter your height in inches (5 feet is 60 inches; 6 feet is 72 inches). This is used to help generate even teams for hat leagues.', true)),
+				'after' => $this->Html->para(null, sprintf(__('Please enter your height in %s. This is used to help generate even teams for hat leagues.', true), __($units, true))),
 			));
 		} else if (Configure::read('profile.height')) {
 			echo $this->ZuluruForm->input('height', array(

@@ -129,6 +129,14 @@ echo $this->element('settings/banner');
 			'after' => 'Enable or disable management of contacts for users to send messages without exposing email addresses.',
 		),
 	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
+		'name' => 'units',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.units'),
+		),
+	));
 	?>
 	</fieldset>
 

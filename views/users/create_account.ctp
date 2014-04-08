@@ -233,9 +233,14 @@ Configure::load("sport/$sport");
 			}
 		}
 		if (Configure::read('profile.height')) {
+			if (Configure::read('feature.units') == 'Metric') {
+				$units = 'centimeters';
+			} else {
+				$units = 'inches (5 feet is 60 inches; 6 feet is 72 inches)';
+			}
 			echo $this->ZuluruForm->input('height', array(
 				'size' => 6,
-				'after' => $this->Html->para(null, __('Please enter your height in inches (5 feet is 60 inches; 6 feet is 72 inches). This is used to help generate even teams for hat leagues.', true)),
+				'after' => $this->Html->para(null, sprintf(__('Please enter your height in %s. This is used to help generate even teams for hat leagues.', true), __($units, true))),
 			));
 		}
 		if (Configure::read('profile.shirt_size')) {

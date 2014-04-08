@@ -133,7 +133,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 			<?php if (Configure::read('profile.height') && !empty($person['height'])): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Height'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-				<?php echo $person['height'] . ' ' . __('inches', true); ?>
+				<?php echo $person['height'] . ' ' . __(Configure::read('feature.units') == 'Metric' ? 'cm' : 'inches', true); ?>
 
 			</dd>
 			<?php endif; ?>
