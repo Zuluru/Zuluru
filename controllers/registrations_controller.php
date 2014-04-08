@@ -595,8 +595,12 @@ class RegistrationsController extends AppController {
 			$this->Registration->Price->contain ($contain);
 			$price = $this->Registration->Price->read(null, $this->params['url']['data']['Registration']['price_id']);
 			if (!empty($price)) {
-				$test = $this->CanRegister->test ($this->Auth->user('zuluru_person_id'), $price, array('for_edit' => $this->_arg('for_edit')));
-				$this->set(compact('price'));
+				if (!empty($price['Registration'])) {
+					$price['Registration'] = reset($price['Registration']);
+				}
+				$for_edit = $this->_arg('for_edit');
+				$test = $this->CanRegister->test ($this->Auth->user('zuluru_person_id'), $price, compact('for_edit'));
+				$this->set(compact('price', 'for_edit'));
 				$this->set($test);
 			}
 		}

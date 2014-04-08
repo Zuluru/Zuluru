@@ -53,7 +53,7 @@ class CanRegisterComponent extends Object
 
 		// If we're editing a registration, remove it from the user's list,
 		// as it only causes problems with rules in the CanRegister test
-		if ($for_edit && array_key_exists('Registration', $event)) {
+		if ($for_edit && !empty($event['Registration'])) {
 			$this->person['Registration'] = Set::extract ("/Registration[id!={$event['Registration']['id']}]/..", $this->person['Registration']);
 		}
 
@@ -245,7 +245,10 @@ class CanRegisterComponent extends Object
 			// We checked earlier that there is at least one price point currently applicable,
 			// which means that at least one thing went through the rule check above.
 			if ($allowed) {
-				// Nothing to do here
+				if (count($price_allowed) == 1) {
+					$price_result = reset($price_allowed);
+					$messages[] = $price_result['messages'];
+				}
 			} else if (empty($price_allowed)) {
 				$messages[] = __('You may register for this because there are no prerequisites.', true);
 				$allowed = true;

@@ -90,7 +90,7 @@ function optionChanged() {
 	endif;
 ?>
 <div id="PaymentDetails">
-<?php echo $this->element('registrations/register_payment_fields', array('price' => $price, 'registration' => $registration['Registration'])); ?>
+<?php echo $this->element('registrations/register_payment_fields', array('price' => $price, 'registration' => $registration['Registration'], 'for_edit' => true)); ?>
 </div>
 </fieldset>
 <?php
