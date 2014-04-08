@@ -1419,7 +1419,7 @@ class AppController extends Controller {
 
 	function _expireReservations() {
 		if (!isset ($this->Registration)) {
-			$this->Team = ClassRegistry::init ('Registration');
+			$this->Registration = ClassRegistry::init ('Registration');
 		}
 
 		$expired = $this->Registration->find('all', array(
