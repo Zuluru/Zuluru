@@ -224,6 +224,11 @@ $config['options'] = array(
 		'USD'				=> 'USA',
 	),
 
+	'units' => make_options(array(
+		'Imperial',
+		'Metric',
+	)),
+
 	'membership_types' => array(
 		'full'				=> 'Full',
 		'intro'				=> 'Introductory',
