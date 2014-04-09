@@ -260,7 +260,8 @@ class UserCacheComponent extends Object
 					$self->data[$id][$key] = $self->_findData($self->_controller->Registration, array(
 							'order' => 'created DESC',
 							'contain' => array(
-								'Event' => 'EventType',
+								'Event' => array('EventType', 'Price'),
+								'Price',
 							),
 							'conditions' => array(
 								'person_id' => $id,
