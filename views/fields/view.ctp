@@ -106,6 +106,12 @@ if ($field['Field']['length'] > 0) {
 			<?php echo $this->Html->link ($field['Field']['permit_name'], $field['Field']['permit_url'], array('target' => 'permit')); ?>
 
 		</dd>
+<?php elseif ($is_admin): ?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php printf(__('%s&nbsp;Permit', true), Configure::read('ui.field_cap')); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php printf (__('Upload permit for %s to %s', true), $field['Facility']['code'], $field['Field']['permit_dir']); ?>
+
+		</dd>
 <?php endif; ?>
 
 <?php if (!empty ($field['Facility']['Field'])): ?>
