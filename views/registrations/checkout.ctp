@@ -124,6 +124,9 @@ jQuery(".register_help").hide();
 		<td><?php printf ($order_id_format, $registration['Registration']['id']); ?></td>
 		<td><?php
 		echo $this->Html->link (Registration::longDescription($registration), array('controller' => 'events', 'action' => 'view', 'event' => $registration['Event']['id']));
+		if ($registration['Registration']['payment'] == 'Reserved') {
+			echo ' (' . __('Reserved until', true) . ' ' . $this->ZuluruTime->datetime($registration['Registration']['reservation_expires']) . ')';
+		}
 		?></td>
 		<td><?php echo $this->Number->currency ($cost + $tax1 + $tax2); ?></td>
 		<td class="actions"><?php

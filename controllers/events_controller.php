@@ -86,6 +86,8 @@ class EventsController extends AppController {
 	}
 
 	function wizard($step = null) {
+		$this->_expireReservations();
+
 		if (!$this->is_logged_in) {
 			$this->redirect(array('action' => 'index'));
 		}
@@ -159,14 +161,13 @@ class EventsController extends AppController {
 	}
 
 	function view() {
+		$this->_expireReservations();
+
 		$id = $this->_arg('event');
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'wizard'));
 		}
-
-		// Revert any expired reservations to unpaid status
-		$this->_expireReservations();
 
 		if ($this->is_manager && !in_array($this->Event->affiliate($id), $this->UserCache->read('ManagedAffiliateIDs'))) {
 			$this->is_manager = false;

@@ -94,6 +94,38 @@ echo $this->element('settings/banner');
 	));
 	?>
 	</fieldset>
+	<fieldset>
+		<legend><?php __('Waiting List'); ?></legend>
+	<?php
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
+		'name' => 'waiting_list',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'label' => 'Allow people to put themselves on a waiting list when events fill up?',
+		),
+	));
+
+	echo $this->element('settings/input', array(
+		'category' => 'registration',
+		'name' => 'delete_unpaid',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'after' => 'If this is enabled, any registrations which are still unpaid when the final spot is taken will be deleted; the argument for this is that, if someone hasn\'t paid yet, they have probably changed their mind, and leaving them at the front of the waiting list will only delay acceptance of others who are interested. If this is disabled, unpaid registrations will be moved to the front of the waiting list; the argument for this is that they did register first, so sending them to the back of the line may not be fair. Either way, you may want to publish a policy clearly stating your choice and reasons.',
+		),
+	));
+
+	echo $this->element('settings/input', array(
+		'category' => 'registration',
+		'name' => 'reservation_time',
+		'options' => array(
+			'after' => 'When a spot opens up, the next person on the waiting list is moved to "Reserved" status and notified via email. This setting determines how long (in hours) we will give them to pay before dropping them and moving to the next person. Keep in mind that emails may be sent at any time, so this should be set no lower than 12, and preferably 24 or higher. If a negative response is received at any time in this window, the process will continue immediately; this is a "worst-case" setting. A value of 0 will disable this and require manual expiry of reservations by an admin.',
+			'size' => 6,
+		),
+	));
+	?>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
 <?php if (Configure::read('feature.tiny_mce')) $this->TinyMce->editor('simple'); ?>

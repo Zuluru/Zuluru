@@ -615,6 +615,7 @@ class ZuluruSchema extends CakeSchema {
 		'deposit_amount' => array('type' => 'float', 'null' => true, 'default' => '0.00', 'length' => '7,2'),
 		'notes' => array('type' => 'text', 'null' => true, 'default' => NULL),
 		'reservation_expires' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
+		'delete_on_expiry' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'person_id' => array('column' => array('person_id', 'event_id'), 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);

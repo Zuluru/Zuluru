@@ -1423,7 +1423,10 @@ class AppController extends Controller {
 		}
 
 		$expired = $this->Registration->find('all', array(
-				'contain' => array(),
+				'contain' => array(
+					'Event' => 'EventType',
+					'Person' => $this->Auth->authenticate->name,
+				),
 				'conditions' => array(
 					'payment' => 'Reserved',
 					'reservation_expires < NOW()',
@@ -1431,9 +1434,32 @@ class AppController extends Controller {
 		));
 		foreach ($expired as $registration) {
 			$this->Registration->id = $registration['Registration']['id'];
+			// This payment status may change in the unreserve call, but it
+			// needs to be set now so cap calculations are correct.
 			$this->Registration->saveField('payment', 'Unpaid');
-			$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
-			$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
+
+			$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
+			$status = $event_obj->unreserve($registration, $registration);
+
+			if ($registration['Registration']['delete_on_expiry']) {
+				// This reservation was created from the waiting list, and should be deleted
+				$new_payment = 'Deleted';
+				$event_obj->unregister($event, $registration);
+			} else if ($status != 'Unpaid') {
+				$this->Registration->id = $registration['Registration']['id'];
+				$this->Registration->saveField('payment', $status);
+			}
+
+			$event_obj->_saveViewVars();
+			$this->set(array('event' => $registration, 'registration' => $registration, 'status' => $status));
+
+			$this->_sendMail (array (
+					'to' => $registration,
+					'subject' =>  Configure::read('organization.name') . ' Reservation expired',
+					'template' => 'reservation_expired',
+					'sendAs' => 'both',
+			));
+			$event_obj->_restoreViewVars();
 		}
 	}
 }

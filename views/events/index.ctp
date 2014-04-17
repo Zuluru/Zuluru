@@ -165,8 +165,10 @@ foreach ($events as $event):
 					array('action' => 'delete', 'event' => $event['Event']['id']),
 					array('alt' => __('Delete', true), 'title' => __('Delete', true)),
 					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $event['Event']['id'])));
-				echo $this->Html->link(__('Waiting List', true),
-					array('controller' => 'registrations', 'action' => 'waiting', 'event' => $event['Event']['id']));
+				if (Configure::read('feature.waiting_list')) {
+					echo $this->Html->link(__('Waiting List', true),
+						array('controller' => 'registrations', 'action' => 'waiting', 'event' => $event['Event']['id']));
+				}
 				echo $this->ZuluruHtml->iconLink('summary_24.png',
 					array('controller' => 'registrations', 'action' => 'summary', 'event' => $event['Event']['id']),
 					array('alt' => __('Summary', true), 'title' => __('Summary', true)));
@@ -206,8 +208,10 @@ foreach ($events as $event):
 					array('action' => 'delete', 'event' => $event['Event']['id']),
 					array('alt' => __('Delete', true), 'title' => __('Delete', true)),
 					array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $event['Event']['id'])));
-				echo $this->Html->link(__('Waiting List', true),
-					array('controller' => 'registrations', 'action' => 'waiting', 'event' => $event['Event']['id']));
+				if (Configure::read('feature.waiting_list')) {
+					echo $this->Html->link(__('Waiting List', true),
+						array('controller' => 'registrations', 'action' => 'waiting', 'event' => $event['Event']['id']));
+				}
 				echo $this->ZuluruHtml->iconLink('summary_24.png',
 					array('controller' => 'registrations', 'action' => 'summary', 'event' => $event['Event']['id']),
 					array('alt' => __('Summary', true), 'title' => __('Summary', true)));

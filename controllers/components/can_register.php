@@ -63,11 +63,11 @@ class CanRegisterComponent extends Object
 
 		// Find the registration cap and how many are already registered.
 		$conditions = array(
-			'event_id' => $event['Event']['id'],
-			'payment' => Configure::read('registration_reserved'),
+			'Registration.event_id' => $event['Event']['id'],
+			'Registration.payment' => Configure::read('registration_reserved'),
 		);
 		if ($event['Event']['cap_female'] != -2) {
-			$conditions['gender'] = $this->person['Person']['gender'];
+			$conditions['Person.gender'] = $this->person['Person']['gender'];
 		}
 
 		$cap = Event::cap($event['Event']['cap_male'], $event['Event']['cap_female'], $this->person['Person']['gender']);
@@ -107,15 +107,42 @@ class CanRegisterComponent extends Object
 		if ($continue && $is_registered && !$for_edit) {
 			if ($registrations[0]['Registration']['payment'] == 'Paid' ) {
 				$messages[] = array('text' => __('You have already registered and paid for this event.', true), 'class' => 'open');
-			} else if ($registrations[0]['Registration']['payment'] == 'Waiting' ) {
+			} else if (Configure::read('feature.waiting_list') && $registrations[0]['Registration']['payment'] == 'Waiting' ) {
 				$messages[] = array('text' => __('You have already been added to the waiting list for this event.', true), 'class' => 'open');
 			} else {
-				$messages[] = array('text' => __('You have already registered for this event, but not yet paid.', true), 'class' => 'warning-message');
-
 				// An unpaid registration might have been pre-empted by someone who paid.
+				// TODO: After a while, all such items will have been taken care of elsewhere
+				// and this whole block can go away.
 				if ($registrations[0]['Registration']['payment'] == 'Unpaid' && $cap > 0 && $paid >= $cap ) {
-					$messages[] = array('text' => __('Your payment was not received in time, so your registration has been moved to a waiting list. If you have any questions about this, please contact the head office.', true), 'class' => 'error-message');
+					if (Configure::read('feature.waiting_list')) {
+						// Move this, and any other Unpaid registrations for this event
+						$conditions = array(
+							'Registration.event_id' => $event['Event']['id'],
+							'Registration.payment' => 'Unpaid',
+						);
+						if ($event['Event']['cap_female'] != -2) {
+							$conditions['Person.gender'] = $this->person['Person']['gender'];
+						}
+						if (Configure::read('registration.delete_unpaid')) {
+							$event_obj = $this->_controller->_getComponent ('EventType', $event['EventType']['type'], $this->_controller);
+							$this->_controller->Event->Registration->contain ('Person');
+							$unpaid = $this->_controller->Event->Registration->find ('all', array('conditions' => $conditions));
+							foreach ($unpaid as $registration) {
+								$event_obj->unregister($registration, $registration);
+							}
+							$messages[] = array('text' => __('Your payment was not received in time, so your registration has been removed. If you have any questions about this, please contact the head office.', true), 'class' => 'error-message');
+						} else {
+							$this->_controller->Event->Registration->updateAll(array('payment' => '"Waiting"'), $conditions);
+							$messages[] = array('text' => __('Your payment was not received in time, so your registration has been moved to a waiting list. If you have any questions about this, please contact the head office.', true), 'class' => 'error-message');
+						}
+
+						$this->_controller->UserCache->clear('Registrations', $this->person['Person']['id']);
+						$this->_controller->UserCache->clear('RegistrationsUnpaid', $this->person['Person']['id']);
+					} else {
+						$messages[] = array('text' => __('Your payment was not received in time, so you will not be able to complete this registration. If you have any questions about this, please contact the head office.', true), 'class' => 'error-message');
+					}
 				} else {
+					$messages[] = array('text' => __('You have already registered for this event, but not yet paid.', true), 'class' => 'warning-message');
 					$messages[] = sprintf (__('To complete your payment, please proceed to the %s.', true),
 						$this->Html->link(__('checkout page', true), array('controller' => 'registrations', 'action' => 'checkout')));
 				}
@@ -176,10 +203,13 @@ class CanRegisterComponent extends Object
 				// Check if this event is already full
 				// -1 means there is no cap, so don't check in that case.
 				if ($paid >= $cap) {
-					// TODO: Move unpaid registrations to waiting list
-					$messages[] = array('text' => sprintf (__('This event is already full.  You may however %s to be put on a waiting list in case others drop out.', true),
-							$this->Html->link (__('continue with registration', true), array('controller' => 'registrations', 'action' => 'register', 'event' => $event['Event']['id'], 'waiting' => true))),
-							'class' => 'highlight-message');
+					if (Configure::read('feature.waiting_list')) {
+						$messages[] = array('text' => sprintf (__('This event is already full.  You may however %s to be put on a waiting list in case others drop out.', true),
+								$this->Html->link (__('continue with registration', true), array('controller' => 'registrations', 'action' => 'register', 'event' => $event['Event']['id'], 'waiting' => true))),
+								'class' => 'highlight-message');
+					} else {
+						$messages[] = array('text' => __('This event is already full.', true), 'class' => 'highlight-message');
+					}
 					$continue = false;
 				}
 			}

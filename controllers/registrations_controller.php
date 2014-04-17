@@ -372,13 +372,13 @@ class RegistrationsController extends AppController {
 	}
 
 	function register() {
+		$this->_expireReservations();
+
 		$id = $this->_arg('event');
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
-
-		$this->_expireReservations();
 
 		$price_id = $this->_arg('option');
 		$this->Registration->Event->contain (array(
@@ -404,7 +404,7 @@ class RegistrationsController extends AppController {
 		$this->Configuration->loadAffiliate($event['Event']['affiliate_id']);
 
 		// Re-do "can register" checks to make sure someone hasn't hand-fed us a URL
-		$waiting = $this->_arg('waiting');
+		$waiting = $this->_arg('waiting') && Configure::read('feature.waiting_list');
 		$test = $this->CanRegister->test ($this->Auth->user('zuluru_person_id'), $event, array('waiting' => $waiting, 'all_rules' => true, 'simple_output' => true));
 		if (!$test['allowed']) {
 			$this->Session->setFlash($test['messages'], 'default', array('class' => 'warning'));
@@ -428,7 +428,7 @@ class RegistrationsController extends AppController {
 
 			// This is all a little fragile, because of the weird format of the data we're saving.
 			// We need to first set the response data, then validate it.  We can't rely on
-			// Registration->saveAll to validate properly.
+			// Registration->save to validate properly.
 			$this->Registration->Response->set ($data);
 
 			// Find the requested price option
@@ -464,11 +464,6 @@ class RegistrationsController extends AppController {
 			if (!$this->Registration->Response->validates() || !empty($this->Registration->validationErrors)) {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('registration', true)), 'default', array('class' => 'warning'));
 				return;
-			}
-
-			// Use array_values here to get numeric keys in the data to be saved
-			if (is_array($data) && array_key_exists('Response', $data)) {
-				$data['Response'] = array_values($data['Response']);
 			}
 
 			// Set the flash message that will be used, if there are no errors
@@ -527,48 +522,26 @@ class RegistrationsController extends AppController {
 				$data['Registration']['deposit_amount'] = $this->data['Registration']['deposit_amount'];
 			}
 
-			// Next, we do the event registration
-			$result = $event_obj->register($event, $data);
-			if ($result === false) {
-				$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-				return;
-			}
-			if (is_array ($result)) {
-				$data['Response'] = array_merge($data['Response'], $result);
-			}
-
 			if ($waiting) {
 				$data['Registration']['payment'] = 'Waiting';
 			} else if ($cost == 0) {
-				$this->UserCache->clear('RegistrationsPaid');
-				// Free events may need even more processing
-				$result = $event_obj->paid($event, $data);
-				if ($result === false) {
-					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-					return;
-				}
-				if (is_array ($result)) {
-					$data['Response'] = array_merge($data['Response'], $result);
-				}
 				$data['Registration']['payment'] = 'Paid';
 			} else if ($price['allow_reservations']) {
 				$data['Registration']['payment'] = 'Reserved';
 				$data['Registration']['reservation_expires'] = date('Y-m-d H:i:s', time() + $price['reservation_duration'] * MINUTE);
 			} else {
-				unset($data['Registration']['payment']);
+				$data['Registration']['payment'] = 'Unpaid';
 			}
 
-			if (empty ($data['Response'])) {
-				unset ($data['Response']);
-			} else {
-				// Manually add the event id to all of the responses :-(
-				foreach (array_keys ($data['Response']) as $key) {
-					$data['Response'][$key]['event_id'] = $id;
-				}
-			}
-
-			if (!$this->Registration->saveAll($data, array('validate' => false))) {
+			if (!$this->Registration->save($data, array('validate' => false))) {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('registration', true)), 'default', array('class' => 'warning'));
+				return;
+			}
+
+			// Do any required post-processing
+			$data['Registration']['id'] = $this->Registration->id;
+			$data['Registration']['person_id'] = $this->Auth->user('zuluru_person_id');
+			if (!$this->_postProcess($event, $data, $data, false, $data['Registration']['payment'], $event_obj)) {
 				return;
 			}
 
@@ -577,9 +550,8 @@ class RegistrationsController extends AppController {
 				$this->Registration->Response->updateAll (array('registration_id' => null),
 					array('question_id' => $anonymous));
 			}
+
 			if ($transaction->commit() !== false) {
-				$this->UserCache->clear('Registrations');
-				$this->UserCache->clear('RegistrationsUnpaid');
 				$this->redirect(array('action' => 'checkout'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('registration', true)), 'default', array('class' => 'warning'));
@@ -700,10 +672,11 @@ class RegistrationsController extends AppController {
 			$transaction = new DatabaseTransaction($this->Registration);
 
 			if ($credit >= $outstanding) {
+				$new_payment = 'Paid';
 				$success = $this->Registration->saveAll(array(
 					'Registration' => array(
 						'id' => $registration['Registration']['id'],
-						'payment' => 'Paid',
+						'payment' => $new_payment,
 					),
 					'Payment' => array(array(
 						'registration_id' => $registration['Registration']['id'],
@@ -719,10 +692,11 @@ class RegistrationsController extends AppController {
 					'notes' => implode("\n", $notes),
 				));
 			} else {
+				$new_payment = 'Partial';
 				$success = $this->Registration->saveAll(array(
 					'Registration' => array(
 						'id' => $registration['Registration']['id'],
-						'payment' => 'Partial',
+						'payment' => $new_payment,
 					),
 					'Payment' => array(array(
 						'registration_id' => $registration['Registration']['id'],
@@ -745,33 +719,13 @@ class RegistrationsController extends AppController {
 			}
 
 			// Perform post-processing
-			$was_paid = in_array ($registration['Registration']['payment'], Configure::read('registration_paid'));
-			if (!$was_paid) {
-				$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
-				$extra = $event_obj->paid($registration, $registration);
-				if ($extra) {
-					if (is_array ($extra)) {
-						// Manually add the event id to all of the responses :-(
-						foreach (array_keys ($extra) as $key) {
-							$extra[$key]['event_id'] = $registration['Event']['id'];
-						}
-						if (!$this->Registration->Response->saveAll($extra, array('atomic' => false, 'validate' => false))) {
-							$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-							$this->redirect(array('action' => 'checkout'));
-						}
-					}
-				} else if ($extra === false) {
-					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-					$this->redirect(array('action' => 'checkout'));
-				}
+			if (!$this->_postProcess($registration, $registration, $registration, $registration['Registration']['payment'], $new_payment)) {
+				$this->redirect(array('action' => 'checkout'));
 			}
 
 			$transaction->commit();
 			$this->Session->setFlash(__('The credit has been applied to the chosen registration.', true), 'default', array('class' => 'success'));
 
-			$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
-			$this->UserCache->clear('RegistrationsPaid', $registration['Registration']['person_id']);
-			$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
 			$this->UserCache->clear('Credits', $registration['Registration']['person_id']);
 
 			$this->redirect(array('action' => 'checkout'));
@@ -781,6 +735,8 @@ class RegistrationsController extends AppController {
 	}
 
 	function checkout() {
+		$this->_expireReservations();
+
 		$this->Registration->contain (array(
 			'Event' => array('EventType', 'Price'),
 			'Price',
@@ -798,9 +754,6 @@ class RegistrationsController extends AppController {
 		// someone registering for a free event.  In that case, we don't want to
 		// disturb the flash message, just go back to the event list.
 		if (empty ($registrations)) {
-			$this->UserCache->clear('Registrations');
-			$this->UserCache->clear('RegistrationsPaid');
-			$this->UserCache->clear('RegistrationsUnpaid');
 			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
 
@@ -909,18 +862,8 @@ class RegistrationsController extends AppController {
 
 		// Wrap the rest in a transaction, for safety.
 		$transaction = new DatabaseTransaction($this->Registration);
-		$success = true;
 
-		$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
-		if (in_array($registration['Registration']['payment'], Configure::read('registration_paid'))) {
-			if (!$event_obj->unpaid($registration, $registration)) {
-				$success = false;
-				$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-			}
-		}
-		$success &= $event_obj->unregister($registration, $registration);
-
-		if ($success) {
+		if ($this->_postProcess($registration, $registration, $registration, $registration['Registration']['payment'], false)) {
 			$this->Session->setFlash(__('Successfully unregistered from this event.', true), 'default', array('class' => 'success'));
 			$transaction->commit();
 		}
@@ -1005,36 +948,10 @@ class RegistrationsController extends AppController {
 
 			// Do any event payment processing
 			$success = true;
-			$paid = Configure::read('registration_paid');
 			foreach ($registrations as $registration) {
-				$was_paid = in_array ($registration['Registration']['payment'], $paid);
-				$now_paid = in_array ($registration['Registration']['new_payment'], $paid);
-				if (!$was_paid && $now_paid) {
-					$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
-					$extra = $event_obj->paid($registration, $registration);
-					if ($extra) {
-						if (is_array ($extra)) {
-							// Manually add the event id to all of the responses :-(
-							foreach (array_keys ($extra) as $key) {
-								$extra[$key]['event_id'] = $registration['Event']['id'];
-							}
-							$success = $this->Registration->Response->saveAll($extra, array('atomic' => false, 'validate' => false));
-							if (!$success) {
-								$this->Session->setFlash(sprintf (__('There was an error updating the database. Contact the office to ensure that your information is updated, quoting order #<b>%s</b>, or you may not be allowed to be added to rosters, etc.', true), $registration['Registration']['id']), 'default', array('class' => 'error'));
-							}
-						}
-					} else if ($extra === false) {
-						$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-						$success = false;
-					}
-					if (!$success) {
-						break;
-					}
-
-					// If a parent is registering kids, there might be different person IDs for each registration
-					$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
-					$this->UserCache->clear('RegistrationsPaid', $registration['Registration']['person_id']);
-					$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
+				if (!$this->_postProcess($registration, $registration, $registration, $registration['Registration']['payment'], $payment_status)) {
+					$success = false;
+					break;
 				}
 			}
 
@@ -1146,35 +1063,12 @@ class RegistrationsController extends AppController {
 			if ($this->Registration->Payment->save($this->data) && $this->Registration->Person->Credit->save($credit_record)) {
 				$this->Registration->id = $registration['Registration']['id'];
 				if (!$this->Registration->saveField('payment', $new_payment)) {
-					$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+					$this->Session->setFlash(__('Failed to update payment status.', true), 'default', array('class' => 'warning'));
 					return;
 				}
 
-				$paid = Configure::read('registration_paid');
-				$was_paid = in_array ($registration['Registration']['payment'], $paid);
-				$now_paid = in_array ($new_payment, $paid);
-				if (!$was_paid && $now_paid) {
-					$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
-					$this->UserCache->clear('RegistrationsPaid', $registration['Registration']['person_id']);
-					$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
-
-					$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
-					$result = $event_obj->paid($registration, $registration);
-					if (!$result) {
-						$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-						return;
-					}
-					if (is_array ($result)) {
-						// Now manually add the event id to all of the responses :-(
-						foreach (array_keys ($result) as $key) {
-							$result[$key]['event_id'] = $registration['Event']['id'];
-						}
-
-						if (!$this->Registration->Response->saveAll($result, array('validate' => false))) {
-							$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-							return;
-						}
-					}
+				if (!$this->_postProcess($registration, $registration, $registration, $registration['Registration']['payment'], $new_payment)) {
+					return;
 				}
 
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('payment', true)), 'default', array('class' => 'success'));
@@ -1268,24 +1162,12 @@ class RegistrationsController extends AppController {
 				if ($this->data['Payment']['mark_refunded']) {
 					$this->Registration->id = $payment['Registration']['id'];
 					if (!$this->Registration->saveField('payment', 'Refunded')) {
-						$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+						$this->Session->setFlash(__('Failed to update payment status.', true), 'default', array('class' => 'warning'));
 						return;
 					}
 
-					if (in_array ($payment['Registration']['payment'], Configure::read('registration_paid'))) {
-						$this->UserCache->clear('Registrations', $payment['Registration']['person_id']);
-						$this->UserCache->clear('RegistrationsPaid', $payment['Registration']['person_id']);
-						$this->UserCache->clear('RegistrationsUnpaid', $payment['Registration']['person_id']);
-
-						$event_obj = $this->_getComponent ('EventType', $payment['Registration']['Event']['EventType']['type'], $this);
-						$result = $event_obj->unpaid($payment['Registration'], $payment['Registration']);
-						if (!$result) {
-							$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-							return;
-						} else if (is_array($result) && !$this->Registration->Response->deleteAll (array('id' => $result), false)) {
-							$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-							return;
-						}
+					if (!$this->_postProcess($payment['Registration'], $payment, $payment, $payment['Registration']['payment'], 'Refunded')) {
+						return;
 					}
 				}
 
@@ -1387,24 +1269,12 @@ class RegistrationsController extends AppController {
 				if ($this->data['Payment']['mark_refunded']) {
 					$this->Registration->id = $payment['Registration']['id'];
 					if (!$this->Registration->saveField('payment', 'Refunded')) {
-						$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
+						$this->Session->setFlash(__('Failed to update payment status.', true), 'default', array('class' => 'warning'));
 						return;
 					}
 
-					if (in_array ($payment['Registration']['payment'], Configure::read('registration_paid'))) {
-						$this->UserCache->clear('Registrations', $payment['Registration']['person_id']);
-						$this->UserCache->clear('RegistrationsPaid', $payment['Registration']['person_id']);
-						$this->UserCache->clear('RegistrationsUnpaid', $payment['Registration']['person_id']);
-
-						$event_obj = $this->_getComponent ('EventType', $payment['Registration']['Event']['EventType']['type'], $this);
-						$result = $event_obj->unpaid($payment['Registration'], $payment['Registration']);
-						if (!$result) {
-							$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-							return;
-						} else if (is_array($result) && !$this->Registration->Response->deleteAll (array('id' => $result), false)) {
-							$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-							return;
-						}
+					if (!$this->_postProcess($payment['Registration'], $payment, $payment, $payment['Registration']['payment'], 'Refunded')) {
+						return;
 					}
 				}
 
@@ -1550,20 +1420,8 @@ class RegistrationsController extends AppController {
 						return;
 					}
 
-					if (in_array ($payment['Registration']['payment'], Configure::read('registration_paid'))) {
-						$this->UserCache->clear('Registrations', $payment['Registration']['person_id']);
-						$this->UserCache->clear('RegistrationsPaid', $payment['Registration']['person_id']);
-						$this->UserCache->clear('RegistrationsUnpaid', $payment['Registration']['person_id']);
-
-						$event_obj = $this->_getComponent ('EventType', $payment['Registration']['Event']['EventType']['type'], $this);
-						$result = $event_obj->unpaid($payment['Registration'], $payment['Registration']);
-						if (!$result) {
-							$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-							return;
-						} else if (is_array($result) && !$this->Registration->Response->deleteAll (array('id' => $result), false)) {
-							$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-							return;
-						}
+					if (!$this->_postProcess($payment['Registration'], $payment, $payment, $payment['Registration']['payment'], 'Refunded')) {
+						return;
 					}
 				}
 
@@ -1579,30 +1437,8 @@ class RegistrationsController extends AppController {
 					return;
 				}
 
-				$paid = Configure::read('registration_paid');
-				$was_paid = in_array ($registration['Registration']['payment'], $paid);
-				$now_paid = in_array ($new_payment, $paid);
-				if (!$was_paid && $now_paid) {
-					$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
-					$this->UserCache->clear('RegistrationsPaid', $registration['Registration']['person_id']);
-					$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
-
-					$result = $event_obj->paid($registration, $registration);
-					if (!$result) {
-						$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-						return;
-					}
-					if (is_array ($result)) {
-						// Now manually add the event id to all of the responses :-(
-						foreach (array_keys ($result) as $key) {
-							$result[$key]['event_id'] = $registration['Event']['id'];
-						}
-
-						if (!$this->Registration->Response->saveAll($result, array('validate' => false))) {
-							$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-							return;
-						}
-					}
+				if (!$this->_postProcess($registration, $registration, $registration, $registration['Registration']['payment'], $new_payment)) {
+					return;
 				}
 
 				$this->Session->setFlash(sprintf(__('Transferred $%0.2f', true), $amount), 'default', array('class' => 'success'));
@@ -1679,7 +1515,7 @@ class RegistrationsController extends AppController {
 
 			// This is all a little fragile, because of the weird format of the data we're saving.
 			// We need to first set the response data, then validate it.  We can't rely on
-			// Registration->saveAll to validate properly.
+			// Registration->save to validate properly.
 			$this->Registration->Response->set ($data);
 
 			if ($registration['Registration']['person_id'] == $this->Auth->user('zuluru_person_id')) {
@@ -1725,79 +1561,25 @@ class RegistrationsController extends AppController {
 			// Wrap the whole thing in a transaction, for safety.
 			$transaction = new DatabaseTransaction($this->Registration);
 
-			// Use array_values here to get numeric keys in the data to be saved
-			if (is_array($data) && array_key_exists('Response', $data)) {
-				$data['Response'] = array_values($data['Response']);
-			}
-
-			if ($this->is_admin || $this->is_manager) {
-				// If the payment status has changed, we may need to do extra processing
-				$paid = Configure::read('registration_paid');
-				$was_paid = in_array ($registration['Registration']['payment'], $paid);
-				$now_paid = in_array ($data['Registration']['payment'], $paid);
-				if (!$was_paid && $now_paid) {
-					$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
-					$this->UserCache->clear('RegistrationsPaid', $registration['Registration']['person_id']);
-					$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
-
-					// When it's marked as paid, the responses that the event object
-					// should use are the new ones just now submitted.
-					$result = $event_obj->paid($registration, $data);
-					if (!$result) {
-						$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-						return;
-					}
-					if (is_array ($result)) {
-						$data['Response'] = array_merge($data['Response'], $result);
-					}
-				} else if ($was_paid && !$now_paid) {
-					$this->UserCache->clear('Registrations', $registration['Registration']['person_id']);
-					$this->UserCache->clear('RegistrationsPaid', $registration['Registration']['person_id']);
-					$this->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
-
-					// When it's marked as unpaid, the responses that the event object
-					// should use are the saved ones.
-					$result = $event_obj->unpaid($registration, $registration);
-					if (!$result) {
-						$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-						return;
-					}
-					if (is_array ($result)) {
-						$delete = array_merge ($delete, $result);
-					}
-				}
-			} else {
-				// Players cannot change their own payment status
-				unset($data['Registration']['payment']);
-			}
-
-			// TODO: Redo the event registration, in case anything has changed. But
-			// how will this interact with the payment status change handling above?
-			$result = true; //$event_obj->reregister($registration, $data);
-			if (!$result) {
-				$this->Session->setFlash(__('Failed to perform additional registration-related operations.', true), 'default', array('class' => 'warning'));
-				return;
-			}
-
-			// Now manually add the event id to all of the responses :-(
-			if (is_array($data) && array_key_exists('Response', $data)) {
-				foreach (array_keys ($data['Response']) as $key) {
-					$data['Response'][$key]['event_id'] = $registration['Event']['id'];
-				}
-			}
-
-			if (!$this->Registration->saveAll($data, array('validate' => false))) {
+			// Remove any old response records that are no longer valid
+			if (!empty($delete) && !$this->Registration->Response->deleteAll (array('id' => $delete), false)) {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('registration', true)), 'default', array('class' => 'warning'));
 				return;
 			}
 
-			// Remove any old response records that are no longer valid
-			if (!empty($delete)) {
-				if (!$this->Registration->Response->deleteAll (array(
-					'id' => $delete,
-					), false))
-				{
-					$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('registration', true)), 'default', array('class' => 'warning'));
+			if (!$this->is_admin && !$this->is_manager) {
+				// Players cannot change their own payment status
+				unset($data['Registration']['payment']);
+			}
+
+			if (!$this->Registration->save($data, array('validate' => false))) {
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('registration', true)), 'default', array('class' => 'warning'));
+				return;
+			}
+
+			// If the payment status has changed, we may need to do extra processing
+			if ($this->is_admin || $this->is_manager) {
+				if (!$this->_postProcess($registration, $registration, $data, $registration['Registration']['payment'], $data['Registration']['payment'])) {
 					return;
 				}
 			}
@@ -1900,6 +1682,11 @@ class RegistrationsController extends AppController {
 	}
 
 	function waiting() {
+		if (!Configure::read('feature.waiting_list')) {
+			$this->Session->setFlash(__('Waiting lists are not enabled on this site.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
 		$id = $this->_arg('event');
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
@@ -1956,6 +1743,137 @@ class RegistrationsController extends AppController {
 		}
 
 		return array($data, $delete);
+	}
+
+	/**
+	 * Perform post-processing to ensure that any required event-type-specific steps are taken.
+	 *
+	 * @param mixed $event Array with event data
+	 * @param mixed $registration Saved registration data, if it differs from submitted data
+	 * @param mixed $data Submitted registration data, if it differs from saved data
+	 * @param mixed $old_payment Old payment status
+	 * @param mixed $new_payment New payment status
+	 * @param mixed $event_obj Event-type-specific component
+	 * @return mixed true if no error occurs, false otherwise
+	 *
+	 * When editing a registration, and it's marked as unpaid or unreserved, the responses
+	 * that the event object should use are the saved ones ($registration).
+	 * When editing a registration, and it's marked as reserved or paid, the responses that
+	 * the event object should use are the new ones just now submitted ($data).
+	 * Otherwise, the two are generally interchangeable.
+	 */
+	function _postProcess($event, $registration, $data, $old_payment, $new_payment, $event_obj = null) {
+		if (!$event_obj) {
+			$event_obj = $this->_getComponent ('EventType', $event['Event']['EventType']['type'], $this);
+		}
+
+		// The saved data might not include person_id, but the processing functions may need it
+		if (empty($data['Registration']['person_id'])) {
+			$data['Registration']['person_id'] = $registration['Registration']['person_id'];
+		}
+
+		$reserved = Configure::read('registration_reserved');
+		$paid = Configure::read('registration_paid');
+		$was_registered = ($old_payment != false);
+		$now_registered = ($new_payment != false);
+		$was_reserved = in_array($old_payment, $reserved);
+		$now_reserved = in_array($new_payment, $reserved);
+		$was_paid = in_array($old_payment, $paid);
+		$now_paid = in_array($new_payment, $paid);
+		$delete = array();
+
+		if (!$was_registered && $now_registered) {
+			$result = $event_obj->register($event, $data);
+			if ($result === false) {
+				return false;
+			}
+			if (is_array ($result)) {
+				$data['Response'] = array_merge($data['Response'], $result);
+			}
+		}
+
+		if (!$was_reserved && $now_reserved) {
+			$result = $event_obj->reserve($event, $data);
+			if ($result === false) {
+				return false;
+			}
+			if (is_array ($result)) {
+				$data['Response'] = array_merge($data['Response'], $result);
+			}
+		}
+
+		if (!$was_paid && $now_paid) {
+			$result = $event_obj->paid($event, $data);
+			if ($result === false) {
+				return false;
+			}
+			if (is_array ($result)) {
+				$data['Response'] = array_merge($data['Response'], $result);
+			}
+		} else if ($was_paid && !$now_paid) {
+			$result = $event_obj->unpaid($event, $registration);
+			if ($result === false) {
+				return false;
+			}
+			if (is_array ($result)) {
+				$delete = array_merge ($delete, $result);
+			}
+		}
+
+		if ($was_reserved && !$now_reserved) {
+			$result = $event_obj->unreserve($event, $registration);
+			if ($result === false) {
+				return false;
+			}
+			if (is_array ($result)) {
+				$delete = array_merge ($delete, $result);
+			}
+		}
+
+		if ($was_registered && !$now_registered) {
+			$result = $event_obj->unregister($event, $registration);
+			if ($result === false) {
+				return false;
+			}
+			if (is_array ($result)) {
+				$delete = array_merge ($delete, $result);
+			}
+		}
+
+		// TODO: Redo the event registration, in case anything has changed. But
+		// how will this interact with the payment status change handling above?
+		/*
+		if (...) {
+			$result = $event_obj->reregister($registration, $data);
+			if ($result === false) {
+				return;
+			}
+			// Might be some responses to delete and others to create?
+		}
+		*/
+
+		if ($now_registered && !empty($data['Response'])) {
+			// Use array_values here to get numeric keys in the data to be saved
+			$data['Response'] = array_values($data['Response']);
+
+			// Manually add the registration and event ids to all of the responses
+			foreach (array_keys ($data['Response']) as $key) {
+				$data['Response'][$key]['registration_id'] = $data['Registration']['id'];
+				$data['Response'][$key]['event_id'] = $event['Event']['id'];
+			}
+			if (!$this->Registration->Response->saveAll($data['Response'], array('atomic' => false, 'validate' => false))) {
+				$this->Session->setFlash(__('Failed to update registration data.', true), 'default', array('class' => 'warning'));
+				return false;
+			}
+		}
+
+		// Remove any old response records that are no longer valid
+		if (!empty($delete) && !$this->Registration->Response->deleteAll (array('id' => $delete), false)) {
+			$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('registration', true)), 'default', array('class' => 'warning'));
+			return false;
+		}
+
+		return true;
 	}
 }
 ?>

@@ -268,6 +268,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 				'status' => ROSTER_APPROVED,
 			)))
 			{
+				$this->_controller->Session->setFlash(__('Failed to add the team captain!', true), 'default', array('class' => 'warning'));
 				return false;
 			}
 
@@ -287,7 +288,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 						),
 					)))
 					{
-						// TODO: Some way to return the validation error, giving the user a better error message
+						$this->_controller->Session->setFlash(__('Failed to create the franchise!', true), 'default', array('class' => 'warning'));
 						return false;
 					}
 					$franchise = $this->_controller->Team->Franchise->id;
@@ -302,6 +303,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 					'franchise_id' => $franchise,
 				)))
 				{
+					$this->_controller->Session->setFlash(__('Failed to add the team to the requested franchise!', true), 'default', array('class' => 'warning'));
 					return false;
 				}
 			}
@@ -322,6 +324,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 
 			return $responses;
 		}
+		$this->_controller->Session->setFlash(__('Failed to create the team record!', true), 'default', array('class' => 'warning'));
 		return false;
 	}
 
@@ -361,6 +364,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 
 				return $delete;
 			}
+			$this->_controller->Session->setFlash(__('Failed to remove the team record!', true), 'default', array('class' => 'warning'));
 			return false;
 		}
 
