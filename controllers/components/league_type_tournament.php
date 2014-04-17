@@ -598,8 +598,8 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		// Round 3: Winner 4 vs Winner 5 1st/2nd Place, optional consolation games
 		$success &= $this->createTournamentGame (7, 3, ordinal($this->first_team + 1), BRACKET_GAME, 'game_winner', 4, 'game_winner', 5);
 		if ($consolation) {
-			$success &= $this->createTournamentGame (8, 3, ordinal($this->first_team + 3), BRACKET_GAME, 'game_loser', 4, 'game_winner', 6);
-			$success &= $this->createTournamentGame (9, 3, ordinal($this->first_team + 5), BRACKET_GAME, 'game_loser', 5, 'game_loser', 6);
+			$success &= $this->createTournamentGame (8, 3, ordinal($this->first_team + 3), BRACKET_GAME, 'game_loser', 5, 'game_winner', 6);
+			$success &= $this->createTournamentGame (9, 3, ordinal($this->first_team + 5), BRACKET_GAME, 'game_loser', 4, 'game_loser', 6);
 		}
 
 		return $success;
