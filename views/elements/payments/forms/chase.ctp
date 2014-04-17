@@ -48,7 +48,7 @@ $unique_order_num = $invoice_num . sprintf('-%010d', $time);
 if ($payment_obj->isTest()) {
 	$login = Configure::read('payment.chase_test_store');
 	$key = Configure::read('payment.chase_test_password');
-	$server = 'rpm-demo';
+	$server = 'rpm.demo';
 } else {
 	$login = Configure::read('payment.chase_live_store');
 	$key = Configure::read('payment.chase_live_password');
