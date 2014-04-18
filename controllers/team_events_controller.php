@@ -534,14 +534,7 @@ class TeamEventsController extends AppController {
 
 		// Find all of the events that might have players that need to be reminded about attendance
 		$this->TeamEvent->contain(array(
-			'Team' => array(
-				'Person' => array(
-					$this->Auth->authenticate->name,
-					'Setting' => array(
-						'conditions' => array('category' => 'personal', 'name' => 'attendance_emails'),
-					),
-				),
-			),
+			'Team',
 			'AttendanceReminderEmail',
 		));
 		$remind = $this->TeamEvent->find ('all', array(
@@ -555,20 +548,38 @@ class TeamEventsController extends AppController {
 		));
 
 		$remind_count = 0;
+		$teams = array();
 		foreach ($remind as $event) {
+			// TODO: If we include this in the contain above, sometimes it reads not just
+			// the players on the team, but also everything else to do with the team. No
+			// idea why containment is breaking in this case, but it is... Revisit this
+			// (use a git version from before 2a7966e935c02df0730c7474c56d7466df313396 to
+			// compare) when we move to a newer version of CakePHP.
+			if (!array_key_exists($event['TeamEvent']['team_id'], $teams)) {
+				$this->TeamEvent->Team->contain(array('Person' => array(
+					$this->Auth->authenticate->name,
+					'Setting' => array(
+						'conditions' => array('category' => 'personal', 'name' => 'attendance_emails'),
+					),
+				)));
+				$team = $this->TeamEvent->Team->read(null, $event['TeamEvent']['team_id']);
+				$teams[$event['TeamEvent']['team_id']] = $team['Team'];
+				$teams[$event['TeamEvent']['team_id']]['Person'] = $team['Person'];
+			}
+
 			$event_date = strtotime($event['TeamEvent']['date']);
 			$days_to_event = date('Y', $event_date) * 365 + date('z', $event_date) - $days;
 			$reminded = Set::extract('/AttendanceReminderEmail/person_id', $event);
 
-			if ($event['Team']['track_attendance'] && $event['Team']['attendance_reminder'] >= $days_to_event) {
-				$remind_count += $this->_remindAttendance($event, $event['Team'], $reminded);
+			if ($teams[$event['TeamEvent']['team_id']]['track_attendance'] && $teams[$event['TeamEvent']['team_id']]['attendance_reminder'] >= $days_to_event) {
+				$remind_count += $this->_remindAttendance($event, $teams[$event['TeamEvent']['team_id']], $reminded);
 			}
 		}
 
 		// Find all of the events that might have captains that need attendance summaries
 		$this->TeamEvent->contain(array(
 			// Get the list of captains, we may need to email them
-			'Team' => array('Person' => $this->Auth->authenticate->name),
+			'Team',
 			'AttendanceSummaryEmail',
 		));
 		$summary = $this->TeamEvent->find ('all', array(
@@ -582,13 +593,25 @@ class TeamEventsController extends AppController {
 		));
 
 		$summary_count = 0;
+		$teams = array();
 		foreach ($summary as $event) {
+			// TODO: More containment issues like above
+			if (!array_key_exists($event['TeamEvent']['team_id'], $teams)) {
+				$this->TeamEvent->Team->contain(array('Person' => array(
+					$this->Auth->authenticate->name,
+					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
+				)));
+				$team = $this->TeamEvent->Team->read(null, $event['TeamEvent']['team_id']);
+				$teams[$event['TeamEvent']['team_id']] = $team['Team'];
+				$teams[$event['TeamEvent']['team_id']]['Person'] = $team['Person'];
+			}
+
 			$event_date = strtotime($event['TeamEvent']['date']);
 			$days_to_event = date('Y', $event_date) * 365 + date('z', $event_date) - $days;
 			$summarized = Set::extract('/AttendanceSummaryEmail/team_id', $event);
 
-			if ($event['Team']['track_attendance'] && $event['Team']['attendance_summary'] >= $days_to_event) {
-				$summary_count += $this->_summarizeAttendance($event, $event['Team'], $summarized);
+			if ($teams[$event['TeamEvent']['team_id']]['track_attendance'] && $teams[$event['TeamEvent']['team_id']]['attendance_summary'] >= $days_to_event) {
+				$summary_count += $this->_summarizeAttendance($event, $teams[$event['TeamEvent']['team_id']], $summarized);
 			}
 		}
 
