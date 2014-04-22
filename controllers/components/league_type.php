@@ -556,7 +556,7 @@ class LeagueTypeComponent extends Object
 					break;
 
 				case 'spirit':
-					if ($a['spirit_games'] && $b['spirit_games']) {
+					if (!empty($a['spirit_games']) && !empty($b['spirit_games'])) {
 						if ($a['spirit'] / $a['spirit_games'] < $b['spirit'] / $b['spirit_games'])
 							return 1;
 						if ($a['spirit'] / $a['spirit_games'] > $b['spirit'] / $b['spirit_games'])
