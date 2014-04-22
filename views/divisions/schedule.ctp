@@ -46,6 +46,19 @@ if (!empty ($edit_date)) {
 ?>
 	<table class="list">
 	<?php
+	$competition = ($division['Division']['schedule_type'] == 'competition');
+	?>
+	<tr>
+		<th><?php if ($is_tournament): ?><?php __('Game'); ?><?php endif; ?></th>
+		<th><?php __('Time'); ?></th>
+		<th><?php __(Configure::read('sport.field_cap')); ?></th>
+		<th><?php __($competition ? 'Team' : 'Home'); ?></th>
+		<?php if (!$competition): ?>
+		<th><?php __('Away'); ?></th>
+		<?php endif; ?>
+		<th><?php __('Score'); ?></th>
+	</tr>
+	<?php
 	$dates = array_unique(Set::extract ('/Game/GameSlot/game_date', $division));
 	foreach ($dates as $date) {
 		if ($date == $edit_date) {

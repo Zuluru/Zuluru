@@ -46,13 +46,3 @@
 	endif;
 	?></th>
 </tr>
-<tr>
-	<th><?php if ($is_tournament): ?><?php __('Game'); ?><?php endif; ?></th>
-	<th><?php __('Time'); ?></th>
-	<th><?php __(Configure::read('sport.field_cap')); ?></th>
-	<th><?php __($competition ? 'Team' : 'Home'); ?></th>
-	<?php if (!$competition): ?>
-	<th><?php __('Away'); ?></th>
-	<?php endif; ?>
-	<th><?php __('Score'); ?></th>
-</tr>
