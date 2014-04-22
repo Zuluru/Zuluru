@@ -8,6 +8,8 @@ $this->Html->addCrumb (__('Spirit Report', true));
 <h3><?php  echo __('Spirit Report', true) . ': ' . $division['Division']['full_league_name'];?></h3>
 
 <?php
+echo $this->element('spirit/legend', compact('spirit_obj'));
+
 $rows = $team_records = $questions = array();
 if ($division['League']['numeric_sotg']) {
 	$questions[] = 'entered_sotg';

@@ -333,8 +333,10 @@ $config['options'] = array(
 	// List of available spirit questionnaires
 	'spirit_questions' => array(
 		'none' => 'No spirit questionnaire',
-		'team' => 'Team spirit',
-		'wfdf' => 'WFDF spirit',
+		'wfdf' => 'WFDF standard',
+		'modified_wfdf' => 'Modified WFDF',
+		'team' => 'Leaguerunner original',
+		'ocua_team' => 'Modified Leaguerunner',
 	),
 
 	// List of available payment providers

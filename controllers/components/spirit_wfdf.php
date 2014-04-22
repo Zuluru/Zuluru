@@ -6,6 +6,8 @@
 
 class SpiritWfdfComponent extends SpiritComponent
 {
+	var $description = 'The WFDF standard spirit survey.';
+
 	var $questions = array(
 		'q1' => array(
 			'name' => 'Rules Knowledge',

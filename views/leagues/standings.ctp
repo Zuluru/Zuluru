@@ -49,8 +49,12 @@ $this->Html->addCrumb (__('Standings', true));
 		}
 		?>
 		</table>
-	<?php endif; ?>
 	<?php
+		if (League::hasSpirit($league['League'])) {
+			echo $this->element('spirit/legend', compact('spirit_obj'));
+		}
+	endif;
+
 	if (!empty($division['Pools'])):
 		echo $this->element('leagues/standings/tournament/notice');
 	?>

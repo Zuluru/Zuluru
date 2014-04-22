@@ -149,7 +149,13 @@ $display_spirit = ($is_admin || $is_coordinator || $team['Division']['League']['
 	endforeach;
 	?>
 	</table>
-<?php endif; ?>
+<?php
+	if (League::hasSpirit($team['Division']['League'])) {
+		echo $this->element('spirit/legend', compact('spirit_obj'));
+	}
+
+endif;
+?>
 <p>Get your team schedule in <?php // TODO: Better image locations, alt text
 echo $this->ZuluruHtml->iconLink ('ical.gif', array('action' => 'ical', $team['Team']['id'], 'team.ics'), array('alt' => 'iCal'));
 ?> format or <?php

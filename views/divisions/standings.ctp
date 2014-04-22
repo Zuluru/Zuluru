@@ -75,7 +75,12 @@ if (!empty($division['Team']) && !empty($division['Division']['Season'])):?>
 	}
 	?>
 	</table>
-<?php endif; ?>
+<?php
+	if (League::hasSpirit($division['League'])) {
+		echo $this->element('spirit/legend', compact('spirit_obj'));
+	}
+endif;
+?>
 <?php
 if (!empty($division['Division']['Pools'])):
 	echo $this->element('leagues/standings/tournament/notice');

@@ -6,6 +6,8 @@
 
 class SpiritTeamComponent extends SpiritComponent
 {
+	var $description = 'The original Leaguerunner spirit survey, developed by the Ottawa Carleton Ultimate Association.';
+
 	var $questions = array(
 		'q1' => array(
 			'name' => 'Timeliness',

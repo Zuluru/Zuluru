@@ -9,7 +9,7 @@ foreach ($questions as $question => $details) {
 	}
 	$label = __($details['text'], true);
 	echo $this->Html->tag ('div',
-		$this->element("/formbuilder/input/{$details['type']}", compact('field', 'label', 'options', 'desc')),
+		$this->element("/formbuilder/input/{$details['type']}", compact('field', 'label', 'options', 'desc', 'preview')),
 		array('class' => 'input required'));
 }
 ?>
