@@ -1605,7 +1605,7 @@ class DivisionsController extends AppController {
 								$stage = $game["{$type}PoolTeam"]['DependencyPool']['stage'];
 								$pool_id = $game["{$type}PoolTeam"]['dependency_pool_id'];
 								$seed = $game["{$type}PoolTeam"]['dependency_id'];
-								$results = $division['Pools'][$stage][$pool_id]['Results'];
+								$results = $division['Division']['Pools'][$stage][$pool_id]['Results'];
 								usort($results, array($league_obj, 'compareTeamsResults'));
 								$league_obj->detectAndResolveTies($results, 'compareTeamsResults');
 								$team_id = $results[$seed - 1]['id'];
@@ -1616,14 +1616,14 @@ class DivisionsController extends AppController {
 								// one before this one, or it might be two stages ago, if
 								// the previous stage was crossover games.
 								$stage = $game["{$type}PoolTeam"]['Pool']['stage'] - 1;
-								$pool_id = reset(array_keys($division['Pools'][$stage]));
-								if ($division['Pools'][$stage][$pool_id]['Game'][0]['HomePoolTeam']['Pool']['type'] == 'crossover') {
+								$pool_id = reset(array_keys($division['Division']['Pools'][$stage]));
+								if ($division['Division']['Pools'][$stage][$pool_id]['Game'][0]['HomePoolTeam']['Pool']['type'] == 'crossover') {
 									-- $stage;
 								}
 
 								$ordinal = $game["{$type}PoolTeam"]['dependency_ordinal'];
 								$teams = array();
-								foreach ($division['Pools'][$stage] as $pool_id => $results) {
+								foreach ($division['Division']['Pools'][$stage] as $pool_id => $results) {
 									usort($results['Team'], array($league_obj, 'compareTeamsResults'));
 									$league_obj->detectAndResolveTies($results['Team'], 'compareTeamsResults');
 									$teams[] = $results['Team'][$ordinal - 1];
