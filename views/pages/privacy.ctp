@@ -20,7 +20,7 @@
 <h3>Do we disclose any information to other members?</h3>
 <p>In order to facilitate team communication, the Zuluru software in use on this site may provide your contact information, even if not otherwise published, to certain individuals. In particular:</p>
 <ul>
-<li>Any captain of a team may see the contact information for all of their players and for the coordinator of the division that the team is in</li>
+<li>Any captain of a team may see the contact information for all of their players and for the coordinator and other captains of the division that the team is in</li>
 <li>Any player on a team may see the contact information for all of their captains</li>
 <li>Any coordinator of a division may see the contact information for all of the captains of all teams in their division</li>
 </ul>
