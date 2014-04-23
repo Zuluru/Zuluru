@@ -36,7 +36,11 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			$min_pools = ceil($num_teams / 12);
 			$max_pools = floor($num_teams / 2);
 			for ($i = $min_pools; $i <= $max_pools; ++ $i) {
-				$types["seeded_$i"] = "seeded split into $i pools";
+				if ($i == 1) {
+					$types["seeded_$i"] = "single pool with all teams";
+				} else {
+					$types["seeded_$i"] = "seeded split into $i pools";
+				}
 			}
 
 			if ($num_teams >= 6) {
