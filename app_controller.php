@@ -379,6 +379,9 @@ class AppController extends Controller {
 	// By default, nothing is public. Any controller with special permissions
 	// must override this function.
 	function publicActions() {
+		if ($this->name == 'Pages') {
+			return array('display');
+		}
 		return null;
 	}
 
