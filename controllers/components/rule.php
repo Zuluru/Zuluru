@@ -199,7 +199,7 @@ class RuleComponent extends Object
 			return null;
 		$success = $this->rule->evaluate($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url);
 		$this->reason = $this->rule->reason;
-		if ($this->reason[0] == '(' && $this->reason[strlen($this->reason) - 1] == ')') {
+		if (!empty($this->reason) && $this->reason[0] == '(' && $this->reason[strlen($this->reason) - 1] == ')') {
 			$this->reason = substr($this->reason, 1, -1);
 		}
 		$this->reason_type = $this->rule->reason_type;
