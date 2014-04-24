@@ -257,7 +257,6 @@ class NewslettersController extends AppController {
 				$people = array_diff($people, $sent_ids, $unsubscribed_ids);
 
 				$user_model = $this->Auth->authenticate->name;
-				$email_field = $this->Auth->authenticate->emailField;
 				$people = $this->Person->find('all', array(
 					'contain' => array($user_model),
 					'conditions' => array(
