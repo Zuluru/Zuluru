@@ -754,10 +754,12 @@ class DivisionsController extends AppController {
 			$edit_date = null;
 		}
 
+		$multi_day = ($division['Division']['schedule_type'] != 'tournament' && count($division['Day']) > 1);
+
 		if ($edit_date) {
 			$tournament_games = Set::extract ('/Game[type!=' . SEASON_GAME . "]/GameSlot[game_date=$edit_date]", $division);
 			$is_tournament = !empty($tournament_games);
-			$game_slots = $this->Division->DivisionGameslotAvailability->GameSlot->getAvailable($id, $edit_date, $is_tournament, $division['Division']['double_booking']);
+			$game_slots = $this->Division->DivisionGameslotAvailability->GameSlot->getAvailable($id, $edit_date, $is_tournament, $division['Division']['double_booking'], $multi_day);
 		} else {
 			$is_tournament = false;
 		}
@@ -782,7 +784,7 @@ class DivisionsController extends AppController {
 			}
 		}
 
-		$this->set(compact ('id', 'division', 'edit_date', 'game_slots', 'is_coordinator', 'is_tournament'));
+		$this->set(compact ('id', 'division', 'edit_date', 'game_slots', 'is_coordinator', 'is_tournament', 'multi_day'));
 
 		$this->_addDivisionMenuItems ($division['Division'], $division['League']);
 	}
@@ -1491,6 +1493,7 @@ class DivisionsController extends AppController {
 		$pool = $this->_arg('pool');
 
 		$this->Division->contain(array(
+			'Day' => array('order' => 'day_id'),
 			'Team' => array(
 				'Franchise',
 			),
@@ -1547,7 +1550,15 @@ class DivisionsController extends AppController {
 				'conditions' => $conditions,
 		));
 		if ($date) {
-			$games = Set::extract("/GameSlot[game_date=$date]/..", $games);
+			$multi_day = ($division['Division']['schedule_type'] != 'tournament' && count($division['Day']) > 1);
+			if ($multi_day) {
+				// TODO: Configurable first day of the week; this assumes Sunday
+				$offset = 6 - date('w', strtotime($date));
+				$end = date('Y-m-d', strtotime($date) + $offset * DAY);
+				$games = Set::extract("/GameSlot[game_date>=$date][game_date<=$end]/..", $games);
+			} else {
+				$games = Set::extract("/GameSlot[game_date=$date]/..", $games);
+			}
 		}
 		if (empty($games)) {
 			$this->Session->setFlash(__('There are currently no dependencies to initialize in this division.', true), 'default', array('class' => 'warning'));

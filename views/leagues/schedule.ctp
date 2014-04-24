@@ -32,7 +32,7 @@ if (!empty ($edit_date)) {
 	usort($all_slots, array('GameSlot', 'compareTimeAndField'));
 	$slots = array();
 	foreach ($all_slots as $slot) {
-		if ($is_tournament) {
+		if ($is_tournament || $multi_day) {
 			$slots[$slot['GameSlot']['id']] = $this->ZuluruTime->day ($slot['GameSlot']['game_date']) . ' ' . $this->ZuluruTime->time ($slot['GameSlot']['game_start']) . ' ' . $slot['Field']['long_name'];
 		} else {
 			$slots[$slot['GameSlot']['id']] = $this->ZuluruTime->time ($slot['GameSlot']['game_start']) . ' ' . $slot['Field']['long_name'];
@@ -42,9 +42,30 @@ if (!empty ($edit_date)) {
 ?>
 <?php if (!empty($league['Game'])):?>
 <?php
-	$future = reset(Set::extract('/Game/GameSlot[game_date>=' . date('Y-m-d') . ']/game_date', $league));
-	if ($future) {
-		echo $this->Html->para(null, $this->Html->link(__('Jump to upcoming games', true), "#$future"));
+	$future_week = 99;
+	$dates = array_unique(Set::extract ('/Game/GameSlot/game_date', $league));
+	$weeks = array();
+	foreach ($dates as $date) {
+		$date_stamp = strtotime($date);
+		$week = date('W', $date_stamp);
+		// TODO: Configurable first day of the week; this assumes Sunday
+		if (date('w', $date_stamp) < 1) {
+			-- $week;
+		}
+		if (!array_key_exists($week, $weeks)) {
+			$weeks[$week] = array($date, $date);
+		} else {
+			$weeks[$week][0] = min($date, $weeks[$week][0]);
+			$weeks[$week][1] = max($date, $weeks[$week][1]);
+		}
+
+		if ($date_stamp > time()) {
+			$future_week = min($week, $future_week);
+		}
+	}
+
+	if ($future_week != 99) {
+		echo $this->Html->para(null, $this->Html->link(__('Jump to upcoming games', true), "#{$weeks[$future_week][0]}"));
 	}
 ?>
 	<table class="list">
@@ -54,6 +75,9 @@ if (!empty ($edit_date)) {
 	?>
 	<tr>
 		<th><?php if ($is_tournament): ?><?php __('Game'); ?><?php endif; ?></th>
+		<?php if ($multi_day): ?>
+		<th><?php __('Date'); ?></th>
+		<?php endif; ?>
 		<th><?php __('Time'); ?></th>
 		<th><?php __(Configure::read('sport.field_cap')); ?></th>
 		<th><?php __($competition ? 'Team' : 'Home'); ?></th>
@@ -63,12 +87,11 @@ if (!empty ($edit_date)) {
 		<th><?php __('Score'); ?></th>
 	</tr>
 	<?php
-	$dates = array_unique(Set::extract ('/Game/GameSlot/game_date', $league));
-	foreach ($dates as $date) {
-		if ($date == $edit_date) {
-			echo $this->element('leagues/schedule/week_edit', compact ('date', 'slots', 'is_manager', 'is_tournament'));
+	foreach ($weeks as $week) {
+		if ($edit_date >= $week[0] && $edit_date <= $week[1]) {
+			echo $this->element('leagues/schedule/week_edit', compact ('week', 'multi_day', 'slots', 'is_manager', 'is_tournament'));
 		} else {
-			echo $this->element('leagues/schedule/week_view', compact ('date', 'is_manager'));
+			echo $this->element('leagues/schedule/week_view', compact ('week', 'multi_day', 'is_manager'));
 		}
 	}
 	?>

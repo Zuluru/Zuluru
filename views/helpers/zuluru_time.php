@@ -71,6 +71,43 @@ class ZuluruTimeHelper extends TimeHelper {
 		return $this->format("$day_format, Y $time_format", $date);
 	}
 
+	function displayRange($start, $end) {
+		// Figure out how best to display the date(s)
+		$start_time = strtotime($start);
+		$end_time = strtotime($end);
+		$single_date = (date('z', $start_time) == date('z', $end_time));
+		$single_month = (date('n', $start_time) == date('n', $end_time));
+		$single_year = (date('Y', $start_time) == date('Y', $end_time));
+		$entire_month = (date('j', $start_time) == 1 && date('j', $end_time) == date('t', $end_time));
+
+		$ret = '';
+		if ($single_date) {
+			$ret .= date('F j, Y', strtotime($start));
+		} else if ($single_month) {
+			if ($entire_month) {
+				$ret .= date('F Y', $start_time);
+			} else {
+				$ret .= date('F j', $start_time) . '-' . date('j, Y', $end_time);
+			}
+		} else if ($entire_month) {
+			if ($single_year) {
+				$ret .= date('F', $start_time);
+			} else {
+				$ret .= date('F Y', $start_time);
+			}
+			$ret .= __(' to ', true) . date('F, Y', $end_time);
+		} else {
+			if ($single_year) {
+				$ret .= date('F j', $start_time);
+			} else {
+				$ret .= date('F j, Y', $start_time);
+			}
+			$ret .= __(' to ', true) . date('F j, Y', $end_time);
+		}
+
+		return $ret;
+	}
+
 	function format($format, $date) {
 		if (empty($date)) {
 			return null;

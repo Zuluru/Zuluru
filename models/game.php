@@ -967,6 +967,12 @@ class Game extends AppModel {
 		} else {
 			$allow_double_header = false;
 		}
+		if (array_key_exists('multiple_days', $data['Game'])) {
+			$allow_multiple_days = $data['Game']['multiple_days'];
+			unset ($data['Game']['multiple_days']);
+		} else {
+			$allow_multiple_days = false;
+		}
 		if (array_key_exists('double_booking', $data['Game'])) {
 			$allow_double_booking = $data['Game']['double_booking'];
 			unset ($data['Game']['double_booking']);
@@ -1019,7 +1025,7 @@ class Game extends AppModel {
 			$team_counts = array_count_values ($teams);
 			foreach ($team_counts as $team_id => $count) {
 				if ($count > 1) {
-					if ($allow_double_header) {
+					if ($allow_double_header || $allow_multiple_days) {
 						// Check that the double-header doesn't cause conflicts; must be at the same facility, but different times
 						$team_slot_ids = array_merge(
 							Set::extract ("/Game[home_team=$team_id]/game_slot_id", $data),
@@ -1038,13 +1044,19 @@ class Game extends AppModel {
 						foreach ($team_slots as $key1 => $slot1) {
 							foreach ($team_slots as $key2 => $slot2) {
 								if ($key1 != $key2) {
+									if (!$allow_double_header && $slot1['GameSlot']['game_date'] == $slot2['GameSlot']['game_date']) {
+										return array('text' => sprintf (__('Team %s was scheduled twice on the same day!', true), $team_names[$team_id]), 'class' => 'info');
+									}
+									if (!$allow_multiple_days && $slot1['GameSlot']['game_date'] != $slot2['GameSlot']['game_date']) {
+										return array('text' => sprintf (__('Team %s was scheduled on different days!', true), $team_names[$team_id]), 'class' => 'info');
+									}
 									if ($slot1['GameSlot']['game_date'] == $slot2['GameSlot']['game_date'] &&
 										$slot1['GameSlot']['game_start'] >= $slot2['GameSlot']['game_start'] &&
 										$slot1['GameSlot']['game_start'] < $slot2['GameSlot']['display_game_end'])
 									{
 										return array('text' => sprintf (__('Team %s was scheduled in overlapping time slots!', true), $team_names[$team_id]), 'class' => 'info');
 									}
-									if ($slot1['Field']['facility_id'] != $slot2['Field']['facility_id']) {
+									if ($slot1['GameSlot']['game_date'] == $slot2['GameSlot']['game_date'] && $slot1['Field']['facility_id'] != $slot2['Field']['facility_id']) {
 										return array('text' => sprintf (__('Team %s was scheduled on %s at different facilities!', true), $team_names[$team_id], Configure::read('ui.fields')), 'class' => 'info');
 									}
 								}

@@ -1,13 +1,13 @@
 <?php if (!$this->params['isAjax']): ?>
 
 <?php
-$this->Html->addCrumb (__('Divisions', true));
-$this->Html->addCrumb (sprintf(__('Division %s Availability Report', true), Configure::read('sport.field_cap')));
-$this->Html->addCrumb ($division['Division']['full_league_name']);
+$this->Html->addCrumb (__('Leagues', true));
+$this->Html->addCrumb (sprintf(__('League %s Availability Report', true), Configure::read('sport.field_cap')));
+$this->Html->addCrumb ($league['League']['full_name']);
 ?>
 
-<div class="divisions slots">
-<h2><?php echo sprintf(__('Division %s Availability Report', true), Configure::read('sport.field_cap')) . ': ' . $division['Division']['full_league_name'];?></h2>
+<div class="leagues slots">
+<h2><?php echo sprintf(__('League %s Availability Report', true), Configure::read('sport.field_cap')) . ': ' . $league['League']['full_name'];?></h2>
 
 <p>Select a date below on which to view all available gameslots:</p>
 <?php
@@ -31,6 +31,10 @@ echo $this->Form->end();
 <?php if (isset ($slots)): ?>
 <p><?php echo $this->ZuluruTime->fulldate($date); ?></p>
 <table class="list">
+	<?php
+	$schedule_types = array_unique(Set::extract('/Division/schedule_type', $league));
+	$competition = (count($schedule_types) == 1 && $schedule_types[0] == 'competition');
+	?>
 	<tr>
 		<th>ID</th>
 		<th><?php __(Configure::read('sport.field_cap')); ?></th>
@@ -41,8 +45,8 @@ echo $this->Form->end();
 <?php if ($is_tournament): ?>
 		<th>Pool</th>
 <?php endif; ?>
-		<th><?php __($division['Division']['schedule_type'] == 'competition' ? 'Team' : 'Home'); ?></th>
-<?php if ($division['Division']['schedule_type'] != 'competition'): ?>
+		<th><?php __($competition ? 'Team' : 'Home'); ?></th>
+<?php if (!$competition): ?>
 		<th>Away</th>
 <?php endif; ?>
 <?php if (Configure::read('feature.region_preference')): ?>
@@ -53,7 +57,7 @@ echo $this->Form->end();
 $unused = 0;
 foreach ($slots as $slot):
 	$rows = max(count($slot['Game']), 1);
-	$cols = 3 + $is_tournament + ($division['Division']['schedule_type'] != 'competition') + Configure::read('feature.region_preference');
+	$cols = 3 + $is_tournament + !$competition + Configure::read('feature.region_preference');
 ?>
 	<tr>
 		<td rowspan="<?php echo $rows; ?>"><?php __($slot['GameSlot']['id']); ?></td>
@@ -89,7 +93,7 @@ foreach ($slots as $slot):
 				echo $this->element('teams/block', array('team' => $game['HomeTeam'], 'max_length' => 16, 'show_shirt' => false));
 			}
 		?></td>
-<?php if ($division['Division']['schedule_type'] != 'competition'): ?>
+<?php if (!$competition): ?>
 		<td><?php
 			if (empty($game['away_team'])) {
 				echo $game['away_dependency'];

@@ -1,11 +1,23 @@
 <?php
-$this->Html->addCrumb (__('Division', true));
-$this->Html->addCrumb ($division['Division']['full_league_name']);
+if (isset($division)) {
+	$this->Html->addCrumb (__('Division', true));
+	$this->Html->addCrumb ($division['Division']['full_league_name']);
+} else {
+	$this->Html->addCrumb (__('League', true));
+	$this->Html->addCrumb ($league['League']['full_name']);
+}
 $this->Html->addCrumb (__('Delete Games', true));
 ?>
 
 <div class="schedules delete">
-<h2><?php  echo __('Delete Games', true) . ': ' . $division['Division']['full_league_name'];?></h2>
+<h2><?php
+echo __('Delete Games', true) . ': ';
+if (isset($division)) {
+	echo $division['Division']['full_league_name'];
+} else {
+	echo $league['League']['full_name'];
+}
+?></h2>
 
 <?php
 $published = Set::extract ('/Game[published=1]', $games);
@@ -13,8 +25,13 @@ $finalized = Set::extract ('/Game[home_score>-1]', $games);
 ?>
 
 <p>You have requested to delete games
-<?php if (isset($date)): ?>
-on <?php echo $this->ZuluruTime->date($date); ?>
+<?php
+if (isset($date)):
+	$dates = Set::extract('/GameSlot/game_date', $games);
+	$first = min($dates);
+	$last = max($dates);
+?>
+on <?php echo $this->ZuluruTime->displayRange($first, $last); ?>
 <?php else: ?>
 from pool <?php echo $pool['Pool']['name']; ?>
 <?php endif; ?>.</p>
@@ -31,7 +48,11 @@ if (!empty ($finalized)): ?>
  There are also <?php echo count($dependent); ?> additional games dependent in some way on these which will be deleted.<?php endif; ?></p>
 <?php if (!empty ($published)): ?>
 <p>Deleting published games can be confusing for players and captains, so be sure to <?php
-echo $this->Html->link (__('contact all captains', true), array('controller' => 'divisions', 'action' => 'emails', 'division' => $id));
+if (isset($division)) {
+	echo $this->Html->link (__('contact all captains', true), array('controller' => 'divisions', 'action' => 'emails', 'division' => $id));
+} else {
+	__('contact all captains');
+}
 ?> to inform them of this.</p>
 <?php endif; ?>
 <?php if (!empty ($finalized)): ?>
@@ -40,6 +61,15 @@ echo $this->Html->link (__('contact all captains', true), array('controller' => 
 
 <div class="actions">
 <ul><li>
-<?php echo $this->Html->link (__('Proceed', true), array('division' => $id, 'date' => $date, 'pool' => $pool_id, 'confirm' => true)); ?>
+<?php
+if (isset($division)) {
+	$id_field = 'division';
+	$id = $division_id;
+} else {
+	$id_field = 'league';
+	$id = $league_id;
+}
+echo $this->Html->link (__('Proceed', true), array($id_field => $id, 'date' => $date, 'pool' => $pool_id, 'confirm' => true));
+?>
 </li></ul>
 </div>

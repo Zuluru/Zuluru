@@ -46,7 +46,8 @@ class SchedulesController extends AppController {
 		return false;
 	}
 
-	function _init($id) {
+	function add() {
+		$id = $this->_arg('division');
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
@@ -82,11 +83,6 @@ class SchedulesController extends AppController {
 
 		$this->set(array('id' => $id, 'division' => $this->division));
 		$this->_addDivisionMenuItems ($this->division['Division'], $this->division['League']);
-	}
-
-	function add() {
-		$id = $this->_arg('division');
-		$this->_init($id);
 
 		if ($this->_numTeams() < 2) {
 			$this->Session->setFlash(__('Cannot schedule games in a division with less than two teams.', true), 'default', array('class' => 'info'));
@@ -728,16 +724,73 @@ class SchedulesController extends AppController {
 	}
 
 	function delete() {
-		$id = $this->_arg('division');
-		$this->_init($id);
+		$division_id = $this->_arg('division');
+		if (!$division_id) {
+			$league_id = $this->_arg('league');
+			if (!$league_id) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+			}
+
+			$this->Division->League->contain(array('Division' => array('Day' => array('order' => 'day_id'))));
+			$league = $this->Division->League->read(null, $league_id);
+			if (!$league) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+			}
+
+			if (empty($league['Division'])) {
+				$this->Session->setFlash(__('This league has no divisions yet.', true), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+			}
+			$divisions = Set::extract('/Division/id', $league);
+
+			$multi_day = (count(array_unique(Set::extract('/Division[schedule_type!=tournament]/Day/id', $league))) > 1);
+
+			$this->Configuration->loadAffiliate($league['League']['affiliate_id']);
+			$this->_addLeagueMenuItems ($league['League']);
+		} else {
+			$this->Division->contain (array (
+				'Day' => array('order' => 'day_id'),
+				'Team' => array('order' => 'Team.name'),
+				'League',
+				'Pool' => array(
+					'order' => 'Pool.id',
+					'PoolsTeam' => array(
+						'order' => 'PoolsTeam.id',
+					),
+				),
+			));
+			$division = $this->Division->read(null, $division_id);
+			if (!$division) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+			}
+			$divisions = array($division['Dviision']['id']);
+			$league_id = $division['Division']['league_id'];
+
+			$multi_day = ($division['Division']['schedule_type'] != 'tournament' && count($division['Day']) > 1);
+
+			$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
+			$this->_addDivisionMenuItems ($division['Division'], $division['League']);
+		}
+		$this->set(compact('division_id', 'division', 'league_id', 'league'));
+
 		$date = $this->_arg('date');
 		$pool_id = $this->_arg('pool');
 
 		$conditions = array(
-			'Game.division_id' => $id,
+			'Game.division_id' => $divisions,
 		);
 		if ($date) {
-			$conditions['GameSlot.game_date'] = $date;
+			if ($multi_day) {
+				// TODO: Configurable first day of the week; this assumes Sunday
+				$offset = 6 - date('w', strtotime($date));
+				$conditions['GameSlot.game_date >='] = $date;
+				$conditions[] = "GameSlot.game_date <= DATE_ADD('$date', INTERVAL $offset DAY)";
+			} else {
+				$conditions['GameSlot.game_date'] = $date;
+			}
 			$contain = array('GameSlot');
 		}
 		if ($pool_id) {
@@ -748,7 +801,6 @@ class SchedulesController extends AppController {
 		}
 		$games = $this->Division->Game->find ('all', array(
 				'conditions' => $conditions,
-				'fields' => array('Game.id', 'Game.published', 'Game.home_score', 'Game.pool_id', 'Game.game_slot_id'),
 				'contain' => $contain,
 		));
 
@@ -778,7 +830,7 @@ class SchedulesController extends AppController {
 			if (!empty($stages)) {
 				$later_pools = $this->Division->Pool->find ('list', array(
 						'conditions' => array(
-							'Pool.division_id' => $id,
+							'Pool.division_id' => $divisions,
 							'Pool.stage >' => max($stages),
 						),
 						'fields' => array('Pool.id', 'Pool.id'),
@@ -833,12 +885,18 @@ class SchedulesController extends AppController {
 				}
 				$transaction->commit();
 
-				Cache::delete('division/' . intval($id) . '/standings', 'long_term');
-				Cache::delete('division/' . intval($id) . '/schedule', 'long_term');
-				Cache::delete('league/' . $this->Division->league($id) . '/standings', 'long_term');
-				Cache::delete('league/' . $this->Division->league($id) . '/schedule', 'long_term');
+				foreach ($divisions as $id) {
+					Cache::delete("division/$id/standings", 'long_term');
+					Cache::delete("division/$id/schedule", 'long_term');
+				}
+				Cache::delete("league/$league_id/standings", 'long_term');
+				Cache::delete("league/$league_id/schedule", 'long_term');
 
-				$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
+				if (isset($league)) {
+					$this->redirect(array('controller' => 'leagues', 'action' => 'schedule', 'league' => $league_id));
+				} else {
+					$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $division_id));
+				}
 			} else {
 				$this->Session->setFlash(__('Failed to delete games on the requested date.', true), 'default', array('class' => 'warning'));
 			}
@@ -949,7 +1007,7 @@ class SchedulesController extends AppController {
 				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 			}
 
-			$this->Division->League->contain('Division');
+			$this->Division->League->contain(array('Division' => array('Day' => array('order' => 'day_id'))));
 			$league = $this->Division->League->read(null, $league_id);
 			if (!$league) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
@@ -961,20 +1019,39 @@ class SchedulesController extends AppController {
 				$this->Session->setFlash(__('This league has no divisions yet.', true), 'default', array('class' => 'info'));
 				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 			}
+
+			$multi_day = (count(array_unique(Set::extract('/Division[schedule_type!=tournament]/Day/id', $league))) > 1);
 		} else {
+			$this->Division->contain(array('Day' => array('order' => 'day_id')));
+			$division = $this->Division->read(null, $division_id);
+			if (!$division) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+			}
+
 			$divisions = array($division_id);
-			$league_id = $this->Division->league($division_id);
+			$league_id = $division['Division']['league_id'];
+			$multi_day = ($division['Division']['schedule_type'] != 'tournament' && count($division['Day']) > 1);
 		}
 		$date = $this->_arg('date');
+
+		$conditions = array(
+				'Game.division_id' => $divisions,
+		);
+		if ($multi_day) {
+			// TODO: Configurable first day of the week; this assumes Sunday
+			$offset = 6 - date('w', strtotime($date));
+			$conditions['GameSlot.game_date >='] = $date;
+			$conditions[] = "GameSlot.game_date <= DATE_ADD('$date', INTERVAL $offset DAY)";
+		} else {
+			$conditions['GameSlot.game_date'] = $date;
+		}
 
 		$this->Division->Game->contain (array (
 			'GameSlot',
 		));
 		$games = Set::extract ('/Game/id', $this->Division->Game->find ('all', array(
-				'conditions' => array(
-					'Game.division_id' => $divisions,
-					'GameSlot.game_date' => $date,
-				),
+				'conditions' => $conditions,
 				'fields' => 'Game.id',
 		)));
 

@@ -48,7 +48,7 @@ class GameSlot extends AppModel {
 		return $record;
 	}
 
-	function getAvailable($divisions, $date, $is_tournament, $allow_double_booking) {
+	function getAvailable($divisions, $date, $is_tournament, $allow_double_booking, $multi_day) {
 		// Find available slots
 		$join = array( array(
 				'table' => "{$this->tablePrefix}division_gameslot_availabilities",
@@ -71,6 +71,13 @@ class GameSlot extends AppModel {
 				),
 				'GameSlot.game_date' => $date,
 			));
+		} else if ($multi_day) {
+			// TODO: Configurable first day of the week; this assumes Sunday
+			$offset = 6 - date('w', strtotime($date));
+			$conditions = array(
+				'GameSlot.game_date >=' => $date,
+				"GameSlot.game_date <= DATE_ADD('$date', INTERVAL $offset DAY)",
+			);
 		} else {
 			$conditions = array('GameSlot.game_date' => $date);
 		}

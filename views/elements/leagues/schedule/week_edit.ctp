@@ -37,7 +37,7 @@ if (isset($division)) {
 	}
 }
 
-$published = array_unique (Set::extract ("/GameSlot[game_date=$date]/../published", $games));
+$published = array_unique (Set::extract ("/GameSlot[game_date>={$week[0]}][game_date<={$week[1]}]/../published", $games));
 if (count ($published) != 1 || $published[0] == 0) {
 	$published = false;
 } else {
@@ -54,7 +54,7 @@ $finalized = true;
 $is_season = $is_tournament = $editing_tournament = $has_dependent_games = false;
 $season_divisions = array();
 foreach ($games as $game) {
-	if ($date == $game['GameSlot']['game_date']) {
+	if ($game['GameSlot']['game_date'] >= $week[0] && $game['GameSlot']['game_date'] <= $week[1]) {
 		if ($game['type'] != SEASON_GAME) {
 			$is_tournament = true;
 			if ($is_admin || $is_manager || in_array($game['division_id'], $my_divisions)) {
@@ -74,35 +74,39 @@ foreach ($games as $game) {
 $cross_division = (count($season_divisions) > 1);
 
 if ($only_some_divisions || $is_season) {
-	echo $this->element('leagues/schedule/view_header', compact('date', 'competition', 'id_field', 'id', 'published', 'finalized', 'is_tournament', 'has_dependent_games'));
+	echo $this->element('leagues/schedule/view_header', compact('week', 'competition', 'id_field', 'id', 'published', 'finalized', 'is_tournament', 'multi_day', 'has_dependent_games'));
 } else {
-	echo $this->element('leagues/schedule/edit_header', compact('date', 'competition', 'id_field', 'id', 'is_tournament'));
+	echo $this->element('leagues/schedule/edit_header', compact('week', 'competition', 'id_field', 'id', 'is_tournament', 'multi_day'));
 }
 ?>
 
 <?php if ($editing_tournament): ?>
-<tr><td colspan="<?php echo 5 + !$competition; ?>" class="warning-message"><?php echo sprintf(__('For normal usage, it is safest to only change %s values for tournament or playoff games; editing of other values should be reserved for extreme situations', true), sprintf(__('Time/%s', true), __(Configure::read('sport.field_cap'), true))); ?></td></tr>
+<tr><td colspan="<?php echo 5 + $multi_day + !$competition; ?>" class="warning-message"><?php echo sprintf(__('For normal usage, it is safest to only change %s values for tournament or playoff games; editing of other values should be reserved for extreme situations', true), sprintf(__('Time/%s', true), __(Configure::read('sport.field_cap'), true))); ?></td></tr>
 <?php endif; ?>
 
 <?php if ($this->Session->check('Message.schedule_edit')): ?>
-<tr><td colspan="<?php echo 5 + !$competition; ?>"><?php echo $this->Session->flash('schedule_edit'); ?></td></tr>
+<tr><td colspan="<?php echo 5 + $multi_day + !$competition; ?>"><?php echo $this->Session->flash('schedule_edit'); ?></td></tr>
 <?php endif; ?>
 
 <?php
-$last_slot = null;
+$last_date = $last_slot = null;
 foreach ($games as $game):
-	if ($date != $game['GameSlot']['game_date']) {
+	if ($game['GameSlot']['game_date'] < $week[0] || $game['GameSlot']['game_date'] > $week[1]) {
 		continue;
 	}
 
 	Game::_readDependencies($game);
+	$same_date = ($game['GameSlot']['game_date'] === $last_date);
 	$same_slot = ($game['GameSlot']['id'] === $last_slot);
 	if (!$is_admin && !$is_manager && !in_array($game['division_id'], $this->UserCache->read('DivisionIDs'))) {
 		if ($game['published']) {
-			echo $this->element('leagues/schedule/game_view', compact('game', 'competition', 'is_tournament', 'same_slot'));
+			echo $this->element('leagues/schedule/game_view', compact('game', 'competition', 'is_tournament', 'multi_day', 'same_date', 'same_slot'));
+			$last_date = $game['GameSlot']['game_date'];
+			$last_slot = $game['GameSlot']['id'];
 		}
 		continue;
 	}
+	$last_date = $game['GameSlot']['game_date'];
 	$last_slot = $game['GameSlot']['id'];
 
 	if (empty ($this->data)) {
@@ -121,7 +125,7 @@ foreach ($games as $game):
 			'default' => $data['name'],
 	));
 	?><?php endif; ?></td>
-	<td colspan="2"><?php
+	<td colspan="<?php echo 2 + $multi_day; ?>"><?php
 	echo $this->Form->hidden ("Game.{$game['id']}.id", array('value' => $game['id']));
 	echo $this->Form->input ("Game.{$game['id']}.game_slot_id", array(
 			'div' => false,
@@ -277,7 +281,7 @@ endforeach;
 ?>
 
 <tr>
-	<td colspan="<?php echo 3 + !$competition; ?>"><?php
+	<td colspan="<?php echo 3 + $multi_day + !$competition; ?>"><?php
 	echo $this->Form->input ('publish', array(
 			'label' => __('Set as published for player viewing?', true),
 			'type' => 'checkbox',
@@ -286,6 +290,13 @@ endforeach;
 	if ($is_season) {
 		echo $this->Form->input ('double_header', array(
 				'label' => __('Allow double-headers?', true),
+				'type' => 'checkbox',
+				'checked' => false,
+		));
+	}
+	if ($multi_day) {
+		echo $this->Form->input ('multiple_days', array(
+				'label' => __('Allow teams to be booked on more than one day?', true),
 				'type' => 'checkbox',
 				'checked' => false,
 		));
@@ -306,7 +317,7 @@ endforeach;
 	}
 	?></td>
 	<td colspan="2" class="actions splash_action">
-		<?php echo $this->Form->hidden ('edit_date', array('value' => $date)); ?>
+		<?php echo $this->Form->hidden ('edit_date', array('value' => $week[0])); ?>
 		<?php echo $this->Form->submit (__('Reset', true), array('type' => 'reset', 'div' => false)); ?>
 		<?php echo $this->Form->submit (__('Submit', true), array('div' => false)); ?>
 	</td>

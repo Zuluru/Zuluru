@@ -29,6 +29,7 @@ class LeaguesController extends AppController {
 					'edit',
 					'delete',
 					'participation',
+					'slots',
 			)))
 			{
 				// If a league id is specified, check if we're a manager of that league's affiliate
@@ -45,6 +46,7 @@ class LeaguesController extends AppController {
 		if (in_array ($this->params['action'], array(
 				'add',
 				'edit',
+				'slots',
 		)))
 		{
 			// If a league id is specified, check if we're a coordinator of all of that league's divisions
@@ -223,7 +225,7 @@ class LeaguesController extends AppController {
 		$league = $this->League->read(null, $id);
 		if (!$league) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+			$this->redirect(array('action' => 'index'));
 		}
 		$this->Configuration->loadAffiliate($league['League']['affiliate_id']);
 
@@ -412,7 +414,7 @@ class LeaguesController extends AppController {
 		if ($cached) {
 			$league = $cached;
 		} else {
-			$this->League->contain('Division');
+			$this->League->contain(array('Division' => array('Day' => array('order' => 'day_id'))));
 			$league = $this->League->read(null, $id);
 			if (!$league) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
@@ -477,6 +479,8 @@ class LeaguesController extends AppController {
 			$edit_date = null;
 		}
 
+		$multi_day = (count(array_unique(Set::extract('/Division[schedule_type!=tournament]/Day/id', $league))) > 1);
+
 		if ($edit_date) {
 			$tournament_games = Set::extract ('/Division/Game[type!=' . SEASON_GAME . "]/GameSlot[game_date=$edit_date]", $league);
 			$is_tournament = !empty($tournament_games);
@@ -488,7 +492,7 @@ class LeaguesController extends AppController {
 					$double_booking |= $division['double_booking'];
 				}
 			}
-			$game_slots = $this->League->Division->DivisionGameslotAvailability->GameSlot->getAvailable($divisions, $edit_date, $is_tournament, $double_booking);
+			$game_slots = $this->League->Division->DivisionGameslotAvailability->GameSlot->getAvailable($divisions, $edit_date, $is_tournament, $double_booking, $multi_day);
 		} else {
 			$is_tournament = false;
 		}
@@ -513,7 +517,7 @@ class LeaguesController extends AppController {
 			}
 		}
 
-		$this->set(compact ('id', 'league', 'edit_date', 'game_slots', 'is_coordinator', 'is_tournament'));
+		$this->set(compact ('id', 'league', 'edit_date', 'game_slots', 'is_coordinator', 'is_tournament', 'multi_day'));
 
 		$this->_addLeagueMenuItems ($league);
 	}
@@ -522,7 +526,7 @@ class LeaguesController extends AppController {
 		$id = $this->_arg('league');
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+			$this->redirect(array('action' => 'index'));
 		}
 
 		// Hopefully, everything we need is already cached
@@ -545,7 +549,7 @@ class LeaguesController extends AppController {
 			$league = $this->League->read(null, $id);
 			if (!$league) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
-				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+				$this->redirect(array('action' => 'index'));
 			}
 			$this->Configuration->loadAffiliate($league['League']['affiliate_id']);
 			Configure::load("sport/{$league['League']['sport']}");
@@ -609,7 +613,7 @@ class LeaguesController extends AppController {
 
 			if (!$has_games) {
 				$this->Session->setFlash(__('Cannot generate standings for a league with no schedule.', true), 'default', array('class' => 'info'));
-				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+				$this->redirect(array('action' => 'index'));
 			}
 
 			Cache::write($cache_key, $league, 'long_term');
@@ -619,6 +623,89 @@ class LeaguesController extends AppController {
 		$this->set('is_coordinator', $this->League->is_coordinator($league));
 
 		$this->_addLeagueMenuItems ($league);
+	}
+
+	function slots() {
+		$id = $this->_arg('league');
+		if (!$id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+
+		$this->League->contain('Division');
+		$league = $this->League->read(null, $id);
+		if (!$league) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+		$this->Configuration->loadAffiliate($league['League']['affiliate_id']);
+		Configure::load("sport/{$league['League']['sport']}");
+
+		$divisions = Set::extract('/Division/id', $league);
+		$this->League->Division->DivisionGameslotAvailability->GameSlot->contain();
+		$join = array( array(
+				'table' => "{$this->League->Division->tablePrefix}division_gameslot_availabilities",
+				'alias' => 'DivisionGameslotAvailability',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'DivisionGameslotAvailability.game_slot_id = GameSlot.id',
+		));
+		$dates = $this->League->Division->DivisionGameslotAvailability->GameSlot->find('all', array(
+			'fields' => array('DISTINCT GameSlot.game_date'),
+			'conditions' => array('DivisionGameslotAvailability.division_id' => $divisions),
+			'order' => 'GameSlot.game_date',
+			'joins' => $join,
+		));
+		$dates = Set::extract ('/GameSlot/game_date', $dates);
+		$dates = array_combine (array_values ($dates), array_values ($dates));
+
+		$date = $this->_arg('date');
+		if (!empty ($this->data) && array_key_exists ('date', $this->data)) {
+			$date = $this->data['date'];
+		}
+		if (!empty ($date)) {
+			$this->League->Division->DivisionGameslotAvailability->GameSlot->contain (array (
+					'Game' => array(
+						'conditions' => array(
+							'OR' => array(
+								'Game.home_dependency_type !=' => 'copy',
+								'Game.home_dependency_type' => null,
+							),
+						),
+						'Division',
+						'Pool',
+						'HomeTeam' => array(
+							'Field' => 'Facility',
+							'Region',
+						),
+						'HomePoolTeam' => 'DependencyPool',
+						'AwayTeam' => array(
+							'Field' => 'Facility',
+							'Region',
+						),
+						'AwayPoolTeam' => 'DependencyPool',
+					),
+					'Field' => array(
+						'Facility' => 'Region',
+					),
+			));
+			$slots = $this->League->Division->DivisionGameslotAvailability->GameSlot->find('all', array(
+				'conditions' => array(
+					'DivisionGameslotAvailability.division_id' => $divisions,
+					'GameSlot.game_date' => $date,
+				),
+				'fields' => array('DISTINCT *'),
+				'joins' => $join,
+				'order' => array('GameSlot.game_date', 'GameSlot.game_start', 'Field.id'),
+			));
+
+			$tournament_games = Set::extract ('/Game[type!=' . SEASON_GAME . "]", $slots);
+			$is_tournament = !empty($tournament_games);
+		}
+
+		$this->set(compact('league', 'dates', 'date', 'slots', 'is_tournament'));
+
+		$this->_addLeagueMenuItems ($league['League']);
 	}
 
 	function cron() {

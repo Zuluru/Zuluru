@@ -1,5 +1,12 @@
 <tr<?php if (!$game['published']) echo ' class="unpublished"'; ?>>
 	<td><?php if ($is_tournament && !$same_slot): ?><?php echo $game['name']; ?><?php endif; ?></td>
+	<?php if ($multi_day): ?>
+	<td><?php
+	if (!$same_date) {
+		echo $this->ZuluruTime->day($game['GameSlot']['game_date']);
+	}
+	?></td>
+	<?php endif; ?>
 	<td><?php
 	if (!$same_slot) {
 		$time = $this->ZuluruTime->time($game['GameSlot']['game_start']) . '-' .
