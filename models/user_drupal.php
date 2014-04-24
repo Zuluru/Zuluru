@@ -79,7 +79,7 @@ class UserDrupal extends User {
 	}
 
 	function activated($data) {
-		return (array_key_exists($this->name, $data) && $data[$this->name]['status'] != 0);
+		return (!empty($data[$this->name]) && $data[$this->name]['status'] != 0);
 	}
 
 	function delete_duplicate_user($id) {
