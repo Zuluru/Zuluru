@@ -331,11 +331,19 @@ class Person extends AppModel {
 	}
 
 	function beforeValidate() {
-		if (array_key_exists('addr_country', $this->data[$this->alias]) && $this->data[$this->alias]['addr_country'] == 'United States') {
-			$this->validate['addr_postalcode']['postal'] = array(
-				'rule' => array('postal', null, 'us'),
-				'message' => 'You must enter a valid US zip code',
-			);
+		if (array_key_exists('addr_country', $this->data[$this->alias])) {
+			if ($this->data[$this->alias]['addr_country'] == 'United States') {
+				$this->validate['addr_postalcode']['postal'] = array(
+					'rule' => array('postal', null, 'us'),
+					'message' => 'You must enter a valid US zip code',
+				);
+			}
+			if ($this->data[$this->alias]['addr_country'] == 'Mexico') {
+				$this->validate['addr_postalcode']['postal'] = array(
+					'rule' => array('postal', null, 'us'), // same format as US
+					'message' => 'You must enter a valid Mexican postal code',
+				);
+			}
 		}
 
 		if (Configure::read('feature.birth_year_only')) {
