@@ -173,7 +173,7 @@ foreach ($games as $game):
 			// Get the list of games in the previous round
 			$ids = array();
 			foreach ($games as $other_game) {
-				if ($other_game['division_id'] == $game['division_id'] && $other_game['type'] != SEASON_GAME && $other_game['round'] == $game['round'] - 1) {
+				if ($other_game['division_id'] == $game['division_id'] && $other_game['type'] != SEASON_GAME && $other_game['type'] != POOL_PLAY_GAME && $other_game['round'] == $game['round'] - 1) {
 					$ids[$other_game['id']] = $other_game['name'];
 				}
 			}
@@ -242,7 +242,7 @@ foreach ($games as $game):
 			// Get the list of games in the previous round
 			$ids = array();
 			foreach ($games as $other_game) {
-				if ($other_game['division_id'] == $game['division_id'] && $other_game['type'] != SEASON_GAME && $other_game['round'] == $game['round'] - 1) {
+				if ($other_game['division_id'] == $game['division_id'] && $other_game['type'] != SEASON_GAME && $other_game['type'] != POOL_PLAY_GAME && $other_game['round'] == $game['round'] - 1) {
 					$ids[$other_game['id']] = $other_game['name'];
 				}
 			}
