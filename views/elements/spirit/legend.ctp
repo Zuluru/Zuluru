@@ -18,5 +18,5 @@ foreach ($files as $key => $file) {
 	$high = rtrim(rtrim(sprintf('%.1f', $range * $highs[$key]), '0'), '.');
 	$ranges[] = "$low-$high: " . $this->ZuluruHtml->icon("spirit_$file.png");
 }
-echo implode('&nbsp;&nbsp', $ranges);
+echo implode('&nbsp;&nbsp;', $ranges);
 ?></p>

@@ -2,7 +2,7 @@
 <h4>Type: Boolean</h4>
 <p>The COMPARE rule accepts two other rules, separated by a comparison operator, and returns the result of performing a boolean comparison of the results of executing the two rules.</p>
 <p>The comparison operator must have whitespace on both sides of it.</p>
-<p>Possible comparison operators are:
+<p>Possible comparison operators are:</p>
 <ul>
 <li>= (test for equality)</li>
 <li>!= (test for inequality)</li>
@@ -11,7 +11,6 @@
 <li>&gt; (greater than)</li>
 <li>&gt;= (greater than or equal to)</li>
 </ul>
-</p>
 <p>Note that comparisons are done in a case-sensitive fashion.</p>
 <p>Example:</p>
 <pre>COMPARE(ATTRIBUTE('gender') = 'Male')</pre>
