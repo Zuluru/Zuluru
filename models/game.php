@@ -1092,7 +1092,36 @@ class Game extends AppModel {
 			$seed_counts = array_count_values ($seeds);
 			foreach ($seed_counts as $seed_id => $count) {
 				if ($count > 1) {
-					return array('text' => sprintf (__('Seed %s was selected more than once!', true), $seed_names[$seed_id]), 'class' => 'info');
+					// Check that the double-header doesn't cause conflicts; must be at the same facility, but different times
+					$seed_slot_ids = array_merge(
+						Set::extract ("/Game[home_pool_team_id=$seed_id]/game_slot_id", $data),
+						Set::extract ("/Game[away_pool_team_id=$seed_id]/game_slot_id", $data)
+					);
+					if (count ($seed_slot_ids) != count (array_unique ($seed_slot_ids))) {
+						return array('text' => sprintf (__('Seed %s was scheduled twice in the same time slot!', true), $seed_names[$seed_id]), 'class' => 'info');
+					}
+
+					$this->GameSlot->contain(array(
+							'Field',
+					));
+					$seed_slots = $this->GameSlot->find('all', array('conditions' => array(
+							'GameSlot.id' => $seed_slot_ids,
+					)));
+					foreach ($seed_slots as $key1 => $slot1) {
+						foreach ($seed_slots as $key2 => $slot2) {
+							if ($key1 != $key2) {
+								if ($slot1['GameSlot']['game_date'] == $slot2['GameSlot']['game_date'] &&
+									$slot1['GameSlot']['game_start'] >= $slot2['GameSlot']['game_start'] &&
+									$slot1['GameSlot']['game_start'] < $slot2['GameSlot']['display_game_end'])
+								{
+									return array('text' => sprintf (__('Seed %s was scheduled in overlapping time slots!', true), $seed_names[$seed_id]), 'class' => 'info');
+								}
+								if ($slot1['GameSlot']['game_date'] == $slot2['GameSlot']['game_date'] && $slot1['Field']['facility_id'] != $slot2['Field']['facility_id']) {
+									return array('text' => sprintf (__('Seed %s was scheduled on %s at different facilities!', true), $seed_names[$seed_id], Configure::read('ui.fields')), 'class' => 'info');
+								}
+							}
+						}
+					}
 				}
 			}
 
