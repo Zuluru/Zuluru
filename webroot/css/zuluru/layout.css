@@ -222,7 +222,7 @@ body.map
 }
 
 /** Forms **/
-#zuluru form
+#zuluru form, #zuluru div.form
 {
 	clear: both;
 	margin-right: 20px;
@@ -255,14 +255,14 @@ body.map
 	clear: left;
 	margin: 0 20px;
 }
-#zuluru form div
+#zuluru form div, #zuluru div.form div
 {
 	clear: both;
 	margin-bottom: 0.5em;
 	padding: 0.5em;
 	vertical-align: text-top;
 }
-#zuluru form div.input div.input
+#zuluru form div.input div.input, #zuluru div.form div.input div.input
 {
 	margin: 0;
 	padding: 0;
@@ -309,7 +309,7 @@ body.map
 	margin: 0;
 	padding: 0;
 }
-#zuluru form .required
+#zuluru form .required, #zuluru div.form .required
 {
 	font-weight: bold;
 }
