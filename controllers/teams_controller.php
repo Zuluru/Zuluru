@@ -2099,8 +2099,11 @@ class TeamsController extends AppController {
 		// user why. It should only fail in the case of malicious form tinkering, so
 		// we don't try hard to let them correct the error.
 		if (!empty($this->data)) {
-			$this->_setRosterRole ($person, $team, $this->data['Person']['role'], ROSTER_INVITED);
-			$this->redirect(array('action' => 'view', 'team' => $team['Team']['id']));
+			if (!empty($this->data['Person']['role'])) {
+				$this->_setRosterRole ($person, $team, $this->data['Person']['role'], ROSTER_INVITED);
+				$this->redirect(array('action' => 'view', 'team' => $team['Team']['id']));
+			}
+			$this->Session->setFlash(__('You must select a role for this player.', true), 'default', array('class' => 'info'));
 		}
 
 		// Check if this person can even be added
