@@ -69,7 +69,11 @@ class GameSlotsController extends AppController {
 			$this->redirect('/');
 		}
 		$this->Configuration->loadAffiliate($gameSlot['Field']['Facility']['Region']['affiliate_id']);
-		Configure::load("sport/{$game['Division']['League']['sport']}");
+		if (!empty($gameSlot['Game'])) {
+			Configure::load("sport/{$gameSlot['Game'][0]['Division']['League']['sport']}");
+		} else {
+			Configure::load("sport/{$gameSlot['DivisionGameslotAvailability'][0]['Division']['League']['sport']}");
+		}
 		$this->set(compact('gameSlot'));
 	}
 
