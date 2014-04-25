@@ -93,6 +93,7 @@ class TeamEventsController extends AppController {
 		// _read_attendance returns an array, but we only want one event
 		$attendance = reset($this->TeamEvent->_read_attendance($event['Team'], $id));
 		$this->set(compact('event', 'attendance'));
+		$this->set('is_captain', in_array($event['Team']['id'], $this->UserCache->read('OwnedTeamIDs')));
 	}
 
 	function add() {
