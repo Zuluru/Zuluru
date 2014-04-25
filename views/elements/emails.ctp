@@ -2,6 +2,8 @@
 echo $this->Html->link(__('send an email right away', true), 'mailto:' . implode (';', Set::extract ('/email_formatted', $people))); ?>.</p>
 <?php
 foreach ($people as $person) {
-	echo htmlentities ($person['email_formatted']) . ';<br>';
+	if (!empty($person['email_formatted'])) {
+		echo htmlentities ($person['email_formatted']) . ';<br>';
+	}
 }
 ?>
