@@ -231,6 +231,7 @@ class QuestionsController extends AppController {
 		if ($this->Question->Answer->save ($answer)) {
 			$answer['id'] = $this->Question->Answer->id;
 			$answer['active'] = true;
+			$answer['answer'] = '';
 			$this->set(compact('answer', 'i'));
 		}
 	}
