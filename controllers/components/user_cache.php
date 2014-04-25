@@ -117,7 +117,7 @@ class UserCacheComponent extends Object
 					break;
 
 				case 'AllRelativeTeamIDs':
-					$relatives = $this->UserCache->read('RelativeIDs', $id);
+					$relatives = $this->read('RelativeIDs', $id);
 					if (!empty($relatives)) {
 						if (!isset($self->_controller->Team)) {
 							$self->_controller->Team = ClassRegistry::init('Team');
