@@ -2282,6 +2282,9 @@ class GamesController extends AppController {
 							$team_status = __('a tie', true);
 							$opponent_status = sprintf(__('a %s-%s tie', true), $score_for, $score_against);
 						}
+
+						// We need to swap the for and against scores to reflect the opponent's view in the email below
+						list($score_against, $score_for) = array($score_for, $score_against);
 					}
 					$resultMessage = sprintf(__('This score has been saved. Once your opponent has entered their score, it will be officially posted.<br/><br/>The score you have submitted indicates that this game was %s. If this is incorrect, you can edit the score to correct it.', true), $team_status);
 					$resultClass = 'success';
@@ -2293,8 +2296,6 @@ class GamesController extends AppController {
 					}
 					if (!empty($captains)) {
 						$division = $game['Division'];
-						// We need to swap the for and against scores to reflect the opponent's view
-						list($score_against, $score_for) = array($score_for, $score_against);
 						$this->set(compact ('division', 'game', 'status', 'opponent_status', 'score_for', 'score_against', 'team', 'opponent', 'captains'));
 						$this->_sendMail (array (
 								'to' => $captains,
