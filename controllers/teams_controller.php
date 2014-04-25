@@ -1166,7 +1166,11 @@ class TeamsController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
-			$this->Configuration->loadAffiliate($this->data['Division']['League']['affiliate_id']);
+			if (empty($this->data['Division']['id'])) {
+				$this->Configuration->loadAffiliate($this->data['Team']['affiliate_id']);
+			} else {
+				$this->Configuration->loadAffiliate($this->data['Division']['League']['affiliate_id']);
+			}
 		}
 		$division_id = $this->Team->field('division_id', array('id' => $id));
 		$league_id = $this->Team->Division->field('league_id', array('id' => $division_id));
@@ -1242,7 +1246,11 @@ class TeamsController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
-			$this->Configuration->loadAffiliate($this->data['Division']['League']['affiliate_id']);
+			if (empty($this->data['Division']['id'])) {
+				$this->Configuration->loadAffiliate($this->data['Team']['affiliate_id']);
+			} else {
+				$this->Configuration->loadAffiliate($this->data['Division']['League']['affiliate_id']);
+			}
 		}
 
 		if (Configure::read('feature.tiny_mce')) {
@@ -1445,11 +1453,22 @@ class TeamsController extends AppController {
 
 		$this->Team->contain(array ('Division' => 'League'));
 		$team = $this->Team->read(null, $id);
+		if (!$team) {
+			$this->Team->contain(array ('Division' => 'League'));
+			$team = $this->Team->read(null, $id + 5000); // OCUA import offset
+			if ($team) {
+				$this->redirect(array('action' => 'ical', $id + 5000), 301);
+			}
+		}
 		if (!$team || empty($team['Division']['id']) || strtotime($team['Division']['close']) < time() - 14 * DAY) {
 			$this->header('HTTP/1.1 410 Gone');
 			exit;
 		} else {
-			$this->Configuration->loadAffiliate($team['Division']['League']['affiliate_id']);
+			if (empty($team['Division']['id'])) {
+				$this->Configuration->loadAffiliate($team['Team']['affiliate_id']);
+			} else {
+				$this->Configuration->loadAffiliate($team['Division']['League']['affiliate_id']);
+			}
 		}
 		$this->Team->Division->Game->contain(array(
 				'GameSlot' => array('Field' => 'Facility'),
