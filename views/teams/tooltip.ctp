@@ -1,4 +1,9 @@
-<h2><?php echo $team['Team']['name']; ?></h2>
+<h2><?php
+if (Configure::read('feature.team_logo') && !empty($team['Team']['logo'])) {
+	echo $this->Html->image($team['Team']['logo']) . ' ';
+}
+echo $team['Team']['name'];
+?></h2>
 <dl>
 <?php if (Configure::read('feature.shirt_colour') && !empty($team['Team']['shirt_colour'])): ?>
 	<dt><?php __('Shirt colour'); ?></dt>
@@ -23,11 +28,13 @@
 <?php endif; ?>
 
 	<dt><?php __('Team'); ?></dt>
-	<dd><?php echo $this->Html->link(__('Details & roster', true), array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id'])) .
-			' / ' .
+	<dd><?php echo $this->Html->link(__('Details & roster', true), array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']));
+	if (!empty($team['Team']['division_id'])) {
+		echo ' / ' .
 			$this->Html->link(__('Schedule', true), array('controller' => 'teams', 'action' => 'schedule', 'team' => $team['Team']['id'])) .
 			' / ' .
 			$this->Html->link(__('Standings', true), array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Team']['division_id'], 'team' => $team['Team']['id']));
+	}
 	if ($is_logged_in && Configure::read('scoring.stat_tracking') && League::hasStats($team['Division']['League'])) {
 		echo ' / ' . $this->Html->link(__('Stats', true), array('controller' => 'teams', 'action' => 'stats', 'team' => $team['Team']['id']));
 	}
@@ -37,6 +44,7 @@
 ?>
 	</dd>
 
+<?php if (!empty($team['Team']['division_id'])): ?>
 	<dt><?php __('Division'); ?></dt>
 	<dd><?php
 	$title = array('title' => $team['Division']['full_league_name']);
@@ -46,6 +54,7 @@
 		' / ' .
 		$this->Html->link(__('Standings', true), array('controller' => 'divisions', 'action' => 'standings', 'division' => $team['Team']['division_id']));
 	?></dd>
+<?php endif; ?>
 
 	<?php if ($is_logged_in && Configure::read('feature.annotations')): ?>
 	<dt><?php __('Notes'); ?></dt>
