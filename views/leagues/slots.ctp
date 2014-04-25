@@ -88,7 +88,11 @@ foreach ($slots as $slot):
 <?php endif; ?>
 		<td><?php
 			if (empty($game['home_team'])) {
-				echo $game['home_dependency'];
+				if (array_key_exists ('home_dependency', $game)) {
+					echo $game['home_dependency'];
+				} else {
+					__('Unassigned');
+				}
 			} else {
 				echo $this->element('teams/block', array('team' => $game['HomeTeam'], 'max_length' => 16, 'show_shirt' => false));
 			}
@@ -96,7 +100,11 @@ foreach ($slots as $slot):
 <?php if (!$competition): ?>
 		<td><?php
 			if (empty($game['away_team'])) {
-				echo $game['away_dependency'];
+				if (array_key_exists ('away_dependency', $game)) {
+					echo $game['away_dependency'];
+				} else {
+					__('Unassigned');
+				}
 			} else {
 				echo $this->element('teams/block', array('team' => $game['AwayTeam'], 'max_length' => 16, 'show_shirt' => false));
 			}
@@ -104,8 +112,8 @@ foreach ($slots as $slot):
 <?php endif; ?>
 <?php if (Configure::read('feature.region_preference')): ?>
 		<td><?php
-		if ($slot['Game']['id'] && !empty($slot['Game']['HomeTeam']['Region'])) {
-			__($slot['Game']['HomeTeam']['Region']['name']);
+		if ($game['id'] && !empty($game['HomeTeam']['Region'])) {
+			__($game['HomeTeam']['Region']['name']);
 		}
 		?></td>
 <?php endif; ?>
