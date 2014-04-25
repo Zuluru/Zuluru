@@ -19,7 +19,11 @@ $preliminary = ($game['Game']['home_team'] === null || ($game['Division']['sched
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php
 		if ($game['Game']['home_team'] === null) {
-			echo $game['Game']['home_dependency'];
+			if (array_key_exists ('home_dependency', $game['Game'])) {
+				echo $game['Game']['home_dependency'];
+			} else {
+				__('Unassigned');
+			}
 			$game['HomeTeam']['Person'] = array();
 		} else {
 			echo $this->element('teams/block', array('team' => $game['HomeTeam']));
@@ -41,7 +45,11 @@ $preliminary = ($game['Game']['home_team'] === null || ($game['Division']['sched
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php
 		if ($game['Game']['away_team'] === null) {
-			echo $game['Game']['away_dependency'];
+			if (array_key_exists ('away_dependency', $game['Game'])) {
+				echo $game['Game']['away_dependency'];
+			} else {
+				__('Unassigned');
+			}
 			$game['AwayTeam']['Person'] = array();
 		} else {
 			echo $this->element('teams/block', array('team' => $game['AwayTeam']));
