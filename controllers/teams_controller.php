@@ -852,6 +852,7 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		$is_captain = in_array($id, $this->UserCache->read('OwnedTeamIDs'));
+		$this->_limitOverride($id);
 
 		$person_id = $this->_arg('person');
 		if ($person_id) {
@@ -866,7 +867,6 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'view', 'team' => $id));
 		}
 
-		$this->_limitOverride($id);
 		usort ($team['Person'], array('Team', 'compareRoster'));
 
 		$this->set(compact('team', 'is_captain', 'person_id', 'person'));
