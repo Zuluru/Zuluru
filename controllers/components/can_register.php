@@ -173,22 +173,6 @@ class CanRegisterComponent extends Object
 			$prices = Set::extract("/Price[id={$price_id}]/.", array('Price' => $prices));
 		}
 
-		// If there is a preregistration record, we ignore open and close times.
-		$prereg = Set::extract ("/Preregistration[event_id={$event['Event']['id']}]", $this->person['Preregistration']);
-		if ($continue && empty ($prereg) && !$ignore_date) {
-			$open = strtotime(min(Set::extract('/open', $prices)));
-			$close = strtotime(max(Set::extract('/close', $prices)));
-			// Admins can test registration before it opens...
-			if (!$this->_controller->is_admin && $open + Configure::read('timezone.adjust') * 60 > time()) {
-				$messages[] = array('text' => sprintf(__('Registration for %s is not yet open.', true), __('this event', true)), 'class' => 'closed');
-				$continue = false;
-			}
-			if (time() > $close + Configure::read('timezone.adjust') * 60) {
-				$messages[] = array('text' => sprintf(__('Registration for %s has closed.', true), __('this event', true)), 'class' => 'closed');
-				$continue = false;
-			}
-		}
-
 		if ($continue && !$is_active) {
 			$messages[] = array('text' => __('You may not register for this event until your account has been approved by an administrator. This normally happens in less than one business day, and often in just a few minutes.', true), 'class' => 'warning-message');
 			$continue = false;
@@ -221,26 +205,33 @@ class CanRegisterComponent extends Object
 				$messages[] = $continue;
 			}
 
+			// If there is a preregistration record, we ignore open and close times.
+			$prereg = Set::extract ("/Preregistration[event_id={$event['Event']['id']}]", $this->person['Preregistration']);
+
 			// Check each price point
 			$rule_obj = AppController::_getComponent ('Rule');
 			$price_allowed = array();
 			foreach ($prices as $price) {
 				$name = empty($price['name']) ? __('this event', true) : $price['name'];
 
-				// Admins can test registration before it opens...
-				if (!$this->_controller->is_admin && strtotime($price['open']) + Configure::read('timezone.adjust') * 60 > time()) {
-					$price_allowed[$price['id']] = array(
-						'allowed' => false,
-						'messages' => sprintf(__('Registration for %s is not yet open.', true), $name),
-					);
-					continue;
-				}
-				if (time() > strtotime($price['close']) + Configure::read('timezone.adjust') * 60) {
-					$price_allowed[$price['id']] = array(
-						'allowed' => false,
-						'messages' => sprintf(__('Registration for %s has closed.', true), $name),
-					);
-					continue;
+				if (empty ($prereg) && !$ignore_date) {
+					// Admins can test registration before it opens...
+					if (!$this->_controller->is_admin && strtotime($price['open']) + Configure::read('timezone.adjust') * 60 > time()) {
+						$price_allowed[$price['id']] = array(
+							'allowed' => false,
+							'messages' => sprintf(__('Registration for %s is not yet open.', true), $name),
+							'class' => 'closed',
+						);
+						continue;
+					}
+					if (time() > strtotime($price['close']) + Configure::read('timezone.adjust') * 60) {
+						$price_allowed[$price['id']] = array(
+							'allowed' => false,
+							'messages' => sprintf(__('Registration for %s has closed.', true), $name),
+							'class' => 'closed',
+						);
+						continue;
+					}
 				}
 
 				// Check the registration rule, if any
@@ -289,8 +280,17 @@ class CanRegisterComponent extends Object
 						$messages[] = $price_result['messages'];
 						$allowed = true;
 					} else {
-						$messages[] = array('text' => sprintf(__('To register for %s, you must %s.', true), __('this event', true), $price_result['reason']), 'class' => 'error-message');
-						if ($strict && $price_result['redirect']) {
+						if (!empty($price_result['class'])) {
+							$class = $price_result['class'];
+						} else {
+							$class = 'error-message';
+						}
+						if (!empty($price_result['reason'])) {
+							$messages[] = array('text' => sprintf(__('To register for %s, you must %s.', true), __('this event', true), $price_result['reason']), 'class' => $class);
+						} else {
+							$messages[] = array('text' => $price_result['messages'], 'class' => $class);
+						}
+						if ($strict && !empty($price_result['redirect'])) {
 							$redirect = $price_result['redirect'];
 						}
 					}
