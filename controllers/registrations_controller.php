@@ -1060,7 +1060,7 @@ class RegistrationsController extends AppController {
 			$transaction = new DatabaseTransaction($this->Registration->Payment);
 
 			$this->Registration->Payment->create();
-			if ($this->Registration->Payment->save($this->data) && $this->Registration->Person->Credit->save($credit_record)) {
+			if ($this->Registration->Payment->save($this->data) && (!isset($credit_record) || $this->Registration->Person->Credit->save($credit_record))) {
 				$this->Registration->id = $registration['Registration']['id'];
 				if (!$this->Registration->saveField('payment', $new_payment)) {
 					$this->Session->setFlash(__('Failed to update payment status.', true), 'default', array('class' => 'warning'));
