@@ -11,7 +11,8 @@ $this->Html->addCrumb (__('Upload Photo', true));
 
 <?php
 echo $this->Form->create(false, array('action' => 'photo_upload', 'enctype' => 'multipart/form-data'));
-echo $this->Form->input('image', array('type' => 'file', 'label' => __('Profile Photo', true))); 
+echo $this->Form->input('image', array('type' => 'file', 'label' => __('Profile Photo', true)));
+echo $this->Html->para(null, __('Supported formats are PNG, JPEG and GIF.', true));
 echo $this->Form->end(__('Upload', true));
 ?>
 

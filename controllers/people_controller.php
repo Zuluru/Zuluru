@@ -1381,6 +1381,12 @@ class PeopleController extends AppController {
 				$this->Session->setFlash(__('There was an unexpected error uploading the file. Please try again.', true), 'default', array('class' => 'warning'));
 				return;
 			}
+			$ext = strtolower(substr($this->data['image']['name'], strrpos($this->data['image']['name'], '.') + 1));
+			if (!in_array($ext, array('gif', 'jpg', 'jpeg', 'png'))) {
+				$this->log($this->data, 'upload');
+				$this->Session->setFlash(__('Supported formats are PNG, JPEG and GIF.', true), 'default', array('class' => 'warning'));
+				return;
+			}
 
 			// Image was uploaded, ask user to crop it
 			$rand = mt_rand();
