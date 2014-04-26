@@ -30,207 +30,187 @@ $defaulted_entry = $spirit_obj->defaulted();
 $automatic_entry = $spirit_obj->expected();
 
 $teams = Set::extract('/Team/id', $division);
-$team_records = array();
-foreach ($division['Game'] as $game) {
-	foreach (array('HomeTeam', 'AwayTeam') as $team) {
-		if (Game::_is_finalized($game)) {
-			$id = $game[$team]['id'];
-			if (!in_array($id, $teams)) {
-				continue;
-			}
-			if (!array_key_exists ($id, $team_records)) {
-				$team_records[$id] = array(
-					'details' => $game[$team],
-					'summary' => array_fill_keys ($questions, null),
-					'games' => 0,
-				);
-			}
+if (!empty($teams)) {
+	$team_records = array();
+	foreach ($division['Game'] as $game) {
+		foreach (array('HomeTeam', 'AwayTeam') as $team) {
+			if (Game::_is_finalized($game)) {
+				$id = $game[$team]['id'];
+				if (!in_array($id, $teams)) {
+					continue;
+				}
+				if (!array_key_exists ($id, $team_records)) {
+					$team_records[$id] = array(
+						'details' => $game[$team],
+						'summary' => array_fill_keys ($questions, null),
+						'games' => 0,
+					);
+				}
 
-			$spirit_entry = null;
-			if (Configure::read('scoring.spirit_default')) {
-				if (($team == 'HomeTeam' && $game['Game']['status'] == 'home_default') ||
-					($team == 'AwayTeam' && $game['Game']['status'] == 'away_default'))
-				{
-					$spirit_entry = $defaulted_entry;
-				} else {
-					$spirit_entry = $automatic_entry;
+				$spirit_entry = null;
+				if (Configure::read('scoring.spirit_default')) {
+					if (($team == 'HomeTeam' && $game['Game']['status'] == 'home_default') ||
+						($team == 'AwayTeam' && $game['Game']['status'] == 'away_default'))
+					{
+						$spirit_entry = $defaulted_entry;
+					} else {
+						$spirit_entry = $automatic_entry;
+					}
+				}
+
+				foreach ($game['SpiritEntry'] as $entry) {
+					if ($entry['team_id'] == $id) {
+						$spirit_entry = $entry;
+						$spirit_entry['assigned_sotg'] = $spirit_obj->calculate ($spirit_entry);
+					}
+				}
+				if ($spirit_entry) {
+					++ $team_records[$id]['games'];
+					foreach ($questions as $question) {
+						$team_records[$id]['summary'][$question] += $spirit_entry[$question];
+					}
 				}
 			}
+		}
+	}
+	$team_count = count($team_records);
 
-			foreach ($game['SpiritEntry'] as $entry) {
-				if ($entry['team_id'] == $id) {
-					$spirit_entry = $entry;
-					$spirit_entry['assigned_sotg'] = $spirit_obj->calculate ($spirit_entry);
-				}
+	foreach ($team_records as $id => $team) {
+		if ($team['games'] > 0) {
+			if ($division['League']['numeric_sotg']) {
+				$team_records[$id]['summary']['entered_sotg'] /= $team['games'];
 			}
-			if ($spirit_entry) {
-				++ $team_records[$id]['games'];
-				foreach ($questions as $question) {
-					$team_records[$id]['summary'][$question] += $spirit_entry[$question];
-				}
+			if ($division['League']['sotg_questions'] != 'none') {
+				$team_records[$id]['summary']['assigned_sotg'] /= $team['games'];
+			}
+			if (Configure::read('scoring.missing_score_spirit_penalty')) {
+				$team_records[$id]['summary']['score_entry_penalty'] /= $team['games'];
 			}
 		}
 	}
-}
-$team_count = count($team_records);
 
-foreach ($team_records as $id => $team) {
-	if ($team['games'] > 0) {
-		if ($division['League']['numeric_sotg']) {
-			$team_records[$id]['summary']['entered_sotg'] /= $team['games'];
-		}
-		if ($division['League']['sotg_questions'] != 'none') {
-			$team_records[$id]['summary']['assigned_sotg'] /= $team['games'];
-		}
-		if (Configure::read('scoring.missing_score_spirit_penalty')) {
-			$team_records[$id]['summary']['score_entry_penalty'] /= $team['games'];
-		}
-	}
-}
-
-function compareSpirit($a,$b) {
-	if (array_key_exists('entered_sotg', $a['summary'])) {
-		if ($a['summary']['entered_sotg'] > $b['summary']['entered_sotg']) {
-			return -1;
-		} else if ($a['summary']['entered_sotg'] < $b['summary']['entered_sotg']) {
-			return 1;
-		}
-	}
-	if (array_key_exists('assigned_sotg', $a['summary'])) {
-		if ($a['summary']['assigned_sotg'] > $b['summary']['assigned_sotg']) {
-			return -1;
-		} else if ($a['summary']['assigned_sotg'] < $b['summary']['assigned_sotg']) {
-			return 1;
-		}
-	}
-	if ($a['details']['name'] < $b['details']['name']) {
-		return -1;
-	} else if ($a['details']['name'] > $b['details']['name']) {
-		return 1;
-	}
-	return 0;
-}
-usort ($team_records, 'compareSpirit');
+	usort ($team_records, 'compareSpirit');
 ?>
 
 <h3><?php __('Team Spirit Summary'); ?></h3>
 
 <?php
-$header = array(__('Team', true));
-if ($division['League']['numeric_sotg']) {
-	$header[] = __('Average Spirit', true);
-}
-if ($division['League']['sotg_questions'] != 'none') {
-	$header[] = __('Assigned Spirit', true);
-}
-foreach ($spirit_obj->questions as $question => $detail) {
-	if ($detail['type'] != 'text') {
-		$header[] = $detail['name'];
-	}
-}
-if (Configure::read('scoring.missing_score_spirit_penalty')) {
-	$header[] = __('Score Submitted?', true);
-}
-
-$rows = $overall = array();
-foreach ($team_records as $team) {
-	$row = array($this->element('teams/block', array('team' => $team['details'], 'show_shirt' => false)));
+	$header = array(__('Team', true));
 	if ($division['League']['numeric_sotg']) {
-		$row[] = $this->element ('spirit/symbol', array(
-				'spirit_obj' => $spirit_obj,
-				'league' => $division['League'],
-				'is_coordinator' => true,	// only ones allowed to even run this report
-				'value' => $team['summary']['entered_sotg'],
-		));
-		$overall['entered_sotg'][] = $team['summary']['entered_sotg'];
+		$header[] = __('Average Spirit', true);
 	}
 	if ($division['League']['sotg_questions'] != 'none') {
-		$row[] = $this->element ('spirit/symbol', array(
-				'spirit_obj' => $spirit_obj,
-				'league' => $division['League'],
-				'is_coordinator' => true,
-				'value' => $team['summary']['assigned_sotg'],
-		));
-		$overall['assigned_sotg'][] = $team['summary']['assigned_sotg'];
+		$header[] = __('Assigned Spirit', true);
 	}
-
-	// This is to avoid divide-by-zero errors. No harm, since the numerators
-	// will all be 0 as well if they didn't have any games...
-	if ($team['games'] == 0) {
-		$team['games'] = 1;
-	}
-
 	foreach ($spirit_obj->questions as $question => $detail) {
 		if ($detail['type'] != 'text') {
+			$header[] = $detail['name'];
+		}
+	}
+	if (Configure::read('scoring.missing_score_spirit_penalty')) {
+		$header[] = __('Score Submitted?', true);
+	}
+
+	$rows = $overall = array();
+	foreach ($team_records as $team) {
+		$row = array($this->element('teams/block', array('team' => $team['details'], 'show_shirt' => false)));
+		if ($division['League']['numeric_sotg']) {
 			$row[] = $this->element ('spirit/symbol', array(
 					'spirit_obj' => $spirit_obj,
 					'league' => $division['League'],
-					'question' => $question,
 					'is_coordinator' => true,	// only ones allowed to even run this report
-					'value' => $team['summary'][$question] / $team['games'],
+					'value' => $team['summary']['entered_sotg'],
 			));
-			$overall[$question][] = $team['summary'][$question] / $team['games'];
+			$overall['entered_sotg'][] = $team['summary']['entered_sotg'];
 		}
+		if ($division['League']['sotg_questions'] != 'none') {
+			$row[] = $this->element ('spirit/symbol', array(
+					'spirit_obj' => $spirit_obj,
+					'league' => $division['League'],
+					'is_coordinator' => true,
+					'value' => $team['summary']['assigned_sotg'],
+			));
+			$overall['assigned_sotg'][] = $team['summary']['assigned_sotg'];
+		}
+
+		// This is to avoid divide-by-zero errors. No harm, since the numerators
+		// will all be 0 as well if they didn't have any games...
+		if ($team['games'] == 0) {
+			$team['games'] = 1;
+		}
+
+		foreach ($spirit_obj->questions as $question => $detail) {
+			if ($detail['type'] != 'text') {
+				$row[] = $this->element ('spirit/symbol', array(
+						'spirit_obj' => $spirit_obj,
+						'league' => $division['League'],
+						'question' => $question,
+						'is_coordinator' => true,	// only ones allowed to even run this report
+						'value' => $team['summary'][$question] / $team['games'],
+				));
+				$overall[$question][] = $team['summary'][$question] / $team['games'];
+			}
+		}
+
+		if (Configure::read('scoring.missing_score_spirit_penalty')) {
+			$row[] = $this->element ('spirit/symbol', array(
+					'spirit_obj' => $spirit_obj,
+					'league' => $division['League'],
+					'question' => 'score_entry_penalty',
+					'is_coordinator' => true,
+					'value' => $team['summary']['score_entry_penalty'],
+			));
+			$overall['score_entry_penalty'][] = $team['summary']['score_entry_penalty'];
+		}
+
+		$rows[] = $row;
 	}
 
-	if (Configure::read('scoring.missing_score_spirit_penalty')) {
-		$row[] = $this->element ('spirit/symbol', array(
+	$average = array(array(__('Division average', true), array('class' => 'summary')));
+	$stddev = array(array(__('Division std dev', true), array('class' => 'summary')));
+	foreach ($overall as $question => $col) {
+		$average[] = array($this->element ('spirit/symbol', array(
 				'spirit_obj' => $spirit_obj,
 				'league' => $division['League'],
-				'question' => 'score_entry_penalty',
-				'is_coordinator' => true,
-				'value' => $team['summary']['score_entry_penalty'],
-		));
-		$overall['score_entry_penalty'][] = $team['summary']['score_entry_penalty'];
+				'question' => $question,
+				'is_coordinator' => true,	// only ones allowed to even run this report
+				'value' => array_sum ($col) / $team_count,
+		)), array('class' => 'summary'));
+		$stddev[] = array(sprintf ('%0.2f', stats_standard_deviation ($col)), array('class' => 'summary'));
 	}
+	$rows[] = $average;
+	$rows[] = $stddev;
 
-	$rows[] = $row;
-}
+	echo $this->Html->tag ('table', $this->Html->tableHeaders ($header) . $this->Html->tableCells ($rows, array(), array('class' => 'altrow')), array('class' => 'list'));
 
-$average = array(array(__('Division average', true), array('class' => 'summary')));
-$stddev = array(array(__('Division std dev', true), array('class' => 'summary')));
-foreach ($overall as $question => $col) {
-	$average[] = array($this->element ('spirit/symbol', array(
-			'spirit_obj' => $spirit_obj,
-			'league' => $division['League'],
-			'question' => $question,
-			'is_coordinator' => true,	// only ones allowed to even run this report
-			'value' => array_sum ($col) / $team_count,
-	)), array('class' => 'summary'));
-	$stddev[] = array(sprintf ('%0.2f', stats_standard_deviation ($col)), array('class' => 'summary'));
-}
-$rows[] = $average;
-$rows[] = $stddev;
-
-echo $this->Html->tag ('table', $this->Html->tableHeaders ($header) . $this->Html->tableCells ($rows, array(), array('class' => 'altrow')), array('class' => 'list'));
-
-if ($division['League']['numeric_sotg']) {
-	$bins = array_count_values (array_map ('intval', $overall['entered_sotg']));
-} else {
-	$bins = array_count_values (array_map ('intval', $overall['assigned_sotg']));
-}
+	if ($division['League']['numeric_sotg']) {
+		$bins = array_count_values (array_map ('intval', $overall['entered_sotg']));
+	} else {
+		$bins = array_count_values (array_map ('intval', $overall['assigned_sotg']));
+	}
 ?>
 
 <h2><?php __('Distribution of team average spirit scores'); ?></h2>
 
 <?php
-$header = array(__('Spirit score', true), __('Number of teams', true), __('Percentage of division', true));
+	$header = array(__('Spirit score', true), __('Number of teams', true), __('Percentage of division', true));
 
-$max = $spirit_obj->max();
-if (array_key_exists($max, $bins)) {
-	$rows = array(array ($max, $bins[$max], floor ($bins[$max] / $team_count * 100)));
-} else {
-	$rows = array(array ($max, '', 0));
-}
-for ($i = $max-1; $i >= 0; --$i) {
-	if (array_key_exists($i, $bins)) {
-		$rows[] = array ($i . '-' . ($i + 1), $bins[$i], floor ($bins[$i] / $team_count * 100));
+	$max = $spirit_obj->max();
+	if (array_key_exists($max, $bins)) {
+		$rows = array(array ($max, $bins[$max], floor ($bins[$max] / $team_count * 100)));
 	} else {
-		$rows[] = array ($i . '-' . ($i + 1), '', 0);
+		$rows = array(array ($max, '', 0));
 	}
-}
+	for ($i = $max-1; $i >= 0; --$i) {
+		if (array_key_exists($i, $bins)) {
+			$rows[] = array ($i . '-' . ($i + 1), $bins[$i], floor ($bins[$i] / $team_count * 100));
+		} else {
+			$rows[] = array ($i . '-' . ($i + 1), '', 0);
+		}
+	}
 
-echo $this->Html->tag ('table', $this->Html->tableHeaders ($header) . $this->Html->tableCells ($rows, array(), array('class' => 'altrow')), array('class' => 'list'));
+	echo $this->Html->tag ('table', $this->Html->tableHeaders ($header) . $this->Html->tableCells ($rows, array(), array('class' => 'altrow')), array('class' => 'list'));
+}
 ?>
 
 <h2><?php __('Spirit reports per game'); ?></h2>
@@ -341,3 +321,28 @@ echo $this->Html->tag ('table', $this->Html->tableHeaders ($header) . $this->Htm
 ?>
 
 </div>
+
+<?php
+function compareSpirit($a,$b) {
+	if (array_key_exists('entered_sotg', $a['summary'])) {
+		if ($a['summary']['entered_sotg'] > $b['summary']['entered_sotg']) {
+			return -1;
+		} else if ($a['summary']['entered_sotg'] < $b['summary']['entered_sotg']) {
+			return 1;
+		}
+	}
+	if (array_key_exists('assigned_sotg', $a['summary'])) {
+		if ($a['summary']['assigned_sotg'] > $b['summary']['assigned_sotg']) {
+			return -1;
+		} else if ($a['summary']['assigned_sotg'] < $b['summary']['assigned_sotg']) {
+			return 1;
+		}
+	}
+	if ($a['details']['name'] < $b['details']['name']) {
+		return -1;
+	} else if ($a['details']['name'] > $b['details']['name']) {
+		return 1;
+	}
+	return 0;
+}
+?>

@@ -1328,8 +1328,9 @@ class DivisionsController extends AppController {
 			'order' => 'Game.id',
 			'conditions' => array(
 				array('OR' => array(
-					'home_team' => $teams,
-					'away_team' => $teams,
+					'Game.home_team' => $teams,
+					'Game.away_team' => $teams,
+					'Game.division_id' => $id,
 				)),
 				array('OR' => array(
 					'Game.home_dependency_type !=' => 'copy',
