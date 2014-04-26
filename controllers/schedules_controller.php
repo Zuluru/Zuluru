@@ -766,7 +766,7 @@ class SchedulesController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 			}
-			$divisions = array($division['Dviision']['id']);
+			$divisions = array($division['Division']['id']);
 			$league_id = $division['Division']['league_id'];
 
 			$multi_day = ($division['Division']['schedule_type'] != 'tournament' && count($division['Day']) > 1);

@@ -49,7 +49,7 @@ if (!empty ($finalized)): ?>
 <?php if (!empty ($published)): ?>
 <p>Deleting published games can be confusing for players and captains, so be sure to <?php
 if (isset($division)) {
-	echo $this->Html->link (__('contact all captains', true), array('controller' => 'divisions', 'action' => 'emails', 'division' => $id));
+	echo $this->Html->link (__('contact all captains', true), array('controller' => 'divisions', 'action' => 'emails', 'division' => $division['Division']['id']));
 } else {
 	__('contact all captains');
 }
