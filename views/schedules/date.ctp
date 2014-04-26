@@ -37,14 +37,20 @@ if (count($num_fields) > 1) {
 <?php endif; ?>
 
 <?php
-// We have an array like 0 => timestamp, and need timestamp => readable
-$dates = array_combine(array_values($dates), array_values($dates));
-if (empty($preview)) {
-	$dates = array_map(array($this->ZuluruTime, 'fulldate'), $dates);
-	echo $this->ZuluruForm->input('Game.start_date', array(
-			'options' => $dates,
-	));
-} else {
+if (empty($dates)):
+?>
+<p>You have no future dates available.
+Choose "Schedule games in the past" below to see past options, or make future game slots available to this division and try again.</p>
+<?php
+else:
+	// We have an array like 0 => timestamp, and need timestamp => readable
+	$dates = array_combine(array_values($dates), array_values($dates));
+	if (empty($preview)) {
+		$dates = array_map(array($this->ZuluruTime, 'fulldate'), $dates);
+		echo $this->ZuluruForm->input('Game.start_date', array(
+				'options' => $dates,
+		));
+	} else {
 ?>
 <p>Choose your preferred time slot for each round.
 This allows you to ensure that teams have a maximum number of games on each day, place byes where necessary, etc.
@@ -52,19 +58,24 @@ Note that games will be placed no earlier than these time slots, but may be late
 Rounds may be scheduled to start after "later" rounds, for example if you have a particular matchup that you need to schedule at a particular time.
 If you leave all rounds at the earliest possible time, the system will schedule games as closely as possible; you don't need to set each round's time if you have no constraints.</p>
 <?php
-	$dates = array_map(array($this->ZuluruTime, 'fulldatetime'), $dates);
-	foreach (array_keys($preview) as $round) {
-		echo $this->ZuluruForm->input("Game.start_date.$round", array(
-				'label' => "Round $round",
-				'options' => $dates,
-		));
+		$dates = array_map(array($this->ZuluruTime, 'fulldatetime'), $dates);
+		foreach (array_keys($preview) as $round) {
+			echo $this->ZuluruForm->input("Game.start_date.$round", array(
+					'label' => "Round $round",
+					'options' => $dates,
+			));
+		}
 	}
-}
+endif;
 ?>
 
 </fieldset>
 
-<?php echo $this->Form->end(__('Next step', true)); ?>
+<?php
+if (!empty($dates)) {
+	echo $this->Form->end(__('Next step', true));
+}
+?>
 
 <?php
 if (Configure::read('feature.allow_past_games') && empty($this->data['Game']['past'])) {

@@ -532,7 +532,7 @@ class SchedulesController extends AppController {
 				'order' => array('GameSlot.game_date', 'GameSlot.game_start'),
 		));
 
-		if (count($dates) == 0) {
+		if (count($dates) == 0 && !Configure::read('feature.allow_past_games')) {
 			$this->Session->setFlash(sprintf(__('Sorry, there are no %s available for your division. Check that %s have been allocated before attempting to proceed.', true), Configure::read('sport.fields'), Configure::read('sport.fields')), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'divisions', 'action' => 'view', 'division' => $id));
 		}
