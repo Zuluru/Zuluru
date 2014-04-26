@@ -1935,10 +1935,10 @@ class PeopleController extends AppController {
 			if ($badge['Badge']['active']) {
 				// TODO: Allow multiple copies of the badge?
 				$this->Session->setFlash(__('This player already has this badge', true), 'default', array('class' => 'info'));
-				$this->redirect(array('action' => 'add', 'badge' => $url['badge']));
+				$this->redirect(array('action' => 'nominate_badge', 'badge' => $badge_id));
 			} else {
 				$this->Session->setFlash(__('This player has already been nominated for this badge', true), 'default', array('class' => 'info'));
-				$this->redirect(array('action' => 'add', 'badge' => $url['badge']));
+				$this->redirect(array('action' => 'nominate_badge', 'badge' => $badge_id));
 			}
 		}
 		$this->set(compact('badge'));
