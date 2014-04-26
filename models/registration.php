@@ -50,6 +50,10 @@ class Registration extends AppModel {
 
 	static function paymentAmounts($registration) {
 		$current_total = $registration['Price']['cost'] + $registration['Price']['tax1'] + $registration['Price']['tax2'];
+		if ($current_total == 0) {
+			return array(0,0,0);
+		}
+
 		$tax1_percent = $registration['Price']['tax1'] / $current_total;
 		$tax2_percent = $registration['Price']['tax2'] / $current_total;
 
