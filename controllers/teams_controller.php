@@ -1596,6 +1596,10 @@ class TeamsController extends AppController {
 
 		$dates = array();
 		$days = Set::extract('/Division/Day/id', $team);
+		if (empty($days)) {
+			$this->Session->setFlash(__('This division does not have a day of play selected.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'team' => $id));
+		}
 		$play_day = min($days);
 		for ($date = strtotime ($team['Division']['open']); $date <= strtotime ($team['Division']['close']) + DAY - 1; $date += DAY) {
 			$day = date('w', $date) + 1;
