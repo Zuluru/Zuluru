@@ -1753,6 +1753,7 @@ class PeopleController extends AppController {
 		if (!empty($this->data)) {
 			if ($this->Person->Upload->save($this->data)) {
 				// Read updated version
+				$this->Person->Upload->contain(array('Person' => $this->Auth->authenticate->name, 'UploadType'));
 				$document = $this->Person->Upload->read (null, $id);
 				$this->set(compact('document'));
 				$this->Session->setFlash(sprintf (__('Updated %s', true), __('document', true)), 'default', array('class' => 'success'));
