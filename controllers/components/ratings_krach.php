@@ -75,6 +75,10 @@ class RatingsKrachComponent extends RatingsComponent
 	}
 
 	function _recalculateRatings(&$division, $games) {
+		if (empty($this->results)) {
+			return;
+		}
+
 		foreach ($division['Team'] as $key => $team) {
 			$division['Team'][$key]['calculated_rating'] = max(1, $this->results[$key]['wins'] * $this->_sos($division, $games, $key));
 		}
