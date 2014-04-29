@@ -7,7 +7,7 @@ foreach ($options as $option => $name):
 	$spirit_obj = AppController::_getComponent('Spirit', $option);
 ?>
 <h2><?php echo $name; ?></h2>
-<div class="form">
+<div class="pseudo_form">
 <?php
 	echo $this->Html->para(null, __($spirit_obj->description, true));
 	echo $this->element('spirit/legend', compact('spirit_obj'));
