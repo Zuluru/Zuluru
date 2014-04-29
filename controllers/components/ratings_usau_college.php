@@ -22,6 +22,10 @@ class RatingsUsauCollegeComponent extends RatingsComponent
 	}
 
 	function _recalculateRatings(&$division, $games) {
+		if (empty($games)) {
+			return;
+		}
+
 		$today = time();
 
 		$pt_sum = $wt_sum = 0;
