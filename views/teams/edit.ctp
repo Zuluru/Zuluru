@@ -44,6 +44,7 @@ if (isset ($add)) {
 			));
 		?>
 		<fieldset id="AttendanceDetails">
+			<legend><?php __('Attendance'); ?></legend>
 		<?php
 			echo $this->ZuluruForm->input('attendance_reminder', array(
 				'size' => 1,
@@ -62,13 +63,63 @@ if (isset ($add)) {
 		<?php
 		endif;
 
-		if (Configure::read('feature.region_preference')) {
-			echo $this->ZuluruForm->input('region_preference', array(
-				'after' => $this->Html->para (null, __('Area of city where you would prefer to play.', true)),
-				'options' => $regions,
-				'empty' => __('No preference', true),
-			));
-		}
+		$options = ($is_admin && Configure::read('feature.home_field')) + Configure::read('feature.facility_preference') + Configure::read('feature.region_preference');
+		if ($options):
+		?>
+		<fieldset>
+			<legend><?php __('Location'); ?></legend>
+			<p>When scheduling games, <?php echo ZULURU; ?> will look for <?php echo Configure::read('ui.fields'); ?> that match the criteria specified below for the home team<?php
+			if ($options > 1):
+			?>, from top to bottom<?php
+			endif; ?>.
+			Note that the options available here may change through the season if <?php echo Configure::read('ui.fields'); ?> are added to or removed from circulation.</p>
+
+			<?php
+			if ($is_admin && Configure::read('feature.home_field')) {
+				$fields = array();
+				foreach ($facilities as $facility) {
+					$fields[$facility['Facility']['name']] = array();
+					foreach ($facility['Field'] as $field) {
+						$fields[$facility['Facility']['name']][$field['id']] = $field['num'];
+					}
+				}
+
+				echo $this->ZuluruForm->input('home_field', array(
+					'label' => sprintf(__('Home %s', true), Configure::read('sport.field_cap')),
+					'after' => $this->Html->para (null, sprintf(__('Home %s, if applicable.', true), Configure::read('sport.field'))),
+					'options' => $fields,
+					'empty' => sprintf(__('No home %s', true), Configure::read('sport.field')),
+				));
+			}
+
+			if (Configure::read('feature.facility_preference')) {
+				?>
+				<p>Select the facilities your team would prefer to play at.</p>
+				<?php
+				echo $this->ZuluruForm->input('Team.Facility', array(
+						'label' => __('Facility preference', true),
+						'options' => Set::combine($facilities, '{n}.Facility.id', '{n}.Facility.name'),
+						'multiple' => true,
+						'title' => __('Select your preferred facilities', true),
+				));
+				$this->ZuluruHtml->css('jquery.asmselect', null, array('inline' => false));
+				$this->ZuluruHtml->script('jquery.asmselect', array('inline' => false));
+				$this->Js->buffer('jQuery("select[multiple]").asmSelect({sortable:true});');
+			}
+
+			if (Configure::read('feature.region_preference')) {
+				?>
+				<p>Select the region where your team would prefer to play.</p>
+				<?php
+				echo $this->ZuluruForm->input('region_preference', array(
+					'options' => $regions,
+					'empty' => __('No preference', true),
+				));
+			}
+			?>
+		</fieldset>
+		<?php
+		endif;
 
 		echo $this->ZuluruForm->input('open_roster', array(
 			'after' => $this->Html->para (null, __('If the team roster is open, others can request to join; otherwise, only the captain can add players.', true)),
@@ -101,15 +152,6 @@ if (isset ($add)) {
 		if (Configure::read('feature.twitter')) {
 			echo $this->ZuluruForm->input('twitter_user', array(
 				'after' => $this->Html->para (null, __('Do NOT include the @; it will be automatically added for you.', true)),
-			));
-		}
-
-		if ($is_admin && Configure::read('feature.home_field')) {
-			echo $this->ZuluruForm->input('home_field', array(
-				'label' => sprintf(__('Home %s', true), Configure::read('sport.field_cap')),
-				'after' => $this->Html->para (null, sprintf(__('Home %s, if applicable.', true), Configure::read('sport.field'))),
-				'options' => $fields,
-				'empty' => sprintf(__('No home %s', true), Configure::read('sport.field')),
 			));
 		}
 	?>

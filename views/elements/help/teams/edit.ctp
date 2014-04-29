@@ -16,6 +16,9 @@ $topics = array(
 if (Configure::read('feature.shirt_colour')) {
 	$topics[] = 'shirt_colour';
 }
+if (Configure::read('feature.facility_preference')) {
+	$topics[] = 'facility';
+}
 if (Configure::read('feature.region_preference')) {
 	$topics[] = 'region_preference';
 }

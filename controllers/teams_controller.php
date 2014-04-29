@@ -675,6 +675,7 @@ class TeamsController extends AppController {
 			'Division' => array('Day', 'League'),
 			'Franchise',
 			'Region',
+			'Facility',
 			'Field' => array('Facility'),
 		);
 		if ($this->is_logged_in || Configure::read('feature.public')) {
@@ -1115,20 +1116,33 @@ class TeamsController extends AppController {
 		$sport = reset(array_keys(Configure::read('options.sport')));
 		Configure::load("sport/$sport");
 		$affiliates = $this->_applicableAffiliates();
-		$regions = $this->Team->Division->Game->GameSlot->Field->Facility->Region->find('list', array(
+		$regions = $this->Team->Field->Facility->Region->find('list', array(
 				'conditions' => array('affiliate_id' => array_keys($affiliates)),
 		));
-		$fields = $this->Team->Division->Game->GameSlot->Field->find('all', array(
-				'contain' => 'Facility',
+		$facilities = $this->Team->Field->Facility->find('all', array(
+				'contain' => array(
+					'Field' => array(
+						'conditions' => array(
+							'Field.is_open' => true,
+						),
+						'order' => array('Field.num'),
+					),
+				),
 				'conditions' => array(
 					'Facility.region_id' => array_keys($regions),
 					'Facility.is_open' => true,
-					'Field.is_open' => true,
 				),
-				'order' => array('Facility.name', 'Field.num'),
+				'order' => array('Facility.name'),
 		));
-		$fields = Set::combine($fields, '{n}.Field.id', '{n}.Field.long_name');
-		$this->set(compact('affiliates', 'regions', 'fields'));
+
+		// Eliminate any facilities that have no matching fields
+		foreach ($facilities as $key => $facility) {
+			if (empty($facility['Field'])) {
+				unset($facilities[$key]);
+			}
+		}
+
+		$this->set(compact('affiliates', 'regions', 'facilities'));
 
 		$this->set('add', true);
 		$this->render ('edit');
@@ -1141,6 +1155,19 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		if (!empty($this->data)) {
+			// Add ranks to facility preferences
+			if (!empty($this->data['Team']['Facility'])) {
+				$this->data['Facility'] = array();
+				$rank = 0;
+				foreach ($this->data['Team']['Facility'] as $facility) {
+					$this->data['Facility'][] = array(
+							'facility_id' => $facility,
+							'rank' => ++ $rank,
+					);
+				}
+				$saved_facilities = $this->data['Team']['Facility'];
+			}
+
 			if ($this->Team->save($this->data)) {
 				$this->Team->contain('Person');
 				$team = $this->Team->read(null, $id);
@@ -1156,42 +1183,74 @@ class TeamsController extends AppController {
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('team', true)), 'default', array('class' => 'warning'));
-				$this->Configuration->loadAffiliate($this->Team->affiliate($id));
 			}
 		}
 		if (empty($this->data)) {
-			$this->Team->contain(array('Division' => 'League'));
+			$this->Team->contain('Facility');
 			$this->data = $this->Team->read(null, $id);
 			if (!$this->data) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'index'));
 			}
-			if (empty($this->data['Division']['id'])) {
-				$this->Configuration->loadAffiliate($this->data['Team']['affiliate_id']);
+			$division_id = $this->data['Team']['division_id'];
+		} else {
+			$division_id = $this->Team->field('division_id', array('id' => $id));
+		}
+		$this->Configuration->loadAffiliate($this->Team->affiliate($id));
+
+		$field_conditions = array(
+				'Field.is_open' => true,
+		);
+		$affiliates = $this->_applicableAffiliates();
+		$region_conditions = array('affiliate_id' => array_keys($affiliates));
+
+		if ($division_id) {
+			$this->Team->Division->contain(array(
+				'League',
+				'DivisionGameslotAvailability' => array('GameSlot' => array('Field' => array('Facility'))),
+				));
+			$division = $this->Team->Division->read(null, $division_id);
+			Configure::load("sport/{$division['League']['sport']}");
+
+			$available_fields = array_unique(Set::extract('/DivisionGameslotAvailability/GameSlot/field_id', $division));
+			if (!empty($available_fields)) {
+				$field_conditions['Field.id'] = $available_fields;
 			} else {
-				$this->Configuration->loadAffiliate($this->data['Division']['League']['affiliate_id']);
+				$season = $this->Team->Division->League->field('season', array('id' => $league_id));
+				$field_conditions['Field.indoor'] = Configure::read("season_is_indoor.$season");
+			}
+
+			$available_regions = array_unique(Set::extract('/DivisionGameslotAvailability/GameSlot/Field/Facility/region_id', $division));
+			if (!empty($available_regions)) {
+				$region_conditions['Region.id'] = $available_regions;
 			}
 		}
-		$division_id = $this->Team->field('division_id', array('id' => $id));
-		$league_id = $this->Team->Division->field('league_id', array('id' => $division_id));
-		$sport = $this->Team->Division->League->field('sport', array('id' => $league_id));
-		Configure::load("sport/$sport");
 
-		$affiliates = $this->_applicableAffiliates();
-		$regions = $this->Team->Division->Game->GameSlot->Field->Facility->Region->find('list', array(
-				'conditions' => array('affiliate_id' => array_keys($affiliates)),
+		$regions = $this->Team->Field->Facility->Region->find('list', array(
+				'conditions' => $region_conditions,
 		));
-		$fields = $this->Team->Division->Game->GameSlot->Field->find('all', array(
-				'contain' => 'Facility',
+		$facilities = $this->Team->Field->Facility->find('all', array(
+				'contain' => array(
+					'Field' => array(
+						'conditions' => $field_conditions,
+						'order' => array('Field.num'),
+					),
+				),
 				'conditions' => array(
 					'Facility.region_id' => array_keys($regions),
 					'Facility.is_open' => true,
-					'Field.is_open' => true,
 				),
-				'order' => array('Facility.name', 'Field.num'),
+				'order' => array('Facility.name'),
 		));
-		$fields = Set::combine($fields, '{n}.Field.id', '{n}.Field.long_name');
-		$this->set(compact('affiliates', 'regions', 'fields'));
+
+		// Eliminate any facilities that have no matching fields
+		foreach ($facilities as $key => $facility) {
+			if (empty($facility['Field'])) {
+				unset($facilities[$key]);
+			}
+		}
+
+		$this->set(compact('affiliates', 'regions', 'facilities'));
 	}
 
 	function note() {

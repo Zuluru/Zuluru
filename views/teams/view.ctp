@@ -50,6 +50,19 @@ if (!empty($team['Team']['short_name'])) {
 
 		</dd>
 		<?php endif; ?>
+		<?php if (Configure::read('feature.facility_preference') && !empty ($team['Facility'])):?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Facility Preference'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php
+			$facilities = array();
+			foreach ($team['Facility'] as $facility) {
+				$facilities[] = $this->Html->link($facility['name'], array('controller' => 'facilities', 'action' => 'view', 'facility' => $facility['id']));
+			}
+			echo implode(', ', $facilities);
+			?>
+
+		</dd>
+		<?php endif; ?>
 		<?php if (Configure::read('feature.region_preference') && !empty ($team['Team']['region_preference'])):?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Region Preference'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
