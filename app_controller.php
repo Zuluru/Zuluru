@@ -752,6 +752,8 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Organization', array('controller' => 'settings', 'action' => 'organization'), array('Configuration', 'Settings'));
 			$this->_addMenuItem ('Features', array('controller' => 'settings', 'action' => 'feature'), array('Configuration', 'Settings'));
 			$this->_addMenuItem ('Email', array('controller' => 'settings', 'action' => 'email'), array('Configuration', 'Settings'));
+			$this->_addMenuItem ('Team', array('controller' => 'settings', 'action' => 'team'), array('Configuration', 'Settings'));
+			$this->_addMenuItem ('User', array('controller' => 'settings', 'action' => 'user'), array('Configuration', 'Settings'));
 			$this->_addMenuItem ('Profile', array('controller' => 'settings', 'action' => 'profile'), array('Configuration', 'Settings'));
 			$this->_addMenuItem ('Scoring', array('controller' => 'settings', 'action' => 'scoring'), array('Configuration', 'Settings'));
 			if (Configure::read('feature.registration')) {
