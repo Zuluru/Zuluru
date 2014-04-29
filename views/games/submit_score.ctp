@@ -101,7 +101,7 @@ if (array_key_exists ($team_id, $game['ScoreEntry'])) {
 <?php
 if (League::hasSpirit($game['Division']['League'])) {
 	echo $this->element ('spirit/input', array('team_id' => $opponent['id'],
-			'created_team_id' => $this_team['id'], 'game' => $game, 'spirit_obj' => $spirit_obj));
+			'team' => $opponent, 'game' => $game, 'spirit_obj' => $spirit_obj));
 }
 ?>
 
@@ -131,7 +131,7 @@ echo $this->Form->input("Incident.$team_id.details", array(
 </div>
 <?php endif; ?>
 
-<?php if ($game['Division']['allstars'] != 'never'): ?>
+<?php if (Configure::read('scoring.allstars') && $game['Division']['allstars'] != 'never'): ?>
 <div id="AllstarWrapper">
 <?php
 if ($game['Division']['allstars'] == 'optional') {
@@ -291,6 +291,8 @@ function disableCommon() {
 	jQuery('#IncidentWrapper').css('display', 'none');
 	jQuery('#GameAllstar').prop('disabled', true);
 	jQuery('#AllstarWrapper').css('display', 'none');
+	jQuery('#SpiritEntryHasMostSpirited').prop('disabled', true);
+	jQuery('#MostSpiritedWrapper').css('display', 'none');
 	if (typeof window.disableSpirit == 'function') {
 		disableSpirit();
 	}
@@ -303,6 +305,8 @@ function enableCommon() {
 	jQuery('#IncidentWrapper').css('display', '');
 	jQuery('#GameAllstar').prop('disabled', false);
 	jQuery('#AllstarWrapper').css('display', '');
+	jQuery('#SpiritEntryHasMostSpirited').prop('disabled', false);
+	jQuery('#MostSpiritedWrapper').css('display', '');
 	if (typeof window.enableSpirit == 'function') {
 		enableSpirit();
 	}
@@ -323,6 +327,14 @@ function allstarCheckboxChanged() {
 		jQuery('.AllstarDetails').css('display', 'none');
 	}
 }
+
+function mostSpiritedCheckboxChanged() {
+	if (jQuery('#SpiritEntry{$opponent['id']}HasMostSpirited').prop('checked')) {
+		jQuery('.MostSpiritedDetails').css('display', '');
+	} else {
+		jQuery('.MostSpiritedDetails').css('display', 'none');
+	}
+}
 ");
 
 // Make sure things are set up correctly, in the case that
@@ -331,15 +343,19 @@ function allstarCheckboxChanged() {
 // selected, since pretty much everything else is disabled,
 // but maybe something in the future. Cost to do this is
 // extremely minimal.
-$this->Js->buffer('
-jQuery("#Status").on("change", function(){statusChanged();});
-jQuery("#GameIncident").on("change", function(){incidentCheckboxChanged();});
-jQuery("#GameAllstar").on("change", function(){allstarCheckboxChanged();});
+$this->Js->buffer("
+jQuery('#Status').on('change', function(){statusChanged();});
+jQuery('#GameIncident').on('change', function(){incidentCheckboxChanged();});
+jQuery('#GameAllstar').on('change', function(){allstarCheckboxChanged();});
+jQuery('#SpiritEntry{$opponent['id']}HasMostSpirited').on('change', function(){mostSpiritedCheckboxChanged();});
 statusChanged();
 incidentCheckboxChanged();
-');
+");
 if ($game['Division']['allstars'] == 'optional') {
 	$this->Js->buffer('allstarCheckboxChanged();');
+}
+if ($game['Division']['most_spirited'] == 'optional') {
+	$this->Js->buffer('mostSpiritedCheckboxChanged();');
 }
 
 ?>

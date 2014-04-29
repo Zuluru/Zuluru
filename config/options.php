@@ -116,6 +116,12 @@ $config['options'] = array(
 		'submitter',
 	)),
 
+	'most_spirited'			=> make_options(array(
+		'never',
+		'optional',
+		'always',
+	)),
+
 	'stat_tracking'			=> make_options(array(
 		'never',
 		'optional',

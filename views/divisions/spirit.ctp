@@ -237,6 +237,9 @@ foreach ($spirit_obj->questions as $detail) {
 if (Configure::read('scoring.missing_score_spirit_penalty')) {
 	$header[] = __('Score Submitted?', true);
 }
+if (Configure::read('scoring.most_spirited') && $division['Division']['most_spirited'] != 'never') {
+	$header[] = __('Most Spirited', true);
+}
 
 $colcount = count($header);
 $date = null;
@@ -298,6 +301,13 @@ foreach ($division['Game'] as $game) {
 							'is_coordinator' => true,	// only ones allowed to even run this report
 							'value' => $entry['score_entry_penalty'],
 					));
+				}
+				if (Configure::read('scoring.most_spirited') && $division['Division']['most_spirited'] != 'never') {
+					if (!empty($entry['most_spirited'])) {
+						$row[] = $this->element('people/block', array('person' => $entry['MostSpirited']));
+					} else {
+						$row[] = '';
+					}
 				}
 				$rows[] = $row;
 				if (!empty ($entry['comments'])) {

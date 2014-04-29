@@ -297,6 +297,15 @@ $collapse = !empty($this->data['Division']['id']);
 					'after' => $this->Html->para (null, __('Which team will allstar nominations come from? Ignored if the above field is set to "never".', true)),
 				));
 			}
+			if (Configure::read('scoring.most_spirited')) {
+				echo $this->ZuluruForm->input('Division.most_spirited', array(
+					'div' => 'input advanced',
+					'options' => Configure::read('options.most_spirited'),
+					'empty' => '---',
+					'default' => 'never',
+					'after' => $this->Html->para (null, __('When to ask captains for "most spirited player" nominations.', true)),
+				));
+			}
 		}
 
 		echo $this->ZuluruForm->input('expected_max_score', array(

@@ -155,3 +155,10 @@ foreach ($fields as $field => $options):
 	</dd>
 	<?php endif; ?>
 <?php endif; ?>
+<?php if (Configure::read('scoring.most_spirited')): ?>
+	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Most spirited player'); ?></dt>
+	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+		<?php __(Inflector::Humanize ($division['most_spirited'])); ?>
+
+	</dd>
+<?php endif; ?>

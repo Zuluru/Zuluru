@@ -425,9 +425,9 @@ if (League::hasSpirit($game) &&
 	($is_admin || $is_coordinator || ($homeSpiritEntry !== null && $awaySpiritEntry !== null)))
 {
 	echo $this->element ('spirit/view',
-			array('team' => $game['HomeTeam'], 'league' => $game['Division']['League'], 'spirit' => $homeSpiritEntry, 'spirit_obj' => $spirit_obj));
+			array('team' => $game['HomeTeam'], 'league' => $game['Division']['League'], 'division' => $game['Division'], 'spirit' => $homeSpiritEntry, 'spirit_obj' => $spirit_obj));
 	echo $this->element ('spirit/view',
-			array('team' => $game['AwayTeam'], 'league' => $game['Division']['League'], 'spirit' => $awaySpiritEntry, 'spirit_obj' => $spirit_obj));
+			array('team' => $game['AwayTeam'], 'league' => $game['Division']['League'], 'division' => $game['Division'], 'spirit' => $awaySpiritEntry, 'spirit_obj' => $spirit_obj));
 }
 ?>
 

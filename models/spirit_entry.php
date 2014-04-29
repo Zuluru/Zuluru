@@ -10,23 +10,18 @@ class SpiritEntry extends AppModel {
 		'Team' => array(
 			'className' => 'Team',
 			'foreignKey' => 'team_id',
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
 		),
 		'Game' => array(
 			'className' => 'Game',
 			'foreignKey' => 'game_id',
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
 		),
 		'Person' => array(
 			'className' => 'Person',
 			'foreignKey' => 'person_id',
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
+		),
+		'MostSpirited' => array(
+			'className' => 'Person',
+			'foreignKey' => 'most_spirited',
 		)
 	);
 }

@@ -214,6 +214,15 @@ if (isset ($add)) {
 				'after' => $this->Html->para (null, __('Which team will allstar nominations come from? Ignored if the above field is set to "never".', true)),
 			));
 		}
+		if (Configure::read('scoring.most_spirited')) {
+			echo $this->ZuluruForm->input('Division.most_spirited', array(
+				'div' => 'input advanced',
+				'options' => Configure::read('options.most_spirited'),
+				'empty' => '---',
+				'default' => 'never',
+				'after' => $this->Html->para (null, __('When to ask captains for "most spirited player" nominations.', true)),
+			));
+		}
 	?>
 	</fieldset>
 <p><?php echo $this->ZuluruHtml->icon('gears_32.png', array('class' => 'basic', 'style' => 'vertical-align:middle; padding-right: 5px;')); ?><a class="show_advanced basic" href="#">Show advanced configuration</a>

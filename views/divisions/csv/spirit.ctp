@@ -16,6 +16,9 @@ if ($division['League']['sotg_questions'] != 'none') {
 foreach ($spirit_obj->questions as $question => $detail) {
 	$header[] = __($detail['name'], true);
 }
+if (Configure::read('scoring.most_spirited') && $division['Division']['most_spirited'] != 'never') {
+	$header[] = __('Most Spirited', true);
+}
 fputcsv($fp, $header);
 
 $teams = Set::extract('/Team/id', $division);
@@ -75,6 +78,13 @@ foreach ($division['Game'] as $game) {
 			foreach ($spirit_obj->questions as $question => $detail) {
 				if ($spirit_entry) {
 					$team_results[$id][] = $spirit_entry[$question];
+				} else {
+					$team_results[$id][] = '';
+				}
+			}
+			if (Configure::read('scoring.most_spirited') && $division['Division']['most_spirited'] != 'never') {
+				if (!empty($spirit_entry['most_spirited'])) {
+					$team_results[$id][] = $spirit_entry['MostSpirited']['full_name'];
 				} else {
 					$team_results[$id][] = '';
 				}

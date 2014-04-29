@@ -75,7 +75,12 @@ foreach ($divisions as $division):
 	<th><?php __('First Game');?></th>
 	<th><?php __('Last Game');?></th>
 	<th><?php __('Roster Deadline');?></th>
+<?php if (Configure::read('scoring.allstars')): ?>
 	<th><?php __('Allstars');?></th>
+<?php endif; ?>
+<?php if (Configure::read('scoring.most_spirited')): ?>
+	<th><?php __('Most Spirited');?></th>
+<?php endif; ?>
 	<th><?php __('Rating Calculator');?></th>
 	<th><?php __('Remind After');?></th>
 	<th><?php __('Finalize After');?></th>
@@ -121,6 +126,7 @@ foreach ($divisions as $division):
 		<td><?php echo $this->ZuluruTime->date($division['Division']['open']); ?></td>
 		<td><?php echo $this->ZuluruTime->date($division['Division']['close']); ?></td>
 		<td><?php echo $this->ZuluruTime->date(Division::rosterDeadline($division['Division'])); ?></td>
+<?php if (Configure::read('scoring.allstars')): ?>
 		<td><?php
 		__(Inflector::humanize($division['Division']['allstars']));
 		if ($division['Division']['allstars'] != 'never') {
@@ -128,6 +134,10 @@ foreach ($divisions as $division):
 			__(Inflector::humanize($division['Division']['allstars_from']));
 		}
 		?></td>
+<?php endif; ?>
+<?php if (Configure::read('scoring.most_spirited')): ?>
+		<td><?php __(Inflector::humanize($division['Division']['most_spirited'])); ?></td>
+<?php endif; ?>
 		<td><?php __(Inflector::humanize($division['Division']['rating_calculator'])); ?></td>
 		<td><?php echo $division['Division']['email_after']; ?></td>
 		<td><?php echo $division['Division']['finalize_after']; ?></td>

@@ -81,6 +81,12 @@ class Division extends AppModel {
 				'message' => 'You must select a valid allstar entry option.',
 			),
 		),
+		'most_spirited' => array(
+			'inlist' => array(
+				'rule' => array('inconfig', 'options.most_spirited'),
+				'message' => 'You must select a valid "most spirited player" entry option.',
+			),
+		),
 		'exclude_teams' => array(
 			'inlist' => array(
 				'rule' => array('inconfig', 'options.enable'),
@@ -204,6 +210,9 @@ class Division extends AppModel {
 		}
 		if (!Configure::read('scoring.allstars')) {
 			unset ($this->validate['allstars']);
+		}
+		if (!Configure::read('scoring.most_spirited')) {
+			unset ($this->validate['most_spirited']);
 		}
 		return true;
 	}

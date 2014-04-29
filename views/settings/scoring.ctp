@@ -128,6 +128,15 @@ echo $this->element('settings/banner');
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'scoring',
+		'name' => 'most_spirited',
+		'options' => array(
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'after' => 'If enabled, "most spirited player" submissions will be a per-league option; otherwise, they will be disabled entirely.',
+		),
+	));
+	echo $this->element('settings/input', array(
+		'category' => 'scoring',
 		'name' => 'stat_tracking',
 		'options' => array(
 			'type' => 'radio',

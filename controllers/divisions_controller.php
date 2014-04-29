@@ -1320,7 +1320,7 @@ class DivisionsController extends AppController {
 		$teams = Set::extract('/Team/id', $division);
 		$this->Division->Game->contain(array (
 			'GameSlot',
-			'SpiritEntry',
+			'SpiritEntry' => 'MostSpirited',
 			'HomeTeam',
 			'AwayTeam',
 		));
@@ -1346,6 +1346,7 @@ class DivisionsController extends AppController {
 
 		$spirit_obj = $this->_getComponent ('Spirit', $division['League']['sotg_questions'], $this);
 
+		usort ($division['Game'], array ('Game', 'compareDateAndField'));
 		$this->set(compact('division', 'spirit_obj'));
 
 		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);

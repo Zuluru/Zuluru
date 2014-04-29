@@ -497,6 +497,17 @@ div.related
 	background-color: #cccccc;
 }
 
+#zuluru div.form div.MostSpiritedDetails
+{
+	padding: 0;
+	margin: 0;
+}
+
+#zuluru div.form div.MostSpiritedDetails p
+{
+	margin-top: 0;
+}
+
 /* Tooltip styling. By default the element to be styled is .ui-tooltip  */
 .ui-tooltip
 {

@@ -246,7 +246,7 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 <?php
 echo $this->element ('spirit/input', array(
 		'team_id' => $game['HomeTeam']['id'],
-		'created_team_id' => $game['AwayTeam']['id'],
+		'team' => $game['HomeTeam'],
 		'game' => $game,
 		'spirit_obj' => $spirit_obj,
 ));
@@ -281,7 +281,7 @@ echo $this->Form->input('Allstar.0.person_id', array(
 <?php
 echo $this->element ('spirit/input', array(
 		'team_id' => $game['AwayTeam']['id'],
-		'created_team_id' => $game['HomeTeam']['id'],
+		'team' => $game['AwayTeam'],
 		'game' => $game,
 		'spirit_obj' => $spirit_obj,
 ));
