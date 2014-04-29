@@ -1,6 +1,6 @@
 <?php
 $this->Html->addCrumb (__('Settings', true));
-$this->Html->addCrumb (__('User', true));
+$this->Html->addCrumb (__('Profile', true));
 ?>
 
 <div class="settings form">
