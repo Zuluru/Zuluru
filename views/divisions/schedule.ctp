@@ -47,7 +47,7 @@ if (!empty ($edit_date)) {
 		$week = date('W', $date_stamp);
 		// TODO: Configurable first day of the week; this assumes Sunday
 		if (date('w', $date_stamp) < 1) {
-			-- $week;
+			++ $week;
 		}
 		if (!array_key_exists($week, $weeks)) {
 			$weeks[$week] = array($date, $date);
