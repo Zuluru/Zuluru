@@ -2052,7 +2052,7 @@ class TeamsController extends AppController {
 		}
 
 		// Check if this user is the only approved captain on the team
-		if ($role == 'captain') {
+		if ($role == 'captain' && !$this->admin && !$this->manager) {
 			if (count (Set::extract ('/Person/TeamsPerson[role=captain][status=' . ROSTER_APPROVED . ']', $team)) == 1) {
 				$this->Session->setFlash(__('All teams must have at least one player as captain.', true), 'default', array('class' => 'info'));
 			if ($this->RequestHandler->isAjax()) {
