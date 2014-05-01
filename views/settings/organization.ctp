@@ -130,6 +130,26 @@ echo $this->element('settings/banner');
 	?>
 	<fieldset>
 		<legend><?php __('Dates'); ?></legend>
+	<?php
+	echo $this->element('settings/input', array(
+		'category' => 'organization',
+		'name' => 'first_day',
+		'options' => array(
+			'type' => 'select',
+			'options' => array(
+				// Numbering matches the PHP date('N') format
+				1 => __('Monday', true),
+				2 => __('Tuesday', true),
+				3 => __('Wednesday', true),
+				4 => __('Thursday', true),
+				5 => __('Friday', true),
+				6 => __('Saturday', true),
+				7 => __('Sunday', true),
+			),
+			'after' => 'First day of the week, for scheduling purposes.',
+		),
+	));
+	?>
 	<p>The following settings are used for determining which season is currently in effect, for the purposes of providing links to current <?php __(Configure::read('ui.field')); ?> permits.</p>
 	<?php
 	foreach ($seasons as $season) {

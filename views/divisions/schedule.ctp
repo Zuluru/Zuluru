@@ -42,11 +42,11 @@ if (!empty ($edit_date)) {
 	$future_week = 99;
 	$dates = array_unique(Set::extract ('/Game/GameSlot/game_date', $division));
 	$weeks = array();
+	$first_day = Configure::read('organization.first_day');
 	foreach ($dates as $date) {
 		$date_stamp = strtotime($date);
 		$week = date('W', $date_stamp);
-		// TODO: Configurable first day of the week; this assumes Sunday
-		if (date('w', $date_stamp) < 1) {
+		if (date('N', $date_stamp) >= $first_day) {
 			++ $week;
 		}
 		if (!array_key_exists($week, $weeks)) {
@@ -56,8 +56,8 @@ if (!empty ($edit_date)) {
 			$weeks[$week][1] = max($date, $weeks[$week][1]);
 		}
 
-		if ($date_stamp > time()) {
-			$future_week = min($week, $future_week);
+		if ($date_stamp > time() && $future_week == 99) {
+			$future_week = $week;
 		}
 	}
 

@@ -784,8 +784,8 @@ class SchedulesController extends AppController {
 		);
 		if ($date) {
 			if ($multi_day) {
-				// TODO: Configurable first day of the week; this assumes Sunday
-				$offset = 6 - date('w', strtotime($date));
+				$first_day = Configure::read('organization.first_day');
+				$offset = (6 + $first_day - date('N', strtotime($date))) % 7;
 				$conditions['GameSlot.game_date >='] = $date;
 				$conditions[] = "GameSlot.game_date <= DATE_ADD('$date', INTERVAL $offset DAY)";
 			} else {
@@ -1039,8 +1039,8 @@ class SchedulesController extends AppController {
 				'Game.division_id' => $divisions,
 		);
 		if ($multi_day) {
-			// TODO: Configurable first day of the week; this assumes Sunday
-			$offset = 6 - date('w', strtotime($date));
+			$first_day = Configure::read('organization.first_day');
+			$offset = (6 + $first_day - date('N', strtotime($date))) % 7;
 			$conditions['GameSlot.game_date >='] = $date;
 			$conditions[] = "GameSlot.game_date <= DATE_ADD('$date', INTERVAL $offset DAY)";
 		} else {
