@@ -16,7 +16,7 @@ class RuleMemberTypeComponent extends RuleComponent
 			$this->desc = 'have a past membership type';
 		} else if ($this->config[0] == '>') {
 			$from = substr($this->config, 1);
-			$from = date('Y-m-d', strtotime($to) + DAY);
+			$from = date('Y-m-d', strtotime($from) + DAY);
 			$this->config = array($from, '9999-12-31');
 			$this->desc = 'have an upcoming membership type';
 		} else if (strpos($this->config, ',') !== false) {
