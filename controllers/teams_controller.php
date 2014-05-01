@@ -1216,7 +1216,7 @@ class TeamsController extends AppController {
 			if (!empty($available_fields)) {
 				$field_conditions['Field.id'] = $available_fields;
 			} else {
-				$season = $this->Team->Division->League->field('season', array('id' => $league_id));
+				$season = $this->Team->Division->League->field('season', array('id' => $division['Division']['league_id']));
 				$field_conditions['Field.indoor'] = Configure::read("season_is_indoor.$season");
 			}
 
