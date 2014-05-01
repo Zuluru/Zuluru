@@ -126,7 +126,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 		<?php endif; ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Gender'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php __($person['gender']); ?>
+			<?php __($person['gender']); ?>&nbsp;
 
 		</dd>
 		<?php if ($is_me || $is_admin || $is_manager || $is_coordinator || $is_captain):?>
