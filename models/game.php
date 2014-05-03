@@ -438,6 +438,108 @@ class Game extends AppModel {
 		return true;
 	}
 
+	function updateFieldRanking(&$game, $field = null, $home = null, $away = null) {
+		$homes = Configure::read('feature.home_field');
+		$facilities = Configure::read('feature.facility_preference');
+		$regions = Configure::read('feature.region_preference');
+		if (!$homes && !$facilities && !$regions) {
+			return true;
+		}
+
+		if ($field) {
+			$field_id = $field['id'];
+			$facility_id = $field['facility_id'];
+			$region_id = $field['Facility']['region_id'];
+		} else {
+			$field_id = $this->GameSlot->field('field_id', array('GameSlot.id' => $game['game_slot_id']));
+			if ($facilities || $regions) {
+				$facility_id = $this->GameSlot->Field->field('facility_id', array('Field.id' => $field_id));
+				if ($regions) {
+					$region_id = $this->GameSlot->Field->Facility->field('region_id', array('Facility.id' => $facility_id));
+				}
+			}
+		}
+
+		foreach (array('home', 'away') as $team) {
+			$rank = null;
+			if (!empty($game["{$team}_team"])) {
+				$team_id = $game["{$team}_team"];
+
+				if ($homes) {
+					if (${$team}) {
+						$home_field = ${$team}['home_field'];
+					} else {
+						$home_field = $this->HomeTeam->field('home_field', array('HomeTeam.id' => $team_id), 'HomeTeam.id');
+					}
+					if ($home_field == $field_id) {
+						$rank = 1;
+					}
+				}
+
+				if (!$rank && $facilities) {
+					if (${$team}) {
+						$r = Set::extract("/Facility[id=$facility_id]/TeamsFacility/rank", ${$team});
+						if (!empty($r)) {
+							$rank = $r[0];
+						}
+					} else {
+						$r = $this->HomeTeam->TeamsFacility->find('first', array(
+								'conditions' => array(
+									'team_id' => $team_id,
+									'facility_id' => $facility_id,
+								),
+								'fields' => array('TeamsFacility.rank'),
+						));
+						if ($r) {
+							$rank = $r['TeamsFacility']['rank'];
+						}
+					}
+				}
+
+				if (!$rank && $regions) {
+					if (${$team}) {
+						$home_region = ${$team}['region_preference'];
+					} else {
+						$home_region = $this->HomeTeam->field('region_preference', array('HomeTeam.id' => $team_id), 'HomeTeam.id');
+					}
+					if ($home_region == $region_id) {
+						if (${$team}) {
+							$r = count(${$team}['Facility']);
+						} else {
+							$r = $this->HomeTeam->TeamsFacility->find('count', array(
+									'conditions' => array(
+										'team_id' => $team_id,
+									),
+							));
+						}
+						// A regional match won't count as more preferred than
+						// a 2. This will give teams with regional preferences
+						// a slight advantage over teams with specific field
+						// preferences in terms of how often they're likely
+						// to have their preferences met.
+						$rank = max(2, $r + 1);
+					}
+				}
+			}
+
+			$game["{$team}_field_rank"] = $rank;
+		}
+
+		// If this is a field that the away team likes more than the home
+		// team, swap the teams, so that the current home team doesn't get
+		// penalized in future field selections. But only do it when we're
+		// building a schedule, not when we're editing.
+		if (!array_key_exists('id', $game) && $game['away_field_rank'] !== null && (
+			($game['home_field_rank'] === null || $game['home_field_rank'] > $game['away_field_rank'])
+		))
+		{
+			list ($game['home_team'], $game['home_field_rank'], $game['away_team'], $game['away_field_rank']) =
+				array($game['away_team'], $game['away_field_rank'], $game['home_team'], $game['home_field_rank']);
+		}
+
+		return true;
+	}
+
 	/**
 	 * Adjust the indices of the ScoreEntry and SpiritEntry, so that
 	 * the arrays are indexed by team_id instead of from zero.
@@ -958,7 +1060,7 @@ class Game extends AppModel {
 		}
 	}
 
-	function _validateAndSaveSchedule($data, $available_slots) {
+	function _validateAndSaveSchedule($data, $available_slots, $teams = null) {
 		$publish = $data['Game']['publish'];
 		unset ($data['Game']['publish']);
 		if (array_key_exists('double_header', $data['Game'])) {
@@ -1008,21 +1110,21 @@ class Game extends AppModel {
 			}
 		}
 
-		$teams = array_merge (
+		$team_ids = array_merge (
 				Set::extract ('/Game/home_team', $data),
 				Set::extract ('/Game/away_team', $data)
 		);
-		if (!empty($teams)) {
-			if (in_array ('', $teams)) {
+		if (!empty($team_ids)) {
+			if (in_array ('', $team_ids)) {
 				return array('text' => __('You cannot choose the "---" as the team!', true), 'class' => 'info');
 			}
 
 			$team_names = $this->Division->Team->find('list', array(
 					'contain' => false,
-					'conditions' => array('Team.id' => $teams),
+					'conditions' => array('Team.id' => $team_ids),
 			));
 
-			$team_counts = array_count_values ($teams);
+			$team_counts = array_count_values ($team_ids);
 			foreach ($team_counts as $team_id => $count) {
 				if ($count > 1) {
 					if ($allow_double_header || $allow_multiple_days) {
@@ -1071,7 +1173,7 @@ class Game extends AppModel {
 			$team_divisions = $this->Division->Team->find('list', array(
 					'contain' => array(),
 					'fields' => array('Team.id', 'Team.division_id'),
-					'conditions' => array('Team.id' => $teams),
+					'conditions' => array('Team.id' => $team_ids),
 			));
 		}
 
@@ -1203,6 +1305,10 @@ class Game extends AppModel {
 			));
 		}
 
+		if ($teams) {
+			$this->_reindexOuter($teams, 'Team', 'id');
+		}
+
 		foreach ($data['Game'] as $key => $game) {
 			if (array_key_exists('home_team', $game)) {
 				$home_division = $team_divisions[$game['home_team']];
@@ -1230,20 +1336,29 @@ class Game extends AppModel {
 				return array('text' => sprintf(__('You have scheduled teams from different divisions against each other (%s vs %s), but not checked the box allowing cross-division games.', true), $team_names[$game['home_team']], $team_names[$game['away_team']]), 'class' => 'info');
 			} else {
 				// Make sure that the game slot selected is available to one of the teams
-				$available_to_home = Set::extract("/GameSlot[id={$game['game_slot_id']}]", $available_slots[$home_division]);
+				$available_to_home = Set::extract("/GameSlot[id={$game['game_slot_id']}]/..", $available_slots[$home_division]);
 				if (empty($available_to_home)) {
-					$available_to_away = Set::extract("/GameSlot[id={$game['game_slot_id']}]", $available_slots[$away_division]);
+					$available_to_away = Set::extract("/GameSlot[id={$game['game_slot_id']}]/..", $available_slots[$away_division]);
 					if (empty($available_to_away)) {
 						return array('text' => sprintf(__('You have scheduled a game between %s and %s in a game slot not available to them.', true), $home_name, $away_name), 'class' => 'info');
 					} else {
 						// Game is happening on a field only available to the away team, so make them the home team instead
 						$data['Game'][$key]['division_id'] = $away_division;
 						list($data['Game'][$key]['home_team'], $data['Game'][$key]['away_team']) = array($game['away_team'], $game['home_team']);
+						$field = $available_to_away[0]['Field'];
 					}
+				} else {
+					$field = $available_to_home[0]['Field'];
 				}
 				// At this point, we know that the home team has access to the game slot,
 				// so we will make the division id of the game match that team
 				$data['Game'][$key]['division_id'] = $home_division;
+			}
+
+			$home = ($teams && !empty($data['Game'][$key]['home_team']) ? $teams[$data['Game'][$key]['home_team']] : null);
+			$away = ($teams && !empty($data['Game'][$key]['away_team']) ? $teams[$data['Game'][$key]['away_team']] : null);
+			if (!$this->updateFieldRanking($data['Game'][$key], $field, $home, $away)) {
+				return array('text' => __('Failed to update field preference stats!', true), 'class' => 'warning');
 			}
 		}
 

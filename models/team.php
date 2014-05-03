@@ -139,6 +139,7 @@ class Team extends AppModel {
 		'Facility' => array(
 			'className' => 'Facility',
 			'joinTable' => 'teams_facilities',
+			'with' => 'TeamsFacility',
 			'foreignKey' => 'team_id',
 			'associationForeignKey' => 'facility_id',
 			'unique' => true,

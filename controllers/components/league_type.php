@@ -812,13 +812,6 @@ class LeagueTypeComponent extends Object
 		$this->games = array();
 		$this->double_booking = $double_booking;
 
-		$regions = Configure::read('feature.region_preference');
-		if ($regions) {
-			$field_contain = array('Field' => array('Facility' => 'Region'));
-		} else {
-			$field_contain = array();
-		}
-
 		$conditions = array(
 			'game_date >=' => $start_date,
 		);
@@ -828,6 +821,7 @@ class LeagueTypeComponent extends Object
 		$this->_controller->Division->contain (array (
 			'Day',
 			'Team' => array(
+				'Facility',
 				'order' => 'Team.name',
 				'conditions' => array('NOT' => array('id' => $exclude_teams)),
 			),
@@ -839,7 +833,7 @@ class LeagueTypeComponent extends Object
 				),
 			),
 			'Game' => array(
-				'GameSlot' => $field_contain,
+				'GameSlot',
 			),
 			'DivisionGameslotAvailability' => array(
 				'GameSlot' => array(
@@ -862,8 +856,8 @@ class LeagueTypeComponent extends Object
 		}
 
 		// Go through all the games and count the number of home and away games
-		// and games within preferred region for each team
-		$this->home_games = $this->away_games = $this->preferred_games = array();
+		// and games with preferences for each team
+		$this->home_games = $this->away_games = $this->field_rank_sum = array();
 		foreach ($this->division['Game'] as $game) {
 			if (!array_key_exists ($game['home_team'], $this->home_games)) {
 				$this->home_games[$game['home_team']] = 1;
@@ -879,26 +873,18 @@ class LeagueTypeComponent extends Object
 				}
 			}
 
-			if ($regions) {
-				$team = array_pop (Set::extract ("/Team[id={$game['home_team']}]/.", $this->division));
-				if ($team['region_preference'] && $team['region_preference'] == $game['GameSlot']['Field']['Facility']['region_id']) {
-					if (!array_key_exists ($game['home_team'], $this->preferred_games)) {
-						$this->preferred_games[$game['home_team']] = 1;
-					} else {
-						++ $this->preferred_games[$game['home_team']];
-					}
+			if (!empty($game['home_field_rank'])) {
+				if (!array_key_exists ($game['home_team'], $this->field_rank_sum)) {
+					$this->field_rank_sum[$game['home_team']] = 0;
 				}
+				$this->field_rank_sum[$game['home_team']] += 1 / $game['home_field_rank'];
+			}
 
-				if (!empty($game['away_team'])) {
-					$team = array_pop (Set::extract ("/Team[id={$game['away_team']}]/.", $this->division));
-					if ($team['region_preference'] && $team['region_preference'] == $game['GameSlot']['Field']['Facility']['region_id']) {
-						if (!array_key_exists ($game['away_team'], $this->preferred_games)) {
-							$this->preferred_games[$game['away_team']] = 1;
-						} else {
-							++ $this->preferred_games[$game['away_team']];
-						}
-					}
+			if (!empty($game['away_team']) && !empty($game['away_field_rank'])) {
+				if (!array_key_exists ($game['away_team'], $this->field_rank_sum)) {
+					$this->field_rank_sum[$game['away_team']] = 0;
 				}
+				$this->field_rank_sum[$game['away_team']] += 1 / $game['away_field_rank'];
 			}
 		}
 
@@ -1084,18 +1070,16 @@ class LeagueTypeComponent extends Object
 	/**
 	 * Assign field based on home field or region preference.
 	 *
-	 * It uses the select_weighted_gameslot function, which first looks at home field
+	 * It uses the selectWeightedGameslot function, which first looks at home field
 	 * designation, then at field region preferences.
 	 *
-	 * We first sort teams in order of their allocation preference ratio.  Teams
-	 * with a low ratio get first crack at a desired location.
+	 * We first sort games in order of the home team's allocation preference ratio.
+	 * Teams with a low ratio get first crack at a desired location. Games where the
+	 * home team has a home field are first in the list, to prevent another team with
+	 * a lower ratio from scooping another team's dedicated home field.
 	 *
-	 * Then, we allocate gameslots to games where the home team has a home field.
-	 * This is necessary to prevent another team with a lower ratio from scooping
-	 * another team's dedicated home field.
-	 *
-	 * Following this, we simply loop over all remaining games and call
-	 * select_weighted_gameslot(), which takes region preference into account.
+	 * Once sorted, we simply loop over all games and call selectWeightedGameslot(),
+	 * which takes region preference into account.
 	 *
 	 */
 	function assignFieldsByPreferences($date, $games, $remaining = 0) {
@@ -1108,11 +1092,15 @@ class LeagueTypeComponent extends Object
 		usort($games, array($this, 'comparePreferredFieldRatio'));
 
 		while($game = array_shift($games)) {
-			$slot_id = $this->selectWeightedGameslot($game, $date, count($games) + 1 + $remaining);
-			if (!$slot_id) {
+			$slot = $this->selectWeightedGameslot($game, $date, count($games) + 1 + $remaining);
+			if (!$slot) {
 				return false;
 			}
-			$game['game_slot_id'] = $slot_id;
+			$game['game_slot_id'] = $slot['id'];
+
+			$home = $this->division['Team'][$game['home_team']];
+			$away = (!empty($game['away_team']) ? $this->division['Team'][$game['away_team']] : null);
+			$this->_controller->Division->Game->updateFieldRanking($game, $slot['Field'], $home, $away);
 
 			$this->games[] = $game;
 		}
@@ -1121,7 +1109,7 @@ class LeagueTypeComponent extends Object
 	}
 
 	function comparePreferredFieldRatio($a, $b) {
-		// Put all those teams with a home field at the top of the list
+		// Put all those games where one team has a home field at the top of the list
 		$a_home = $this->hasHomeField($a);
 		$b_home = $this->hasHomeField($b);
 		if ($a_home && !$b_home)
@@ -1138,18 +1126,18 @@ class LeagueTypeComponent extends Object
 	}
 
 	function hasHomeField($game) {
-		return (Configure::read('feature.home_field') && $this->division['Team'][$game['home_team']]['home_field']);
+		return (Configure::read('feature.home_field') && ($this->division['Team'][$game['home_team']]['home_field'] || $this->division['Team'][$game['away_team']]['home_field']));
 	}
 
 	function preferredFieldRatio($game) {
-		// If we're not using region preferences, that's like everyone
+		// If we're not using team preferences, that's like everyone
 		// has 100% of their games in a preferred region.
-		if (!Configure::read('feature.region_preference')) {
+		if (!Configure::read('feature.region_preference') && !Configure::read('feature.facility_preference')) {
 			return 1;
 		}
 
-		// We've already dealt with teams that have home fields. If we're
-		// calling this function, then either both games being compared
+		// We've already dealt with games where a team has a home field. If
+		// we're calling this function, then either both games being compared
 		// involve a team with a home field, or neither does. So, if this
 		// game has one, the other must also, in which case we want to look
 		// to their opponents to break that tie. This tie-breaker will
@@ -1158,21 +1146,26 @@ class LeagueTypeComponent extends Object
 		if (Configure::read('feature.home_field') && $this->division['Team'][$game['home_team']]['home_field']) {
 			$id = $game['away_team'];
 		} else {
+			// We get here if home fields are not allowed, neither team
+			// has a home field, or only the away team does. In any case,
+			// it's the home team that we want to drive the preference.
 			$id = $game['home_team'];
 		}
 
 		// No preference means they're always happy.  We return over 100% to
 		// force them to sort last when ordering by ratio, so that teams with
 		// a preference always appear before them.
-		if (empty($this->division['Team'][$id]['region_preference'])) {
+		if ((!Configure::read('feature.region_preference') || empty($this->division['Team'][$id]['region_preference'])) &&
+			(!Configure::read('feature.facility_preference') || empty($this->division['Team'][$id]['Facility'])))
+		{
 			return 2;
 		}
 
 		if (!array_key_exists('preferred_ratio', $this->division['Team'][$id])) {
-			if (!array_key_exists($id, $this->preferred_games)) {
+			if (!array_key_exists($id, $this->field_rank_sum)) {
 				$this->division['Team'][$id]['preferred_ratio'] = 0;
 			} else {
-				$this->division['Team'][$id]['preferred_ratio'] = $this->preferred_games[$id] /
+				$this->division['Team'][$id]['preferred_ratio'] = $this->field_rank_sum[$id] /
 					// We've already incremented these counters with the new game
 					// before arriving here, so we subtract 1 to get the true count
 					($this->home_games[$id] + $this->away_games[$id] - 1);
@@ -1199,7 +1192,7 @@ class LeagueTypeComponent extends Object
 			if (is_numeric ($date)) {
 				$date = date('Y-m-d', $date);
 			}
-			$slots = array_merge($slots, Set::extract("/GameSlot[game_date=$date]/id", $this->division['DivisionGameslotAvailability']));
+			$slots = array_merge($slots, Set::extract("/GameSlot[game_date=$date]/.", $this->division['DivisionGameslotAvailability']));
 			if (count($slots) >= $remaining) {
 				break;
 			}
@@ -1222,9 +1215,9 @@ class LeagueTypeComponent extends Object
 		}
 
 		shuffle ($slots);
-		$slot_id = $slots[0];
-		$this->removeGameslot($slot_id);
-		return $slot_id;
+		$slot = $slots[0];
+		$this->removeGameslot($slot['id']);
+		return $slot;
 	}
 
 	/**
@@ -1261,25 +1254,42 @@ class LeagueTypeComponent extends Object
 		if (Configure::read('feature.home_field')) {
 			// Try to adhere to the home team's home field
 			if ($home['home_field']) {
-				$slots = $this->matchingSlots("[field_id={$home['home_field']}]", 'id', $match_dates, $remaining);
+				$slots = $this->matchingSlots("[field_id={$home['home_field']}]", '..', $match_dates, $remaining);
 			}
 
 			// If not available, try the away team's home field
 			if (empty ($slots) && isset($away) && $away['home_field']) {
-				$slots = $this->matchingSlots("[field_id={$away['home_field']}]", 'id', $match_dates, $remaining);
+				$slots = $this->matchingSlots("[field_id={$away['home_field']}]", '..', $match_dates, $remaining);
+			}
+		}
+
+		// Maybe try facility preferences
+		if (empty($slots) && Configure::read('feature.facility_preference')) {
+			foreach ($home['Facility'] as $facility) {
+				$slots = $this->matchingSlots("/Field[facility_id={$facility['id']}]", '..', $match_dates, $remaining);
+				if (!empty($slots)) {
+					break;
+				}
+			}
+
+			if (empty ($slots) && isset($away) && !empty($away['Facility'])) {
+				foreach ($away['Facility'] as $facility) {
+					$slots = $this->matchingSlots("/Field[facility_id={$facility['id']}]", '..', $match_dates, $remaining);
+					if (!empty($slots)) {
+						break;
+					}
+				}
 			}
 		}
 
 		// Maybe try region preferences
-		if (Configure::read('feature.region_preference')) {
-			if (empty ($slots) && $home['region_preference']) {
+		if (empty($slots) && Configure::read('feature.region_preference')) {
+			if ($home['region_preference']) {
 				$slots = $this->matchingSlots("/Field/Facility[region_id={$home['region_preference']}]", '../..', $match_dates, $remaining);
-				$slots = Set::extract('/GameSlot/id', $slots);
 			}
 
 			if (empty ($slots) && isset($away) && $away['region_preference']) {
 				$slots = $this->matchingSlots("/Field/Facility[region_id={$away['region_preference']}]", '../..', $match_dates, $remaining);
-				$slots = Set::extract('/GameSlot/id', $slots);
 			}
 		}
 
@@ -1289,9 +1299,9 @@ class LeagueTypeComponent extends Object
 		}
 
 		shuffle ($slots);
-		$slot_id = $slots[0];
-		$this->removeGameslot($slot_id);
-		return $slot_id;
+		$slot = $slots[0]['GameSlot'];
+		$this->removeGameslot($slot['id']);
+		return $slot;
 	}
 
 	function matchingSlots($criteria, $path, $dates, $remaining) {

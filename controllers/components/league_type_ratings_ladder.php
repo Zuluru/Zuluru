@@ -363,24 +363,6 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 
 		return $recent_opponents;
 	}
-
-	/**
-	 * Compare two games by game date and time
-	 */
-	function cmpGameDate($a, $b) {
-		if ($a['GameSlot']['game_date'] < $b['GameSlot']['game_date']) {
-			return -1;
-		} else if ($a['GameSlot']['game_date'] > $b['GameSlot']['game_date']) {
-			return 1;
-		} else if ($a['GameSlot']['game_start'] < $b['GameSlot']['game_start']) {
-			return -1;
-		} else if ($a['GameSlot']['game_start'] > $b['GameSlot']['game_start']) {
-			return 1;
-		} else {
-			// This should never happen, how can a team have two games on the same day at the same time?
-			return 0;
-		}
-	}
 }
 
 ?>
