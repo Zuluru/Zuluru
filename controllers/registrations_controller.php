@@ -187,7 +187,7 @@ class RegistrationsController extends AppController {
 				),
 				'conditions' => array(
 					'Registration.event_id' => $id,
-					'Registration.payment !=' => 'Refunded',
+					'Registration.payment !=' => 'Cancelled',
 				),
 				'group' => 'Person.gender',
 				'order' => array ('Person.gender' => 'DESC'),
@@ -242,7 +242,7 @@ class RegistrationsController extends AppController {
 				'COUNT(Registration.id) AS count',
 			),
 			'conditions' => array(
-				'Registration.payment !=' => 'Refunded',
+				'Registration.payment !=' => 'Cancelled',
 				'OR' => array(
 					'YEAR(Event.open)' => $year,
 					'YEAR(Event.close)' => $year,
@@ -846,7 +846,7 @@ class RegistrationsController extends AppController {
 			$this->redirect(array('action' => 'checkout'));
 		}
 		if (in_array($registration['Registration']['payment'], Configure::read('registration_cancelled'))) {
-			$this->Session->setFlash(__('You have already received a refund for this. Refunded records are kept on file for accounting purposes.', true), 'default', array('class' => 'info'));
+			$this->Session->setFlash(__('This registration has already been cancelled. Cancelled records are kept on file for accounting purposes.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'checkout'));
 		}
 
@@ -1161,12 +1161,12 @@ class RegistrationsController extends AppController {
 
 				if ($this->data['Payment']['mark_refunded']) {
 					$this->Registration->id = $payment['Registration']['id'];
-					if (!$this->Registration->saveField('payment', 'Refunded')) {
+					if (!$this->Registration->saveField('payment', 'Cancelled')) {
 						$this->Session->setFlash(__('Failed to update payment status.', true), 'default', array('class' => 'warning'));
 						return;
 					}
 
-					if (!$this->_postProcess($payment['Registration'], $payment, $payment, $payment['Registration']['payment'], 'Refunded')) {
+					if (!$this->_postProcess($payment['Registration'], $payment, $payment, $payment['Registration']['payment'], 'Cancelled')) {
 						return;
 					}
 				}
@@ -1268,12 +1268,12 @@ class RegistrationsController extends AppController {
 
 				if ($this->data['Payment']['mark_refunded']) {
 					$this->Registration->id = $payment['Registration']['id'];
-					if (!$this->Registration->saveField('payment', 'Refunded')) {
+					if (!$this->Registration->saveField('payment', 'Cancelled')) {
 						$this->Session->setFlash(__('Failed to update payment status.', true), 'default', array('class' => 'warning'));
 						return;
 					}
 
-					if (!$this->_postProcess($payment['Registration'], $payment, $payment, $payment['Registration']['payment'], 'Refunded')) {
+					if (!$this->_postProcess($payment['Registration'], $payment, $payment, $payment['Registration']['payment'], 'Cancelled')) {
 						return;
 					}
 				}
@@ -1415,12 +1415,12 @@ class RegistrationsController extends AppController {
 
 				if ($this->data['Payment']['mark_refunded']) {
 					$this->Registration->id = $payment['Registration']['id'];
-					if (!$this->Registration->saveField('payment', 'Refunded')) {
+					if (!$this->Registration->saveField('payment', 'Cancelled')) {
 						$this->Session->setFlash(__('Failed to mark the original registration as refunded.', true), 'default', array('class' => 'warning'));
 						return;
 					}
 
-					if (!$this->_postProcess($payment['Registration'], $payment, $payment, $payment['Registration']['payment'], 'Refunded')) {
+					if (!$this->_postProcess($payment['Registration'], $payment, $payment, $payment['Registration']['payment'], 'Cancelled')) {
 						return;
 					}
 				}

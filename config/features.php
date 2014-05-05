@@ -256,8 +256,8 @@ $config['registration_unpaid'] = array('Deposit', 'Partial', 'Pending', 'Reserve
 $config['registration_none_paid'] = array('Pending', 'Reserved', 'Unpaid', 'Waiting');
 $config['registration_some_paid'] = array('Paid', 'Deposit', 'Partial');
 $config['registration_reserved'] = array('Paid', 'Deposit', 'Partial', 'Pending', 'Reserved');
-$config['registration_not_reserved'] = array('Unpaid', 'Waiting', 'Refunded');
-$config['registration_cancelled'] = array('Refunded');
+$config['registration_not_reserved'] = array('Unpaid', 'Waiting', 'Cancelled');
+$config['registration_cancelled'] = array('Cancelled');
 
 $config['payment_payment'] = array('Full', 'Deposit', 'Installment', 'Remaining Balance');
 

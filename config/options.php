@@ -135,7 +135,7 @@ $config['options'] = array(
 		'Deposit',
 		'Partial',
 		'Paid',
-		'Refunded',
+		'Cancelled',
 		'Waiting',
 	)),
 
