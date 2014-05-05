@@ -1512,13 +1512,6 @@ class TeamsController extends AppController {
 
 		$this->Team->contain(array ('Division' => 'League'));
 		$team = $this->Team->read(null, $id);
-		if (!$team) {
-			$this->Team->contain(array ('Division' => 'League'));
-			$team = $this->Team->read(null, $id + 5000); // OCUA import offset
-			if ($team) {
-				$this->redirect(array('action' => 'ical', $id + 5000), 301);
-			}
-		}
 		if (!$team || empty($team['Division']['id']) || strtotime($team['Division']['close']) < time() - 14 * DAY) {
 			$this->header('HTTP/1.1 410 Gone');
 			exit;
