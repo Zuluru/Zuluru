@@ -78,9 +78,8 @@ if (isset ($add)) {
 			if ($is_admin && Configure::read('feature.home_field')) {
 				$fields = array();
 				foreach ($facilities as $facility) {
-					$fields[$facility['Facility']['name']] = array();
 					foreach ($facility['Field'] as $field) {
-						$fields[$facility['Facility']['name']][$field['id']] = $field['num'];
+						$fields[$field['id']] = "{$facility['Facility']['name']} {$field['num']}";
 					}
 				}
 
