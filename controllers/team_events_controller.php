@@ -600,7 +600,6 @@ class TeamEventsController extends AppController {
 			if (!array_key_exists($event['TeamEvent']['team_id'], $teams)) {
 				$this->TeamEvent->Team->contain(array('Person' => array(
 					$this->Auth->authenticate->name,
-					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 				)));
 				$team = $this->TeamEvent->Team->read(null, $event['TeamEvent']['team_id']);
 				$teams[$event['TeamEvent']['team_id']] = $team['Team'];
