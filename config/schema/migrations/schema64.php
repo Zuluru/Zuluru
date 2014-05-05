@@ -6,7 +6,7 @@ class Zuluru64Schema extends CakeSchema {
 		switch ($event['update']) {
 			case 'schema':
 				$commands = array(
-					'refunds' => 'UPDATE `registrations` SET `payment` = \'Cancelled\' WHERE `payment` = \'Refunded\';',
+					'registrations' => 'UPDATE `registrations` SET `payment` = \'Cancelled\' WHERE `payment` = \'Refunded\';',
 				);
 				break;
 
