@@ -2628,7 +2628,7 @@ class PeopleController extends AppController {
 
 			// Game iCal element will handle team_id as an array
 			$this->set('team_id', $team_ids);
-			$this->set('games', $games);
+			$this->set(compact('games', 'events'));
 		}
 
 		if (Configure::read('feature.tasks')) {
