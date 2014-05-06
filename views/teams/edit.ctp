@@ -95,9 +95,20 @@ if (isset ($add)) {
 				?>
 				<p>Select the facilities your team would prefer to play at.</p>
 				<?php
+				$facility_options = array();
+				foreach ($facilities as $facility) {
+					$facility_options[$facility['Facility']['id']] = array(
+						'value' => $facility['Facility']['id'],
+						'name' => $facility['Facility']['name'],
+					);
+				}
+				foreach($this->data['Facility'] as $facility) {
+					$facility_options[$facility['id']]['id'] = sprintf("option_%04d", $facility['TeamsFacility']['rank']);
+				}
+
 				echo $this->ZuluruForm->input('Team.Facility', array(
 						'label' => __('Facility preference', true),
-						'options' => Set::combine($facilities, '{n}.Facility.id', '{n}.Facility.name'),
+						'options' => $facility_options,
 						'multiple' => true,
 						'title' => __('Select your preferred facilities', true),
 				));

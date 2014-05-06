@@ -301,6 +301,19 @@
 				if(options.addItemTarget == 'top' && !buildingSelect) {
 					$ol.prepend($item);
 					if(options.sortable) $original.prepend($O);
+				} else if (buildingSelect && options.sortable) {
+					if($ol.children().length == 0 || $ol.children().last().attr('rel') < optionId) {
+						$ol.append($item);
+						$original.append($O);
+					} else {
+						$ol.children().each(function(){
+							if ($(this).attr('rel') > optionId) {
+								$(this).before($item);
+								$('#' + $(this).attr('rel')).before($O);
+								return false;
+							}
+						});
+					}
 				} else {
 					$ol.append($item);
 					if(options.sortable) $original.append($O);
