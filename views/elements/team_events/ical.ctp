@@ -40,7 +40,7 @@ DTSTART;<?php echo $event_start; ?>
 
 DTEND;<?php echo $event_end; ?>
 
-LOCATION;<?php echo $location_address; ?>
+LOCATION:<?php echo $location_address; ?>
 
 SUMMARY:<?php echo ical_encode($event['TeamEvent']['name']); ?>
 
