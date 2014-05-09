@@ -169,7 +169,7 @@ class SpiritModifiedBulaComponent extends SpiritComponent
 		),
 		'highlights' => array(
 			'name' => 'Highlights',
-			'text' => 'Please list the most spirited player on the opposing team in the box below.',
+			'text' => 'Do you have any spirit highlights from this game that you would like to bring to the coordinator\'s attention? These may be published.',
 			'type' => 'text',
 			'restricted' => true,
 		),
