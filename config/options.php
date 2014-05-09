@@ -341,6 +341,7 @@ $config['options'] = array(
 		'none' => 'No spirit questionnaire',
 		'wfdf' => 'WFDF standard',
 		'modified_wfdf' => 'Modified WFDF',
+		'modified_bula' => 'Modified BULA',
 		'team' => 'Leaguerunner original',
 		'ocua_team' => 'Modified Leaguerunner',
 	),
