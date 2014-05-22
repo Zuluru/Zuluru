@@ -56,6 +56,7 @@ $config['options'] = array(
 		'Mens Medium',
 		'Mens Large',
 		'Mens XLarge',
+		'Mens XXLarge',
 	)),
 
 	'record_status'			=> make_options(array(
