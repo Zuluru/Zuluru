@@ -3315,21 +3315,8 @@ class GamesController extends AppController {
 		$this->Game->contain(array(
 			'Division' => array('Day'),
 			'GameSlot' => array('Field' => 'Facility'),
-			// Get the list of captains for each team, we may need to email them
-			'HomeTeam' => array(
-				'Person' => array(
-					$this->Auth->authenticate->name,
-					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
-				),
-			),
-			'AwayTeam' => array(
-				'Person' => array(
-					$this->Auth->authenticate->name,
-					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
-				),
-			),
+			'HomeTeam',
+			'AwayTeam',
 			'AttendanceSummaryEmail',
 		));
 		$summary = $this->Game->find ('all', array(
@@ -3352,8 +3339,34 @@ class GamesController extends AppController {
 				),
 		));
 
+		// TODO: More containment issues like above
 		$summary_count = 0;
 		foreach ($summary as $game) {
+			if (!array_key_exists($game['Game']['home_team'], $teams)) {
+				$this->Game->Division->Team->contain(array('Person' => array(
+					$this->Auth->authenticate->name,
+					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
+					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
+				)));
+				$team = $this->Game->Division->Team->read(null, $game['Game']['home_team']);
+				$teams[$game['Game']['home_team']] = $team['Team'];
+				$teams[$game['Game']['home_team']]['Person'] = $team['Person'];
+			}
+
+			if (!array_key_exists($game['Game']['away_team'], $teams)) {
+				$this->Game->Division->Team->contain(array('Person' => array(
+					$this->Auth->authenticate->name,
+					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
+					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
+				)));
+				$team = $this->Game->Division->Team->read(null, $game['Game']['away_team']);
+				$teams[$game['Game']['away_team']] = $team['Team'];
+				$teams[$game['Game']['away_team']]['Person'] = $team['Person'];
+			}
+
+			$game['HomeTeam'] = $teams[$game['Game']['home_team']];
+			$game['AwayTeam'] = $teams[$game['Game']['away_team']];
+
 			$game_date = strtotime($game['GameSlot']['game_date']);
 			$days_to_game = date('Y', $game_date) * 365 + date('z', $game_date) - $days;
 			$summarized = Set::extract('/AttendanceSummaryEmail/team_id', $game);
