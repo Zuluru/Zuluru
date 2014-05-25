@@ -69,7 +69,7 @@ class Registration extends AppModel {
 
 		$tax1 = round($payment * $tax1_percent, 2);
 		$tax2 = round($payment * $tax2_percent, 2);
-		$cost = $payment - $tax1 - $tax2;
+		$cost = round($payment - $tax1 - $tax2, 2);
 
 		return array($cost, $tax1, $tax2);
 	}
