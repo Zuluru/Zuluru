@@ -144,7 +144,8 @@ class GameSlotsController extends AppController {
 					$game_end = (empty ($this->data['GameSlot']['game_end']) ? null : $this->data['GameSlot']['game_end']);
 					foreach ($this->data['GameSlot']['Create'] as $field_id => $field_dates) {
 						foreach (array_keys ($field_dates) as $date) {
-							$actual_game_end = (empty ($this->data['GameSlot']['game_end']) ? local_sunset_for_date($weeks[$date]) : $this->data['GameSlot']['game_end']);
+							$sunset = local_sunset_for_date($weeks[$date]);
+							$actual_game_end = (empty ($this->data['GameSlot']['game_end']) ? $sunset : $this->data['GameSlot']['game_end']);
 
 							// Validate the end time
 							if ($actual_game_end < $this->data['GameSlot']['game_start']) {
@@ -152,22 +153,30 @@ class GameSlotsController extends AppController {
 								return;
 							}
 
+							$conditions = array(
+								'field_id' => $field_id,
+								'game_date' => $weeks[$date],
+								'OR' => array(
+									array(
+										'game_start >=' => $this->data['GameSlot']['game_start'],
+										'game_start <' => $actual_game_end,
+									),
+									array(
+										'game_start <' => $this->data['GameSlot']['game_start'],
+										'game_end >' => $this->data['GameSlot']['game_start'],
+									),
+								),
+							);
+							if ($sunset > $this->data['GameSlot']['game_start']) {
+								$conditions['OR'][] = array(
+									'game_start <' => $this->data['GameSlot']['game_start'],
+									'game_end' => null,
+								);
+							}
+
 							$overlap = $this->GameSlot->find('count', array(
 									'contain' => array(),
-									'conditions' => array(
-										'field_id' => $field_id,
-										'game_date' => $weeks[$date],
-										'OR' => array(
-											array(
-												'game_start >' => $this->data['GameSlot']['game_start'],
-												'game_start <' => $actual_game_end,
-											),
-											array(
-												'game_start <' => $this->data['GameSlot']['game_start'],
-												'game_end >' => $this->data['GameSlot']['game_start'],
-											),
-										),
-									),
+									'conditions' => $conditions,
 							));
 							if ($overlap) {
 								if (!isset($field)) {
