@@ -36,9 +36,9 @@ class AppModel extends Model {
 	var $actsAs = array('Containable');
 
 	// Some common-but-non-standard regexes we need in multiple models
-	const NAME_REGEX = '/^[ a-z0-9\-\.\',]*$/i';
-	const EXTENDED_NAME_REGEX = '/^[ 0-9a-z\-\.\'",\!\?@&()]*$/i';
-	const ADDRESS_REGEX = '/^[ 0-9a-z\-\.\',#&]*$/i';
+	const NAME_REGEX = '/^[ \p{Ll}\p{Lm}\p{Lo}\p{Lt}\p{Lu}\p{Nd}\-\.\',]+$/mu';
+	const EXTENDED_NAME_REGEX = '/^[ \p{Ll}\p{Lm}\p{Lo}\p{Lt}\p{Lu}\p{Nd}\-\.\'",\!\?@&()]*$/i';
+	const ADDRESS_REGEX = '/^[ \p{Ll}\p{Lm}\p{Lo}\p{Lt}\p{Lu}\p{Nd}\-\.\',#&]*$/i';
 
 	//
 	// Generic afterFind function, which handles data in the many different
