@@ -966,12 +966,12 @@ class LeagueTypeComponent extends Object
 		);
 
 		if ($date) {
-			$game_slot_id = $this->selectRandomGameslot($date);
-			if ($game_slot_id === false) {
+			$game_slot = $this->selectRandomGameslot($date);
+			if ($game_slot === false) {
 				return false;
 			}
 
-			$game['game_slot_id'] = $game_slot_id;
+			$game['game_slot_id'] = $game_slot['id'];
 		}
 
 		$this->games[] = $game;
