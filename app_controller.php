@@ -48,6 +48,8 @@ class AppController extends Controller {
 	function beforeFilter() {
 		parent::beforeFilter();
 
+		Configure::write('Config.language', $this->_setLanguage());
+
 		// Use the configured model for handling hashing of passwords, and configure
 		// the Auth field names using it
 		$this->Auth->userModel = Configure::read('security.auth_model');
@@ -156,6 +158,62 @@ class AppController extends Controller {
 		}
 
 		$this->_initMenu();
+	}
+
+	function _setLanguage() {
+		if ($this->Session->check('UI.language')) {
+			return $this->Session->read('UI.language');
+		}
+
+		$langs = array();
+
+		// From http://www.thefutureoftheweb.com/blog/use-accept-language-header
+		if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+			// break up string into pieces (languages and q factors)
+			preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $lang_parse);
+
+			if (count($lang_parse[1])) {
+				// create a list like "en" => 0.8
+				$langs = array_combine($lang_parse[1], $lang_parse[4]);
+				
+				// set default to 1 for any without q factor
+				foreach ($langs as $lang => $val) {
+					if ($val === '') $langs[$lang] = 1;
+				}
+
+				// sort list based on value	
+				arsort($langs, SORT_NUMERIC);
+			}
+		}
+
+		// See if we have a file that matches something the user wants
+		foreach (array_keys($langs) as $lang) {
+			if ($lang == 'en' || file_exists(APP . 'locale' . DS . low(Inflector::slug($lang)) . DS . 'LC_MESSAGES' . DS . 'default.po')) {
+				$this->Session->write('UI.language', $lang);
+				return $lang;
+			}
+		}
+
+		// See if we have a file that sort of matches something the user wants
+		foreach (array_keys($langs) as $lang) {
+			if (strpos($lang, '-') !== false) {
+				list($lang, ) = explode('-', $lang);
+				if ($lang == 'en' || file_exists(APP . 'locale' . DS . low(Inflector::slug($lang)) . DS . 'LC_MESSAGES' . DS . 'default.po')) {
+					$this->Session->write('UI.language', $lang);
+					return $lang;
+				}
+			}
+		}
+
+		// Use the site's default language, if there is one
+		if (Configure::read('default_language')) {
+			$this->Session->write('UI.language', Configure::read('default_language'));
+			return Configure::read('default_language');
+		}
+
+		// Last ditch default to English
+		$this->Session->write('UI.language', 'en');
+		return 'en';
 	}
 
 	function beforeRender() {
