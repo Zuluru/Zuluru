@@ -124,7 +124,8 @@ class SchedulesController extends AppController {
 			if ($this->_numTeams() % 2) {
 				$this->Session->setFlash(sprintf (__('You marked %s teams to exclude, that leaves %s.' .
 						' Cannot schedule games for an un-even number of teams!', true),
-						count($this->data['ExcludeTeams']), $this->_numTeams()), 'default', array('class' => 'info'));
+						!empty($this->data['ExcludeTeams']) ? count($this->data['ExcludeTeams']) : 'no',
+						$this->_numTeams()), 'default', array('class' => 'info'));
 			} else {
 				return $this->_type($id);
 			}
