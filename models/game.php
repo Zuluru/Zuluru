@@ -462,6 +462,9 @@ class Game extends AppModel {
 
 		foreach (array('home', 'away') as $team) {
 			$rank = null;
+			if ($team == 'home') {
+				$some_preference = false;
+			}
 			if (!empty($game["{$team}_team"])) {
 				$team_id = $game["{$team}_team"];
 
@@ -473,6 +476,8 @@ class Game extends AppModel {
 					}
 					if ($home_field == $field_id) {
 						$rank = 1;
+					} else if ($home_field != null && $team == 'home') {
+						$some_preference = true;
 					}
 				}
 
@@ -481,6 +486,8 @@ class Game extends AppModel {
 						$r = Set::extract("/Facility[id=$facility_id]/TeamsFacility/rank", ${$team});
 						if (!empty($r)) {
 							$rank = $r[0];
+						} else if ($team == 'home' && !empty(${$team}['Facility'])) {
+							$some_preference = true;
 						}
 					} else {
 						$r = $this->HomeTeam->TeamsFacility->find('first', array(
@@ -492,6 +499,15 @@ class Game extends AppModel {
 						));
 						if ($r) {
 							$rank = $r['TeamsFacility']['rank'];
+						} else if ($team == 'home') {
+							$count = $this->HomeTeam->TeamsFacility->find('count', array(
+									'conditions' => array(
+										'team_id' => $team_id,
+									),
+							));
+							if ($count != 0) {
+								$some_preference = true;
+							}
 						}
 					}
 				}
@@ -518,6 +534,8 @@ class Game extends AppModel {
 						// preferences in terms of how often they're likely
 						// to have their preferences met.
 						$rank = max(2, $r + 1);
+					} else if ($team == 'home' && $home_region !== null) {
+						$some_preference = true;
 					}
 				}
 			}
@@ -529,9 +547,9 @@ class Game extends AppModel {
 		// team, swap the teams, so that the current home team doesn't get
 		// penalized in future field selections. But only do it when we're
 		// building a schedule, not when we're editing.
-		if (!array_key_exists('id', $game) && $game['away_field_rank'] !== null && (
+		if (!array_key_exists('id', $game) && $game['away_field_rank'] !== null && $some_preference &&
 			($game['home_field_rank'] === null || $game['home_field_rank'] > $game['away_field_rank'])
-		))
+		)
 		{
 			list ($game['home_team'], $game['home_field_rank'], $game['away_team'], $game['away_field_rank']) =
 				array($game['away_team'], $game['away_field_rank'], $game['home_team'], $game['home_field_rank']);
