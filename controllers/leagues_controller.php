@@ -239,6 +239,14 @@ class LeaguesController extends AppController {
 	function add() {
 		if (!empty($this->data)) {
 			Configure::load("sport/{$this->data['League']['sport']}");
+			if (array_key_exists('Day', $this->data['League'])) {
+				$this->data['Day'] = $this->data['League']['Day'];
+			}
+
+			// A new league's dates will be the same as the division's
+			$this->data['League']['open'] = $this->data['Division']['open'];
+			$this->data['League']['close'] = $this->data['Division']['close'];
+
 			$this->League->create();
 			$transaction = new DatabaseTransaction($this->League);
 			if ($this->League->save($this->data)) {
