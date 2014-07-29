@@ -161,10 +161,11 @@ class AppController extends Controller {
 	}
 
 	function _setLanguage() {
-		if ($this->Session->check('UI.language')) {
-			return $this->Session->read('UI.language');
+		if ($this->Session->check('Config.language')) {
+			return $this->Session->read('Config.language');
 		}
 
+		$i18n =& I18n::getInstance();
 		$langs = array();
 
 		// From http://www.thefutureoftheweb.com/blog/use-accept-language-header
@@ -188,32 +189,25 @@ class AppController extends Controller {
 
 		// See if we have a file that matches something the user wants
 		foreach (array_keys($langs) as $lang) {
-			if ($lang == 'en' || file_exists(APP . 'locale' . DS . low(Inflector::slug($lang)) . DS . 'LC_MESSAGES' . DS . 'default.po')) {
-				$this->Session->write('UI.language', $lang);
-				return $lang;
-			}
-		}
-
-		// See if we have a file that sort of matches something the user wants
-		foreach (array_keys($langs) as $lang) {
-			if (strpos($lang, '-') !== false) {
-				list($lang, ) = explode('-', $lang);
-				if ($lang == 'en' || file_exists(APP . 'locale' . DS . low(Inflector::slug($lang)) . DS . 'LC_MESSAGES' . DS . 'default.po')) {
-					$this->Session->write('UI.language', $lang);
-					return $lang;
+			$i18n->l10n->__setLanguage($lang);
+			foreach ($i18n->l10n->languagePath as $path) {
+				if ($path == 'eng' || file_exists(APP . 'locale' . DS . low(Inflector::slug($path)) . DS . 'LC_MESSAGES' . DS . 'default.po')) {
+					$this->Session->write('Config.language', $path);
+					return;
 				}
 			}
 		}
 
 		// Use the site's default language, if there is one
 		if (Configure::read('default_language')) {
-			$this->Session->write('UI.language', Configure::read('default_language'));
-			return Configure::read('default_language');
+			$i18n->l10n->__setLanguage(Configure::read('default_language'));
+			$this->Session->write('Config.language', Configure::read('default_language'));
+			return;
 		}
 
 		// Last ditch default to English
-		$this->Session->write('UI.language', 'en');
-		return 'en';
+		$i18n->l10n->__setLanguage('eng');
+		$this->Session->write('Config.language', 'eng');
 	}
 
 	function beforeRender() {
