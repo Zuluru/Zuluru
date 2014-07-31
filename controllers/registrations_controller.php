@@ -1643,7 +1643,7 @@ class RegistrationsController extends AppController {
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$registrations = $this->Registration->find('all', array(
 			'conditions' => array(
-				'Registration.payment' => Configure::read('registration_unpaid'),
+				'Registration.payment' => Configure::read('registration_delinquent'),
 				'Event.affiliate_id' => $affiliates,
 			),
 			'contain' => array(

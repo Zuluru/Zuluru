@@ -16,7 +16,7 @@ $this->Html->addCrumb (__('Unpaid', true));
 	</tr>
 	<?php
 	$i = 0;
-	$total = array_fill_keys(Configure::read('registration_unpaid'), 0);
+	$total = array_fill_keys(Configure::read('registration_delinquent'), 0);
 	$order_id_format = Configure::read('registration.order_id_format');
 	$affiliate_id = null;
 	foreach ($registrations as $registration) {

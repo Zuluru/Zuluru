@@ -253,6 +253,7 @@ $config['schedule_type'] = array(
 
 $config['registration_paid'] = array('Paid', 'Deposit', 'Partial', 'Pending');
 $config['registration_unpaid'] = array('Deposit', 'Partial', 'Pending', 'Reserved', 'Unpaid', 'Waiting');
+$config['registration_delinquent'] = array('Deposit', 'Partial', 'Pending', 'Reserved', 'Unpaid');
 $config['registration_none_paid'] = array('Pending', 'Reserved', 'Unpaid', 'Waiting');
 $config['registration_some_paid'] = array('Paid', 'Deposit', 'Partial');
 $config['registration_reserved'] = array('Paid', 'Deposit', 'Partial', 'Pending', 'Reserved');
