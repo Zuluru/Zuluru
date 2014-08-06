@@ -13,15 +13,17 @@
  * options_custom.php (which you must create).
  */
 
-function make_options($values)
-{
-	return array_combine ($values, $values);
-}
+if (!function_exists('make_options')) {
+	function make_options($values)
+	{
+		return array_combine ($values, $values);
+	}
 
-function make_human_options($values)
-{
-	$human = array_map (array('Inflector', 'Humanize'), $values);
-	return array_combine ($values, $human);
+	function make_human_options($values)
+	{
+		$human = array_map (array('Inflector', 'Humanize'), $values);
+		return array_combine ($values, $human);
+	}
 }
 
 $config['options'] = array(
