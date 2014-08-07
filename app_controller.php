@@ -46,9 +46,13 @@ class AppController extends Controller {
 	var $menu_items = array();
 
 	function beforeFilter() {
+		// Set up our caches for rarely-changed data
+		Cache::config('file', array('engine' => 'File', 'path' => CACHE . DS . 'queries'));
+		Cache::config('long_term', array('engine' => 'File', 'path' => CACHE . DS . 'queries', 'duration' => YEAR));
+
 		parent::beforeFilter();
 
-		Configure::write('Config.language', $this->_setLanguage());
+		$this->_setLanguage();
 
 		// Use the configured model for handling hashing of passwords, and configure
 		// the Auth field names using it
@@ -79,10 +83,6 @@ class AppController extends Controller {
 		if (Configure::read('feature.items_per_page')) {
 			$this->paginate['limit'] = Configure::read('feature.items_per_page');
 		}
-
-		// Set up our caches for rarely-changed data
-		Cache::config('file', array('engine' => 'File', 'path' => CACHE . DS . 'queries'));
-		Cache::config('long_term', array('engine' => 'File', 'path' => CACHE . DS . 'queries', 'duration' => YEAR));
 
 		$this->_setPermissions();
 
@@ -161,11 +161,48 @@ class AppController extends Controller {
 	}
 
 	function _setLanguage() {
-		if ($this->Session->check('Config.language')) {
-			return $this->Session->read('Config.language');
+		$this->_findLanguage();
+		$i18n =& I18n::getInstance();
+		$this->Session->write('Config.language', $i18n->l10n->lang);
+		Configure::write('Config.language', $i18n->l10n->lang);
+		Configure::write('Config.language_name', $i18n->l10n->language);
+	}
+
+	function _findLanguage() {
+		$i18n =& I18n::getInstance();
+
+		$translations = Cache::read('available_translations');
+		$translation_strings = Cache::read('available_translation_strings');
+		if (!$translations || !$translation_strings) {
+			$translations = array('en' => 'English');
+			$translation_strings = array("en: 'English'");
+			$dir = opendir(APP . 'locale');
+			if ($dir) {
+				while (false !== ($entry = readdir($dir))) {
+					if (array_key_exists($entry, $i18n->l10n->__l10nMap) && file_exists(APP . 'locale' . DS . $entry . DS . 'LC_MESSAGES' . DS . 'default.po')) {
+						$code = $i18n->l10n->__l10nMap[$entry];
+						$translations[$code] = $i18n->l10n->__l10nCatalog[$code]['language'];
+						$translation_strings[] = "$code: '{$i18n->l10n->__l10nCatalog[$code]['language']}'";
+					}
+				}
+			}
+			Cache::write('available_translations', $translations);
+			Cache::write('available_translation_strings', $translation_strings);
+		}
+		Configure::write('available_translations', $translations);
+		Configure::write('available_translation_strings', implode(', ', $translation_strings));
+
+		$language = Configure::read('personal.language');
+		if (!empty($language)) {
+			$i18n->l10n->__setLanguage($language);
+			return;
 		}
 
-		$i18n =& I18n::getInstance();
+		if ($this->Session->check('Config.language')) {
+			$i18n->l10n->__setLanguage($this->Session->read('Config.language'));
+			return;
+		}
+
 		$langs = array();
 
 		// From http://www.thefutureoftheweb.com/blog/use-accept-language-header
@@ -192,22 +229,19 @@ class AppController extends Controller {
 			$i18n->l10n->__setLanguage($lang);
 			foreach ($i18n->l10n->languagePath as $path) {
 				if ($path == 'eng' || file_exists(APP . 'locale' . DS . low(Inflector::slug($path)) . DS . 'LC_MESSAGES' . DS . 'default.po')) {
-					$this->Session->write('Config.language', $path);
 					return;
 				}
 			}
 		}
 
 		// Use the site's default language, if there is one
-		if (Configure::read('default_language')) {
-			$i18n->l10n->__setLanguage(Configure::read('default_language'));
-			$this->Session->write('Config.language', Configure::read('default_language'));
+		if (Configure::read('site.default_language')) {
+			$i18n->l10n->__setLanguage(Configure::read('site.default_language'));
 			return;
 		}
 
 		// Last ditch default to English
 		$i18n->l10n->__setLanguage('eng');
-		$this->Session->write('Config.language', 'eng');
 	}
 
 	function beforeRender() {

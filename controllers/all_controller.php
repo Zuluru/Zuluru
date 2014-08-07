@@ -6,7 +6,7 @@ class AllController extends AppController {
 	var $helpers = array('ZuluruGame');
 
 	function publicActions() {
-		return array('cron');
+		return array('language', 'cron');
 	}
 
 	function isAuthorized() {
@@ -26,6 +26,17 @@ class AllController extends AppController {
 		Cache::clear(false, 'file');
 		Cache::clear(false, 'long_term');
 		$this->Session->setFlash(__('The cache has been cleared.', true), 'default', array('class' => 'success'));
+		$this->redirect('/');
+	}
+
+	function language() {
+		$lang = $this->_arg('lang');
+		$this->Session->write('Config.language', $lang);
+		if ($this->is_logged_in) {
+			App::import ('helper', 'Html');
+			$this->Html = new HtmlHelper();
+			$this->Session->setFlash(sprintf(__('Your language has been changed for this session. To change it permanently, %s.', true), $this->Html->link(__('update your preferences', true), array('controller' => 'people', 'action' => 'preferences'))), 'default', array('class' => 'success'));
+		}
 		$this->redirect('/');
 	}
 

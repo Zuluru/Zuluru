@@ -75,9 +75,24 @@ $this->Html->addCrumb ("{$person['first_name']} {$person['last_name']}");
 		'options' => array(
 			'type' => 'radio',
 			'options' => $options,
-			'after' => 'Select your preferred time format',
+			'after' => __('Select your preferred time format', true),
 		),
 	));
+
+	$languages = Configure::read('available_translations');
+	if (Configure::read('feature.language') && count($languages) > 1) {
+		echo $this->element('settings/input', array(
+			'person_id' => $id,
+			'category' => 'personal',
+			'name' => 'language',
+			'options' => array(
+				'label' => __('Preferred Language', true),
+				'type' => 'select',
+				'options' => $languages,
+				'empty' => __('use system default', true),
+			),
+		));
+	}
 
 	if (Configure::read('feature.twitter')):
 	?>

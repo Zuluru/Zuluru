@@ -1007,11 +1007,14 @@ class PeopleController extends AppController {
 		$setting = ClassRegistry::init('Setting');
 		if (!empty($this->data)) {
 			if ($setting->saveAll ($this->data['Setting'], array('validate' => false))) {
-				$this->Session->setFlash(sprintf(__('The %s have been saved', true), __('preferences', true)), 'default', array('class' => 'success'));
 				// Reload the configuration right away, so it affects any rendering we do now,
 				// and rebuild the menu based on any changes.
 				$this->Configuration->load($my_id);
+				$this->_setLanguage();
+				Configure::Load('features');
+				Configure::Load('options');
 				$this->_initMenu();
+				$this->Session->setFlash(sprintf(__('The %s have been saved', true), __('preferences', true)), 'default', array('class' => 'success'));
 			} else {
 				$this->Session->setFlash(__('Failed to save your preferences', true), 'default', array('class' => 'warning'));
 			}

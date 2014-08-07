@@ -140,6 +140,47 @@ echo $this->element('settings/banner');
 	?>
 	</fieldset>
 
+	<?php
+	$languages = Configure::read('available_translations');
+	if (!$affiliate && count($languages) > 1):
+	?>
+	<fieldset>
+		<legend><?php __('Language Features'); ?></legend>
+	<?php
+		echo $this->element('settings/input', array(
+			'category' => 'feature',
+			'name' => 'language',
+			'options' => array(
+				'type' => 'radio',
+				'label' => 'Allow registered users to select their preferred language',
+				'options' => Configure::read('options.enable'),
+			),
+		));
+		echo $this->element('settings/input', array(
+			'category' => 'feature',
+			'name' => 'uls',
+			'options' => array(
+				'type' => 'radio',
+				'label' => 'Use ULS to allow language selection for anonymous users and those who haven\'t selected a preferred language',
+				'options' => Configure::read('options.enable'),
+				'after' => 'To use this, you need to separately install the ULS plugin.',
+			),
+		));
+		echo $this->element('settings/input', array(
+			'category' => 'site',
+			'name' => 'default_language',
+			'options' => array(
+				'label' => __('Default Site Language', true),
+				'type' => 'select',
+				'options' => $languages,
+			),
+		));
+	?>
+	</fieldset>
+	<?php
+	endif;
+	?>
+
 	<fieldset>
 		<legend><?php __('Twitter Features'); ?></legend>
 	<?php
