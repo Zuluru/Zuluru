@@ -170,7 +170,7 @@ echo $this->element('settings/banner');
 			'category' => 'site',
 			'name' => 'default_language',
 			'options' => array(
-				'label' => __('Default Site Language', true),
+				'label' => 'Default Site Language',
 				'type' => 'select',
 				'options' => $languages,
 			),

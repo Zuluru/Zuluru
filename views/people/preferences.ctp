@@ -16,7 +16,7 @@ $this->Html->addCrumb ("{$person['first_name']} {$person['last_name']}");
 			'label' => 'Enable Personal iCal Feed',
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
-			'after' => '<span class="highlight-message">NOTE: By enabling this, you agree to make your personal schedule in iCal format available as public information (required for Google Calendar, etc. to be able to access the data)</span>',
+			'after' => $this->Html->tag('span', __('NOTE: By enabling this, you agree to make your personal schedule in iCal format available as public information (required for Google Calendar, etc. to be able to access the data.)', true), array('class' => 'highlight-message')),
 		),
 	));
 
@@ -28,13 +28,14 @@ $this->Html->addCrumb ("{$person['first_name']} {$person['last_name']}");
 			'label' => 'Always Send Attendance Reminder Emails',
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
-			'after' => 'Turn this on if you want to receive reminder emails (with game information) for games that you have already indicated your attendance for. Turn off if you only want emails when you have not yet set your attendance. <span class="highlight-message">NOTE: This applies only to teams with attendance tracking enabled.</span>',
+			'after' => __('Turn this on if you want to receive reminder emails (with game information) for games that you have already indicated your attendance for. Turn off if you only want emails when you have not yet set your attendance.', true) . ' ' .
+					$this->Html->tag('span', __('NOTE: This applies only to teams with attendance tracking enabled.', true), array('class' => 'highlight-message')),
 		),
 	));
 
 	$now = time() - Configure::read('timezone.adjust') * 60;
 
-	$options = array('' => 'use system default');
+	$options = array('' => __('use system default', true));
 	foreach (Configure::read('options.date_formats') as $format) {
 		$options[$format] = date($format, $now);
 	}
@@ -49,7 +50,7 @@ $this->Html->addCrumb ("{$person['first_name']} {$person['last_name']}");
 		),
 	));
 
-	$options = array('' => 'use system default');
+	$options = array('' => __('use system default', true));
 	foreach (Configure::read('options.day_formats') as $format) {
 		$options[$format] = date($format, $now);
 	}
@@ -64,7 +65,7 @@ $this->Html->addCrumb ("{$person['first_name']} {$person['last_name']}");
 		),
 	));
 
-	$options = array('' => 'use system default');
+	$options = array('' => __('use system default', true));
 	foreach (Configure::read('options.time_formats') as $format) {
 		$options[$format] = date($format, $now);
 	}
@@ -75,7 +76,7 @@ $this->Html->addCrumb ("{$person['first_name']} {$person['last_name']}");
 		'options' => array(
 			'type' => 'radio',
 			'options' => $options,
-			'after' => __('Select your preferred time format', true),
+			'after' => 'Select your preferred time format',
 		),
 	));
 
@@ -86,10 +87,10 @@ $this->Html->addCrumb ("{$person['first_name']} {$person['last_name']}");
 			'category' => 'personal',
 			'name' => 'language',
 			'options' => array(
-				'label' => __('Preferred Language', true),
+				'label' => 'Preferred Language',
 				'type' => 'select',
 				'options' => $languages,
-				'empty' => __('use system default', true),
+				'empty' => 'use system default',
 			),
 		));
 	}

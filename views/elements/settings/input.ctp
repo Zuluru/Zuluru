@@ -46,6 +46,13 @@ if ($options['type'] == 'radio') {
 	$options['legend'] = false;
 }
 
+if (array_key_exists ('empty', $options)) {
+	$options['empty'] = __($options['empty'], true);
+}
+if (array_key_exists ('after', $options)) {
+	$options['after'] = __($options['after'], true);
+}
+
 if (isset($affiliate) && $affiliate && $options['type'] != 'textarea') {
 	$default = reset(Set::extract("/Setting[category=$category][name=$name]/value", $defaults));
 	if ($options['type'] == 'date') {
@@ -75,7 +82,7 @@ if (file_exists($help_file)) {
 	}
 }
 if (array_key_exists ('after', $options)) {
-	$options['after'] = $this->Html->para(null, __($options['after'], true));
+	$options['after'] = $this->Html->para(null, $options['after']);
 }
 
 if ($options['type'] == 'textarea') {
