@@ -243,10 +243,10 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 					$home = $alias[0];
 					break;
 				case 'game_winner':
-					$home = "W{$game['home_dependency_id']}";
+					$home = "W{$this->games[$game['home_dependency_id']]['name']}";
 					break;
 				case 'game_loser':
-					$home = "L{$game['home_dependency_id']}";
+					$home = "L{$this->games[$game['home_dependency_id']]['name']}";
 					break;
 			}
 
@@ -257,14 +257,14 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 					$away = $alias[0];
 					break;
 				case 'game_winner':
-					$away = "W{$game['away_dependency_id']}";
+					$away = "W{$this->games[$game['away_dependency_id']]['name']}";
 					break;
 				case 'game_loser':
-					$away = "L{$game['away_dependency_id']}";
+					$away = "L{$this->games[$game['away_dependency_id']]['name']}";
 					break;
 			}
 
-			$rounds[$game['round']][] = "{$home}v{$away}";
+			$rounds[$game['round']][] = "{$game['name']}: {$home}v{$away}";
 		}
 		$ret = array();
 		foreach ($rounds as $round => $games) {
