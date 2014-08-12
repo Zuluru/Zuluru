@@ -46,9 +46,11 @@ class RatingsUsauCollegeComponent extends RatingsComponent
 		}
 
 		foreach (array_keys($division['Team']) as $team_id) {
-			$division['Team'][$team_id]['current_rating'] = intval(
-				$division['Team'][$team_id]['rating_sum'] / $division['Team'][$team_id]['weight_sum']
-			);
+			if ($division['Team'][$team_id]['weight_sum'] != 0) {
+				$division['Team'][$team_id]['current_rating'] = intval(
+					$division['Team'][$team_id]['rating_sum'] / $division['Team'][$team_id]['weight_sum']
+				);
+			}
 		}
 	}
 
