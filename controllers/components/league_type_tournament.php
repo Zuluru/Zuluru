@@ -1152,6 +1152,11 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 	}
 
 	function sortByRound($a, $b) {
+		// When creating a blank schedule, games have no extra details
+		if (!array_key_exists('round', $a)) {
+			return 0;
+		}
+
 		if ($a['round'] > $b['round']) {
 			return 1;
 		} else if ($a['round'] < $b['round']) {
