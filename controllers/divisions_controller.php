@@ -600,6 +600,10 @@ class DivisionsController extends AppController {
 		if (!empty($this->data)) {
 			if ($this->Division->Team->saveAll($this->data['Team'])) {
 				$this->Division->League->recalculateRatings($this->Division->league($id));
+
+				Cache::delete('division/' . intval($id) . '/standings', 'long_term');
+				Cache::delete('league/' . $this->Division->league($id) . '/standings', 'long_term');
+
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('division', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'view', 'division' => $id));
 			} else {
