@@ -183,7 +183,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			case 'semis_elimination':
 				return array(2, 1);
 			case 'semis_consolation_five':
-				return array(1, 2, 2, 2);
+				return array(2, 2, 2);
 			case 'semis_minimal_five':
 				return array(2, 2);
 			case 'semis_double_elimination_six':
@@ -536,20 +536,21 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 	}
 
 	function createSemisFive($consolation) {
-		// Round 1: 4 vs 5
+		// Round 1: 4 vs 5, 2 vs 3
 		$success = $this->createTournamentGame (1, 1, '1', BRACKET_GAME, 'pool', 4, 'pool', 5);
+		$success &= $this->createTournamentGame (2, 1, '2', BRACKET_GAME, 'pool', 2, 'pool', 3);
 
-		// Round 2: 1 vs Winner 1, 2 vs 3
-		$success &= $this->createTournamentGame (2, 2, '2', BRACKET_GAME, 'pool', 1, 'game_winner', 1);
-		$success &= $this->createTournamentGame (3, 2, '3', BRACKET_GAME, 'pool', 2, 'pool', 3);
-
-		// Round 3: Winner 2 vs Winner 3 1st/2nd Place, optional Loser 1 vs Loser 3 - Loser 5th Place
-		$success &= $this->createTournamentGame (4, 3, ordinal($this->first_team + 1), BRACKET_GAME, 'game_winner', 2, 'game_winner', 3);
+		// Round 2: 1 vs Winner 1, optional Loser 1 vs Loser 3 - Loser 5th Place
+		$success &= $this->createTournamentGame (3, 2, '3', BRACKET_GAME, 'pool', 1, 'game_winner', 1);
 		if ($consolation) {
-			$success &= $this->createTournamentGame (5, 3, '4', BRACKET_GAME, 'game_loser', 1, 'game_loser', 3);
+			$success &= $this->createTournamentGame (5, 2, '4', BRACKET_GAME, 'game_loser', 1, 'game_loser', 2);
+		}
 
-			// Round 4: Winner 4 vs Loser 2 3rd/4th Place
-			$success &= $this->createTournamentGame (6, 4, ordinal($this->first_team + 3), BRACKET_GAME, 'game_winner', 5, 'game_loser', 2);
+		// Round 3: Winner 2 vs Winner 3 1st/2nd Place, optional Winner 4 vs Loser 2 3rd/4th Place
+		$success &= $this->createTournamentGame (4, 3, ordinal($this->first_team + 1), BRACKET_GAME, 'game_winner', 3, 'game_winner', 2);
+
+		if ($consolation) {
+			$success &= $this->createTournamentGame (6, 3, ordinal($this->first_team + 3), BRACKET_GAME, 'game_winner', 5, 'game_loser', 3);
 		}
 
 		return $success;
