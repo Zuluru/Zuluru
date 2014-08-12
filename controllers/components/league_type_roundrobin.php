@@ -18,7 +18,7 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 		if ($is_admin || $is_coordinator) {
 			return array(
 				'current_round' => array(
-					'label' => 'Current Round',
+					'label' => __('Current Round', true),
 					'options' => Configure::read('options.round'),
 					'empty' => '---',
 					'after' => __('New games will be scheduled in this round by default.', true),
@@ -44,12 +44,12 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 	function scheduleOptions($num_teams) {
 		$types = array(
 			'single' => sprintf(__('single blank, unscheduled game (2 teams, one %s)', true), Configure::read('sport.field')),
-			'blankset' => "set of blank unscheduled games for all teams in a division ($num_teams teams, " . ($num_teams / 2) . " games, one day)",
-			'oneset' => "set of randomly scheduled games for all teams in a division ($num_teams teams, " . ($num_teams / 2) . " games, one day)",
-			'fullround' => "full-division round-robin ($num_teams teams, " . (($num_teams - 1) * ($num_teams / 2)) . " games over " .($num_teams - 1) . " weeks)",
-			'halfroundstandings' => "half-division round-robin ($num_teams teams, " . ((($num_teams / 2 ) - 1) * ($num_teams / 2)) . " games over " .($num_teams/2 - 1) . " weeks).  2 pools (top, bottom) divided by team standings.",
-			'halfroundrating' => "half-division round-robin ($num_teams teams, " . ((($num_teams / 2 ) - 1) * ($num_teams / 2)) . " games over " .($num_teams/2 - 1) . " weeks).  2 pools (top/bottom) divided by rating.",
-			'halfroundmix' => "half-division round-robin ($num_teams teams, " . ((($num_teams / 2 ) - 1) * ($num_teams / 2)) . " games over " .($num_teams/2 - 1) . " weeks).  2 even (interleaved) pools divided by team standings.",
+			'blankset' => sprintf(__('set of blank unscheduled games for all teams in a division (%d teams, %d games, one day)', true), $num_teams, $num_teams / 2),
+			'oneset' => sprintf(__('set of randomly scheduled games for all teams in a division (%d teams, %d games, one day)', true), $num_teams, $num_teams / 2),
+			'fullround' => sprintf(__('full-division round-robin (%d teams, %d games over %d weeks)', true), $num_teams, ($num_teams - 1) * ($num_teams / 2), $num_teams - 1),
+			'halfroundstandings' => sprintf(__('half-division round-robin (%d teams, %d games over %d weeks).  2 pools (top, bottom) divided by team standings.', true), $num_teams, (($num_teams / 2 ) - 1) * ($num_teams / 2), $num_teams / 2 - 1),
+			'halfroundrating' => sprintf(__('half-division round-robin (%d teams, %d games over %d weeks).  2 pools (top/bottom) divided by rating.', true), $num_teams, (($num_teams / 2 ) - 1) * ($num_teams / 2), $num_teams / 2 - 1),
+			'halfroundmix' => sprintf(__('half-division round-robin (%d teams, %d games over %d weeks).  2 even (interleaved) pools divided by team standings.', true), $num_teams, (($num_teams / 2 ) - 1) * ($num_teams / 2), $num_teams / 2 - 1),
 		);
 		if($num_teams % 4) {
 			// Can't do a half-round without an even number of teams in

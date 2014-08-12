@@ -61,12 +61,12 @@ $this->Html->addCrumb (__('View', true));
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Status'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php __($field['Field']['is_open'] ? 'Open' : 'Closed'); ?>
+			<?php $field['Field']['is_open'] ? __('Open') : __('Closed'); ?>
 
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Indoor'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php __($field['Field']['indoor'] ? 'Yes' : 'No'); ?>
+			<?php $field['Field']['indoor'] ? __('Yes') : __('No'); ?>
 
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Surface'); ?></dt>

@@ -73,7 +73,7 @@ if (!empty($team['Team']['short_name'])) {
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Roster Status'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php
-			__($team['Team']['open_roster'] ? 'Open' : 'Closed');
+			$team['Team']['open_roster'] ? __('Open') : __('Closed');
 			echo ' ' . $this->ZuluruHtml->help(array('action' => 'teams', 'edit', 'open_roster'));
 			?>
 
@@ -82,7 +82,7 @@ if (!empty($team['Team']['short_name'])) {
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Track Attendance'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php
-			__($team['Team']['track_attendance'] ? 'Yes' : 'No');
+			$team['Team']['track_attendance'] ? __('Yes') : __('No');
 			echo ' ' . $this->ZuluruHtml->help(array('action' => 'teams', 'edit', 'track_attendance'));
 			?>
 
@@ -282,14 +282,14 @@ if (!empty($team['Team']['short_name'])) {
 		<td colspan="<?php echo $cols + !empty($positions); ?>"><strong>
 			<?php
 			if ($team['Division']['is_playoff']) {
-				$typical_reason = 'the current roster does not meet the playoff roster rules';
+				$typical_reason = __('the current roster does not meet the playoff roster rules', true);
 			} else if (Configure::read('feature.registration') && $team['Division']['flag_membership']) {
-				$typical_reason = 'they do not have a current membership';
+				$typical_reason = __('they do not have a current membership', true);
 			} else {
-				$typical_reason = 'there is something wrong with their account';
+				$typical_reason = __('there is something wrong with their account', true);
 			}
 			echo sprintf(__('Notice: The following players are currently INELIGIBLE to participate on this roster. This is typically because %s. They are not allowed to play with this team until this is corrected. Hover your mouse over the %s to see the specific reason why.', true),
-				__($typical_reason, true),
+				$typical_reason,
 				$this->ZuluruHtml->icon('help_16.png', array('alt' => '?'))); ?>
 		</strong></td>
 	</tr>

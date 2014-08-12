@@ -11,7 +11,7 @@ if (isset ($add)) {
 <div class="fields form">
 <?php echo $this->Form->create('Field', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
-		<legend><?php printf(__('Edit %s', true), __(Configure::read('ui.field_cap'), true)); ?></legend>
+		<legend><?php printf(__(isset($add)?'Create %s':'Edit %s',true), __(Configure::read('ui.field_cap'), true)); ?></legend>
 		<?php
 		if (!isset ($add)) {
 			echo $this->Form->input('id');

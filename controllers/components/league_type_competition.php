@@ -34,9 +34,9 @@ class LeagueTypeCompetitionComponent extends LeagueTypeComponent
 
 	function scheduleOptions($num_teams) {
 		$types = array(
-			'single' => 'single blank, unscheduled game',
-			'blankset' => "set of blank unscheduled games for all teams in a division ($num_teams teams, " . $num_teams . " games, one day)",
-			'oneset' => "set of randomly scheduled games for all teams in a division ($num_teams teams, " . $num_teams . " games, one day)",
+			'single' => __('single blank, unscheduled game', true),
+			'blankset' => sprintf(__('set of blank unscheduled games for all teams in a division (%d teams, %d games, one day)', true), $num_teams, $num_teams),
+			'oneset' => sprintf(__('set of randomly scheduled games for all teams in a division (%d teams, %d games, one day)', true), $num_teams, $num_teams),
 		);
 
 		return $types;

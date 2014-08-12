@@ -20,7 +20,7 @@ $this->Html->addCrumb (__('View', true));
 		<?php endif; ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Opt Out'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php __($mailingList['MailingList']['opt_out'] ? 'Yes' : 'No'); ?>
+			<?php $mailingList['MailingList']['opt_out'] ? __('Yes') : __('No'); ?>
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Rule'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>

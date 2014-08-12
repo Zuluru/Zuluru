@@ -772,7 +772,7 @@ class RegistrationsController extends AppController {
 			if (!$registration['Price']['allow_late_payment'] && time() > strtotime($registration['Price']['close']) + Configure::read('timezone.adjust') * 60) {
 				$now = date('Y-m-d H:i:s', time() - Configure::read('timezone.adjust') * 60);
 				$other_prices = Set::extract("/Price[close>$now]", $registration['Event']);
-				$other[] = array_merge($registration, array('reason' => 'Payment deadline has passed', 'change_price' => !empty($other_prices)));
+				$other[] = array_merge($registration, array('reason' => __('Payment deadline has passed', true), 'change_price' => !empty($other_prices)));
 				unset ($registrations[$key]);
 				continue;
 			}
@@ -790,7 +790,7 @@ class RegistrationsController extends AppController {
 				}
 				$paid = $this->Registration->find ('count', array('conditions' => $conditions));
 				if ($cap <= $paid) {
-					$other[] = array_merge($registration, array('reason' => 'Filled up since you registered'));
+					$other[] = array_merge($registration, array('reason' => __('Filled up since you registered', true)));
 					unset ($registrations[$key]);
 					continue;
 				}
@@ -800,14 +800,14 @@ class RegistrationsController extends AppController {
 			if (!$affiliate) {
 				$affiliate = $registration['Event']['affiliate_id'];
 			} else if ($affiliate != $registration['Event']['affiliate_id']) {
-				$other[] = array_merge($registration, array('reason' => 'In a different affiliate'));
+				$other[] = array_merge($registration, array('reason' => __('In a different affiliate', true)));
 				unset ($registrations[$key]);
 				continue;
 			}
 
 			// Don't allow further payment on "deposit only" items
 			if ($registration['Price']['deposit_only'] && in_array($registration['Registration']['payment'], Configure::read('registration_some_paid'))) {
-				$other[] = array_merge($registration, array('reason' => 'Deposit paid; balance must be paid off-line'));
+				$other[] = array_merge($registration, array('reason' => __('Deposit paid; balance must be paid off-line', true)));
 				unset ($registrations[$key]);
 				continue;
 			}

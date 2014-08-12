@@ -13,7 +13,7 @@ $this->Html->addCrumb ("{$person['first_name']} {$person['last_name']}");
 		'category' => 'personal',
 		'name' => 'enable_ical',
 		'options' => array(
-			'label' => 'Enable Personal iCal Feed',
+			'label' => __('Enable Personal iCal Feed', true),
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
 			'after' => $this->Html->tag('span', __('NOTE: By enabling this, you agree to make your personal schedule in iCal format available as public information (required for Google Calendar, etc. to be able to access the data.)', true), array('class' => 'highlight-message')),
@@ -25,7 +25,7 @@ $this->Html->addCrumb ("{$person['first_name']} {$person['last_name']}");
 		'category' => 'personal',
 		'name' => 'attendance_emails',
 		'options' => array(
-			'label' => 'Always Send Attendance Reminder Emails',
+			'label' => __('Always Send Attendance Reminder Emails', true),
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
 			'after' => __('Turn this on if you want to receive reminder emails (with game information) for games that you have already indicated your attendance for. Turn off if you only want emails when you have not yet set your attendance.', true) . ' ' .
@@ -44,9 +44,10 @@ $this->Html->addCrumb ("{$person['first_name']} {$person['last_name']}");
 		'category' => 'personal',
 		'name' => 'date_format',
 		'options' => array(
+			'label' => __('Date Format', true),
 			'type' => 'radio',
 			'options' => $options,
-			'after' => 'Select your preferred date format',
+			'after' => __('Select your preferred date format', true),
 		),
 	));
 
@@ -59,9 +60,10 @@ $this->Html->addCrumb ("{$person['first_name']} {$person['last_name']}");
 		'category' => 'personal',
 		'name' => 'day_format',
 		'options' => array(
+			'label' => __('Day Format', true),
 			'type' => 'radio',
 			'options' => $options,
-			'after' => 'Select your preferred day format',
+			'after' => __('Select your preferred day format', true),
 		),
 	));
 
@@ -74,9 +76,10 @@ $this->Html->addCrumb ("{$person['first_name']} {$person['last_name']}");
 		'category' => 'personal',
 		'name' => 'time_format',
 		'options' => array(
+			'label' => __('Time Format', true),
 			'type' => 'radio',
 			'options' => $options,
-			'after' => 'Select your preferred time format',
+			'after' => __('Select your preferred time format', true),
 		),
 	));
 
@@ -87,10 +90,10 @@ $this->Html->addCrumb ("{$person['first_name']} {$person['last_name']}");
 			'category' => 'personal',
 			'name' => 'language',
 			'options' => array(
-				'label' => 'Preferred Language',
+				'label' => __('Preferred Language', true),
 				'type' => 'select',
 				'options' => $languages,
-				'empty' => 'use system default',
+				'empty' => __('use system default', true),
 			),
 		));
 	}

@@ -43,7 +43,7 @@ if ($is_manager && !in_array($division['League']['affiliate_id'], $this->UserCac
 				</dd>
 				<dt<?php if ($j % 2 == 0) echo $class;?>><?php __('Spirit Numeric Entry'); ?></dt>
 				<dd<?php if ($j++ % 2 == 0) echo $class;?>>
-					<?php __($division['League']['numeric_sotg'] ? 'Yes' : 'No'); ?>
+					<?php $division['League']['numeric_sotg'] ? __('Yes') : __('No'); ?>
 
 				</dd>
 				<dt<?php if ($j % 2 == 0) echo $class;?>><?php __('Spirit Display'); ?></dt>
@@ -61,6 +61,7 @@ if ($is_manager && !in_array($division['League']['affiliate_id'], $this->UserCac
 		</dl>
 		</fieldset>
 		<?php
+		$division['Division']['Day'] = $division['Day'];
 		echo $this->element('divisions/details', array_merge(array(
 				'division' => $division['Division'],
 				'people' => $division['Person'],

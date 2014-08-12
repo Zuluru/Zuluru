@@ -17,7 +17,7 @@ Adding someone as a relative does <strong>not</strong> give them any control ove
 <div id="SearchResults">
 <?php endif; ?>
 
-<?php echo $this->element('people/search_results', array('extra_url' => array('Add as relative' => array('controller' => 'people', 'action' => 'add_relative', 'person' => $person['id'], 'return' => false)), 'extra_url_parameter' => 'relative')); ?>
+<?php echo $this->element('people/search_results', array('extra_url' => array(__('Add as relative', true) => array('controller' => 'people', 'action' => 'add_relative', 'person' => $person['id'], 'return' => false)), 'extra_url_parameter' => 'relative')); ?>
 
 <?php if (!$this->params['isAjax']): ?>
 

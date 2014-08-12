@@ -757,7 +757,7 @@ class LeagueTypeComponent extends Object
 	 */
 	function scheduleDescription($type, $num_teams, $stage) {
 		if ($type == 'crossover') {
-			return 'crossover game';
+			return __('crossover game', true);
 		} 
 		$types = $this->scheduleOptions($num_teams, $stage);
 		$desc = $types[$type];

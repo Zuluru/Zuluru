@@ -44,7 +44,7 @@ $collapse = (count($league['Division']) == 1);
 			</dd>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Spirit Numeric Entry'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-				<?php __($league['League']['numeric_sotg'] ? 'Yes' : 'No'); ?>
+				<?php $league['League']['numeric_sotg'] ? __('Yes') : __('No'); ?>
 
 			</dd>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Spirit Display'); ?></dt>

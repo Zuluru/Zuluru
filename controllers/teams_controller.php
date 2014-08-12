@@ -1869,11 +1869,11 @@ class TeamsController extends AppController {
 			}
 			$msg = array();
 			if (!empty ($success)) {
-				$msg[] = __((count($success) > 1 ? 'Invitations have' : 'Invitation has') . ' been sent to ', true) . implode (', ', $success) . '.';
+				$msg[] = sprintf(__('%s been sent to', true), __n('Invitation has', 'Invitations have', count($success), true)) . ' ' . implode (', ', $success) . '.';
 				$class = 'success';
 			}
 			if (!empty ($failure)) {
-				$msg[] .= __('Failed to send invitation' . (count($success) > 1 ? 's' : '') . ' to ', true) . implode (', ', $failure) . '.';
+				$msg[] .= sprintf(__('Failed to send %s to', true), __n('invitation', 'invitations', count($success), true)) . ' ' . implode (', ', $failure) . '.';
 				$class = 'warning';
 			}
 			$this->Session->setFlash(implode (' ', $msg), 'default', array('class' => $class));

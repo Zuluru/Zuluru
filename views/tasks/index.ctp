@@ -28,8 +28,8 @@ $this->Html->addCrumb (__('List', true));
 		<td><?php echo $task['Task']['name']; ?></td>
 		<td><?php echo $this->Html->link($task['Category']['name'], array('controller' => 'categories', 'action' => 'view', 'category' => $task['Category']['id'])); ?></td>
 		<?php if ($is_admin || $is_manager): ?>
-		<td><?php __($task['Task']['auto_approve'] ? 'Yes' : 'No'); ?></td>
-		<td><?php __($task['Task']['allow_signup'] ? 'Yes' : 'No'); ?></td>
+		<td><?php $task['Task']['auto_approve'] ? __('Yes') : __('No'); ?></td>
+		<td><?php $task['Task']['allow_signup'] ? __('Yes') : __('No'); ?></td>
 		<?php endif; ?>
 		<td><?php echo $this->element('people/block', array('person' => $task['Person'])); ?></td>
 		<td class="actions">

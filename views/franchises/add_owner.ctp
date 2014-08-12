@@ -15,7 +15,7 @@ $this->Html->addCrumb ($franchise['Franchise']['name']);
 <?php endif; ?>
 
 <?php
-echo $this->element('people/search_results', array('extra_url' => array('Make owner' => array('controller' => 'franchises', 'action' => 'add_owner', 'franchise' => $franchise['Franchise']['id']))));
+echo $this->element('people/search_results', array('extra_url' => array(__('Make owner', true) => array('controller' => 'franchises', 'action' => 'add_owner', 'franchise' => $franchise['Franchise']['id']))));
 ?>
 
 <?php if (!$this->params['isAjax']): ?>

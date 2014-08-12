@@ -100,12 +100,12 @@ foreach($registrations as $registration) {
 				if (!empty($question['Answer'])) {
 					foreach ($question['Answer'] as $answer) {
 						$answers = Set::extract ("/Response[question_id={$question['id']}][answer_id={$answer['id']}]/.", $registration);
-						$row[] = __(empty ($answers) ? 'no' : 'yes', true);
+						$row[] = empty ($answers) ? __('No', true) : __('Yes', true);
 					}
 				} else {
 					// Auto questions may fall into this category
 					$answers = Set::extract ("/Response[question_id={$question['id']}][answer_id=1]/.", $registration);
-					$row[] = __(empty ($answers) ? 'no' : 'yes', true);
+					$row[] = empty ($answers) ? __('No', true) : __('Yes', true);
 				}
 			}
 		}

@@ -7,7 +7,7 @@
 	}
 ?>
 <?php if (!empty ($division['Day'])): ?>
-	<dt><?php __(count ($division['Day']) == 1 ? 'Day' : 'Days'); ?></dt>
+	<dt><?php __n('Day', 'Days', count($division['Day'])); ?></dt>
 	<dd>
 		<?php
 		$days = array();

@@ -17,7 +17,7 @@ if ($is_manager) {
 ?>
 
 <div class="facilities index">
-<h2><?php __($closed ? 'Closed Facilities List' : 'Facilities List');?></h2>
+<h2><?php $closed ? __('Closed Facilities List') : __('Facilities List');?></h2>
 <?php
 if ($is_admin || $is_manager) {
 	$set_to_test = Set::extract('/Facility/id', $regions);
@@ -98,7 +98,7 @@ foreach ($regions as $region):
 ?>
 	<tr<?php echo $class;?>>
 		<td>
-			<?php echo $this->Html->link(__($facility['name'], true), array('controller' => 'facilities', 'action' => 'view', 'facility' => $facility['id'])); ?>
+			<?php echo $this->Html->link($facility['name'], array('controller' => 'facilities', 'action' => 'view', 'facility' => $facility['id'])); ?>
 			<?php if (!empty($surfaces)) echo '[' . implode('/', $surfaces) . ']'; ?>
 		</td>
 		<td class="actions">

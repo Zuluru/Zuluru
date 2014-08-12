@@ -26,7 +26,7 @@ class SpiritOcuaTeamComponent extends SpiritComponent
 			),
 		),
 		'q2' => array(
-			'name' => 'Rules',
+			'name' => 'Rules Knowledge',
 			'text' => 'Our opponents\' rules knowledge was:',
 			'type' => 'radio',
 			'options' => array(

@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('Organization', true));
 <div class="settings form">
 <?php
 if ($affiliate) {
-	$defaults = array('empty' => 'Use default');
+	$defaults = array('empty' => __('Use default', true));
 } else {
 	$defaults = array('empty' => false);
 }
@@ -25,7 +25,8 @@ echo $this->element('settings/banner');
 			'category' => 'organization',
 			'name' => 'name',
 			'options' => array(
-				'after' => 'Your organization\'s full name.',
+				'label' => __('Name', true),
+				'after' => __('Your organization\'s full name.', true),
 			),
 		));
 	}
@@ -34,62 +35,68 @@ echo $this->element('settings/banner');
 		'category' => 'organization',
 		'name' => 'short_name',
 		'options' => array(
-			'after' => 'Your organization\'s abbreviated name or acronym.',
+			'label' => __('Short name', true),
+			'after' => __('Your organization\'s abbreviated name or acronym.', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'organization',
 		'name' => 'address',
 		'options' => array(
-			'after' => 'Your organization\'s street address.',
+			'label' => __('Address', true),
+			'after' => __('Your organization\'s street address.', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'organization',
 		'name' => 'address2',
 		'options' => array(
-			'label' => 'Unit',
-			'after' => 'Your organization\'s unit number, if any.',
+			'label' => __('Unit', true),
+			'after' => __('Your organization\'s unit number, if any.', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'organization',
 		'name' => 'city',
 		'options' => array(
-			'after' => 'Your organization\'s city.',
+			'label' => __('City', true),
+			'after' => __('Your organization\'s city.', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'organization',
 		'name' => 'province',
 		'options' => array(
+			'label' => __('Province', true),
 			'type' => 'select',
 			'options' => $provinces,
-			'after' => 'Your organization\'s province or state.',
+			'after' => __('Your organization\'s province or state.', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'organization',
 		'name' => 'country',
 		'options' => array(
+			'label' => __('Country', true),
 			'type' => 'select',
 			'options' => $countries,
-			'after' => 'Your organization\'s country.',
+			'after' => __('Your organization\'s country.', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'organization',
 		'name' => 'postal',
 		'options' => array(
-			'label' => 'Postal Code',
-			'after' => 'Your organization\'s postal code.',
+			'label' => __('Postal code', true),
+			'after' => __('Your organization\'s postal code.', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'organization',
 		'name' => 'phone',
 		'options' => array(
-			'after' => 'Your organization\'s phone number.',
+			'label' => __('Phone', true),
+			'after' => __('Your organization\'s phone number.', true),
 		),
 	));
 	?>
@@ -102,22 +109,26 @@ echo $this->element('settings/banner');
 		'category' => 'organization',
 		'name' => 'latitude',
 		'options' => array(
-			'after' => 'Latitude in decimal degrees for game location (center of city). Used for calculating sunset times.',
+			'label' => __('Latitude', true),
+			'after' => __('Latitude in decimal degrees for game location (center of city). Used for calculating sunset times.', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'organization',
 		'name' => 'longitude',
 		'options' => array(
-			'after' => 'Longitude in decimal degrees for game location (center of city). Used for calculating sunset times.',
+			'label' => __('Longitude', true),
+			'after' => __('Longitude in decimal degrees for game location (center of city). Used for calculating sunset times.', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'site',
 		'name' => 'gmaps_key',
 		'options' => array(
-			'label' => 'Google Maps API V3 Key',
-			'after' => 'A key for the <a href="http://code.google.com/apis/maps/documentation/javascript/tutorial.html#api_key">Google Maps API V3</a>. Required for rendering custom Google Maps.',
+			'label' => __('Google Maps API V3 key', true),
+			'after' => sprintf(__('A key for the %s. Required for rendering custom Google Maps.', true),
+					$this->Html->link(__('Google Maps API V3', true), 'http://code.google.com/apis/maps/documentation/javascript/tutorial.html#api_key')
+			),
 		),
 	));
 	?>
@@ -135,6 +146,7 @@ echo $this->element('settings/banner');
 		'category' => 'organization',
 		'name' => 'first_day',
 		'options' => array(
+			'label' => __('First day', true),
 			'type' => 'select',
 			'options' => array(
 				// Numbering matches the PHP date('N') format
@@ -146,11 +158,11 @@ echo $this->element('settings/banner');
 				6 => __('Saturday', true),
 				7 => __('Sunday', true),
 			),
-			'after' => 'First day of the week, for scheduling purposes.',
+			'after' => __('First day of the week, for scheduling purposes.', true),
 		),
 	));
 	?>
-	<p>The following settings are used for determining which season is currently in effect, for the purposes of providing links to current <?php __(Configure::read('ui.field')); ?> permits.</p>
+	<p><?php printf(__('The following settings are used for determining which season is currently in effect, for the purposes of providing links to current %s permits.', true), __(Configure::read('ui.field'), true)); ?></p>
 	<?php
 	foreach ($seasons as $season) {
 		$season = low($season);
@@ -159,9 +171,10 @@ echo $this->element('settings/banner');
 			'category' => 'organization',
 			'name' => "{$season_key}_start",
 			'options' => array(
+				'label' => __(Inflector::humanize($season), true) . ' ' . __('start', true),
 				'type' => 'date',
 				'dateFormat' => 'MD',
-				'after' => "First day that would be considered for a $season game",
+				'after' => sprintf(__('First day that would be considered for a %s game', true), __($season, true)),
 			),
 		));
 	}

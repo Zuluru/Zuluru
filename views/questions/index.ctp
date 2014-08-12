@@ -4,7 +4,7 @@ $this->Html->addCrumb (__('List', true));
 ?>
 
 <div class="questions index">
-	<h2><?php __($active ? 'Questions List' : 'Deactivated Questions List');?></h2>
+	<h2><?php $active ? __('Questions List') : __('Deactivated Questions List');?></h2>
 	<table class="list">
 	<tr>
 		<th><?php echo $this->Paginator->sort('question');?></th>
@@ -35,7 +35,7 @@ $this->Html->addCrumb (__('List', true));
 	<tr<?php echo $class;?>>
 		<td><?php echo $question['Question']['question']; ?>&nbsp;</td>
 		<td><?php echo $question['Question']['type']; ?>&nbsp;</td>
-		<td><?php __($question['Question']['anonymous'] ? 'yes' : 'no'); ?>&nbsp;</td>
+		<td><?php $question['Question']['anonymous'] ? __('Yes') : __('No'); ?>&nbsp;</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('Preview', true), array('action' => 'view', 'question' => $question['Question']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit', true), array('action' => 'edit', 'question' => $question['Question']['id'])); ?>

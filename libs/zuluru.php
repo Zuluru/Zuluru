@@ -140,14 +140,6 @@ function ical_encode($text) {
 	return $text;
 }
 
-function pluralize_if_necessary($text, $number) {
-	if ($number == 1) {
-		return $text;
-	} else {
-		return Inflector::pluralize($text);
-	}
-}
-
 /**
  * This class handles database transactions in a safe manner.
  * Just create an object of this type, passing the model object

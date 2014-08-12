@@ -57,7 +57,7 @@ foreach ($events as $event):
 ?>
 	<tr<?php echo $class;?>>
 		<td>
-			<?php echo $this->Html->link(__($event['Event']['name'], true), array('action' => 'view', 'event' => $event['Event']['id'])); ?>
+			<?php echo $this->Html->link($event['Event']['name'], array('action' => 'view', 'event' => $event['Event']['id'])); ?>
 		</td>
 		<td>
 			<?php
@@ -89,7 +89,7 @@ foreach ($events as $event):
 	<?php else: ?>
 	<tr<?php echo $class;?>>
 		<td colspan="4">
-			<h4><?php echo $this->Html->link(__($event['Event']['name'], true), array('action' => 'view', 'event' => $event['Event']['id'])); ?></h4>
+			<h4><?php echo $this->Html->link($event['Event']['name'], array('action' => 'view', 'event' => $event['Event']['id'])); ?></h4>
 		</td>
 		<td class="actions">
 			<?php
@@ -107,7 +107,7 @@ foreach ($events as $event):
 		?>
 	<tr<?php echo $class;?>>
 		<td>
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $this->Html->link(__($price['name'], true), array('action' => 'view', 'event' => $event['Event']['id'])); ?>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $this->Html->link($price['name'], array('action' => 'view', 'event' => $event['Event']['id'])); ?>
 		</td>
 		<td>
 			<?php

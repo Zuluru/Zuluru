@@ -21,7 +21,7 @@ $this->Html->addCrumb (__('List', true));
 	?>
 	<tr<?php echo $class;?>>
 		<td><?php echo $mailingList['MailingList']['name']; ?></td>
-		<td><?php __($mailingList['MailingList']['opt_out'] ? 'Yes' : 'No'); ?></td>
+		<td><?php $mailingList['MailingList']['opt_out'] ? __('Yes') : __('No'); ?></td>
 		<td class="actions">
 			<?php echo $this->ZuluruHtml->iconLink('view_24.png',
 					array('action' => 'view', 'mailing_list' => $mailingList['MailingList']['id']),

@@ -27,7 +27,7 @@ if ($is_manager && !in_array($franchise['Franchise']['affiliate_id'], $this->Use
 			$owners[] = $this->element('people/block', compact('person'));
 		}
 		?>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __(count($owners) > 1 ? 'Owners' : 'Owner'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __n('Owner', 'Owners', count($owners)); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo implode(', ', $owners); ?>
 

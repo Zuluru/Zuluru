@@ -1380,7 +1380,7 @@ class AppController extends Controller {
 			$test = implode('', $names);
 			$min = ($this->is_admin || $this->is_manager) ? 1 : 2;
 			if (strlen ($test) < $min) {
-				$this->set('error', 'The search terms used are too general. Please be more specific.');
+				$this->set('error', __('The search terms used are too general. Please be more specific.', true));
 			} else {
 				// This pagination needs the model at the top level
 				if (!isset($this->Person)) {

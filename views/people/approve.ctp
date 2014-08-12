@@ -180,7 +180,7 @@ function format_date($data, $ths) {
 	}
 }
 function format_height($data, $ths) {
-	return $data . ' ' . __(Configure::read('feature.units') == 'Metric' ? 'cm' : 'inches', true);
+	return $data . ' ' . (Configure::read('feature.units') == 'Metric' ? __('cm', true) : __('inches', true));
 }
 
 ?>

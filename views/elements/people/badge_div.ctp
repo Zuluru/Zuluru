@@ -1,5 +1,5 @@
 <div id="badge_comment_div" style="display: none;" title="<?php __('Badge comment'); ?>">
-<p><?php __($message); ?></p>
+<p><?php echo $message; ?></p>
 <br /><?php
 echo $this->Form->input('comment', array(
 		'label' => false,

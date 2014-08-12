@@ -48,11 +48,11 @@ if ($is_logged_in) {
 		if (!empty($note)) {
 			echo __('Private Note', true) . ': ' . $note . $this->Html->tag('br');
 			echo $this->Html->link(__('Delete Note', true), array('action' => 'delete_note', 'person' => $person['id'])) . ' / ';
-			$link = 'Edit Note';
+			$link = __('Edit Note', true);
 		} else {
-			$link = 'Add Note';
+			$link = __('Add Note', true);
 		}
-		echo ' ' . $this->Html->link(__($link, true), array('action' => 'note', 'person' => $person['id']));
+		echo ' ' . $this->Html->link($link, array('action' => 'note', 'person' => $person['id']));
 	}
 }
 

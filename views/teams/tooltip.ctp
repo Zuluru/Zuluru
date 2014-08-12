@@ -61,11 +61,11 @@ echo $team['Team']['name'];
 	<dd><?php
 	if (!empty($team['Note'])) {
 		echo $this->Html->link(__('Delete', true), array('action' => 'delete_note', 'team' => $team['Team']['id'])) . ' / ';
-		$link = 'Edit';
+		$link = __('Edit', true);
 	} else {
-		$link = 'Add';
+		$link = __('Add', true);
 	}
-	echo $this->Html->link(__($link, true), array('action' => 'note', 'team' => $team['Team']['id']));
+	echo $this->Html->link($link, array('action' => 'note', 'team' => $team['Team']['id']));
 	?></dd>
 	<?php endif; ?>
 

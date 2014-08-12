@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('Online Payments', true));
 <div class="settings form">
 <?php
 if ($affiliate) {
-	$defaults = array('empty' => 'Use default');
+	$defaults = array('empty' => __('Use default', true));
 } else {
 	$defaults = array('empty' => false);
 }
@@ -29,6 +29,7 @@ echo $this->element('settings/banner');
 			'category' => 'payment',
 			'name' => 'payment_implementation',
 			'options' => array(
+				'label' => __('Payment implementation', true),
 				'id' => 'PaymentProvider',
 				'type' => 'select',
 				'options' => $options,
@@ -42,17 +43,18 @@ echo $this->element('settings/banner');
 			'category' => 'payment',
 			'name' => 'options',
 			'options' => array(
+				'label' => __('Options', true),
 				'type' => 'text',
-				'after' => 'List the payment options offered by your payment provider, or provide generic text. This will go in the sentence "To pay online with ____, click ...".',
+				'after' => __('List the payment options offered by your payment provider, or provide generic text. This will go in the sentence "To pay online with ____, click ...".', true),
 			),
 		));
 		echo $this->element('settings/input', array(
 			'category' => 'registration',
 			'name' => 'online_payment_text',
 			'options' => array(
+				'label' => __('Text of online payment directions', true),
 				'type' => 'textarea',
-				'label' => 'Text of online payment directions',
-				'after' => 'Customize any text to add to the default online payment directions.',
+				'after' => __('Customize any text to add to the default online payment directions.', true),
 				'class' => 'mceSimple',
 			),
 		));
@@ -62,9 +64,10 @@ echo $this->element('settings/banner');
 		'category' => 'payment',
 		'name' => 'popup',
 		'options' => array(
+			'label' => __('Popup', true),
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
-			'after' => 'Handle online payments in a popup window?',
+			'after' => __('Handle online payments in a popup window?', true),
 		),
 	));
 
@@ -73,6 +76,7 @@ echo $this->element('settings/banner');
 			'category' => 'payment',
 			'name' => 'invoice_implementation',
 			'options' => array(
+				'label' => __('Invoice implementation', true),
 				'type' => 'select',
 				'options' => Configure::read('options.invoice'),
 				'hide_single' => true,
@@ -82,8 +86,8 @@ echo $this->element('settings/banner');
 			'category' => 'payment',
 			'name' => 'reg_id_format',
 			'options' => array(
-				'label' => 'Event ID format string',
-				'after' => 'sprintf format string for the event ID, sent to the payment processor as the item number.',
+				'label' => __('Event ID format string', true),
+				'after' => __('sprintf format string for the event ID, sent to the payment processor as the item number.', true),
 			),
 		));
 	}
@@ -92,15 +96,17 @@ echo $this->element('settings/banner');
 		'category' => 'payment',
 		'name' => 'test_payments',
 		'options' => array(
+			'label' => __('Test payments', true),
 			'type' => 'radio',
 			'options' => Configure::read('options.test_payment'),
-			'after' => 'Who should get test instead of live payments? If set to admins, then admins are the only ones who will get the online payment option.',
+			'after' => __('Who should get test instead of live payments? If set to admins, then admins are the only ones who will get the online payment option.', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'payment',
 		'name' => 'currency',
 		'options' => array(
+			'label' => __('Currency', true),
 			'type' => 'radio',
 			'options' => Configure::read('options.currency'),
 		),
@@ -109,32 +115,34 @@ echo $this->element('settings/banner');
 		'category' => 'payment',
 		'name' => 'tax1_enable',
 		'options' => array(
+			'label' => __('Tax1 enable', true),
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
-			'after' => 'Enable first tax',
+			'after' => __('Enable first tax', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'payment',
 		'name' => 'tax1_name',
 		'options' => array(
-			'label' => 'First tax name',
+			'label' => __('First tax name', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'payment',
 		'name' => 'tax2_enable',
 		'options' => array(
+			'label' => __('Tax2 enable', true),
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
-			'after' => 'Enable second tax',
+			'after' => __('Enable second tax', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'payment',
 		'name' => 'tax2_name',
 		'options' => array(
-			'label' => 'Second tax name',
+			'label' => __('Second tax name', true),
 		),
 	));
 	?>

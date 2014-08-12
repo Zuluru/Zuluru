@@ -25,7 +25,7 @@ class RuleHasDocumentComponent extends RuleComponent
 
 		if (empty($unapproved)) {
 			if ($text_reason) {
-				$this->reason = "have uploaded the {$this->document}";
+				$this->reason = sprintf(__('have uploaded the %s', true), $this->document);
 			} else {
 				App::import('Helper', 'Html');
 				$html = new HtmlHelper();
@@ -35,10 +35,10 @@ class RuleHasDocumentComponent extends RuleComponent
 				} else {
 					$url['return'] = true;
 				}
-				$this->reason = $html->link("have uploaded the {$this->document}", $url);
+				$this->reason = $html->link(sprintf(__('have uploaded the %s', true), $this->document), $url);
 			}
 		} else {
-			$this->reason = "wait until your {$this->document} is approved";
+			$this->reason = sprintf(__('wait until your %s is approved', true), $this->document);
 		}
 
 		if (!$strict) {

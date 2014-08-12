@@ -33,7 +33,7 @@ $this->Html->addCrumb (__('View', true));
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Approved'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php __($taskSlot['TaskSlot']['approved'] ? 'Yes' : 'No'); ?>
+			<?php $taskSlot['TaskSlot']['approved'] ? __('Yes') : __('No'); ?>
 			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Approved By'); ?></dt>

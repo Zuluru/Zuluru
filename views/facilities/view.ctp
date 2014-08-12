@@ -59,7 +59,7 @@ $surfaces = array_map(array('Inflector', 'humanize'), $surfaces);
 		</dd>
 <?php endif; ?>
 <?php if (!empty ($surfaces)): ?>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __(count($surfaces) == 1 ? 'Surface' : 'Surfaces'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __n('Surface', 'Surfaces', count($surfaces)); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo implode(', ', $surfaces); ?>
 
@@ -67,7 +67,7 @@ $surfaces = array_map(array('Inflector', 'humanize'), $surfaces);
 <?php endif; ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Status'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php __($facility['Facility']['is_open'] ? 'Open' : 'Closed'); ?>
+			<?php $facility['Facility']['is_open'] ? __('Open') : __('Closed'); ?>
 
 		</dd>
 <?php if (!empty ($facility['Facility']['driving_directions'])): ?>

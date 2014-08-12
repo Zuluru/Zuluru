@@ -37,7 +37,7 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 		if ($is_admin || $is_coordinator) {
 			return array(
 				'games_before_repeat' => array(
-					'label' => 'Games Before Repeat',
+					'label' => __('Games Before Repeat', true),
 					'options' => Configure::read('options.games_before_repeat'),
 					'empty' => '---',
 					'after' => __('The number of games before two teams can be scheduled to play each other again.', true),
@@ -63,7 +63,7 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 	function scheduleOptions($num_teams) {
 		$types = array(
 			'single' => sprintf(__('single blank, unscheduled game (2 teams, one %s)', true), Configure::read('sport.field')),
-			'oneset_ratings_ladder' => "set of ratings-scheduled games for all teams ($num_teams teams, " . ($num_teams / 2) . " games, one day)"
+			'oneset_ratings_ladder' => sprintf(__('set of ratings-scheduled games for all teams (%d teams, %d games, one day)', true), $num_teams, $num_teams / 2),
 		);
 
 		return $types;

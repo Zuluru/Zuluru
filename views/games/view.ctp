@@ -15,7 +15,7 @@ $preliminary = ($game['Game']['home_team'] === null || ($game['Division']['sched
 		<?php echo $this->element('divisions/block', array('division' => $game['Division'], 'field' => 'full_league_name')); ?>
 
 	</dd>
-	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __($game['Division']['schedule_type'] == 'competition' ? 'Team' : 'Home Team'); ?></dt>
+	<dt<?php if ($i % 2 == 0) echo $class;?>><?php $game['Division']['schedule_type'] == 'competition' ? __('Team') : __('Home Team'); ?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php
 		if ($game['Game']['home_team'] === null) {
@@ -287,8 +287,8 @@ $team_names = array(
 		</tr>
 		<tr>
 			<td><?php __('Defaulted?'); ?></td>
-			<td><?php if (isset ($homeScoreEntry)) __($homeScoreEntry['status'] == 'home_default' ? 'us' : ($homeScoreEntry['status'] == 'away_default' ? 'them' : 'no')); ?></td>
-			<td><?php if (isset ($awayScoreEntry)) __($awayScoreEntry['status'] == 'away_default' ? 'us' : ($awayScoreEntry['status'] == 'home_default' ? 'them' : 'no')); ?></td>
+			<td><?php if (isset ($homeScoreEntry)) ($homeScoreEntry['status'] == 'home_default' ? __('us') : ($homeScoreEntry['status'] == 'away_default' ? __('them') : __('no'))); ?></td>
+			<td><?php if (isset ($awayScoreEntry)) ($awayScoreEntry['status'] == 'away_default' ? __('us') : ($awayScoreEntry['status'] == 'home_default' ? __('them') : __('no'))); ?></td>
 		</tr>
 		<tr>
 			<td><?php __('Entered By'); ?></td>

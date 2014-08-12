@@ -4,7 +4,7 @@ $this->Html->addCrumb (__('List', true));
 ?>
 
 <div class="questionnaires index">
-	<h2><?php __($active ? 'Questionnaires List' : 'Deactivated Questionnaires List');?></h2>
+	<h2><?php $active ? __('Questionnaires List') : __('Deactivated Questionnaires List');?></h2>
 	<table class="list">
 	<tr>
 		<th><?php echo $this->Paginator->sort('name');?></th>
