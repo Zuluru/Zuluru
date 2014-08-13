@@ -917,7 +917,9 @@ class SchedulesController extends AppController {
 
 		$this->Division->contain (array (
 			'League',
-			'Team',
+			'Team' => array(
+				'Facility',
+			),
 			'Day' => array('order' => 'day_id'),
 			'Game' => array(
 				'GameSlot' => array(
@@ -932,6 +934,7 @@ class SchedulesController extends AppController {
 						'game_date >=' => $date,
 						'assigned' => false,
 					),
+					'Field' => 'Facility',
 				),
 			),
 		));
