@@ -364,16 +364,17 @@ class FranchisesController extends AppController {
 			$this->Franchise->Person->contain(array('Franchise' => array('conditions' => array('Franchise.id' => $id))));
 			$person = $this->Franchise->Person->read(null, $person_id);
 			if (!empty ($person['Franchise'])) {
-				$this->Session->setFlash(__("{$person['Person']['full_name']} is already an owner of this franchise", true), 'default', array('class' => 'info'));
+				$this->Session->setFlash(sprintf(__('%s is already an owner of this franchise', true), $person['Person']['full_name']), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'view', 'franchise' => $id));
 			} else {
 				$franchise['Person'] = Set::extract ('/Person/id', $franchise);
 				$franchise['Person'][] = $person_id;
 				if ($this->Franchise->saveAll ($franchise)) {
 					$this->UserCache->_deleteFranchiseData($person_id);
-					$this->Session->setFlash(__("Added {$person['Person']['full_name']} as owner", true), 'default', array('class' => 'success'));
+					$this->Session->setFlash(sprintf(__('Added %s as owner', true), $person['Person']['full_name']), 'default', array('class' => 'success'));
 					$this->redirect(array('action' => 'view', 'franchise' => $id));
 				} else {
-					$this->Session->setFlash(__("Failed to add {$person['Person']['full_name']} as owner", true), 'default', array('class' => 'warning'));
+					$this->Session->setFlash(sprintf(__('Failed to add %s as owner', true), $person['Person']['full_name']), 'default', array('class' => 'warning'));
 				}
 			}
 		}

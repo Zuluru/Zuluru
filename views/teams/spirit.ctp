@@ -22,7 +22,7 @@ if ($team['Division']['League']['sotg_questions'] != 'none') {
 // TODO: Move display details into an element to share between this, division spirit report, maybe others
 foreach ($spirit_obj->questions as $detail) {
 	if ($detail['type'] != 'text') {
-		$header[] = __($detail['name'], true);
+		$header[] = $detail['name'];
 	}
 }
 

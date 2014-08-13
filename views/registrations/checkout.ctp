@@ -182,7 +182,7 @@ if (!empty($other)):
 		<td><?php printf ($order_id_format, $registration['Registration']['id']); ?></td>
 		<td><?php echo $this->Html->link ($registration['Event']['name'], array('controller' => 'events', 'action' => 'view', 'event' => $registration['Event']['id'])); ?></td>
 		<td><?php echo $this->Number->currency ($cost + $tax1 + $tax2); ?></td>
-		<td><?php __($registration['reason']); ?></td>
+		<td><?php echo $registration['reason']; ?></td>
 		<td class="actions"><?php
 			if (!empty($registration['change_price'])) {
 				echo $this->Html->link (__('Reregister', true),

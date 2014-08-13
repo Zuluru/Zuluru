@@ -51,7 +51,7 @@ $count = count($unpaid) + array_sum(array_map('count', $relative_unpaid));
 if ($count) {
 	echo $this->Html->para (null, sprintf (__('You currently have %s unpaid %s. %s to complete these registrations.', true),
 			$count,
-			__($count > 1 ? 'registrations' : 'registration', true),
+			__n('registration', 'registration', $count, true),
 			$this->Html->link (__('Click here', true), array('controller' => 'registrations', 'action' => 'checkout'))
 	));
 }

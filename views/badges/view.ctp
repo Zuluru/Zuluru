@@ -23,7 +23,7 @@ if ($is_manager && !in_array($badge['Badge']['affiliate_id'], $this->UserCache->
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Active'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php __($badge['Badge']['active'] ? 'Yes' : 'No'); ?>
+			<?php $badge['Badge']['active'] ? __('Yes') : __('No'); ?>
 			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Visibility'); ?></dt>
@@ -134,5 +134,5 @@ if ($is_manager && !in_array($badge['Badge']['affiliate_id'], $this->UserCache->
 </div>
 
 <?php echo $this->element('people/badge_div', array(
-	'message' => 'If you want to add a comment to the badge holder about why the badge is being removed, do so here.',
+	'message' => __('If you want to add a comment to the badge holder about why the badge is being removed, do so here.', true),
 )); ?>

@@ -19,7 +19,7 @@ echo $this->element('hidden', array('fields' => $this->data));
 <legend>Select desired start date</legend>
 
 <p><?php
-printf (__('Scheduling a %s will create a total of ', true), __($desc, true));
+printf (__('Scheduling a %s will create a total of ', true), $desc);
 if (count($num_fields) > 1) {
 	// A simple array with multiple elements means that multiple time slots are required.
 	$total_fields = array_sum($num_fields);

@@ -172,8 +172,8 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 	</tr>
 	<tr>
 		<td><?php __('Defaulted?'); ?></td>
-		<td><?php if (isset ($homeScoreEntry)) __($homeScoreEntry['status'] == 'home_default' ? 'us' : ($homeScoreEntry['status'] == 'away_default' ? 'them' : 'no')); ?></td>
-		<td><?php if (isset ($awayScoreEntry)) __($awayScoreEntry['status'] == 'away_default' ? 'us' : ($awayScoreEntry['status'] == 'home_default' ? 'them' : 'no')); ?></td>
+		<td><?php if (isset ($homeScoreEntry)) ($homeScoreEntry['status'] == 'home_default' ? __('us') : ($homeScoreEntry['status'] == 'away_default' ? __('them') : __('no'))); ?></td>
+		<td><?php if (isset ($awayScoreEntry)) ($awayScoreEntry['status'] == 'away_default' ? __('us') : ($awayScoreEntry['status'] == 'home_default' ? __('them') : __('no'))); ?></td>
 	</tr>
 	<tr>
 		<td><?php __('Entered By'); ?></td>

@@ -25,7 +25,7 @@ $this->Html->addCrumb (__('List', true));
 	<tr<?php echo $class;?>>
 		<td><?php echo $affiliate['Affiliate']['name']; ?></td>
 		<?php if ($is_admin): ?>
-		<td><?php __($affiliate['Affiliate']['active'] ? 'Yes' : 'No'); ?></td>
+		<td><?php $affiliate['Affiliate']['active'] ? __('Yes') : __('No'); ?></td>
 		<td><?php
 		$managers = array();
 		foreach ($affiliate['Person'] as $person) {

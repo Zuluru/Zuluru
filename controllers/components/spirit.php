@@ -42,7 +42,7 @@ class SpiritComponent extends Object
 			$validate['entered_sotg'] = array(
 				'range' => array(
 					'rule' => array('inclusive_range', 0, $this->max()),
-					'message' => 'Spirit scores must be in the range 0-' . $this->max(),
+					'message' => sprintf(__('Spirit scores must be in the range 0-%s', true), $this->max()),
 				),
 			);
 		}

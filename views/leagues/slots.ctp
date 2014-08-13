@@ -60,7 +60,7 @@ foreach ($slots as $slot):
 	$cols = 3 + $is_tournament + !$competition + Configure::read('feature.region_preference');
 ?>
 	<tr>
-		<td rowspan="<?php echo $rows; ?>"><?php __($slot['GameSlot']['id']); ?></td>
+		<td rowspan="<?php echo $rows; ?>"><?php echo $slot['GameSlot']['id']; ?></td>
 		<td rowspan="<?php echo $rows; ?>"><?php echo $this->element('fields/block', array('field' => $slot['Field'])); ?></td>
 		<td rowspan="<?php echo $rows; ?>"><?php __($slot['Field']['Facility']['Region']['name']); ?></td>
 		<td rowspan="<?php echo $rows; ?>"><?php echo $this->ZuluruTime->time ($slot['GameSlot']['game_start']); ?></td>

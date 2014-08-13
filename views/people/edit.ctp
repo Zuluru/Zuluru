@@ -132,13 +132,13 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 		));
 		if (Configure::read('feature.gravatar')) {
 			if (Configure::read('feature.photos')) {
-				$after = 'You can have an image shown on your account by uploading a photo directly, or by enabling this setting and then create a <a href="http://www.gravatar.com">gravatar.com</a> account using the email address you\'ve associated with your %s account.';
+				$after = sprintf(__('You can have an image shown on your account by uploading a photo directly, or by enabling this setting and then create a <a href="http://www.gravatar.com">gravatar.com</a> account using the email address you\'ve associated with your %s account.', true), Configure::read('organization.short_name'));
 			} else {
-				$after = 'You can have an image shown on your account if you enable this setting and then create a <a href="http://www.gravatar.com">gravatar.com</a> account using the email address you\'ve associated with your %s account.';
+				$after = sprintf(__('You can have an image shown on your account if you enable this setting and then create a <a href="http://www.gravatar.com">gravatar.com</a> account using the email address you\'ve associated with your %s account.', true), Configure::read('organization.short_name'));
 			}
 			echo $this->ZuluruForm->input('show_gravatar', array(
 				'label' => __('Show Gravatar image for your account?', true),
-				'after' => $this->Html->para (null, sprintf(__($after, true), Configure::read('organization.short_name'))),
+				'after' => $this->Html->para (null, $after),
 			));
 		}
 	?>
@@ -207,7 +207,7 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 			$fields = __(Configure::read('ui.fields'), true);
 			echo $this->ZuluruForm->input('addr_postalcode', array(
 				'label' => __('Postal Code', true),
-				'after' => $this->Html->para (null, sprintf(__("Please enter a correct postal code matching the address above. %s uses this information to help locate new %s near its members.", true), $short, $fields)),
+				'after' => $this->Html->para (null, sprintf(__('Please enter a correct postal code matching the address above. %s uses this information to help locate new %s near its members.', true), $short, __(Configure::read('ui.fields'), true))),
 			));
 		} else if (Configure::read('profile.addr_postalcode')) {
 			echo $this->ZuluruForm->input('addr_postalcode', array(
@@ -222,16 +222,7 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 	<?php if (Configure::read('profile.home_phone') || Configure::read('profile.work_phone') ||
 				Configure::read('profile.mobile_phone')): ?>
 	<fieldset>
-		<legend><?php
-		if (Configure::read('profile.home_phone') + Configure::read('profile.work_phone') +
-			Configure::read('profile.mobile_phone') > 1)
-		{
-			$number = 'Numbers';
-		} else {
-			$number = 'Number';
-		}
-		__("Telephone $number");
-		?></legend>
+		<legend><?php __n('Telephone Number', 'Telephone Numbers', Configure::read('profile.home_phone') + Configure::read('profile.work_phone') + Configure::read('profile.mobile_phone')); ?></legend>
 	<?php
 		if (in_array (Configure::read('profile.home_phone'), $access)) {
 			echo $this->ZuluruForm->input('home_phone', array(
@@ -379,13 +370,13 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 		}
 		if (in_array (Configure::read('profile.height'), $access)) {
 			if (Configure::read('feature.units') == 'Metric') {
-				$units = 'centimeters';
+				$units = __('centimeters', true);
 			} else {
-				$units = 'inches (5 feet is 60 inches; 6 feet is 72 inches)';
+				$units = __('inches (5 feet is 60 inches; 6 feet is 72 inches)', true);
 			}
 			echo $this->ZuluruForm->input('height', array(
 				'size' => 6,
-				'after' => $this->Html->para(null, sprintf(__('Please enter your height in %s. This is used to help generate even teams for hat leagues.', true), __($units, true))),
+				'after' => $this->Html->para(null, sprintf(__('Please enter your height in %s. This is used to help generate even teams for hat leagues.', true), $units)),
 			));
 		} else if (Configure::read('profile.height')) {
 			echo $this->ZuluruForm->input('height', array(
@@ -411,12 +402,12 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 		}
 		if (in_array (Configure::read('profile.willing_to_volunteer'), $access)) {
 			echo $this->ZuluruForm->input('willing_to_volunteer', array(
-				'label' => __("Can $short contact you about volunteering?", true),
+				'label' => sprintf(__('Can %s contact you about volunteering?', true), $short),
 			));
 		}
 		if (in_array (Configure::read('profile.contact_for_feedback'), $access)) {
 			echo $this->ZuluruForm->input('contact_for_feedback', array(
-				'label' => __("From time to time, $short would like to contact members with information on our programs and to solicit feedback. Can $short contact you in this regard?"),
+				'label' => sprintf(__('From time to time, %s would like to contact members with information on our programs and to solicit feedback. Can %s contact you in this regard?', true), $short, $short),
 			));
 		}
 	?>

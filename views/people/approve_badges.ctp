@@ -59,5 +59,5 @@ endforeach;
 </div>
 
 <?php echo $this->element('people/badge_div', array(
-	'message' => 'If you want to add a comment to the nominator about why the nomination was not approved, do so here. The nominee will not receive any message.',
+	'message' => __('If you want to add a comment to the nominator about why the nomination was not approved, do so here. The nominee will not receive any message.', true),
 )); ?>

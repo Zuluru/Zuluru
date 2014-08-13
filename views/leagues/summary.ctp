@@ -54,8 +54,8 @@ foreach ($divisions as $division):
 		?></td>
 		<?php if (Configure::read('feature.spirit')): ?>
 		<td><?php __(Inflector::humanize($division['League']['display_sotg'])); ?></td>
-		<td><?php echo $division['League']['sotg_questions']; ?></td>
-		<td><?php __($division['League']['numeric_sotg'] ? 'Yes' : 'No'); ?></td>
+		<td><?php __(Configure::read("options.spirit_questions.{$division['League']['sotg_questions']}")); ?></td>
+		<td><?php $division['League']['numeric_sotg'] ? __('Yes') : __('No'); ?></td>
 		<?php endif; ?>
 		<td><?php echo $division['League']['expected_max_score']; ?></td>
 		<td><?php echo $division['League']['schedule_attempts']; ?></td>
@@ -138,7 +138,7 @@ foreach ($divisions as $division):
 <?php if (Configure::read('scoring.most_spirited')): ?>
 		<td><?php __(Inflector::humanize($division['Division']['most_spirited'])); ?></td>
 <?php endif; ?>
-		<td><?php __(Inflector::humanize($division['Division']['rating_calculator'])); ?></td>
+		<td><?php __(Configure::read("options.rating_calculator.{$division['Division']['rating_calculator']}")); ?></td>
 		<td><?php echo $division['Division']['email_after']; ?></td>
 		<td><?php echo $division['Division']['finalize_after']; ?></td>
 		<td><?php echo $division['Division']['roster_rule']; ?></td>

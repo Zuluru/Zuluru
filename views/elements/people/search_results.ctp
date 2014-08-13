@@ -1,5 +1,5 @@
 <?php if (isset ($error)): ?>
-<p class="error-message"><?php __($error); ?></p>
+<p class="error-message"><?php echo $error; ?></p>
 
 <?php elseif (isset ($people) && empty ($people)): ?>
 <p class="error-message"><?php __('No matches found!'); ?></p>
@@ -54,11 +54,11 @@ foreach ($people as $person):
 			if ($is_logged_in && Configure::read('feature.annotations')) {
 				if (!empty($person['Note'])) {
 					echo $this->Html->link(__('Delete Note', true), array('controller' => 'people', 'action' => 'delete_note', 'person' => $person['Person']['id'], 'return' => true));
-					$link = 'Edit Note';
+					$link = __('Edit Note', true);
 				} else {
-					$link = 'Add Note';
+					$link = __('Add Note', true);
 				}
-				echo $this->Html->link(__($link, true), array('controller' => 'people', 'action' => 'note', 'person' => $person['Person']['id'], 'return' => true));
+				echo $this->Html->link($link, array('controller' => 'people', 'action' => 'note', 'person' => $person['Person']['id'], 'return' => true));
 			}
 			?>
 			<?php if ($is_admin || $is_manager): ?>
@@ -76,7 +76,7 @@ foreach ($people as $person):
 				foreach ($extra_url as $title => $url) {
 					if (!empty($person['Person'][$extra_url_field])) {
 						$url = array_merge (array($extra_url_parameter => $person['Person'][$extra_url_field], 'return' => true), $url);
-						echo $this->Html->link(__($title, true), $url);
+						echo $this->Html->link($title, $url);
 					}
 				}
 			}

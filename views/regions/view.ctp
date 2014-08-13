@@ -42,7 +42,7 @@ $this->Html->addCrumb (__('View', true));
 	<tr<?php echo $class;?>>
 		<td><?php echo $facility['name'];?></td>
 		<td><?php echo $facility['code'];?></td>
-		<td><?php __($facility['is_open'] ? 'Yes' : 'No');?></td>
+		<td><?php $facility['is_open'] ? __('Yes') : __('No');?></td>
 		<td class="actions">
 			<?php
 			echo $this->ZuluruHtml->iconLink('view_32.png',

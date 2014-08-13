@@ -22,7 +22,7 @@ $this->Html->addCrumb (__('View', true));
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $this->ZuluruTime->time ($gameSlot['GameSlot']['display_game_end']); ?>
 		</dd>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __(count($gameSlot['Game']) < 2 ? 'Game' : 'Games'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __n('Game', 'Games', count($gameSlot['Game'])); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php
 			if (empty($gameSlot['Game'])) {

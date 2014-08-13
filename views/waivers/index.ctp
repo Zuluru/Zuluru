@@ -39,7 +39,7 @@ $this->Html->addCrumb (__('List', true));
 		<td><?php echo $waiver['Waiver']['id']; ?>&nbsp;</td>
 		<td><?php echo $waiver['Waiver']['name']; ?>&nbsp;</td>
 		<td><?php echo $waiver['Waiver']['description']; ?>&nbsp;</td>
-		<td><?php __($waiver['Waiver']['active'] ? 'Yes' : 'No'); ?>&nbsp;</td>
+		<td><?php $waiver['Waiver']['active'] ? __('Yes') : __('No'); ?>&nbsp;</td>
 		<td><?php echo Configure::read("options.waivers.expiry_type.{$waiver['Waiver']['expiry_type']}"); ?>&nbsp;</td>
 		<td><?php
 		switch ($waiver['Waiver']['expiry_type']) {

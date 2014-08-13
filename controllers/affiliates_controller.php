@@ -131,7 +131,8 @@ class AffiliatesController extends AppController {
 			$this->Affiliate->Person->contain(array('Affiliate' => array('conditions' => array('Affiliate.id' => $id))));
 			$person = $this->Affiliate->Person->read(null, $person_id);
 			if (!empty ($person['Affiliate']) && $person['Affiliate'][0]['AffiliatesPerson']['position'] == 'manager') {
-				$this->Session->setFlash(__("{$person['Person']['full_name']} is already a manager of this affiliate", true), 'default', array('class' => 'info'));
+				$this->Session->setFlash(sprintf(__('%s is already a manager of this affiliate', true), $person['Person']['full_name']), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'view', 'affiliate' => $id));
 			} else {
 				$join = ClassRegistry::init('AffiliatesPerson');
 				if (!empty ($person['Affiliate'])) {
@@ -142,10 +143,10 @@ class AffiliatesController extends AppController {
 				if ($success) {
 					$this->UserCache->clear('ManagedAffiliates', $person_id);
 					$this->UserCache->clear('ManagedAffiliateIDs', $person_id);
-					$this->Session->setFlash(__("Added {$person['Person']['full_name']} as manager", true), 'default', array('class' => 'success'));
+					$this->Session->setFlash(sprintf(__('Added %s as manager', true), $person['Person']['full_name']), 'default', array('class' => 'success'));
 					$this->redirect(array('action' => 'view', 'affiliate' => $id));
 				} else {
-					$this->Session->setFlash(__("Failed to add {$person['Person']['full_name']} as manager", true), 'default', array('class' => 'warning'));
+					$this->Session->setFlash(sprintf(__('Failed to add %s as manager', true), $person['Person']['full_name']), 'default', array('class' => 'warning'));
 				}
 			}
 		}

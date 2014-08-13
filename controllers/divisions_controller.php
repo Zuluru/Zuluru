@@ -488,7 +488,7 @@ class DivisionsController extends AppController {
 			$this->Division->Person->contain(array('Division' => array('conditions' => array('Division.id' => $id))));
 			$person = $this->Division->Person->read(null, $person_id);
 			if (!empty ($person['Division'])) {
-				$this->Session->setFlash(__("{$person['Person']['full_name']} is already a coordinator of this division", true), 'default', array('class' => 'info'));
+				$this->Session->setFlash(sprintf(__('%s is already a coordinator of this division', true), $person['Person']['full_name']), 'default', array('class' => 'info'));
 			} else {
 				$division['Person'] = Set::extract ('/Person/id', $division);
 				$division['Person'][] = $person['Person']['id'];
@@ -496,10 +496,10 @@ class DivisionsController extends AppController {
 				if ($this->Division->saveAll ($division)) {
 					$this->UserCache->clear('Divisions', $person_id);
 					$this->UserCache->clear('DivisionIDs', $person_id);
-					$this->Session->setFlash(__("Added {$person['Person']['full_name']} as coordinator", true), 'default', array('class' => 'success'));
+					$this->Session->setFlash(sprintf(__('Added %s as coordinator', true), $person['Person']['full_name']), 'default', array('class' => 'success'));
 					$this->redirect(array('action' => 'view', 'division' => $id));
 				} else {
-					$this->Session->setFlash(__("Failed to add {$person['Person']['full_name']} as coordinator", true), 'default', array('class' => 'warning'));
+					$this->Session->setFlash(sprintf(__('Failed to add %s as coordinator', true), $person['Person']['full_name']), 'default', array('class' => 'warning'));
 					$this->redirect(array('action' => 'add_coordinator', 'division' => $id));
 				}
 			}
@@ -600,6 +600,10 @@ class DivisionsController extends AppController {
 		if (!empty($this->data)) {
 			if ($this->Division->Team->saveAll($this->data['Team'])) {
 				$this->Division->League->recalculateRatings($this->Division->league($id));
+
+				Cache::delete('division/' . intval($id) . '/standings', 'long_term');
+				Cache::delete('league/' . $this->Division->league($id) . '/standings', 'long_term');
+
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('division', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'view', 'division' => $id));
 			} else {

@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('Scoring', true));
 <div class="settings form">
 <?php
 if ($affiliate) {
-	$defaults = array('empty' => 'Use default');
+	$defaults = array('empty' => __('Use default', true));
 } else {
 	$defaults = array('empty' => false);
 }
@@ -24,7 +24,7 @@ echo $this->element('settings/banner');
 		'category' => 'scoring',
 		'name' => 'default_winning_score',
 		'options' => array(
-			'label' => 'Winning score to record for defaulted games',
+			'label' => __('Winning score to record for defaulted games', true),
 			'size' => 6,
 		),
 	));
@@ -32,7 +32,7 @@ echo $this->element('settings/banner');
 		'category' => 'scoring',
 		'name' => 'default_losing_score',
 		'options' => array(
-			'label' => 'Losing score to record for defaulted games',
+			'label' => __('Losing score to record for defaulted games', true),
 			'size' => 6,
 		),
 	));
@@ -40,9 +40,9 @@ echo $this->element('settings/banner');
 		'category' => 'scoring',
 		'name' => 'default_transfer_ratings',
 		'options' => array(
+			'label' => __('Transfer ratings points for defaulted games', true),
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
-			'label' => 'Transfer ratings points for defaulted games',
 		),
 	));
 	?>
@@ -56,18 +56,20 @@ echo $this->element('settings/banner');
 		'category' => 'scoring',
 		'name' => 'spirit_questions',
 		'options' => array(
+			'label' => __('Spirit questions', true),
 			'type' => 'select',
 			'options' => Configure::read ('options.spirit_questions'),
-			'after' => 'Default type of spirit questions to use when creating a new league.',
+			'after' => __('Default type of spirit questions to use when creating a new league.', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'scoring',
 		'name' => 'spirit_numeric',
 		'options' => array(
+			'label' => __('Spirit numeric', true),
 			'type' => 'radio',
 			'options' => Configure::read ('options.enable'),
-			'after' => 'Default enable or disable entry of numeric spirit scores when creating a new league.',
+			'after' => __('Default enable or disable entry of numeric spirit scores when creating a new league.', true),
 		),
 	));
 
@@ -78,7 +80,7 @@ echo $this->element('settings/banner');
 		'category' => 'scoring',
 		'name' => 'spirit_max',
 		'options' => array(
-			'label' => 'Maximum spirit score, when no questionnaire is used',
+			'label' => __('Maximum spirit score, when no questionnaire is used', true),
 			'size' => 6,
 		),
 	));
@@ -87,7 +89,7 @@ echo $this->element('settings/banner');
 		'category' => 'scoring',
 		'name' => 'missing_score_spirit_penalty',
 		'options' => array(
-			'label' => 'Spirit penalty for not entering score',
+			'label' => __('Spirit penalty for not entering score', true),
 			'size' => 6,
 		),
 	));
@@ -96,9 +98,10 @@ echo $this->element('settings/banner');
 		'category' => 'scoring',
 		'name' => 'spirit_default',
 		'options' => array(
+			'label' => __('Spirit default', true),
 			'type' => 'radio',
 			'options' => Configure::read ('options.enable'),
-			'after' => 'Include a default spirit score when not entered.',
+			'after' => __('Include a default spirit score when not entered.', true),
 		),
 	));
 	?>
@@ -112,37 +115,40 @@ echo $this->element('settings/banner');
 		'category' => 'scoring',
 		'name' => 'allstars',
 		'options' => array(
+			'label' => __('Allstars', true),
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
-			'after' => 'If enabled, all-star submissions will be a per-league option; otherwise, they will be disabled entirely.',
+			'after' => __('If enabled, all-star submissions will be a per-league option; otherwise, they will be disabled entirely.', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'scoring',
 		'name' => 'incident_reports',
 		'options' => array(
+			'label' => __('Incident reports', true),
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
-			'after' => 'If enabled, captains will be allowed to file incident reports when submitting scores.',
+			'after' => __('If enabled, captains will be allowed to file incident reports when submitting scores.', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'scoring',
 		'name' => 'most_spirited',
 		'options' => array(
+			'label' => __('Most spirited', true),
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
-			'after' => 'If enabled, "most spirited player" submissions will be a per-league option; otherwise, they will be disabled entirely.',
+			'after' => __('If enabled, "most spirited player" submissions will be a per-league option; otherwise, they will be disabled entirely.', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'scoring',
 		'name' => 'stat_tracking',
 		'options' => array(
+			'label' => __('Handle stat submission and tracking as part of game scoring', true),
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
-			'label' => 'Handle stat submission and tracking as part of game scoring',
-			'after' => 'Enable or disable stat tracking options. If enabled here, stats can still be disabled on a per-league basis.',
+			'after' => __('Enable or disable stat tracking options. If enabled here, stats can still be disabled on a per-league basis.', true),
 		),
 	));
 	?>

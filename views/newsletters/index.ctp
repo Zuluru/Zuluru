@@ -4,7 +4,7 @@ $this->Html->addCrumb (__('List', true));
 ?>
 
 <div class="newsletters index">
-	<h2><?php __($current ? 'Recent and Upcoming Newsletters List' : 'Complete Newsletters List');?></h2>
+	<h2><?php $current ? __('Recent and Upcoming Newsletters List') : __('Complete Newsletters List');?></h2>
 	<table class="list">
 	<tr>
 		<th><?php echo $this->Paginator->sort('name');?></th>

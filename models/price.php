@@ -150,17 +150,17 @@ class Price extends AppModel {
 		$days = floor($duration / 1440);
 		if ($days) {
 			$duration -= $days * 1440;
-			$ret[] = $days . ' ' . __(pluralize_if_necessary('day', $days), true);
+			$ret[] = $days . ' ' . __n('day', 'days', $days, true);
 		}
 
 		$hours = floor($duration / 60);
 		if ($hours) {
 			$duration -= $hours * 60;
-			$ret[] = $hours . ' ' . __(pluralize_if_necessary('hour', $hours), true);
+			$ret[] = $hours . ' ' . __n('hour', 'hours', $hours, true);
 		}
 
 		if ($duration || empty($ret)) {
-			$ret[] = $duration . ' ' . __(pluralize_if_necessary('minute', $duration), true);
+			$ret[] = $duration . ' ' . __n('minute', 'minutes', $duration, true);
 		}
 
 		return implode(', ', $ret);

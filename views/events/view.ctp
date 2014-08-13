@@ -53,7 +53,7 @@ $deposit = !empty($deposit);
 			$facility_links[] = $this->Html->link ($facility_name, array('controller' => 'facilities', 'action' => 'view', 'facility' => $facility_id));
 		}
 ?>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __(count($facilities) == 1 ? 'Location' : 'Locations'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __n('Location', 'Locations', count($facilities)); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo implode (', ', $facility_links); ?>
 
@@ -70,7 +70,7 @@ $deposit = !empty($deposit);
 
 		</dd>
 		<?php if (!empty ($event['Division']['Day'])): ?>
-			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __(count ($event['Division']['Day']) == 1 ? 'Day' : 'Days'); ?></dt>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __n('Day', 'Days', count($event['Division']['Day'])); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php
 				$days = array();
@@ -88,7 +88,7 @@ $deposit = !empty($deposit);
 			$time_list[] = $this->ZuluruTime->Time ($start) . '-' . $this->ZuluruTime->Time ($end);
 		}
 ?>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __(count($times) == 1 ? 'Game Time' : 'Game Times'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __n('Game Time', 'Game Times', count($times)); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo implode (', ', $time_list); ?>
 
@@ -138,7 +138,7 @@ $deposit = !empty($deposit);
 <?php endif; ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Multiples'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php __($event['Event']['multiple'] ? 'Allowed' : 'Not allowed'); ?>
+			<?php $event['Event']['multiple'] ? __('Allowed') : __('Not allowed'); ?>
 
 		</dd>
 

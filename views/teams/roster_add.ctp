@@ -1,5 +1,5 @@
 <?php
-$adding_noun = __($adding ? 'Addition' : 'Invitation', true);
+$adding_noun = $adding ? __('Addition', true) : __('Invitation', true);
 
 $this->Html->addCrumb (__('Teams', true));
 $this->Html->addCrumb ($team['Team']['name']);

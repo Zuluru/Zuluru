@@ -22,7 +22,7 @@ echo $this->element('people/search_form', array('affiliate_id' => $affiliate_id)
 <?php endif; ?>
 
 <?php
-echo $this->element('people/search_results', array('extra_url' => array('Add to team' => array('controller' => 'teams', 'action' => 'roster_add', 'team' => $team['Team']['id']))));
+echo $this->element('people/search_results', array('extra_url' => array(__('Add to team', true) => array('controller' => 'teams', 'action' => 'roster_add', 'team' => $team['Team']['id']))));
 ?>
 
 <?php if (!$this->params['isAjax']): ?>

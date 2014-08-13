@@ -22,12 +22,12 @@ not only those that you regularly compete against.</p>
 $i = 1;
 $min = $max = 0;
 foreach ($questions as $group_label => $group_questions) {
-	echo $this->Html->tag('h2', __($group_label, true) . ' ' . __('Questions', true) . ':') . "\n";
+	echo $this->Html->tag('h2', $group_label . ' ' . __('Questions', true) . ':') . "\n";
 	foreach ($group_questions as $label => $options) {
 		$min += min(array_keys($options));
 		$max += max(array_keys($options));
 		echo $this->Form->input("q$i", array(
-			'before' => $this->Html->tag('strong', $i . '. ' . __($label, true)),
+			'before' => $this->Html->tag('strong', "$i. $label"),
 			'between' => $this->Html->tag('br'),
 			'type' => 'radio',
 			'options' => $options,

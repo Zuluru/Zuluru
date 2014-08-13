@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('Email', true));
 <div class="settings form">
 <?php
 if ($affiliate) {
-	$defaults = array('empty' => 'Use default');
+	$defaults = array('empty' => __('Use default', true));
 } else {
 	$defaults = array('empty' => false);
 }
@@ -25,21 +25,24 @@ echo $this->element('settings/banner');
 			'category' => 'email',
 			'name' => 'admin_name',
 			'options' => array(
-				'after' => 'The name (or descriptive role) of the system administrator. Mail from <?php echo ZULURU; ?> will come from this name.',
+				'label' => __('Admin name', true),
+				'after' => sprintf(__('The name (or descriptive role) of the system administrator. Mail from %s will come from this name.', true), ZULURU),
 			),
 		));
 		echo $this->element('settings/input', array(
 			'category' => 'email',
 			'name' => 'admin_email',
 			'options' => array(
-				'after' => 'The e-mail address of the system administrator. Mail from <?php echo ZULURU; ?> will come from this address.',
+				'label' => __('Admin email', true),
+				'after' => sprintf(__('The e-mail address of the system administrator. Mail from %s will come from this address.', true), ZULURU),
 			),
 		));
 		echo $this->element('settings/input', array(
 			'category' => 'email',
 			'name' => 'support_email',
 			'options' => array(
-				'after' => 'The e-mail address for system support. This address will be linked for bug reports, etc.',
+				'label' => __('Support email', true),
+				'after' => __('The e-mail address for system support. This address will be linked for bug reports, etc.', true),
 			),
 		));
 	}
@@ -48,7 +51,8 @@ echo $this->element('settings/banner');
 			'category' => 'email',
 			'name' => 'incident_report_email',
 			'options' => array(
-				'after' => 'The e-mail address to send incident reports to, if enabled.',
+				'label' => __('Incident report email', true),
+				'after' => __('The e-mail address to send incident reports to, if enabled.', true),
 			),
 		));
 	}
@@ -56,10 +60,10 @@ echo $this->element('settings/banner');
 		'category' => 'email',
 		'name' => 'emogrifier',
 		'options' => array(
+			'label' => __('Use Emogrifier', true),
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
-			'label' => 'Use Emogrifier',
-			'after' => 'Enable or disable usage of the Emogrifier email style pre-processor.',
+			'after' => __('Enable or disable usage of the Emogrifier email style pre-processor.', true),
 		),
 	));
 	?>

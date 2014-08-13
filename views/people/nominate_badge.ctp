@@ -37,9 +37,9 @@ $this->Html->addCrumb ($badge['Badge']['name']);
 <?php
 $extra_url = array('controller' => 'people', 'action' => 'nominate_badge_reason', 'badge' => $badge['Badge']['id']);
 if ($badge['Badge']['category'] == 'assigned') {
-	$extra_url = array('Assign badge' => $extra_url);
+	$extra_url = array(__('Assign badge', true) => $extra_url);
 } else {
-	$extra_url = array('Nominate for badge' => $extra_url);
+	$extra_url = array(__('Nominate for badge', true) => $extra_url);
 }
 echo $this->element('people/search_results', compact('extra_url'));
 ?>

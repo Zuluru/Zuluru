@@ -34,7 +34,7 @@ echo implode ('<br />', $coordinators);
 <?php endif; ?>
 <dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Status'); ?></dt>
 <dd<?php if ($i++ % 2 == 0) echo $class;?>>
-	<?php __($division['is_open'] ? 'Open' : 'Closed'); ?>
+	<?php $division['is_open'] ? __('Open') : __('Closed'); ?>
 
 </dd>
 <?php if ($division['open'] != '0000-00-00'): ?>
@@ -57,7 +57,7 @@ echo implode ('<br />', $coordinators);
 
 </dd>
 <?php if (!empty ($division['Day'])): ?>
-	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __(count ($division['Day']) == 1 ? 'Day' : 'Days'); ?></dt>
+	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __n('Day', 'Days', count($division['Day'])); ?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php
 		$days = array();
@@ -112,7 +112,7 @@ foreach ($fields as $field => $options):
 <dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Rating Calculator'); ?></dt>
 <dd<?php if ($i++ % 2 == 0) echo $class;?>>
 	<?php
-	__(Inflector::Humanize ($division['rating_calculator']));
+	__(Configure::read("options.rating_calculator.{$division['rating_calculator']}"));
 	echo '&nbsp;' . $this->ZuluruHtml->help(array('action' => 'divisions', 'edit', 'rating_calculator', $division['rating_calculator']));
 	?>
 
@@ -121,7 +121,7 @@ foreach ($fields as $field => $options):
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Exclude Teams'); ?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php
-		__($division['exclude_teams'] ? 'Yes' : 'No');
+		$division['exclude_teams'] ? __('Yes') : __('No');
 		echo '&nbsp;' . $this->ZuluruHtml->help(array('action' => 'divisions', 'edit', 'exclude_teams'));
 		?>
 

@@ -38,7 +38,7 @@ if ($is_manager && !in_array($waiver['Waiver']['affiliate_id'], $this->UserCache
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Active'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php __($waiver['Waiver']['active'] ? 'Yes' : 'No'); ?>
+			<?php $waiver['Waiver']['active'] ? __('Yes') : __('No'); ?>
 
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Expiry Type'); ?></dt>

@@ -44,7 +44,7 @@ if (array_key_exists ('Question', $questionnaire)) {
 							$label = '';
 						}
 					} else {
-						$rows[] = array($label, __(empty($answers) ? 'N/A' : ($answers[0] ? 'Yes' : 'No'), true));
+						$rows[] = array($label, empty($answers) ? __('N/A', true) : ($answers[0] ? __('Yes', true) : __('No', true)));
 					}
 					break;
 

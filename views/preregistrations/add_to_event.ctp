@@ -26,7 +26,7 @@ $this->Html->addCrumb ($event['Event']['name']);
 <?php endif; ?>
 
 <?php
-echo $this->element('people/search_results', array('extra_url' => array('Add preregistration' => array('controller' => 'preregistrations', 'action' => 'add', 'event' => $event['Event']['id']))));
+echo $this->element('people/search_results', array('extra_url' => array(__('Add preregistration', true) => array('controller' => 'preregistrations', 'action' => 'add', 'event' => $event['Event']['id']))));
 ?>
 
 <?php if (!$this->params['isAjax']): ?>

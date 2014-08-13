@@ -33,24 +33,12 @@ if (isset ($person_id)) {
 	echo $this->Form->hidden("Setting.$id.person_id", array('value' => $person_id));
 }
 
-if (array_key_exists ('label', $options)) {
-	$options['label'] = __($options['label'], true);
-} else {
-	$options['label'] = __(Inflector::humanize ($name), true);
-}
 if (!array_key_exists ('type', $options)) {
 	$options['type'] = 'text';
 }
 
 if ($options['type'] == 'radio') {
 	$options['legend'] = false;
-}
-
-if (array_key_exists ('empty', $options)) {
-	$options['empty'] = __($options['empty'], true);
-}
-if (array_key_exists ('after', $options)) {
-	$options['after'] = __($options['after'], true);
 }
 
 if (isset($affiliate) && $affiliate && $options['type'] != 'textarea') {

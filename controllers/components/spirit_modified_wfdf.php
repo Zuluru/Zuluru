@@ -52,7 +52,7 @@ class SpiritModifiedWfdfComponent extends SpiritComponent
 			),
 		),
 		'q3' => array(
-			'name' => 'PositiveAttitude',
+			'name' => 'Attitude',
 			'text' => 'Positive Attitude',
 			'desc' => 'They introduced themselves to the opponent. They complimented the opponent for good plays.  Left a positive impression in an after-the-game Spirit Circle, etc.',
 			'type' => 'radio',
@@ -73,7 +73,7 @@ class SpiritModifiedWfdfComponent extends SpiritComponent
 			),
 		),
 		'q4' => array(
-			'name' => 'EmotionalManagement',
+			'name' => 'Emotional Management',
 			'text' => 'Emotional Management',
 			'desc' => 'Their reaction towards disagreements, successes, and mistakes was appropriately mature.',
 			'type' => 'radio',
@@ -94,7 +94,7 @@ class SpiritModifiedWfdfComponent extends SpiritComponent
 			),
 		),
 		'q5' => array(
-			'name' => 'AvoidingBodyContact',
+			'name' => 'Body Contact',
 			'text' => 'Avoiding Body Contact',
 			'desc' => 'They were aware of other players\' body location and movement and avoided dangerous plays.',
 			'type' => 'radio',
@@ -115,7 +115,7 @@ class SpiritModifiedWfdfComponent extends SpiritComponent
 			),
 		),
 		'q6' => array(
-			'name' => 'AvoidingViolationsandFouls',
+			'name' => 'Fouls',
 			'text' => 'Avoiding Violations and Fouls',
 			'desc' => 'They tried to avoid fouls and violations. Their marks were legal. They did not commit off side violations, etc.',
 			'type' => 'radio',
@@ -136,7 +136,7 @@ class SpiritModifiedWfdfComponent extends SpiritComponent
 			),
 		),
 		'q7' => array(
-			'name' => 'KnowledgeoftheRules',
+			'name' => 'Rules Knowledge',
 			'text' => 'Knowledge of the Rules',
 			'desc' => 'They knew the rules and/or had the willingness to learn and teach them. They did not make unjustified calls.',
 			'type' => 'radio',
@@ -157,7 +157,7 @@ class SpiritModifiedWfdfComponent extends SpiritComponent
 			),
 		),
 		'q8' => array(
-			'name' => 'EncouragingEnjoymentoftheGame',
+			'name' => 'Enjoyment',
 			'text' => 'Encouraging Enjoyment of the Game',
 			'desc' => 'They played the game in a way that made the game enjoyable for all those involved.',
 			'type' => 'radio',

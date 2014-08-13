@@ -11,7 +11,7 @@ class SpiritTeamComponent extends SpiritComponent
 	var $questions = array(
 		'q1' => array(
 			'name' => 'Timeliness',
-			'text' => 'Our opponents had a full line and were ready to play...',
+			'text' => 'Our opponents had a full line and were ready to play:',
 			'type' => 'radio',
 			'options' => array(
 				'OnTime' => array(
@@ -35,7 +35,7 @@ class SpiritTeamComponent extends SpiritComponent
 		),
 		'q2' => array(
 			'name' => 'Rules Knowledge',
-			'text' => 'Our opponents\' rules knowledge was...',
+			'text' => 'Our opponents\' rules knowledge was:',
 			'type' => 'radio',
 			'options' => array(
 				'ExcellentRules' => array(
@@ -59,7 +59,7 @@ class SpiritTeamComponent extends SpiritComponent
 		),
 		'q3' => array(
 			'name' => 'Sportsmanship',
-			'text' => 'Our opponents\' sportsmanship was...',
+			'text' => 'Our opponents\' sportsmanship was:',
 			'type' => 'radio',
 			'options' => array(
 				'ExcellentSportsmanship' => array(
@@ -91,16 +91,6 @@ class SpiritTeamComponent extends SpiritComponent
 					'value' => 1,
 					'default' => true,
 				),
-				/*
-				'MostEnjoyed' => array(
-					'text' => 'most of my players did',
-					'value' => 0,
-				),
-				'SomeEnjoyed' => array(
-					'text' => 'some of my players did',
-					'value' => 0,
-				),
-				*/
 				'NoneEnjoyed' => array(
 					'text' => 'some or none of my players did',
 					'value' => 0,

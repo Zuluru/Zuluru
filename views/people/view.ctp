@@ -32,7 +32,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php
 				echo $this->Html->link($person['email'], "mailto:{$person['email']}");
-				echo ' (' . __($person['publish_email'] ? 'published' : 'private', true) . ')';
+				echo ' (' . ($person['publish_email'] ? __('published', true) : __('private', true)) . ')';
 				?>
 
 			</dd>
@@ -43,7 +43,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php
 				echo $person['home_phone'];
-				echo ' (' . __($person['publish_home_phone'] ? 'published' : 'private', true) . ')';
+				echo ' (' . ($person['publish_home_phone'] ? __('published', true) : __('private', true)) . ')';
 				?>
 
 			</dd>
@@ -57,7 +57,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 				if (!empty($person['work_ext'])) {
 					echo ' x' . $person['work_ext'];
 				}
-				echo ' (' . __($person['publish_work_phone'] ? 'published' : 'private', true) . ')';
+				echo ' (' . ($person['publish_work_phone'] ? __('published', true) : __('private', true)) . ')';
 				?>
 
 			</dd>
@@ -68,7 +68,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php
 				echo $person['mobile_phone'];
-				echo ' (' . __($person['publish_mobile_phone'] ? 'published' : 'private', true) . ')';
+				echo ' (' . ($person['publish_mobile_phone'] ? __('published', true) : __('private', true)) . ')';
 				?>
 
 			</dd>
@@ -133,7 +133,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 			<?php if (Configure::read('profile.height') && !empty($person['height'])): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Height'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-				<?php echo $person['height'] . ' ' . __(Configure::read('feature.units') == 'Metric' ? 'cm' : 'inches', true); ?>
+				<?php echo $person['height'] . ' ' . (Configure::read('feature.units') == 'Metric' ? __('cm', true) : __('inches', true)); ?>
 
 			</dd>
 			<?php endif; ?>
@@ -173,21 +173,21 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 			<?php if (Configure::read('feature.dog_questions')):?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Has Dog'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-				<?php __($person['has_dog'] ? 'yes' : 'no'); ?>
+				<?php $person['has_dog'] ? __('Yes') : __('No'); ?>
 
 			</dd>
 			<?php endif; ?>
 			<?php if (Configure::read('profile.willing_to_volunteer')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Willing To Volunteer'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-				<?php __($person['willing_to_volunteer'] ? 'yes' : 'no'); ?>
+				<?php $person['willing_to_volunteer'] ? __('Yes') : __('No'); ?>
 
 			</dd>
 			<?php endif; ?>
 			<?php if (Configure::read('profile.contact_for_feedback')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Contact For Feedback'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-				<?php __($person['contact_for_feedback'] ? 'yes' : 'no'); ?>
+				<?php $person['contact_for_feedback'] ? __('Yes') : __('No'); ?>
 
 			</dd>
 			<?php endif; ?>
@@ -210,11 +210,11 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 		if ($is_logged_in && Configure::read('feature.annotations')) {
 			if (!empty($note)) {
 				echo $this->Html->tag ('li', $this->Html->link(__('Delete Note', true), array('action' => 'delete_note', 'person' => $person['id'])));
-				$link = 'Edit Note';
+				$link = __('Edit Note', true);
 			} else {
-				$link = 'Add Note';
+				$link = __('Add Note', true);
 			}
-			echo $this->Html->tag ('li', $this->Html->link(__($link, true), array('action' => 'note', 'person' => $person['id'])));
+			echo $this->Html->tag ('li', $this->Html->link($link, array('action' => 'note', 'person' => $person['id'])));
 		}
 		if ($is_me || $is_admin || $is_manager) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('edit_24.png', array('action' => 'edit', 'person' => $person['id'], 'return' => true), array('alt' => __('Edit Profile', true), 'title' => __('Edit Profile', true))));
@@ -290,7 +290,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 		?>
 		<tr<?php echo $class;?>>
 			<td><?php echo $you . ' ' . $this->element('people/block', array('person' => $relative['Relative'])); ?></td>
-			<td><?php __($relative['PeoplePerson']['approved'] ? 'Yes' : 'No'); ?></td>
+			<td><?php $relative['PeoplePerson']['approved'] ? __('Yes') : __('No'); ?></td>
 			<td class="actions"><?php
 				echo $this->ZuluruHtml->iconLink('view_24.png', array('controller' => 'people', 'action' => 'view', 'person' => $relative['Relative']['id']));
 				echo $this->ZuluruHtml->iconLink('delete_24.png', array('controller' => 'people', 'action' => 'remove_relative', 'person' => $person['id'], 'relative' => $relative['Relative']['id']));
@@ -308,7 +308,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 		?>
 		<tr<?php echo $class;?>>
 			<td><?php echo $this->element('people/block', array('person' => $relative['Relative'])) . ' ' . __('can control', true) . ' ' . $you; ?></td>
-			<td><?php __($relative['PeoplePerson']['approved'] ? 'Yes' : 'No'); ?></td>
+			<td><?php $relative['PeoplePerson']['approved'] ? __('Yes') : __('No'); ?></td>
 			<td class="actions"><?php
 				echo $this->ZuluruHtml->iconLink('view_24.png', array('controller' => 'people', 'action' => 'view', 'person' => $relative['Relative']['id']));
 				echo $this->ZuluruHtml->iconLink('delete_24.png', array('controller' => 'people', 'action' => 'remove_relative', 'person' => $person['id'], 'relative' => $relative['Relative']['id']));

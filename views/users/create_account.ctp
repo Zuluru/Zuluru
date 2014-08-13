@@ -11,10 +11,19 @@ $sport = reset(array_keys(Configure::read('options.sport')));
 Configure::load("sport/$sport");
 ?>
 
-<p>To create a new account, fill in all the fields below and click 'Submit' when done. Your account will be placed on hold until approved by an administrator. Once approved, you will be allocated a membership number, and have full access to the system.</p>
-<p><strong>NOTE:</strong> If you already have an account from a previous season, <strong>DO NOT CREATE ANOTHER ONE</strong>! Instead, please <?php echo $this->Html->link('follow these instructions', array('controller' => 'users', 'action' => 'reset_password')); ?> to regain access to your account.</p>
-<p>Note that email and phone publish settings below only apply to regular players. Captains will always have access to view the phone numbers and email addresses of their confirmed players. All Team Captains will also have their email address viewable by other players.</p>
-<p>If you have concerns about the data <?php echo $short; ?> collects, please see our <strong><a href="<?php echo Configure::read('urls.privacy_policy'); ?>" target="_new">Privacy Policy</a>.</strong></p>
+<p><?php __('To create a new account, fill in all the fields below and click \'Submit\' when done. Your account will be placed on hold until approved by an administrator. Once approved, you will have full access to the system.'); ?></p>
+<p><?php printf(__('%s If you already have an account from a previous season, %s! Instead, please %s to regain access to your account.', true),
+		$this->Html->tag('strong', __('NOTE', true) . ': '),
+		$this->Html->tag('strong', __('DO NOT CREATE ANOTHER ONE', true)),
+		$this->Html->link(__('follow these instructions', true), array('controller' => 'users', 'action' => 'reset_password'))
+);
+?></p>
+<p><?php __('Note that email and phone publish settings below only apply to regular players. Captains will always have access to view the phone numbers and email addresses of their confirmed players. All Team Captains will also have their email address viewable by other players.'); ?></p>
+<p><?php printf(__('If you have concerns about the data %s collects, please see our %s.', true),
+		$short,
+		$this->Html->tag('strong', $this->Html->link(__('Privacy Policy', true), Configure::read('urls.privacy_policy'), array('target' => '_new')))
+);
+?></p>
 
 <div class="users form">
 <?php echo $this->Form->create('Person', array('url' => Router::normalize($this->here)));?>
@@ -70,13 +79,13 @@ Configure::load("sport/$sport");
 		));
 		if (Configure::read('feature.gravatar')) {
 			if (Configure::read('feature.photos')) {
-				$after = 'You can have an image shown on your account by uploading a photo directly, or by enabling this setting and then create a <a href="http://www.gravatar.com">gravatar.com</a> account using the email address you\'ve associated with your %s account.';
+				$after = sprintf(__('You can have an image shown on your account by uploading a photo directly, or by enabling this setting and then create a <a href="http://www.gravatar.com">gravatar.com</a> account using the email address you\'ve associated with your %s account.', true), Configure::read('organization.short_name'));
 			} else {
-				$after = 'You can have an image shown on your account if you enable this setting and then create a <a href="http://www.gravatar.com">gravatar.com</a> account using the email address you\'ve associated with your %s account.';
+				$after = sprintf(__('You can have an image shown on your account if you enable this setting and then create a <a href="http://www.gravatar.com">gravatar.com</a> account using the email address you\'ve associated with your %s account.', true), Configure::read('organization.short_name'));
 			}
 			echo $this->ZuluruForm->input('show_gravatar', array(
 				'label' => __('Show Gravatar image for your account?', true),
-				'after' => $this->Html->para (null, sprintf(__($after, true), Configure::read('organization.short_name'))),
+				'after' => $this->Html->para (null, $after),
 			));
 		}
 	?>
@@ -118,10 +127,9 @@ Configure::load("sport/$sport");
 			));
 		}
 		if (Configure::read('profile.addr_postalcode')) {
-			$fields = __(Configure::read('ui.fields'), true);
 			echo $this->ZuluruForm->input('addr_postalcode', array(
 				'label' => __('Postal Code', true),
-				'after' => $this->Html->para (null, sprintf(__("Please enter a correct postal code matching the address above. $short uses this information to help locate new %s near its members.", true), $fields)),
+				'after' => $this->Html->para (null, sprintf(__('Please enter a correct postal code matching the address above. %s uses this information to help locate new %s near its members.', true), $short, __(Configure::read('ui.fields'), true))),
 			));
 		}
 	?>
@@ -130,7 +138,7 @@ Configure::load("sport/$sport");
 	<?php if (Configure::read('profile.home_phone') || Configure::read('profile.work_phone') ||
 				Configure::read('profile.mobile_phone')): ?>
 	<fieldset>
-		<legend><?php __('Telephone Numbers'); ?></legend>
+		<legend><?php __n('Telephone Number', 'Telephone Numbers', Configure::read('profile.home_phone') + Configure::read('profile.work_phone') + Configure::read('profile.mobile_phone')); ?></legend>
 	<?php
 		if (Configure::read('profile.home_phone')) {
 			echo $this->ZuluruForm->input('home_phone', array(
@@ -234,13 +242,13 @@ Configure::load("sport/$sport");
 		}
 		if (Configure::read('profile.height')) {
 			if (Configure::read('feature.units') == 'Metric') {
-				$units = 'centimeters';
+				$units = __('centimeters', true);
 			} else {
-				$units = 'inches (5 feet is 60 inches; 6 feet is 72 inches)';
+				$units = __('inches (5 feet is 60 inches; 6 feet is 72 inches)', true);
 			}
 			echo $this->ZuluruForm->input('height', array(
 				'size' => 6,
-				'after' => $this->Html->para(null, sprintf(__('Please enter your height in %s. This is used to help generate even teams for hat leagues.', true), __($units, true))),
+				'after' => $this->Html->para(null, sprintf(__('Please enter your height in %s. This is used to help generate even teams for hat leagues.', true), $units)),
 			));
 		}
 		if (Configure::read('profile.shirt_size')) {
@@ -255,12 +263,12 @@ Configure::load("sport/$sport");
 		}
 		if (Configure::read('profile.willing_to_volunteer')) {
 			echo $this->ZuluruForm->input('willing_to_volunteer', array(
-				'label' => __("Can $short contact you about volunteering?", true),
+				'label' => sprintf(__('Can %s contact you about volunteering?', true), $short),
 			));
 		}
 		if (Configure::read('profile.contact_for_feedback')) {
 			echo $this->ZuluruForm->input('contact_for_feedback', array(
-				'label' => __("From time to time, $short would like to contact members with information on our programs and to solicit feedback. Can $short contact you in this regard?"),
+				'label' => sprintf(__('From time to time, %s would like to contact members with information on our programs and to solicit feedback. Can %s contact you in this regard?', true), $short, $short),
 			));
 		}
 	?>
@@ -270,7 +278,7 @@ Configure::load("sport/$sport");
 </div>
 
 <?php
-if (Configure::read('sport.rating_questions')) {
+if (Configure::read('profile.skill_level') && Configure::read('sport.rating_questions')) {
 	echo $this->element('people/rating', array('sport' => $sport, 'field' => '#PersonSkillLevel'));
 }
 ?>

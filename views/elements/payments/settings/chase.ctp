@@ -5,43 +5,43 @@
 		'category' => 'payment',
 		'name' => 'chase_live_store',
 		'options' => array(
-			'label' => 'Live Payment Page ID',
+			'label' => __('Live payment page ID', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'payment',
 		'name' => 'chase_live_password',
 		'options' => array(
-			'label' => 'Live Transaction Key',
+			'label' => __('Live transaction key', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'payment',
 		'name' => 'chase_live_response',
 		'options' => array(
-			'label' => 'Live Response Key',
+			'label' => __('Live response key', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'payment',
 		'name' => 'chase_test_store',
 		'options' => array(
-			'label' => 'Test Payment Page ID',
-			'after' => $this->Html->para(null, 'These test settings are only required if you are doing test payments through ' . $this->Html->link('rpm.demo.e-xact.com', 'https://rpm.demo.e-xact.com/')),
+			'label' => __('Test payment page ID', true),
+			'after' => printf(__('These test settings are only required if you are doing test payments through %s', true), $this->Html->link('rpm.demo.e-xact.com', 'https://rpm.demo.e-xact.com/'))
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'payment',
 		'name' => 'chase_test_password',
 		'options' => array(
-			'label' => 'Test Transaction Key',
+			'label' => __('Test transaction key', true),
 		),
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'payment',
 		'name' => 'chase_test_response',
 		'options' => array(
-			'label' => 'Test Response Key',
+			'label' => __('Test response key', true),
 		),
 	));
 	?>

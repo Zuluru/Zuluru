@@ -30,12 +30,12 @@ $this->Html->addCrumb (__('View', true));
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Auto-Approve'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php __($task['Task']['auto_approve'] ? 'Yes' : 'No'); ?>
+			<?php $task['Task']['auto_approve'] ? __('Yes') : __('No'); ?>
 			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Allow Signup'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php __($task['Task']['allow_signup'] ? 'Yes' : 'No'); ?>
+			<?php $task['Task']['allow_signup'] ? __('Yes') : __('No'); ?>
 			&nbsp;
 		</dd>
 		<?php endif; ?>
@@ -84,7 +84,7 @@ $this->Html->addCrumb (__('View', true));
 			echo 'unclaimed';
 		}
 		?></td>
-		<td class="approved"><?php __($taskSlot['approved'] ? 'Yes' : 'No');?></td>
+		<td class="approved"><?php $taskSlot['approved'] ? __('Yes') : __('No');?></td>
 		<td class="approved_by"><?php
 		if (!empty($taskSlot['approved_by'])) {
 			echo $this->element('people/block', array('person' => $taskSlot['ApprovedBy']));

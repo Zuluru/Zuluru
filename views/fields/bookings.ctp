@@ -64,7 +64,7 @@ foreach ($field['GameSlot'] as $slot):
 			} else {
 				$division = array_shift($divisions);
 				echo $this->element('divisions/block', array('division' => $division['division'], 'field' => 'league_name')) .
-						' (' . __(count($division['games']) == 1 ? 'game' : 'games', true) . ' ' . implode(', ', $division['games']) . ')';
+						' (' . __n('game', 'games', count($division['games']), true) . ' ' . implode(', ', $division['games']) . ')';
 			}
 			?></td>
 			<?php if ($is_admin || $is_manager): ?>
@@ -86,7 +86,7 @@ foreach ($field['GameSlot'] as $slot):
 <?php foreach ($divisions as $division): ?>
 		<tr>
 			<td><?php echo $this->element('divisions/block', array('division' => $division['division'], 'field' => 'league_name')) .
-						' (' . __(count($division['games']) == 1 ? 'game' : 'games', true) . ' ' . implode(', ', $division['games']) . ')';
+						' (' . __n('game', 'games', count($division['games']), true) . ' ' . implode(', ', $division['games']) . ')';
 			?></td>
 		</tr>
 <?php endforeach; ?>

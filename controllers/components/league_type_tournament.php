@@ -37,9 +37,9 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			$max_pools = floor($num_teams / 2);
 			for ($i = $min_pools; $i <= $max_pools; ++ $i) {
 				if ($i == 1) {
-					$types["seeded_$i"] = "single pool with all teams";
+					$types["seeded_$i"] = __('single pool with all teams', true);
 				} else {
-					$types["seeded_$i"] = "seeded split into $i pools";
+					$types["seeded_$i"] = sprintf(__('seeded split into %d pools', true), $i);
 				}
 			}
 
@@ -55,11 +55,11 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 					$remainder = $num_teams - ($teams * $pools);
 
 					if ($remainder == 0) {
-						$types["snake_$pools"] = sprintf('snake seeded split into %d pools of %d teams', $pools, $teams);
+						$types["snake_$pools"] = sprintf(__('snake seeded split into %d pools of %d teams', true), $pools, $teams);
 					} else if ($pools == 2) {
-						$types["snake_$pools"] = sprintf('snake seeded split into %d pools of %d and %d teams', $pools, $teams + 1, $teams);
+						$types["snake_$pools"] = sprintf(__('snake seeded split into %d pools of %d and %d teams', true), $pools, $teams + 1, $teams);
 					} else {
-						$types["snake_$pools"] = sprintf('snake seeded split into %d pools (%d with %d teams and %d with %d)', $pools, $remainder, $teams + 1, $pools - $remainder, $teams);
+						$types["snake_$pools"] = sprintf(__('snake seeded split into %d pools (%d with %d teams and %d with %d)', true), $pools, $remainder, $teams + 1, $pools - $remainder, $teams);
 					}
 				}
 			}
@@ -68,9 +68,9 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			$min_pools = ceil($num_teams / 12);
 			$max_pools = floor($num_teams / 2);
 			for ($i = $min_pools; $i <= $max_pools; ++ $i) {
-				$types["reseed_$i"] = "$i re-seeded power pools";
+				$types["reseed_$i"] = sprintf(__('%d re-seeded power pools', true), $i);
 			}
-			$types['crossover'] = 'group of crossover games';
+			$types['crossover'] = __('group of crossover games', true);
 		}
 
 		return $types;
@@ -82,69 +82,69 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		);
 
 		if ($num_teams % 2 == 0) {
-			$types['blankset'] = "set of blank unscheduled games for all teams in the division ($num_teams teams, " . ($num_teams / 2) . " games)";
+			$types['blankset'] = sprintf(__('set of blank unscheduled games for all teams in the division (%d teams, %d games)', true), $num_teams, $num_teams / 2);
 		} else {
-			$types['blankset_bye'] = "set of blank unscheduled games for all but one team in the division ($num_teams teams, " . (($num_teams - 1) / 2) . " games)";
-			$types['blankset_doubleheader'] = "set of blank unscheduled games for all teams in the division, one team will have a double-header ($num_teams teams, " . (($num_teams + 1) / 2) . " games)";
+			$types['blankset_bye'] = sprintf(__('set of blank unscheduled games for all but one team in the division (%d teams, %d games)', true), $num_teams, ($num_teams - 1) / 2);
+			$types['blankset_doubleheader'] = sprintf(__('set of blank unscheduled games for all teams in the division, one team will have a double-header (%d teams, %d games)', true), $num_teams, ($num_teams + 1) / 2);
 		}
 
 		if ($num_teams >= 3 && $num_teams <= 10) {
 			$types['round_robin'] = 'round-robin';
 			if ($stage > 1) {
-				$types['round_robin_carry_forward'] = 'round-robin with results from prior-stage matchups carried forward';
+				$types['round_robin_carry_forward'] = __('round-robin with results from prior-stage matchups carried forward', true);
 			}
 		}
 
 		// Add more types, depending on the number of teams
 		switch ($num_teams) {
 			case 2:
-				$types['winner_take_all'] = 'single game, winner take all';
-				$types['home_and_home'] = '"home and home" series';
+				$types['winner_take_all'] = __('single game, winner take all', true);
+				$types['home_and_home'] = __('"home and home" series', true);
 				break;
 
 			case 3:
-				$types['playin_three'] = 'play-in game for 2nd and 3rd; 1st gets a bye to the finals';
+				$types['playin_three'] = __('play-in game for 2nd and 3rd; 1st gets a bye to the finals', true);
 				break;
 
 			case 4:
-				$types['semis_consolation'] = 'bracket with semi-finals, finals and 3rd place';
-				$types['semis_elimination'] = 'bracket with semi-finals and finals, no 3rd place';
+				$types['semis_consolation'] = __('bracket with semi-finals, finals and 3rd place', true);
+				$types['semis_elimination'] = __('bracket with semi-finals and finals, no 3rd place', true);
 				break;
 
 			case 5:
-				$types['semis_consolation_five'] = 'bracket with semi-finals and finals, plus a 5th place play-in';
-				$types['semis_minimal_five'] = '1st gets a bye to the finals, 4th and 5th place play-in for the bronze';
+				$types['semis_consolation_five'] = __('bracket with semi-finals and finals, plus a 5th place play-in', true);
+				$types['semis_minimal_five'] = __('1st gets a bye to the finals, 4th and 5th place play-in for the bronze', true);
 				break;
 
 			case 6:
-				$types['semis_consolation_six'] = 'bracket with semi-finals and finals, plus 5th and 6th place play-ins';
-				$types['semis_double_elimination_six'] = 'bracket with semi-finals and finals, 1st and 2nd place have double-elimination option, everyone gets 3 games';
-				$types['semis_complete_six'] = 'bracket with semi-finals and finals, plus 5th and 6th place play-ins, everyone gets 3 games';
-				$types['semis_minimal_six'] = 'bracket with semi-finals and finals, 5th and 6th have consolation games, everyone gets 2 games';
+				$types['semis_consolation_six'] = __('bracket with semi-finals and finals, plus 5th and 6th place play-ins', true);
+				$types['semis_double_elimination_six'] = __('bracket with semi-finals and finals, 1st and 2nd place have double-elimination option, everyone gets 3 games', true);
+				$types['semis_complete_six'] = __('bracket with semi-finals and finals, plus 5th and 6th place play-ins, everyone gets 3 games', true);
+				$types['semis_minimal_six'] = __('bracket with semi-finals and finals, 5th and 6th have consolation games, everyone gets 2 games', true);
 				break;
 
 			case 7:
-				$types['quarters_consolation_seven'] = 'bracket with quarter-finals, semi-finals, finals, and all placement games, with a bye every round for whoever should be playing the missing 8th seed';
-				$types['quarters_round_robin_seven'] = 'bracket with play-in quarter-finals for all but the top seed, semi-finals, finals and 3rd place, and a round-robin for the losers of the quarters';
+				$types['quarters_consolation_seven'] = __('bracket with quarter-finals, semi-finals, finals, and all placement games, with a bye every round for whoever should be playing the missing 8th seed', true);
+				$types['quarters_round_robin_seven'] = __('bracket with play-in quarter-finals for all but the top seed, semi-finals, finals and 3rd place, and a round-robin for the losers of the quarters', true);
 				break;
 
 			case 8:
-				$types['quarters_consolation'] = 'bracket with quarter-finals, semi-finals, finals, and all placement games';
-				$types['quarters_bronze'] = 'bracket with quarter-finals, semi-finals, finals and 3rd place, but no consolation bracket';
-				$types['quarters_elimination'] = 'bracket with quarter-finals, semi-finals and finals, no placement games';
+				$types['quarters_consolation'] = __('bracket with quarter-finals, semi-finals, finals, and all placement games', true);
+				$types['quarters_bronze'] = __('bracket with quarter-finals, semi-finals, finals and 3rd place, but no consolation bracket', true);
+				$types['quarters_elimination'] = __('bracket with quarter-finals, semi-finals and finals, no placement games', true);
 				break;
 
 			case 9:
-				$types['quarters_consolation_nine'] = 'bracket with quarter-finals, semi-finals and finals, plus a 9th place play-in';
+				$types['quarters_consolation_nine'] = __('bracket with quarter-finals, semi-finals and finals, plus a 9th place play-in', true);
 				break;
 
 			case 10:
-				$types['quarters_consolation_ten'] = 'bracket with quarter-finals, semi-finals and finals, plus 9th and 10th place play-ins';
-				$types['presemis_consolation_ten'] = 'bracket with pre-semi-finals, semi-finals and finals, everyone gets 3 games';
+				$types['quarters_consolation_ten'] = __('bracket with quarter-finals, semi-finals and finals, plus 9th and 10th place play-ins', true);
+				$types['presemis_consolation_ten'] = __('bracket with pre-semi-finals, semi-finals and finals, everyone gets 3 games', true);
 				break;
 
 			case 11:
-				$types['quarters_consolation_eleven'] = 'bracket with quarter-finals, semi-finals and finals, plus 9th, 10th and 11th place play-ins';
+				$types['quarters_consolation_eleven'] = __('bracket with quarter-finals, semi-finals and finals, plus 9th, 10th and 11th place play-ins', true);
 				break;
 		}
 
@@ -268,7 +268,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 		}
 		$ret = array();
 		foreach ($rounds as $round => $games) {
-			$ret[$round] = "Round $round: " . implode(', ', $games);
+			$ret[$round] = __('Round', true) . " $round: " . implode(', ', $games);
 		}
 		return $ret;
 	}

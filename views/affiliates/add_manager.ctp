@@ -25,7 +25,7 @@ if (!empty ($affiliate['Person'])) {
 <div id="SearchResults">
 <?php endif; ?>
 
-<?php echo $this->element('people/search_results', array('extra_url' => array('Add as manager' => array('controller' => 'affiliates', 'action' => 'add_manager', 'affiliate' => $affiliate['Affiliate']['id'])))); ?>
+<?php echo $this->element('people/search_results', array('extra_url' => array(__('Add as manager', true) => array('controller' => 'affiliates', 'action' => 'add_manager', 'affiliate' => $affiliate['Affiliate']['id'])))); ?>
 
 <?php if (!$this->params['isAjax']): ?>
 
