@@ -103,7 +103,12 @@ if (isset ($add)) {
 					);
 				}
 				foreach($this->data['Facility'] as $facility) {
-					$facility_options[$facility['id']]['id'] = sprintf("option_%04d", $facility['TeamsFacility']['rank']);
+					// Data can be in two forms, depending on whether it was read or posted
+					if (array_key_exists('TeamsFacility', $facility)) {
+						$facility_options[$facility['id']]['id'] = sprintf("option_%04d", $facility['TeamsFacility']['rank']);
+					} else {
+						$facility_options[$facility['facility_id']]['id'] = sprintf("option_%04d", $facility['rank']);
+					}
 				}
 
 				echo $this->ZuluruForm->input('Team.Facility', array(
