@@ -324,7 +324,9 @@ class Division extends AppModel {
 			),
 		));
 
-		$this->addPlayoffs($divisions);
+		if (!empty($divisions)) {
+			$this->addPlayoffs($divisions);
+		}
 
 		return $divisions;
 	}
