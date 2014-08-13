@@ -50,11 +50,11 @@ class EventTypeTeamComponent extends EventTypeComponent
 
 		// These questions are only meaningful when we are creating team records
 		if (!empty($event['Event']['division_id'])) {
-			if (Configure::read('feature.franchises')) {
-				if (!isset ($this->_controller->Team)) {
-					$this->_controller->Team = ClassRegistry::init ('Team');
-				}
+			if (!isset ($this->_controller->Team)) {
+				$this->_controller->Team = ClassRegistry::init ('Team');
+			}
 
+			if (Configure::read('feature.franchises')) {
 				if (array_key_exists('Division', $event)) {
 					$division = $event;
 				} else {
