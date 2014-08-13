@@ -48,5 +48,3 @@ foreach ($games as $bracket_details):
 
 </div>
 <?php endforeach; ?>
-
-</div>
