@@ -99,6 +99,16 @@ echo $this->element('settings/banner');
 			'after' => __('Your organization\'s phone number.', true),
 		),
 	));
+	echo $this->element('settings/input', array(
+		'category' => 'organization',
+		'name' => 'notice',
+		'options' => array(
+			'type' => 'textarea',
+			'label' => 'Announcement Text',
+			'after' => 'Optional announcement text to display at the top of the home page.',
+			'class' => 'mceAdvanced',
+		),
+	));
 	?>
 	</fieldset>
 
@@ -183,3 +193,4 @@ echo $this->element('settings/banner');
 	<?php endif; ?>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
+<?php if (Configure::read('feature.tiny_mce')) $this->TinyMce->editor('advanced'); ?>

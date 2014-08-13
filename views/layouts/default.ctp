@@ -104,6 +104,7 @@
 		</div>
 		</td>
 		</tr></table>
+<?php echo $this->element('layout/footer'); ?>
 		<hr noshade="noshade" />
 		<p><i>Powered by <a href="http://zuluru.org/"><?php echo ZULURU; ?></a>, version <?php echo ZULURU_MAJOR . '.' . ZULURU_MINOR . '.' . ZULURU_REVISION; ?> | <?php
 		$body = htmlspecialchars ("I found a bug in http://{$_SERVER['HTTP_HOST']}{$this->here}");

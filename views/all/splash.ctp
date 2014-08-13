@@ -5,6 +5,8 @@ $this->Html->addCrumb ($this->UserCache->read('Person.full_name'));
 
 <div class="all splash">
 <?php
+echo $this->element('layout/announcement');
+
 if ($is_admin) {
 	echo $this->element('version_check');
 	if (isset($new_accounts)) {
