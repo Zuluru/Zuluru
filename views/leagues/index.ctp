@@ -117,7 +117,7 @@ endforeach;
 </table>
 <?php endif; ?>
 </div>
-<?php if ($is_logged_in && count($years) > 1): ?>
+<?php if ($is_logged_in && !empty($years)): ?>
 <div class="actions">
 	<ul>
 <?php
