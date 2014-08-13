@@ -818,6 +818,9 @@ class LeagueTypeComponent extends Object
 		if (!$double_booking) {
 			$conditions['assigned'] = false;
 		}
+
+		// NOTE: If changes are made to this containment, they may also be required
+		// in SchedulesController::reschedule.
 		$this->_controller->Division->contain (array (
 			'Day',
 			'Team' => array(
