@@ -906,20 +906,8 @@ class GamesController extends AppController {
 		if ($id) {
 			$this->Game->contain(array(
 				// Get the list of captains for each team, we may need to email them
-				'HomeTeam' => array(
-					'Person' => array(
-						$this->Auth->authenticate->name,
-						'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-						'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
-					),
-				),
-				'AwayTeam' => array(
-					'Person' => array(
-						$this->Auth->authenticate->name,
-						'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-						'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
-					),
-				),
+				'HomeTeam',
+				'AwayTeam',
 				'GameSlot' => array('Field' => array('Facility' => 'Region')),
 				// We need to specify the team id here, in case the person is on both teams in this game
 				'Attendance' => array(
@@ -943,6 +931,22 @@ class GamesController extends AppController {
 			$this->Configuration->loadAffiliate($game['GameSlot']['Field']['Facility']['Region']['affiliate_id']);
 			$date = $game['GameSlot']['game_date'];
 			$past = (strtotime("{$game['GameSlot']['game_date']} {$game['GameSlot']['game_start']}") + Configure::read('timezone.adjust') * 60 < time());
+
+			$this->Game->Division->Team->contain(array('Person' => array(
+				$this->Auth->authenticate->name,
+				'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
+				'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
+			)));
+			$team = $this->Game->Division->Team->read(null, $game['Game']['home_team']);
+			$game['HomeTeam']['Person'] = $team['Person'];
+
+			$this->Game->Division->Team->contain(array('Person' => array(
+				$this->Auth->authenticate->name,
+				'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
+				'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
+			)));
+			$team = $this->Game->Division->Team->read(null, $game['Game']['away_team']);
+			$game['AwayTeam']['Person'] = $team['Person'];
 
 			if ($game['Game']['home_team'] == $team_id) {
 				$team = $game['HomeTeam'];
