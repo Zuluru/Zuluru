@@ -11,7 +11,7 @@ $ git pull git://github.com/CakeDC/TinyMCE.git 1.3</code></pre>
 <pre><code>public $configs = array();</code></pre>
 with
 <pre><code>public $configs = array(
-    'simple' => array(
+	'simple' => array(
 		'mode' => 'textareas',
 		'theme' => 'advanced',
 		'theme_advanced_buttons1' => 'bold,italic,underline,strikethrough,|,undo,redo,|,cleanup,|,formatselect,bullist,numlist',
@@ -21,15 +21,15 @@ with
 		'theme_advanced_path' => false,
 		'theme_advanced_resizing' => true,
 		'editor_selector' => 'mceSimple',
-    ),
-    'advanced' => array(
-        'mode' => 'textareas',
-        'theme' => 'advanced',
+	),
+	'advanced' => array(
+		'mode' => 'textareas',
+		'theme' => 'advanced',
 		'theme_advanced_statusbar_location' => 'bottom',
 		'theme_advanced_path' => false,
 		'theme_advanced_resizing' => true,
-        'editor_selector' => 'mceAdvanced',
-    ),
+		'editor_selector' => 'mceAdvanced',
+	),
 	'newsletter' => array(
 		'mode' => 'textareas',
 		'theme' => 'advanced',
