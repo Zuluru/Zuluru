@@ -350,7 +350,9 @@ class SchedulesController extends AppController {
 						}
 					}
 				}
-				$valid_options = array_merge($valid_options, $options[$group]);
+				if (!empty($options[$group])) {
+					$valid_options = array_merge($valid_options, $options[$group]);
+				}
 			}
 		}
 
