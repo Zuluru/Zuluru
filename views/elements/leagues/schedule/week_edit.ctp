@@ -73,7 +73,7 @@ foreach ($games as $game) {
 
 $cross_division = (count($season_divisions) > 1);
 
-if ($only_some_divisions || $is_season) {
+if ($only_some_divisions || !$is_season) {
 	echo $this->element('leagues/schedule/view_header', compact('week', 'competition', 'id_field', 'id', 'published', 'finalized', 'is_tournament', 'multi_day', 'has_dependent_games'));
 } else {
 	echo $this->element('leagues/schedule/edit_header', compact('week', 'competition', 'id_field', 'id', 'is_tournament', 'multi_day'));

@@ -765,7 +765,8 @@ class DivisionsController extends AppController {
 			$is_tournament = !empty($tournament_games);
 			$game_slots = $this->Division->DivisionGameslotAvailability->GameSlot->getAvailable($id, $edit_date, $is_tournament, $division['Division']['double_booking'], $multi_day);
 		} else {
-			$is_tournament = false;
+			$tournament_games = Set::extract ('/Game[type!=' . SEASON_GAME . ']', $division);
+			$is_tournament = !empty($tournament_games);
 		}
 
 		// Save posted data

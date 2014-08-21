@@ -45,12 +45,17 @@ if (!empty ($edit_date)) {
 	$future_week = 99;
 	$dates = array_unique(Set::extract ('/Game/GameSlot/game_date', $league));
 	$weeks = array();
+	$week = 0;
 	$first_day = Configure::read('organization.first_day');
 	foreach ($dates as $date) {
 		$date_stamp = strtotime($date);
-		$week = date('W', $date_stamp);
-		if (date('N', $date_stamp) >= $first_day) {
+		if ($is_tournament) {
 			++ $week;
+		} else {
+			$week = date('W', $date_stamp);
+			if (date('N', $date_stamp) >= $first_day) {
+				++ $week;
+			}
 		}
 		if (!array_key_exists($week, $weeks)) {
 			$weeks[$week] = array($date, $date);

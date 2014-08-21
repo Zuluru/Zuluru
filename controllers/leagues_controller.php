@@ -490,7 +490,7 @@ class LeaguesController extends AppController {
 		$multi_day = (count(array_unique(Set::extract('/Division[schedule_type!=tournament]/Day/id', $league))) > 1);
 
 		if ($edit_date) {
-			$tournament_games = Set::extract ('/Division/Game[type!=' . SEASON_GAME . "]/GameSlot[game_date=$edit_date]", $league);
+			$tournament_games = Set::extract ('/Game[type!=' . SEASON_GAME . "]/GameSlot[game_date=$edit_date]", $league);
 			$is_tournament = !empty($tournament_games);
 			$divisions = array();
 			$double_booking = false;
@@ -502,7 +502,8 @@ class LeaguesController extends AppController {
 			}
 			$game_slots = $this->League->Division->DivisionGameslotAvailability->GameSlot->getAvailable($divisions, $edit_date, $is_tournament, $double_booking, $multi_day);
 		} else {
-			$is_tournament = false;
+			$tournament_games = Set::extract ('/Game[type!=' . SEASON_GAME . ']', $league);
+			$is_tournament = !empty($tournament_games);
 		}
 
 		// Save posted data
