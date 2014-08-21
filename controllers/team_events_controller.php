@@ -464,6 +464,7 @@ class TeamEventsController extends AppController {
 			'conditions' => array(
 				'TeamEvent.team_id' => $team_ids,
 				'TeamEvent.date < CURDATE()',
+				'TeamEvent.date >= DATE_ADD(CURDATE(), INTERVAL -14 DAY)',
 			),
 			'contain' => array(
 				'Team',
@@ -496,6 +497,7 @@ class TeamEventsController extends AppController {
 			'conditions' => array(
 				'TeamEvent.team_id' => $team_ids,
 				'TeamEvent.date >= CURDATE()',
+				'TeamEvent.date < DATE_ADD(CURDATE(), INTERVAL 14 DAY)',
 			),
 			'contain' => array(
 				'Team',
