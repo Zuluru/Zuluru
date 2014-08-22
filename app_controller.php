@@ -166,6 +166,8 @@ class AppController extends Controller {
 		$this->Session->write('Config.language', $i18n->l10n->lang);
 		Configure::write('Config.language', $i18n->l10n->lang);
 		Configure::write('Config.language_name', $i18n->l10n->language);
+		Configure::Load('features');
+		Configure::Load('options');
 	}
 
 	function _findLanguage() {

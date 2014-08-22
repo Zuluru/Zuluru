@@ -1011,8 +1011,6 @@ class PeopleController extends AppController {
 				// and rebuild the menu based on any changes.
 				$this->Configuration->load($my_id);
 				$this->_setLanguage();
-				Configure::Load('features');
-				Configure::Load('options');
 				$this->_initMenu();
 				$this->Session->setFlash(sprintf(__('The %s have been saved', true), __('preferences', true)), 'default', array('class' => 'success'));
 			} else {
