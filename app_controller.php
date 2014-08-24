@@ -862,7 +862,9 @@ class AppController extends Controller {
 				$this->_addMenuItem ('Organization', array('controller' => 'settings', 'action' => 'organization', 'affiliate' => $affiliate), array('Configuration', 'Settings'));
 				$this->_addMenuItem ('Features', array('controller' => 'settings', 'action' => 'feature', 'affiliate' => $affiliate), array('Configuration', 'Settings'));
 				$this->_addMenuItem ('Email', array('controller' => 'settings', 'action' => 'email', 'affiliate' => $affiliate), array('Configuration', 'Settings'));
-				$this->_addMenuItem ('Users', array('controller' => 'settings', 'action' => 'user', 'affiliate' => $affiliate), array('Configuration', 'Settings'));
+				$this->_addMenuItem ('Team', array('controller' => 'settings', 'action' => 'team', 'affiliate' => $affiliate), array('Configuration', 'Settings'));
+				$this->_addMenuItem ('User', array('controller' => 'settings', 'action' => 'user', 'affiliate' => $affiliate), array('Configuration', 'Settings'));
+				$this->_addMenuItem ('Profile', array('controller' => 'settings', 'action' => 'profile', 'affiliate' => $affiliate), array('Configuration', 'Settings'));
 				$this->_addMenuItem ('Scoring', array('controller' => 'settings', 'action' => 'scoring', 'affiliate' => $affiliate), array('Configuration', 'Settings'));
 				if (Configure::read('feature.registration')) {
 					$this->_addMenuItem ('Registration', array('controller' => 'settings', 'action' => 'registration', 'affiliate' => $affiliate), array('Configuration', 'Settings'));
@@ -875,8 +877,10 @@ class AppController extends Controller {
 					$this->_addMenuItem ($name, array('controller' => 'settings', 'action' => 'organization', 'affiliate' => $affiliate), array('Configuration', 'Settings', 'Organization'));
 					$this->_addMenuItem ($name, array('controller' => 'settings', 'action' => 'feature', 'affiliate' => $affiliate), array('Configuration', 'Settings', 'Features'));
 					$this->_addMenuItem ($name, array('controller' => 'settings', 'action' => 'email', 'affiliate' => $affiliate), array('Configuration', 'Settings', 'Email'));
-					$this->_addMenuItem ($name, array('controller' => 'settings', 'action' => 'user', 'affiliate' => $affiliate), array('Configuration', 'Settings', 'Users'));
+					$this->_addMenuItem ($name, array('controller' => 'settings', 'action' => 'team', 'affiliate' => $affiliate), array('Configuration', 'Settings', 'Team'));
+					$this->_addMenuItem ($name, array('controller' => 'settings', 'action' => 'user', 'affiliate' => $affiliate), array('Configuration', 'Settings', 'User'));
 					$this->_addMenuItem ($name, array('controller' => 'settings', 'action' => 'scoring', 'affiliate' => $affiliate), array('Configuration', 'Settings', 'Scoring'));
+					$this->_addMenuItem ($name, array('controller' => 'settings', 'action' => 'profile', 'affiliate' => $affiliate), array('Configuration', 'Settings', 'Profile'));
 					if (Configure::read('feature.registration')) {
 						$this->_addMenuItem ($name, array('controller' => 'settings', 'action' => 'registration', 'affiliate' => $affiliate), array('Configuration', 'Settings', 'Registration'));
 						if (Configure::read('registration.online_payments')) {
