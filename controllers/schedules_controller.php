@@ -68,6 +68,10 @@ class SchedulesController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
+		if ($this->division['Division']['schedule_type'] == 'none') {
+			$this->Session->setFlash(__('This division\'s "schedule type" is set to "none", so no games can be added.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'divisions', 'action' => 'view', 'division' => $id));
+		}
 		$this->Configuration->loadAffiliate($this->division['League']['affiliate_id']);
 
 		if ($this->_arg('playoff') ||
