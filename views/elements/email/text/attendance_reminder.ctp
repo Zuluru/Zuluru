@@ -4,11 +4,19 @@ Dear <?php echo $person['first_name']; ?>,
 You have not yet indicated your attendance<?php else: ?>
 You are currently listed as <?php echo Configure::read("attendance.$status"); ?>
 <?php endif; ?> for the <?php
-echo $team['name']; ?> game against <?php echo $opponent['name']; ?> at <?php
+echo $team['name']; ?> game against <?php
+echo $opponent['name'];
+if (Configure::read('feature.shirt_colour') && !empty($opponent['shirt_colour'])) {
+	echo ' (' . sprintf(__('they wear %s', true), $opponent['shirt_colour']) . ')';
+}
+?> at <?php
 $url = Router::url(array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id']), true);
 echo "{$game['GameSlot']['Field']['long_name']} ($url)";
-?> starting at <?php
-echo $this->ZuluruTime->time($game['GameSlot']['game_start']); ?> on <?php
+?> from <?php
+echo $this->ZuluruTime->time($game['GameSlot']['game_start']);
+?> to <?php
+echo $this->ZuluruTime->time($game['GameSlot']['display_game_end']);
+?> on <?php
 echo $this->ZuluruTime->date($game['GameSlot']['game_date']);
 ?>.
 
