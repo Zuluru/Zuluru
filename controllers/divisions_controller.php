@@ -355,7 +355,12 @@ class DivisionsController extends AppController {
 
 		if (!empty($this->data)) {
 			$this->Division->create();
-			if ($this->Division->save($this->data)) {
+			if ($this->data['Division']['schedule_type'] != 'none' &&
+					(empty($this->data['Day']) || empty($this->data['Day']['Day']) || empty($this->data['Day']['Day'][0])))
+			{
+				$this->Division->save($this->data, array('validate' => 'only'));
+				$this->Division->Day->validationErrors['Day'] = sprintf(__('You must select at least one %s!', true), __('day', true));
+			} else if ($this->Division->save($this->data)) {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('division', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 			} else {
@@ -423,7 +428,12 @@ class DivisionsController extends AppController {
 		Configure::load("sport/{$league['League']['sport']}");
 
 		if (!empty($this->data)) {
-			if ($this->Division->saveAll($this->data)) {
+			if ($this->data['Division']['schedule_type'] != 'none' &&
+					(empty($this->data['Day']) || empty($this->data['Day']['Day']) || empty($this->data['Day']['Day'][0])))
+			{
+				$this->Division->saveAll($this->data, array('validate' => 'only'));
+				$this->Division->Day->validationErrors['Day'] = sprintf(__('You must select at least one %s!', true), __('day', true));
+			} else if ($this->Division->saveAll($this->data)) {
 				// Any time that this is called, the division seeding might change.
 				// We just reset it here, and it will be recalculated as required elsewhere.
 				$this->Division->Team->updateAll(array('seed' => 0), array('Team.division_id' => $id));
@@ -435,9 +445,8 @@ class DivisionsController extends AppController {
 
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('division', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
-			} else {
-				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('division', true)), 'default', array('class' => 'warning'));
 			}
+			$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('division', true)), 'default', array('class' => 'warning'));
 		}
 
 		if (empty($this->data)) {

@@ -247,11 +247,21 @@ class LeaguesController extends AppController {
 			$this->data['League']['open'] = $this->data['Division']['open'];
 			$this->data['League']['close'] = $this->data['Division']['close'];
 
+			// Division->saveAll needs to not have League data in it
+			$division = $this->data;
+			unset($division['League']);
+
 			$this->League->create();
 			$transaction = new DatabaseTransaction($this->League);
-			if ($this->League->save($this->data)) {
-				$this->data['Division']['league_id'] = $this->League->id;
-				if ($this->League->Division->save($this->data['Division'])) {
+			if ($this->data['Division']['schedule_type'] != 'none' &&
+					(empty($this->data['Day']) || empty($this->data['Day'][0])))
+			{
+				$this->League->save($this->data, array('validate' => 'only'));
+				$this->League->Division->saveAll($division, array('validate' => 'only'));
+				$this->League->validationErrors['Day'] = sprintf(__('You must select at least one %s!', true), __('day', true));
+			} else if ($this->League->save($this->data)) {
+				$division['Division']['league_id'] = $this->League->id;
+				if ($this->League->Division->saveAll($division)) {
 					$transaction->commit();
 					$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('league', true)), 'default', array('class' => 'success'));
 					$this->redirect(array('action' => 'index'));
@@ -317,7 +327,13 @@ class LeaguesController extends AppController {
 				$division = $this->data;
 				unset($division['League']);
 			}
-			if ($this->League->save($this->data) && (!isset($division) || $this->League->Division->saveAll($division))) {
+			if ($this->data['Division']['schedule_type'] != 'none' &&
+					(empty($this->data['Day']) || empty($this->data['Day'][0])))
+			{
+				$this->League->save($this->data, array('validate' => 'only'));
+				$this->League->Division->saveAll($division, array('validate' => 'only'));
+				$this->League->validationErrors['Day'] = sprintf(__('You must select at least one %s!', true), __('day', true));
+			} else if ($this->League->save($this->data) && (!isset($division) || $this->League->Division->saveAll($division))) {
 				// Any time that this is called, the division seeding might change.
 				// We just reset it here, and it will be recalculated as required elsewhere.
 				if (isset($division)) {
@@ -337,10 +353,9 @@ class LeaguesController extends AppController {
 				$transaction->commit();
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('league', true)), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
-			} else {
-				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('league', true)), 'default', array('class' => 'warning'));
-				$this->Configuration->loadAffiliate($this->League->affiliate($id));
 			}
+			$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('league', true)), 'default', array('class' => 'warning'));
+			$this->Configuration->loadAffiliate($this->League->affiliate($id));
 		}
 
 		// Very likely that we need to read existing league information for menu purposes
@@ -351,7 +366,11 @@ class LeaguesController extends AppController {
 			),
 			'StatType',
 		));
+
+		$v = $this->League->validationErrors;
 		$this->League->read(null, $id);
+		$this->League->validationErrors = $v;
+
 		if (!$this->League->data) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
