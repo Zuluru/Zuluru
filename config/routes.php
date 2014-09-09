@@ -49,6 +49,7 @@
 	Router::connect('/settings/*', array('controller' => 'settings', 'action' => 'edit'));
 
 /**
- * Make sure CakePHP parses CSV file requests correctly
+ * Make sure CakePHP parses file requests with other known extensions correctly
  */
 	Router::parseExtensions('csv');
+	Router::parseExtensions('json');
