@@ -51,5 +51,4 @@
 /**
  * Make sure CakePHP parses file requests with other known extensions correctly
  */
-	Router::parseExtensions('csv');
-	Router::parseExtensions('json');
+	Router::parseExtensions('csv', 'json');
