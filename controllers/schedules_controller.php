@@ -1091,7 +1091,9 @@ class SchedulesController extends AppController {
 
 	function today() {
 		Configure::write ('debug', 0);
-		$this->layout = 'iframe';
+		if ($this->params['url']['ext'] == 'html') {
+			$this->layout = 'iframe';
+		}
 
 		$games = $this->Division->Game->find('count', array(
 				'contain' => array('GameSlot'),

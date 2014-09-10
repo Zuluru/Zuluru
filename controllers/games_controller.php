@@ -3111,7 +3111,7 @@ class GamesController extends AppController {
 		)));
 	}
 
-	function future($recursive = false) {
+	function future($recursive = false, $limit = null) {
 		$person = $this->_arg('person');
 		if (!$person) {
 			$person = $this->Auth->user('zuluru_person_id');
@@ -3126,7 +3126,9 @@ class GamesController extends AppController {
 		$people = $this->UserCache->read('RelativeIDs', $person);
 		array_unshift($people, $person);
 
-		$limit = max(4, ceil(count(array_unique($team_ids)) * 1.5));
+		if ($limit === null) {
+			$limit = max(4, ceil(count(array_unique($team_ids)) * 1.5));
+		}
 		$games = $this->Game->find ('all', array(
 			'limit' => $limit,
 			'conditions' => array(
@@ -3169,9 +3171,13 @@ class GamesController extends AppController {
 		}
 
 		if ($reread && !$recursive) {
-			return $this->future(true);
+			$games = $this->future(true);
 		}
-		return $games;
+
+		if (!empty($this->params['requested'])) {
+			return $games;
+		}
+		$this->set(compact('games'));
 	}
 
 	function cron() {
