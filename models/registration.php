@@ -50,7 +50,8 @@ class Registration extends AppModel {
 
 	static function paymentAmounts($registration) {
 		$current_total = $registration['Price']['cost'] + $registration['Price']['tax1'] + $registration['Price']['tax2'];
-		if ($current_total == 0) {
+		$zero_deposit = $registration['Price']['allow_deposit'] && $registration['Price']['fixed_deposit'] && $registration['Price']['deposit_only'] && ($registration['Price']['minimum_deposit'] == 0);
+		if ($current_total == 0 || $zero_deposit) {
 			return array(0,0,0);
 		}
 
