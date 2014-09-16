@@ -73,10 +73,10 @@ foreach ($people as $person):
 				if (empty($extra_url_field)) {
 					$extra_url_field = 'id';
 				}
-				foreach ($extra_url as $title => $url) {
+				foreach ($extra_url as $title => $url_params) {
 					if (!empty($person['Person'][$extra_url_field])) {
-						$url = array_merge (array($extra_url_parameter => $person['Person'][$extra_url_field], 'return' => true), $url);
-						echo $this->Html->link($title, $url);
+						$url_params = array_merge (array($extra_url_parameter => $person['Person'][$extra_url_field], 'return' => true), $url_params);
+						echo $this->Html->link($title, $url_params);
 					}
 				}
 			}
@@ -92,4 +92,9 @@ foreach ($people as $person):
 	<?php echo $this->Paginator->next(__('next', true).' >>', array('buffer' => false), null, array('class' => 'disabled'));?>
 </div>
 
+<div class="actions">
+	<ul>
+		<?php echo $this->Html->tag ('li', $this->Html->link(__('Download', true), array_merge($url, array('ext' => 'csv')))); ?>
+	</ul>
+</div>
 <?php endif; ?>

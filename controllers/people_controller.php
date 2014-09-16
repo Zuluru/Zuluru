@@ -2277,8 +2277,6 @@ class PeopleController extends AppController {
 			}
 
 			if (!empty($people)) {
-				$this->_mergePaginationParams();
-
 				$conditions = array('Person.id' => $people);
 				if (array_key_exists('affiliate_id', $params)) {
 					$conditions['OR'] = array(
@@ -2287,22 +2285,44 @@ class PeopleController extends AppController {
 					);
 				}
 
-				$this->paginate = array('Person' => array(
-						'conditions' => $conditions,
-						'contain' => array(
-							'Note' => array('conditions' => array('created_person_id' => $this->Auth->user('zuluru_person_id'))),
-							'Affiliate',
-						),
-						'limit' => Configure::read('feature.items_per_page'),
-						'joins' => array(array(
-							'table' => "{$this->Person->tablePrefix}affiliates_people",
-							'alias' => 'AffiliatePerson',
-							'type' => 'LEFT',
-							'foreignKey' => false,
-							'conditions' => 'AffiliatePerson.person_id = Person.id',
-						)),
-				));
-				$this->set('people', $this->paginate('Person'));
+				if ($this->params['url']['ext'] == 'csv') {
+					Configure::write ('debug', 0);
+					$this->set('people', $this->Person->find ('all', array(
+							'contain' => array(
+								'Affiliate',
+							),
+							'conditions' => $conditions,
+							'order' => array('Person.last_name', 'Person.first_name', 'Person.id'),
+							'joins' => array(array(
+								'table' => "{$this->Person->tablePrefix}affiliates_people",
+								'alias' => 'AffiliatePerson',
+								'type' => 'LEFT',
+								'foreignKey' => false,
+								'conditions' => 'AffiliatePerson.person_id = Person.id',
+							)),
+					)));
+					$this->set('download_file_name', 'Search results');
+					$this->render('rule_search');
+				} else {
+					$this->_mergePaginationParams();
+
+					$this->paginate = array('Person' => array(
+							'conditions' => $conditions,
+							'contain' => array(
+								'Note' => array('conditions' => array('created_person_id' => $this->Auth->user('zuluru_person_id'))),
+								'Affiliate',
+							),
+							'limit' => Configure::read('feature.items_per_page'),
+							'joins' => array(array(
+								'table' => "{$this->Person->tablePrefix}affiliates_people",
+								'alias' => 'AffiliatePerson',
+								'type' => 'LEFT',
+								'foreignKey' => false,
+								'conditions' => 'AffiliatePerson.person_id = Person.id',
+							)),
+					));
+					$this->set('people', $this->paginate('Person'));
+				}
 			} else {
 				$this->set('error', __('No matches found!', true));
 			}

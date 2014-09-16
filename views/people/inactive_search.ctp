@@ -14,7 +14,7 @@ $this->Html->addCrumb (__('Inactive Search', true));
 <?php echo $this->element('people/search_results'); ?>
 
 <?php if (!empty($params['rule'])): ?>
-<p>To create a mailing list for this search, use this rule: <code><?php echo $params['rule']; ?></code></p>
+<p class="clear">To create a mailing list for this search, use this rule: <code><?php echo $params['rule']; ?></code></p>
 <?php endif; ?>
 
 <?php if (!$this->params['isAjax']): ?>
