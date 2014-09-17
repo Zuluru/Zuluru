@@ -812,6 +812,13 @@ class RegistrationsController extends AppController {
 				continue;
 			}
 
+			// Don't allow any payment on $0 "deposit only" items
+			if ($registration['Price']['allow_deposit'] && $registration['Price']['fixed_deposit'] && $registration['Price']['deposit_only'] && ($registration['Price']['minimum_deposit'] == 0)) {
+				$other[] = array_merge($registration, array('reason' => __('Registration for this is open, but payments are not being accepted yet', true)));
+				unset ($registrations[$key]);
+				continue;
+			}
+
 			// Set the description for the invoice
 			$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
 			$registrations[$key]['Event']['payment_desc'] = $event_obj->longDescription($registration);
