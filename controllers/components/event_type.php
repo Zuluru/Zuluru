@@ -112,9 +112,10 @@ class EventTypeComponent extends Object
 			$can_register = false;
 			foreach ($registration['Event']['Price'] as $price) {
 				if (strtotime($price['close']) > time() &&
-						!empty ($price['register_rule']) &&
-						$rule_obj->init ($price['register_rule']) &&
-						$rule_obj->evaluate ($registration['Event']['affiliate_id'], $person))
+						(empty ($price['register_rule']) ||
+							($rule_obj->init ($price['register_rule']) && $rule_obj->evaluate ($registration['Event']['affiliate_id'], $person))
+						)
+				)
 				{
 					$can_register = true;
 					break;
