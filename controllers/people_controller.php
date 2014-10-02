@@ -2242,6 +2242,11 @@ class PeopleController extends AppController {
 		$this->set(compact('url', 'affiliates'));
 		unset($url['rule']);
 
+		// If a rule has been submitted through the form, ignore whatever might be saved in the URL
+		if (array_key_exists('rule', $params)) {
+			unset($params['rule64']);
+		}
+
 		if (array_key_exists('rule64', $params)) {
 			// Base 64 input must have a length that's a multiple of 4, add = to pad it out
 			while (strlen ($params['rule64']) % 4)
@@ -2270,7 +2275,7 @@ class PeopleController extends AppController {
 			}
 			$this->set(compact('url', 'params'));
 
-			$people = $rule_obj->query($params['rule']);
+			$people = $rule_obj->query($params['affiliate_id']);
 			if ($people === null) {
 				$this->set('error', __('The syntax of the rule is valid, but it is not possible to build a query which will return the expected results. See the "rules engine" help for suggestions.', true));
 				return;
