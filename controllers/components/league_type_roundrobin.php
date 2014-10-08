@@ -268,15 +268,17 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 				return false;
 			}
 
-			// c. keep k=0 element in place, move k=1 element to end, and move
-			// k=2 through n elements left one position.
-			$teams = $this->rotateAllExceptFirst($teams);
+			if ($iterations_remaining != 0) {
+				// c. keep k=0 element in place, move k=1 element to end, and move
+				// k=2 through n elements left one position.
+				$teams = $this->rotateAllExceptFirst($teams);
 
-			// Now, move the date forward to next available game date
-			$date = $this->nextGameslotDay($date, $num_teams / 2 * ($repeats - 1));
-			if (!$date) {
-				$this->_controller->Session->setFlash(sprintf (__('Had to stop with %s sets left to schedule: no more game dates available', true), $iterations_remaining), 'default', array('class' => 'error'));
-				return false;
+				// Now, move the date forward to next available game date
+				$date = $this->nextGameslotDay($date, $num_teams / 2 * ($repeats - 1));
+				if (!$date) {
+					$this->_controller->Session->setFlash(sprintf (__('Had to stop with %s sets left to schedule: no more game dates available', true), $iterations_remaining), 'default', array('class' => 'error'));
+					return false;
+				}
 			}
 		}
 
