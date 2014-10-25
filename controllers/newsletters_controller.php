@@ -312,7 +312,7 @@ class NewslettersController extends AppController {
 				),
 		);
 
-		if ($newsletter['Newsletter']['personalize']) {
+		if ($newsletter['Newsletter']['personalize'] || $test) {
 			foreach ($people as $person) {
 				$params['to'] = $person;
 				$code = $this->_hash($person['Person']['id'], $newsletter['MailingList']['id']);
