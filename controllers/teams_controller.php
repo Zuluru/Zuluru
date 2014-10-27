@@ -1659,6 +1659,10 @@ class TeamsController extends AppController {
 				$dates[] = date('Y-m-d', $date);
 			}
 		}
+
+		// Daylight savings time can result in dates being duplicated
+		$dates = array_unique($dates);
+
 		$attendance = $this->Team->Division->Game->_read_attendance($team, $days, null, $dates);
 		$event_attendance = $this->Team->TeamEvent->_read_attendance($team);
 
