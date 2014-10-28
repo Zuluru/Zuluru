@@ -110,7 +110,7 @@ class MailingListsController extends AppController {
 		$people = $rule_obj->query($mailingList['MailingList']['affiliate_id']);
 		if ($people === null) {
 			$this->Session->setFlash(__('The syntax of the mailing list rule is valid, but it is not possible to build a query which will return the expected results. See the "rules engine" help for suggestions.', true), 'default', array('class' => 'error'));
-			$this->redirect(array('action' => 'view', 'newsletter' => $id));
+			$this->redirect(array('action' => 'view', 'mailing_list' => $id));
 		}
 
 		if (!empty($people)) {
