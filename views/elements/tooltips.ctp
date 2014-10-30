@@ -41,6 +41,9 @@ jQuery('.tooltip_toggle').tooltip('disable');
 jQuery('#zuluru').on({
 	mouseleave: function() {
 		jQuery(this).data('wait_for_tooltip', false);
+	},
+	focusout: function() {
+		jQuery(this).data('wait_for_tooltip', false);
 	}
 },'.trigger');
 jQuery('#zuluru').tooltip({
