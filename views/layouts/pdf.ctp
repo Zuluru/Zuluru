@@ -28,7 +28,12 @@ header('Pragma: no-cache');
 	{
 		$file = $path . DS . 'css' . DS . 'zuluru' . DS . 'stat_sheet.css';
 		if (file_exists($file)) {
+			// In case of usage in a sub-folder, we need to specify an absolute path
+			// without the HTML helper messing it up.
+			$webroot = $this->Html->webroot;
+			$this->Html->webroot = '';
 			echo $this->Html->css($file);
+			$this->Html->webroot = $webroot;
 			$css_included = true;
 			break;
 		}
