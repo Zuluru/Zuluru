@@ -204,7 +204,7 @@ if (!empty($team['Team']['short_name'])) {
 <div class="actions">
 	<?php
 	$extra = array();
-	if ($is_captain && Configure::read('scoring.stat_tracking') && League::hasStats($team['Division']['League'])) {
+	if (($is_admin || $is_manager || $is_coordinator || $is_captain) && Configure::read('scoring.stat_tracking') && League::hasStats($team['Division']['League'])) {
 		$extra[] = $this->ZuluruHtml->iconLink('pdf_32.png',
 				array('action' => 'stat_sheet', 'team' => $team['Team']['id']),
 				array('alt' => __('Stat Sheet', true), 'title' => __('Stat Sheet', true)));
