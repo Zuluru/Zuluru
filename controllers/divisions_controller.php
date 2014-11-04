@@ -1332,14 +1332,21 @@ class DivisionsController extends AppController {
 		}
 		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
 		$teams = Set::extract('/Team/id', $division);
-		$this->Division->Game->contain(array (
+
+		$contain = array (
 			'GameSlot',
 			'SpiritEntry' => 'MostSpirited',
 			'HomeTeam',
 			'AwayTeam',
-		));
+		);
+		$is_manager = $this->is_manager && in_array($division['League']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
+		if ($this->is_admin || $is_manager) {
+			$contain[] = 'Incident';
+		}
+
 		$division['Game'] = $this->Division->Game->find('all', array(
 			'order' => 'Game.id',
+			'contain' => $contain,
 			'conditions' => array(
 				array('OR' => array(
 					'Game.home_team' => $teams,

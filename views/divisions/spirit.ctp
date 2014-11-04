@@ -324,6 +324,15 @@ foreach ($division['Game'] as $game) {
 				}
 			}
 		}
+		foreach ($game['Incident'] as $incident) {
+			if ($incident['team_id'] == $game[$team]['id']) {
+				$rows[] = array(
+						__('Incident for entry above:', true),
+						$incident['type'],
+						array($incident['details'], array('class' => 'spirit_incident', 'colspan' => $colcount - 2)),
+				);
+			}
+		}
 	}
 }
 
