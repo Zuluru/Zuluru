@@ -205,6 +205,7 @@ class GamesController extends AppController {
 		$this->set('spirit_obj', $this->_getComponent ('Spirit', $this->Game->data['Division']['League']['sotg_questions'], $this));
 		$this->set('league_obj', $this->_getComponent ('LeagueType', $this->Game->data['Division']['schedule_type'], $this));
 		$this->set('ratings_obj', $this->_getComponent ('Ratings', $this->Game->data['Division']['rating_calculator'], $this));
+		$this->set('is_manager', $this->is_manager && in_array($game['Division']['League']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs')));
 		$this->set('is_coordinator', in_array ($this->Game->data['Division']['id'], $this->UserCache->read('DivisionIDs')));
 	}
 
