@@ -474,7 +474,7 @@ if (League::hasSpirit($game) &&
 				}
 				?></td>
 				<td><?php echo $incident['type'];?></td>
-				<td><?php echo $incident['details'];?></td>
+				<td class="spirit_incident"><?php echo $incident['details'];?></td>
 			</tr>
 		<?php endforeach; ?>
 		</table>
