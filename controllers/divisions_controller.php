@@ -1340,7 +1340,7 @@ class DivisionsController extends AppController {
 			'AwayTeam',
 		);
 		$is_manager = $this->is_manager && in_array($division['League']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
-		if ($this->is_admin || $is_manager) {
+		if ($this->is_admin || $is_manager || in_array($id, $this->UserCache->read('DivisionIDs'))) {
 			$contain[] = 'Incident';
 		}
 
