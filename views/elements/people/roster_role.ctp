@@ -1,18 +1,24 @@
 <?php
 // To avoid abuses, whether intentional or accidental, we limit the permissions
 // of admins when managing teams they are on.
-$effective_admin = false;
+$effective_admin = $effective_coordinator = false;
 if ($is_admin) {
 	$on_team = in_array($roster['team_id'], $this->UserCache->read('TeamIDs'));
 	if (!$on_team) {
 		$effective_admin = true;
 	}
 }
+if (isset($is_coordinator) && $is_coordinator) {
+	$on_team = in_array($roster['team_id'], $this->UserCache->read('TeamIDs'));
+	if (!$on_team) {
+		$effective_coordinator = true;
+	}
+}
 
 $permission = ($effective_admin ||
 	(!Division::rosterDeadlinePassed($division) && (
 		(isset ($is_manager) && $is_manager) ||
-		(isset ($is_coordinator) && $is_coordinator) ||
+		$effective_coordinator ||
 		(isset ($my_id) && $roster['person_id'] == $my_id) ||
 		in_array($roster['person_id'], $this->UserCache->read('RelativeIDs')) ||
 		in_array($roster['team_id'], $this->UserCache->read('OwnedTeamIDs'))
