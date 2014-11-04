@@ -482,6 +482,12 @@ div.related
 	float: right;
 }
 
+.spirit_comments, .spirit_highlights, .spirit_incident
+{
+	white-space: pre-wrap;
+	word-wrap: break-word;
+}
+
 /* Attendance and roster change styling. */
 #attendance_options, #roster_role_options, #roster_position_options
 {
