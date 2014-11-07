@@ -14,7 +14,7 @@ if (Configure::read('email.emogrifier')):
 	App::import('Lib', 'emogrifier');
 	$content_for_layout =
 		$this->element('email/html/common_header') .
-		$this->Html->tag('div', $content_for_layout, array('id' => 'content')) .
+		$content_for_layout .
 		$this->element('email/html/common_footer');
 		// DOCTYPE, HTML, HEAD and BODY will all be added by this
 	$emogrifier = new Emogrifier($content_for_layout, $style);
