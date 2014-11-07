@@ -1,4 +1,5 @@
 <?php
+echo $this->element('email/html/newsletter_header');
 $text = $newsletter['Newsletter']['text'];
 if ($newsletter['Newsletter']['personalize']) {
 	$text = strtr ($text, array(
@@ -36,4 +37,7 @@ else:
 endif;
 ?>
 .</p>
-<?php endif; ?>
+<?php
+endif;
+echo $this->element('email/html/newsletter_footer');
+?>
