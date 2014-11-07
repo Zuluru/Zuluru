@@ -9,6 +9,7 @@ $this->Html->addCrumb (__('Sending', true));
 <?php
 if ($execute) {
 	echo $this->Html->para(null, 'Batch sent at ' . $this->ZuluruTime->time(time() - Configure::read('timezone.adjust') * 60));
+	echo $this->Html->para('warning-message', 'For the next batch to be sent, you must leave this screen open on this page!');
 
 	$emails = Set::extract ('/Person/email', $people);
 	echo $this->Html->para(null, __('Sent email to', true) . ' ' . implode (', ', $emails));
