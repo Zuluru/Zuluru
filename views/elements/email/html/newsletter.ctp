@@ -1,5 +1,7 @@
+<div id="newsletter">
+<?php echo $this->element('email/html/newsletter_header'); ?>
+<div id="newsletter_body">
 <?php
-echo $this->element('email/html/newsletter_header');
 $text = $newsletter['Newsletter']['text'];
 if ($newsletter['Newsletter']['personalize']) {
 	$text = strtr ($text, array(
@@ -11,6 +13,7 @@ if ($newsletter['Newsletter']['personalize']) {
 echo $text;
 ?>
 
+<div id="newsletter_epilogue">
 <?php if ($newsletter['Newsletter']['personalize']): ?>
 <p>This message was sent to <?php echo $person['Person']['email']; ?>.</p>
 <?php endif; ?>
@@ -37,7 +40,8 @@ else:
 endif;
 ?>
 .</p>
-<?php
-endif;
-echo $this->element('email/html/newsletter_footer');
-?>
+<?php endif; ?>
+</div>
+</div>
+<?php echo $this->element('email/html/newsletter_footer'); ?>
+</div>

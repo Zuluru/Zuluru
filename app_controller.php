@@ -1330,6 +1330,18 @@ class AppController extends Controller {
 			$email->header($opts['header']);
 		}
 
+		// Check if there are attachments to be included
+		$email->attachments = Configure::read('email.attachments');
+		if (empty($email->attachments)) {
+			$email->attachments = array();
+		}
+		if (array_key_exists ('attachments', $opts)) {
+			$email->attachments = array_merge($email->attachments, $opts['attachments']);
+		}
+		if (!empty($email->attachments)) {
+			$email->filePaths = Configure::read('email.attachment_paths');
+		}
+
 		// Get ready and send it
 		$email->initialize ($this, $opts);
 		if (array_key_exists('content', $opts)) {

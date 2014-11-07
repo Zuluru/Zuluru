@@ -310,6 +310,7 @@ class NewslettersController extends AppController {
 					'X-Auto-Response-Suppress' => 'OOF',
 					'Precedence' => 'list',
 				),
+				'attachments' => Configure::read('email.newsletter_attachments'),
 		);
 
 		if ($newsletter['Newsletter']['personalize'] || $test) {
