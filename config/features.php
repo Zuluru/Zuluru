@@ -152,6 +152,12 @@ $config['privileged_roster_roles'] = array(
 	'assistant',
 );
 
+// List of roster roles one of which must be present on all teams.
+$config['required_roster_roles'] = array(
+	'coach',
+	'captain',
+);
+
 // List of game statuses that indicate that the game was not played.
 $config['unplayed_status'] = array(
 	'cancelled',
