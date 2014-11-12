@@ -380,7 +380,9 @@ if (!empty($team['Team']['short_name'])) {
 		<td colspan="<?php echo 3 + (!empty($positions)); ?>"><?php __('Average Skill Rating') ?></td>
 		<td><?php printf("%.2f", $skill_total / $skill_count) ?></td>
 		<td></td>
+		<?php if (Configure::read('feature.badges') && $is_logged_in): ?>
 		<td></td>
+		<?php endif; ?>
 	</tr>
 	<?php endif; ?>
 	</table>
