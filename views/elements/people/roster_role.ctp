@@ -44,9 +44,12 @@ if ($permission && $approved) {
 	}
 	$option_string = '{' . implode(', ', $option_strings) . '}';
 
-	echo $this->Html->link(__(Configure::read("options.roster_role.{$roster['role']}"), true), $url, array(
-		'onClick' => "return roster_role('$url_string', $option_string, jQuery(this), '{$roster['role']}');",
-	));
+	echo $this->Html->link(__(Configure::read("options.roster_role.{$roster['role']}"), true) . $this->ZuluruHtml->icon('dropdown.png'),
+		$url, array(
+			'onClick' => "return roster_role('$url_string', $option_string, jQuery(this), '{$roster['role']}');",
+			'escape' => false,
+		)
+	);
 } else {
 	__(Configure::read("options.roster_role.{$roster['role']}"));
 }

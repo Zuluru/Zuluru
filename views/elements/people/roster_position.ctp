@@ -42,9 +42,12 @@ if ($permission) {
 	}
 	$option_string = '{' . implode(', ', $option_strings) . '}';
 
-	echo $this->Html->link(__(Configure::read("sport.positions.{$roster['position']}"), true), $url, array(
-		'onClick' => "return roster_position('$url_string', $option_string, jQuery(this), '{$roster['position']}');",
-	));
+	echo $this->Html->link(__(Configure::read("sport.positions.{$roster['position']}"), true) . $this->ZuluruHtml->icon('dropdown.png'),
+		$url, array(
+			'onClick' => "return roster_position('$url_string', $option_string, jQuery(this), '{$roster['position']}');",
+			'escape' => false,
+		)
+	);
 } else {
 	__(Configure::read("sport.positions.{$roster['position']}"));
 }
