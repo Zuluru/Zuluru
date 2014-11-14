@@ -12,6 +12,7 @@ if ($is_manager && !in_array($event['Event']['affiliate_id'], $this->UserCache->
 
 $deposit = Set::extract('/Price[allow_deposit=1]', $event);
 $deposit = !empty($deposit);
+$admin_register = false;
 ?>
 
 <div class="events view">
@@ -142,7 +143,11 @@ $deposit = !empty($deposit);
 
 		</dd>
 
-<?php if (count($event['Price']) == 1): ?>
+<?php if (count($event['Price']) == 1):
+			if (!empty($price_allowed[$event['Price'][0]['id']]['allowed']) && strtotime($event['Price'][0]['open']) > time() && ($is_admin || $is_manager)) {
+				$admin_register = true;
+			}
+?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Registration Opens'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $this->ZuluruTime->DateTime ($event['Price'][0]['open']); ?>
@@ -240,6 +245,9 @@ $deposit = !empty($deposit);
 					array('controller' => 'registrations', 'action' => 'register', 'event' => $id, 'option' => $price['id']),
 					array('title' => __('Register for ', true) . $event['Event']['name'] . ' ' . $price['name'])
 			);
+			if (strtotime($price['open']) > time() && ($is_admin || $is_manager)) {
+				$admin_register = true;
+			}
 		}
 		if ($is_admin || $is_manager) {
 			echo $this->ZuluruHtml->iconLink('edit_24.png',
@@ -277,6 +285,9 @@ else:
 				array('controller' => 'registrations', 'action' => 'register', 'event' => $id),
 				array('title' => __('Register for ', true) . $event['Event']['name'], 'style' => 'text-decoration: underline;')
 		));
+	}
+	if ($admin_register) {
+		echo $this->Html->para('warning-message', __('Note that you have been given the option to register before the specified opening date due to your status as system administrator.', true));
 	}
 ?>
 
