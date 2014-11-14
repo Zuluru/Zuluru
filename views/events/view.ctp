@@ -48,7 +48,7 @@ $admin_register = false;
 <?php endif; ?>
 
 <?php if (!empty($event['Event']['division_id'])): ?>
-<?php if (count($facilities) > 0 && count($facilities) < 4):
+<?php if (count($facilities) > 0 && count($facilities) < 6):
 		$facility_links = array();
 		foreach ($facilities as $facility_id => $facility_name) {
 			$facility_links[] = $this->Html->link ($facility_name, array('controller' => 'facilities', 'action' => 'view', 'facility' => $facility_id));
@@ -83,7 +83,7 @@ $admin_register = false;
 
 			</dd>
 		<?php endif; ?>
-<?php if (count($times) > 0 && count($times) < 5):
+<?php if (!empty($times) && count($times) < 5):
 		$time_list = array();
 		foreach ($times as $start => $end) {
 			$time_list[] = $this->ZuluruTime->Time ($start) . '-' . $this->ZuluruTime->Time ($end);
