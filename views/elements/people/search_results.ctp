@@ -69,17 +69,17 @@ foreach ($people as $person):
 			if (!empty($extra_url)) {
 				foreach ($extra_url as $title => $url_params) {
 					if (empty($url_params['url_parameter'])) {
-					$extra_url_parameter = 'person';
+						$extra_url_parameter = 'person';
 					} else {
 						$extra_url_parameter = $url_params['url_parameter'];
 						unset($url_params['url_parameter']);
-				}
+					}
 					if (empty($url_params['url_field'])) {
-					$extra_url_field = 'id';
+						$extra_url_field = 'id';
 					} else {
 						$extra_url_field = $url_params['url_field'];
 						unset($url_params['url_field']);
-				}
+					}
 
 					if (!empty($person['Person'][$extra_url_field])) {
 						$url_params = array_merge (array($extra_url_parameter => $person['Person'][$extra_url_field], 'return' => true), $url_params);

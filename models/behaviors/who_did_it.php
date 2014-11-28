@@ -86,11 +86,11 @@ class WhoDidItBehavior extends ModelBehavior {
 		if ($this->settings[$model->alias]['has_created_by'] || $this->settings[$model->alias]['has_modified_by']) {
 			$userId = Set::extract($_SESSION, 'Zuluru.act_as_id');
 			if (!$userId) {
-			$AuthSession = $this->settings[$model->alias]['auth_session'];
-			// Hardcoded, rather than using the model name. The model name is set *after*
-			// the Auth component sets its session key name.
-			$UserSession = 'User';
-			$userId = Set::extract($_SESSION, $AuthSession.'.'.$UserSession.'.zuluru_person_id');
+				$AuthSession = $this->settings[$model->alias]['auth_session'];
+				// Hardcoded, rather than using the model name. The model name is set *after*
+				// the Auth component sets its session key name.
+				$UserSession = 'User';
+				$userId = Set::extract($_SESSION, $AuthSession.'.'.$UserSession.'.zuluru_person_id');
 			}
 			if ($userId) {
 				$data = array($this->settings[$model->alias]['modified_by_field'] => $userId);

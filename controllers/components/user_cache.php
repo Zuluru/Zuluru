@@ -36,7 +36,7 @@ class UserCacheComponent extends Object
 		if ($act_as) {
 			$this->my_id = $act_as;
 		} else {
-		$this->my_id = $this->_controller->Auth->user('zuluru_person_id');
+			$this->my_id = $this->_controller->Auth->user('zuluru_person_id');
 		}
 		if ($this->my_id) {
 			$this->data[$this->my_id] = array();
