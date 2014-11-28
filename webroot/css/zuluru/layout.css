@@ -497,6 +497,7 @@ div.related
 	background: white;
 	padding: 0 1px;
 	border: 1px solid black;
+	z-index: 99;
 }
 #attendance_options div:hover, #roster_role_options div:hover, #roster_position_options div:hover
 {
