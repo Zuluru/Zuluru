@@ -32,7 +32,7 @@ class LockComponent extends Object
 				return false;
 			}
 		}
-		$this->Lock->save (array('key' => $key, 'affiliate' => $affiliate, 'user_id' => $this->controller->Auth->user('zuluru_person_id')));
+		$this->Lock->save (array('key' => $key, 'affiliate' => $affiliate, 'user_id' => $this->controller->UserCache->currentId()));
 		$this->locked = true;
 		return true;
 	}

@@ -32,10 +32,26 @@ class UserCacheComponent extends Object
 		if ($this->my_id) {
 			return;
 		}
+		$act_as = $this->_controller->Session->read('Zuluru.act_as_id');
+		if ($act_as) {
+			$this->my_id = $act_as;
+		} else {
 		$this->my_id = $this->_controller->Auth->user('zuluru_person_id');
+		}
 		if ($this->my_id) {
 			$this->data[$this->my_id] = array();
 		}
+	}
+
+	function currentId() {
+		$self =& UserCacheComponent::getInstance();
+		$self->initializeId();
+		return $self->my_id;
+	}
+
+	function realId() {
+		$self =& UserCacheComponent::getInstance();
+		return $self->_controller->Auth->user('zuluru_person_id');
 	}
 
 	function read($key, $id = null, $internal = false) {

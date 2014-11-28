@@ -173,7 +173,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 						'message' => array('answer_id' => 'Select one.'),
 					),
 					'owner' => array(
-						'rule' => array('franchise_owner', $this->_controller->Auth->user('zuluru_person_id'), $this->_controller->is_admin),
+						'rule' => array('franchise_owner', $this->_controller->UserCache->currentId(), $this->_controller->is_admin),
 						'message' => array('answer_id' => 'That franchise does not belong to you.'),
 					),
 				);
@@ -257,7 +257,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 			} else if (array_key_exists ('Registration', $event) && array_key_exists ('person_id', $event['Registration'])) {
 				$captain_id = $event['Registration']['person_id'];
 			} else {
-				$captain_id = $this->_controller->Auth->user('zuluru_person_id');
+				$captain_id = $this->_controller->UserCache->currentId();
 			}
 
 			$this->_controller->Team->TeamsPerson->create();

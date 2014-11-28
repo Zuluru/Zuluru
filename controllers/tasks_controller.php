@@ -23,7 +23,7 @@ class TasksController extends AppController {
 			// If a player id is specified, check if it's the logged-in user, or a relative
 			$person = $this->_arg('person');
 			$relatives = $this->UserCache->read('RelativeIDs');
-			if ($person == $this->Auth->user('zuluru_person_id') || in_array($person, $relatives)) {
+			if ($person == $this->UserCache->currentId() || in_array($person, $relatives)) {
 				return true;
 			}
 		}
@@ -169,7 +169,7 @@ class TasksController extends AppController {
 			));
 			$people = Set::combine($people, '{n}.Person.id', '{n}.Person.full_name');
 		} else {
-			$my_id = $this->Auth->user('zuluru_person_id');
+			$my_id = $this->UserCache->currentId();
 		}
 		$this->set(compact('affiliates', 'people', 'my_id'));
 	}

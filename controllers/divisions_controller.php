@@ -197,7 +197,7 @@ class DivisionsController extends AppController {
 		}
 
 		// Eliminate any events that cannot be registered for
-		$my_id = $this->Auth->user('zuluru_person_id');
+		$my_id = $this->UserCache->currentId();
 		if ($my_id) {
 			foreach ($division['Event'] as $key => $event) {
 				$test = $this->CanRegister->test ($my_id, array('Event' => $event), array('strict' => false));

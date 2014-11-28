@@ -62,7 +62,7 @@ class SettingsController extends AppController {
 				if ($affiliate) {
 					$this->Configuration->loadAffiliate($affiliate);
 				} else {
-					$this->Configuration->load($this->Auth->user('zuluru_person_id'));
+					$this->Configuration->load($this->UserCache->currentId());
 				}
 				$this->_initMenu();
 			} else {

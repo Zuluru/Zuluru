@@ -174,7 +174,7 @@ class WaiversController extends AppController {
 			$this->redirect('/');
 		}
 
-		$person_id = $this->Auth->user('zuluru_person_id');
+		$person_id = $this->UserCache->currentId();
 		if (!$person_id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
@@ -241,7 +241,7 @@ class WaiversController extends AppController {
 			list ($valid_from, $valid_until) = $this->Waiver->validRange(date('Y-m-d'));
 		}
 
-		$person_id = $this->Auth->user('zuluru_person_id');
+		$person_id = $this->UserCache->currentId();
 		if (!$person_id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');

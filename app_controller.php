@@ -72,7 +72,7 @@ class AppController extends Controller {
 
 		// Load configuration from database
 		if (isset($this->Configuration) && !empty($this->Configuration->table)) {
-			$this->Configuration->load($this->Auth->user('zuluru_person_id'));
+			$this->Configuration->load($this->UserCache->currentId());
 			if (Configure::read('feature.affiliates')) {
 				$affiliates = $this->_applicableAffiliateIDs();
 				if (count($affiliates) == 1) {
@@ -384,7 +384,7 @@ class AppController extends Controller {
 
 		// Do we already have the corresponding person record?
 		// If not read it; if it doesn't even exist, create it.
-		if ($user && !$this->Auth->user('zuluru_person_id')) {
+		if ($user && !$this->UserCache->currentId()) {
 			$person = $auth->Person->find('first', array(
 					'contain' => false,
 					'conditions' => array(
@@ -404,6 +404,13 @@ class AppController extends Controller {
 
 		$group = $this->UserCache->read('Group');
 		if (!empty($group)) {
+			if ($this->UserCache->currentId() != $this->UserCache->realId()) {
+				// Don't make people admins just because the person they are acting as is
+				$real_group = $this->UserCache->read('Group', $this->UserCache->realId());
+				if (Configure::read("permission_level.{$group['name']}") > Configure::read("permission_level.{$real_group['name']}")) {
+					$group = $real_group;
+				}
+			}
 			if (array_key_exists ('name', $group)) {
 				$group = $group['name'];
 			} else {
@@ -435,7 +442,7 @@ class AppController extends Controller {
 		$this->set('is_volunteer', $this->is_volunteer);
 		$this->set('is_member', $this->is_member);
 		$this->set('is_logged_in', $this->is_logged_in);
-		$this->set('my_id', $this->Auth->user('zuluru_person_id'));
+		$this->set('my_id', $this->UserCache->currentId());
 
 		// While the options above steadily decrease the output available,
 		// is_visitor is instead used to add output not shown to anyone else,

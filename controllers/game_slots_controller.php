@@ -403,7 +403,7 @@ class GameSlotsController extends AppController {
 							'status' => $this->data['Game']['status'],
 							'home_score' => $score,
 							'rating_points' => $rating,
-							'approved_by' => $this->Auth->user('zuluru_person_id'),
+							'approved_by' => $this->UserCache->currentId(),
 					);
 					if ($details['incident']) {
 						$incidents[$game['home_team']] = array(

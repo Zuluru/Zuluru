@@ -145,7 +145,7 @@ class FranchisesController extends AppController {
 	function add() {
 		if (!empty($this->data)) {
 			$this->Franchise->create();
-			$this->data['Person'] = array($this->Auth->user('zuluru_person_id'));
+			$this->data['Person'] = array($this->UserCache->currentId());
 			if ($this->Franchise->saveAll($this->data)) {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('franchise', true)), 'default', array('class' => 'success'));
 				$this->UserCache->_deleteFranchiseData();
@@ -250,7 +250,7 @@ class FranchisesController extends AppController {
 				'order' => 'Team.id desc',
 			),
 		));
-		$teams = $this->Person->read(null, $this->Auth->user('zuluru_person_id'));
+		$teams = $this->Person->read(null, $this->UserCache->currentId());
 
 		if ($this->data) {
 			if (in_array($this->data['team_id'], $existing_team_ids)) {

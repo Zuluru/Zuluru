@@ -48,7 +48,7 @@ class PeopleController extends AppController {
 			// If no player id is specified, it's always the logged-in user
 			$person = $this->_arg('person');
 			$relatives = $this->UserCache->read('RelativeIDs');
-			if (!$person || $person == $this->Auth->user('zuluru_person_id') || in_array($person, $relatives)) {
+			if (!$person || $person == $this->UserCache->currentId() || in_array($person, $relatives)) {
 				return true;
 			}
 		}
@@ -541,7 +541,7 @@ class PeopleController extends AppController {
 	function view() {
 		$id = $this->_arg('person');
 		$user_id = $this->_arg('user');
-		$my_id = $this->Auth->user('zuluru_person_id');
+		$my_id = $this->UserCache->currentId();
 
 		if ($user_id) {
 			$id = $this->Person->field('id', compact('user_id'));
@@ -730,7 +730,7 @@ class PeopleController extends AppController {
 						'contain' => false,
 						'conditions' => array(
 							'person_id' => $person['id'],
-							'created_person_id' => $this->Auth->user('zuluru_person_id'),
+							'created_person_id' => $this->UserCache->currentId(),
 						),
 				));
 			}
@@ -752,7 +752,7 @@ class PeopleController extends AppController {
 		}
 
 		$this->set(compact('person', 'photo', 'note', 'badges'));
-		$this->set('is_me', ($id === $this->Auth->user('zuluru_person_id')));
+		$this->set('is_me', ($id === $this->UserCache->currentId()));
 		$this->set($this->_connections($id));
 
 		Configure::write ('debug', 0);
@@ -797,7 +797,7 @@ class PeopleController extends AppController {
 
 	function edit() {
 		$id = $this->_arg('person');
-		$my_id = $this->Auth->user('zuluru_person_id');
+		$my_id = $this->UserCache->currentId();
 
 		if (!$id) {
 			$id = $my_id;
@@ -806,7 +806,7 @@ class PeopleController extends AppController {
 				$this->redirect('/');
 			}
 		}
-		$is_me = ($id === $this->Auth->user('zuluru_person_id'));
+		$is_me = ($id === $this->UserCache->currentId());
 		$this->set(compact('id', 'is_me'));
 
 		$this->_loadAddressOptions();
@@ -919,7 +919,7 @@ class PeopleController extends AppController {
 
 	function note() {
 		$id = $this->_arg('person');
-		$my_id = $this->Auth->user('zuluru_person_id');
+		$my_id = $this->UserCache->currentId();
 
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
@@ -972,7 +972,7 @@ class PeopleController extends AppController {
 
 	function delete_note() {
 		$id = $this->_arg('person');
-		$my_id = $this->Auth->user('zuluru_person_id');
+		$my_id = $this->UserCache->currentId();
 
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
@@ -992,7 +992,7 @@ class PeopleController extends AppController {
 
 	function preferences() {
 		$id = $this->_arg('person');
-		$my_id = $this->Auth->user('zuluru_person_id');
+		$my_id = $this->UserCache->currentId();
 
 		if (!$id) {
 			$id = $my_id;
@@ -1112,7 +1112,7 @@ class PeopleController extends AppController {
 				$this->redirect(array('action' => 'view', 'person' => $person_id));
 			}
 		} else {
-			if (!$this->is_admin && $person_id != $this->Auth->user('zuluru_person_id')) {
+			if (!$this->is_admin && $person_id != $this->UserCache->currentId()) {
 				$this->Session->setFlash(__('You are not allowed to approve this relative request.', true), 'default', array('class' => 'warning'));
 				$this->redirect(array('action' => 'view', 'person' => $person_id));
 			}
@@ -1176,7 +1176,7 @@ class PeopleController extends AppController {
 				$this->redirect(array('action' => 'view', 'person' => $person_id));
 			}
 		} else {
-			if (!$this->is_admin && $person_id != $this->Auth->user('zuluru_person_id')) {
+			if (!$this->is_admin && $person_id != $this->UserCache->currentId()) {
 				$this->Session->setFlash(__('You are not allowed to remove this relation.', true), 'default', array('class' => 'warning'));
 				$this->redirect(array('action' => 'view', 'person' => $person_id));
 			}
@@ -1251,7 +1251,7 @@ class PeopleController extends AppController {
 
 			if ($code == 200) {
 				$oauth_creds = $tmhOAuth->extract_params($tmhOAuth->response['response']);
-				if ($this->Person->updateAll(array('twitter_token' => "'{$oauth_creds['oauth_token']}'", 'twitter_secret' => "'{$oauth_creds['oauth_token_secret']}'"), array('Person.id' => $this->Auth->user('zuluru_person_id')))) {
+				if ($this->Person->updateAll(array('twitter_token' => "'{$oauth_creds['oauth_token']}'", 'twitter_secret' => "'{$oauth_creds['oauth_token_secret']}'"), array('Person.id' => $this->UserCache->currentId()))) {
 					$this->Session->setFlash(sprintf(__('Your Twitter authorization has been completed. You can always revoke this at any time through the preferences page.', true), __('person', true)), 'default', array('class' => 'success'));
 				} else {
 					$this->Session->setFlash(sprintf(__('Twitter authorization was received, but the database failed to update.', true), __('person', true)), 'default', array('class' => 'warning'));
@@ -1290,7 +1290,7 @@ class PeopleController extends AppController {
 	}
 
 	function revoke_twitter() {
-		if ($this->Person->updateAll(array('twitter_token' => null, 'twitter_secret' => null), array('Person.id' => $this->Auth->user('zuluru_person_id')))) {
+		if ($this->Person->updateAll(array('twitter_token' => null, 'twitter_secret' => null), array('Person.id' => $this->UserCache->currentId()))) {
 			$this->Session->setFlash(sprintf(__('Your Twitter authorization has been revoked. You can always re-authorize at any time through the preferences page.', true), __('person', true)), 'default', array('class' => 'success'));
 		} else {
 			$this->Session->setFlash(sprintf(__('Failed to revoke your Twitter authorization.', true), __('person', true)), 'default', array('class' => 'warning'));
@@ -1544,7 +1544,7 @@ class PeopleController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('document', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
-		if (!$this->is_admin && $document['Upload']['person_id'] != $this->Auth->user('zuluru_person_id')) {
+		if (!$this->is_admin && $document['Upload']['person_id'] != $this->UserCache->currentId()) {
 			$this->Session->setFlash(__('You do not have permission to access this document.', true), 'default', array('class' => 'warning'));
 			$this->redirect('/');
 		}
@@ -1794,7 +1794,7 @@ class PeopleController extends AppController {
 		$document = $this->Person->Upload->read (null, $id);
 		if (!$document) {
 			$success = false;
-		} else if (!$this->is_admin && $document['Upload']['person_id'] != $this->Auth->user('zuluru_person_id')) {
+		} else if (!$this->is_admin && $document['Upload']['person_id'] != $this->UserCache->currentId()) {
 			$success = false;
 		} else {
 			if (!empty($this->data['Document']['comment'])) {
@@ -1809,7 +1809,7 @@ class PeopleController extends AppController {
 		}
 		$this->set(compact('success', 'document'));
 
-		if ($success && $document['Person']['id'] != $this->Auth->user('zuluru_person_id')) {
+		if ($success && $document['Person']['id'] != $this->UserCache->currentId()) {
 			if (!$this->_sendMail (array (
 					'to' => $document,
 					'subject' => Configure::read('organization.name') . ' Notification of Document Deletion',
@@ -1956,9 +1956,9 @@ class PeopleController extends AppController {
 			);
 			if ($badge['Badge']['category'] == 'assigned') {
 				$data['approved'] = true;
-				$data['approved_by'] = $this->Auth->user('zuluru_person_id');
+				$data['approved_by'] = $this->UserCache->currentId();
 			} else {
-				$data['nominated_by'] = $this->Auth->user('zuluru_person_id');
+				$data['nominated_by'] = $this->UserCache->currentId();
 			}
 			if ($this->Person->BadgesPerson->save($data)) {
 				if ($badge['Badge']['category'] == 'assigned') {
@@ -2054,7 +2054,7 @@ class PeopleController extends AppController {
 
 		$success = $this->Person->BadgesPerson->save (array(
 			'approved' => true,
-			'approved_by' => $this->Auth->user('zuluru_person_id'),
+			'approved_by' => $this->UserCache->currentId(),
 		));
 		$this->set(compact('success'));
 
@@ -2314,7 +2314,7 @@ class PeopleController extends AppController {
 					$this->paginate = array('Person' => array(
 							'conditions' => $conditions,
 							'contain' => array(
-								'Note' => array('conditions' => array('created_person_id' => $this->Auth->user('zuluru_person_id'))),
+								'Note' => array('conditions' => array('created_person_id' => $this->UserCache->currentId())),
 								'Affiliate',
 							),
 							'limit' => Configure::read('feature.items_per_page'),
@@ -2669,7 +2669,7 @@ class PeopleController extends AppController {
 
 	function registrations() {
 		$id = $this->_arg('person');
-		$my_id = $this->Auth->user('zuluru_person_id');
+		$my_id = $this->UserCache->currentId();
 
 		if (!$id) {
 			$id = $my_id;
@@ -2694,7 +2694,7 @@ class PeopleController extends AppController {
 
 	function credits() {
 		$id = $this->_arg('person');
-		$my_id = $this->Auth->user('zuluru_person_id');
+		$my_id = $this->UserCache->currentId();
 
 		if (!$id) {
 			$id = $my_id;
@@ -2718,7 +2718,7 @@ class PeopleController extends AppController {
 
 	function teams() {
 		$id = $this->_arg('person');
-		$my_id = $this->Auth->user('zuluru_person_id');
+		$my_id = $this->UserCache->currentId();
 
 		if (!$id) {
 			$id = $my_id;
@@ -2735,7 +2735,7 @@ class PeopleController extends AppController {
 
 	function waivers() {
 		$id = $this->_arg('person');
-		$my_id = $this->Auth->user('zuluru_person_id');
+		$my_id = $this->UserCache->currentId();
 
 		if (!$id) {
 			$id = $my_id;

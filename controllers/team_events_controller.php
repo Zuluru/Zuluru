@@ -44,7 +44,7 @@ class TeamEventsController extends AppController {
 		)))
 		{
 			$person = $this->_arg('person');
-			if (!$person || $person == $this->Auth->user('zuluru_person_id') || in_array ($person, $this->UserCache->read('RelativeIDs'))) {
+			if (!$person || $person == $this->UserCache->currentId() || in_array ($person, $this->UserCache->read('RelativeIDs'))) {
 				return true;
 			}
 		}
@@ -187,7 +187,7 @@ class TeamEventsController extends AppController {
 		}
 
 		$person_id = $this->_arg('person');
-		$my_id = $this->Auth->user('zuluru_person_id');
+		$my_id = $this->UserCache->currentId();
 		if (!$person_id) {
 			$person_id = $my_id;
 			if (!$person_id) {
@@ -248,7 +248,7 @@ class TeamEventsController extends AppController {
 			$this->redirect('/');
 		}
 
-		$is_me = ($person_id == $this->Auth->user('zuluru_person_id'));
+		$is_me = ($person_id == $this->UserCache->currentId());
 		$is_captain = in_array ($team['id'], $this->UserCache->read('OwnedTeamIDs'));
 
 		// We must do other permission checks here, because we allow non-logged-in users to accept
@@ -446,7 +446,7 @@ class TeamEventsController extends AppController {
 	function past() {
 		$person = $this->_arg('person');
 		if (!$person) {
-			$person = $this->Auth->user('zuluru_person_id');
+			$person = $this->UserCache->currentId();
 		}
 		$team_ids = $this->UserCache->read('TeamIDs', $person);
 		if (empty ($team_ids)) {
@@ -479,7 +479,7 @@ class TeamEventsController extends AppController {
 	function future($recursive = false) {
 		$person = $this->_arg('person');
 		if (!$person) {
-			$person = $this->Auth->user('zuluru_person_id');
+			$person = $this->UserCache->currentId();
 		}
 		$team_ids = $this->UserCache->read('TeamIDs', $person);
 		if (empty ($team_ids)) {

@@ -291,7 +291,7 @@ class NewslettersController extends AppController {
 
 			if ($test) {
 				$this->Person->contain($this->Auth->authenticate->name);
-				$person = $this->Person->read(null, $this->Auth->user('zuluru_person_id'));
+				$person = $this->Person->read(null, $this->UserCache->currentId());
 				$people = array($person);
 			} else {
 				$this->set(compact('newsletter'));

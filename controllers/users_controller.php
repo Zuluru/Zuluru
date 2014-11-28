@@ -74,7 +74,7 @@ class UsersController extends AppController {
 			$this->redirect('/');
 		}
 
-		if (!$this->is_admin && !$this->is_manager && $this->Auth->user('zuluru_person_id')) {
+		if (!$this->is_admin && !$this->is_manager && $this->UserCache->currentId()) {
 			$this->Session->setFlash(__('You are already logged in!', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
@@ -424,7 +424,7 @@ class UsersController extends AppController {
 	}
 
 	function reset_password($id = null, $code = null) {
-		if ($this->Auth->user('zuluru_person_id') !== null) {
+		if ($this->UserCache->currentId() !== null) {
 			$this->Session->setFlash (__('You are already logged in. Use the change password form instead.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'change_password'));
 		}
@@ -560,7 +560,7 @@ class UsersController extends AppController {
 	}
 
 	function id() {
-		return $this->Auth->user('zuluru_person_id');
+		return $this->UserCache->currentId();
 	}
 }
 ?>

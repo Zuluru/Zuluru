@@ -405,14 +405,14 @@ class RegistrationsController extends AppController {
 
 		// Re-do "can register" checks to make sure someone hasn't hand-fed us a URL
 		$waiting = $this->_arg('waiting') && Configure::read('feature.waiting_list');
-		$test = $this->CanRegister->test ($this->Auth->user('zuluru_person_id'), $event, array('waiting' => $waiting, 'all_rules' => true, 'simple_output' => true));
+		$test = $this->CanRegister->test ($this->UserCache->currentId(), $event, array('waiting' => $waiting, 'all_rules' => true, 'simple_output' => true));
 		if (!$test['allowed']) {
 			$this->Session->setFlash($test['messages'], 'default', array('class' => 'warning'));
 			$this->redirect(array('controller' => 'events', 'action' => 'wizard'));
 		}
 
 		$event_obj = $this->_getComponent ('EventType', $event['EventType']['type'], $this);
-		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], $this->Auth->user('zuluru_person_id'));
+		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], $this->UserCache->currentId());
 		$this->set(compact('id', 'event', 'price_id', 'event_obj', 'waiting'));
 
 		// Data was posted, save it and proceed
@@ -540,7 +540,7 @@ class RegistrationsController extends AppController {
 
 			// Do any required post-processing
 			$data['Registration']['id'] = $this->Registration->id;
-			$data['Registration']['person_id'] = $this->Auth->user('zuluru_person_id');
+			$data['Registration']['person_id'] = $this->UserCache->currentId();
 			if (!$this->_postProcess($event, $data, $data, false, $data['Registration']['payment'], $event_obj)) {
 				return;
 			}
@@ -576,7 +576,7 @@ class RegistrationsController extends AppController {
 					$price['Registration'] = reset($price['Registration']);
 				}
 				$for_edit = $this->_arg('for_edit');
-				$test = $this->CanRegister->test ($this->Auth->user('zuluru_person_id'), $price, compact('for_edit'));
+				$test = $this->CanRegister->test ($this->UserCache->currentId(), $price, compact('for_edit'));
 				$this->set(compact('price', 'for_edit'));
 				$this->set($test);
 			}
@@ -745,7 +745,7 @@ class RegistrationsController extends AppController {
 		));
 		$registrations = $this->Registration->find('all', array(
 				'conditions' => array(
-					'person_id' => $this->Auth->user('zuluru_person_id'),
+					'person_id' => $this->UserCache->currentId(),
 					'payment' => Configure::read('registration_unpaid'),
 				),
 		));
@@ -763,7 +763,7 @@ class RegistrationsController extends AppController {
 					'conditions' => array('Credit.amount_used < Credit.amount'),
 				),
 		));
-		$person = $this->Registration->Person->read (null, $this->Auth->user('zuluru_person_id'));
+		$person = $this->Registration->Person->read (null, $this->UserCache->currentId());
 
 		$other = array();
 		$affiliate = $this->_arg('affiliate');
@@ -859,7 +859,7 @@ class RegistrationsController extends AppController {
 
 		if (!$this->is_admin &&
 			!($this->is_manager && in_array($registration['Event']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'))) &&
-			$registration['Registration']['person_id'] != $this->Auth->user('zuluru_person_id')
+			$registration['Registration']['person_id'] != $this->UserCache->currentId()
 		)
 		{
 			$this->Session->setFlash(__('You may only unregister from events that you have registered for!', true), 'default', array('class' => 'info'));
@@ -1502,7 +1502,7 @@ class RegistrationsController extends AppController {
 		}
 		$this->Configuration->loadAffiliate($registration['Event']['affiliate_id']);
 
-		$test = $this->CanRegister->test ($this->Auth->user('zuluru_person_id'), $registration, array('for_edit' => true, 'all_rules' => true));
+		$test = $this->CanRegister->test ($this->UserCache->currentId(), $registration, array('for_edit' => true, 'all_rules' => true));
 
 		$event_obj = $this->_getComponent ('EventType', $registration['Event']['EventType']['type'], $this);
 		$this->_mergeAutoQuestions ($registration, $event_obj, $registration['Event']['Questionnaire'], $registration['Person']['id']);
@@ -1525,7 +1525,7 @@ class RegistrationsController extends AppController {
 			// Registration->save to validate properly.
 			$this->Registration->Response->set ($data);
 
-			if ($registration['Registration']['person_id'] == $this->Auth->user('zuluru_person_id')) {
+			if ($registration['Registration']['person_id'] == $this->UserCache->currentId()) {
 				// Find the requested price option
 				$price = Set::extract("/Price[id={$data['Registration']['price_id']}]/.", $registration);
 

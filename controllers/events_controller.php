@@ -91,7 +91,7 @@ class EventsController extends AppController {
 		if (!$this->is_logged_in) {
 			$this->redirect(array('action' => 'index'));
 		}
-		$id = $this->Auth->user('zuluru_person_id');
+		$id = $this->UserCache->currentId();
 
 		if (in_array($this->UserCache->read('Person.status'), array('inactive', 'locked'))) {
 			$this->Session->setFlash(__('Your account is currently inactive, please contact an administrator to reactivate it.', true), 'default', array('class' => 'info'));
@@ -227,7 +227,7 @@ class EventsController extends AppController {
 		}
 
 		if ($this->is_logged_in) {
-			$this->set ($this->CanRegister->test ($this->Auth->user('zuluru_person_id'), $event, array('all_rules' => true)));
+			$this->set ($this->CanRegister->test ($this->UserCache->currentId(), $event, array('all_rules' => true)));
 		}
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
