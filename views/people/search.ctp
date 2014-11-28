@@ -21,8 +21,11 @@ $this->Html->addCrumb (__('Search', true));
 
 <?php
 if ($is_admin || $is_manager) {
-	echo $this->element('people/search_results', array('extra_url' => array(__('Change password', true) => array('controller' => 'users', 'action' => 'change_password')),
-			'extra_url_parameter' => 'user', 'extra_url_field' => 'user_id'));
+	echo $this->element('people/search_results', array(
+			'extra_url' => array(
+				__('Change password', true) => array('controller' => 'users', 'action' => 'change_password', 'url_parameter' => 'user', 'url_field' => 'user_id'),
+			),
+	));
 } else {
 	echo $this->element('people/search_results');
 }

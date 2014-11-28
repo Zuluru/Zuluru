@@ -67,13 +67,20 @@ foreach ($people as $person):
 			<?php endif; ?>
 			<?php
 			if (!empty($extra_url)) {
-				if (empty($extra_url_parameter)) {
-					$extra_url_parameter = 'person';
-				}
-				if (empty($extra_url_field)) {
-					$extra_url_field = 'id';
-				}
 				foreach ($extra_url as $title => $url_params) {
+					if (empty($url_params['url_parameter'])) {
+					$extra_url_parameter = 'person';
+					} else {
+						$extra_url_parameter = $url_params['url_parameter'];
+						unset($url_params['url_parameter']);
+				}
+					if (empty($url_params['url_field'])) {
+					$extra_url_field = 'id';
+					} else {
+						$extra_url_field = $url_params['url_field'];
+						unset($url_params['url_field']);
+				}
+
 					if (!empty($person['Person'][$extra_url_field])) {
 						$url_params = array_merge (array($extra_url_parameter => $person['Person'][$extra_url_field], 'return' => true), $url_params);
 						echo $this->Html->link($title, $url_params);
