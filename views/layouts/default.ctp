@@ -58,24 +58,9 @@ header('Pragma: no-cache');
 			));
 			echo $this->Html->scriptBlock('jQuery.noConflict();');
 		}
-		if (Configure::read('feature.uls') && empty($language)) {
-			echo $this->ZuluruHtml->script(array(
-					'jquery.uls/src/jquery.uls.data.js',
-					'jquery.uls/src/jquery.uls.data.utils.js',
-					'jquery.uls/src/jquery.uls.lcd.js',
-					'jquery.uls/src/jquery.uls.languagefilter.js',
-					'jquery.uls/src/jquery.uls.regionfilter.js',
-					'jquery.uls/src/jquery.uls.core.js',
-			));
-			echo $this->Js->buffer('
-				jQuery(".uls-trigger").uls({
-					onSelect : function(language) {
-						window.location = "' . $this->Html->url(array('controller' => 'all', 'action' => 'language'), true) . '/lang:" + language + "/return:1";
-					},
-					languages: {' . Configure::read('available_translation_strings') . '}
-				});
-			');
-		}
+
+		echo $this->element('layout/select_profile_js');
+		echo $this->element('layout/select_language_js', compact('language'));
 
 		echo $scripts_for_layout;
 	?>
@@ -87,9 +72,12 @@ header('Pragma: no-cache');
 		<div class="crumbs">
 			<?php echo $this->Html->getCrumbs(' &raquo; '); ?>
 
-			<?php if (Configure::read('feature.uls') && empty($language)): ?>
-			<span style="float: right;" class="uls-trigger"><?php echo Configure::read('Config.language_name'); ?></span>
-			<?php endif; ?>
+			<span class="session_options" style="float: right;">
+			<?php
+			echo $this->element('layout/select_profile');
+			echo $this->element('layout/select_language');
+			?>
+			</span>
 		</div>
 		<table class="container"><tr>
 		<td class="sidebar-left">

@@ -42,6 +42,7 @@ class PeopleController extends AppController {
 				'document_upload',
 				'registrations',
 				'credits',
+				'act_as',
 		)))
 		{
 			// If a player id is specified, check if it's the logged-in user, or a relative
@@ -49,6 +50,14 @@ class PeopleController extends AppController {
 			$person = $this->_arg('person');
 			$relatives = $this->UserCache->read('RelativeIDs');
 			if (!$person || $person == $this->UserCache->currentId() || in_array($person, $relatives)) {
+				return true;
+			}
+		}
+
+		// People can always act as their real id
+		if ($this->params['action'] == 'act_as') {
+			// If a player id is specified, check if it's the real user
+			if ($this->_arg('person') == $this->UserCache->realId()) {
 				return true;
 			}
 		}
@@ -96,6 +105,7 @@ class PeopleController extends AppController {
 				'waivers',
 				'approve_badge',
 				'delete_badge',
+				'act_as',
 			)))
 			{
 				// If a person id is specified, check if we're a manager of that person's affiliate
@@ -2171,6 +2181,39 @@ class PeopleController extends AppController {
 		}
 		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Person', true)), 'default', array('class' => 'warning'));
 		$this->redirect('/');
+	}
+
+	function act_as() {
+		$act_as = $this->_arg('person');
+		if ($act_as) {
+			if ($this->is_admin && $this->UserCache->read('Group.name', $act_as) == 'Administrator') {
+				$this->Session->setFlash(__('Administrators cannot act as other administrators', true), 'default', array('class' => 'warning'));
+			} else if (!$this->is_admin && $this->is_manager && $this->UserCache->read('Group.name', $act_as) == 'Manager') {
+				$this->Session->setFlash(__('Managers cannot act as other managers', true), 'default', array('class' => 'warning'));
+			} else if ($act_as == $this->UserCache->realId()) {
+				$this->Session->delete('Zuluru.act_as_id');
+				$this->Session->setFlash(sprintf(__('You are now acting as %s', true), __('yourself', true)), 'default', array('class' => 'success'));
+			} else {
+				$this->Session->write('Zuluru.act_as_id', $act_as);
+				$this->Session->setFlash(sprintf(__('You are now acting as %s', true), $this->UserCache->read('Person.full_name', $act_as)), 'default', array('class' => 'success'));
+			}
+			$this->redirect('/');
+		}
+
+		// Relatives come first...
+		$relatives = $this->UserCache->read('Relatives');
+		foreach($relatives as $relative) {
+			$opts[$relative['Relative']['id']] = $relative['Relative']['full_name'];
+		}
+		// ...then the real user. No harm if they're already in the list; this really just adds admins at the end, if applicable.
+		if ($this->UserCache->realId() != $this->UserCache->currentId()) {
+			$opts[$this->UserCache->realId()] = $this->UserCache->read('Person.full_name', $this->UserCache->realId());
+		}
+		if (empty($opts)) {
+			$this->Session->setFlash(__('There is nobody else you can act as.', true), 'default', array('class' => 'warning'));
+			$this->redirect('/');
+		}
+		$this->set(compact('opts'));
 	}
 
 	function search() {

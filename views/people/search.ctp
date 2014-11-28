@@ -24,6 +24,7 @@ if ($is_admin || $is_manager) {
 	echo $this->element('people/search_results', array(
 			'extra_url' => array(
 				__('Change password', true) => array('controller' => 'users', 'action' => 'change_password', 'url_parameter' => 'user', 'url_field' => 'user_id'),
+				__('Act As', true) => array('controller' => 'people', 'action' => 'act_as'),
 			),
 	));
 } else {
