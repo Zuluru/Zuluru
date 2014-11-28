@@ -489,7 +489,8 @@ div.related
 }
 
 /* Attendance and roster change styling. */
-#attendance_options, #roster_role_options, #roster_position_options
+#attendance_options, #roster_role_options, #roster_position_options,
+#affiliate_options, #sport_options, #season_options, #profile_options
 {
 	cursor: pointer;
 	position: absolute;

@@ -337,6 +337,13 @@ dl .altrow
 	background-color: #d9ead3 !important;
 }
 
+/* Top banner selectors */
+.affiliate-trigger, .sport-trigger, .season-trigger, .profile-trigger, .uls-trigger
+{
+	margin: 0 5px;
+	cursor: pointer;
+}
+
 /* Add in some overrides of styles from jQueryUI */
 .ui-widget-content a, .ui-tooltip-content a
 {
