@@ -141,6 +141,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			case 10:
 				$types['quarters_consolation_ten'] = __('bracket with quarter-finals, semi-finals and finals, plus 9th and 10th place play-ins', true);
 				$types['presemis_consolation_ten'] = __('bracket with pre-semi-finals, semi-finals and finals, everyone gets 3 games', true);
+				$types['quarters_shuffle_ten'] = __('bracket with quarter-finals, semi-finals and finals, bottom 6 get shuffled to minimize duplicates, everyone gets 3 games', true);
 				break;
 
 			case 11:
@@ -208,6 +209,7 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			case 'quarters_consolation_ten':
 				return array(2, 5, 4, 4);
 			case 'presemis_consolation_ten':
+			case 'quarters_shuffle_ten':
 				return array(5, 5, 5);
 			case 'quarters_consolation_eleven':
 				return array(3, 5, 5, 5);
@@ -386,6 +388,9 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 				break;
 			case 'presemis_consolation_ten':
 				$ret = $this->createPresemisTen(true, true);
+				break;
+			case 'quarters_shuffle_ten':
+				$ret = $this->createQuartersShuffleTen();
 				break;
 			case 'quarters_consolation_eleven':
 				$ret = $this->createQuartersEleven(true, true);
@@ -823,6 +828,31 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 			$success &= $this->createTournamentGame (14, 3, ordinal($this->first_team + 7), BRACKET_GAME, 'game_loser', 8, 'game_loser', 9);
 			$success &= $this->createTournamentGame (15, 3, '11', BRACKET_GAME, 'game_loser', 4, 'game_loser', 5);
 		}
+
+		return $success;
+	}
+
+	function createQuartersShuffleTen() {
+		// Round 1: 1v8, 2v7, 3v6, 4v5, 9v10.
+		$success = $this->createTournamentGame (1, 1, '01', BRACKET_GAME, 'pool', 1, 'pool', 8);
+		$success &= $this->createTournamentGame (2, 1, '02', BRACKET_GAME, 'pool', 4, 'pool', 5);
+		$success &= $this->createTournamentGame (3, 1, '03', BRACKET_GAME, 'pool', 2, 'pool', 7);
+		$success &= $this->createTournamentGame (4, 1, '04', BRACKET_GAME, 'pool', 3, 'pool', 6);
+		$success &= $this->createTournamentGame (5, 1, '05', BRACKET_GAME, 'pool', 9, 'pool', 10);
+
+		// Round 2: winners vs winners, bottom 6 get a shake-up
+		$success &= $this->createTournamentGame (6, 2, '06', BRACKET_GAME, 'game_winner', 1, 'game_winner', 2);
+		$success &= $this->createTournamentGame (7, 2, '07', BRACKET_GAME, 'game_winner', 3, 'game_winner', 4);
+		$success &= $this->createTournamentGame (8, 2, '08', BRACKET_GAME, 'game_loser', 2, 'game_loser', 4);
+		$success &= $this->createTournamentGame (9, 2, '09', BRACKET_GAME, 'game_loser', 3, 'game_loser', 5);
+		$success &= $this->createTournamentGame (10, 2, '10', BRACKET_GAME, 'game_loser', 1, 'game_winner', 5);
+
+		// Round 3: more winners vs winners
+		$success &= $this->createTournamentGame (11, 3, ordinal($this->first_team + 1), BRACKET_GAME, 'game_winner', 6, 'game_winner', 7);
+		$success &= $this->createTournamentGame (12, 3, ordinal($this->first_team + 3), BRACKET_GAME, 'game_loser', 6, 'game_loser', 7);
+		$success &= $this->createTournamentGame (13, 3, ordinal($this->first_team + 5), BRACKET_GAME, 'game_winner', 8, 'game_winner', 9);
+		$success &= $this->createTournamentGame (14, 3, ordinal($this->first_team + 7), BRACKET_GAME, 'game_loser', 8, 'game_winner', 10);
+		$success &= $this->createTournamentGame (15, 3, ordinal($this->first_team + 9), BRACKET_GAME, 'game_loser', 9, 'game_loser', 10);
 
 		return $success;
 	}
