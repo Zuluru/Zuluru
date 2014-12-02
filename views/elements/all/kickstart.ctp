@@ -160,15 +160,15 @@ if ($is_manager) {
 <?php
 	$options = array();
 	if ($membership_events) {
-		$options[] = 'membership';
+		$options[] = __('membership', true);
 	}
 	if ($non_membership_events) {
-		$options[] = 'an event';
+		$options[] = __('an event', true);
 	}
 
 	$actions = array();
 	if (!empty($options)) {
-		$actions[] = $this->Html->link ('Register for ' . implode(' or ', $options), array('controller' => 'events', 'action' => 'wizard'));
+		$actions[] = $this->Html->link (__('Register for', true) . ' ' . implode(' ' . __('or', true) . ' ', $options), array('controller' => 'events', 'action' => 'wizard'));
 	}
 
 	if ($open_teams) {
