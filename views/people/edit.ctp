@@ -350,6 +350,7 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 					'dateFormat' => 'Y',
 					'minYear' => Configure::read('options.year.born.min'),
 					'maxYear' => Configure::read('options.year.born.max'),
+					'empty' => '---',
 					'after' => $this->Html->para(null, __('Please enter a correct birthdate; having accurate information is important for insurance purposes.', true)),
 				));
 				echo $this->Form->hidden('birthdate.month', array('value' => 1));
@@ -358,6 +359,7 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 				echo $this->ZuluruForm->input('birthdate', array(
 					'minYear' => Configure::read('options.year.born.min'),
 					'maxYear' => Configure::read('options.year.born.max'),
+					'empty' => '---',
 					'after' => $this->Html->para(null, __('Please enter a correct birthdate; having accurate information is important for insurance purposes.', true)),
 				));
 			}
