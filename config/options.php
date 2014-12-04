@@ -16,11 +16,17 @@
 if (!function_exists('make_options')) {
 	function make_options($values)
 	{
+		if (empty($values)) {
+			return array();
+		}
 		return array_combine ($values, $values);
 	}
 
 	function make_human_options($values)
 	{
+		if (empty($values)) {
+			return array();
+		}
 		$human = array_map (array('Inflector', 'Humanize'), $values);
 		return array_combine ($values, $human);
 	}
