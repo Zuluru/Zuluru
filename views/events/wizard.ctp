@@ -19,12 +19,20 @@ echo $this->element('registrations/notice');
 $events_by_type = array();
 // TODO: Set::extract bug
 $events = array_values ($events);
+$event_types_available = array();
 foreach ($types as $type) {
 	$events_by_type[$type['EventType']['id']] = Set::extract ("/EventType[id={$type['EventType']['id']}]/..", $events);
+	if (!empty($events_by_type[$type['EventType']['id']])) {
+		$event_types_available[] = $type['EventType']['id'];
+	}
+}
+if (empty($step) && count($event_types_available) == 1) {
+	$step = array_pop($event_types_available);
 }
 
 switch ($step) {
 	case 'membership':
+	case 1:
 		if (!empty ($events_by_type[1])) {
 			echo $this->Html->tag('h3', __($events_by_type[1][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You are currently eligible for the following memberships.', true));
@@ -35,6 +43,7 @@ switch ($step) {
 		break;
 
 	case 'league_team':
+	case 2:
 		if (!empty ($events_by_type[2])) {
 			echo $this->Html->tag('h3', __($events_by_type[2][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You are currently eligible to register a team in the following leagues.', true));
@@ -45,6 +54,7 @@ switch ($step) {
 		break;
 
 	case 'league_individual':
+	case 3:
 		if (!empty ($events_by_type[3])) {
 			echo $this->Html->tag('h3', __($events_by_type[3][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You are currently eligible to register as an individual in the following leagues.', true));
@@ -55,6 +65,7 @@ switch ($step) {
 		break;
 
 	case 'event_team':
+	case 4:
 		if (!empty ($events_by_type[4])) {
 			echo $this->Html->tag('h3', __($events_by_type[4][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You are currently eligible to register a team for the following events.', true));
@@ -65,6 +76,7 @@ switch ($step) {
 		break;
 
 	case 'event_individual':
+	case 5:
 		if (!empty ($events_by_type[5])) {
 			echo $this->Html->tag('h3', __($events_by_type[5][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You are currently eligible to register as an individual for the following events.', true));
@@ -75,6 +87,7 @@ switch ($step) {
 		break;
 
 	case 'clinic':
+	case 6:
 		if (!empty ($events_by_type[6])) {
 			echo $this->Html->tag('h3', __($events_by_type[6][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You are currently eligible to register for the following clinics.', true));
@@ -85,6 +98,7 @@ switch ($step) {
 		break;
 
 	case 'social_event':
+	case 7:
 		if (!empty ($events_by_type[7])) {
 			echo $this->Html->tag('h3', __($events_by_type[7][0]['EventType']['name'], true));
 			echo $this->Html->para(null, __('You can register for the following social events.', true));
