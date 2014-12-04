@@ -194,9 +194,10 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 				'type' => 'select',
 				'empty' => '---',
 				'options' => $countries,
+				'hide_single' => true,
 				'after' => $this->Html->para (null, __('Select a country from the list.', true)),
 			));
-		} else if (Configure::read('profile.addr_country')) {
+		} else if (Configure::read('profile.addr_country') && count($countries) > 1) {
 			echo $this->ZuluruForm->input('addr_country', array(
 				'disabled' => 'true',
 				'label' => __('Country', true),

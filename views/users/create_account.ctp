@@ -123,6 +123,7 @@ Configure::load("sport/$sport");
 				'type' => 'select',
 				'empty' => '---',
 				'options' => $countries,
+				'hide_single' => true,
 				'after' => $this->Html->para (null, __('Select a country from the list.', true)),
 			));
 		}
