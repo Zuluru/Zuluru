@@ -17,6 +17,7 @@ class User extends AppModel {
 			'notempty' => array(
 				'rule' => array('notempty'),
 				'message' => 'User name must not be blank.',
+				'last' => true,
 			),
 			'isunique' => array(
 				'rule' => array('isUnique'),
@@ -34,6 +35,7 @@ class User extends AppModel {
 				'rule' => array('between', 6, 50),
 				'required' => false,
 				'allowEmpty' => false,
+				'last' => true,
 				'message' => 'Password must be between 6 and 50 characters long'
 			),
 			'mustnotmatch' => array(
@@ -108,7 +110,7 @@ class User extends AppModel {
 				'email' => $this->emailField,
 			) as $alias => $field)
 			{
-				if (array_key_exists ($alias, $this->validate)) {
+				if ($alias != $field && array_key_exists ($alias, $this->validate)) {
 					$this->validate[$field] = $this->validate[$alias];
 					unset($this->validate[$alias]);
 				}

@@ -24,6 +24,7 @@ class Person extends AppModel {
 			'notempty' => array(
 				'rule' => array('notempty'),
 				'message' => 'First name must not be blank.',
+				'last' => true,
 			),
 			'valid' => array(
 				'rule' => array('custom', self::NAME_REGEX),
@@ -34,6 +35,7 @@ class Person extends AppModel {
 			'notempty' => array(
 				'rule' => array('notempty'),
 				'message' => 'Last name must not be blank.',
+				'last' => true,
 			),
 			'valid' => array(
 				'rule' => array('custom', self::NAME_REGEX),
@@ -49,6 +51,7 @@ class Person extends AppModel {
 		'home_phone' => array(
 			'phone' => array(
 				'rule' => array('phone'),
+				'allowEmpty' => true,
 				'message' => 'Please supply area code and number.',
 			),
 		),
@@ -132,6 +135,7 @@ class Person extends AppModel {
 			'date' => array(
 				'rule' => array('date'),
 				'message' => 'You must provide a valid birthdate.',
+				'last' => true,
 			),
 			'range' => array(
 				'rule' => array('indateconfig', 'born'),
@@ -361,6 +365,26 @@ class Person extends AppModel {
 			if (!Configure::read("profile.$field")) {
 				unset($this->validate[$field]);
 			}
+		}
+
+		// Adjust to require any one phone number, if at least one option is enabled
+		$first_field = $found = false;
+		foreach (array('home_phone', 'work_phone', 'mobile_phone')as $field) {
+			if (Configure::read("profile.$field")) {
+				if (!$first_field) {
+					$first_field = $field;
+				}
+				if (!empty($this->data[$this->alias][$field])) {
+					$found = true;
+				}
+			}
+		}
+		if ($first_field && !$found) {
+			$this->validate[$first_field]['notempty'] = array(
+				'rule' => array('notempty'),
+				'message' => 'You must provide at least one phone number.',
+			);
+			$this->validate[$first_field]['phone']['allowEmpty'] = false;
 		}
 	}
 
