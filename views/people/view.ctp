@@ -28,7 +28,7 @@ $has_visible_contact = false;
 				<?php echo $person['id']; ?>
 			</dd>
 		<?php endif; ?>
-		<?php if (!empty($person['email']) && ($view_contact || ($is_logged_in && $person['publish_email']))):?>
+		<?php if (($view_contact || ($is_logged_in && $person['publish_email'])) && !empty($person['email'])):?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Email Address'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php
@@ -77,39 +77,54 @@ $has_visible_contact = false;
 			</dd>
 		<?php endif; ?>
 		<?php if ($is_me || $is_admin || $is_manager):?>
-			<?php if (Configure::read('profile.addr_street')): ?>
-			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Address'); ?></dt>
-			<dd<?php if ($i % 2 == 0) echo $class;?>>
-				<?php echo $person['addr_street']; ?>
-
-			</dd>
-			<?php endif; ?>
-			<?php if (Configure::read('profile.addr_city') || Configure::read('profile.addr_prov') || Configure::read('profile.addr_country')): ?>
-			<dt<?php if ($i % 2 == 0) echo $class;?>>&nbsp;</dt>
+			<?php
+			$has_address = false;
+			$label = __('Address', true);
+			if (Configure::read('profile.addr_street') && !empty($person['addr_street'])):
+			?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo $label; ?></dt>
 			<dd<?php if ($i % 2 == 0) echo $class;?>>
 				<?php
-				$addr = array();
-				if (Configure::read('profile.addr_city')) {
-					$addr[] = $person['addr_city'];
-				}
-				if (Configure::read('profile.addr_city')) {
-					$addr[] = __($person['addr_prov'], true);
-				}
-				if (Configure::read('profile.addr_city')) {
-					$addr[] = __($person['addr_country'], true);
-				}
-				echo implode(', ', $addr);
+				echo $person['addr_street'];
+				$has_address = true;
+				$label = '&nbsp;';
 				?>
-
 			</dd>
 			<?php endif; ?>
-			<?php if (Configure::read('profile.addr_postalcode')): ?>
-			<dt<?php if ($i % 2 == 0) echo $class;?>>&nbsp;</dt>
-			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php
+			$addr = array();
+			if (Configure::read('profile.addr_city') && !empty($person['addr_city'])) {
+				$addr[] = $person['addr_city'];
+			}
+			if (Configure::read('profile.addr_prov') && !empty($person['addr_prov'])) {
+				$addr[] = __($person['addr_prov'], true);
+			}
+			if (Configure::read('profile.addr_country') && !empty($person['addr_country'])) {
+				$addr[] = __($person['addr_country'], true);
+			}
+			if (!empty($addr)):
+			?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo $label; ?></dt>
+			<dd<?php if ($i % 2 == 0) echo $class;?>><?php echo implode(', ', $addr); ?></dd>
+			<?php
+				$has_address = true;
+				$label = '&nbsp;';
+			endif;
+			?>
+			<?php if (Configure::read('profile.addr_postalcode') && !empty($person['addr_postalcode'])): ?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo $label; ?></dt>
+			<dd<?php if ($i % 2 == 0) echo $class;?>>
 				<?php echo $person['addr_postalcode']; ?>
-
 			</dd>
-			<?php endif; ?>
+			<?php
+				$has_address = true;
+			endif;
+			?>
+			<?php
+			if ($has_address) {
+				++ $i;
+			}
+			?>
 			<?php if (Configure::read('profile.birthdate')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Birthdate'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
@@ -155,7 +170,7 @@ $has_visible_contact = false;
 
 		</dd>
 		<?php endif; ?>
-		<?php if ($is_logged_in && !empty ($person['skill_level'])):?>
+		<?php if ($is_logged_in && !empty ($person['year_started'])):?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Year Started'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php echo $person['year_started']; ?>
