@@ -1538,10 +1538,14 @@ class RegistrationsController extends AppController {
 					$test = $test['price_allowed'][$price['id']];
 					$this->set(compact('price'));
 					$this->set($test);
-
 					if (!$test['allowed']) {
-						$this->Registration->validationErrors['price_id'] = $test['reason'];
+						if (!empty($test['reason'])) {
+							$this->Registration->validationErrors['price_id'] = $test['reason'];
+						} else {
+							$this->Registration->validationErrors['price_id'] = $test['messages'];
+						}
 					} else {
+						$data['Registration']['total_amount'] = $cost;
 						if (!$price['allow_deposit']) {
 							$data['Registration']['payment_type'] = 'Full';
 						} else if ($price['deposit_only'] || $this->data['Registration']['payment_type'] == 'Deposit') {
