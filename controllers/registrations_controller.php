@@ -1527,7 +1527,7 @@ class RegistrationsController extends AppController {
 
 			if ($registration['Registration']['person_id'] == $this->UserCache->currentId()) {
 				// Find the requested price option
-				$price = Set::extract("/Price[id={$data['Registration']['price_id']}]/.", $registration);
+				$price = Set::extract("/Price[id={$data['Registration']['price_id']}]/.", $registration['Event']);
 
 				// Validation of payment data is a manual process
 				if (empty($price)) {
