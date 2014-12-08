@@ -9,6 +9,7 @@ $this->Html->addCrumb (__('View', true));
 echo $this->element('people/player_photo', array('person' => $person, 'photo' => $photo));
 echo $person['full_name'];
 $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_captain || $is_my_captain || $is_my_coordinator || $is_division_captain;
+$has_visible_contact = false;
 ?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
 		<?php if ($is_me || $is_admin || $is_manager):?>
@@ -27,14 +28,14 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 				<?php echo $person['id']; ?>
 			</dd>
 		<?php endif; ?>
-		<?php if ($view_contact || ($is_logged_in && $person['publish_email'])):?>
+		<?php if (!empty($person['email']) && ($view_contact || ($is_logged_in && $person['publish_email']))):?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Email Address'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php
+				$has_visible_contact = true;
 				echo $this->Html->link($person['email'], "mailto:{$person['email']}");
 				echo ' (' . ($person['publish_email'] ? __('published', true) : __('private', true)) . ')';
 				?>
-
 			</dd>
 		<?php endif; ?>
 		<?php if (Configure::read('profile.home_phone') && !empty($person['home_phone']) &&
@@ -42,10 +43,10 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Phone (home)'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php
+				$has_visible_contact = true;
 				echo $person['home_phone'];
 				echo ' (' . ($person['publish_home_phone'] ? __('published', true) : __('private', true)) . ')';
 				?>
-
 			</dd>
 		<?php endif; ?>
 		<?php if (Configure::read('profile.work_phone') && !empty($person['work_phone']) &&
@@ -53,6 +54,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Phone (work)'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php
+				$has_visible_contact = true;
 				echo $person['work_phone'];
 				if (!empty($person['work_ext'])) {
 					echo ' x' . $person['work_ext'];
@@ -67,6 +69,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Phone (mobile)'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php
+				$has_visible_contact = true;
 				echo $person['mobile_phone'];
 				echo ' (' . ($person['publish_mobile_phone'] ? __('published', true) : __('private', true)) . ')';
 				?>
@@ -204,7 +207,7 @@ $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_cap
 <div class="actions">
 	<ul>
 		<?php
-		if ($is_logged_in) {
+		if ($is_logged_in && $has_visible_contact) {
 			echo $this->Html->tag ('li', $this->Html->link(__('VCF', true), array('action' => 'vcf', 'person' => $person['id'])));
 		}
 		if ($is_logged_in && Configure::read('feature.annotations')) {
