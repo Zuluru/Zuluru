@@ -305,8 +305,17 @@ class UserCacheComponent extends Object
 					if (!isset($self->_controller->Person)) {
 						$self->_controller->Person = ClassRegistry::init('Person');
 					}
+
+					$config = new DATABASE_CONFIG;
+					$prefix = $self->_controller->Auth->authenticate->tablePrefix;
+					if ($self->_controller->Auth->authenticate->useDbConfig != 'default') {
+						$config_name = $self->_controller->Auth->authenticate->useDbConfig;
+						$config = $config->$config_name;
+						$prefix = "{$config['database']}.$prefix";
+					}
+
 					$self->data[$id][$key] = $self->_findData($self->_controller->Person->Relative, array(
-							'contain' => $self->_controller->Auth->authenticate->name,
+							'contain' => false,
 							'fields' => array('Relative.*', 'PeoplePerson.*', "{$self->_controller->Auth->authenticate->name}.*"),
 							'joins' => array(
 								array(
@@ -315,6 +324,13 @@ class UserCacheComponent extends Object
 									'type' => 'LEFT',
 									'foreignKey' => false,
 									'conditions' => 'Relative.id = PeoplePerson.person_id',
+								),
+								array(
+									'table' => "$prefix{$self->_controller->Auth->authenticate->useTable}",
+									'alias' => $self->_controller->Auth->authenticate->name,
+									'type' => 'LEFT',
+									'foreignKey' => false,
+									'conditions' => "{$self->_controller->Auth->authenticate->name}.{$self->_controller->Auth->authenticate->primaryKey} = Relative.user_id",
 								),
 							),
 							'conditions' => array(
@@ -333,9 +349,17 @@ class UserCacheComponent extends Object
 					if (!isset($self->_controller->Person)) {
 						$self->_controller->Person = ClassRegistry::init('Person');
 					}
+
+					$config = new DATABASE_CONFIG;
+					$prefix = $self->_controller->Auth->authenticate->tablePrefix;
+					if ($self->_controller->Auth->authenticate->useDbConfig != 'default') {
+						$config_name = $self->_controller->Auth->authenticate->useDbConfig;
+						$config = $config->$config_name;
+						$prefix = "{$config['database']}.$prefix";
+					}
+
 					$self->data[$id][$key] = $self->_findData($self->_controller->Person->Relative, array(
 							'contain' => false,
-							'contain' => $self->_controller->Auth->authenticate->name,
 							'fields' => array('Relative.*', 'PeoplePerson.*', "{$self->_controller->Auth->authenticate->name}.*"),
 							'joins' => array(
 								array(
@@ -344,6 +368,13 @@ class UserCacheComponent extends Object
 									'type' => 'LEFT',
 									'foreignKey' => false,
 									'conditions' => 'Relative.id = PeoplePerson.relative_id',
+								),
+								array(
+									'table' => "$prefix{$self->_controller->Auth->authenticate->useTable}",
+									'alias' => $self->_controller->Auth->authenticate->name,
+									'type' => 'LEFT',
+									'foreignKey' => false,
+									'conditions' => "{$self->_controller->Auth->authenticate->name}.{$self->_controller->Auth->authenticate->primaryKey} = Relative.user_id",
 								),
 							),
 							'conditions' => array(
