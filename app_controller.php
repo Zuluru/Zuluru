@@ -345,7 +345,7 @@ class AppController extends Controller {
 	 * @access public
 	 */
 	function _setPermissions() {
-		$this->is_admin = $this->is_manager = $this->is_volunteer = $this->is_member = $this->is_logged_in = false;
+		$this->is_admin = $this->is_manager = $this->is_volunteer = $this->is_player = $this->is_member = $this->is_logged_in = false;
 		$auth =& $this->Auth->authenticate;
 		$user = $this->Auth->user();
 
@@ -429,6 +429,7 @@ class AppController extends Controller {
 					$this->is_volunteer = true;
 
 				case 'Player':
+					$this->is_player = true;
 					$this->is_member = true;
 
 				case 'Non-player account':
@@ -440,6 +441,7 @@ class AppController extends Controller {
 		$this->set('is_admin', $this->is_admin);
 		$this->set('is_manager', $this->is_manager);
 		$this->set('is_volunteer', $this->is_volunteer);
+		$this->set('is_player', $this->is_player);
 		$this->set('is_member', $this->is_member);
 		$this->set('is_logged_in', $this->is_logged_in);
 		$this->set('my_id', $this->UserCache->currentId());
