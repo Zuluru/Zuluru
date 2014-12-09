@@ -300,6 +300,8 @@ dl .altrow
 {
 	font-size: 11px;
 	color: #000;
+	height: 160px;
+	overflow: auto;
 }
 
 /* Tournament bracket styling. */
