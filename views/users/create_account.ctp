@@ -200,7 +200,7 @@ Configure::load("sport/$sport");
 	<?php
 		if (Configure::read('profile.skill_level')) {
 			if (Configure::read('sport.rating_questions')) {
-				$after = $this->Html->para(null, __('Please use the questionnaire to ', true) . $this->Html->link (__('calculate your rating', true), '#', array('onclick' => 'dorating(); return false;')) . '.');
+				$after = $this->Html->para(null, __('Please use the questionnaire to ', true) . $this->Html->link (__('calculate your rating', true), '#', array('onclick' => 'dorating("#PersonSkillLevel"); return false;')) . '.');
 			} else {
 				$after = null;
 			}
@@ -282,6 +282,6 @@ Configure::load("sport/$sport");
 
 <?php
 if (Configure::read('profile.skill_level') && Configure::read('sport.rating_questions')) {
-	echo $this->element('people/rating', array('sport' => $sport, 'field' => '#PersonSkillLevel'));
+	echo $this->element('people/rating', array('sport' => $sport));
 }
 ?>

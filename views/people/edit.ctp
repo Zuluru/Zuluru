@@ -309,7 +309,7 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 	<?php
 		if (in_array (Configure::read('profile.skill_level'), $access)) {
 			if (Configure::read('sport.rating_questions')) {
-				$after = $this->Html->para(null, __('Please use the questionnaire to ', true) . $this->Html->link (__('calculate your rating', true), '#', array('onclick' => 'dorating(); return false;')) . '.');
+				$after = $this->Html->para(null, __('Please use the questionnaire to ', true) . $this->Html->link (__('calculate your rating', true), '#', array('onclick' => 'dorating("#PersonSkillLevel"); return false;')) . '.');
 			} else {
 				$after = null;
 			}
@@ -421,6 +421,6 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 
 <?php
 if (Configure::read('profile.skill_level') && Configure::read('sport.rating_questions')) {
-	echo $this->element('people/rating', array('sport' => $sport, 'field' => '#PersonSkillLevel'));
+	echo $this->element('people/rating', array('sport' => $sport));
 }
 ?>

@@ -98,11 +98,12 @@ function calculate_rating() {
 	rating = Math.round(rating);
 
 	// put the result into the text box
-	jQuery('$field').val(rating);
+	jQuery(jQuery('#rating_dialog').data('field')).val(rating);
 	return true;
 }
 
-function dorating() {
+function dorating(field) {
+	jQuery('#rating_dialog').data('field', field);
 	jQuery('#rating_dialog').dialog('open');
 }
 ");
