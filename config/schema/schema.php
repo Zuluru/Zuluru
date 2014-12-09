@@ -851,7 +851,6 @@ class ZuluruSchema extends CakeSchema {
 		'user_name' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100, 'key' => 'unique'),
 		'password' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
 		'email' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
-		'session_cookie' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
 		'last_login' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
 		'client_ip' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'user_name' => array('column' => 'user_name', 'unique' => 1)),
