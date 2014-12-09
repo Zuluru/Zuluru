@@ -4,35 +4,46 @@ echo $this->element('people/player_photo', array('person' => $person, 'photo' =>
 ?></h2>
 <?php
 $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_captain || $is_my_captain || $is_my_coordinator || $is_division_captain;
+$has_visible_contact = false;
+$lines = array();
 
 if (!empty($person['email']) &&
 	($view_contact || ($is_logged_in && $person['publish_email'])))
 {
-	echo $this->Html->link ($person['email'], "mailto:{$person['email']}");
+	$has_visible_contact = true;
+	$lines[] = $this->Html->link ($person['email'], "mailto:{$person['email']}");
 }
 if (!empty($person['home_phone']) &&
 	($view_contact || ($is_logged_in && $person['publish_home_phone'])))
 {
-	echo $this->Html->tag('br') . $person['home_phone'] . ' (' . __('home', true) . ')';
+	$has_visible_contact = true;
+	$lines[] = $person['home_phone'] . ' (' . __('home', true) . ')';
 }
 if (!empty($person['work_phone']) &&
 	($view_contact || ($is_logged_in && $person['publish_work_phone'])))
 {
-	echo $this->Html->tag('br') . $person['work_phone'];
+	$has_visible_contact = true;
+	$line = $person['work_phone'];
 	if (!empty($person['work_ext'])) {
-		echo ' x' . $person['work_ext'];
+		$line .= ' x' . $person['work_ext'];
 	}
-	echo ' (' . __('work', true) . ')';
+	$line .= ' (' . __('work', true) . ')';
+	$lines[] = $line;
 }
 if (!empty($person['mobile_phone']) &&
 	($view_contact || ($is_logged_in && $person['publish_mobile_phone'])))
 {
-	echo $this->Html->tag('br') . $person['mobile_phone'] . ' (' . __('mobile', true) . ')';
+	$has_visible_contact = true;
+	$lines[] = $person['mobile_phone'] . ' (' . __('mobile', true) . ')';
 }
+
+echo implode($this->Html->tag('br'), $lines);
 
 if ($is_logged_in) {
 	echo $this->Html->tag('br');
-	echo $this->Html->link(__('VCF', true), array('action' => 'vcf', 'person' => $person['id']));
+	if ($has_visible_contact) {
+		echo $this->Html->link(__('VCF', true), array('action' => 'vcf', 'person' => $person['id']));
+	}
 
 	if (Configure::read('feature.annotations')) {
 		if (!empty($note)) {
