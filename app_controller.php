@@ -127,7 +127,7 @@ class AppController extends Controller {
 		$free = $this->freeActions();
 		if ($this->is_member && !in_array($this->action, $free)) {
 			$email = $this->UserCache->read('Person.email');
-			if (($this->name != 'People' || $this->action != 'edit') && empty ($email)) {
+			if (($this->name != 'People' || $this->action != 'edit') && empty ($email) && $this->UserCache->read('Person.user_id')) {
 				$this->Session->setFlash(__('Last time we tried to contact you, your email bounced. We require a valid email address as part of your profile. You must update it before proceeding.', true), 'default', array('class' => 'warning'));
 				$this->redirect (array('controller' => 'people', 'action' => 'edit'));
 			}

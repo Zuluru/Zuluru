@@ -10,20 +10,23 @@ echo $this->element('people/player_photo', array('person' => $person, 'photo' =>
 echo $person['full_name'];
 $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_captain || $is_my_captain || $is_my_coordinator || $is_division_captain;
 $has_visible_contact = false;
+$this_is_player = ($person['group_id'] == 1);
 ?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
 		<?php if ($is_me || $is_admin || $is_manager):?>
+			<?php if ($person['user_id']):?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('User Name'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php echo $person['user_name']; ?>
 			</dd>
-			<?php if (!Configure::read('feature.manage_accounts')): ?>
+				<?php if (!Configure::read('feature.manage_accounts')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php printf(__('%s User Id', true), Configure::read('feature.manage_name')); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php echo $person['user_id']; ?>
 			</dd>
+				<?php endif; ?>
 			<?php endif; ?>
-			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Zuluru User Id'); ?></dt>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Zuluru Id'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php echo $person['id']; ?>
 			</dd>
@@ -125,58 +128,66 @@ $has_visible_contact = false;
 				++ $i;
 			}
 			?>
-			<?php if (Configure::read('profile.birthdate')): ?>
-			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Birthdate'); ?></dt>
-			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-				<?php
-				if (Configure::read('feature.birth_year_only')) {
-					if (empty($person['birthdate']) || substr($person['birthdate'], 0, 4) == '0000') {
-						__('unknown');
+		<?php endif; ?>
+		<?php if ($this_is_player): ?>
+			<?php if ($is_me || $is_admin || $is_manager):?>
+				<?php if (Configure::read('profile.birthdate')): ?>
+				<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Birthdate'); ?></dt>
+				<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+					<?php
+					if (Configure::read('feature.birth_year_only')) {
+						$birth_year = substr($person['birthdate'], 0, 4);
+						if (empty($person['birthdate']) || $birth_year == '0000') {
+							__('unknown');
+						} else {
+							echo $birth_year;
+							$age = date('Y') - $birth_year;
+						}
 					} else {
-						echo substr($person['birthdate'], 0, 4);
+						echo $this->ZuluruTime->date($person['birthdate']);
+						// This will be, at worst, off by a day. A better calculation can be made if ever required.
+						$age = floor((time() - strtotime($person['birthdate'])) / DAY / 365.25);
 					}
-				} else {
-					echo $this->ZuluruTime->date($person['birthdate']);
-				}
-				?>
+					?>
+				</dd>
+				<?php endif; ?>
+			<?php endif; ?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Gender'); ?></dt>
+			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+				<?php __($person['gender']); ?>&nbsp;
+
+			</dd>
+			<?php if ($is_me || $is_admin || $is_manager || $is_coordinator || $is_captain):?>
+				<?php if (Configure::read('profile.height') && !empty($person['height'])): ?>
+				<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Height'); ?></dt>
+				<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+					<?php echo $person['height'] . ' ' . (Configure::read('feature.units') == 'Metric' ? __('cm', true) : __('inches', true)); ?>
+
+				</dd>
+				<?php endif; ?>
+				<?php if (Configure::read('profile.shirt_size') && !empty($person['shirt_size'])): ?>
+				<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Shirt Size'); ?></dt>
+				<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+					<?php __($person['shirt_size']); ?>
+
+				</dd>
+				<?php endif; ?>
+			<?php endif; ?>
+			<?php if (Configure::read('profile.skill_level') && !empty ($person['skill_level'])):?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Skill Level'); ?></dt>
+			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+				<?php __(Configure::read("options.skill.{$person['skill_level']}")) ; ?>
+
 			</dd>
 			<?php endif; ?>
-		<?php endif; ?>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Gender'); ?></dt>
-		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php __($person['gender']); ?>&nbsp;
+			<?php if ($is_logged_in && !empty ($person['year_started'])):?>
+				<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Year Started'); ?></dt>
+				<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+					<?php echo $person['year_started']; ?>
 
-		</dd>
-		<?php if ($is_me || $is_admin || $is_manager || $is_coordinator || $is_captain):?>
-			<?php if (Configure::read('profile.height') && !empty($person['height'])): ?>
-			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Height'); ?></dt>
-			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-				<?php echo $person['height'] . ' ' . (Configure::read('feature.units') == 'Metric' ? __('cm', true) : __('inches', true)); ?>
-
-			</dd>
+				</dd>
 			<?php endif; ?>
-			<?php if (Configure::read('profile.shirt_size') && !empty($person['shirt_size'])): ?>
-			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Shirt Size'); ?></dt>
-			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-				<?php __($person['shirt_size']); ?>
-
-			</dd>
-			<?php endif; ?>
-		<?php endif; ?>
-		<?php if (Configure::read('profile.skill_level') && !empty ($person['skill_level'])):?>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Skill Level'); ?></dt>
-		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php __(Configure::read("options.skill.{$person['skill_level']}")) ; ?>
-
-		</dd>
-		<?php endif; ?>
-		<?php if ($is_logged_in && !empty ($person['year_started'])):?>
-			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Year Started'); ?></dt>
-			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-				<?php echo $person['year_started']; ?>
-
-			</dd>
-		<?php endif; ?>
+		<?php else: $age = 99; endif; ?>
 		<?php if ($is_me || $is_admin || $is_manager):?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Account Class'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
@@ -249,7 +260,70 @@ $has_visible_contact = false;
 	</ul>
 </div>
 
-<?php if ($is_logged_in):?>
+<?php if ($view_contact && $age < 18 && !empty($related_to)): ?>
+<div class="related">
+	<h3><?php __('Contacts');?></h3>
+	<dl><?php $i = 0; $class = ' class="altrow"';?>
+	<?php
+	foreach ($related_to as $relative):
+		if ($relative['PeoplePerson']['approved']):
+	?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Name'); ?></dt>
+			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+				<?php echo $relative['Relative']['full_name']; ?>
+			</dd>
+			<?php if (!empty($relative['Relative']['email'])):?>
+				<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Email Address'); ?></dt>
+				<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+					<?php
+					echo $this->Html->link($relative['Relative']['email'], "mailto:{$relative['Relative']['email']}");
+					echo ' (' . ($relative['Relative']['publish_email'] ? __('published', true) : __('private', true)) . ')';
+					?>
+				</dd>
+			<?php endif; ?>
+			<?php if (Configure::read('profile.home_phone') && !empty($relative['Relative']['home_phone'])):?>
+				<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Phone (home)'); ?></dt>
+				<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+					<?php
+					echo $relative['Relative']['home_phone'];
+					echo ' (' . ($relative['Relative']['publish_home_phone'] ? __('published', true) : __('private', true)) . ')';
+					?>
+				</dd>
+			<?php endif; ?>
+			<?php if (Configure::read('profile.work_phone') && !empty($relative['Relative']['work_phone'])):?>
+				<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Phone (work)'); ?></dt>
+				<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+					<?php
+					echo $relative['Relative']['work_phone'];
+					if (!empty($relative['Relative']['work_ext'])) {
+						echo ' x' . $relative['Relative']['work_ext'];
+					}
+					echo ' (' . ($relative['Relative']['publish_work_phone'] ? __('published', true) : __('private', true)) . ')';
+					?>
+
+				</dd>
+			<?php endif; ?>
+			<?php if (Configure::read('profile.mobile_phone') && !empty($relative['Relative']['mobile_phone'])):?>
+				<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Phone (mobile)'); ?></dt>
+				<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+					<?php
+					echo $relative['Relative']['mobile_phone'];
+					echo ' (' . ($relative['Relative']['publish_mobile_phone'] ? __('published', true) : __('private', true)) . ')';
+					?>
+
+				</dd>
+			<?php
+			endif;
+		endif;
+	endforeach;
+	?>
+	</dl>
+</div>
+<?php endif; ?>
+
+<?php
+$all_teams = $this->UserCache->read('AllTeamIDs', $person['id']);
+if ($is_logged_in && ($this_is_player || !empty($all_teams))): ?>
 <div class="related">
 	<h3><?php __('Teams');?></h3>
 	<?php if (!empty($teams)):?>
@@ -330,9 +404,12 @@ $has_visible_contact = false;
 			<td><?php $relative['PeoplePerson']['approved'] ? __('Yes') : __('No'); ?></td>
 			<td class="actions"><?php
 				echo $this->ZuluruHtml->iconLink('view_24.png', array('controller' => 'people', 'action' => 'view', 'person' => $relative['Relative']['id']));
-				echo $this->ZuluruHtml->iconLink('delete_24.png', array('controller' => 'people', 'action' => 'remove_relative', 'person' => $person['id'], 'relative' => $relative['Relative']['id']));
+				// Only full users can remove relations
+				if (!empty($person['user_id'])) {
+					echo $this->ZuluruHtml->iconLink('delete_24.png', array('controller' => 'people', 'action' => 'remove_relative', 'person' => $person['id'], 'relative' => $relative['Relative']['id']));
+				}
 				if (!$relative['PeoplePerson']['approved']) {
-					echo $this->Html->link(__('Approve', true), array('controller' => 'people', 'action' => 'approve_relative', 'person' => $person['id'], 'relative' => $relative['Relative']['id']));
+					echo $this->ZuluruHtml->iconLink('approve_24.png', array('controller' => 'people', 'action' => 'approve_relative', 'person' => $person['id'], 'relative' => $relative['Relative']['id']));
 				}
 			?></td>
 		</tr>
@@ -380,7 +457,7 @@ $has_visible_contact = false;
 </div>
 <?php endif; ?>
 
-<?php if (Configure::read('scoring.allstars') && ($is_admin || $is_manager || $is_coordinator)):?>
+<?php if (Configure::read('scoring.allstars') && ($is_admin || $is_manager || $is_coordinator) && ($this_is_player || !empty($allstars))):?>
 <div class="related">
 	<h3><?php __('Allstar Nominations');?></h3>
 	<?php if (!empty($allstars)):?>

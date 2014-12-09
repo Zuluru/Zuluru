@@ -16,10 +16,15 @@ $dispositions = array(
 
 $rows = array(
 	'full_name' => array('name' => 'Name'),
-	'user_name' => array('name' => 'User Name'),
 );
 
-if (!Configure::read('feature.manage_accounts')) {
+$rows['name'] = array('name' => 'Group', 'model' => 'Group');
+
+if (!empty($person['Person']['user_name'])) {
+	$rows['user_name'] = array('name' => 'User Name');
+}
+
+if (!empty($person['Person']['user_id']) && !Configure::read('feature.manage_accounts')) {
 	$rows['user_id'] = array('name' => sprintf(__('%s User Id', true), Configure::read('feature.manage_name')));
 }
 
@@ -88,7 +93,12 @@ foreach ($rows as $key => $data) {
 		if (array_key_exists ('name', $data)) {
 			$name = $data['name'];
 		}
-		$val = $person['Person'][$field];
+		if (array_key_exists ('model', $data)) {
+			$model = $data['model'];
+		} else {
+			$model = 'Person';
+		}
+		$val = $person[$model][$field];
 		if (array_key_exists ('func', $data)) {
 			$func = "format_{$data['func']}";
 			$val = $func($val, $this);
@@ -116,8 +126,13 @@ if (!empty ($duplicates)) {
 				$user_val = $person['Person'][$data];
 				$val = $duplicate['Person'][$data];
 			} else {
-				$user_val = $person['Person'][$key];
-				$val = $duplicate['Person'][$key];
+				if (array_key_exists ('model', $data)) {
+					$model = $data['model'];
+				} else {
+					$model = 'Person';
+				}
+				$user_val = $person[$model][$key];
+				$val = $duplicate[$model][$key];
 				if (array_key_exists ('func', $data)) {
 					$func = "format_{$data['func']}";
 					$user_val = $func($user_val, $this);

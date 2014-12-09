@@ -519,7 +519,7 @@ class Person extends AppModel {
 		}
 
 		return $this->find('all', array(
-				'fields' => array('Person.*', "$user_model.*"),
+				'fields' => array('Person.*', 'Group.*', "$user_model.*"),
 				'joins' => array(
 					array(
 						'table' => "{$this->tablePrefix}affiliates_people",
@@ -537,7 +537,7 @@ class Person extends AppModel {
 					),
 				),
 				'conditions' => $conditions,
-				'contain' => array(),
+				'contain' => array('Group'),
 		));
 	}
 

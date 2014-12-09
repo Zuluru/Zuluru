@@ -38,7 +38,7 @@ $this->Html->addCrumb (__('List', true));
 	<tr<?php echo $class;?>>
 		<td><?php echo $this->element('people/block', array('person' => $person, 'display_field' => 'first_name')); ?>&nbsp;</td>
 		<td><?php echo $this->element('people/block', array('person' => $person, 'display_field' => 'last_name')); ?>&nbsp;</td>
-		<td><?php echo $person['Person']['user_name']; ?>&nbsp;</td>
+		<td><?php if (!empty($person['Person']['user_name'])) echo $person['Person']['user_name']; ?>&nbsp;</td>
 		<td><?php echo $person['Person']['email']; ?>&nbsp;</td>
 		<td><?php echo $person['Person']['gender']; ?>&nbsp;</td>
 		<td><?php echo $person['Person']['status']; ?>&nbsp;</td>

@@ -74,4 +74,52 @@ if ($is_logged_in && Configure::read('feature.badges') && !empty($badges['Badge'
 			array('alt' => $badge['name'], 'title' => $badge['description']));
 	}
 }
+
+if ($view_contact) {
+	if (Configure::read('feature.birth_year_only')) {
+		$birth_year = substr($person['birthdate'], 0, 4);
+		if (empty($person['birthdate']) || $birth_year == '0000') {
+			$age = 99;
+		} else {
+			$age = date('Y') - $birth_year;
+		}
+	} else {
+		// This will be, at worst, off by a day. A better calculation can be made if ever required.
+		$age = floor((time() - strtotime($person['birthdate'])) / DAY / 365.25);
+	}
+	if ($age < 18) {
+		$related_to = $this->UserCache->read('RelatedTo', $person['id']);
+		if (!empty($related_to)) {
+?>
+	<h3><?php __('Contacts');?></h3>
+	<?php
+			$lines = array();
+			foreach ($related_to as $relative){
+				if ($relative['PeoplePerson']['approved']){
+					$lines[] = $this->Html->tag('strong', $this->Html->link ($relative['Relative']['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $relative['Relative']['id'])));
+					if (!empty($relative['Relative']['email'])) {
+						$lines[] = $this->Html->link ($relative['Relative']['email'], "mailto:{$relative['Relative']['email']}");
+					}
+					if (!empty($relative['Relative']['home_phone'])) {
+						$lines[] = $relative['Relative']['home_phone'] . ' (' . __('home', true) . ')';
+					}
+					if (!empty($relative['Relative']['work_phone'])) {
+						$line = $relative['Relative']['work_phone'];
+						if (!empty($relative['Relative']['work_ext'])) {
+							$line .= ' x' . $relative['Relative']['work_ext'];
+						}
+						$line .= ' (' . __('work', true) . ')';
+						$lines[] = $line;
+					}
+					if (!empty($relative['Relative']['mobile_phone'])) {
+						$lines[] = $relative['Relative']['mobile_phone'] . ' (' . __('mobile', true) . ')';
+					}
+					$lines[] = '';
+				}
+			}
+			array_pop($lines);
+			echo implode($this->Html->tag('br'), $lines);
+		}
+	}
+}
 ?>

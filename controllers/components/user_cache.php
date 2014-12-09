@@ -306,8 +306,8 @@ class UserCacheComponent extends Object
 						$self->_controller->Person = ClassRegistry::init('Person');
 					}
 					$self->data[$id][$key] = $self->_findData($self->_controller->Person->Relative, array(
-							'contain' => false,
-							'fields' => array('Relative.*', 'PeoplePerson.*'),
+							'contain' => $self->_controller->Auth->authenticate->name,
+							'fields' => array('Relative.*', 'PeoplePerson.*', "{$self->_controller->Auth->authenticate->name}.*"),
 							'joins' => array(
 								array(
 									'table' => "{$self->_controller->Person->tablePrefix}people_people",
@@ -335,7 +335,8 @@ class UserCacheComponent extends Object
 					}
 					$self->data[$id][$key] = $self->_findData($self->_controller->Person->Relative, array(
 							'contain' => false,
-							'fields' => array('Relative.*', 'PeoplePerson.*'),
+							'contain' => $self->_controller->Auth->authenticate->name,
+							'fields' => array('Relative.*', 'PeoplePerson.*', "{$self->_controller->Auth->authenticate->name}.*"),
 							'joins' => array(
 								array(
 									'table' => "{$self->_controller->Person->tablePrefix}people_people",

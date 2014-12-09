@@ -2442,7 +2442,7 @@ class PeopleController extends AppController {
 			$this->redirect(array('action' => 'list_new'));
 		}
 
-		$this->Person->contain('Affiliate', Configure::read('security.auth_model'));
+		$this->Person->contain('Affiliate', 'Group', Configure::read('security.auth_model'));
 		$person = $this->Person->read(null, $id);
 		if (!$person) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
@@ -2532,10 +2532,12 @@ class PeopleController extends AppController {
 				break;
 
 			case 'delete':
-				if (method_exists ($this->Auth->authenticate, 'delete_duplicate_user')) {
-					$this->Auth->authenticate->delete_duplicate_user($person['Person']['user_id']);
-				} else {
-					$this->Auth->authenticate->delete($person['Person']['user_id']);
+				if (!empty($person['Person']['user_id'])) {
+					if (method_exists ($this->Auth->authenticate, 'delete_duplicate_user')) {
+						$this->Auth->authenticate->delete_duplicate_user($person['Person']['user_id']);
+					} else {
+						$this->Auth->authenticate->delete($person['Person']['user_id']);
+					}
 				}
 				if (! $this->Person->delete($person_id) ) {
 					$this->Session->setFlash(sprintf (__('Failed to delete %s', true), $person['Person']['full_name']), 'default', array('class' => 'warning'));
@@ -2544,10 +2546,12 @@ class PeopleController extends AppController {
 				break;
 
 			case 'delete_duplicate':
-				if (method_exists ($this->Auth->authenticate, 'delete_duplicate_user')) {
-					$this->Auth->authenticate->delete_duplicate_user($person['Person']['user_id']);
-				} else {
-					$this->Auth->authenticate->delete($person['Person']['user_id']);
+				if (!empty($person['Person']['user_id'])) {
+					if (method_exists ($this->Auth->authenticate, 'delete_duplicate_user')) {
+						$this->Auth->authenticate->delete_duplicate_user($person['Person']['user_id']);
+					} else {
+						$this->Auth->authenticate->delete($person['Person']['user_id']);
+					}
 				}
 
 				if (! $this->Person->delete($person_id) ) {
@@ -2573,7 +2577,7 @@ class PeopleController extends AppController {
 			// that some old information (e.g. user ID) is preserved
 			case 'merge_duplicate':
 				$transaction = new DatabaseTransaction($this->Person);
-				if (method_exists ($this->Auth->authenticate, 'merge_duplicate_user')) {
+				if (method_exists ($this->Auth->authenticate, 'merge_duplicate_user') && !empty($person['Person']['user_id']) && !empty($existing['Person']['user_id'])) {
 					$this->Auth->authenticate->merge_duplicate_user($person['Person']['user_id'], $existing['Person']['user_id']);
 				}
 
@@ -2603,7 +2607,9 @@ class PeopleController extends AppController {
 
 				// Unset a few fields that we want to retain from the old record
 				foreach (array('group_id', 'status', 'user_id', 'year_started') as $field) {
-					unset ($person['Person'][$field]);
+					if (!empty($existing['Person'][$field])) {
+						unset ($person['Person'][$field]);
+					}
 				}
 				$person['Person']['id'] = $dup_id;
 
