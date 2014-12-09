@@ -49,6 +49,17 @@ class UsersController extends AppController {
 				$this->Cookie->write('Auth.User', $this->data[$auth->alias], true, '+1 year');
 			}
 
+			if (Configure::read('feature.manage_accounts')) {
+				$id = $this->Auth->user('id');
+				$auth->save(array(
+					'id' => $id,
+					'last_login' => date('Y-m-d H:i:s'),
+					'client_ip' => $_SERVER['REMOTE_ADDR'],
+				));
+				$this->UserCache->clear('Person', $id);
+				$this->UserCache->clear('User', $id);
+			}
+
 			$this->redirect($this->Auth->redirect());
 		}
 

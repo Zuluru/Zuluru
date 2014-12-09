@@ -30,6 +30,11 @@ class UserZikula extends User {
 	var $nameField = 'pn_name';
 
 	/**
+	 * Column in the table where last login is stored.
+	 */
+	var $loginField = 'pn_lastlogin';
+
+	/**
 	 * Function to use for hashing passwords.
 	 */
 	var $hashMethod = 'sha256';

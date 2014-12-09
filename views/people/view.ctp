@@ -31,6 +31,20 @@ $this_is_player = ($person['group_id'] == 1);
 				<?php echo $person['id']; ?>
 			</dd>
 		<?php endif; ?>
+		<?php if ($is_admin || $is_manager):?>
+			<?php if (!empty($person['last_login'])):?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Last Login'); ?></dt>
+			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+				<?php echo $this->ZuluruTime->datetime($person['last_login']); ?>
+			</dd>
+			<?php endif; ?>
+			<?php if (!empty($person['client_ip'])):?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('IP Address'); ?></dt>
+			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+				<?php echo $person['client_ip']; ?>
+			</dd>
+			<?php endif; ?>
+		<?php endif; ?>
 		<?php if (($view_contact || ($is_logged_in && $person['publish_email'])) && !empty($person['email'])):?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Email Address'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>

@@ -34,6 +34,11 @@ class UserJoomla extends User {
 	var $nameField = 'name';
 
 	/**
+	 * Column in the table where last login is stored.
+	 */
+	var $loginField = 'lastvisitDate';
+
+	/**
 	 * Accounts (add, delete, passwords) are managed by Joomla, not Zuluru.
 	 */
 	var $manageAccounts = false;

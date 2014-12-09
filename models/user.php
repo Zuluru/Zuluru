@@ -89,6 +89,16 @@ class User extends AppModel {
 	var $nameField = null;
 
 	/**
+	 * Column in the table where last login is stored.
+	 */
+	var $loginField = null;
+
+	/**
+	 * Column in the table where IP address is stored.
+	 */
+	var $ipField = null;
+
+	/**
 	 * Function to use for hashing passwords. This must match the type given
 	 * in the hash call in the install controller.
 	 */
@@ -135,11 +145,17 @@ class User extends AppModel {
 				'user_name' => $this->userField,
 				'password' => $this->pwdField,
 				'email' => $this->emailField,
+				'last_login' => $this->loginField,
+				'client_ip' => $this->ipField,
 			) as $alias => $field)
 			{
 				if (array_key_exists ($field, $record[$this->alias])) {
 					$record[$this->alias][$alias] = $record[$this->alias][$field];
 				}
+			}
+
+			if (is_numeric($record[$this->alias]['last_login'])) {
+				$record[$this->alias]['last_login'] = date('Y-m-d H:i:s', $record[$this->alias]['last_login']);
 			}
 		}
 

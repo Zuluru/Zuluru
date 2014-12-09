@@ -409,6 +409,12 @@ class Person extends AppModel {
 		if (!empty($user['password'])) {
 			$record[$this->alias]['password'] = $user['password'];
 		}
+		if (!empty($user['last_login'])) {
+			$record[$this->alias]['last_login'] = $user['last_login'];
+		}
+		if (!empty($user['client_ip'])) {
+			$record[$this->alias]['client_ip'] = $user['client_ip'];
+		}
 
 		if (array_key_exists ('first_name', $record[$this->alias]) && array_key_exists ('last_name', $record[$this->alias])) {
 			$record[$this->alias]['full_name'] = trim ("{$record[$this->alias]['first_name']} {$record[$this->alias]['last_name']}");

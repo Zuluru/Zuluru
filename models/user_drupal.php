@@ -42,6 +42,11 @@ class UserDrupal extends User {
 	var $emailField = 'mail';
 
 	/**
+	 * Column in the table where last login is stored.
+	 */
+	var $loginField = 'login';
+
+	/**
 	 * Accounts (add, delete, passwords) are managed by Drupal, not Zuluru.
 	 */
 	var $manageAccounts = false;
