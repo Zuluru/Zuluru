@@ -2301,7 +2301,7 @@ class GamesController extends AppController {
 						$this->set(compact ('division', 'game', 'status', 'opponent_status', 'score_for', 'score_against', 'team', 'opponent', 'captains'));
 						$this->_sendMail (array (
 								'to' => $captains,
-								'from' => $this->UserCache->read('Person.email_formatted'),
+								'replyTo' => $this->UserCache->read('Person.email_formatted'),
 								'subject' => 'Opponent score submission',
 								'template' => 'score_submission',
 								'sendAs' => 'both',
@@ -2337,7 +2337,7 @@ class GamesController extends AppController {
 					));
 					if ($this->_sendMail (array (
 							'to' => "Incident Manager <$addr>",
-							'from' => $this->UserCache->read('Person.email_formatted'),
+							'replyTo' => $this->UserCache->read('Person.email_formatted'),
 							'subject' => "Incident report: {$incident['type']}",
 							'template' => 'incident_report',
 							'sendAs' => 'html',
