@@ -83,6 +83,8 @@ $rows[] = 'year_started';
 $rows['status'] = array('name' => 'Account Status');
 
 $cols = array('name' => array(), 'person' => array());
+$i = 0;
+$has_data = array();
 foreach ($rows as $key => $data) {
 	$name = null;
 	if (is_numeric ($key)) {
@@ -109,6 +111,10 @@ foreach ($rows as $key => $data) {
 	}
 	$cols['name'][] = $name;
 	$cols['person'][] = $val;
+	if (!empty($val)) {
+		$has_data[$i] = true;
+	}
+	++ $i;
 }
 
 if (!empty ($duplicates)) {
@@ -121,6 +127,7 @@ if (!empty ($duplicates)) {
 		$compare[] = $this->Html->link ("{$duplicate['Person']['full_name']} ({$duplicate['Person']['id']})", '#',
 			array('onclick' => "return compare({$duplicate['Person']['id']})"));
 
+		$i = 0;
 		foreach ($rows as $key => $data) {
 			if (is_numeric ($key)) {
 				$user_val = $person['Person'][$data];
@@ -144,6 +151,10 @@ if (!empty ($duplicates)) {
 				$class .= ' warning-message';
 			}
 			$cols[$duplicate['Person']['id']][] = array($val, array('class' => $class));
+			if (!empty($val)) {
+				$has_data[$i] = true;
+			}
+			++ $i;
 		}
 	}
 	echo $this->Html->nestedList ($compare);
@@ -151,7 +162,14 @@ if (!empty ($duplicates)) {
 
 echo '<br>';
 
-echo $this->Html->tag ('table', $this->Html->tableCells (array_transpose ($cols), array(), array('class' => 'altrow')), array('class' => 'list'));
+$table_data = array_transpose($cols);
+foreach (array_keys($table_data) as $key) {
+	if (!array_key_exists($key, $has_data)) {
+		unset($table_data[$key]);
+	}
+}
+
+echo $this->Html->tag ('table', $this->Html->tableCells ($table_data, array(), array('class' => 'altrow')), array('class' => 'list'));
 
 if (!empty($duplicates) && !$activated) {
 	echo $this->Html->para('warning-message', 'This user has not yet activated their account. If the user record is merged backwards, they WILL NOT be able to activate their account.');
@@ -194,8 +212,10 @@ function format_date($data, $ths) {
 		return $ths->ZuluruTime->date($data);
 	}
 }
-function format_height($data, $ths) {
-	return $data . ' ' . (Configure::read('feature.units') == 'Metric' ? __('cm', true) : __('inches', true));
+function format_height($data) {
+	if (!empty($data)) {
+		return $data . ' ' . (Configure::read('feature.units') == 'Metric' ? __('cm', true) : __('inches', true));
+	}
 }
 
 ?>
