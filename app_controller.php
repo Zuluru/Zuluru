@@ -1369,24 +1369,40 @@ class AppController extends Controller {
 
 	function _extractEmails($input, $array = false) {
 		if (is_array ($input)) {
-			$emails = array_filter (Set::extract ('/email_formatted', $input));
-			if (empty ($emails)) {
-				$emails = array_filter (Set::extract ('/Person/email_formatted', $input));
+			$emails = array();
+
+			$model = Configure::read('security.auth_model');
+			foreach ($input as $person) {
+				$is_person = true;
+				if (array_key_exists('Person', $person)) {
+					$person = $person['Person'];
+				} else if (array_key_exists('Relative', $person)) {
+					$person = $person['Relative'];
+				} else if (array_key_exists($model, $person)) {
+					$person = $person[$model];
+					$is_person = false;
+				}
+
+				if (!empty($person['email_formatted'])) {
+					$emails[] = $person['email_formatted'];
+				} else if (!empty($person['email'])) {
+					$emails[] = $person['email'];
+				}
+
+				if (!empty($person['alternate_email'])) {
+					$emails[] = $person['alternate_email'];
+				}
+
+				if ($is_person && empty($person['user_id']) && !empty($person['id'])) {
+					$relatives = $this->UserCache->read('RelatedTo', $person['id']);
+					$emails = array_merge($emails, $this->_extractEmails($relatives, true));
+				}
 			}
-			if (empty ($emails)) {
-				$emails = array_filter (Set::extract ('/email', $input));
-			}
-			if (empty ($emails)) {
-				$emails = array_filter (Set::extract ('/Person/email', $input));
-			}
-			if (empty ($emails)) {
-				$model = Configure::read('security.auth_model');
-				$emails = array_filter (Set::extract ("/$model/email_formatted", $input));
-			}
+
 			if (count ($emails) >= 1 && !$array) {
 				return reset($emails);
 			}
-			return $emails;
+			return array_unique($emails);
 		}
 		// Anything else, return as-is and hope for the best!
 		if ($array) {
