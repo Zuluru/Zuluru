@@ -25,9 +25,13 @@ if (!empty($this->data['Upload']) && $this->data['Upload']['approved'] == true) 
 	echo $this->element('people/player_photo', array('person' => $this->data['Person'], 'photo' => $this->data));
 }
 echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_name']} {$this->data['Person']['last_name']}"; ?></h2>
-<p>Note that email and phone publish settings below only apply to regular players. Captains will always have access to view the phone numbers and email addresses of their confirmed players. All Team Captains will also have their email address viewable by other players.</p>
+<p><?php __('Note that email and phone publish settings below only apply to regular players. Captains will always have access to view the phone numbers and email addresses of their confirmed players. All Team Captains will also have their email address viewable by other players.'); ?></p>
 <?php if (Configure::read('urls.privacy_policy')): ?>
-<p>If you have concerns about the data <?php echo $short; ?> collects, please see our <strong><a href="<?php echo Configure::read('urls.privacy_policy'); ?>" target="_new">Privacy Policy</a>.</strong></p>
+<p><?php printf(__('If you have concerns about the data %s collects, please see our %s.', true),
+		$short,
+		$this->Html->tag('strong', $this->Html->link(__('Privacy Policy', true), Configure::read('urls.privacy_policy'), array('target' => '_new')))
+);
+?></p>
 <?php endif; ?>
 
 <?php if (Configure::read('feature.photos') && $is_me && empty($this->data['Upload'])): ?>
