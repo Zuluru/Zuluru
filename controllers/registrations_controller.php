@@ -1525,42 +1525,40 @@ class RegistrationsController extends AppController {
 			// Registration->save to validate properly.
 			$this->Registration->Response->set ($data);
 
-			if ($registration['Registration']['person_id'] == $this->UserCache->currentId()) {
-				// Find the requested price option
-				$price = Set::extract("/Price[id={$data['Registration']['price_id']}]/.", $registration['Event']);
+			// Find the requested price option
+			$price = Set::extract("/Price[id={$data['Registration']['price_id']}]/.", $registration['Event']);
 
-				// Validation of payment data is a manual process
-				if (empty($price)) {
-					$this->Registration->validationErrors['price_id'] = 'Select a valid price option.';
-				} else {
-					$price = reset($price);
-					$cost = $price['cost'] + $price['tax1'] + $price['tax2'];
-					$test = $test['price_allowed'][$price['id']];
-					$this->set(compact('price'));
-					$this->set($test);
-					if (!$test['allowed']) {
-						if (!empty($test['reason'])) {
-							$this->Registration->validationErrors['price_id'] = $test['reason'];
-						} else {
-							$this->Registration->validationErrors['price_id'] = $test['messages'];
-						}
+			// Validation of payment data is a manual process
+			if (empty($price)) {
+				$this->Registration->validationErrors['price_id'] = 'Select a valid price option.';
+			} else {
+				$price = reset($price);
+				$cost = $price['cost'] + $price['tax1'] + $price['tax2'];
+				$test = $test['price_allowed'][$price['id']];
+				$this->set(compact('price'));
+				$this->set($test);
+				if ($registration['Registration']['person_id'] == $this->UserCache->currentId() && !$test['allowed']) {
+					if (!empty($test['reason'])) {
+						$this->Registration->validationErrors['price_id'] = $test['reason'];
 					} else {
-						$data['Registration']['total_amount'] = $cost;
-						if (!$price['allow_deposit']) {
-							$data['Registration']['payment_type'] = 'Full';
-						} else if ($price['deposit_only'] || $this->data['Registration']['payment_type'] == 'Deposit') {
-							$this->data['Registration']['payment_type'] = 'Deposit';
-							if ($price['fixed_deposit']) {
-								$data['Registration']['deposit_amount'] = $price['minimum_deposit'];
-							} else if ($this->data['Registration']['deposit_amount'] < $price['minimum_deposit']) {
-								$this->Registration->validationErrors['deposit_amount'] = sprintf(__('A minimum deposit of $%s is required.', true), $price['minimum_deposit']);
-							} else if ($this->data['Registration']['deposit_amount'] >= $cost) {
-								$this->Registration->validationErrors['deposit_amount'] = sprintf(__('This deposit exceeds the total cost of $%s.', true), $cost);
-							}
+						$this->Registration->validationErrors['price_id'] = $test['messages'];
+					}
+				} else {
+					$data['Registration']['total_amount'] = $cost;
+					if (!$price['allow_deposit']) {
+						$data['Registration']['payment_type'] = 'Full';
+					} else if ($price['deposit_only'] || $this->data['Registration']['payment_type'] == 'Deposit') {
+						$this->data['Registration']['payment_type'] = 'Deposit';
+						if ($price['fixed_deposit']) {
+							$data['Registration']['deposit_amount'] = $price['minimum_deposit'];
+						} else if ($this->data['Registration']['deposit_amount'] < $price['minimum_deposit']) {
+							$this->Registration->validationErrors['deposit_amount'] = sprintf(__('A minimum deposit of $%s is required.', true), $price['minimum_deposit']);
+						} else if ($this->data['Registration']['deposit_amount'] >= $cost) {
+							$this->Registration->validationErrors['deposit_amount'] = sprintf(__('This deposit exceeds the total cost of $%s.', true), $cost);
 						}
-						if ($data['Registration']['payment_type'] == 'Full') {
-							$data['Registration']['deposit_amount'] = 0;
-						}
+					}
+					if ($data['Registration']['payment_type'] == 'Full') {
+						$data['Registration']['deposit_amount'] = 0;
 					}
 				}
 			}
