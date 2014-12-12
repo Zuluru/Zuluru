@@ -1016,8 +1016,8 @@ class RegistrationsController extends AppController {
 
 		if (!empty($this->data)) {
 			if ($this->data['Payment']['payment_amount'] <= 0) {
-				$this->Registration->Payment->validationErrors['amount'] = 'Payment amounts must be positive.';
-				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('refund', true)), 'default', array('class' => 'warning'));
+				$this->Registration->Payment->validationErrors['payment_amount'] = 'Payment amounts must be positive.';
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('payment', true)), 'default', array('class' => 'warning'));
 				return;
 			}
 
@@ -1044,8 +1044,8 @@ class RegistrationsController extends AppController {
 			}
 
 			if ($outstanding < $this->data['Payment']['payment_amount']) {
-				$this->Registration->Payment->validationErrors['amount'] = 'This would pay more than the amount owing.';
-				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('refund', true)), 'default', array('class' => 'warning'));
+				$this->Registration->Payment->validationErrors['payment_amount'] = 'This would pay more than the amount owing.';
+				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('payment', true)), 'default', array('class' => 'warning'));
 				return;
 			}
 
