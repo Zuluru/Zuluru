@@ -4,8 +4,6 @@ $this->Html->addCrumb (__('Create', true));
 
 $short = Configure::read('organization.short_name');
 
-$access = array(1);
-
 // TODO: Handle more than one sport in a site
 $sport = reset(array_keys(Configure::read('options.sport')));
 Configure::load("sport/$sport");
@@ -28,29 +26,120 @@ Configure::load("sport/$sport");
 <?php endif; ?>
 
 <div class="users form">
-<?php echo $this->Form->create('Person', array('url' => Router::normalize($this->here)));?>
+<?php
+echo $this->Form->create($user_model, array('url' => Router::normalize($this->here)));
+?>
 	<fieldset>
-		<legend><?php __('Identity'); ?></legend>
+		<legend><?php __('Account Type'); ?></legend>
 	<?php
-		echo $this->ZuluruForm->input('first_name', array(
-			'after' => $this->Html->para (null, __('First (and, if desired, middle) name.', true)),
-		));
-		echo $this->ZuluruForm->input('last_name');
-		echo $this->ZuluruForm->input("$user_model.$user_field", array(
-			'label' => __('User Name', true),
-		));
-		echo $this->ZuluruForm->input('gender', array(
+		echo $this->ZuluruForm->input('Group.Group', array(
+			'label' => __('Select all roles that apply to you.', true) . ' ' . __('You will be able to change these later, if required.', true),
 			'type' => 'select',
-			'empty' => '---',
-			'options' => Configure::read('options.gender'),
+			'multiple' => 'checkbox',
+			'options' => $groups,
+			'hide_single' => true,
 		));
+		if ($is_admin || $is_manager) {
+			echo $this->ZuluruForm->input('Person.0.status', array(
+				'type' => 'select',
+				'empty' => '---',
+				'options' => Configure::read('options.record_status'),
+			));
+		}
 	?>
 	</fieldset>
 	<fieldset>
-		<legend><?php __('Password'); ?></legend>
+		<legend><?php __('Your Information'); ?></legend>
+		<div style="float:left;">
 	<?php
-		echo $this->ZuluruForm->input("$user_model.passwd", array('type' => 'password', 'label' => 'Password'));
-		echo $this->ZuluruForm->input("$user_model.confirm_passwd", array('type' => 'password', 'label' => 'Confirm Password'));
+		echo $this->ZuluruForm->input('Person.0.first_name', array(
+			'after' => $this->Html->para (null, __('First (and, if desired, middle) name.', true)),
+		));
+		echo $this->ZuluruForm->input('Person.0.last_name');
+
+		$phone_numbers_enabled = array_diff(array(
+			Configure::read('profile.home_phone'),
+			Configure::read('profile.work_phone'),
+			Configure::read('profile.mobile_phone')
+		), array(0));
+		if (count($phone_numbers_enabled) > 1) {
+			echo $this->Html->para (null, __('Enter at least one telephone number below.', true));
+		}
+
+		if (Configure::read('profile.home_phone')) {
+			echo $this->ZuluruForm->input('Person.0.home_phone', array(
+				'after' => $this->Html->para (null, __('Enter your home telephone number.', true)),
+			));
+			echo $this->ZuluruForm->input('Person.0.publish_home_phone', array(
+				'label' => __('Allow other players to view home number', true),
+			));
+		}
+		if (Configure::read('profile.work_phone')) {
+			echo $this->ZuluruForm->input('Person.0.work_phone', array(
+				'after' => $this->Html->para (null, __('Enter your work telephone number (optional).', true)),
+			));
+			echo $this->ZuluruForm->input('Person.0.work_ext', array(
+				'label' => 'Work Extension',
+				'after' => $this->Html->para (null, __('Enter your work extension (optional).', true)),
+			));
+			echo $this->ZuluruForm->input('Person.0.publish_work_phone', array(
+				'label' => __('Allow other players to view work number', true),
+			));
+		}
+		if (Configure::read('profile.mobile_phone')) {
+			echo $this->ZuluruForm->input('Person.0.mobile_phone', array(
+				'after' => $this->Html->para (null, __('Enter your cell or pager number (optional).', true)),
+			));
+			echo $this->ZuluruForm->input('Person.0.publish_mobile_phone', array(
+				'label' => __('Allow other players to view mobile number', true),
+			));
+		}
+	?>
+		</div>
+	<fieldset class="parent" style="display:none; float:left">
+		<legend><?php __('Alternate Contact (optional)'); ?></legend>
+		<p style="max-width:18em;">This alternate contact information is for display purposes only. If the alternate contact should have their own login details, do not enter their information here; instead create a separate account and then link them together.</p>
+	<?php
+		echo $this->ZuluruForm->input('Person.0.alternate_first_name', array(
+			'label' => 'First Name',
+			'after' => $this->Html->para (null, __('First (and, if desired, middle) name.', true)),
+		));
+		echo $this->ZuluruForm->input('Person.0.alternate_last_name', array(
+			'label' => 'Last Name',
+		));
+		if (Configure::read('profile.work_phone')) {
+			echo $this->ZuluruForm->input('Person.0.alternate_work_phone', array(
+				'label' => 'Work Phone',
+				'after' => $this->Html->para (null, __('Enter your work telephone number (optional).', true)),
+			));
+			echo $this->ZuluruForm->input('Person.0.alternate_work_ext', array(
+				'label' => 'Work Extension',
+				'after' => $this->Html->para (null, __('Enter your work extension (optional).', true)),
+			));
+			echo $this->ZuluruForm->input('Person.0.publish_alternate_work_phone', array(
+				'label' => __('Allow other players to view work number', true),
+			));
+		}
+		if (Configure::read('profile.mobile_phone')) {
+			echo $this->ZuluruForm->input('Person.0.alternate_mobile_phone', array(
+				'label' => 'Mobile Phone',
+				'after' => $this->Html->para (null, __('Enter your cell or pager number (optional).', true)),
+			));
+			echo $this->ZuluruForm->input('Person.0.publish_alternate_mobile_phone', array(
+				'label' => __('Allow other players to view mobile number', true),
+			));
+		}
+	?>
+	</fieldset>
+	</fieldset>
+	<fieldset>
+		<legend><?php __('User Name and Password'); ?></legend>
+	<?php
+		echo $this->ZuluruForm->input($user_field, array(
+			'label' => __('User Name', true),
+		));
+		echo $this->ZuluruForm->input('passwd', array('type' => 'password', 'label' => 'Password'));
+		echo $this->ZuluruForm->input('confirm_passwd', array('type' => 'password', 'label' => 'Confirm Password'));
 	?>
 	</fieldset>
 	<?php if (Configure::read('feature.affiliates')): ?>
@@ -75,9 +164,13 @@ Configure::load("sport/$sport");
 	<fieldset>
 		<legend><?php __('Online Contact'); ?></legend>
 	<?php
-		echo $this->ZuluruForm->input("$user_model.$email_field");
-		echo $this->ZuluruForm->input('publish_email', array(
+		echo $this->ZuluruForm->input($email_field);
+		echo $this->ZuluruForm->input('Person.0.publish_email', array(
 			'label' => __('Allow other players to view my email address', true),
+		));
+		echo $this->ZuluruForm->input('Person.0.alternate_email');
+		echo $this->ZuluruForm->input('Person.0.publish_alternate_email', array(
+			'label' => __('Allow other players to view my alternate email address', true),
 		));
 		if (Configure::read('feature.gravatar')) {
 			if (Configure::read('feature.photos')) {
@@ -85,9 +178,15 @@ Configure::load("sport/$sport");
 			} else {
 				$after = sprintf(__('You can have an image shown on your account if you enable this setting and then create a <a href="http://www.gravatar.com">gravatar.com</a> account using the email address you\'ve associated with your %s account.', true), Configure::read('organization.short_name'));
 			}
-			echo $this->ZuluruForm->input('show_gravatar', array(
+			echo $this->ZuluruForm->input('Person.0.show_gravatar', array(
 				'label' => __('Show Gravatar image for your account?', true),
 				'after' => $this->Html->para (null, $after),
+			));
+		}
+		if (Configure::read('profile.contact_for_feedback')) {
+			echo $this->ZuluruForm->input('Person.0.contact_for_feedback', array(
+				'label' => sprintf(__('From time to time, %s would like to contact members with information on our programs and to solicit feedback. Can %s contact you in this regard?', true), $short, $short),
+				'checked' => true,
 			));
 		}
 	?>
@@ -99,19 +198,19 @@ Configure::load("sport/$sport");
 		<legend><?php __('Street Address'); ?></legend>
 	<?php
 		if (Configure::read('profile.addr_street')) {
-			echo $this->ZuluruForm->input('addr_street', array(
+			echo $this->ZuluruForm->input('Person.0.addr_street', array(
 				'label' => __('Street and Number', true),
 				'after' => $this->Html->para (null, __('Number, street name, and apartment number if necessary.', true)),
 			));
 		}
 		if (Configure::read('profile.addr_city')) {
-			echo $this->ZuluruForm->input('addr_city', array(
+			echo $this->ZuluruForm->input('Person.0.addr_city', array(
 				'label' => __('City', true),
 				'after' => $this->Html->para (null, __('Name of city.', true)),
 			));
 		}
 		if (Configure::read('profile.addr_prov')) {
-			echo $this->ZuluruForm->input('addr_prov', array(
+			echo $this->ZuluruForm->input('Person.0.addr_prov', array(
 				'label' => __('Province', true),
 				'type' => 'select',
 				'empty' => '---',
@@ -120,7 +219,7 @@ Configure::load("sport/$sport");
 			));
 		}
 		if (Configure::read('profile.addr_country')) {
-			echo $this->ZuluruForm->input('addr_country', array(
+			echo $this->ZuluruForm->input('Person.0.addr_country', array(
 				'label' => __('Country', true),
 				'type' => 'select',
 				'empty' => '---',
@@ -130,7 +229,7 @@ Configure::load("sport/$sport");
 			));
 		}
 		if (Configure::read('profile.addr_postalcode')) {
-			echo $this->ZuluruForm->input('addr_postalcode', array(
+			echo $this->ZuluruForm->input('Person.0.addr_postalcode', array(
 				'label' => __('Postal Code', true),
 				'after' => $this->Html->para (null, sprintf(__('Please enter a correct postal code matching the address above. %s uses this information to help locate new %s near its members.', true), $short, __(Configure::read('ui.fields'), true))),
 			));
@@ -138,83 +237,36 @@ Configure::load("sport/$sport");
 	?>
 	</fieldset>
 	<?php endif; ?>
-	<?php if (Configure::read('profile.home_phone') || Configure::read('profile.work_phone') ||
-				Configure::read('profile.mobile_phone')): ?>
-	<fieldset>
-		<legend><?php __n('Telephone Number', 'Telephone Numbers', Configure::read('profile.home_phone') + Configure::read('profile.work_phone') + Configure::read('profile.mobile_phone')); ?></legend>
+	<fieldset class="player" style="display:none;">
+		<legend><?php __('Your Player Profile'); ?></legend>
 	<?php
-		if (Configure::read('profile.home_phone')) {
-			echo $this->ZuluruForm->input('home_phone', array(
-				'after' => $this->Html->para (null, __('Enter your home telephone number. If you have only a mobile phone, enter that number both here and below.', true)),
-			));
-			echo $this->ZuluruForm->input('publish_home_phone', array(
-				'label' => __('Allow other players to view home number', true),
-			));
-		}
-		if (Configure::read('profile.work_phone')) {
-			echo $this->ZuluruForm->input('work_phone', array(
-				'after' => $this->Html->para (null, __('Enter your work telephone number (optional).', true)),
-			));
-			echo $this->ZuluruForm->input('work_ext', array(
-				'label' => 'Work Extension',
-				'after' => $this->Html->para (null, __('Enter your work extension (optional).', true)),
-			));
-			echo $this->ZuluruForm->input('publish_work_phone', array(
-				'label' => __('Allow other players to view work number', true),
-			));
-		}
-		if (Configure::read('profile.mobile_phone')) {
-			echo $this->ZuluruForm->input('mobile_phone', array(
-				'after' => $this->Html->para (null, __('Enter your cell or pager number (optional).', true)),
-			));
-			echo $this->ZuluruForm->input('publish_mobile_phone', array(
-				'label' => __('Allow other players to view mobile number', true),
-			));
-		}
-	?>
-	</fieldset>
-	<?php endif; ?>
-	<?php if ($is_admin) : ?>
-	<fieldset>
-		<legend><?php __('Account Information'); ?></legend>
-	<?php
-		echo $this->ZuluruForm->input('group_id', array(
-			'label' => __('Account Type', true),
+		echo $this->ZuluruForm->input('Person.0.gender', array(
 			'type' => 'select',
 			'empty' => '---',
-			'options' => $groups,
+			'options' => Configure::read('options.gender'),
 		));
-		echo $this->ZuluruForm->input('status', array(
-			'type' => 'select',
-			'empty' => '---',
-			'options' => Configure::read('options.record_status'),
-		));
-	?>
-	</fieldset>
-	<?php endif; ?>
-	<?php if (Configure::read('profile.skill_level') || Configure::read('profile.year_started') ||
-				Configure::read('profile.birthdate') || Configure::read('profile.height') ||
-				Configure::read('profile.shirt_size') || Configure::read('feature.dog_questions') ||
-				in_array(Configure::read('profile.willing_to_volunteer'), $access) ||
-				in_array(Configure::read('profile.contact_for_feedback'), $access)): ?>
-	<fieldset>
-		<legend><?php __('Player and Skill Information'); ?></legend>
-	<?php
-		if (Configure::read('profile.skill_level')) {
-			if (Configure::read('sport.rating_questions')) {
-				$after = $this->Html->para(null, __('Please use the questionnaire to ', true) . $this->Html->link (__('calculate your rating', true), '#', array('onclick' => 'dorating("#PersonSkillLevel"); return false;')) . '.');
+		if (Configure::read('profile.birthdate')) {
+			if (Configure::read('feature.birth_year_only')) {
+				echo $this->ZuluruForm->input('Person.0.birthdate', array(
+					'dateFormat' => 'Y',
+					'minYear' => Configure::read('options.year.born.min'),
+					'maxYear' => Configure::read('options.year.born.max'),
+					'empty' => '---',
+					'after' => $this->Html->para(null, __('Please enter a correct birthdate; having accurate information is important for insurance purposes.', true)),
+				));
+				echo $this->Form->hidden('Person.0.birthdate.month', array('value' => 1));
+				echo $this->Form->hidden('Person.0.birthdate.day', array('value' => 1));
 			} else {
-				$after = null;
+				echo $this->ZuluruForm->input('Person.0.birthdate', array(
+					'minYear' => Configure::read('options.year.born.min'),
+					'maxYear' => Configure::read('options.year.born.max'),
+					'empty' => '---',
+					'after' => $this->Html->para(null, __('Please enter a correct birthdate; having accurate information is important for insurance purposes.', true)),
+				));
 			}
-			echo $this->ZuluruForm->input('skill_level', array(
-				'type' => 'select',
-				'empty' => '---',
-				'options' => Configure::read('options.skill'),
-				'after' => $after,
-			));
 		}
 		if (Configure::read('profile.year_started')) {
-			echo $this->ZuluruForm->input('year_started', array(
+			echo $this->ZuluruForm->input('Person.0.year_started', array(
 				'type' => 'select',
 				'options' => $this->Form->__generateOptions('year', array(
 						'min' => Configure::read('options.year.started.min'),
@@ -225,25 +277,18 @@ Configure::load("sport/$sport");
 				'after' => $this->Html->para(null, 'The year you started playing in <strong>this</strong> league.'),
 			));
 		}
-		if (Configure::read('profile.birthdate')) {
-			if (Configure::read('feature.birth_year_only')) {
-				echo $this->ZuluruForm->input('birthdate', array(
-					'dateFormat' => 'Y',
-					'minYear' => Configure::read('options.year.born.min'),
-					'maxYear' => Configure::read('options.year.born.max'),
-					'empty' => '---',
-					'after' => $this->Html->para(null, __('Please enter a correct birthdate; having accurate information is important for insurance purposes.', true)),
-				));
-				echo $this->Form->hidden('birthdate.month', array('value' => 1));
-				echo $this->Form->hidden('birthdate.day', array('value' => 1));
+		if (Configure::read('profile.skill_level')) {
+			if (Configure::read('sport.rating_questions')) {
+				$after = $this->Html->para(null, __('Please use the questionnaire to ', true) . $this->Html->link (__('calculate your rating', true), '#', array('onclick' => 'dorating("#Person0SkillLevel"); return false;')) . '.');
 			} else {
-				echo $this->ZuluruForm->input('birthdate', array(
-					'minYear' => Configure::read('options.year.born.min'),
-					'maxYear' => Configure::read('options.year.born.max'),
-					'empty' => '---',
-					'after' => $this->Html->para(null, __('Please enter a correct birthdate; having accurate information is important for insurance purposes.', true)),
-				));
+				$after = null;
 			}
+			echo $this->ZuluruForm->input('Person.0.skill_level', array(
+				'type' => 'select',
+				'empty' => '---',
+				'options' => Configure::read('options.skill'),
+				'after' => $after,
+			));
 		}
 		if (Configure::read('profile.height')) {
 			if (Configure::read('feature.units') == 'Metric') {
@@ -251,39 +296,136 @@ Configure::load("sport/$sport");
 			} else {
 				$units = __('inches (5 feet is 60 inches; 6 feet is 72 inches)', true);
 			}
-			echo $this->ZuluruForm->input('height', array(
+			echo $this->ZuluruForm->input('Person.0.height', array(
 				'size' => 6,
 				'after' => $this->Html->para(null, sprintf(__('Please enter your height in %s. This is used to help generate even teams for hat leagues.', true), $units)),
 			));
 		}
 		if (Configure::read('profile.shirt_size')) {
-			echo $this->ZuluruForm->input('shirt_size', array(
+			echo $this->ZuluruForm->input('Person.0.shirt_size', array(
 				'type' => 'select',
 				'empty' => '---',
 				'options' => Configure::read('options.shirt_size'),
 			));
 		}
 		if (Configure::read('feature.dog_questions')) {
-			echo $this->ZuluruForm->input('has_dog');
+			echo $this->ZuluruForm->input('Person.0.has_dog');
 		}
-		if (Configure::read('profile.willing_to_volunteer')) {
-			echo $this->ZuluruForm->input('willing_to_volunteer', array(
-				'label' => sprintf(__('Can %s contact you about volunteering?', true), $short),
+	?>
+	</fieldset>
+	<fieldset class="parent" style="display:none;">
+		<legend><?php __('Child Profile'); ?></legend>
+	<?php
+		echo $this->ZuluruForm->input('Person.1.first_name', array(
+			'after' => $this->Html->para (null, __('First (and, if desired, middle) name.', true)),
+		));
+		echo $this->ZuluruForm->input('Person.1.last_name');
+		echo $this->ZuluruForm->input('Person.1.gender', array(
+			'type' => 'select',
+			'empty' => '---',
+			'options' => Configure::read('options.gender'),
+		));
+		if (Configure::read('profile.birthdate')) {
+			if (Configure::read('feature.birth_year_only')) {
+				echo $this->ZuluruForm->input('Person.1.birthdate', array(
+					'dateFormat' => 'Y',
+					'minYear' => Configure::read('options.year.born.min'),
+					'maxYear' => Configure::read('options.year.born.max'),
+					'empty' => '---',
+					'after' => $this->Html->para(null, __('Please enter a correct birthdate; having accurate information is important for insurance purposes.', true)),
+				));
+				echo $this->Form->hidden('Person.1.birthdate.month', array('value' => 1));
+				echo $this->Form->hidden('Person.1.birthdate.day', array('value' => 1));
+			} else {
+				echo $this->ZuluruForm->input('Person.1.birthdate', array(
+					'minYear' => Configure::read('options.year.born.min'),
+					'maxYear' => Configure::read('options.year.born.max'),
+					'empty' => '---',
+					'after' => $this->Html->para(null, __('Please enter a correct birthdate; having accurate information is important for insurance purposes.', true)),
+				));
+			}
+		}
+		if (Configure::read('profile.year_started')) {
+			echo $this->ZuluruForm->input('Person.1.year_started', array(
+				'type' => 'select',
+				'options' => $this->Form->__generateOptions('year', array(
+						'min' => Configure::read('options.year.started.min'),
+						'max' => Configure::read('options.year.started.max'),
+						'order' => 'desc'
+				)),
+				'empty' => '---',
+				'after' => $this->Html->para(null, 'The year you started playing in <strong>this</strong> league.'),
 			));
 		}
-		if (Configure::read('profile.contact_for_feedback')) {
-			echo $this->ZuluruForm->input('contact_for_feedback', array(
-				'label' => sprintf(__('From time to time, %s would like to contact members with information on our programs and to solicit feedback. Can %s contact you in this regard?', true), $short, $short),
+		if (Configure::read('profile.skill_level')) {
+			if (Configure::read('sport.rating_questions')) {
+				$after = $this->Html->para(null, __('Please use the questionnaire to ', true) . $this->Html->link (__('calculate your rating', true), '#', array('onclick' => 'dorating("#Person1SkillLevel"); return false;')) . '.');
+			} else {
+				$after = null;
+			}
+			echo $this->ZuluruForm->input('Person.1.skill_level', array(
+				'type' => 'select',
+				'empty' => '---',
+				'options' => Configure::read('options.skill'),
+				'after' => $after,
+			));
+		}
+		if (Configure::read('profile.height')) {
+			if (Configure::read('feature.units') == 'Metric') {
+				$units = __('centimeters', true);
+			} else {
+				$units = __('inches (5 feet is 60 inches; 6 feet is 72 inches)', true);
+			}
+			echo $this->ZuluruForm->input('Person.1.height', array(
+				'size' => 6,
+				'after' => $this->Html->para(null, sprintf(__('Please enter your height in %s. This is used to help generate even teams for hat leagues.', true), $units)),
+			));
+		}
+		if (Configure::read('profile.shirt_size')) {
+			echo $this->ZuluruForm->input('Person.1.shirt_size', array(
+				'type' => 'select',
+				'empty' => '---',
+				'options' => Configure::read('options.shirt_size'),
 			));
 		}
 	?>
 	</fieldset>
-	<?php endif; ?>
-<?php echo $this->Form->end(__('Submit', true));?>
+<?php
+echo $this->Form->submit(__('Submit and save your information', true), array('div' => false));
+echo $this->Form->end();
+?>
 </div>
 
 <?php
 if (Configure::read('profile.skill_level') && Configure::read('sport.rating_questions')) {
 	echo $this->element('people/rating', array('sport' => $sport));
 }
+
+// Handle changes to parent and player checkboxes
+$this->Js->get('#GroupGroup1')->event('change', 'parentChanged();');
+$this->Js->get('#GroupGroup2')->event('change', 'playerChanged();');
+echo $this->Html->scriptBlock('
+function parentChanged() {
+	var checked = jQuery("#GroupGroup1").prop("checked");
+	if (checked) {
+		jQuery(".parent").css("display", "");
+		jQuery(".parent input, .parent select").removeAttr("disabled");
+	} else {
+		jQuery(".parent").css("display", "none");
+		jQuery(".parent input, .parent select").attr("disabled", "disabled");
+	}
+}
+
+function playerChanged() {
+	var checked = jQuery("#GroupGroup2").prop("checked");
+	if (checked) {
+		jQuery(".player").css("display", "");
+		jQuery(".player input, .player select").removeAttr("disabled");
+	} else {
+		jQuery(".player").css("display", "none");
+		jQuery(".player input, .player select").attr("disabled", "disabled");
+	}
+}
+');
+$this->Js->buffer('parentChanged(); playerChanged();');
 ?>

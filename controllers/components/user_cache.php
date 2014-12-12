@@ -207,12 +207,22 @@ class UserCacheComponent extends Object
 					}
 					break;
 
-				case 'Group':
+				case 'Groups':
 					if (!isset($self->_controller->Person)) {
 						$self->_controller->Person = ClassRegistry::init('Person');
 					}
 					if ($self->read('Person', $id, true)) {
-						$self->data[$id][$key] = $self->_findData($self->_controller->Person->Group, $self->data[$id]['Person']['group_id']);
+						if (!empty($self->data[$id]['Person']['Group'])) {
+							$self->data[$id][$key] = $self->data[$id]['Person']['Group'];
+						} else {
+							$self->data[$id][$key] = array();
+						}
+					}
+					break;
+
+				case 'GroupIDs':
+					if ($self->read('Groups', $id, true)) {
+						$self->data[$id][$key] = Set::extract('/id', $self->data[$id]['Groups']);
 					}
 					break;
 
@@ -252,7 +262,7 @@ class UserCacheComponent extends Object
 					if (!isset($self->_controller->Person)) {
 						$self->_controller->Person = ClassRegistry::init('Person');
 					}
-					$self->data[$id][$key] = $self->_findData($self->_controller->Person, $id, array($self->_controller->Auth->authenticate->name));
+					$self->data[$id][$key] = $self->_findData($self->_controller->Person, $id, array($self->_controller->Auth->authenticate->name, 'Group'));
 					break;
 
 				case 'Preregistrations':

@@ -10,7 +10,6 @@ class PeopleData {
 			'first_name' => 'Administrator',
 			'last_name' => '',
 			'publish_email' => 1,
-			'group_id' => 3,
 			'status' => 'active',
 		),
 	);

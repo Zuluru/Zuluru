@@ -10,7 +10,11 @@ echo $this->element('people/player_photo', array('person' => $person, 'photo' =>
 echo $person['full_name'];
 $view_contact = $is_me || $is_admin || $is_manager || $is_coordinator || $is_captain || $is_my_captain || $is_my_coordinator || $is_division_captain;
 $has_visible_contact = false;
-$this_is_player = ($person['group_id'] == 1);
+
+$this_is_parent = Set::extract('/GroupsPerson[group_id=1]', $groups);
+$this_is_parent = (!empty($this_is_parent));
+$this_is_player = Set::extract('/GroupsPerson[group_id=2]', $groups);
+$this_is_player = (!empty($this_is_player));
 ?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
 		<?php if ($is_me || $is_admin || $is_manager):?>
@@ -102,6 +106,40 @@ $this_is_player = ($person['group_id'] == 1);
 				?>
 
 			</dd>
+		<?php endif; ?>
+		<?php if ($this_is_parent): ?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Alternate Contact'); ?></dt>
+			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+				<?php echo $person['alternate_full_name']; ?>
+				&nbsp;
+			</dd>
+			<?php if (Configure::read('profile.work_phone') && !empty($person['alternate_work_phone']) &&
+					($view_contact || ($is_logged_in && $person['publish_alternate_work_phone']))):?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Phone (work)'); ?></dt>
+			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+				<?php
+				$has_visible_contact = true;
+				echo $person['alternate_work_phone'];
+				if (!empty($person['alternate_work_ext'])) {
+					echo ' x' . $person['alternate_work_ext'];
+				}
+				echo ' (' . ($person['publish_alternate_work_phone'] ? __('published', true) : __('private', true)) . ')';
+				?>
+
+			</dd>
+			<?php endif; ?>
+			<?php if (Configure::read('profile.mobile_phone') && !empty($person['alternate_mobile_phone']) &&
+					($view_contact || ($is_logged_in && $person['publish_alternate_mobile_phone']))):?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Phone (mobile)'); ?></dt>
+			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+				<?php
+				$has_visible_contact = true;
+				echo $person['alternate_mobile_phone'];
+				echo ' (' . ($person['publish_alternate_mobile_phone'] ? __('published', true) : __('private', true)) . ')';
+				?>
+
+			</dd>
+			<?php endif; ?>
 		<?php endif; ?>
 		<?php if ($is_me || $is_admin || $is_manager):?>
 			<?php
@@ -213,9 +251,19 @@ $this_is_player = ($person['group_id'] == 1);
 			<?php endif; ?>
 		<?php else: $age = 99; endif; ?>
 		<?php if ($is_me || $is_admin || $is_manager):?>
-			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Account Class'); ?></dt>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __n('Account Class', 'Account Classes', count($groups)); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-				<?php __($group['name']); ?>
+				<?php
+				$names = array();
+				foreach ($groups as $group) {
+					$names[] = __($group['name'], true);
+				}
+				if (empty($names)) {
+					__('None');
+				} else {
+					echo implode(', ', $names);
+				}
+				?>
 
 			</dd>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Account Status'); ?></dt>

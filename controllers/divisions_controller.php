@@ -517,8 +517,15 @@ class DivisionsController extends AppController {
 		$params = $url = $this->_extractSearchParams();
 		unset ($params['division']);
 		unset ($params['person']);
+
+		$people = $this->Division->Person->GroupsPerson->find('list', array(
+				// TODO: Eliminate hard-coded group_ids
+				'conditions' => array('group_id' => array(4,5,6,7)),
+				'fields' => array('person_id', 'person_id'),
+		));
+
 		$this->_handlePersonSearch($params, $url, $this->Division->Person,
-				array('Group.name' => array('Volunteer', 'Manager', 'Administrator')));
+				array('Person.id' => $people));
 	}
 
 	function remove_coordinator() {

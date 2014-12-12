@@ -1,4 +1,5 @@
 <?php
+// TODO: This isn't really "Player" stats any more. Do a better job of showing account stats vs player stats.
 $this->Html->addCrumb (__('Players', true));
 $this->Html->addCrumb (__('Statistics', true));
 ?>
@@ -31,7 +32,6 @@ foreach ($status_count as $status):
 		endif;
 
 		$total = 0;
-		$league = $season = null;
 ?>
 		<tr>
 			<th colspan="2">
@@ -66,22 +66,10 @@ foreach ($status_count as $status):
 	</thead>
 	<tbody>
 <?php
-$total = 0;
 $affiliate_id = null;
 foreach ($group_count as $group):
 	if (count($affiliates) > 1 && $group['Affiliate']['id'] != $affiliate_id):
 		$affiliate_id = $group['Affiliate']['id'];
-		if ($total):
-?>
-		<tr>
-			<td><?php __('Total'); ?></td>
-			<td><?php echo $total; ?></td>
-		</tr>
-<?php
-		endif;
-
-		$total = 0;
-		$league = $season = null;
 ?>
 		<tr>
 			<th colspan="2">
@@ -90,19 +78,12 @@ foreach ($group_count as $group):
 		</tr>
 <?php
 	endif;
-
-	$total += $group[0]['count'];
 ?>
 		<tr>
-			<td><?php echo $groups[$group['Person']['group_id']]; ?></td>
+			<td><?php echo $group['Group']['name']; ?></td>
 			<td><?php echo $group[0]['count']; ?></td>
 		</tr>
 <?php endforeach; ?>
-
-		<tr>
-			<td><?php __('Total'); ?></td>
-			<td><?php echo $total; ?></td>
-		</tr>
 	</tbody>
 </table>
 
@@ -131,7 +112,6 @@ foreach ($gender_count as $gender):
 		endif;
 
 		$total = 0;
-		$league = $season = null;
 ?>
 		<tr>
 			<th colspan="2">
@@ -182,7 +162,6 @@ foreach ($age_count as $age):
 		endif;
 
 		$total = 0;
-		$league = $season = null;
 ?>
 		<tr>
 			<th colspan="2">
@@ -234,7 +213,6 @@ foreach ($started_count as $started):
 		endif;
 
 		$total = 0;
-		$league = $season = null;
 ?>
 		<tr>
 			<th colspan="2">
@@ -286,7 +264,6 @@ foreach ($skill_count as $skill):
 		endif;
 
 		$total = 0;
-		$league = $season = null;
 ?>
 		<tr>
 			<th colspan="2">
@@ -338,7 +315,6 @@ foreach ($city_count as $city):
 		endif;
 
 		$total = 0;
-		$league = $season = null;
 ?>
 		<tr>
 			<th colspan="2">

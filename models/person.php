@@ -15,6 +15,8 @@ class Person extends AppModel {
 				'home_phone' => 'phone_format',
 				'work_phone' => 'phone_format',
 				'mobile_phone' => 'phone_format',
+				'alternate_work_phone' => 'phone_format',
+				'alternate_mobile_phone' => 'phone_format',
 			),
 		),
 	);
@@ -92,6 +94,60 @@ class Person extends AppModel {
 			'boolean' => array(
 				'rule' => array('boolean'),
 				'allowEmpty' => true,
+			),
+		),
+		'alternate_first_name' => array(
+			'valid' => array(
+				'rule' => array('custom', self::NAME_REGEX),
+				'allowEmpty' => true,
+				'required' => false,
+				'message' => 'Names can only include letters, numbers, spaces, commas, periods, apostrophes and hyphens.',
+			),
+		),
+		'alternate_last_name' => array(
+			'valid' => array(
+				'rule' => array('custom', self::NAME_REGEX),
+				'allowEmpty' => true,
+				'required' => false,
+				'message' => 'Names can only include letters, numbers, spaces, commas, periods, apostrophes and hyphens.',
+			),
+		),
+		'alternate_work_phone' => array(
+			'phone' => array(
+				'rule' => array('phone'),
+				'allowEmpty' => true,
+				'required' => false,
+				'message' => 'Please supply area code and number.',
+			),
+		),
+		'alternate_work_ext' => array(
+			'numeric' => array(
+				'rule' => array('numeric'),
+				'allowEmpty' => true,
+				'required' => false,
+				'message' => 'Please supply extension, if any.',
+			),
+		),
+		'publish_alternate_work_phone' => array(
+			'boolean' => array(
+				'rule' => array('boolean'),
+				'allowEmpty' => true,
+				'required' => false,
+			),
+		),
+		'alternate_mobile_phone' => array(
+			'phone' => array(
+				'rule' => array('phone'),
+				'allowEmpty' => true,
+				'required' => false,
+				'message' => 'Please supply area code and number.',
+			),
+		),
+		'publish_alternate_mobile_phone' => array(
+			'boolean' => array(
+				'rule' => array('boolean'),
+				'allowEmpty' => true,
+				'required' => false,
 			),
 		),
 		'alternate_email' => array(
@@ -182,12 +238,6 @@ class Person extends AppModel {
 				'message' => 'You must select a valid shirt size.',
 			),
 		),
-		'group_id' => array(
-			'inlist' => array(
-				'rule' => array('inquery', 'Group', 'id'),
-				'message' => 'You must select a valid account type.',
-			),
-		),
 		'status' => array(
 			'inlist' => array(
 				'rule' => array('inconfig', 'options.record_status'),
@@ -212,13 +262,6 @@ class Person extends AppModel {
 				'rule' => array('boolean'),
 				'allowEmpty' => true,
 			),
-		),
-	);
-
-	var $belongsTo = array(
-		'Group' => array(
-			'className' => 'Group',
-			'foreignKey' => 'group_id',
 		),
 	);
 
@@ -311,6 +354,13 @@ class Person extends AppModel {
 			'associationForeignKey' => 'franchise_id',
 			'unique' => true,
 		),
+		'Group' => array(
+			'className' => 'Group',
+			'joinTable' => 'groups_people',
+			'foreignKey' => 'person_id',
+			'associationForeignKey' => 'group_id',
+			'unique' => true,
+		),
 		'Relative' => array(
 			'className' => 'Person',
 			'joinTable' => 'people_people',
@@ -350,6 +400,13 @@ class Person extends AppModel {
 	}
 
 	function beforeValidate() {
+		// Save or restore the default validation info, for when we save a few records
+		if (!isset($this->defaultValidate)) {
+			$this->defaultValidate = $this->validate;
+		} else {
+			$this->validate = $this->defaultValidate;
+		}
+
 		if (array_key_exists('addr_country', $this->data[$this->alias])) {
 			if ($this->data[$this->alias]['addr_country'] == 'United States') {
 				$this->validate['addr_postalcode']['postal'] = array(
@@ -405,6 +462,18 @@ class Person extends AppModel {
 		}
 	}
 
+	function beforeValidateChild() {
+		foreach (array('home_phone', 'work_phone', 'work_ext', 'mobile_phone', 'addr_street', 'addr_city', 'addr_prov', 'addr_country', 'addr_postalcode') as $field) {
+			unset($this->validate[$field]);
+		}
+	}
+
+	function beforeValidateNonPlayer() {
+		foreach (array('gender', 'birthdate', 'height', 'skill_level', 'year_started', 'shirt_size') as $field) {
+			unset($this->validate[$field]);
+		}
+	}
+
 	function _afterFind ($record) {
 		$user_model = Configure::read('security.auth_model');
 
@@ -444,6 +513,10 @@ class Person extends AppModel {
 			}
 		}
 
+		if (array_key_exists ('alternate_first_name', $record[$this->alias]) && array_key_exists ('alternate_last_name', $record[$this->alias])) {
+			$record[$this->alias]['alternate_full_name'] = trim ("{$record[$this->alias]['alternate_first_name']} {$record[$this->alias]['alternate_last_name']}");
+		}
+
 		return $record;
 	}
 
@@ -456,7 +529,6 @@ class Person extends AppModel {
 		$status = (Configure::read('feature.auto_approve') ? 'active' : 'new');
 		$save = array(
 			'user_id' => $data[$this->primaryKey],
-			'group_id' => 1,	// TODO: Assumed this is the Player group
 			'status' => $status,
 			'gender' => '',
 		);
@@ -542,7 +614,7 @@ class Person extends AppModel {
 		}
 
 		return $this->find('all', array(
-				'fields' => array('Person.*', 'Group.*', "$user_model.*"),
+				'fields' => array('Person.*', "$user_model.*"),
 				'joins' => array(
 					array(
 						'table' => "{$this->tablePrefix}affiliates_people",

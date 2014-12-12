@@ -6,7 +6,7 @@
 class RuleAttributeComponent extends RuleComponent
 {
 	var $invariant = true;
-	var $invariant_attributes = array('first_name', 'last_name', 'birthdate', 'gender', 'height', 'group_id');
+	var $invariant_attributes = array('first_name', 'last_name', 'birthdate', 'gender', 'height');
 
 	function parse($config) {
 		$this->config = trim ($config, '"\'');

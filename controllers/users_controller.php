@@ -93,14 +93,18 @@ class UsersController extends AppController {
 		$this->_loadAddressOptions();
 		$this->_loadGroupOptions();
 		$this->_loadAffiliateOptions();
+		$user_model = $this->Auth->authenticate->name;
+
+		$this->set(array(
+				'user_model' => $user_model,
+				'id_field' => $this->Auth->authenticate->primaryKey,
+				'user_field' => $this->Auth->authenticate->userField,
+				'email_field' => $this->Auth->authenticate->emailField,
+		));
 
 		if (!empty($this->data)) {
-			$this->Person->create();
-			$this->data['Person']['complete'] = true;
-			$this->data['Person']['group_id'] = 1;	// TODO: Assumed this is the Player group
-			if (Configure::read('feature.auto_approve')) {
-				$this->data['Person']['status'] = 'active';
-			}
+			// Set the default error message in advance. If it saves successfully, this will be overwritten.
+			$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('account', true)), 'default', array('class' => 'warning'));
 
 			// Handle affiliations
 			if (Configure::read('feature.affiliates')) {
@@ -117,12 +121,86 @@ class UsersController extends AppController {
 				$this->data['Affiliate']['Affiliate'] = array(1);
 			}
 
-			if ($this->Person->saveAll($this->data, array('validate' => 'only')) && $this->Person->Affiliate->validates()) {
-				if ($this->Person->saveAll($this->data)) {
+			// SaveAll doesn't work correctly in this case. Save them separately, to make sure they're all validated.
+			$this->Auth->authenticate->saveAll($this->data[$user_model], array('validate' => 'only'));
+			$this->Person->saveAll($this->data['Person'], array('validate' => 'only'));
+
+			// Make sure someone isn't forging their way into an entirely unauthorized level.
+			if (!$this->is_admin && !empty($this->data['Group']['Group'])) {
+				$selected_groups = $this->Group->find('all', array(
+						'contain' => false,
+						'conditions' => array('id' => $this->data['Group']['Group']),
+				));
+				if ($this->is_manager) {
+					$level = 5;
+				} else {
+					$level = 3;
+				}
+				$invalid_groups = Set::extract("/Group[level>$level]", $selected_groups);
+				if (!empty($invalid_groups)) {
+					$this->Person->Group->validationErrors['Group'] = __('You have selected an invalid group.', true);
+				}
+			} else {
+				$selected_groups = array();
+			}
+
+			if ($this->Auth->authenticate->validates() && $this->Person->validates() && $this->Person->Group->validates() && $this->Person->Affiliate->validates()) {
+				// User and person records may be in separate databases, so we need a transaction for each
+				$user_transaction = new DatabaseTransaction($this->Auth->authenticate);
+				$person_transaction = new DatabaseTransaction($this->Person);
+
+				if ($this->Auth->authenticate->save($this->data)) {
+					$approved = false;
+
+					// Tweak some data to be saved
+					$this->data['Person'][0]['user_id'] = $this->Auth->authenticate->id;
+					foreach ($this->data['Person'] as $key => $person) {
+						$person['complete'] = true;
+
+						if (Configure::read('feature.auto_approve')) {
+							if ($key == 0) {
+								// Check the requested groups and do not auto-approve above a certain level
+								$invalid_groups = Set::extract('/Group[level>1]', $selected_groups);
+								if (empty($invalid_groups)) {
+									$person['status'] = 'active';
+									$approved = true;
+								}
+							} else {
+								$person['status'] = 'active';
+								$approved = true;
+							}
+						}
+
+						$save = array('Person' => $person, 'Affiliate' => $this->data['Affiliate']);
+						if ($key == 0) {
+							$save['Group'] = $this->data['Group'];
+						} else {
+							// Assume any secondary profiles are players, with group_id = 2
+							$save['Group'] = array('Group' => array(2));
+						}
+
+						$this->Person->create();
+						if (!$this->Person->saveAll($save)) {
+							return;
+						}
+						if (!isset($parent_id)) {
+							$parent_id = $this->Person->id;
+						} else {
+							$this->Person->PeoplePerson->save(
+								array('person_id' => $parent_id, 'relative_id' => $this->Person->id, 'approved' => true),
+								array('validate' => false)
+							);
+						}
+					}
+
 					if (Configure::read('feature.auto_approve')) {
 						$this->Session->setFlash('<h2>' . __('THANK YOU', true) . '</h2><p>' . sprintf(__('for creating an account with %s.', true), Configure::read('organization.name')) . '</p>', 'default', array('class' => 'success'));
 					} else {
-						$this->Session->setFlash(__('Your account has been created. It must be approved by an administrator before you will have full access to the site. However, you can log in and start exploring right away.', true), 'default', array('class' => 'success'));
+						$msg = __('Your account has been created.', true);
+						if (!$approved) {
+							$msg .= ' ' . __('It must be approved by an administrator before you will have full access to the site. However, you can log in and start exploring right away.', true);
+						}
+						$this->Session->setFlash($msg, 'default', array('class' => 'success'));
 					}
 
 					// There may be callbacks to handle
@@ -134,6 +212,9 @@ class UsersController extends AppController {
 						$component->onAdd($this->data);
 					}
 
+					$user_transaction->commit();
+					$person_transaction->commit();
+
 					if (!$this->is_logged_in) {
 						// Automatically log the user in
 						$this->data[$this->Auth->authenticate->alias]['password'] = $this->data[$this->Auth->authenticate->alias]['passwd'];
@@ -141,25 +222,14 @@ class UsersController extends AppController {
 					}
 
 					$this->redirect('/');
-				} else {
-					$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('account', true)), 'default', array('class' => 'warning'));
 				}
-			} else {
-				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('account', true)), 'default', array('class' => 'warning'));
 			}
 		}
-
-		$this->set(array(
-				'user_model' => $this->Auth->authenticate->name,
-				'id_field' => $this->Auth->authenticate->primaryKey,
-				'user_field' => $this->Auth->authenticate->userField,
-				'email_field' => $this->Auth->authenticate->emailField,
-		));
 	}
 
 	function import() {
 		$columns = $this->Person->_schema;
-		foreach (array('id', 'user_id', 'group_id', 'user_name', 'email', 'complete', 'twitter_token', 'twitter_secret') as $no_import) {
+		foreach (array('id', 'user_id', 'user_name', 'email', 'complete', 'twitter_token', 'twitter_secret') as $no_import) {
 			unset($columns[$no_import]);
 		}
 		foreach (array_keys($columns) as $column) {
@@ -239,9 +309,10 @@ class UsersController extends AppController {
 						$continue = true;
 						$errors = array();
 						$data = array(
-							// TODO: Hardcoded group id
-							'Person' => array('group_id' => 1),
+							'Person' => array(),
 							$this->Auth->authenticate->alias => array(),
+							// TODO: Hardcoded group_id
+							'Group' => array('Group' => array(2)),
 							'Affiliate' => $this->data['Affiliate'],
 						);
 						foreach ($header as $key => $column) {

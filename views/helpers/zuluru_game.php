@@ -18,6 +18,7 @@ class ZuluruGameHelper extends Helper {
 		$is_admin = $view->viewVars['is_admin'];
 		$is_manager = $view->viewVars['is_manager'] && in_array($league['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
 		$is_volunteer = $view->viewVars['is_volunteer'];
+		$is_official = $view->viewVars['is_official'];
 		$is_coordinator = in_array ($details['division_id'], $this->UserCache->read('DivisionIDs'));
 
 		// Calculate the game start and end time stamps
@@ -108,7 +109,7 @@ class ZuluruGameHelper extends Helper {
 								__('Submit', true),
 								array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $second_team_id));
 					}
-				} else if ($is_volunteer) {
+				} else if ($is_volunteer || $is_official) {
 					// Allow specified individuals (referees, umpires, volunteers) to live score without a team id
 					if ($score_entry['status'] == 'in_progress') {
 						$links[] = $this->Html->link(
@@ -152,7 +153,7 @@ class ZuluruGameHelper extends Helper {
 						$links[] = $this->Html->link(
 								__('Live Score', true),
 								array('controller' => 'games', 'action' => 'live_score', 'game' => $details['id'], 'team' => $team_id));
-					} else if ($is_volunteer) {
+					} else if ($is_volunteer || $is_official) {
 						// Allow specified individuals (referees, umpires, volunteers) to live score without a team id
 						$links[] = $this->Html->link(
 								__('Live Score', true),
@@ -162,6 +163,9 @@ class ZuluruGameHelper extends Helper {
 			} else {
 				// Check if one of the teams involved in the game is a team the current user is on
 				$player_team_id = array_pop (array_intersect (array($details['home_team'], $details['away_team']), $this->UserCache->read('TeamIDs')));
+				if (!$player_team_id) {
+					$player_team_id = array_pop (array_intersect (array($details['home_team'], $details['away_team']), $this->UserCache->read('RelativeTeamIDs')));
+				}
 				if ($player_team_id) {
 					$links[] = $this->Html->link(
 							__('iCal', true),

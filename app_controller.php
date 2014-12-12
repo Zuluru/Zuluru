@@ -39,9 +39,12 @@ class AppController extends Controller {
 
 	var $is_admin = false;
 	var $is_manager = false;
+	var $is_official = false;
 	var $is_volunteer = false;
-	var $is_member = false;
+	var $is_coach = false;
+	var $is_player = false;
 	var $is_logged_in = false;
+	var $is_visitor = true;
 
 	var $menu_items = array();
 
@@ -125,7 +128,7 @@ class AppController extends Controller {
 		// Check if we need to redirect logged-in users for some required step first
 		// We will allow them to see help or logout. Or get the leagues list, as that's where some things redirect to.
 		$free = $this->freeActions();
-		if ($this->is_member && !in_array($this->action, $free)) {
+		if ($this->is_logged_in && !in_array($this->action, $free)) {
 			$email = $this->UserCache->read('Person.email');
 			if (($this->name != 'People' || $this->action != 'edit') && empty ($email) && $this->UserCache->read('Person.user_id')) {
 				$this->Session->setFlash(__('Last time we tried to contact you, your email bounced. We require a valid email address as part of your profile. You must update it before proceeding.', true), 'default', array('class' => 'warning'));
@@ -314,9 +317,19 @@ class AppController extends Controller {
 	 * Read and set variables for the database-based group options.
 	 */
 	function _loadGroupOptions() {
-		$groups = $this->Group->find('all');
-		$groups = Set::combine($groups, '{n}.Group.id', '{n}.Group.name');
-		$this->set('groups', $groups);
+		$conditions = array('active' => true);
+		if (!$this->is_admin) {
+			$conditions['level <'] = 5;
+		}
+		$groups = $this->Group->find('all', array(
+			'conditions' => $conditions,
+			'order' => array('Group.level', 'Group.id'),
+		));
+		$group_list = array();
+		foreach ($groups as $group) {
+			$group_list[$group['Group']['id']] = "{$group['Group']['name']}: {$group['Group']['description']}";
+		}
+		$this->set('groups', $group_list);
 	}
 
 	/**
@@ -337,7 +350,7 @@ class AppController extends Controller {
 
 	/**
 	 * Basic check for authorization, based solely on the person's login group.
-	 * Set some "is_" variables for the views to use (is_admin, is_member, etc.).
+	 * Set some "is_" variables for the views to use (is_admin, is_player, etc.).
 	 *
 	 * TODO: This should all be replaced with some group-based permission scheme. The
 	 * good news is that those changes will mainly be localized to this function.
@@ -345,7 +358,8 @@ class AppController extends Controller {
 	 * @access public
 	 */
 	function _setPermissions() {
-		$this->is_admin = $this->is_manager = $this->is_volunteer = $this->is_player = $this->is_member = $this->is_logged_in = false;
+		$this->is_admin = $this->is_manager = $this->is_official = $this->is_volunteer = $this->is_coach = $this->is_player = $this->is_logged_in = false;
+		$this->is_visitor = true;
 		$auth =& $this->Auth->authenticate;
 		$user = $this->Auth->user();
 
@@ -402,57 +416,64 @@ class AppController extends Controller {
 			}
 		}
 
-		$group = $this->UserCache->read('Group');
-		if (!empty($group)) {
+		$groups = $this->UserCache->read('Groups');
+		$real_groups = $this->UserCache->read('Groups', $this->UserCache->realId());
+		$real_group_levels = Set::extract('/level', $real_groups);
+		if ($this->UserCache->read('Person.status', $this->UserCache->realId()) == 'active') {
+			// Approved accounts are granted permissions up to level 1,
+			// since they can just add that group to themselves anyway.
+			$real_group_levels[] = 1;
+		}
+		if (empty($real_group_levels)) {
+			$max_level = 0;
+		} else {
+			$max_level = max($real_group_levels);
+		}
+		foreach ($groups as $group) {
 			if ($this->UserCache->currentId() != $this->UserCache->realId()) {
-				// Don't make people admins just because the person they are acting as is
-				$real_group = $this->UserCache->read('Group', $this->UserCache->realId());
-				if (Configure::read("permission_level.{$group['name']}") > Configure::read("permission_level.{$real_group['name']}")) {
-					$group = $real_group;
+				// Don't give people enhanced access just because the person they are acting as has it
+				if ($group['level'] > $max_level) {
+					continue;
 				}
 			}
-			if (array_key_exists ('name', $group)) {
-				$group = $group['name'];
-			} else {
-				$group = 'Non-player account';
-			}
 
-			// We intentionally fall through from the higher groups to the lower.
-			switch ($group) {
+			// TODO: Eliminate all these is_ variables and use database-driven permissions
+			switch ($group['name']) {
 				case 'Administrator':
-					$this->is_admin = true;
+					$this->is_admin = $this->is_manager = true;
+					break;
 
 				case 'Manager':
 					$this->is_manager = true;
+					break;
+
+				case 'Official':
+					$this->is_official = true;
+					break;
 
 				case 'Volunteer':
 					$this->is_volunteer = true;
+					break;
+
+				case 'Coach':
+					$this->is_coach = true;
+					break;
 
 				case 'Player':
 					$this->is_player = true;
-					$this->is_member = true;
-
-				case 'Non-player account':
-					$this->is_logged_in = true;
+					break;
 			}
+		}
+		if ($this->UserCache->currentId()) {
+			$this->is_logged_in = true;
+			$this->is_visitor = false;
 		}
 
 		// Set these in convenient locations for views to use
-		$this->set('is_admin', $this->is_admin);
-		$this->set('is_manager', $this->is_manager);
-		$this->set('is_volunteer', $this->is_volunteer);
-		$this->set('is_player', $this->is_player);
-		$this->set('is_member', $this->is_member);
-		$this->set('is_logged_in', $this->is_logged_in);
+		foreach (array('is_admin', 'is_manager', 'is_official', 'is_volunteer', 'is_coach', 'is_player', 'is_logged_in', 'is_visitor') as $role) {
+			$this->set($role, $this->$role);
+		}
 		$this->set('my_id', $this->UserCache->currentId());
-
-		// While the options above steadily decrease the output available,
-		// is_visitor is instead used to add output not shown to anyone else,
-		// like 'Why not become a member and enjoy extra benefits?'
-		// In other words, the amount of output generated is like this:
-		// admin > volunteer > member > not logged in < visitor
-		$this->is_visitor = ! $this->is_member;
-		$this->set('is_visitor', $this->is_visitor);
 
 		if ($this->is_admin) {
 			// Admins have permission to do anything.
@@ -900,7 +921,7 @@ class AppController extends Controller {
 			}
 		}
 
-		if ($this->is_volunteer) {
+		if ($this->is_admin || $this->is_manager || $this->is_official || $this->is_volunteer) {
 			if (Configure::read('feature.tasks')) {
 				$this->_addMenuItem ('Tasks', array('controller' => 'tasks', 'action' => 'index'));
 				$this->_addMenuItem ('List', array('controller' => 'tasks', 'action' => 'index'), 'Tasks');
@@ -1485,9 +1506,14 @@ class AppController extends Controller {
 
 		// Match people in the affiliate, or admins who are effectively in all
 		if ($affiliate_model && array_key_exists('affiliate_id', $params)) {
+			$admins = $this->Person->GroupsPerson->find('list', array(
+					// TODO: Eliminate hard-coded group_id
+					'conditions' => array('group_id' => 7),
+					'fields' => array('person_id', 'person_id'),
+			));
 			$conditions['OR'] = array(
 				"$affiliate_model.affiliate_id" => $params['affiliate_id'],
-				'Person.group_id' => 3,
+				'Person.id' => $admins,
 			);
 		}
 

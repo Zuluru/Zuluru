@@ -207,21 +207,6 @@ class PeopleController extends AppController {
 				'recursive' => -1,
 		));
 
-		// Get the list of accounts by group
-		$group_count = $this->Person->find('all', array(
-				'fields' => array(
-					'Affiliate.*',
-					'Person.group_id',
-					'COUNT(Person.id) AS count',
-				),
-				'conditions' => array('AffiliatePerson.affiliate_id' => $affiliates),
-				'joins' => $joins,
-				'group' => array('AffiliatePerson.affiliate_id', 'Person.group_id'),
-				'order' => array('Affiliate.name', 'Person.group_id'),
-				'recursive' => -1,
-		));
-		$groups = $this->Person->Group->find('list');
-
 		// Get the list of accounts by gender
 		$gender_count = $this->Person->find('all', array(
 				'fields' => array(
@@ -304,7 +289,36 @@ class PeopleController extends AppController {
 			));
 		}
 
-		$this->set(compact('status_count', 'groups', 'group_count', 'gender_count',
+		// Get the list of accounts by group
+		$joins[] = array(
+			'table' => "{$this->Person->tablePrefix}groups_people",
+			'alias' => 'GroupPerson',
+			'type' => 'LEFT',
+			'foreignKey' => false,
+			'conditions' => 'GroupPerson.person_id = Person.id',
+		);
+		$joins[] = array(
+			'table' => "{$this->Person->tablePrefix}groups",
+			'alias' => 'Group',
+			'type' => 'LEFT',
+			'foreignKey' => false,
+			'conditions' => 'Group.id = GroupPerson.group_id',
+		);
+
+		$group_count = $this->Person->find('all', array(
+				'fields' => array(
+					'Affiliate.*',
+					'Group.*',
+					'COUNT(Person.id) AS count',
+				),
+				'conditions' => array('AffiliatePerson.affiliate_id' => $affiliates),
+				'joins' => $joins,
+				'group' => array('AffiliatePerson.affiliate_id', 'Group.id'),
+				'order' => array('Affiliate.name', 'Group.id'),
+				'recursive' => -1,
+		));
+
+		$this->set(compact('status_count', 'group_count', 'gender_count',
 				'age_count', 'started_count', 'skill_count', 'city_count'));
 	}
 
@@ -569,7 +583,7 @@ class PeopleController extends AppController {
 			$this->redirect('/');
 		}
 
-		$group = $this->UserCache->read('Group', $person['id']);
+		$groups = $this->UserCache->read('Groups', $person['id']);
 		$teams = $this->UserCache->read('Teams', $person['id']);
 		$photo = null;
 
@@ -707,7 +721,7 @@ class PeopleController extends AppController {
 			}
 		}
 
-		$this->set(compact('person', 'group', 'teams', 'relatives', 'related_to', 'divisions', 'waivers', 'registrations', 'preregistrations', 'credits', 'allstars', 'photo', 'documents', 'note', 'tasks', 'badges'));
+		$this->set(compact('person', 'groups', 'teams', 'relatives', 'related_to', 'divisions', 'waivers', 'registrations', 'preregistrations', 'credits', 'allstars', 'photo', 'documents', 'note', 'tasks', 'badges'));
 		$this->set('is_me', ($id === $my_id));
 		$this->set($this->_connections($id));
 	}
@@ -857,7 +871,29 @@ class PeopleController extends AppController {
 			}
 
 			$this->Person->set($this->data);
-			if ($this->Person->validates() && $this->Person->Affiliate->validates()) {
+
+			// Make sure someone isn't forging their way into an entirely unauthorized level.
+			if (!$this->is_admin && !empty($this->data['Group']['Group'])) {
+				$selected_groups = $this->Group->find('all', array(
+						'contain' => false,
+						'conditions' => array('id' => $this->data['Group']['Group']),
+				));
+				if ($this->is_manager) {
+					$level = 5;
+				} else if ($this->is_official) {
+					$level = 3;
+				} else {
+					$level = 1;
+				}
+				$invalid_groups = Set::extract("/Group[level>$level]", $selected_groups);
+				if (!empty($invalid_groups)) {
+					$this->Person->Group->validationErrors['Group'] = __('You have selected an invalid group.', true);
+				}
+			} else {
+				$selected_groups = array();
+			}
+
+			if ($this->Person->validates() && $this->Person->Group->validates() && $this->Person->Affiliate->validates()) {
 				if (!empty($this->data['Affiliate']['Affiliate'])) {
 					foreach ($this->data['Affiliate']['Affiliate'] as $key => $affiliate_id) {
 						if (in_array($affiliate_id, $this->UserCache->read('ManagedAffiliateIDs'))) {
@@ -885,7 +921,8 @@ class PeopleController extends AppController {
 
 					// Delete the cached data, so it's reloaded next time it's needed
 					$this->UserCache->clear('Person', $this->data['Person']['id']);
-					$this->UserCache->clear('Group', $this->data['Person']['id']);
+					$this->UserCache->clear('Groups', $this->data['Person']['id']);
+					$this->UserCache->clear('GroupIDs', $this->data['Person']['id']);
 					$this->UserCache->clear('Affiliates', $this->data['Person']['id']);
 					$this->UserCache->clear('AffiliateIDs', $this->data['Person']['id']);
 
@@ -898,7 +935,7 @@ class PeopleController extends AppController {
 			}
 		}
 		if (empty($this->data)) {
-			$this->Person->contain(array('Affiliate', $this->Auth->authenticate->name));
+			$this->Person->contain(array('Affiliate', 'Group', $this->Auth->authenticate->name));
 			$this->data = $this->Person->read(null, $id);
 			if (!$this->data) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
@@ -2186,9 +2223,10 @@ class PeopleController extends AppController {
 	function act_as() {
 		$act_as = $this->_arg('person');
 		if ($act_as) {
-			if ($this->is_admin && $this->UserCache->read('Group.name', $act_as) == 'Administrator') {
+			// TODO: Eliminate hard-coded group_ids
+			if ($this->is_admin && in_array(7, $this->UserCache->read('GroupIDs', $act_as))) {
 				$this->Session->setFlash(__('Administrators cannot act as other administrators', true), 'default', array('class' => 'warning'));
-			} else if (!$this->is_admin && $this->is_manager && $this->UserCache->read('Group.name', $act_as) == 'Manager') {
+			} else if (!$this->is_admin && $this->is_manager && in_array(6, $this->UserCache->read('GroupIDs', $act_as))) {
 				$this->Session->setFlash(__('Managers cannot act as other managers', true), 'default', array('class' => 'warning'));
 			} else if ($act_as == $this->UserCache->realId()) {
 				$this->Session->delete('Zuluru.act_as_id');
@@ -2327,9 +2365,14 @@ class PeopleController extends AppController {
 			if (!empty($people)) {
 				$conditions = array('Person.id' => $people);
 				if (array_key_exists('affiliate_id', $params)) {
+					$admins = $this->Person->GroupsPerson->find('list', array(
+							// TODO: Eliminate hard-coded group_id
+							'conditions' => array('group_id' => 7),
+							'fields' => array('person_id', 'person_id'),
+					));
 					$conditions['OR'] = array(
 						"AffiliatePerson.affiliate_id" => $params['affiliate_id'],
-						'Person.group_id' => 3,
+						'Person.id' => $admins,
 					);
 				}
 
@@ -2467,49 +2510,30 @@ class PeopleController extends AppController {
 			$dup_id = null;
 		}
 
-		$this->Person->contain($this->Auth->authenticate->name);
+		$this->Person->contain('Group', $this->Auth->authenticate->name);
 		$person_id = $this->data['Person']['id'];
 		$person = $this->Person->read(null, $person_id);
 		if (!empty ($dup_id)) {
-			$this->Person->contain($this->Auth->authenticate->name);
+			$this->Person->contain('Group', $this->Auth->authenticate->name);
 			$existing = $this->Person->read(null, $dup_id);
+		}
+
+		if (empty($person['Persion']['user_id'])) {
+			$this->Person->beforeValidateChild();
+		}
+
+		// TODO: Eliminate this hard-coded group_id
+		$this_is_player = Set::extract('/Group[id=2]', $person);
+		if (empty($this_is_player)) {
+			$this->Person->beforeValidateNonPlayer();
 		}
 
 		// TODO: Some of these require updates/deletions in the settings table
 		switch($disposition) {
-			case 'approved_player':
+			case 'approved':
 				$data = array(
 					'id' => $person_id,
-					// TODO: 'Player' is hard-coded here, but also in the database
-					'group_id' => $this->Person->Group->field('id', array('name' => 'Player')),
 					'status' => 'active',
-				);
-				$saved = $this->Person->save ($data, false, array_keys ($data));
-				if (!$saved) {
-					$this->Session->setFlash(__('Couldn\'t save new member activation', true), 'default', array('class' => 'warning'));
-					$this->redirect(array('action' => 'approve', 'person' => $person_id));
-				}
-				$this->UserCache->clear('Person', $person_id);
-
-				$this->set('person', $saved);
-
-				if (!$this->_sendMail (array (
-						'to' => $person,
-						'subject' => Configure::read('organization.name') . ' Account Activation for ' . $saved['Person']['user_name'],
-						'template' => 'account_approved',
-						'sendAs' => 'both',
-				)))
-				{
-					$this->Session->setFlash(sprintf (__('Error sending email to %s', true), $person['Person']['email']), 'default', array('class' => 'error'), 'email');
-				}
-				break;
-
-			case 'approved_visitor':
-				$data = array(
-					'id' => $person_id,
-					// TODO: 'Non-player account' is hard-coded here, but also in the database
-					'group_id' => $this->Person->Group->field('id', array('name' => 'Non-player account')),
-					'status' => 'inactive',
 				);
 				$saved = $this->Person->save ($data, false, array_keys ($data));
 				if (!$saved) {
@@ -2582,6 +2606,7 @@ class PeopleController extends AppController {
 				}
 
 				$this->Person->AffiliatesPerson->deleteAll(array('AffiliatesPerson.person_id' => $dup_id));
+				$person['Group'] = array('Group' => array_unique(array_merge(Set::extract('/Group/id', $person), Set::extract('/Group/id', $existing))));
 
 				// Update all related records
 				foreach ($this->Person->hasMany as $class => $details) {
@@ -2606,14 +2631,14 @@ class PeopleController extends AppController {
 				}
 
 				// Unset a few fields that we want to retain from the old record
-				foreach (array('group_id', 'status', 'user_id', 'year_started') as $field) {
+				foreach (array('status', 'user_id', 'year_started') as $field) {
 					if (!empty($existing['Person'][$field])) {
 						unset ($person['Person'][$field]);
 					}
 				}
 				$person['Person']['id'] = $dup_id;
 
-				$saved = $this->Person->save ($person);
+				$saved = $this->Person->saveAll($person);
 				if (!$saved) {
 					$this->Session->setFlash(__('Couldn\'t save new member information', true), 'default', array('class' => 'warning'));
 					break;

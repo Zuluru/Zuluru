@@ -1279,7 +1279,7 @@ class GamesController extends AppController {
 		}
 
 		$team_id = $this->_arg('team');
-		if (!$this->is_volunteer && !$team_id) {
+		if (!$this->is_volunteer && !$this->is_official && !$team_id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
@@ -1371,7 +1371,7 @@ class GamesController extends AppController {
 		}
 
 		$submitter = $this->_arg('team');
-		if (!$this->is_volunteer && !$submitter) {
+		if (!$this->is_volunteer && !$this->is_official && !$submitter) {
 			$this->set('error', sprintf(__('Invalid %s', true), __('submitter', true)));
 			return;
 		}
@@ -1562,7 +1562,7 @@ class GamesController extends AppController {
 		}
 
 		$submitter = $this->_arg('team');
-		if (!$this->is_volunteer && !$submitter) {
+		if (!$this->is_volunteer && !$this->is_official && !$submitter) {
 			$this->set('error', sprintf(__('Invalid %s', true), __('submitter', true)));
 			return;
 		}
@@ -1698,7 +1698,7 @@ class GamesController extends AppController {
 		}
 
 		$submitter = $this->_arg('team');
-		if (!$this->is_volunteer && !$submitter) {
+		if (!$this->is_volunteer && !$this->is_official && !$submitter) {
 			$this->set('error', sprintf(__('Invalid %s', true), __('submitter', true)));
 			return;
 		}
@@ -1820,7 +1820,7 @@ class GamesController extends AppController {
 		}
 
 		$submitter = $this->_arg('team');
-		if (!$this->is_volunteer && !$submitter) {
+		if (!$this->is_volunteer && !$this->is_official && !$submitter) {
 			$this->set('message', sprintf(__('Invalid %s', true), __('submitter', true)));
 			return;
 		}
@@ -2405,7 +2405,7 @@ class GamesController extends AppController {
 
 		$team_id = $this->_arg('team');
 		// Allow specified individuals (referees, umpires, volunteers) to submit stats without a team id
-		if (!$this->is_volunteer && !$team_id && !in_array($game['Division']['id'], $this->UserCache->read('DivisionIDs'))) {
+		if (!$this->is_volunteer && !$this->is_official && !$team_id && !in_array($game['Division']['id'], $this->UserCache->read('DivisionIDs'))) {
 			$this->Session->setFlash(__('You must provide a team ID.', true), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}

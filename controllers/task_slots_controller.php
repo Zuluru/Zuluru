@@ -8,7 +8,7 @@ class TaskSlotsController extends AppController {
 	}
 
 	function isAuthorized() {
-		if ($this->is_volunteer) {
+		if ($this->is_manager || $this->is_official || $this->is_volunteer) {
 			// Volunteers can can perform these operations for themselves or relatives
 			if (in_array ($this->params['action'], array(
 				'assign',

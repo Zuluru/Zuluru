@@ -320,7 +320,17 @@ class ZuluruSchema extends CakeSchema {
 	var $groups = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 32),
+		'active' => array('type' => 'boolean', 'null' => false, 'default' => '1'),
+		'level' => array('type' => 'integer', 'null' => false, 'default' => '0'),
+		'description' => array('type' => 'text', 'null' => false, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
+	var $groups_people = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
+		'group_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'person' => array('column' => 'person_id', 'unique' => 0), 'group' => array('column' => 'group_id', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $holidays = array(
@@ -463,20 +473,26 @@ class ZuluruSchema extends CakeSchema {
 		'publish_work_phone' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'mobile_phone' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 30),
 		'publish_mobile_phone' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'alternate_first_name' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
+		'alternate_last_name' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
 		'alternate_email' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
 		'publish_alternate_email' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'alternate_work_phone' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 30),
+		'alternate_work_ext' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 6),
+		'publish_alternate_work_phone' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'alternate_mobile_phone' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 30),
+		'publish_alternate_mobile_phone' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'addr_street' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
 		'addr_city' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
 		'addr_prov' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 32),
 		'addr_country' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 32),
 		'addr_postalcode' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 7),
-		'gender' => array('type' => 'string', 'null' => false, 'default' => 'Male', 'length' => 6),
+		'gender' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 6),
 		'birthdate' => array('type' => 'date', 'null' => true, 'default' => NULL),
 		'height' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'length' => 6),
 		'skill_level' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'year_started' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'shirt_size' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
-		'group_id' => array('type' => 'integer', 'null' => false, 'default' => NULL),
 		'status' => array('type' => 'string', 'null' => false, 'default' => 'new', 'length' => 16),
 		'has_dog' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'willing_to_volunteer' => array('type' => 'boolean', 'null' => false, 'default' => '0'),

@@ -9,8 +9,7 @@ $this->Html->addCrumb ($person['Person']['full_name']);
 
 <?php
 $dispositions = array(
-		'approved_player' => 'Approved as player',
-		'approved_visitor' => 'Approved as visitor',
+		'approved' => 'Approved',
 		'delete' => 'Deleted silently',
 );
 
@@ -18,7 +17,7 @@ $rows = array(
 	'full_name' => array('name' => 'Name'),
 );
 
-$rows['name'] = array('name' => 'Group', 'model' => 'Group');
+$rows['name'] = array('name' => 'Group', 'model' => 'Group', 'func' => 'groups');
 
 if (!empty($person['Person']['user_name'])) {
 	$rows['user_name'] = array('name' => 'User Name');
@@ -100,7 +99,11 @@ foreach ($rows as $key => $data) {
 		} else {
 			$model = 'Person';
 		}
-		$val = $person[$model][$field];
+		if (array_key_exists ('func', $data) && !array_key_exists($field, $person[$model])) {
+			$val = $person[$model];
+		} else {
+			$val = $person[$model][$field];
+		}
 		if (array_key_exists ('func', $data)) {
 			$func = "format_{$data['func']}";
 			$val = $func($val, $this);
@@ -138,8 +141,13 @@ if (!empty ($duplicates)) {
 				} else {
 					$model = 'Person';
 				}
-				$user_val = $person[$model][$key];
-				$val = $duplicate[$model][$key];
+				if (array_key_exists ('func', $data) && !array_key_exists($key, $person[$model])) {
+					$user_val = $person[$model];
+					$val = $duplicate[$model];
+				} else {
+					$user_val = $person[$model][$key];
+					$val = $duplicate[$model][$key];
+				}
 				if (array_key_exists ('func', $data)) {
 					$func = "format_{$data['func']}";
 					$user_val = $func($user_val, $this);
@@ -215,6 +223,14 @@ function format_date($data, $ths) {
 function format_height($data) {
 	if (!empty($data)) {
 		return $data . ' ' . (Configure::read('feature.units') == 'Metric' ? __('cm', true) : __('inches', true));
+	}
+}
+function format_groups($data) {
+	$groups = Set::extract('/name', $data);
+	if (empty($groups)) {
+		return __('None', true);
+	} else {
+		return implode(', ', $groups);
 	}
 }
 

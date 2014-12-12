@@ -110,18 +110,6 @@ if (!defined('ZULURU')) {
 	define('ZULURU', 'Zuluru');
 }
 
-// The levels of permission for each group, used to ensure that
-// nobody gets escalated options when they are acting as someone
-// else. Non-players have the same level as players, so that
-// parents can act correctly on behalf of their kids.
-$config['permission_level'] = array(
-	'Non-player account' => 1,
-	'Player' => 1,
-	'Volunteer' => 2,
-	'Manager' => 3,
-	'Administrator' => 4,
-);
-
 $config['season_is_indoor'] = array(
 	'None'			=> false,
 	'Winter'		=> false,

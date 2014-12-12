@@ -4,7 +4,7 @@ class TasksController extends AppController {
 	var $name = 'Tasks';
 
 	function isAuthorized() {
-		if ($this->is_volunteer) {
+		if ($this->is_manager || $this->is_official || $this->is_volunteer) {
 			// Volunteers can can perform these operations
 			if (in_array ($this->params['action'], array(
 				'index',
@@ -156,12 +156,17 @@ class TasksController extends AppController {
 							'foreignKey' => false,
 							'conditions' => 'AffiliatePerson.person_id = Person.id',
 						),
+						array(
+							'table' => "{$this->Person->tablePrefix}groups_people",
+							'alias' => 'GroupPerson',
+							'type' => 'LEFT',
+							'foreignKey' => false,
+							'conditions' => 'GroupPerson.person_id = Person.id',
+						),
 					),
 					'conditions' => array(
-						'Person.group_id' => $this->Person->Group->find('list', array(
-							'conditions' => array('name' => array('Administrator', 'Volunteer')),
-							'fields' => array('Group.id', 'Group.id'),
-						)),
+						// TODO: Eliminate hard-coded group_ids
+						'GroupPerson.group_id' => array(4,5,6,7),
 						'AffiliatePerson.affiliate_id' => array_keys($affiliates),
 					),
 					'contain' => array('Affiliate'),
@@ -196,12 +201,17 @@ class TasksController extends AppController {
 						'foreignKey' => false,
 						'conditions' => 'AffiliatePerson.person_id = Person.id',
 					),
+					array(
+						'table' => "{$this->Person->tablePrefix}groups_people",
+						'alias' => 'GroupPerson',
+						'type' => 'LEFT',
+						'foreignKey' => false,
+						'conditions' => 'GroupPerson.person_id = Person.id',
+					),
 				),
 				'conditions' => array(
-					'Person.group_id' => $this->Person->Group->find('list', array(
-						'conditions' => array('name' => array('Administrator', 'Volunteer')),
-						'fields' => array('Group.id', 'Group.id'),
-					)),
+					// TODO: Eliminate hard-coded group_ids
+					'GroupPerson.group_id' => array(4,5,6,7),
 					'AffiliatePerson.affiliate_id' => array_keys($affiliates),
 				),
 				'contain' => array('Affiliate'),
@@ -249,12 +259,17 @@ class TasksController extends AppController {
 						'foreignKey' => false,
 						'conditions' => 'AffiliatePerson.person_id = Person.id',
 					),
+					array(
+						'table' => "{$this->Person->tablePrefix}groups_people",
+						'alias' => 'GroupPerson',
+						'type' => 'LEFT',
+						'foreignKey' => false,
+						'conditions' => 'GroupPerson.person_id = Person.id',
+					),
 				),
 				'conditions' => array(
-					'Person.group_id' => $this->Person->Group->find('list', array(
-						'conditions' => array('name' => array('Administrator', 'Volunteer')),
-						'fields' => array('Group.id', 'Group.id'),
-					)),
+					// TODO: Eliminate hard-coded group_ids
+					'GroupPerson.group_id' => array(4,5,6,7),
 					'AffiliatePerson.affiliate_id' => array_keys($affiliates),
 				),
 				'contain' => array('Affiliate'),
