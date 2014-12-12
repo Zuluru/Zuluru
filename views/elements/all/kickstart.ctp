@@ -1,3 +1,9 @@
+<?php
+// There may be nothing to output, in which case we don't even want the wrapper div
+if (!$is_admin && !$is_manager && !($empty && $is_player)) {
+	return;
+}
+?>
 <div id="kick_start">
 <?php
 if ($is_admin) {
@@ -148,7 +154,7 @@ if ($is_manager) {
 				$this->Html->link(__('Create one now!', true), array('controller' => 'events', 'action' => 'add', 'return' => true)));
 		}
 	}
-} else if ($empty) {
+} else if ($empty && $is_player) {
 	// If the user has nothing going on, pull some more details to allow us to help them get started
 	$membership_events = $this->requestAction(array('controller' => 'events', 'action' => 'count'), array('pass' => array(true)));
 	$non_membership_events = $this->requestAction(array('controller' => 'events', 'action' => 'count'));
