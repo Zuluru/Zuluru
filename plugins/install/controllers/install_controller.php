@@ -341,6 +341,13 @@ CONFIG;
 				// Clear the model cache one last time, so it's refreshed
 				// with correct data for the next visitor
 				Cache::clear(false, '_cake_model_');
+
+				// Clear the queries cache too, so anything that's changed
+				// will get the new schema data in it
+				Cache::config('file', array('engine' => 'File', 'path' => CACHE . DS . 'queries'));
+				Cache::clear(false, 'file');
+				Cache::config('long_term', array('engine' => 'File', 'path' => CACHE . DS . 'queries', 'duration' => YEAR));
+				Cache::clear(false, 'long_term');
 			}
 		}
 
