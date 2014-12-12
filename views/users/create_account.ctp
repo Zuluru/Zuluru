@@ -19,11 +19,13 @@ Configure::load("sport/$sport");
 );
 ?></p>
 <p><?php __('Note that email and phone publish settings below only apply to regular players. Captains will always have access to view the phone numbers and email addresses of their confirmed players. All Team Captains will also have their email address viewable by other players.'); ?></p>
+<?php if (Configure::read('urls.privacy_policy')): ?>
 <p><?php printf(__('If you have concerns about the data %s collects, please see our %s.', true),
 		$short,
 		$this->Html->tag('strong', $this->Html->link(__('Privacy Policy', true), Configure::read('urls.privacy_policy'), array('target' => '_new')))
 );
 ?></p>
+<?php endif; ?>
 
 <div class="users form">
 <?php echo $this->Form->create('Person', array('url' => Router::normalize($this->here)));?>
