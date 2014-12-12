@@ -463,6 +463,8 @@ class ZuluruSchema extends CakeSchema {
 		'publish_work_phone' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'mobile_phone' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 30),
 		'publish_mobile_phone' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'alternate_email' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100),
+		'publish_alternate_email' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'addr_street' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
 		'addr_city' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
 		'addr_prov' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 32),

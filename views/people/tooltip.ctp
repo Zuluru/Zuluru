@@ -13,6 +13,12 @@ if (!empty($person['email']) &&
 	$has_visible_contact = true;
 	$lines[] = $this->Html->link ($person['email'], "mailto:{$person['email']}");
 }
+if (!empty($person['alternate_email']) &&
+	($view_contact || ($is_logged_in && $person['publish_alternate_email'])))
+{
+	$has_visible_contact = true;
+	$lines[] = $this->Html->link ($person['alternate_email'], "mailto:{$person['alternate_email']}");
+}
 if (!empty($person['home_phone']) &&
 	($view_contact || ($is_logged_in && $person['publish_home_phone'])))
 {
@@ -99,6 +105,9 @@ if ($view_contact) {
 					$lines[] = $this->Html->tag('strong', $this->Html->link ($relative['Relative']['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $relative['Relative']['id'])));
 					if (!empty($relative['Relative']['email'])) {
 						$lines[] = $this->Html->link ($relative['Relative']['email'], "mailto:{$relative['Relative']['email']}");
+					}
+					if (!empty($relative['Relative']['alternate_email'])) {
+						$lines[] = $this->Html->link ($relative['Relative']['alternate_email'], "mailto:{$relative['Relative']['alternate_email']}");
 					}
 					if (!empty($relative['Relative']['home_phone'])) {
 						$lines[] = $relative['Relative']['home_phone'] . ' (' . __('home', true) . ')';

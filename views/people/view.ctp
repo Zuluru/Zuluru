@@ -55,6 +55,16 @@ $this_is_player = ($person['group_id'] == 1);
 				?>
 			</dd>
 		<?php endif; ?>
+		<?php if (($view_contact || ($is_logged_in && $person['publish_alternate_email'])) && !empty($person['alternate_email'])):?>
+			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Alternate Email Address'); ?></dt>
+			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+				<?php
+				$has_visible_contact = true;
+				echo $this->Html->link($person['alternate_email'], "mailto:{$person['alternate_email']}");
+				echo ' (' . ($person['publish_alternate_email'] ? __('published', true) : __('private', true)) . ')';
+				?>
+			</dd>
+		<?php endif; ?>
 		<?php if (Configure::read('profile.home_phone') && !empty($person['home_phone']) &&
 					($view_contact || ($is_logged_in && $person['publish_home_phone']))):?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Phone (home)'); ?></dt>
@@ -292,6 +302,15 @@ $this_is_player = ($person['group_id'] == 1);
 					<?php
 					echo $this->Html->link($relative['Relative']['email'], "mailto:{$relative['Relative']['email']}");
 					echo ' (' . ($relative['Relative']['publish_email'] ? __('published', true) : __('private', true)) . ')';
+					?>
+				</dd>
+			<?php endif; ?>
+			<?php if (!empty($relative['Relative']['alternate_email'])):?>
+				<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Alternate Email Address'); ?></dt>
+				<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+					<?php
+					echo $this->Html->link($relative['Relative']['alternate_email'], "mailto:{$relative['Relative']['alternate_email']}");
+					echo ' (' . ($relative['Relative']['publish_alternate_email'] ? __('published', true) : __('private', true)) . ')';
 					?>
 				</dd>
 			<?php endif; ?>

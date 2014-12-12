@@ -17,15 +17,13 @@ foreach (array_keys($person->_schema) as $key) {
 	);
 	if (!array_key_exists($key, $feature_lookup) || Configure::read("feature.{$feature_lookup[$key]}")) {
 		// Deal with special cases
-		if (in_array($key, array('id', 'group_id', 'status', 'publish_email'))) {
+		$short_field = strtr($key, array('publish_' => '', 'alternate_' => ''));
+		if (in_array($short_field, array('id', 'status', 'email'))) {
 			$include = true;
-		} else if ($key == 'work_ext') {
+		} else if ($short_field == 'work_ext') {
 			$include = Configure::read('profile.work_phone');
-		} else if (strpos($key, 'publish_') !== false) {
-			$related = substr($key, 8);
-			$include = Configure::read("profile.$related");
 		} else {
-			$include = Configure::read("profile.$key");
+			$include = Configure::read("profile.$short_field");
 		}
 	}
 

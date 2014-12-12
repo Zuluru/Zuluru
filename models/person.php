@@ -94,6 +94,21 @@ class Person extends AppModel {
 				'allowEmpty' => true,
 			),
 		),
+		'alternate_email' => array(
+			'email' => array(
+				'rule' => array('email'),
+				'allowEmpty' => true,
+				'required' => false,
+				'message' => 'You must supply a valid email address.',
+			),
+		),
+		'publish_alternate_email' => array(
+			'boolean' => array(
+				'rule' => array('boolean'),
+				'allowEmpty' => true,
+				'required' => false,
+			),
+		),
 		'addr_street' => array(
 			'notempty' => array(
 				'rule' => array('notempty'),
@@ -361,8 +376,10 @@ class Person extends AppModel {
 			$this->validate['height']['range']['rule'] = array('range', 90, 215);
 		}
 
+		$always_on = array('email');
 		foreach (array_keys($this->validate) as $field) {
-			if (!Configure::read("profile.$field")) {
+			$short_field = strtr($field, array('publish_' => '', 'alternate_' => ''));
+			if (!in_array($short_field, $always_on) && !Configure::read("profile.$short_field")) {
 				unset($this->validate[$field]);
 			}
 		}
@@ -379,7 +396,7 @@ class Person extends AppModel {
 				}
 			}
 		}
-		if ($first_field && !$found) {
+		if ($first_field && !$found && array_key_exists($first_field, $this->validate)) {
 			$this->validate[$first_field]['notempty'] = array(
 				'rule' => array('notempty'),
 				'message' => 'You must provide at least one phone number.',

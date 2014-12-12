@@ -24,3 +24,8 @@ TEL;CELL;VOICE:<?php echo $person['mobile_phone']; ?>
 EMAIL;PREF;INTERNET:<?php echo $person['email']; ?>
 
 <?php endif; ?>
+
+<?php if (!empty($person['alternate_email']) && ($view_contact || ($is_logged_in && $person['publish_alternate_email']))):?>
+EMAIL;INTERNET:<?php echo $person['alternate_email']; ?>
+
+<?php endif; ?>

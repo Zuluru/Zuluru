@@ -134,6 +134,10 @@ echo $is_me ? __('Edit Your Profile', true) : "{$this->data['Person']['first_nam
 		echo $this->ZuluruForm->input('publish_email', array(
 			'label' => __('Allow other players to view my email address', true),
 		));
+		echo $this->ZuluruForm->input('alternate_email');
+		echo $this->ZuluruForm->input('publish_alternate_email', array(
+			'label' => __('Allow other players to view my alternate email address', true),
+		));
 		if (Configure::read('feature.gravatar')) {
 			if (Configure::read('feature.photos')) {
 				$after = sprintf(__('You can have an image shown on your account by uploading a photo directly, or by enabling this setting and then create a <a href="http://www.gravatar.com">gravatar.com</a> account using the email address you\'ve associated with your %s account.', true), Configure::read('organization.short_name'));
