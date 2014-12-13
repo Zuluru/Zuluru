@@ -82,18 +82,7 @@ if ($is_logged_in && Configure::read('feature.badges') && !empty($badges['Badge'
 }
 
 if ($view_contact) {
-	if (Configure::read('feature.birth_year_only')) {
-		$birth_year = substr($person['birthdate'], 0, 4);
-		if (empty($person['birthdate']) || $birth_year == '0000') {
-			$age = 99;
-		} else {
-			$age = date('Y') - $birth_year;
-		}
-	} else {
-		// This will be, at worst, off by a day. A better calculation can be made if ever required.
-		$age = floor((time() - strtotime($person['birthdate'])) / DAY / 365.25);
-	}
-	if ($age < 18) {
+	if (AppController::_isChild($person['birthdate'])) {
 		$related_to = $this->UserCache->read('RelatedTo', $person['id']);
 		if (!empty($related_to)) {
 ?>

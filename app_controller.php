@@ -43,6 +43,7 @@ class AppController extends Controller {
 	var $is_volunteer = false;
 	var $is_coach = false;
 	var $is_player = false;
+	var $is_child = false;
 	var $is_logged_in = false;
 	var $is_visitor = true;
 
@@ -358,7 +359,7 @@ class AppController extends Controller {
 	 * @access public
 	 */
 	function _setPermissions() {
-		$this->is_admin = $this->is_manager = $this->is_official = $this->is_volunteer = $this->is_coach = $this->is_player = $this->is_logged_in = false;
+		$this->is_admin = $this->is_manager = $this->is_official = $this->is_volunteer = $this->is_coach = $this->is_player = $this->is_child = $this->is_logged_in = false;
 		$this->is_visitor = true;
 		$auth =& $this->Auth->authenticate;
 		$user = $this->Auth->user();
@@ -467,10 +468,11 @@ class AppController extends Controller {
 		if ($this->UserCache->currentId()) {
 			$this->is_logged_in = true;
 			$this->is_visitor = false;
+			$this->is_child = $this->_isChild($this->UserCache->read('Person.birthdate'));
 		}
 
 		// Set these in convenient locations for views to use
-		foreach (array('is_admin', 'is_manager', 'is_official', 'is_volunteer', 'is_coach', 'is_player', 'is_logged_in', 'is_visitor') as $role) {
+		foreach (array('is_admin', 'is_manager', 'is_official', 'is_volunteer', 'is_coach', 'is_player', 'is_child', 'is_logged_in', 'is_visitor') as $role) {
 			$this->set($role, $this->$role);
 		}
 		$this->set('my_id', $this->UserCache->currentId());
@@ -1575,6 +1577,22 @@ class AppController extends Controller {
 			}
 		}
 		return $affiliate_id;
+	}
+
+	static function _isChild($birthdate) {
+		// Assumption is that youth leagues will always require birthdates to properly categorize players
+		if (empty($birthdate)) {
+			return false;
+		}
+
+		if (Configure::read('feature.birth_year_only')) {
+			$birth_year = substr($birthdate, 0, 4);
+			if ($birth_year == '0000') {
+				return false;
+			}
+			return (date('Y') - $birth_year < 18);
+		}
+		return (strtotime($birthdate) > strtotime('-18 years'));
 	}
 
 	function _expireReservations() {
