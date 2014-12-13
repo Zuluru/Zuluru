@@ -203,12 +203,9 @@ $this_is_player = (!empty($this_is_player));
 							__('unknown');
 						} else {
 							echo $birth_year;
-							$age = date('Y') - $birth_year;
 						}
 					} else {
 						echo $this->ZuluruTime->date($person['birthdate']);
-						// This will be, at worst, off by a day. A better calculation can be made if ever required.
-						$age = floor((time() - strtotime($person['birthdate'])) / DAY / 365.25);
 					}
 					?>
 				</dd>
@@ -249,7 +246,7 @@ $this_is_player = (!empty($this_is_player));
 
 				</dd>
 			<?php endif; ?>
-		<?php else: $age = 99; endif; ?>
+		<?php endif; ?>
 		<?php if ($is_me || $is_admin || $is_manager):?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __n('Account Class', 'Account Classes', count($groups)); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
@@ -332,7 +329,7 @@ $this_is_player = (!empty($this_is_player));
 	</ul>
 </div>
 
-<?php if ($view_contact && $age < 18 && !empty($related_to)): ?>
+<?php if ($view_contact && AppController::_isChild($person['birthdate']) && !empty($related_to)): ?>
 <div class="related">
 	<h3><?php __('Contacts');?></h3>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
