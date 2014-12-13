@@ -38,6 +38,7 @@ class CanRegisterComponent extends Object
 			$this->person_id = $person_id;
 			$this->person = array(
 				'Person' => $this->_controller->UserCache->read('Person', $person_id),
+				'Group' => $this->_controller->UserCache->read('GroupIDs', $person_id),
 				'Team' => $this->_controller->UserCache->read('Teams', $person_id),
 				'Preregistration' => $this->_controller->UserCache->read('Preregistrations', $person_id),
 				'Registration' => array_merge(
@@ -98,7 +99,13 @@ class CanRegisterComponent extends Object
 		$continue = true;
 		$messages = array();
 
-		if (in_array($this->person['Person']['status'], array('inactive', 'locked'))) {
+		// TODO: Eliminate hard-coded group_id and event types
+		if (!in_array(2, $this->person['Group']) && in_array($event['EventType']['type'], array('membership', 'individual'))) {
+			$messages[] = array('text' => __('Only players are allowed to register for this type of event.', true), 'class' => 'warning-message');
+			$continue = false;
+		}
+
+		if ($continue && in_array($this->person['Person']['status'], array('inactive', 'locked'))) {
 			$messages[] = array('text' => __('Your account is currently inactive, please contact an administrator to reactivate it.', true), 'class' => 'warning-message');
 			$continue = false;
 		}
