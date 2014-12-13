@@ -2230,6 +2230,7 @@ class PeopleController extends AppController {
 				$this->Session->setFlash(__('Managers cannot act as other managers', true), 'default', array('class' => 'warning'));
 			} else if ($act_as == $this->UserCache->realId()) {
 				$this->Session->delete('Zuluru.act_as_id');
+				$this->Session->delete('Zuluru.act_as_temporary');
 				$this->Session->setFlash(sprintf(__('You are now acting as %s', true), __('yourself', true)), 'default', array('class' => 'success'));
 			} else {
 				$this->Session->write('Zuluru.act_as_id', $act_as);
