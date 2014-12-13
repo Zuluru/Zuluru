@@ -73,7 +73,7 @@ $tabs = array();
 $people_with_schedules = 0;
 
 $tab = $this->element('teams/splash', array('teams' => $teams, 'past_teams' => $past_teams, 'name' => __('My', true)));
-$tab .= $this->element('all/kickstart', array('affiliates' => $affiliates, 'empty' => (empty($teams) && empty($divisions) && empty($unpaid) && empty($tasks))));
+$tab .= $this->element('all/kickstart', array('id' => $id, 'affiliates' => $affiliates, 'empty' => (empty($teams) && empty($divisions) && empty($unpaid) && empty($tasks))));
 $tab .= $this->element('divisions/splash', array('divisions' => $divisions));
 
 $games = $items = array_merge (
@@ -161,6 +161,7 @@ foreach ($approved_relatives as $relative) {
 	$team_ids = array_merge($team_ids, $relative_team_ids);
 
 	$tab .= $this->element('all/kickstart', array(
+			'id' => $relative['Relative']['id'],
 			'is_admin' => false,
 			'is_manager' => false,
 			// TODO: Eliminate hard-coded group_id

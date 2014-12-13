@@ -3,6 +3,7 @@
 if (!$is_admin && !$is_manager && !($empty && $is_player)) {
 	return;
 }
+$act_as = ($id == $my_id ? null : $id);
 ?>
 <div id="kick_start">
 <?php
@@ -174,11 +175,11 @@ if ($is_manager) {
 
 	$actions = array();
 	if (!empty($options)) {
-		$actions[] = $this->Html->link (__('Register for', true) . ' ' . implode(' ' . __('or', true) . ' ', $options), array('controller' => 'events', 'action' => 'wizard'));
+		$actions[] = $this->Html->link (__('Register for', true) . ' ' . implode(' ' . __('or', true) . ' ', $options), array('controller' => 'events', 'action' => 'wizard', 'act_as' => $act_as));
 	}
 
 	if ($open_teams) {
-		$actions[] = $this->Html->link ('Join an existing team', array('controller' => 'teams', 'action' => 'join'));
+		$actions[] = $this->Html->link ('Join an existing team', array('controller' => 'teams', 'action' => 'join', 'act_as' => $act_as));
 	}
 
 	if (!empty($leagues)) {
