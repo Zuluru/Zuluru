@@ -74,6 +74,8 @@ class AppController extends Controller {
 		Configure::write('feature.manage_accounts', $this->Auth->authenticate->manageAccounts);
 		Configure::write('feature.manage_name', $this->Auth->authenticate->manageName);
 
+		$this->_setPermissions();
+
 		// Load configuration from database
 		if (isset($this->Configuration) && !empty($this->Configuration->table)) {
 			$this->Configuration->load($this->UserCache->currentId());
@@ -87,8 +89,6 @@ class AppController extends Controller {
 		if (Configure::read('feature.items_per_page')) {
 			$this->paginate['limit'] = Configure::read('feature.items_per_page');
 		}
-
-		$this->_setPermissions();
 
 		// Set the theme, if any. Must be done before processing, in order for the theme to affect emails.
 		$this->theme = Configure::read('theme');
