@@ -837,28 +837,43 @@ class Game extends AppModel {
 				$this->contain('GameSlot');
 				$games = $this->find('all', array(
 					'conditions' => array(
-								'OR' => array(
-									'Game.home_team' => $team_id,
-									'Game.away_team' => $team_id,
-									),
-								'GameSlot.game_date' => $match_dates,
-								'Game.id !=' => $game_id,
-								),
-							'order' => 'GameSlot.game_start',
-							));
+							'OR' => array(
+								'Game.home_team' => $team_id,
+								'Game.away_team' => $team_id,
+							),
+							'GameSlot.game_date' => $match_dates,
+							'Game.id !=' => $game_id,
+					),
+					'order' => array('GameSlot.game_date', 'GameSlot.game_start'),
+				));
 				$scheduled_game_ids = array_unique (Set::extract('/Game/id', $games));
 
 				if (count($attendance_game_ids) > count($scheduled_game_ids)) {
 					// If there are more other games with attendance records than there
-					// are other games scheduled, then one of those games must be this
-					// game, but it was rescheduled. Figure out which one.
-					// Note that this guess may not be right when a team has more than
-					// one game that gets rescheduled; this will hopefully be a very
-					// rare circumstance.
-					foreach ($attendance_game_ids as $i) {
-						if (!in_array($i, $scheduled_game_ids)) {
-							$rescheduled_game_id = $i;
-							break;
+					// are other games scheduled, then one of those games might be the
+					// date-only placeholder game.
+					if (in_array(null, $attendance_game_ids)) {
+						// Find all placeholder game attendance records for this team for this date.
+						$attendance = $this->Attendance->find('all', array(
+							'contain' => false,
+							'conditions' => array(
+								'team_id' => $team_id,
+								'game_date' => $match_dates,
+								'game_id' => null,
+								'team_event_id' => null,
+							),
+						));
+					} else {
+						// Otherwise, it must be this game, but it was rescheduled. Figure
+						// out which one.
+						// Note that this guess may not be right when a team has more than
+						// one game that gets rescheduled; this will hopefully be a very
+						// rare circumstance.
+						foreach ($attendance_game_ids as $i) {
+							if (!in_array($i, $scheduled_game_ids)) {
+								$rescheduled_game_id = $i;
+								break;
+							}
 						}
 					}
 				} else {
