@@ -754,7 +754,7 @@ if ($is_logged_in && ($this_is_player || !empty($all_teams))): ?>
 			<td><?php echo $this->ZuluruTime->date($document['Upload']['valid_from']);?></td>
 			<td><?php echo $this->ZuluruTime->date($document['Upload']['valid_until']);?></td>
 <?php else: ?>
-			<td colspan="2" class="highlight"><?php __('Unapproved');?></td>
+			<td colspan="2" class="highlight-message"><?php __('Unapproved');?></td>
 <?php endif; ?>
 			<td class="actions">
 				<?php echo $this->Html->link(__('View', true), array('action' => 'document', 'id' => $document['Upload']['id']), array('target' => 'preview'));?>

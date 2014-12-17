@@ -40,7 +40,7 @@ $this->Html->addCrumb (__('View', true));
 			<td><?php echo $this->ZuluruTime->date($document['valid_from']);?></td>
 			<td><?php echo $this->ZuluruTime->date($document['valid_until']);?></td>
 <?php else: ?>
-			<td colspan="2" class="highlight"><?php __('Unapproved');?></td>
+			<td colspan="2" class="highlight-message"><?php __('Unapproved');?></td>
 <?php endif; ?>
 			<td class="actions">
 				<?php echo $this->Html->link(__('View', true), array('controller' => 'people', 'action' => 'document', 'id' => $document['id']), array('target' => 'preview'));?>

@@ -19,7 +19,7 @@ if (!empty ($division['Person'])) {
 	echo $this->Html->nestedList ($coordinators);
 }
 ?>
-<p class="highlight"><?php __('Note that only people whose accounts are set as "volunteer" (or higher) can be made coordinators.'); ?></p>
+<p class="highlight-message"><?php __('Note that only people whose accounts are set as "volunteer" (or higher) can be made coordinators.'); ?></p>
 
 <?php echo $this->element('people/search_form', array('affiliate_id' => $division['League']['affiliate_id'])); ?>
 
