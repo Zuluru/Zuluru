@@ -2322,14 +2322,14 @@ class PeopleController extends AppController {
 	}
 
 	function inactive_search() {
-		if (empty($this->data)) {
-			$this->data = array(
-				'rule' => "NOT(COMPARE(TEAM_COUNT('today') > '0'))",
-				'sort' => 'last_name',
-				'direction' => 'asc',
-			);
-		}
 		$params = $url = $this->_extractSearchParams();
+		$affiliates = $this->_applicableAffiliates();
+		if (!empty($params) || !Configure::read('feature.affiliates')) {
+			$params['rule'] = "NOT(COMPARE(TEAM_COUNT('today') > '0'))";
+		}
+		if (!Configure::read('feature.affiliates')) {
+			$params['affiliate_id'] = 1;
+		}
 
 		$this->_handleRuleSearch($params, $url);
 	}
