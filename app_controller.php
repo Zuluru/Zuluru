@@ -319,7 +319,9 @@ class AppController extends Controller {
 	 */
 	function _loadGroupOptions() {
 		$conditions = array('active' => true);
-		if (!$this->is_admin) {
+		if ($this->is_manager) {
+			$conditions['level <='] = 5;
+		} else if (!$this->is_admin) {
 			$conditions['level <'] = 5;
 		}
 		$groups = $this->Group->find('all', array(
