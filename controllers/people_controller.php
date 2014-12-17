@@ -1934,7 +1934,7 @@ class PeopleController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('badge', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'badges', 'action' => 'index'));
 		}
-		$this->Person->Badge->contain();
+		$this->Person->Badge->contain('Affiliate');
 		$badge = $this->Person->Badge->read(null, $url['badge']);
 		if (!$badge) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('badge', true)), 'default', array('class' => 'info'));
