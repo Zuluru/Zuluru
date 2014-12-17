@@ -501,6 +501,7 @@ class ZuluruSchema extends CakeSchema {
 		'twitter_token' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 250),
 		'twitter_secret' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 250),
 		'complete' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'updated' => array('type' => 'date', 'null' => false, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
