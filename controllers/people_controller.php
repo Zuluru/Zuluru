@@ -846,7 +846,7 @@ class PeopleController extends AppController {
 			$this->Person->create();
 
 			// Handle affiliations for non-admins
-			if (!$this->is_admin) {
+			if (!$is_me || (!$this->is_admin && (Configure::read('feature.multiple_affiliates') || !$this->is_manager))) {
 				if (Configure::read('feature.affiliates')) {
 					// Manually select all affiliates the user is a manager of
 					if (is_array($this->data['Affiliate']['Affiliate'])) {
