@@ -99,7 +99,7 @@ foreach ($people as $person):
 	<?php echo $this->Paginator->next(__('next', true).' >>', array('buffer' => false), null, array('class' => 'disabled'));?>
 </div>
 
-	<?php if ($is_admin || $is_manager): ?>
+	<?php if (in_array($this->action, array('rule_search', 'league_search', 'inactive_search'))): ?>
 <div class="actions">
 	<ul>
 		<?php echo $this->Html->tag ('li', $this->Html->link(__('Download', true), array_merge($url, array('ext' => 'csv')))); ?>
