@@ -19,6 +19,7 @@ if (!empty ($affiliate['Person'])) {
 	echo $this->Html->nestedList ($managers);
 }
 ?>
+<p class="highlight-message"><?php __('Note that only people whose accounts are set as "manager" (or higher) can be made managers.'); ?></p>
 
 <?php echo $this->element('people/search_form', array('affiliate_id' => $affiliate['Affiliate']['id'])); ?>
 
