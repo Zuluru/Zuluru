@@ -1,4 +1,7 @@
 <?php
+if (!$is_player) {
+	return;
+}
 $person = $this->UserCache->read('Person');
 if (AppController::_isChild($person['birthdate'])) {
 	$check = 6 * MONTH;
