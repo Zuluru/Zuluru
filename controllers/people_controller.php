@@ -26,6 +26,7 @@ class PeopleController extends AppController {
 				'note',
 				'delete_note',
 				'nominate',
+				'confirm',
 		)))
 		{
 			return true;
@@ -962,6 +963,20 @@ class PeopleController extends AppController {
 				'user_field' => $this->Auth->authenticate->userField,
 				'email_field' => $this->Auth->authenticate->emailField,
 		));
+	}
+
+	function confirm() {
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
+
+		$this->Person->id = $this->UserCache->currentId();
+		if ($this->Person->save(array('first_name' => $this->UserCache->read('Person.first_name')))) {
+			// Delete the cached data, so it's reloaded next time it's needed
+			$this->UserCache->clear('Person', $this->data['Person']['id']);
+			$this->set('success', true);
+		} else {
+			$this->set('success', false);
+		}
 	}
 
 	function note() {

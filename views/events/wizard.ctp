@@ -163,3 +163,4 @@ switch ($step) {
 ?>
 <?php endif; ?>
 </div>
+<?php echo $this->element('people/confirmation', array('fields' => array('skill_level', 'height', 'shirt_size', 'year_started'))); ?>
