@@ -1,6 +1,6 @@
 	<fieldset>
 		<legend><?php __('Paypal Options'); ?></legend>
-	<p><?php printf (__('To find this information, log in to %s, then go to My Account -> Profile -> My selling tools -> Selling online -> API access -> %s.', true),
+	<p><?php printf (__('To find this information, log in to %s, then go to My Account -> Profile -> My selling tools -> Selling online -> API access -> Update, then Request API Credentials or %s.', true),
 			$this->Html->link(__('PayPal', true), 'http://paypal.com/'),
 			$this->Html->link(__('View API signature', true), 'https://www.paypal.com/ca/cgi-bin/webscr?cmd=_profile-api-signature')
 	);
