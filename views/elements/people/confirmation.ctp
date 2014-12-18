@@ -9,9 +9,12 @@ if (AppController::_isChild($person['birthdate'])) {
 	$check = YEAR;
 }
 if (strtotime($person['updated']) + $check < time()):
-	// TODO: 
 ?>
 	<div id="ProfileConfirmation" title="<?php __('Confirmation'); ?>" style="display:none;">
+		<?php
+		// Making this a dialog pulls it out of the main #zuluru div, breaking formatting.
+		// TODO: Switch zuluru id to class, to avoid creating an invalid DOM.
+		?>
 		<div id="zuluru">
 			<?php
 			if (empty($person['user_id'])) {
