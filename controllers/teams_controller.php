@@ -1760,8 +1760,8 @@ class TeamsController extends AppController {
 
 		$params = $url = $this->_extractSearchParams();
 		unset ($params['team']);
-		// TODO: Eliminate hard-coded group_id
-		$this->_handlePersonSearch($params, $url, $this->Team->Person, array('group_id' => 2));
+		// TODO: Eliminate hard-coded group_ids
+		$this->_handlePersonSearch($params, $url, $this->Team->Person, array('group_id' => array(2,3)));
 
 		$this->Team->Person->contain(array (
 			'Team' => array(
@@ -2455,7 +2455,16 @@ class TeamsController extends AppController {
 			unset ($roster_role_options['none']);
 		}
 
-		// Admins, coordinators and captains can make anyone anything
+		// Check for some group membership
+		// TODO: Eliminate hard-coded group_ids
+		$groups = $this->UserCache->read('GroupIDs', $person_id);
+		if (!in_array(2, $groups)) {
+			foreach (Configure::read('extended_playing_roster_roles') as $role) {
+				unset($roster_role_options[$role]);
+			}
+		}
+
+		// Admins, coordinators and captains can make anyone anything that's left
 		if ($this->effective_admin || $this->effective_coordinator ||
 			in_array($team['Team']['id'], $this->UserCache->read('OwnedTeamIDs')))
 		{
