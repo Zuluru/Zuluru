@@ -280,7 +280,7 @@ class RuleComponent extends Object
 		if (Configure::read('feature.affiliate')) {
 			$conditions['AffiliatePerson.affiliate_id'] = $affiliate;
 			$joins['AffiliatePerson'] = array(
-				'table' => "{$this->Person->tablePrefix}affiliates_people",
+				'table' => "{$this->_controller->Person->tablePrefix}affiliates_people",
 				'alias' => 'AffiliatePerson',
 				'type' => 'INNER',
 				'foreignKey' => false,
