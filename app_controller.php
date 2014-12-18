@@ -1460,18 +1460,25 @@ class AppController extends Controller {
 						$this->_generateSearchConditions($params, 'Person', 'AffiliatePerson'),
 						$conditions
 					),
-					'contain' => array(
-						'Group',
-						'Affiliate',
-					),
+					'contain' => false,
+					'fields' => array('DISTINCT Person.id', 'Person.first_name', 'Person.last_name'),
 					'limit' => Configure::read('feature.items_per_page'),
-					'joins' => array(array(
-						'table' => "{$this->Person->tablePrefix}affiliates_people",
-						'alias' => 'AffiliatePerson',
-						'type' => 'LEFT',
-						'foreignKey' => false,
-						'conditions' => 'AffiliatePerson.person_id = Person.id',
-					)),
+					'joins' => array(
+						array(
+							'table' => "{$this->Person->tablePrefix}affiliates_people",
+							'alias' => 'AffiliatePerson',
+							'type' => 'LEFT',
+							'foreignKey' => false,
+							'conditions' => 'AffiliatePerson.person_id = Person.id',
+						),
+						array(
+							'table' => "{$this->Person->tablePrefix}groups_people",
+							'alias' => 'GroupPerson',
+							'type' => 'LEFT',
+							'foreignKey' => false,
+							'conditions' => 'GroupPerson.person_id = Person.id',
+						),
+					),
 				);
 				$this->set('people', $this->paginate('Person'));
 			}

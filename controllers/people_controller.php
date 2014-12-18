@@ -2381,32 +2381,36 @@ class PeopleController extends AppController {
 			if (!empty($people)) {
 				$conditions = array('Person.id' => $people);
 				if (array_key_exists('affiliate_id', $params)) {
-					$admins = $this->Person->GroupsPerson->find('list', array(
-							// TODO: Eliminate hard-coded group_id
-							'conditions' => array('group_id' => 7),
-							'fields' => array('person_id', 'person_id'),
-					));
-					$conditions['OR'] = array(
+					$conditions[] = array('OR' => array(
 						"AffiliatePerson.affiliate_id" => $params['affiliate_id'],
-						'Person.id' => $admins,
-					);
+						// TODO: Eliminate hard-coded group_id
+						'group_id' => 7,
+					));
 				}
 
 				if ($this->params['url']['ext'] == 'csv') {
 					Configure::write ('debug', 0);
 					$this->set('people', $this->Person->find ('all', array(
-							'contain' => array(
-								'Affiliate',
-							),
 							'conditions' => $conditions,
+							'contain' => false,
+							'fields' => array('DISTINCT Person.id', 'Person.*'),
 							'order' => array('Person.last_name', 'Person.first_name', 'Person.id'),
-							'joins' => array(array(
-								'table' => "{$this->Person->tablePrefix}affiliates_people",
-								'alias' => 'AffiliatePerson',
-								'type' => 'LEFT',
-								'foreignKey' => false,
-								'conditions' => 'AffiliatePerson.person_id = Person.id',
-							)),
+							'joins' => array(
+								array(
+									'table' => "{$this->Person->tablePrefix}affiliates_people",
+									'alias' => 'AffiliatePerson',
+									'type' => 'LEFT',
+									'foreignKey' => false,
+									'conditions' => 'AffiliatePerson.person_id = Person.id',
+								),
+								array(
+									'table' => "{$this->Person->tablePrefix}groups_people",
+									'alias' => 'GroupPerson',
+									'type' => 'LEFT',
+									'foreignKey' => false,
+									'conditions' => 'GroupPerson.person_id = Person.id',
+								),
+							),
 					)));
 					$this->set('download_file_name', 'Search results');
 					$this->render('rule_search');
@@ -2417,16 +2421,25 @@ class PeopleController extends AppController {
 							'conditions' => $conditions,
 							'contain' => array(
 								'Note' => array('conditions' => array('created_person_id' => $this->UserCache->currentId())),
-								'Affiliate',
 							),
+							'fields' => array('DISTINCT Person.id', 'Person.first_name', 'Person.last_name'),
 							'limit' => Configure::read('feature.items_per_page'),
-							'joins' => array(array(
-								'table' => "{$this->Person->tablePrefix}affiliates_people",
-								'alias' => 'AffiliatePerson',
-								'type' => 'LEFT',
-								'foreignKey' => false,
-								'conditions' => 'AffiliatePerson.person_id = Person.id',
-							)),
+							'joins' => array(
+								array(
+									'table' => "{$this->Person->tablePrefix}affiliates_people",
+									'alias' => 'AffiliatePerson',
+									'type' => 'LEFT',
+									'foreignKey' => false,
+									'conditions' => 'AffiliatePerson.person_id = Person.id',
+								),
+								array(
+									'table' => "{$this->Person->tablePrefix}groups_people",
+									'alias' => 'GroupPerson',
+									'type' => 'LEFT',
+									'foreignKey' => false,
+									'conditions' => 'GroupPerson.person_id = Person.id',
+								),
+							),
 					));
 					$this->set('people', $this->paginate('Person'));
 				}

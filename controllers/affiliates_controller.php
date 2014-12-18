@@ -155,14 +155,9 @@ class AffiliatesController extends AppController {
 		unset ($params['affiliate']);
 		unset ($params['person']);
 
-		$people = $this->Affiliate->Person->GroupsPerson->find('list', array(
-				// TODO: Eliminate hard-coded group_ids
-				'conditions' => array('group_id' => array(6,7)),
-				'fields' => array('person_id', 'person_id'),
-		));
-
 		$this->_handlePersonSearch($params, $url, $this->Affiliate->Person,
-				array('Person.id' => $people));
+				// TODO: Eliminate hard-coded group_ids
+				array('group_id' => array(6,7)));
 	}
 
 	function remove_manager() {

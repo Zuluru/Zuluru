@@ -399,6 +399,20 @@ class Person extends AppModel {
 		parent::__construct($id, $table, $ds);
 	}
 
+	// The _handlePersonSearch and _handleRuleSearch functions need custom counting.
+	function paginateCount($conditions = null, $recursive = 0, $extra = array()) {
+		// This functionality is mostly copied directly from the standard implementation.
+		// If a situation ever arises where we don't want to count distinct person ids
+		// in this function, something will need to change to differentiate that situation
+		// from searches.
+		$parameters = compact('conditions');
+		if ($recursive != $this->recursive) {
+			$parameters['recursive'] = $recursive;
+		}
+		$parameters['fields'] = 'DISTINCT Person.id';
+		return $this->find('count', array_merge($parameters, $extra));
+	}
+
 	function beforeValidate() {
 		// Save or restore the default validation info, for when we save a few records
 		if (!isset($this->defaultValidate)) {

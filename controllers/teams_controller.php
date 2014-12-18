@@ -1760,7 +1760,8 @@ class TeamsController extends AppController {
 
 		$params = $url = $this->_extractSearchParams();
 		unset ($params['team']);
-		$this->_handlePersonSearch($params, $url, $this->Team->Person);
+		// TODO: Eliminate hard-coded group_id
+		$this->_handlePersonSearch($params, $url, $this->Team->Person, array('group_id' => 2));
 
 		$this->Team->Person->contain(array (
 			'Team' => array(
