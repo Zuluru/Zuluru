@@ -1394,6 +1394,14 @@ class AppController extends Controller {
 
 	function _extractEmails($input, $array = false) {
 		if (is_array ($input)) {
+			if (array_key_exists('Person', $input)) {
+				return $this->_extractEmails($input['Person'], $array);
+			} else if (array_key_exists('Relative', $input)) {
+				return $this->_extractEmails($input['Relative'], $array);
+			} else if (array_key_exists($model, $input)) {
+				return $this->_extractEmails($input[$model], $array);
+			}
+
 			$emails = array();
 
 			$model = Configure::read('security.auth_model');
