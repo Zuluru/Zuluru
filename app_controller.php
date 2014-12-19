@@ -1392,51 +1392,40 @@ class AppController extends Controller {
 		return $success;
 	}
 
-	function _extractEmails($input, $array = false) {
+	function _extractEmails($input, $array = false, $check_relatives = true) {
 		if (is_array ($input)) {
-			if (array_key_exists('Person', $input)) {
-				return $this->_extractEmails($input['Person'], $array);
-			} else if (array_key_exists('Relative', $input)) {
-				return $this->_extractEmails($input['Relative'], $array);
-			} else if (array_key_exists($model, $input)) {
-				return $this->_extractEmails($input[$model], $array);
-			}
-
 			$emails = array();
 
-			$model = Configure::read('security.auth_model');
-			foreach ($input as $person) {
-				$is_person = true;
-				if (array_key_exists('Person', $person)) {
-					$person = $person['Person'];
-				} else if (array_key_exists('Relative', $person)) {
-					$person = $person['Relative'];
-				} else if (array_key_exists($model, $person)) {
-					$person = $person[$model];
-					$is_person = false;
-				}
+			if (!empty($input['email_formatted'])) {
+				$emails[$input['email']] = $input['email_formatted'];
+			} else if (!empty($input['email'])) {
+				$emails[$input['email']] = $input['email'];
+			}
+			if (!empty($input['alternate_email'])) {
+				$emails[$input['alternate_email']] = $input['alternate_email'];
+			}
 
-				if (!empty($person['email_formatted'])) {
-					$emails[] = $person['email_formatted'];
-				} else if (!empty($person['email'])) {
-					$emails[] = $person['email'];
-				}
+			// Check for relatives, if this is a person record without a user record
+			if ($check_relatives && !empty($input['id']) && !empty($input['first_name']) && empty($input['user_id'])) {
+				$relatives = $this->UserCache->read('RelatedTo', $input['id']);
+				$emails = array_merge($this->_extractEmails($relatives, true, false), $emails);
+			}
 
-				if (!empty($person['alternate_email'])) {
-					$emails[] = $person['alternate_email'];
-				}
-
-				if ($is_person && empty($person['user_id']) && !empty($person['id'])) {
-					$relatives = $this->UserCache->read('RelatedTo', $person['id']);
-					$emails = array_merge($emails, $this->_extractEmails($relatives, true));
+			// If we haven't found anything yet, look further down the hierarchy
+			if (empty($emails)) {
+				foreach ($input as $values) {
+					if (is_array($values)) {
+						$emails = array_merge($this->_extractEmails($values, true, $check_relatives), $emails);
+					}
 				}
 			}
 
-			if (count ($emails) >= 1 && !$array) {
+			if (!empty($emails) && !$array) {
 				return reset($emails);
 			}
 			return array_unique($emails);
 		}
+
 		// Anything else, return as-is and hope for the best!
 		if ($array) {
 			return array($input);
