@@ -2461,8 +2461,8 @@ class TeamsController extends AppController {
 		// TODO: Eliminate hard-coded group_ids
 		$groups = $this->UserCache->read('GroupIDs', $person_id);
 		if (!in_array(2, $groups)) {
-			foreach (Configure::read('extended_playing_roster_roles') as $role) {
-				unset($roster_role_options[$role]);
+			foreach (Configure::read('extended_playing_roster_roles') as $playing_role) {
+				unset($roster_role_options[$playing_role]);
 			}
 		}
 
@@ -2473,11 +2473,7 @@ class TeamsController extends AppController {
 			return $roster_role_options;
 		}
 
-		// Non-captains are not allowed to promote themselves to captainly roles
-		foreach (Configure::read('privileged_roster_roles') as $cap) {
-			unset ($roster_role_options[$cap]);
-		}
-
+		// Special handling of a couple of current roles
 		switch ($role) {
 			case 'substitute':
 				// Subs can't make themselves regular players
@@ -2489,6 +2485,16 @@ class TeamsController extends AppController {
 					$this->Session->setFlash(__('Sorry, this team is not open for new players to join.', true), 'default', array('class' => 'info'));
 					$this->redirect(array('action' => 'view', 'team' => $team['Team']['id']));
 				}
+				// The "none" role means they're not on the team, so either they are being added
+				// by a captain or admin, or they are requesting to join and need to be confirmed
+				// before they will have any permissions. Either way, captainly roles should be
+				// an option.
+				return $roster_role_options;
+		}
+
+		// Non-captains are not allowed to promote themselves to captainly roles
+		foreach (Configure::read('privileged_roster_roles') as $captain_role) {
+			unset ($roster_role_options[$captain_role]);
 		}
 
 		// Whatever is left is okay
@@ -2667,7 +2673,7 @@ class TeamsController extends AppController {
 			}
 		}
 
-		if ($role !== null && $status != ROSTER_INVITED) {
+		if ($role !== null && $status != ROSTER_INVITED && $status != ROSTER_REQUESTED) {
 			$roster_role_options = $this->_rosterRoleOptions (null, $team, $person['Person']['id']);
 			if (!array_key_exists ($role, $roster_role_options)) {
 				return __('You are not allowed to invite someone to that role.', true);
