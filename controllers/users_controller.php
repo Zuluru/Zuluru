@@ -369,6 +369,7 @@ class UsersController extends AppController {
 							$names[] = $data['Person']['last_name'];
 						}
 						$data['Person']['full_name'] = implode(' ', $names);
+						$data['Person']['email'] = $data[$this->Auth->authenticate->alias][$this->Auth->authenticate->emailField];
 						$data['Person']['email_formatted'] = "{$data['Person']['full_name']} <{$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->emailField]}>";
 						if (!empty($this->Auth->authenticate->nameField) && empty($data[$this->Auth->authenticate->alias][$this->Auth->authenticate->nameField])) {
 							$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->nameField] = $data['Person']['full_name'];
