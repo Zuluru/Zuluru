@@ -936,7 +936,7 @@ class GamesController extends AppController {
 			$this->Game->Division->Team->contain(array('Person' => array(
 				$this->Auth->authenticate->name,
 				'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-				'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
+				'fields' => array('Person.id', 'Person.user_id', 'Person.first_name', 'Person.last_name', 'Person.alternate_email'),
 			)));
 			$team = $this->Game->Division->Team->read(null, $game['Game']['home_team']);
 			$game['HomeTeam']['Person'] = $team['Person'];
@@ -944,7 +944,7 @@ class GamesController extends AppController {
 			$this->Game->Division->Team->contain(array('Person' => array(
 				$this->Auth->authenticate->name,
 				'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-				'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
+				'fields' => array('Person.id', 'Person.user_id', 'Person.first_name', 'Person.last_name', 'Person.alternate_email'),
 			)));
 			$team = $this->Game->Division->Team->read(null, $game['Game']['away_team']);
 			$game['AwayTeam']['Person'] = $team['Person'];
@@ -1994,7 +1994,7 @@ class GamesController extends AppController {
 			'Division' => array(
 				'Person' => array(
 					$this->Auth->authenticate->name,
-					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
+					'fields' => array('Person.id', 'Person.user_id', 'Person.first_name', 'Person.last_name', 'Person.alternate_email'),
 				),
 				'League',
 			),
@@ -2011,7 +2011,7 @@ class GamesController extends AppController {
 						$this->Auth->authenticate->name,
 						'conditions' => array('TeamsPerson.role' => Configure::read('extended_playing_roster_roles')),
 						'fields' => array(
-							'Person.id', 'Person.first_name', 'Person.last_name', 'Person.gender',
+							'Person.id', 'Person.user_id', 'Person.first_name', 'Person.last_name', 'Person.alternate_email', 'Person.gender',
 						),
 					),
 				),
@@ -2020,7 +2020,7 @@ class GamesController extends AppController {
 						$this->Auth->authenticate->name,
 						'conditions' => array('TeamsPerson.role' => Configure::read('extended_playing_roster_roles')),
 						'fields' => array(
-							'Person.id', 'Person.first_name', 'Person.last_name', 'Person.gender',
+							'Person.id', 'Person.user_id', 'Person.first_name', 'Person.last_name', 'Person.alternate_email', 'Person.gender',
 						),
 					),
 				),
@@ -2033,7 +2033,7 @@ class GamesController extends AppController {
 						$this->Auth->authenticate->name,
 						'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 						'fields' => array(
-							'Person.id', 'Person.first_name', 'Person.last_name', 'Person.gender',
+							'Person.id', 'Person.user_id', 'Person.first_name', 'Person.last_name', 'Person.alternate_email', 'Person.gender',
 						),
 					),
 				),
@@ -2042,7 +2042,7 @@ class GamesController extends AppController {
 						$this->Auth->authenticate->name,
 						'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
 						'fields' => array(
-							'Person.id', 'Person.first_name', 'Person.last_name', 'Person.gender',
+							'Person.id', 'Person.user_id', 'Person.first_name', 'Person.last_name', 'Person.alternate_email', 'Person.gender',
 						),
 					),
 				),
@@ -2588,7 +2588,7 @@ class GamesController extends AppController {
 			'Division' => array(
 				'Person' => array(
 					$this->Auth->authenticate->name,
-					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
+					'fields' => array('Person.id', 'Person.user_id', 'Person.first_name', 'Person.last_name', 'Person.alternate_email'),
 				),
 				'League',
 			),
@@ -2599,14 +2599,14 @@ class GamesController extends AppController {
 				'Person' => array(
 					$this->Auth->authenticate->name,
 					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
+					'fields' => array('Person.id', 'Person.user_id', 'Person.first_name', 'Person.last_name', 'Person.alternate_email'),
 				),
 			),
 			'AwayTeam' => array(
 				'Person' => array(
 					$this->Auth->authenticate->name,
 					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
+					'fields' => array('Person.id', 'Person.user_id', 'Person.first_name', 'Person.last_name', 'Person.alternate_email'),
 				),
 			),
 			'ScoreReminderEmail',
@@ -3193,7 +3193,7 @@ class GamesController extends AppController {
 			'Division' => array(
 				'Person' => array(
 					$this->Auth->authenticate->name,
-					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
+					'fields' => array('Person.id', 'Person.user_id', 'Person.first_name', 'Person.last_name', 'Person.alternate_email'),
 				),
 				'League',
 			),
@@ -3236,7 +3236,7 @@ class GamesController extends AppController {
 				$this->Game->Division->Team->contain(array('Person' => array(
 					$this->Auth->authenticate->name,
 					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
+					'fields' => array('Person.id', 'Person.user_id', 'Person.first_name', 'Person.last_name', 'Person.alternate_email'),
 				)));
 				$team = $this->Game->Division->Team->read(null, $game['Game']['home_team']);
 				$teams[$game['Game']['home_team']] = $team['Team'];
@@ -3247,7 +3247,7 @@ class GamesController extends AppController {
 				$this->Game->Division->Team->contain(array('Person' => array(
 					$this->Auth->authenticate->name,
 					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
+					'fields' => array('Person.id', 'Person.user_id', 'Person.first_name', 'Person.last_name', 'Person.alternate_email'),
 				)));
 				$team = $this->Game->Division->Team->read(null, $game['Game']['away_team']);
 				$teams[$game['Game']['away_team']] = $team['Team'];
@@ -3359,7 +3359,7 @@ class GamesController extends AppController {
 				$this->Game->Division->Team->contain(array('Person' => array(
 					$this->Auth->authenticate->name,
 					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
+					'fields' => array('Person.id', 'Person.user_id', 'Person.first_name', 'Person.last_name', 'Person.alternate_email'),
 				)));
 				$team = $this->Game->Division->Team->read(null, $game['Game']['home_team']);
 				$teams[$game['Game']['home_team']] = $team['Team'];
@@ -3370,7 +3370,7 @@ class GamesController extends AppController {
 				$this->Game->Division->Team->contain(array('Person' => array(
 					$this->Auth->authenticate->name,
 					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
+					'fields' => array('Person.id', 'Person.user_id', 'Person.first_name', 'Person.last_name', 'Person.alternate_email'),
 				)));
 				$team = $this->Game->Division->Team->read(null, $game['Game']['away_team']);
 				$teams[$game['Game']['away_team']] = $team['Team'];
