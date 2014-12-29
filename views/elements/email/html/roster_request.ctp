@@ -19,8 +19,9 @@ $url = Router::url(array('controller' => 'teams', 'action' => 'roster_decline', 
 echo $this->Html->link(__('Decline the request', true), $url);
 ?></p>
 <p>Please be advised that players are NOT considered a part of a team roster until their request to join has been accepted by a captain. The <?php
-echo $team['name']; ?> roster must be completed (minimum of <?php
-echo Configure::read("sport.roster_requirements.{$division['ratio']}"); ?> rostered players) by the team roster deadline (<?php
+echo $team['name']; ?> roster must be completed  <?php
+$min = Configure::read("sport.roster_requirements.{$division['ratio']}");
+if ($min > 0): ?>(minimum of <?php echo $min; ?> rostered players) <?php endif; ?>by the team roster deadline (<?php
 echo $this->ZuluruTime->date(Division::rosterDeadline($division));
 ?>), and all team members must have been accepted by the captain.</p>
 <p>Thanks,
