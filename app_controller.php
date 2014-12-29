@@ -1401,7 +1401,9 @@ class AppController extends Controller {
 			} else if (!empty($input['email'])) {
 				$emails[$input['email']] = $input['email'];
 			}
-			if (!empty($input['alternate_email'])) {
+			if (!empty($input['alternate_email_formatted'])) {
+				$emails[$input['alternate_email']] = $input['alternate_email_formatted'];
+			} else if (!empty($input['alternate_email'])) {
 				$emails[$input['alternate_email']] = $input['alternate_email'];
 			}
 
