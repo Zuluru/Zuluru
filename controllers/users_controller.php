@@ -602,7 +602,7 @@ class UsersController extends AppController {
 		$this->set ($user);
 		$this->set ('code', str_replace('/', '_', substr($user['password'], -8)));
 		return $this->_sendMail (array (
-				'to' => $user['email_formatted'],
+				'to' => $user,
 				'subject' => 'Password reset code',
 				'template' => 'password_reset',
 				'sendAs' => 'both',
@@ -622,7 +622,7 @@ class UsersController extends AppController {
 			$this->set ($user);
 			$this->set (compact('password'));
 			return $this->_sendMail (array (
-					'to' => $user['email_formatted'],
+					'to' => $user,
 					'subject' => 'New password',
 					'template' => 'password_new',
 					'sendAs' => 'both',
