@@ -1700,7 +1700,7 @@ class TeamsController extends AppController {
 		$this->Team->contain(array (
 			'Person' => array(
 				'fields' => array(
-					'Person.first_name', 'Person.last_name',
+					'Person.id', 'Person.user_id', 'Person.first_name', 'Person.last_name', 'Person.alternate_email',
 				),
 				'order' => array(
 					'TeamsPerson.role', 'Person.gender DESC', 'Person.last_name', 'Person.first_name',

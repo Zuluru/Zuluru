@@ -525,6 +525,13 @@ class Person extends AppModel {
 					$record[$this->alias]['email_formatted'] = $record[$this->alias]['email'];
 				}
 			}
+			if (!empty($record[$this->alias]['alternate_email'])) {
+				if (!empty ($record[$this->alias]['full_name'])) {
+					$record[$this->alias]['alternate_email_formatted'] = "\"{$record[$this->alias]['full_name']} (alternate)\" <{$record[$this->alias]['alternate_email']}>";
+				} else {
+					$record[$this->alias]['alternate_email_formatted'] = $record[$this->alias]['alternate_email'];
+				}
+			}
 		}
 
 		if (array_key_exists ('alternate_first_name', $record[$this->alias]) && array_key_exists ('alternate_last_name', $record[$this->alias])) {
