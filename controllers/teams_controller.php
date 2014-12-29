@@ -2401,8 +2401,10 @@ class TeamsController extends AppController {
 				$this->Auth->authenticate->name,
 				'fields' => array(
 					'Person.id',
+					'Person.user_id',
 					'Person.first_name',
 					'Person.last_name',
+					'Person.alternate_email',
 					'Person.gender',
 					'Person.status',
 					'Person.complete',
@@ -2977,8 +2979,9 @@ class TeamsController extends AppController {
 				'conditions' => array(
 					'TeamsPerson.role' => Configure::read('privileged_roster_roles'),
 					'TeamsPerson.status' => ROSTER_APPROVED,
+					'TeamsPerson.person_id !=' => $this->UserCache->currentId(),
 				),
-				'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
+				'fields' => array('Person.id', 'Person.user_id', 'Person.first_name', 'Person.last_name', 'Person.alternate_email'),
 			),
 		));
 		$captains = $this->Team->read (null, $team['Team']['id']);
@@ -3043,7 +3046,7 @@ class TeamsController extends AppController {
 					'contain' => array(
 						'Person' => array(
 							$this->Auth->authenticate->name,
-							'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
+							'fields' => array('Person.id', 'Person.user_id', 'Person.first_name', 'Person.last_name', 'Person.alternate_email'),
 						),
 					),
 			));
