@@ -11,16 +11,16 @@ You need to be logged into the website to update this.
 
 We ask that you please accept or decline this request at your earliest convenience. The request will expire after a couple of weeks.
 
-If you accept the invitation, <?php echo $person['first_name']; ?> will be added to the team's roster as a <?php
+If you accept the request, <?php echo $person['first_name']; ?> will be added to the team's roster as a <?php
 echo Configure::read("options.roster_role.$role"); ?>. You have the option of changing their role on the team afterwards.
 
-Accept the invitation here:
+Accept the request here:
 <?php echo Router::url(array('controller' => 'teams', 'action' => 'roster_accept', 'team' => $team['id'], 'person' => $person['id'], 'code' => $code), true); ?>
 
 
-If you decline the invitation they will be removed from this team's roster.
+If you decline the request they will be removed from this team's roster.
 
-Decline the invitation here:
+Decline the request here:
 <?php echo Router::url(array('controller' => 'teams', 'action' => 'roster_decline', 'team' => $team['id'], 'person' => $person['id'], 'code' => $code), true); ?>
 
 
