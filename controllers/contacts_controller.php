@@ -8,7 +8,7 @@ class ContactsController extends AppController {
 	function isAuthorized() {
 		// Anyone that's logged in can perform these operations
 		if (in_array ($this->params['action'], array(
-				'contact',
+				'message',
 		)))
 		{
 			return true;
@@ -158,11 +158,11 @@ class ContactsController extends AppController {
 						'sendAs' => 'text',
 				)))
 				{
-					$this->Session->setFlash(__('Your message has been sent.', true), 'default', array('class' => 'success'), 'email');
+					$this->Session->setFlash(__('Your message has been sent.', true), 'default', array('class' => 'success'));
 					$this->redirect('/');
 				}
 
-				$this->Session->setFlash(__('Error sending email.', true), 'default', array('class' => 'error'), 'email');
+				$this->Session->setFlash(__('Error sending email.', true), 'default', array('class' => 'error'));
 			}
 		}
 
