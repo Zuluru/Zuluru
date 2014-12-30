@@ -22,7 +22,4 @@ endif; ?>
 <?php endif; ?>
 If you have any questions or concerns about this, please contact <?php echo $this->Html->link(Configure::read('email.admin_name'), 'mailto:' . Configure::read('email.admin_email')); ?>.
 
-Thanks,
-<?php echo Configure::read('email.admin_name'); ?>
-
-<?php echo Configure::read('organization.short_name'); ?> web team
+<?php echo $this->element('email/text/footer'); ?>

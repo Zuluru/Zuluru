@@ -9,7 +9,4 @@ The <?php echo $team['name']; ?> roster may be accessed at
 
 You need to be logged into the website to update this.
 
-Thanks,
-<?php echo Configure::read('email.admin_name'); ?>
-
-<?php echo Configure::read('organization.short_name'); ?> web team
+<?php echo $this->element('email/text/footer'); ?>

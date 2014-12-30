@@ -19,7 +19,4 @@ echo $this->ZuluruTime->date($event['TeamEvent']['date']);
 
 
 <?php endif; ?>
-Thanks,
-<?php echo Configure::read('email.admin_name'); ?>
-
-<?php echo Configure::read('organization.short_name'); ?> web team
+<?php echo $this->element('email/text/footer'); ?>

@@ -8,6 +8,4 @@ echo $this->Html->link (__('here', true), $this->Html->url(array('controller' =>
 ?>, and change your password <?php
 echo $this->Html->link (__('here', true), $this->Html->url(array('controller' => 'users', 'action' => 'change_password'), true));
 ?>.</p>
-<p>Thanks,
-<br /><?php echo Configure::read('email.admin_name'); ?>
-<br /><?php echo Configure::read('organization.short_name'); ?> web team</p>
+<?php echo $this->element('email/html/footer'); ?>

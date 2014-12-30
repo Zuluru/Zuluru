@@ -14,6 +14,4 @@ if ($year_end != $year) {
 echo $this->ZuluruTime->date($event['Event']['membership_begins']); ?> to <?php
 echo $this->ZuluruTime->date($event['Event']['membership_ends']); ?>. If you have any questions regarding your membership, league concerns, or otherwise please feel free to contact us at <a href="mailto:<?php echo Configure::read('email.admin_email'); ?>"><?php echo Configure::read('email.admin_email'); ?></a>.</p>
 <p>Have a great season in <?php echo $year; ?>!</p>
-<p>Thanks,
-<br /><?php echo Configure::read('email.admin_name'); ?>
-<br /><?php echo Configure::read('organization.short_name'); ?> web team</p>
+<?php echo $this->element('email/html/footer'); ?>

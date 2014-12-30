@@ -12,6 +12,4 @@ $min = Configure::read("sport.roster_requirements.{$division['ratio']}");
 if ($min > 0): ?>(minimum of <?php echo $min; ?> rostered players) <?php endif; ?>by the team roster deadline (<?php
 echo $this->ZuluruTime->date(Division::rosterDeadline($division));
 ?>), and all team members must have been accepted by the captain.</p>
-<p>Thanks,
-<br /><?php echo Configure::read('email.admin_name'); ?>
-<br /><?php echo Configure::read('organization.short_name'); ?> web team</p>
+<?php echo $this->element('email/html/footer'); ?>

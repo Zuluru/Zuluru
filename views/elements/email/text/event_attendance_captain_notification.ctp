@@ -32,7 +32,4 @@ echo Router::url(array('controller' => 'team_events', 'action' => 'attendance_ch
 Either of these actions will generate an automatic email to <?php echo $person['first_name']; ?> indicating your selection. If you are unsure whether you will want <?php echo $person['first_name']; ?> to attend this event, it's best to leave <?php echo ($person['gender'] == 'Male' ? 'him' : 'her'); ?> listed as available, and take action later when you know for sure. You can always update <?php echo ($person['gender'] == 'Male' ? 'his' : 'her'); ?> status on the web site, there is no need to keep this email for that purpose.
 
 <?php endif; ?>
-Thanks,
-<?php echo Configure::read('email.admin_name'); ?>
-
-<?php echo Configure::read('organization.short_name'); ?> web team
+<?php echo $this->element('email/text/footer'); ?>

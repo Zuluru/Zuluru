@@ -11,7 +11,4 @@ echo Router::url (array('controller' => 'users', 'action' => 'reset_password'), 
 
 If the above email address is no longer correct, please reply to this message and request an address change.
 
-Thanks,
-<?php echo Configure::read('email.admin_name'); ?>
-
-<?php echo Configure::read('organization.short_name'); ?> web team
+<?php echo $this->element('email/text/footer'); ?>

@@ -16,7 +16,4 @@ This will help to ensure that those who are still interested get offered the spo
 
 If you have any questions about this, please contact the head office.
 
-Thanks,
-<?php echo Configure::read('email.admin_name'); ?>
-
-<?php echo Configure::read('organization.short_name'); ?> web team
+<?php echo $this->element('email/text/footer'); ?>

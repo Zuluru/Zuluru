@@ -5,6 +5,4 @@
 <p><?php echo $comment; ?></p>
 <?php endif; ?>
 <p>If you believe that this happened in error, please contact us.</p>
-<p>Thanks,
-<br /><?php echo Configure::read('email.admin_name'); ?>
-<br /><?php echo Configure::read('organization.short_name'); ?> web team</p>
+<?php echo $this->element('email/html/footer'); ?>

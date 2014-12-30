@@ -16,7 +16,4 @@ echo Configure::read('scoring.missing_score_spirit_penalty'); ?> points. Overall
 If there is an exceptional reason why you were unable to submit your score in time, you may contact your coordinator who will consider reversing the penalty. To avoid such penalties in the future, please be sure to submit your scores promptly.
 
 <?php endif; ?>
-Thanks,
-<?php echo Configure::read('email.admin_name'); ?>
-
-<?php echo Configure::read('organization.short_name'); ?> web team
+<?php echo $this->element('email/text/footer'); ?>

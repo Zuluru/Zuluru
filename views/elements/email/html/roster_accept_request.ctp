@@ -5,6 +5,4 @@ $url = Router::url(array('controller' => 'teams', 'action' => 'view', 'team' => 
 echo $this->Html->link($team['name'], $url);
 ?> as a <?php
 echo Configure::read("options.roster_role.$role"); ?>.</p>
-<p>Thanks,
-<br /><?php echo Configure::read('email.admin_name'); ?>
-<br /><?php echo Configure::read('organization.short_name'); ?> web team</p>
+<?php echo $this->element('email/html/footer'); ?>

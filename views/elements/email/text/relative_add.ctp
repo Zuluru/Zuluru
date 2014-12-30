@@ -15,7 +15,4 @@ Decline the request here:
 <?php echo Router::url(array('controller' => 'people', 'action' => 'remove_relative', 'person' => $relative['id'], 'relative' => $person['id'], 'code' => $code), true); ?>
 
 
-Thanks,
-<?php echo Configure::read('email.admin_name'); ?>
-
-<?php echo Configure::read('organization.short_name'); ?> web team
+<?php echo $this->element('email/text/footer'); ?>

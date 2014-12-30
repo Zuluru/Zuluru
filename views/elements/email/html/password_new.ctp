@@ -5,3 +5,4 @@
 echo $this->Html->link (__('here', true), $this->Html->url(array('controller' => 'users', 'action' => 'change_password'), true));
 ?>.</p>
 <p>If you didn't ask for this, don't worry. You are seeing this message, not 'them'. If this was an error just log in with your new password.</p>
+<?php echo $this->element('email/html/footer'); ?>

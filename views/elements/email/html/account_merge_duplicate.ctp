@@ -5,6 +5,4 @@ if (!empty($person['Person']['user_name'])): ?> with the username <?php
 	echo $existing['Person']['user_name']; ?> created using the email address <?php
 	echo $existing['Person']['email']; ?><?php endif; ?>.</p>
 <p>To preserve historical information (registrations, team records, etc.) this old account has been merged with your new information. You will be able to access this account with your newly chosen user name and password.</p>
-<p>Thanks,
-<br /><?php echo Configure::read('email.admin_name'); ?>
-<br /><?php echo Configure::read('organization.short_name'); ?> web team</p>
+<?php echo $this->element('email/html/footer'); ?>

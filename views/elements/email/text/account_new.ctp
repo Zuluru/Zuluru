@@ -14,7 +14,4 @@ echo $this->Html->url(array('controller' => 'people', 'action' => 'edit'), true)
 echo $this->Html->url(array('controller' => 'users', 'action' => 'change_password'), true);
 ?>.
 
-Thanks,
-<?php echo Configure::read('email.admin_name'); ?>
-
-<?php echo Configure::read('organization.short_name'); ?> web team
+<?php echo $this->element('email/text/footer'); ?>

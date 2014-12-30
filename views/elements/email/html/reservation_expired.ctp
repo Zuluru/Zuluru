@@ -21,6 +21,4 @@ echo $this->Html->link(__('re-register for this', true), $url);
 ?>.</p>
 <?php endif; ?>
 <p>If you have any questions about this, please contact the head office.</p>
-<p>Thanks,
-<br /><?php echo Configure::read('email.admin_name'); ?>
-<br /><?php echo Configure::read('organization.short_name'); ?> web team</p>
+<?php echo $this->element('email/html/footer'); ?>

@@ -29,6 +29,4 @@ if ($division['finalize_after'] > 48) {
 if (Configure::read('scoring.missing_score_spirit_penalty') > 0): ?>
  and a loss of <?php echo Configure::read('scoring.missing_score_spirit_penalty'); ?> Spirit points<?php endif; ?>.</p>
 <?php endif; ?>
-<p>Thanks,
-<br /><?php echo Configure::read('email.admin_name'); ?>
-<br /><?php echo Configure::read('organization.short_name'); ?> web team</p>
+<?php echo $this->element('email/html/footer'); ?>

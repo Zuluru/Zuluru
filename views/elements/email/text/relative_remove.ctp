@@ -5,7 +5,4 @@ echo Configure::read('organization.name'); ?> web site.
 
 This is a notification only, there is no action required on your part.
 
-Thanks,
-<?php echo Configure::read('email.admin_name'); ?>
-
-<?php echo Configure::read('organization.short_name'); ?> web team
+<?php echo $this->element('email/text/footer'); ?>

@@ -29,7 +29,4 @@ echo Router::url(array('controller' => 'team_events', 'action' => 'attendance_ch
 ?>
 
 
-Thanks,
-<?php echo Configure::read('email.admin_name'); ?>
-
-<?php echo Configure::read('organization.short_name'); ?> web team
+<?php echo $this->element('email/text/footer'); ?>

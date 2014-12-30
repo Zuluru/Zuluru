@@ -15,7 +15,4 @@ When they assigned this badge, the administrator<?php endif; ?> provided this re
 
 <?php endif; ?>
 
-Thanks,
-<?php echo Configure::read('email.admin_name'); ?>
-
-<?php echo Configure::read('organization.short_name'); ?> web team
+<?php echo $this->element('email/text/footer'); ?>

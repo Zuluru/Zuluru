@@ -12,6 +12,4 @@ $url = Router::url(array('controller' => 'registrations', 'action' => 'unregiste
 echo $this->Html->link(__('remove yourself from the waiting list', true), $url);
 ?>. This will help to ensure that those who are still interested get offered the spot promptly.</p>
 <p>If you have any questions about this, please contact the head office.</p>
-<p>Thanks,
-<br /><?php echo Configure::read('email.admin_name'); ?>
-<br /><?php echo Configure::read('organization.short_name'); ?> web team</p>
+<?php echo $this->element('email/html/footer'); ?>

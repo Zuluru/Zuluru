@@ -11,3 +11,5 @@ echo $this->Html->url(array('controller' => 'users', 'action' => 'change_passwor
 
 
 If you didn't ask for this, don't worry. You are seeing this message, not 'them'. If this was an error just log in with your new password.
+
+<?php echo $this->element('email/text/footer'); ?>

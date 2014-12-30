@@ -4,6 +4,4 @@
 <p>The administrator provided this comment:</p>
 <p><?php echo $comment; ?></p>
 <?php endif; ?>
-<p>Thanks,
-<br /><?php echo Configure::read('email.admin_name'); ?>
-<br /><?php echo Configure::read('organization.short_name'); ?> web team</p>
+<?php echo $this->element('email/html/footer'); ?>

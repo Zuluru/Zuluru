@@ -12,7 +12,4 @@ More details about <?php echo $team['name']; ?> may be found at
 
 If you believe that this has happened in error, please contact <?php echo $reply; ?>.
 
-Thanks,
-<?php echo Configure::read('email.admin_name'); ?>
-
-<?php echo Configure::read('organization.short_name'); ?> web team
+<?php echo $this->element('email/text/footer'); ?>

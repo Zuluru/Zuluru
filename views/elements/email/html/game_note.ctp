@@ -16,6 +16,4 @@ echo $this->ZuluruTime->date($game['GameSlot']['game_date']);
 $url = Router::url(array('controller' => 'games', 'action' => 'view', 'game' => $game['Game']['id']), true);
 echo $this->Html->link('game details page', $url);
 ?>.</p>
-<p>Thanks,
-<br /><?php echo Configure::read('email.admin_name'); ?>
-<br /><?php echo Configure::read('organization.short_name'); ?> web team</p>
+<?php echo $this->element('email/html/footer'); ?>

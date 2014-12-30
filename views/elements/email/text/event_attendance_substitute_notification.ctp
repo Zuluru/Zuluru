@@ -40,7 +40,4 @@ echo Router::url($url_array, true);
 	endif;
 endforeach;
 ?>
-Thanks,
-<?php echo Configure::read('email.admin_name'); ?>
-
-<?php echo Configure::read('organization.short_name'); ?> web team
+<?php echo $this->element('email/text/footer'); ?>

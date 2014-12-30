@@ -17,6 +17,4 @@ echo $this->ZuluruTime->date($game['GameSlot']['game_date']);
 echo Configure::read('scoring.missing_score_spirit_penalty'); ?> points. Overall team spirit can impact participation in future events.</p>
 <p>If there is an exceptional reason why you were unable to submit your score in time, you may contact your coordinator who will consider reversing the penalty. To avoid such penalties in the future, please be sure to submit your scores promptly.</p>
 <?php endif; ?>
-<p>Thanks,
-<br /><?php echo Configure::read('email.admin_name'); ?>
-<br /><?php echo Configure::read('organization.short_name'); ?> web team</p>
+<?php echo $this->element('email/html/footer'); ?>

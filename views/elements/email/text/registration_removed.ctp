@@ -8,7 +8,4 @@ This event has now filled up, and in accordance with <?php echo Configure::read(
 
 If you have any questions about this, please contact the head office.
 
-Thanks,
-<?php echo Configure::read('email.admin_name'); ?>
-
-<?php echo Configure::read('organization.short_name'); ?> web team
+<?php echo $this->element('email/text/footer'); ?>

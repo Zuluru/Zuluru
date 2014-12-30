@@ -7,3 +7,5 @@ echo $this->Html->url(array('controller' => 'users', 'action' => 'reset_password
 ?> to confirm this request, and a new password will be created and emailed to you.
 
 If you didn't ask for this, don't worry. Just delete this e-mail message and your password will remain unchanged.
+
+<?php echo $this->element('email/text/footer'); ?>

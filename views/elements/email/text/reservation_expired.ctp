@@ -30,7 +30,4 @@ As you did not confirm your position with a payment in time, your registration h
 
 If you have any questions about this, please contact the head office.
 
-Thanks,
-<?php echo Configure::read('email.admin_name'); ?>
-
-<?php echo Configure::read('organization.short_name'); ?> web team
+<?php echo $this->element('email/text/footer'); ?>

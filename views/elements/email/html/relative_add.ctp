@@ -11,6 +11,4 @@ echo $this->Html->link(__('Accept the request', true), $url);
 $url = Router::url(array('controller' => 'people', 'action' => 'remove_relative', 'person' => $relative['id'], 'relative' => $person['id'], 'code' => $code), true);
 echo $this->Html->link(__('Decline the request', true), $url);
 ?></p>
-<p>Thanks,
-<br /><?php echo Configure::read('email.admin_name'); ?>
-<br /><?php echo Configure::read('organization.short_name'); ?> web team</p>
+<?php echo $this->element('email/html/footer'); ?>

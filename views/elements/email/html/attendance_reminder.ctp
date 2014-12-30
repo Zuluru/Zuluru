@@ -44,6 +44,4 @@ echo $this->Html->link(__('click here', true), $url);
 $url = Router::url(array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['id']), true);
 echo $this->Html->link(__('set your attendance in advance', true), $url);
 ?>, giving your captain advance notice of vacations or other planned absences. You need to be logged into the website to update this.</p>
-<p>Thanks,
-<br /><?php echo Configure::read('email.admin_name'); ?>
-<br /><?php echo Configure::read('organization.short_name'); ?> web team</p>
+<?php echo $this->element('email/html/footer'); ?>
