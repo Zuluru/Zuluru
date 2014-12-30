@@ -26,6 +26,8 @@ class PeopleController extends AppController {
 				'note',
 				'delete_note',
 				'nominate',
+				'nominate_badge',
+				'nominate_badge_reason',
 				'confirm',
 		)))
 		{
