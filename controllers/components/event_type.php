@@ -341,7 +341,7 @@ class EventTypeComponent extends Object
 			if (array_key_exists('answer_id', $answer[0]) && $answer[0]['answer_id'] !== null) {
 				return $answer[0]['answer_id'];
 			} else {
-				return $answer[0]['answer'];
+				return trim($answer[0]['answer']);
 			}
 		} else {
 			return null;
