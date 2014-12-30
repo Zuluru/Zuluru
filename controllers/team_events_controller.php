@@ -208,7 +208,7 @@ class TeamEventsController extends AppController {
 				'Person' => array(
 					$this->Auth->authenticate->name,
 					'conditions' => array('TeamsPerson.role' => Configure::read('privileged_roster_roles')),
-					'fields' => array('Person.id', 'Person.first_name', 'Person.last_name'),
+					'fields' => array('Person.id', 'Person.user_id', 'Person.first_name', 'Person.last_name', 'Person.alternate_email'),
 				),
 				'Division' => 'League',
 			),
