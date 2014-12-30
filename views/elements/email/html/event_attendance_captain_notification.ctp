@@ -13,7 +13,7 @@ echo ' (' . $this->Html->link($address, "http://maps.google.com/maps?q=$link_add
 ?> on <?php
 echo $this->ZuluruTime->date($event['TeamEvent']['date']);
 ?>.</p>
-<?php if (isset($comment)): ?>
+<?php if (!empty($comment)): ?>
 <p><?php echo $comment; ?></p>
 <?php endif; ?>
 <?php if ($status == ATTENDANCE_AVAILABLE): ?>

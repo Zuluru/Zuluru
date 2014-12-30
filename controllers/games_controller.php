@@ -1120,10 +1120,6 @@ class GamesController extends AppController {
 				// Make sure the current player isn't in the list of captains to send to
 				$captains = Set::extract ("/Person[id!={$person['id']}]", $team);
 				if (!empty ($captains)) {
-					if (array_key_exists('comment', $this->data['Person']) && !empty($this->data['Person']['comment'])) {
-						$this->set('comment', $this->data['Person']['comment']);
-					}
-
 					$this->set('captains', implode (', ', Set::extract ('/Person/first_name', $captains)));
 					$this->set('code', $this->_hash(array_merge ($attendance, array('captain' => true))));
 					$this->_sendMail (array (

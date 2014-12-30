@@ -11,11 +11,11 @@ echo Configure::read("event_attendance_verb.$status");
 echo $this->ZuluruTime->date($event['TeamEvent']['date']);
 ?>.
 
-<?php if (isset($comment)): ?>
+<?php if (!empty($comment)): ?>
 <?php echo $comment; ?>
 
-<?php endif; ?>
 
+<?php endif; ?>
 <?php if ($status == ATTENDANCE_AVAILABLE): ?>
 If you want <?php echo $person['first_name']; ?> to attend this event:
 <?php

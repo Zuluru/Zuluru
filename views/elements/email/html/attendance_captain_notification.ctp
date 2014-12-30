@@ -25,7 +25,7 @@ if (isset($game)) {
 ?> on <?php
 echo $this->ZuluruTime->date($date);
 ?>.</p>
-<?php if (isset($comment)): ?>
+<?php if (!empty($comment)): ?>
 <p><?php echo $comment; ?></p>
 <?php endif; ?>
 <?php if ($status == ATTENDANCE_AVAILABLE): ?>
