@@ -57,7 +57,12 @@ $balance = $registration['Registration']['total_amount'];
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Payment'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $registration['Registration']['payment']; ?>
+			<?php
+			echo $registration['Registration']['payment'];
+			if ($registration['Registration']['payment'] == 'Reserved') {
+				echo ' ' . __('until', true) . ' ' . $this->ZuluruTime->datetime($registration['Registration']['reservation_expires']);
+			}
+			?>
 
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Notes'); ?></dt>
