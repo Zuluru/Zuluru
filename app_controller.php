@@ -1355,7 +1355,7 @@ class AppController extends Controller {
 		}
 
 		// If there are no recipients, don't even bother trying to send
-		if (empty($opts['to']) && empty($opts['cc']) && empty($opts['bcc'])) {
+		if (empty($opts['to'])) {
 			return (array_key_exists('ignore_empty_address', $opts) && $opts['ignore_empty_address']);
 		}
 
