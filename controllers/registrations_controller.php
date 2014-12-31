@@ -140,7 +140,10 @@ class RegistrationsController extends AppController {
 
 		if ($this->params['url']['ext'] == 'csv') {
 			$this->Registration->contain (array(
-				'Person' => $this->Auth->authenticate->name,
+				'Person' => array(
+					$this->Auth->authenticate->name,
+					'Related' => $this->Auth->authenticate->name,
+				),
 				'Payment' => 'RegistrationAudit',
 				'Response',
 			));

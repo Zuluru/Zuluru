@@ -369,6 +369,14 @@ class Person extends AppModel {
 			'associationForeignKey' => 'relative_id',
 			'unique' => false,
 		),
+		'Related' => array(
+			'className' => 'Person',
+			'joinTable' => 'people_people',
+			'with' => 'PeoplePerson',
+			'foreignKey' => 'relative_id',
+			'associationForeignKey' => 'person_id',
+			'unique' => false,
+		),
 		'Team' => array(
 			'className' => 'Team',
 			'joinTable' => 'teams_people',
