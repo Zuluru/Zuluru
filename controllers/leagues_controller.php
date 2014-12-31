@@ -219,9 +219,17 @@ class LeaguesController extends AppController {
 			$this->redirect('/');
 		}
 
-		$this->League->contain (array(
-			'Division' => array('Team' => array('Person' => $this->Auth->authenticate->name)),
-		));
+		$contain = array(
+			'Division' => array(
+				'Team' => array(
+					'Person' => array(),
+				),
+			),
+		);
+		if ($this->params['url']['ext'] == 'csv') {
+			$contain['Division']['Team']['Person'] = array($this->Auth->authenticate->name, 'Related' => $this->Auth->authenticate->name);
+		}
+		$this->League->contain($contain);
 		$league = $this->League->read(null, $id);
 		if (!$league) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('league', true)), 'default', array('class' => 'info'));
