@@ -14,11 +14,16 @@ $this->Html->addCrumb (__('Participation', true));
 	<th><?php __('Role'); ?></th>
 	<th><?php __('Date');?></th>
 </tr>
-<?php foreach ($league['Division'] as $division): ?>
+<?php
+foreach ($league['Division'] as $division):
+	if (count($league['Division']) > 1):
+?>
 <tr>
 	<td colspan="4"><h3><?php echo $division['name']; ?></h3></td>
 </tr>
 <?php
+	endif;
+
 	foreach ($division['Team'] as $team):
 		$team_name = $this->element('teams/block', compact('team'));
 		usort ($team['Person'], array('Team', 'compareRoster'));
