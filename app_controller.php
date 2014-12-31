@@ -1369,7 +1369,7 @@ class AppController extends Controller {
 		if (empty($email->attachments)) {
 			$email->attachments = array();
 		}
-		if (array_key_exists ('attachments', $opts)) {
+		if (!empty($opts['attachments'])) {
 			$email->attachments = array_merge($email->attachments, $opts['attachments']);
 		}
 		if (!empty($email->attachments)) {
