@@ -6,8 +6,8 @@ $args = array(
 	'status' => $status,
 	'comment' => $comment,
 	'event_id' => $event['TeamEvent']['id'],
-	'date' => $event['TeamEvent']['date'],
-	'time' => $event['TeamEvent']['start'],
+	'event_date' => $event['TeamEvent']['date'],
+	'event_time' => $event['TeamEvent']['start'],
 );
 echo $this->element('team_events/attendance_change', $args);
 ?>

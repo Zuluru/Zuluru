@@ -141,8 +141,8 @@ $this->Html->addCrumb (__('View', true));
 			echo $this->element('team_events/attendance_change', array(
 				'team' => $event['Team'],
 				'event_id' => $event['TeamEvent']['id'],
-				'date' => $event['TeamEvent']['date'],
-				'time' => $event['TeamEvent']['start'],
+				'event_date' => $event['TeamEvent']['date'],
+				'event_time' => $event['TeamEvent']['start'],
 				'person_id' => $person['id'],
 				'role' => $person['TeamsPerson']['role'],
 				'status' => $status,

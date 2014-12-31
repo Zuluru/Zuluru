@@ -73,7 +73,7 @@ class GamesController extends AppController {
 			return true;
 		}
 
-		// People can perform these operations on teams they are on
+		// People can perform these operations on teams they or their relatives are on
 		if (in_array ($this->params['action'], array(
 				'attendance',
 				'live_score',
@@ -84,7 +84,7 @@ class GamesController extends AppController {
 		)))
 		{
 			$team = $this->_arg('team');
-			if ($team && in_array ($team, $this->UserCache->read('TeamIDs'))) {
+			if ($team && (in_array ($team, $this->UserCache->read('TeamIDs')) || in_array ($team, $this->UserCache->read('RelativeTeamIDs')))) {
 				return true;
 			}
 		}
@@ -1003,7 +1003,7 @@ class GamesController extends AppController {
 			$this->redirect('/');
 		}
 
-		$is_me = ($person_id == $this->UserCache->currentId());
+		$is_me = ($person_id == $this->UserCache->currentId() || in_array($person_id, $this->UserCache->read('RelativeIDs')));
 		$is_captain = in_array ($team_id, $this->UserCache->read('OwnedTeamIDs'));
 		$is_coordinator = in_array ($team['division_id'], $this->UserCache->read('DivisionIDs'));
 

@@ -29,10 +29,11 @@ if ($team['track_attendance']) {
 		$event_time = '00:00:00';
 	}
 
-	$recent = ($date >= date('Y-m-d', time() - 14 * 24 * 60 * 60));
-	$future = (strtotime("$date $event_time") + Configure::read('timezone.adjust') * 60 >= time() ? 1 : 0);
+	$recent = ($event_date >= date('Y-m-d', time() - 14 * 24 * 60 * 60));
+	$future = (strtotime("$event_date $event_time") + Configure::read('timezone.adjust') * 60 >= time() ? 1 : 0);
 	$is_me = (!isset($person_id) || $person_id == $my_id);
-	if (($future || (!$future_only && $recent)) && ($is_me || $is_captain)) {
+	$is_relative = (!$is_me && in_array($person_id, $this->UserCache->read('RelativeIDs')));
+	if (($future || (!$future_only && $recent)) && ($is_me || $is_relative || $is_captain)) {
 		$url = array('controller' => 'team_events', 'action' => 'attendance_change', 'event' => $event_id);
 
 		if (!$is_me) {
@@ -46,13 +47,14 @@ if ($team['track_attendance']) {
 		}
 		$option_string = '{' . implode(', ', $option_strings) . '}';
 		$url_string = Router::url($url);
-		$comment = addslashes($comment);
+		$comment = addslashes(htmlentities($comment));
 		echo $this->Html->link($short, $url, array(
 			'escape' => false,
+			'class' => "attendance_status_$status",
 			'onClick' => "return attendance_status('$url_string', $option_string, jQuery(this), $dedicated, $future, '$comment');",
 		));
 	} else if (!$future_only) {
-		echo $short;
+		echo $this->Html->tag('span', $short, array('class' => "attendance_status_$status"));
 	}
 }
 

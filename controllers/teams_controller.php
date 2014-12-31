@@ -1498,7 +1498,7 @@ class TeamsController extends AppController {
 		$this->set('is_coordinator', in_array($team['Team']['division_id'], $this->UserCache->read('DivisionIDs')));
 		$this->set('is_captain', in_array($id, $this->UserCache->read('AllOwnedTeamIDs')));
 		$this->set('spirit_obj', $this->_getComponent ('Spirit', $team['Division']['League']['sotg_questions'], $this));
-		$this->set('display_attendance', $team['Team']['track_attendance'] && in_array($team['Team']['id'], $this->UserCache->read('AllTeamIDs')));
+		$this->set('display_attendance', $team['Team']['track_attendance'] && (in_array($team['Team']['id'], $this->UserCache->read('AllTeamIDs')) || in_array($team['Team']['id'], $this->UserCache->read('AllRelativeTeamIDs'))));
 		$this->set('annotate', Configure::read('feature.annotations') && in_array($team['Team']['id'], $this->UserCache->read('TeamIDs')));
 		$this->_addTeamMenuItems ($this->Team->data);
 	}
@@ -2881,8 +2881,10 @@ class TeamsController extends AppController {
 			'old_role' => $person['Person']['TeamsPerson']['role'],
 		));
 
-		if ($person['Person']['id'] == $this->UserCache->currentId()) {
-			// A player has changed themselves
+		if ($person['Person']['id'] == $this->UserCache->currentId() ||
+			(in_array($person['Person']['id'], $this->UserCache->read('RelativeIDs')) && !in_array($team['Team']['id'], $this->UserCache->read('OwnedTeamIDs'))))
+		{
+			// A player has changed themselves, or a relative who is not a captain of the team did it for them
 			$captains = $this->_initRosterCaptains ($team);
 
 			if (!$this->_sendMail (array (

@@ -157,8 +157,8 @@ foreach ($items as $item):
 					echo $this->element('team_events/attendance_change', array(
 						'team' => $item['Team'],
 						'event_id' => $item['TeamEvent']['id'],
-						'date' => $item['TeamEvent']['date'],
-						'time' => $item['TeamEvent']['start'],
+						'event_date' => $item['TeamEvent']['date'],
+						'event_time' => $item['TeamEvent']['start'],
 						'person_id' => $id,
 						'role' => $roster[0]['role'],
 						'status' => $item['Attendance'][$id]['status'],
@@ -177,8 +177,8 @@ foreach ($items as $item):
 					echo $this->element('team_events/attendance_change', array(
 						'team' => $item['Team'],
 						'event_id' => $item['TeamEvent']['id'],
-						'date' => $item['TeamEvent']['date'],
-						'time' => $item['TeamEvent']['start'],
+						'event_date' => $item['TeamEvent']['date'],
+						'event_time' => $item['TeamEvent']['start'],
 						'person_id' => $relative['Relative']['id'],
 						'role' => $roster[0]['role'],
 						'status' => $item['Attendance'][$relative['Relative']['id']]['status'],

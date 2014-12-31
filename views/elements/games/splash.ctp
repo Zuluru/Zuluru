@@ -132,8 +132,8 @@ foreach ($items as $item):
 					echo $this->element('team_events/attendance_change', array(
 						'team' => $item['Team'],
 						'event_id' => $item['TeamEvent']['id'],
-						'date' => $item['TeamEvent']['date'],
-						'time' => $item['TeamEvent']['start'],
+						'event_date' => $item['TeamEvent']['date'],
+						'event_time' => $item['TeamEvent']['start'],
 						'person_id' => $person_id,
 						'role' => $roster[0]['role'],
 						'status' => (array_key_exists (0, $record) ? $record[0]['status'] : ATTENDANCE_UNKNOWN),

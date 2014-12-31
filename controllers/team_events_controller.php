@@ -248,7 +248,12 @@ class TeamEventsController extends AppController {
 			$this->redirect('/');
 		}
 
-		$is_me = ($person_id == $this->UserCache->currentId());
+		if (empty($person['Team'])) {
+			$this->Session->setFlash(__('That person is not on this team.', true), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
+		$is_me = ($person_id == $this->UserCache->currentId() || in_array($person_id, $this->UserCache->read('RelativeIDs')));
 		$is_captain = in_array ($team['id'], $this->UserCache->read('OwnedTeamIDs'));
 
 		// We must do other permission checks here, because we allow non-logged-in users to accept

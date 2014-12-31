@@ -105,8 +105,8 @@ usort ($all_games, 'compareDateAndTime');
 					$out = $this->element('team_events/attendance_change', array(
 						'team' => $team['Team'],
 						'event_id' => $details['event']['TeamEvent']['id'],
-						'date' => $details['date'],
-						'time' => $details['time'],
+						'event_date' => $details['date'],
+						'event_time' => $details['time'],
 						'person_id' => $person['id'],
 						'role' => $person['TeamsPerson']['role'],
 						'status' => $status,
