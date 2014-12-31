@@ -19,11 +19,24 @@ $fields = array(
 	'height' => 'Height',
 	'skill_level' => 'Skill Level',
 	'shirt_size' => 'Shirt Size',
+	'alternate_first_name' => 'Alternate First Name',
+	'alternate_last_name' => 'Alternate Last Name',
+	'alternate_work_phone' => 'Alternate Work Phone',
+	'alternate_work_ext' => 'Alternate Work Ext',
+	'alternate_mobile_phone' => 'Alternate Mobile Phone',
 );
 // Skip fields that are all blank or disabled
 $player_fields = $fields;
 foreach ($player_fields as $field => $name) {
-	if (strpos($field, 'email') !== false || Configure::read("profile.$field")) {
+	$short_field = str_replace('alternate_', '', $field);
+	if ($short_field == 'email') {
+		$include = true;
+	} else if ($short_field == 'work_ext') {
+		$include = Configure::read('profile.work_phone');
+	} else {
+		$include = Configure::read("profile.$short_field");
+	}
+	if ($include) {
 		$values = array_unique(Set::extract("/Person/$field", $registrations));
 		if (count($values) > 1 || !empty($values[0])) {
 			$header[] = __($name, true);
@@ -77,18 +90,25 @@ foreach ($registrations as $registration) {
 	}
 }
 if ($relatives > 0) {
-	$contact_fields = $fields;
-	foreach (array('gender', 'birthdate', 'height', 'skill_level', 'shirt_size') as $field) {
-		unset($contact_fields[$field]);
-	}
+	$contact_fields = array();
 
 	$header1 = array_fill(0, count($header), '');
-	for ($i = 1; $i <= $relatives; ++ $i) {
-		$header1[] = sprintf(__('Contact %s', true), $i);
-		$header1 = array_merge($header1, array_fill(0, count($contact_fields) - 1, ''));
-		foreach ($contact_fields as $name) {
-			$header[] = __($name, true);
+	for ($i = 0; $i < $relatives; ++ $i) {
+		$contact_fields[$i] = $fields;
+		foreach (array('gender', 'birthdate', 'height', 'skill_level', 'shirt_size') as $field) {
+			unset($contact_fields[$i][$field]);
 		}
+		foreach ($contact_fields[$i] as $field => $name) {
+			$values = array_unique(Set::extract("/Person/Related/$i/$field", $registrations));
+			if (count($values) > 1 || !empty($values[0])) {
+				$header[] = __($name, true);
+			} else {
+				unset($contact_fields[$i][$field]);
+			}
+		}
+
+		$header1[] = sprintf(__('Contact %s', true), $i + 1);
+		$header1 = array_merge($header1, array_fill(0, count($contact_fields[$i]) - 1, ''));
 	}
 
 	fputcsv($fp, $header1);
@@ -144,8 +164,8 @@ foreach($registrations as $registration) {
 	}
 
 	if ($relatives > 0 && empty($registration['Person']['user_id'])) {
-		foreach ($registration['Person']['Related'] as $relative) {
-			foreach (array_keys($contact_fields) as $field) {
+		foreach ($registration['Person']['Related'] as $i => $relative) {
+			foreach (array_keys($contact_fields[$i]) as $field) {
 				if (array_key_exists($field, $relative)) {
 					$row[] = $relative[$field];
 				} else {
