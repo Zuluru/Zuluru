@@ -60,7 +60,7 @@ foreach ($items as $item):
 		<td class="actions splash_item"><?php
 		if (in_array($item['HomeTeam']['id'], $team_ids) && $item['HomeTeam']['track_attendance']) {
 			$roster = Set::extract("/TeamsPerson[person_id=$id][team_id={$item['HomeTeam']['id']}]/.", $teams);
-			if (!empty($roster) && $roster[0]['status'] == ROSTER_APPROVED) {
+			if (!empty($roster) && $roster[0]['status'] == ROSTER_APPROVED && $item['GameSlot']['game_date'] >= $roster[0]['created']) {
 				echo $this->element('games/attendance_change', array(
 					'team' => $item['HomeTeam'],
 					'game_id' => $item['Game']['id'],
@@ -73,9 +73,10 @@ foreach ($items as $item):
 					'dedicated' => true,
 				));
 			}
-		} else if (in_array($item['AwayTeam']['id'], $team_ids) && $item['AwayTeam']['track_attendance']) {
+		}
+		if (in_array($item['AwayTeam']['id'], $team_ids) && $item['AwayTeam']['track_attendance']) {
 			$roster = Set::extract("/TeamsPerson[person_id=$id][team_id={$item['AwayTeam']['id']}]/.", $teams);
-			if (!empty($roster) && $roster[0]['status'] == ROSTER_APPROVED) {
+			if (!empty($roster) && $roster[0]['status'] == ROSTER_APPROVED && $item['GameSlot']['game_date'] >= $roster[0]['created']) {
 				echo $this->element('games/attendance_change', array(
 					'team' => $item['AwayTeam'],
 					'game_id' => $item['Game']['id'],
@@ -94,7 +95,7 @@ foreach ($items as $item):
 		<td class="actions splash_item"><?php
 		if (in_array($item['HomeTeam']['id'], $team_ids) && $item['HomeTeam']['track_attendance']) {
 			$roster = Set::extract("/TeamsPerson[person_id={$relative['Relative']['id']}][team_id={$item['HomeTeam']['id']}]/.", $teams);
-			if (!empty($roster) && $roster[0]['status'] == ROSTER_APPROVED) {
+			if (!empty($roster) && $roster[0]['status'] == ROSTER_APPROVED && $item['GameSlot']['game_date'] >= $roster[0]['created']) {
 				echo $this->element('games/attendance_change', array(
 					'team' => $item['HomeTeam'],
 					'game_id' => $item['Game']['id'],
@@ -109,9 +110,10 @@ foreach ($items as $item):
 					'dedicated' => true,
 				));
 			}
-		} else if (in_array($item['AwayTeam']['id'], $team_ids) && $item['AwayTeam']['track_attendance']) {
+		}
+		if (in_array($item['AwayTeam']['id'], $team_ids) && $item['AwayTeam']['track_attendance']) {
 			$roster = Set::extract("/TeamsPerson[person_id={$relative['Relative']['id']}][team_id={$item['AwayTeam']['id']}]/.", $teams);
-			if (!empty($roster) && $roster[0]['status'] == ROSTER_APPROVED) {
+			if (!empty($roster) && $roster[0]['status'] == ROSTER_APPROVED && $item['GameSlot']['game_date'] >= $roster[0]['created']) {
 				echo $this->element('games/attendance_change', array(
 					'team' => $item['AwayTeam'],
 					'game_id' => $item['Game']['id'],
@@ -122,7 +124,7 @@ foreach ($items as $item):
 					'status' => (array_key_exists ($relative['Relative']['id'], $item['Attendance']) ? $item['Attendance'][$relative['Relative']['id']]['status'] : ATTENDANCE_UNKNOWN),
 					'comment' => (array_key_exists ($relative['Relative']['id'], $item['Attendance']) ? $item['Attendance'][$relative['Relative']['id']]['comment'] : null),
 					'is_captain' => in_array($item['AwayTeam']['id'], $this->UserCache->read('OwnedTeamIDs')),
-					'future_only' => true,
+					'future_only' => false,
 					'dedicated' => true,
 				));
 			}
