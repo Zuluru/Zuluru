@@ -1,7 +1,6 @@
 <?php
 $fp = fopen('php://output','w+');
 $header = array(
-		__('Division', true),
 		__('Team', true),
 		__('User ID', true),
 		__('First Name', true),
@@ -23,6 +22,10 @@ $header = array(
 		__('Role', true),
 		__('Added', true),
 );
+if (count($league['Division']) > 1) {
+	array_unshift($header, __('Division', true));
+}
+
 fputcsv($fp, $header);
 
 foreach ($league['Division'] as $division) {
@@ -41,7 +44,6 @@ foreach ($league['Division'] as $division) {
 			}
 
 			$row = array(
-				$division['name'],
 				$team['name'],
 				$person['id'],
 				$person['first_name'],
@@ -63,6 +65,9 @@ foreach ($league['Division'] as $division) {
 				$role,
 				$person['TeamsPerson']['created'],
 			);
+			if (count($league['Division']) > 1) {
+				array_unshift($division['name']);
+			}
 			fputcsv($fp, $row);
 		}
 	}
