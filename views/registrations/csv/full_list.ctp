@@ -90,14 +90,14 @@ foreach ($registrations as $registration) {
 	}
 }
 if ($relatives > 0) {
-	$contact_fields = array();
+	$contact_fields = $fields;
+	foreach (array('gender', 'birthdate', 'height', 'skill_level', 'shirt_size') as $field) {
+		unset($contact_fields[$field]);
+	}
+	$contact_fields = array_fill(0, $relatives, $contact_fields);
 
 	$header1 = array_fill(0, count($header), '');
 	for ($i = 0; $i < $relatives; ++ $i) {
-		$contact_fields[$i] = $fields;
-		foreach (array('gender', 'birthdate', 'height', 'skill_level', 'shirt_size') as $field) {
-			unset($contact_fields[$i][$field]);
-		}
 		foreach ($contact_fields[$i] as $field => $name) {
 			$values = array_unique(Set::extract("/Person/Related/$i/$field", $registrations));
 			if (count($values) > 1 || !empty($values[0])) {
