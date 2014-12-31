@@ -25,7 +25,7 @@ $header = array(
 		__('Total Amount', true),
 		__('Amount Paid', true),
 );
-if (count($event['Price'] > 0)) {
+if (count($event['Price']) > 1) {
 	$header[] = __('Price Point', true);
 }
 if (Configure::read('registration.online_payments')) {
@@ -81,7 +81,7 @@ foreach($registrations as $registration) {
 		$registration['Registration']['total_amount'],
 		array_sum(Set::extract('/Payment/payment_amount', $registration)),
 	);
-	if (count($event['Price'] > 0)) {
+	if (count($event['Price']) > 1) {
 		$row[] = $event['Price'][$registration['Registration']['price_id']]['name'];
 	}
 	if (Configure::read('registration.online_payments')) {

@@ -29,7 +29,7 @@ echo $this->Paginator->counter(array(
 	<th><?php echo $this->Paginator->sort('Order ID', 'id', array('buffer' => false));?></th>
 	<th><?php __('Person'); ?></th>
 	<th><?php echo $this->Paginator->sort('Date', 'created', array('buffer' => false));?></th>
-	<?php if (count($event['Price'] > 0)): ?>
+	<?php if (count($event['Price']) > 1): ?>
 	<th><?php __('Price Point'); ?></th>
 	<?php endif; ?>
 	<th><?php echo $this->Paginator->sort('payment', null, array('buffer' => false));?></th>
@@ -57,7 +57,7 @@ foreach ($registrations as $registration):
 		<td>
 			<?php echo $registration['Registration']['created']; ?>
 		</td>
-		<?php if (count($event['Price'] > 0)): ?>
+		<?php if (count($event['Price']) > 1): ?>
 		<td>
 			<?php echo $event['Price'][$registration['Registration']['price_id']]['name']; ?>
 		</td>
