@@ -130,7 +130,7 @@ foreach ($league['Division'] as $division) {
 			}
 			$row[] = $person['TeamsPerson']['created'];
 			if (count($league['Division']) > 1) {
-				array_unshift($division['name']);
+				array_unshift($row, $division['name']);
 			}
 
 			if ($relatives > 0 && empty($person['user_id'])) {
