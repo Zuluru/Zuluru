@@ -2616,16 +2616,17 @@ class PeopleController extends AppController {
 			$dup_id = null;
 		}
 
-		$this->Person->contain('Group', $this->Auth->authenticate->name);
+		$this->Person->contain('Group', 'Related', $this->Auth->authenticate->name);
 		$person_id = $this->data['Person']['id'];
 		$person = $this->Person->read(null, $person_id);
 		if (!empty ($dup_id)) {
-			$this->Person->contain('Group', $this->Auth->authenticate->name);
+			$this->Person->contain('Group', 'Related', $this->Auth->authenticate->name);
 			$existing = $this->Person->read(null, $dup_id);
 		}
 
 		if (empty($person['Persion']['user_id'])) {
 			$this->Person->beforeValidateChild();
+			unset($person[$this->Auth->authenticate->name]);
 		}
 
 		// TODO: Eliminate this hard-coded group_id
@@ -2650,9 +2651,16 @@ class PeopleController extends AppController {
 
 				$this->set('person', $saved);
 
+				if (empty($saved['Person']['user_id'])) {
+					$name = $saved['Person']['full_name'];
+					$type = __('Profile', true);
+				} else {
+					$name = $saved['Person']['user_name'];
+					$type = __('Account', true);
+				}
 				if (!$this->_sendMail (array (
 						'to' => $person,
-						'subject' => Configure::read('organization.name') . ' Account Activation for ' . $saved['Person']['user_name'],
+						'subject' => sprintf(__('%s %s Activation for %s', true), Configure::read('organization.name'), $type, $name),
 						'template' => 'account_approved',
 						'sendAs' => 'both',
 				)))
@@ -2673,6 +2681,10 @@ class PeopleController extends AppController {
 					$this->Session->setFlash(sprintf (__('Failed to delete %s', true), $person['Person']['full_name']), 'default', array('class' => 'warning'));
 				}
 				Cache::delete("person/$person_id", 'file');
+				foreach ($person['Related'] as $relative) {
+					$this->UserCache->clear('Relatives', $relative['id']);
+					$this->UserCache->clear('RelativeIDs', $relative['id']);
+				}
 				break;
 
 			case 'delete_duplicate':
@@ -2689,6 +2701,10 @@ class PeopleController extends AppController {
 					break;
 				}
 				Cache::delete("person/$person_id", 'file');
+				foreach ($person['Related'] as $relative) {
+					$this->UserCache->clear('Relatives', $relative['id']);
+					$this->UserCache->clear('RelativeIDs', $relative['id']);
+				}
 
 				$this->set(compact('person', 'existing'));
 
@@ -2753,6 +2769,14 @@ class PeopleController extends AppController {
 				}
 				Cache::delete("person/$person_id", 'file');
 				Cache::delete("person/$dup_id", 'file');
+				foreach ($person['Related'] as $relative) {
+					$this->UserCache->clear('Relatives', $relative['id']);
+					$this->UserCache->clear('RelativeIDs', $relative['id']);
+				}
+				foreach ($existing['Related'] as $relative) {
+					$this->UserCache->clear('Relatives', $relative['id']);
+					$this->UserCache->clear('RelativeIDs', $relative['id']);
+				}
 
 				$this->set(compact('person', 'existing'));
 
