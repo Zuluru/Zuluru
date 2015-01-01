@@ -903,8 +903,6 @@ class PeopleController extends AppController {
 				if (!empty($invalid_groups)) {
 					$this->Person->Group->validationErrors['Group'] = __('You have selected an invalid group.', true);
 				}
-			} else {
-				$selected_groups = array();
 			}
 
 			if ($this->Person->validates() && $this->Person->Group->validates() && $this->Person->Affiliate->validates()) {
