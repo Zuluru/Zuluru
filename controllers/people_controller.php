@@ -38,7 +38,7 @@ class PeopleController extends AppController {
 		if (in_array ($this->params['action'], array(
 				'edit',
 				'preferences',
-				'add_relative',
+				'link_relative',
 				'waivers',
 				'photo_upload',
 				'photo_resize',
@@ -53,6 +53,17 @@ class PeopleController extends AppController {
 			$person = $this->_arg('person');
 			$relatives = $this->UserCache->read('RelativeIDs');
 			if (!$person || $person == $this->UserCache->currentId() || in_array($person, $relatives)) {
+				return true;
+			}
+		}
+
+		// Parents can perform these operations on their own account
+		if (in_array ($this->params['action'], array(
+				'add_relative',
+		)))
+		{
+			// TODO: Eliminate hard-coded group_id
+			if (in_array(1, $this->UserCache->read('GroupIDs'))) {
 				return true;
 			}
 		}
@@ -1088,6 +1099,70 @@ class PeopleController extends AppController {
 	}
 
 	function add_relative() {
+		$this->_loadAffiliateOptions();
+
+		if (!empty($this->data)) {
+			// Set the default error message in advance. If it saves successfully, this will be overwritten.
+			$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('profile', true)), 'default', array('class' => 'warning'));
+
+			// Handle affiliations
+			if (Configure::read('feature.affiliates')) {
+				if (Configure::read('feature.multiple_affiliates')) {
+					if (empty($this->data['Affiliate']['Affiliate'][0])) {
+						$this->Person->Affiliate->validationErrors['Affiliate'] = __('You must select at least one affiliate that you are interested in.', true);
+					}
+				} else {
+					if (empty($this->data['Affiliate']['Affiliate'][0]) || count($this->data['Affiliate']['Affiliate']) > 1) {
+						$this->Person->Affiliate->validationErrors['Affiliate'] = __('You must select an affiliate that you are interested in.', true);
+					}
+				}
+			} else {
+				$this->data['Affiliate']['Affiliate'] = array(1);
+			}
+
+			// Tweak some data to be saved
+			// Assume any secondary profiles are players, with group_id = 2
+			$this->data['Group'] = array('Group' => array(2));
+			$this->data['Person']['complete'] = true;
+			if (Configure::read('feature.auto_approve')) {
+				$person['status'] = 'active';
+			}
+
+			$transaction = new DatabaseTransaction($this->Person);
+			$this->Person->create();
+			if (!$this->Person->saveAll($this->data)) {
+				return;
+			}
+			$link = array('person_id' => $this->UserCache->currentId(), 'relative_id' => $this->Person->id, 'approved' => true);
+			if (!$this->Person->PeoplePerson->save($link, array('validate' => false))) {
+				return;
+			}
+			$this->UserCache->clear('Relatives');
+			$this->UserCache->clear('RelativeIDs');
+
+			if (Configure::read('feature.auto_approve')) {
+				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('new profile', true)), 'default', array('class' => 'success'));
+			} else {
+				$msg = __('Your account has been created.', true);
+				$msg .= ' ' . __('It must be approved by an administrator before you will have full access to the site.', true);
+				$this->Session->setFlash($msg, 'default', array('class' => 'success'));
+			}
+
+			// There may be callbacks to handle
+			// TODO: How to handle this in conjunction with third-party auth systems?
+			$this->data['Person']['id'] = $this->Person->id;
+			$components = Configure::read('callbacks.user');
+			foreach ($components as $name => $config) {
+				$component = $this->_getComponent('User', $name, $this, false, $config);
+				$component->onAdd($this->data);
+			}
+
+			$transaction->commit();
+			$this->redirect('/');
+		}
+	}
+
+	function link_relative() {
 		$person_id = $this->_arg('person');
 		$person = $this->UserCache->read('Person', $person_id);
 		if (!$person) {
@@ -1099,7 +1174,7 @@ class PeopleController extends AppController {
 		$relative_id = $this->_arg('relative');
 		if ($relative_id !== null) {
 			if ($relative_id == $person_id) {
-				$this->Session->setFlash(__('You can\'t add yourself as a relative!', true), 'default', array('class' => 'info'));
+				$this->Session->setFlash(__('You can\'t link yourself as a relative!', true), 'default', array('class' => 'info'));
 			} else {
 				$relative = $this->UserCache->read('Person', $relative_id);
 				if (!$relative) {
@@ -1122,8 +1197,8 @@ class PeopleController extends AppController {
 						if (!$this->_sendMail (array (
 								'to' => $relative,
 								'replyTo' => $person,
-								'subject' => 'You have been added as a relative',
-								'template' => 'relative_add',
+								'subject' => 'You have been linked as a relative',
+								'template' => 'relative_link',
 								'sendAs' => 'both',
 						)))
 						{
@@ -1134,11 +1209,11 @@ class PeopleController extends AppController {
 						$this->UserCache->clear('RelativeIDs', $person_id);
 						$this->UserCache->clear('RelatedTo', $relative_id);
 						$this->UserCache->clear('RelatedToIDs', $relative_id);
-						$this->Session->setFlash(sprintf(__('Added %s as relative; you will not have access to their information until they have approved this.', true), $relative['full_name']), 'default', array('class' => 'success'));
+						$this->Session->setFlash(sprintf(__('Linked %s as relative; you will not have access to their information until they have approved this.', true), $relative['full_name']), 'default', array('class' => 'success'));
 						$this->redirect('/');
 					} else {
-						$this->Session->setFlash(sprintf(__('Failed to add %s as relative.', true), $relative['full_name']), 'default', array('class' => 'warning'));
-						$this->redirect(array('action' => 'add_relative', 'person' => $person_id));
+						$this->Session->setFlash(sprintf(__('Failed to link %s as relative.', true), $relative['full_name']), 'default', array('class' => 'warning'));
+						$this->redirect(array('action' => 'link_relative', 'person' => $person_id));
 					}
 				}
 			}

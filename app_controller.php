@@ -672,7 +672,11 @@ class AppController extends Controller {
 			$this->_addMenuItem ('View', array('controller' => 'people', 'action' => 'view'), 'My Profile');
 			$this->_addMenuItem ('Edit', array('controller' => 'people', 'action' => 'edit'), 'My Profile');
 			$this->_addMenuItem ('Preferences', array('controller' => 'people', 'action' => 'preferences'), 'My Profile');
-			$this->_addMenuItem ('Link new relative', array('controller' => 'people', 'action' => 'add_relative'), 'My Profile');
+			// TODO: Eliminate hard-coded group_id
+			if (in_array(1, $this->UserCache->read('GroupIDs'))) {
+				$this->_addMenuItem ('Add new relative', array('controller' => 'people', 'action' => 'add_relative'), 'My Profile');
+			}
+			$this->_addMenuItem ('Link to relative', array('controller' => 'people', 'action' => 'link_relative'), 'My Profile');
 			$this->_addMenuItem ('Waiver history', array('controller' => 'people', 'action' => 'waivers'), 'My Profile');
 			$this->_addMenuItem ('Change password', array('controller' => 'users', 'action' => 'change_password'), 'My Profile');
 			if (Configure::read('feature.photos')) {
