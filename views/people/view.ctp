@@ -496,7 +496,7 @@ if ($is_logged_in && ($this_is_player || !empty($all_teams))): ?>
 
 	<div class="actions">
 		<ul>
-			<li><?php echo $this->Html->link(__('Link a new relative', true), array('controller' => 'people', 'action' => 'add_relative')); ?> </li>
+			<li><?php echo $this->Html->link(__('Link a relative', true), array('controller' => 'people', 'action' => 'link_relative')); ?> </li>
 		</ul>
 	</div>
 </div>
