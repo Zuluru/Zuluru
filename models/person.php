@@ -631,7 +631,11 @@ class Person extends AppModel {
 			);
 		}
 		if (Configure::read('profile.addr_street')) {
-			$conditions['OR']['Person.addr_street'] = $person['Person']['addr_street'];
+			$conditions['OR'][] = array(
+				'Person.addr_street' => $person['Person']['addr_street'],
+				'Person.addr_street !=' => '',
+				array('Person.addr_street !=' => null),
+			);
 		}
 
 		$config = new DATABASE_CONFIG;
