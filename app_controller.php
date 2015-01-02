@@ -933,7 +933,12 @@ class AppController extends Controller {
 
 			$this->_addMenuItem ('List all', array('controller' => 'people', 'action' => 'index'), 'People');
 			$groups = $this->Person->Group->find('list', array(
-				'conditions' => array('active' => true),
+				'conditions' => array('OR' => array(
+					// We always want to include players, even if they aren't a valid "create account" group.
+					// TODO: eliminate hard-coded group_id
+					'id' => 2,
+					'active' => true,
+				)),
 				'order' => array('Group.level', 'Group.id'),
 			));
 			foreach ($groups as $group => $name) {
