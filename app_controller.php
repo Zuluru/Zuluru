@@ -332,7 +332,11 @@ class AppController extends Controller {
 		));
 		$group_list = array();
 		foreach ($groups as $group) {
-			$group_list[$group['Group']['id']] = "{$group['Group']['name']}: {$group['Group']['description']}";
+			if (!empty($group['Group']['description'])) {
+				$group_list[$group['Group']['id']] = "{$group['Group']['name']}: {$group['Group']['description']}";
+			} else {
+				$group_list[$group['Group']['id']] = $group['Group']['name'];
+			}
 		}
 		$this->set('groups', $group_list);
 	}
