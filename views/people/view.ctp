@@ -108,11 +108,13 @@ $this_is_player = (!empty($this_is_player));
 			</dd>
 		<?php endif; ?>
 		<?php if ($this_is_parent): ?>
+			<?php if (!empty($person['alternate_full_name'])): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Alternate Contact'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 				<?php echo $person['alternate_full_name']; ?>
 				&nbsp;
 			</dd>
+			<?php endif; ?>
 			<?php if (Configure::read('profile.work_phone') && !empty($person['alternate_work_phone']) &&
 					($view_contact || ($is_logged_in && $person['publish_alternate_work_phone']))):?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Phone (work)'); ?></dt>
