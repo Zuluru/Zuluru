@@ -719,6 +719,12 @@ class AppController extends Controller {
 		if ($this->is_logged_in) {
 			$this->_initPersonalMenu();
 			$relatives = $this->UserCache->read('Relatives');
+			if (!empty($relatives)) {
+				$this->_addMenuItem ($this->UserCache->read('Person.first_name'), array('controller' => 'people', 'action' => 'view'), array('My Profile', 'View'));
+				$this->_addMenuItem ($this->UserCache->read('Person.first_name'), array('controller' => 'people', 'action' => 'edit'), array('My Profile', 'Edit'));
+				$this->_addMenuItem ($this->UserCache->read('Person.first_name'), array('controller' => 'people', 'action' => 'preferences'), array('My Profile', 'Preferences'));
+				$this->_addMenuItem ($this->UserCache->read('Person.first_name'), array('controller' => 'people', 'action' => 'waivers'), array('My Profile', 'Waiver history'));
+			}
 			foreach ($relatives as $relative) {
 				if ($relative['PeoplePerson']['approved']) {
 					$this->_initPersonalMenu($relative);
@@ -1015,6 +1021,10 @@ class AppController extends Controller {
 	function _initPersonalMenu($relative = null) {
 		if ($relative) {
 			$id = $relative['Relative']['id'];
+			$this->_addMenuItem ($relative['Relative']['first_name'], array('controller' => 'people', 'action' => 'view', 'person' => $id), array('My Profile', 'View'));
+			$this->_addMenuItem ($relative['Relative']['first_name'], array('controller' => 'people', 'action' => 'edit', 'person' => $id), array('My Profile', 'Edit'));
+			$this->_addMenuItem ($relative['Relative']['first_name'], array('controller' => 'people', 'action' => 'preferences', 'person' => $id), array('My Profile', 'Preferences'));
+			$this->_addMenuItem ($relative['Relative']['first_name'], array('controller' => 'people', 'action' => 'waivers', 'person' => $id), array('My Profile', 'Waiver history'));
 		} else {
 			$id = null;
 		}
