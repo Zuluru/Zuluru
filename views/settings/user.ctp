@@ -31,6 +31,16 @@ echo $this->element('settings/banner');
 					$this->Html->tag('span', __('Use of this feature is recommended only for brand new sites wanting to ease the transition for their members.', true), array('class' => 'warning-message')),
 		),
 	));
+	echo $this->element('settings/input', array(
+		'category' => 'feature',
+		'name' => 'antispam',
+		'options' => array(
+			'label' => __('Anti-spam measures', true),
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'after' => __('Enable this to add honeypot-style anti-spam measures to the "create account" page. These measures are generally invisible to users.', true),
+		),
+	));
 	if (!$affiliate) {
 		echo $this->element('settings/input', array(
 			'category' => 'feature',

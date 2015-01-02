@@ -32,8 +32,18 @@ if (!Configure::read('feature.auto_approve')) {
 
 <div class="users form">
 <?php
+// Create the form and maybe add some spam-prevention tools
 echo $this->Form->create($user_model, array('url' => Router::normalize($this->here)));
+if (Configure::read('feature.antispam')):
 ?>
+	<div id="spam_trap" style="display:none;">
+<?php
+	echo $this->ZuluruForm->input('subject');
+	echo $this->ZuluruForm->hidden('timestamp', array('default' => time()));
+?>
+	</div>
+<?php endif; ?>
+
 	<fieldset>
 		<legend><?php __('Account Type'); ?></legend>
 	<?php

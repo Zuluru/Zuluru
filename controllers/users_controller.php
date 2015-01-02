@@ -106,6 +106,13 @@ class UsersController extends AppController {
 			// Set the default error message in advance. If it saves successfully, this will be overwritten.
 			$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('account', true)), 'default', array('class' => 'warning'));
 
+			// The presence of data in a field that should not be filled in triggers anti-spam measures.
+			// Also, anyone that fills the form out in under 15 seconds is a spambot.
+			if (Configure::read('feature.antispam') && (!empty($this->data[$user_model]['subject']) || time() - $this->data[$user_model]['timestamp'] < 15)) {
+				sleep(15);
+				return;
+			}
+
 			// Handle affiliations
 			if (Configure::read('feature.affiliates')) {
 				if (Configure::read('feature.multiple_affiliates')) {
