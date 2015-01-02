@@ -145,8 +145,16 @@ if (!empty ($duplicates)) {
 					$user_val = $person[$model];
 					$val = $duplicate[$model];
 				} else {
-					$user_val = $person[$model][$key];
-					$val = $duplicate[$model][$key];
+					if (!empty($person[$model][$key])) {
+						$user_val = $person[$model][$key];
+					} else {
+						$user_val = null;
+					}
+					if (!empty($duplicate[$model][$key])) {
+						$val = $duplicate[$model][$key];
+					} else {
+						$val = null;
+					}
 				}
 				if (array_key_exists ('func', $data)) {
 					$func = "format_{$data['func']}";
