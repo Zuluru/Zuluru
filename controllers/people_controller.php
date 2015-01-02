@@ -1123,7 +1123,7 @@ class PeopleController extends AppController {
 			$this->data['Group'] = array('Group' => array(2));
 			$this->data['Person']['complete'] = true;
 			if (Configure::read('feature.auto_approve')) {
-				$person['status'] = 'active';
+				$this->data['Person']['status'] = 'active';
 			}
 
 			$transaction = new DatabaseTransaction($this->Person);
