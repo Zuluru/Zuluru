@@ -932,7 +932,7 @@ class AppController extends Controller {
 			}
 
 			$this->_addMenuItem ('List all', array('controller' => 'people', 'action' => 'index'), 'People');
-			$groups = $this->Group->find('list', array(
+			$groups = $this->Person->Group->find('list', array(
 				'conditions' => array('active' => true),
 				'order' => array('Group.level', 'Group.id'),
 			));
