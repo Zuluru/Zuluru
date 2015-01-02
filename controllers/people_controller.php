@@ -879,7 +879,7 @@ class PeopleController extends AppController {
 		$this->set(compact('id', 'is_me'));
 
 		$this->_loadAddressOptions();
-		$this->_loadGroupOptions();
+		$this->_loadGroupOptions(true);
 		$this->_loadAffiliateOptions();
 
 		$sport = reset(array_keys(Configure::read('options.sport')));

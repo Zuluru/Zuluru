@@ -317,8 +317,17 @@ class AppController extends Controller {
 	/**
 	 * Read and set variables for the database-based group options.
 	 */
-	function _loadGroupOptions() {
-		$conditions = array('active' => true);
+	function _loadGroupOptions($force_players = false) {
+		if ($force_players) {
+			$conditions = array('OR' => array(
+					// We always want to include players, even if they aren't a valid "create account" group.
+					// TODO: eliminate hard-coded group_id
+					'id' => 2,
+					'active' => true,
+			));
+		} else {
+			$conditions = array('active' => true);
+		}
 		if (!$this->is_admin) {
 			if ($this->is_manager) {
 				$conditions['level <='] = 5;
