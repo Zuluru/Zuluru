@@ -198,7 +198,8 @@ class UsersController extends AppController {
 					} else {
 						$msg = __('Your account has been created.', true);
 						if (!$approved) {
-							$msg .= ' ' . __('It must be approved by an administrator before you will have full access to the site. However, you can log in and start exploring right away.', true);
+							$msg .= ' ' . __('It must be approved by an administrator before you will have full access to the site.', true);
+							$msg .= ' ' . __('However, you can log in and start exploring right away.', true);
 						}
 						$this->Session->setFlash($msg, 'default', array('class' => 'success'));
 					}
@@ -221,6 +222,9 @@ class UsersController extends AppController {
 						$this->Auth->login($this->Auth->hashPasswords($this->data));
 					}
 
+					if (isset($this->params['form']['continue'])) {
+						$this->redirect(array('controller' => 'people', 'action' => 'add_relative'));
+					}
 					$this->redirect('/');
 				}
 			}

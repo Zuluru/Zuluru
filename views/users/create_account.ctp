@@ -391,7 +391,8 @@ echo $this->Form->create($user_model, array('url' => Router::normalize($this->he
 	?>
 	</fieldset>
 <?php
-echo $this->Form->submit(__('Submit and save your information', true), array('div' => false));
+echo $this->Form->submit(__('Submit and save your information', true), array('div' => false, 'name' => 'create'));
+echo $this->Form->submit(__('Save your information and add another child', true), array('div' => array('tag' => 'span', 'class' => 'parent', 'style' => 'display:none;'), 'name' => 'continue'));
 echo $this->Form->end();
 ?>
 </div>
