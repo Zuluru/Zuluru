@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('Edit', true));
 
 $short = Configure::read('organization.short_name');
 $admin = Configure::read('email.admin_email');
-$this_is_player = Set::extract('/GroupsPerson[group_id=2]', $cached['Group']);
+$this_is_player = (!empty($cached['Group']) && Set::extract('/GroupsPerson[group_id=2]', $cached['Group']));
 $this_is_player = (!empty($this_is_player));
 
 $access = array(1);
