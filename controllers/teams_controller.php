@@ -2244,6 +2244,7 @@ class TeamsController extends AppController {
 				$this->redirect('/');
 			}
 		}
+		$is_me = ($person_id == $my_id || in_array($person_id, $this->UserCache->read('RelativeIDs')));
 
 		list ($team, $person) = $this->_initTeamForRosterChange($person_id);
 		$team_id = $team['Team']['id'];
@@ -2272,7 +2273,7 @@ class TeamsController extends AppController {
 			// Check for coordinator or admin override
 			if (!$this->effective_admin && !$this->effective_coordinator &&
 				// Players can accept when they are invited
-				!($person['Person']['TeamsPerson']['status'] == ROSTER_INVITED && $person_id == $this->UserCache->currentId()) &&
+				!($person['Person']['TeamsPerson']['status'] == ROSTER_INVITED && $is_me) &&
 				// Captains can accept requests to join their teams
 				!($person['Person']['TeamsPerson']['status'] == ROSTER_REQUESTED && in_array ($team_id, $this->UserCache->read('OwnedTeamIDs')))
 			)
@@ -2325,6 +2326,7 @@ class TeamsController extends AppController {
 				$this->redirect('/');
 			}
 		}
+		$is_me = ($person_id == $my_id || in_array($person_id, $this->UserCache->read('RelativeIDs')));
 
 		list ($team, $person) = $this->_initTeamForRosterChange($person_id);
 		$team_id = $team['Team']['id'];
@@ -2354,8 +2356,7 @@ class TeamsController extends AppController {
 			if (!$this->effective_admin && !$this->effective_coordinator &&
 				// Players or captains can either decline an invite or request from the other,
 				// or remove one that they made themselves.
-				!($person_id == $this->UserCache->currentId()) &&
-				!(in_array ($team_id, $this->UserCache->read('OwnedTeamIDs')))
+				!$is_me && !(in_array ($team_id, $this->UserCache->read('OwnedTeamIDs')))
 			)
 			{
 				$this->Session->setFlash(sprintf (__('You are not allowed to decline this roster %s.', true),
@@ -2810,7 +2811,7 @@ class TeamsController extends AppController {
 		$this->_initRosterEmail($person, $team, $role);
 
 		if ($status == ROSTER_INVITED) {
-			$is_player = ($this->_arg('code') !== null || $person['Person']['id'] == $this->UserCache->currentId());
+			$is_player = ($this->_arg('code') !== null || $person['Person']['id'] == $this->UserCache->currentId() || in_array($person['Person']['id'], $this->UserCache->read('RelativeIDs')));
 			$is_captain = in_array($team['Team']['id'], $this->UserCache->read('OwnedTeamIDs'));
 
 			if ($is_player || $this->effective_admin || $this->effective_coordinator) {
