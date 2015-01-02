@@ -50,6 +50,7 @@ $this->Html->addCrumb (__('List', true));
 		echo $this->ZuluruHtml->iconLink('edit_24.png',
 			array('action' => 'edit', 'person' => $person['Person']['id']),
 			array('alt' => __('Edit', true), 'title' => __('Edit', true)));
+		echo $this->ZuluruHtml->link(__('Act As', true), array('action' => 'act_as', 'person' => $person['Person']['id']));
 		echo $this->ZuluruHtml->iconLink('delete_24.png',
 			array('action' => 'delete', 'person' => $person['Person']['id']),
 			array('alt' => __('Delete', true), 'title' => __('Delete', true)),
