@@ -9,7 +9,12 @@ $sport = reset(array_keys(Configure::read('options.sport')));
 Configure::load("sport/$sport");
 ?>
 
-<p><?php __('To create a new account, fill in all the fields below and click \'Submit\' when done. Your account will be placed on hold until approved by an administrator. Once approved, you will have full access to the system.'); ?></p>
+<p><?php
+__('To create a new account, fill in all the fields below and click \'Submit\' when done.');
+if (!Configure::read('feature.auto_approve')) {
+	echo ' ' . __('Your account will be placed on hold until approved by an administrator. Once approved, you will have full access to the system.', true);
+}
+?></p>
 <p><?php printf(__('%s If you already have an account from a previous season, %s! Instead, please %s to regain access to your account.', true),
 		$this->Html->tag('strong', __('NOTE', true) . ': '),
 		$this->Html->tag('strong', __('DO NOT CREATE ANOTHER ONE', true)),
