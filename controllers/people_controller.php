@@ -1156,7 +1156,11 @@ class PeopleController extends AppController {
 			}
 
 			$transaction->commit();
-			$this->redirect('/');
+			if (isset($this->params['form']['continue'])) {
+				$this->data = null;
+			} else {
+				$this->redirect('/');
+			}
 		}
 	}
 

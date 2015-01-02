@@ -1,10 +1,10 @@
 <?php
 $this->Html->addCrumb (__('People', true));
-$this->Html->addCrumb (__('Add Relative', true));
+$this->Html->addCrumb (__('Add Child', true));
 ?>
 
 <div class="people add_relative form">
-<h2><?php echo sprintf(__('Add %s', true), __('Relative', true));?></h2>
+<h2><?php echo sprintf(__('Add %s', true), __('Child', true));?></h2>
 
 <p>This process is intended for parents to add player profiles for their children.
 This does not create a login account; the only access to the new profile will be through your account.</p>
@@ -86,8 +86,6 @@ if (Configure::read('profile.shirt_size')) {
 		'options' => Configure::read('options.shirt_size'),
 	));
 }
-
-echo $this->Form->end(__('Submit', true));
 ?>
 	</fieldset>
 <?php if (Configure::read('feature.affiliates')): ?>
@@ -109,6 +107,11 @@ echo $this->Form->end(__('Submit', true));
 ?>
 	</fieldset>
 <?php endif; ?>
+<?php
+echo $this->Form->submit(__('Submit and save', true), array('div' => false, 'name' => 'create'));
+echo $this->Form->submit(__('Save and add another child', true), array('div' => false, 'name' => 'continue'));
+echo $this->Form->end();
+?>
 </div>
 
 <?php
