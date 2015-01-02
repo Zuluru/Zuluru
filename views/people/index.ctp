@@ -1,17 +1,38 @@
 <?php
 $this->Html->addCrumb (__('People', true));
 $this->Html->addCrumb (__('List', true));
+if (isset($group)) {
+	$this->Html->addCrumb (__(Inflector::pluralize($group), true));
+}
 ?>
 
 <div class="people index">
-<h2><?php __('People');?></h2>
+<h2><?php
+__('People');
+if (isset($group)) {
+	echo ': ' . __(Inflector::pluralize($group), true);
+}
+
+$user_names = array_unique(Set::extract('/Person/user_name', $people));
+$hide_user_name = (empty($user_names) || (count($user_names) == 1 && empty($user_names[0])));
+$emails = array_unique(Set::extract('/Person/email', $people));
+$hide_email = (empty($emails) || (count($emails) == 1 && empty($emails[0])));
+$genders = array_unique(Set::extract('/Person/gender', $people));
+$hide_gender = (empty($genders) || (count($genders) == 1 && empty($genders[0])));
+?></h2>
 <table class="list">
 	<tr>
 		<th><?php echo $this->Paginator->sort('first_name'); ?></th>
 		<th><?php echo $this->Paginator->sort('last_name'); ?></th>
+		<?php if (!$hide_user_name): ?>
 		<th><?php __('User Name'); ?></th>
+		<?php endif; ?>
+		<?php if (!$hide_email): ?>
 		<th><?php __('Email'); ?></th>
+		<?php endif; ?>
+		<?php if (!$hide_gender): ?>
 		<th><?php echo $this->Paginator->sort('gender'); ?></th>
+		<?php endif; ?>
 		<th><?php echo $this->Paginator->sort('status'); ?></th>
 		<th class="actions"><?php __('Actions'); ?></th>
 	</tr>
@@ -38,9 +59,15 @@ $this->Html->addCrumb (__('List', true));
 	<tr<?php echo $class;?>>
 		<td><?php echo $this->element('people/block', array('person' => $person, 'display_field' => 'first_name')); ?>&nbsp;</td>
 		<td><?php echo $this->element('people/block', array('person' => $person, 'display_field' => 'last_name')); ?>&nbsp;</td>
+		<?php if (!$hide_user_name): ?>
 		<td><?php if (!empty($person['Person']['user_name'])) echo $person['Person']['user_name']; ?>&nbsp;</td>
+		<?php endif; ?>
+		<?php if (!$hide_email): ?>
 		<td><?php echo $person['Person']['email']; ?>&nbsp;</td>
+		<?php endif; ?>
+		<?php if (!$hide_gender): ?>
 		<td><?php echo $person['Person']['gender']; ?>&nbsp;</td>
+		<?php endif; ?>
 		<td><?php echo $person['Person']['status']; ?>&nbsp;</td>
 		<td class="actions">
 		<?php

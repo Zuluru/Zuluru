@@ -1,5 +1,5 @@
 <?php
-$this->Html->addCrumb (__('Players', true));
+$this->Html->addCrumb (__('People', true));
 $this->Html->addCrumb ($person['full_name']);
 $this->Html->addCrumb (__('Upload Document', true));
 ?>

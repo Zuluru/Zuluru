@@ -839,10 +839,10 @@ class AppController extends Controller {
 		}
 
 		if ($this->is_logged_in) {
-			$this->_addMenuItem ('Search', array('controller' => 'people', 'action' => 'search'), 'Players');
+			$this->_addMenuItem ('Search', array('controller' => 'people', 'action' => 'search'), 'People');
 			if (Configure::read('feature.badges')) {
-				$this->_addMenuItem ('Badges', array('controller' => 'badges', 'action' => 'index'), 'Players');
-				$this->_addMenuItem ('Nominate', array('controller' => 'people', 'action' => 'nominate'), array('Players', 'Badges'));
+				$this->_addMenuItem ('Badges', array('controller' => 'badges', 'action' => 'index'), 'People');
+				$this->_addMenuItem ('Nominate', array('controller' => 'people', 'action' => 'nominate'), array('People', 'Badges'));
 				if ($this->is_admin || $this->is_manager) {
 					$new = $this->Person->Badge->find ('count', array(
 						'joins' => array(
@@ -861,18 +861,18 @@ class AppController extends Controller {
 					));
 					if ($new > 0) {
 						$this->set('new_nominations', $new);
-						$this->_addMenuItem ("Approve nominations ($new pending)", array('controller' => 'people', 'action' => 'approve_badges'), array('Players', 'Badges'));
+						$this->_addMenuItem ("Approve nominations ($new pending)", array('controller' => 'people', 'action' => 'approve_badges'), array('People', 'Badges'));
 					}
-					$this->_addMenuItem ('Deactivated', array('controller' => 'badges', 'action' => 'deactivated'), array('Players', 'Badges'));
+					$this->_addMenuItem ('Deactivated', array('controller' => 'badges', 'action' => 'deactivated'), array('People', 'Badges'));
 				}
 			}
 		}
 
 		if ($this->is_admin || $this->is_manager) {
-			$this->_addMenuItem ('By name', array('controller' => 'people', 'action' => 'search'), array('Players', 'Search'));
-			$this->_addMenuItem ('By rule', array('controller' => 'people', 'action' => 'rule_search'), array('Players', 'Search'));
-			$this->_addMenuItem ('By league', array('controller' => 'people', 'action' => 'league_search'), array('Players', 'Search'));
-			$this->_addMenuItem ('Inactive', array('controller' => 'people', 'action' => 'inactive_search'), array('Players', 'Search'));
+			$this->_addMenuItem ('By name', array('controller' => 'people', 'action' => 'search'), array('People', 'Search'));
+			$this->_addMenuItem ('By rule', array('controller' => 'people', 'action' => 'rule_search'), array('People', 'Search'));
+			$this->_addMenuItem ('By league', array('controller' => 'people', 'action' => 'league_search'), array('People', 'Search'));
+			$this->_addMenuItem ('Inactive', array('controller' => 'people', 'action' => 'inactive_search'), array('People', 'Search'));
 
 			if (!isset ($this->Person)) {
 				$this->Person = ClassRegistry::init ('Person');
@@ -896,7 +896,7 @@ class AppController extends Controller {
 			));
 			if ($new > 0) {
 				$this->set('new_accounts', $new);
-				$this->_addMenuItem ("Approve new accounts ($new pending)", array('controller' => 'people', 'action' => 'list_new'), 'Players');
+				$this->_addMenuItem ("Approve new accounts ($new pending)", array('controller' => 'people', 'action' => 'list_new'), 'People');
 			}
 
 			if (!isset ($this->Person->Upload) &&
@@ -914,7 +914,7 @@ class AppController extends Controller {
 				));
 				if ($new > 0) {
 					$this->set('new_photos', $new);
-					$this->_addMenuItem ("Approve new photos ($new pending)", array('controller' => 'people', 'action' => 'approve_photos'), 'Players');
+					$this->_addMenuItem ("Approve new photos ($new pending)", array('controller' => 'people', 'action' => 'approve_photos'), 'People');
 				}
 			}
 
@@ -927,12 +927,19 @@ class AppController extends Controller {
 				));
 				if ($new > 0) {
 					$this->set('new_documents', $new);
-					$this->_addMenuItem ("Approve new documents ($new pending)", array('controller' => 'people', 'action' => 'approve_documents'), 'Players');
+					$this->_addMenuItem ("Approve new documents ($new pending)", array('controller' => 'people', 'action' => 'approve_documents'), 'People');
 				}
 			}
 
-			$this->_addMenuItem ('List all', array('controller' => 'people', 'action' => 'index'), 'Players');
-			$this->_addMenuItem ('Bulk import', array('controller' => 'users', 'action' => 'import'), 'Players');
+			$this->_addMenuItem ('List all', array('controller' => 'people', 'action' => 'index'), 'People');
+			$groups = $this->Group->find('list', array(
+				'conditions' => array('active' => true),
+				'order' => array('Group.level', 'Group.id'),
+			));
+			foreach ($groups as $group => $name) {
+				$this->_addMenuItem (Inflector::pluralize($name), array('controller' => 'people', 'action' => 'index', 'group' => $group), array('People', 'List all'));
+			}
+			$this->_addMenuItem ('Bulk import', array('controller' => 'users', 'action' => 'import'), 'People');
 
 			$this->_addMenuItem ('Newsletters', array('controller' => 'newsletters', 'action' => 'index'));
 			$this->_addMenuItem ('Upcoming', array('controller' => 'newsletters', 'action' => 'index'), 'Newsletters');
@@ -1047,9 +1054,9 @@ class AppController extends Controller {
 		}
 
 		if ($this->is_admin || $this->is_manager) {
-			$this->_addMenuItem ('Statistics', array('controller' => 'people', 'action' => 'statistics'), 'Players');
-			$this->_addMenuItem ('Participation', array('controller' => 'people', 'action' => 'participation'), array('Players', 'Statistics'));
-			$this->_addMenuItem ('Retention', array('controller' => 'people', 'action' => 'retention'), array('Players', 'Statistics'));
+			$this->_addMenuItem ('Statistics', array('controller' => 'people', 'action' => 'statistics'), 'People');
+			$this->_addMenuItem ('Participation', array('controller' => 'people', 'action' => 'participation'), array('People', 'Statistics'));
+			$this->_addMenuItem ('Retention', array('controller' => 'people', 'action' => 'retention'), array('People', 'Statistics'));
 			$this->_addMenuItem ('Statistics', array('controller' => 'teams', 'action' => 'statistics'), 'Teams');
 			if (Configure::read('feature.registration')) {
 				$this->_addMenuItem ('Statistics', array('controller' => 'registrations', 'action' => 'statistics'), 'Registration');
@@ -1063,7 +1070,7 @@ class AppController extends Controller {
 			if (!$this->is_logged_in) {
 				$this->_addMenuItem ('Create account', array('controller' => 'users', 'action' => 'create_account'));
 			} else if ($this->is_admin || $this->is_manager) {
-				$this->_addMenuItem ('Create account', array('controller' => 'users', 'action' => 'create_account'), 'Players');
+				$this->_addMenuItem ('Create account', array('controller' => 'users', 'action' => 'create_account'), 'People');
 			}
 		}
 

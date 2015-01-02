@@ -1,12 +1,12 @@
 <?php if (!$this->params['isAjax']): ?>
 
 <?php
-$this->Html->addCrumb (__('Players', true));
+$this->Html->addCrumb (__('People', true));
 $this->Html->addCrumb (__('Rule-based Search', true));
 ?>
 
 <div class="people search">
-<h2><?php printf(__('Search %s', true), __('Players', true)); ?></h2>
+<h2><?php printf(__('Search %s', true), __('People', true)); ?></h2>
 
 <div class="search form">
 <?php echo $this->Form->create(false, array('url' => $url, 'id' => 'RuleSearchForm'));?>

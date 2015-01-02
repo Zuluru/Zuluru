@@ -29,7 +29,7 @@ Details about each option are included on the settings pages, and not reiterated
 <li>Settings -> Features is used to turn various optional features (registration, franchises, annotations, how to handle roster requests, etc.) on and off.</li>
 <li>The Settings -> Email page configures some important email addresses used by the system to communicate with users and administrators.</li>
 <li>The Settings -> Team page allows you to turn various team-specific options on and off.</li>
-<li>Settings -> User is used to change options related to how user accounts are handled, while Settings -> Profile is used to set which profile fields you want to track for your players (and can set some to be admin-only if there is no good reason for your users to be changing them once they are initially set).</li>
+<li>Settings -> User is used to change options related to how user accounts are handled, while Settings -> Profile is used to set which profile fields you want to track for your users (and can set some to be admin-only if there is no good reason for your users to be changing them once they are initially set).</li>
 <li>Use the Settings -> Scoring page to configure how the system handles certain score submission situations, and to set up some default values for creating new leagues.</li>
 <li>If you have enabled Registration on the Settings -> Features page, you then use the Settings -> Registration page to set up certain aspects of how the registration system will work.</li>
 <li>If you have enabled Online Payments on the Settings -> Registration page, you then use the Settings -> Payments page to define any applicable taxes and configure login credentials for your selected third-party payment provider.</li>

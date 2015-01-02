@@ -1,5 +1,5 @@
 <?php
-$this->Html->addCrumb (__('Players', true));
+$this->Html->addCrumb (__('People', true));
 $this->Html->addCrumb ($this->data['Person']['full_name']);
 $this->Html->addCrumb (__('Note', true));
 if (empty($this->data['Note'][0]['id'])) {

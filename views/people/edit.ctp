@@ -1,6 +1,6 @@
 <?php
 $cached = $this->UserCache->read('Person', $this->Form->value('Person.id'));
-$this->Html->addCrumb (__('Players', true));
+$this->Html->addCrumb (__('People', true));
 $this->Html->addCrumb (array_key_exists('first_name', $this->data['Person']) ? "{$this->data['Person']['first_name']} {$this->data['Person']['last_name']}" : "{$cached['first_name']} {$cached['last_name']}");
 $this->Html->addCrumb (__('Edit', true));
 
@@ -28,7 +28,7 @@ if (!empty($this->data['Upload']) && $this->data['Upload']['approved'] == true) 
 }
 echo $is_me ? __('Edit Your Profile', true) : (array_key_exists('first_name', $this->data['Person']) ? "{$this->data['Person']['first_name']} {$this->data['Person']['last_name']}" : "{$cached['first_name']} {$cached['last_name']}"); ?></h2>
 <?php if ($cached['user_id']): ?>
-<p><?php __('Note that email and phone publish settings below only apply to regular players. Captains will always have access to view the phone numbers and email addresses of their confirmed players. All Team Captains will also have their email address viewable by other players.'); ?></p>
+<p><?php __('Note that email and phone publish settings below only apply to regular people. Captains will always have access to view the phone numbers and email addresses of their confirmed players. All Team Captains will also have their email address viewable by other players.'); ?></p>
 	<?php if (Configure::read('urls.privacy_policy')): ?>
 <p><?php printf(__('If you have concerns about the data %s collects, please see our %s.', true),
 		$short,
@@ -130,7 +130,7 @@ echo $is_me ? __('Edit Your Profile', true) : (array_key_exists('first_name', $t
 		}
 		if (Configure::read('profile.home_phone')) {
 			echo $this->ZuluruForm->input('publish_home_phone', array(
-				'label' => __('Allow other players to view home number', true),
+				'label' => __('Allow other people to view home number', true),
 			));
 		}
 		if (in_array (Configure::read('profile.work_phone'), $access)) {
@@ -157,7 +157,7 @@ echo $is_me ? __('Edit Your Profile', true) : (array_key_exists('first_name', $t
 		}
 		if (Configure::read('profile.work_phone')) {
 			echo $this->ZuluruForm->input('publish_work_phone', array(
-				'label' => __('Allow other players to view work number', true),
+				'label' => __('Allow other people to view work number', true),
 			));
 		}
 		if (in_array (Configure::read('profile.mobile_phone'), $access)) {
@@ -174,7 +174,7 @@ echo $is_me ? __('Edit Your Profile', true) : (array_key_exists('first_name', $t
 		}
 		if (Configure::read('profile.mobile_phone')) {
 			echo $this->ZuluruForm->input('publish_mobile_phone', array(
-				'label' => __('Allow other players to view mobile number', true),
+				'label' => __('Allow other people to view mobile number', true),
 			));
 		}
 	}
@@ -202,7 +202,7 @@ echo $is_me ? __('Edit Your Profile', true) : (array_key_exists('first_name', $t
 				'after' => $this->Html->para (null, __('Enter your work extension (optional).', true)),
 			));
 			echo $this->ZuluruForm->input('publish_alternate_work_phone', array(
-				'label' => __('Allow other players to view work number', true),
+				'label' => __('Allow other people to view work number', true),
 			));
 		}
 		if (Configure::read('profile.mobile_phone')) {
@@ -211,7 +211,7 @@ echo $is_me ? __('Edit Your Profile', true) : (array_key_exists('first_name', $t
 				'after' => $this->Html->para (null, __('Enter your cell or pager number (optional).', true)),
 			));
 			echo $this->ZuluruForm->input('publish_alternate_mobile_phone', array(
-				'label' => __('Allow other players to view mobile number', true),
+				'label' => __('Allow other people to view mobile number', true),
 			));
 		}
 	?>
@@ -268,11 +268,11 @@ echo $is_me ? __('Edit Your Profile', true) : (array_key_exists('first_name', $t
 			'label' => __('Email', true),
 		));
 		echo $this->ZuluruForm->input('publish_email', array(
-			'label' => __('Allow other players to view my email address', true),
+			'label' => __('Allow other people to view my email address', true),
 		));
 		echo $this->ZuluruForm->input('alternate_email');
 		echo $this->ZuluruForm->input('publish_alternate_email', array(
-			'label' => __('Allow other players to view my alternate email address', true),
+			'label' => __('Allow other people to view my alternate email address', true),
 		));
 		if (Configure::read('feature.gravatar')) {
 			if (Configure::read('feature.photos')) {

@@ -183,6 +183,21 @@ class PeopleController extends AppController {
 				'order' => array('Affiliate.name', 'Person.last_name', 'Person.first_name'),
 				'limit' => Configure::read('feature.items_per_page'),
 		);
+
+		$group_id = $this->_arg('group');
+		if ($group_id) {
+			$this->paginate['joins'][] = array(
+				'table' => "{$this->Person->tablePrefix}groups_people",
+				'alias' => 'GroupPerson',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'GroupPerson.person_id = Person.id',
+			);
+			$this->paginate['conditions']['GroupPerson.group_id'] = $group_id;
+			$group = $this->Person->Group->field('name', array('id' => $group_id));
+			$this->set(compact('group'));
+		}
+
 		$this->set('people', $this->paginate());
 	}
 
@@ -221,21 +236,34 @@ class PeopleController extends AppController {
 				'recursive' => -1,
 		));
 
-		// Get the list of accounts by gender
+		// Following queries all look only at players
+		// TODO: Eliminate hard-coded group_ids
+		$joins[] = array(
+			'table' => "{$this->Person->tablePrefix}groups_people",
+			'alias' => 'GroupPerson',
+			'type' => 'LEFT',
+			'foreignKey' => false,
+			'conditions' => 'GroupPerson.person_id = Person.id',
+		);
+
+		// Get the list of players by gender
 		$gender_count = $this->Person->find('all', array(
 				'fields' => array(
 					'Affiliate.*',
 					'Person.gender',
 					'COUNT(Person.id) AS count',
 				),
-				'conditions' => array('AffiliatePerson.affiliate_id' => $affiliates),
+				'conditions' => array(
+					'AffiliatePerson.affiliate_id' => $affiliates,
+					'GroupPerson.group_id' => 2,
+				),
 				'joins' => $joins,
 				'group' => array('AffiliatePerson.affiliate_id', 'Person.gender'),
 				'order' => array('Affiliate.name', 'Person.gender' => 'DESC'),
 				'recursive' => -1,
 		));
 
-		// Get the list of accounts by age
+		// Get the list of players by age
 		if (Configure::read('profile.birthdate')) {
 			$age_count = $this->Person->find('all', array(
 					'fields' => array(
@@ -245,6 +273,7 @@ class PeopleController extends AppController {
 					),
 					'conditions' => array(
 						'AffiliatePerson.affiliate_id' => $affiliates,
+						'GroupPerson.group_id' => 2,
 						array('birthdate !=' => null),
 						array('birthdate !=' => '0000-00-00'),
 					),
@@ -255,7 +284,7 @@ class PeopleController extends AppController {
 			));
 		}
 
-		// Get the list of accounts by year started
+		// Get the list of players by year started
 		if (Configure::read('profile.year_started')) {
 			$started_count = $this->Person->find('all', array(
 					'fields' => array(
@@ -263,7 +292,10 @@ class PeopleController extends AppController {
 						'Person.year_started',
 						'COUNT(Person.id) AS count',
 					),
-					'conditions' => array('AffiliatePerson.affiliate_id' => $affiliates),
+					'conditions' => array(
+						'AffiliatePerson.affiliate_id' => $affiliates,
+						'GroupPerson.group_id' => 2,
+					),
 					'joins' => $joins,
 					'group' => array('AffiliatePerson.affiliate_id', 'year_started'),
 					'order' => array('Affiliate.name', 'year_started'),
@@ -271,7 +303,7 @@ class PeopleController extends AppController {
 			));
 		}
 
-		// Get the list of accounts by skill level
+		// Get the list of players by skill level
 		if (Configure::read('profile.skill_level')) {
 			$skill_count = $this->Person->find('all', array(
 					'fields' => array(
@@ -279,7 +311,10 @@ class PeopleController extends AppController {
 						'Person.skill_level',
 						'COUNT(Person.id) AS count',
 					),
-					'conditions' => array('AffiliatePerson.affiliate_id' => $affiliates),
+					'conditions' => array(
+						'AffiliatePerson.affiliate_id' => $affiliates,
+						'GroupPerson.group_id' => 2,
+					),
 					'joins' => $joins,
 					'group' => array('AffiliatePerson.affiliate_id', 'skill_level'),
 					'order' => array('Affiliate.name', 'skill_level' => 'DESC'),
@@ -287,7 +322,7 @@ class PeopleController extends AppController {
 			));
 		}
 
-		// Get the list of accounts by city
+		// Get the list of players by city
 		if (Configure::read('profile.addr_city')) {
 			$city_count = $this->Person->find('all', array(
 					'fields' => array(
@@ -295,7 +330,10 @@ class PeopleController extends AppController {
 						'Person.addr_city',
 						'COUNT(Person.id) AS count',
 					),
-					'conditions' => array('AffiliatePerson.affiliate_id' => $affiliates),
+					'conditions' => array(
+						'AffiliatePerson.affiliate_id' => $affiliates,
+						'GroupPerson.group_id' => 2,
+					),
 					'joins' => $joins,
 					'group' => array('AffiliatePerson.affiliate_id', 'addr_city HAVING count > 2'),
 					'order' => array('Affiliate.name', 'count' => 'DESC'),
@@ -304,13 +342,6 @@ class PeopleController extends AppController {
 		}
 
 		// Get the list of accounts by group
-		$joins[] = array(
-			'table' => "{$this->Person->tablePrefix}groups_people",
-			'alias' => 'GroupPerson',
-			'type' => 'LEFT',
-			'foreignKey' => false,
-			'conditions' => 'GroupPerson.person_id = Person.id',
-		);
 		$joins[] = array(
 			'table' => "{$this->Person->tablePrefix}groups",
 			'alias' => 'Group',

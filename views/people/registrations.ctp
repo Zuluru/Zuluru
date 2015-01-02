@@ -1,7 +1,7 @@
 <?php if (!$this->params['isAjax']): ?>
 
 <?php
-$this->Html->addCrumb (__('Players', true));
+$this->Html->addCrumb (__('People', true));
 $this->Html->addCrumb ($person['Person']['full_name']);
 $this->Html->addCrumb (__('Registration History', true));
 ?>

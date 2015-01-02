@@ -1,18 +1,17 @@
 <?php
-// TODO: This isn't really "Player" stats any more. Do a better job of showing account stats vs player stats.
-$this->Html->addCrumb (__('Players', true));
+$this->Html->addCrumb (__('People', true));
 $this->Html->addCrumb (__('Statistics', true));
 ?>
 
 <div class="people statistics">
-<h2><?php __('Player Statistics');?></h2>
+<h2><?php __('People Statistics');?></h2>
 
-<h3><?php __('Players by Account Status'); ?></h3>
+<h3><?php __('People by Account Status'); ?></h3>
 <table class="list">
 	<thead>
 		<tr>
 			<th><?php __('Status'); ?></th>
-			<th><?php __('Players'); ?></th>
+			<th><?php __('People'); ?></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -56,7 +55,7 @@ foreach ($status_count as $status):
 	</tbody>
 </table>
 
-<h3><?php __('Players by Account Class'); ?></h3>
+<h3><?php __('People by Account Class'); ?></h3>
 <table class="list">
 	<thead>
 		<tr>
@@ -80,7 +79,13 @@ foreach ($group_count as $group):
 	endif;
 ?>
 		<tr>
-			<td><?php echo $group['Group']['name']; ?></td>
+			<td><?php
+			if (empty($group['Group']['name'])) {
+				__('None');
+			} else {
+				echo $group['Group']['name'];
+			}
+			?></td>
 			<td><?php echo $group[0]['count']; ?></td>
 		</tr>
 <?php endforeach; ?>
@@ -327,7 +332,13 @@ foreach ($city_count as $city):
 	$total += $city[0]['count'];
 ?>
 		<tr>
-			<td><?php echo $city['Person']['addr_city']; ?></td>
+			<td><?php
+			if (empty($city['Person']['addr_city'])) {
+				__('Unspecified');
+			} else {
+				echo $city['Person']['addr_city'];
+			}
+			?></td>
 			<td><?php echo $city[0]['count']; ?></td>
 		</tr>
 <?php endforeach; ?>
