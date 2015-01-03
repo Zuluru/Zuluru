@@ -10,7 +10,7 @@ $this->Html->addCrumb ($event['Event']['name']);
 <table class="list">
 	<tr>
 		<th><?php __('Registration');?></th>
-		<th><?php __('Player');?></th>
+		<th><?php __('Person');?></th>
 		<th><?php __('Date');?></th>
 		<th class="actions"><?php __('Actions');?></th>
 	</tr>

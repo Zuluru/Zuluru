@@ -15,7 +15,9 @@ If you don't already have an account, <?php echo $this->Html->link('follow these
 <?php else: ?>
 This site manages user accounts through <?php echo Configure::read('feature.manage_name'); ?>. If you don't already have an account, <?php echo $this->Html->link('follow these directions', Configure::read('urls.register')); ?> to get yourself set up.
 <?php endif; ?></p>
-<p>Next, each player must have their completed profile approved by an administrator.
+<?php if (!Configure::read('feature.auto_approve')): ?>
+<p>Next, each person must have their completed profile approved by an administrator.
+<?php endif; ?>
 <?php if ($is_logged_in): ?>
 <?php if (!$this->UserCache->read('Person.complete')): ?>
 To complete your profile, <?php echo $this->Html->link('follow these directions', array('controller' => 'people', 'action' => 'edit')); ?>.

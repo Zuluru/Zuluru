@@ -8,7 +8,7 @@ $this->Html->addCrumb (__('Credits', true));
 
 <table class="list">
 	<tr>
-		<th><?php __('Player');?></th>
+		<th><?php __('Person');?></th>
 		<th><?php __('Date'); ?></th>
 		<th><?php __('Initial Amount'); ?></th>
 		<th><?php __('Amount Used'); ?></th>

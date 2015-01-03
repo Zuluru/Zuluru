@@ -59,7 +59,7 @@ Note that this only prevents accidental violations, as administrators have suffi
 For example, if your organization offers both adult and youth leagues, someone might be both a Parent and a Player.
 Alternately, many organizations draw volunteers from the ranks of their players, or coaches from among the parents, so such people would have both applicable types checked.</p>
 
-<h3>Player Photos</h3>
+<h3>Photos</h3>
 <p>People have the option of uploading a photo to the site.
 Before being made public, photos must be approved by an administrator.</p>
 <p>If there are new photos to be approved, there will be an "approve new photos" option under the People menu.

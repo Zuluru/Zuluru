@@ -245,7 +245,7 @@ $collapse = !empty($this->data['Division']['id']);
 				'empty' => '---',
 				'label' => 'Spirit Display',
 				'default' => 'all',
-				'after' => $this->Html->para (null, __('Control spirit display. "All" shows numeric scores and survey answers (if applicable) to any player. "Numeric" shows game scores but not survey answers. "Symbols Only" shows only star, check, and X, with no numeric values attached. "Coordinator Only" restricts viewing of any per-game information to coordinators only.', true)),
+				'after' => $this->Html->para (null, __('Control spirit display. "All" shows numeric scores and survey answers (if applicable) to anyone. "Numeric" shows game scores but not survey answers. "Symbols Only" shows only star, check, and X, with no numeric values attached. "Coordinator Only" restricts viewing of any per-game information to coordinators only.', true)),
 			));
 
 			$tie_breaker_options = Configure::read('options.tie_breaker_spirit');

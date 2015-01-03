@@ -9,7 +9,7 @@ $this->Html->addCrumb (__('Unpaid', true));
 <table class="list">
 	<tr>
 		<th><?php __('Registration');?></th>
-		<th><?php __('Player / Event');?></th>
+		<th><?php __('Person / Event');?></th>
 		<th><?php __('Date');?></th>
 		<th><?php __('Payment');?></th>
 		<th class="actions"><?php __('Actions');?></th>

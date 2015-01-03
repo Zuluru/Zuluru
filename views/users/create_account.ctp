@@ -21,7 +21,7 @@ if (!Configure::read('feature.auto_approve')) {
 		$this->Html->link(__('follow these instructions', true), array('controller' => 'users', 'action' => 'reset_password'))
 );
 ?></p>
-<p><?php __('Note that email and phone publish settings below only apply to regular players. Captains will always have access to view the phone numbers and email addresses of their confirmed players. All Team Captains will also have their email address viewable by other players.'); ?></p>
+<p><?php __('Note that email and phone publish settings below only apply to regular people. Captains will always have access to view the phone numbers and email addresses of their confirmed players. All Team Captains will also have their email address viewable by other players.'); ?></p>
 <?php if (Configure::read('urls.privacy_policy')): ?>
 <p><?php printf(__('If you have concerns about the data %s collects, please see our %s.', true),
 		$short,
@@ -86,7 +86,7 @@ if (Configure::read('feature.antispam')):
 				'after' => $this->Html->para (null, __('Enter your home telephone number.', true)),
 			));
 			echo $this->ZuluruForm->input('Person.0.publish_home_phone', array(
-				'label' => __('Allow other players to view home number', true),
+				'label' => __('Allow other people to view home number', true),
 			));
 		}
 		if (Configure::read('profile.work_phone')) {
@@ -98,7 +98,7 @@ if (Configure::read('feature.antispam')):
 				'after' => $this->Html->para (null, __('Enter your work extension (optional).', true)),
 			));
 			echo $this->ZuluruForm->input('Person.0.publish_work_phone', array(
-				'label' => __('Allow other players to view work number', true),
+				'label' => __('Allow other people to view work number', true),
 			));
 		}
 		if (Configure::read('profile.mobile_phone')) {
@@ -106,7 +106,7 @@ if (Configure::read('feature.antispam')):
 				'after' => $this->Html->para (null, __('Enter your cell or pager number (optional).', true)),
 			));
 			echo $this->ZuluruForm->input('Person.0.publish_mobile_phone', array(
-				'label' => __('Allow other players to view mobile number', true),
+				'label' => __('Allow other people to view mobile number', true),
 			));
 		}
 	?>
@@ -132,7 +132,7 @@ if (Configure::read('feature.antispam')):
 				'after' => $this->Html->para (null, __('Enter your work extension (optional).', true)),
 			));
 			echo $this->ZuluruForm->input('Person.0.publish_alternate_work_phone', array(
-				'label' => __('Allow other players to view work number', true),
+				'label' => __('Allow other people to view work number', true),
 			));
 		}
 		if (Configure::read('profile.mobile_phone')) {
@@ -141,7 +141,7 @@ if (Configure::read('feature.antispam')):
 				'after' => $this->Html->para (null, __('Enter your cell or pager number (optional).', true)),
 			));
 			echo $this->ZuluruForm->input('Person.0.publish_alternate_mobile_phone', array(
-				'label' => __('Allow other players to view mobile number', true),
+				'label' => __('Allow other people to view mobile number', true),
 			));
 		}
 	?>
@@ -181,11 +181,11 @@ if (Configure::read('feature.antispam')):
 	<?php
 		echo $this->ZuluruForm->input($email_field);
 		echo $this->ZuluruForm->input('Person.0.publish_email', array(
-			'label' => __('Allow other players to view my email address', true),
+			'label' => __('Allow other people to view my email address', true),
 		));
 		echo $this->ZuluruForm->input('Person.0.alternate_email');
 		echo $this->ZuluruForm->input('Person.0.publish_alternate_email', array(
-			'label' => __('Allow other players to view my alternate email address', true),
+			'label' => __('Allow other people to view my alternate email address', true),
 		));
 		if (Configure::read('feature.gravatar')) {
 			if (Configure::read('feature.photos')) {
