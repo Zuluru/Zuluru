@@ -73,7 +73,7 @@ echo $this->ZuluruForm->input('note', array('cols' => 70, 'class' => 'mceSimple'
 echo $this->ZuluruForm->input('visibility', array(
 		'options' => array(
 			VISIBILITY_PRIVATE => __('Only I will be able to see this', true),
-			VISIBILITY_CAPTAINS => __('Only I and the captains of our team', true),
+			VISIBILITY_CAPTAINS => __('Only I and the coaches/captains of our team', true),
 			VISIBILITY_TEAM => __('Everyone on my team', true),
 		),
 ));

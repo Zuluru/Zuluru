@@ -49,5 +49,5 @@ setting up rules is currently a little bit complex, but there are examples provi
 
 <h3>Registration Interaction</h3>
 <p>The optional <?php echo $this->Html->link('registration system', array('action' => 'guide', 'administrator', 'registration')); ?> has hooks which allow it to create teams directly in the correct divisions.
-If registrations are not enabled on your system, captains will manually create teams, which will be placed in the "Unassigned Teams" list (found under the Teams menu).
+If registrations are not enabled on your system, coaches and captains will manually create teams, which will be placed in the "Unassigned Teams" list (found under the Teams menu).
 It will be your responsibility to manually move each of these teams into the appropriate division.</p>

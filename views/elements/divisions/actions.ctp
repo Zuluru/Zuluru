@@ -71,7 +71,7 @@ if ($is_admin || $is_manager || $is_coordinator) {
 	if ($this->params['controller'] != 'divisions' || $this->params['action'] != 'emails') {
 		$links[] = $this->ZuluruHtml->iconLink("email_$size.png",
 			array('controller' => 'divisions', 'action' => 'emails', 'division' => $division['id']),
-			array('alt' => __('Captain Emails', true), 'title' => __('Captain Emails', true)));
+			array('alt' => __('Coach/Captain Emails', true), 'title' => __('Coach/Captain Emails', true)));
 	}
 	if ($division['schedule_type'] != 'none') {
 		if ($division['schedule_type'] != 'competition') {

@@ -38,9 +38,9 @@ if (isset ($add)) {
 		));
 		echo $this->ZuluruForm->input('capt_list', array(
 			'div' => 'input advanced',
-			'label' => __('Captain Email List', true),
+			'label' => __('Coach/Captain Email List', true),
 			'size' => 70,
-			'after' => $this->Html->para (null, __('An email alias for all captains of this division.', true)),
+			'after' => $this->Html->para (null, __('An email alias for all coaches and captains of this division.', true)),
 		));
 		echo $this->ZuluruForm->input('header', array(
 			'div' => 'input advanced',
@@ -191,7 +191,7 @@ if (isset ($add)) {
 		echo $this->ZuluruForm->input('email_after', array(
 			'size' => 5,
 			'default' => 0,
-			'after' => $this->Html->para (null, __('Email captains who haven\'t scored games after this many hours, no reminder if 0.', true)),
+			'after' => $this->Html->para (null, __('Email coaches and captains who haven\'t scored games after this many hours, no reminder if 0.', true)),
 		));
 		echo $this->ZuluruForm->input('finalize_after', array(
 			'size' => 5,
@@ -204,7 +204,7 @@ if (isset ($add)) {
 				'options' => Configure::read('options.allstar'),
 				'empty' => '---',
 				'default' => 'never',
-				'after' => $this->Html->para (null, __('When to ask captains for allstar nominations.', true)),
+				'after' => $this->Html->para (null, __('When to ask coaches and captains for allstar nominations.', true)),
 			));
 			echo $this->ZuluruForm->input('Division.allstars_from', array(
 				'div' => 'input advanced',
@@ -220,7 +220,7 @@ if (isset ($add)) {
 				'options' => Configure::read('options.most_spirited'),
 				'empty' => '---',
 				'default' => 'never',
-				'after' => $this->Html->para (null, __('When to ask captains for "most spirited player" nominations.', true)),
+				'after' => $this->Html->para (null, __('When to ask coaches and captains for "most spirited player" nominations.', true)),
 			));
 		}
 	?>

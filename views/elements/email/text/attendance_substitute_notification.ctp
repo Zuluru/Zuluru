@@ -26,10 +26,10 @@ echo $this->ZuluruTime->date($date);
 IF THIS CORRECTLY REFLECTS YOUR CURRENT STATUS, YOU DO NOT NEED TO TAKE ANY ACTION AT THIS TIME. To update your status, use one of the links below, or visit the web site at any time.
 
 <?php if ($status == ATTENDANCE_INVITED): ?>
-Keep in mind that when teams are short, captains will often invite a number of people to fill in, so it's possible that even if you confirm attendance now, you might be uninvited later if others responded first. You will receive another email from the system in this case, but you may want to double-check with your captain that you are needed before the game.
+Keep in mind that when teams are short, coaches and captains will often invite a number of people to fill in, so it's possible that even if you confirm attendance now, you might be uninvited later if others responded first. You will receive another email from the system in this case, but you may want to double-check with your coach or captain that you are needed before the game.
 
 <?php elseif ($status == ATTENDANCE_AVAILABLE): ?>
-Remember that just because you are available for this game doesn't mean that the team will need you. The captain should indicate this by changing you to "attending" or "absent" once they know for sure, at which time you will receive another email from the system. If you do not receive this email, you may want to check with your captain through other channels.
+Remember that just because you are available for this game doesn't mean that the team will need you. The coach or captain should indicate this by changing you to "attending" or "absent" once they know for sure, at which time you will receive another email from the system. If you do not receive this email, you may want to check with your coach or captain through other channels.
 
 <?php endif; ?>
 <?php

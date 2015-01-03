@@ -23,7 +23,7 @@ echo $this->ZuluruTime->time($game['GameSlot']['display_game_end']);
 echo $this->ZuluruTime->date($game['GameSlot']['game_date']);
 ?>.</p>
 <?php if ($status == ATTENDANCE_INVITED): ?>
-<p>The captain has invited you to play in this game. However, when teams are short, captains will often invite a number of people to fill in, so it's possible that even if you confirm now, you might be uninvited later if others responded first. You will receive another email from the system in this case, but you may want to double-check with your captain that you are needed before the game.</p>
+<p>The coach or captain has invited you to play in this game. However, when teams are short, coaches and captains will often invite a number of people to fill in, so it's possible that even if you confirm now, you might be uninvited later if others responded first. You will receive another email from the system in this case, but you may want to double-check with your coach or captain that you are needed before the game.</p>
 <?php endif; ?>
 <?php if ($status == ATTENDANCE_INVITED || in_array($person['TeamsPerson']['role'], Configure::read('regular_roster_roles'))): ?>
 <p>If you are able to play, <?php
@@ -43,5 +43,5 @@ echo $this->Html->link(__('click here', true), $url);
 <p>Note that you can <?php
 $url = Router::url(array('controller' => 'teams', 'action' => 'attendance', 'team' => $team['id']), true);
 echo $this->Html->link(__('set your attendance in advance', true), $url);
-?>, giving your captain advance notice of vacations or other planned absences. You need to be logged into the website to update this.</p>
+?>, giving your coach or captain advance notice of vacations or other planned absences. You need to be logged into the website to update this.</p>
 <?php echo $this->element('email/html/footer'); ?>

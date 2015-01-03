@@ -2060,7 +2060,7 @@ class TeamsController extends AppController {
 				$count += count(Set::extract ("/Person/TeamsPerson[role=$captain_role][status=" . ROSTER_APPROVED . ']', $team));
 			}
 			if ($count == 1) {
-				$this->Session->setFlash(__('All teams must have at least one player as captain.', true), 'default', array('class' => 'info'));
+				$this->Session->setFlash(__('All teams must have at least one player as coach or captain.', true), 'default', array('class' => 'info'));
 				if ($this->RequestHandler->isAjax()) {
 					return;
 				}
@@ -2759,7 +2759,7 @@ class TeamsController extends AppController {
 				'sendAs' => 'both',
 		)))
 		{
-			$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team captains.', true)), 'default', array('class' => 'error'), 'email');
+			$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team coaches/captains.', true)), 'default', array('class' => 'error'), 'email');
 			return false;
 		}
 
@@ -2781,14 +2781,14 @@ class TeamsController extends AppController {
 					'sendAs' => 'both',
 			)))
 			{
-				$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team captains.', true)), 'default', array('class' => 'error'), 'email');
+				$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team ccoaches/aptains.', true)), 'default', array('class' => 'error'), 'email');
 				return false;
 			}
 		} else {
 			// A captain has accepted a request
 			$captain = $this->UserCache->read('Person.full_name');
 			if (empty($captain)) {
-				$captain = 'A captain';
+				$captain = 'A coach or captain';
 			}
 			$this->set (compact('captain'));
 
@@ -2826,7 +2826,7 @@ class TeamsController extends AppController {
 						'sendAs' => 'both',
 				)))
 				{
-					$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team captains.', true)), 'default', array('class' => 'error'), 'email');
+					$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team coaches/captains.', true)), 'default', array('class' => 'error'), 'email');
 					return false;
 				}
 			}
@@ -2852,7 +2852,7 @@ class TeamsController extends AppController {
 			// A captain has declined a request
 			$captain = $this->UserCache->read('Person.full_name');
 			if (empty($captain)) {
-				$captain = 'A captain';
+				$captain = 'A coach or captain';
 			}
 			$this->set (compact('captain'));
 
@@ -2896,7 +2896,7 @@ class TeamsController extends AppController {
 					'sendAs' => 'both',
 			)))
 			{
-				$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team captains.', true)), 'default', array('class' => 'error'), 'email');
+				$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team coaches/captains.', true)), 'default', array('class' => 'error'), 'email');
 				return false;
 			}
 		} else {
@@ -2940,7 +2940,7 @@ class TeamsController extends AppController {
 					'sendAs' => 'both',
 			)))
 			{
-				$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team captains.', true)), 'default', array('class' => 'error'), 'email');
+				$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team coaches/captains.', true)), 'default', array('class' => 'error'), 'email');
 				return false;
 			}
 		} else {

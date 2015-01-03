@@ -1,4 +1,4 @@
-<p>The "edit team" page is used to update details of your team. Only captains have permission to edit team details.</p>
+<p>The "edit team" page is used to update details of your team. Only coaches and captains have permission to edit team details.</p>
 <?php if (Configure::read('feature.registration')): ?>
 <p>Since this system uses the <?php
 echo $this->Html->link(__('registration system', true), array('controller' => 'events', 'action' => 'wizard')) . ' ' .

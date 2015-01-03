@@ -11,7 +11,7 @@ echo $this->Html->link($this->ZuluruTime->time($game['GameSlot']['game_start']),
 ?> on <?php
 echo $this->ZuluruTime->date($game['GameSlot']['game_date']);
 ?> in <?php echo $division['full_league_name']; ?> was <?php echo $opponent_status; ?>.</p>
-<p>Scores need to be submitted in a timely fashion by both captains to substantiate results and for optimal scheduling of future games. We ask you to please submit the score as soon as possible. If the above score is correct, you can confirm it <?php
+<p>Scores need to be submitted in a timely fashion by both teams to substantiate results and for optimal scheduling of future games. We ask you to please submit the score as soon as possible. If the above score is correct, you can confirm it <?php
 $url = Router::url(array_merge(array('controller' => 'games', 'action' => 'submit_score', 'game' => $game['Game']['id'], 'team' => $opponent['id']), compact('status', 'score_for', 'score_against')), true);
 echo $this->Html->link('here', $url);
 ?>, otherwise you can submit your score <?php

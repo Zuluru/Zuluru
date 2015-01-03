@@ -106,7 +106,7 @@ $preliminary = ($game['Game']['home_team'] === null || ($game['Division']['sched
 	?>
 	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Captain Emails'); ?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-		<?php echo $this->Html->link(__('Email all captains', true), 'mailto:' . implode (';', Set::extract ('/email_formatted', $captains))); ?>
+		<?php echo $this->Html->link(__('Email all coaches/captains', true), 'mailto:' . implode (';', Set::extract ('/email_formatted', $captains))); ?>
 
 	</dd>
 	<?php

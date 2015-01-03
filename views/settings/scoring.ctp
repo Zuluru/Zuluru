@@ -128,7 +128,7 @@ echo $this->element('settings/banner');
 			'label' => __('Incident reports', true),
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
-			'after' => __('If enabled, captains will be allowed to file incident reports when submitting scores.', true),
+			'after' => __('If enabled, coaches and captains will be allowed to file incident reports when submitting scores.', true),
 		),
 	));
 	echo $this->element('settings/input', array(

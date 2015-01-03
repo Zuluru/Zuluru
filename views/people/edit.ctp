@@ -28,7 +28,7 @@ if (!empty($this->data['Upload']) && $this->data['Upload']['approved'] == true) 
 }
 echo $is_me ? __('Edit Your Profile', true) : (array_key_exists('first_name', $this->data['Person']) ? "{$this->data['Person']['first_name']} {$this->data['Person']['last_name']}" : "{$cached['first_name']} {$cached['last_name']}"); ?></h2>
 <?php if ($cached['user_id']): ?>
-<p><?php __('Note that email and phone publish settings below only apply to regular people. Captains will always have access to view the phone numbers and email addresses of their confirmed players. All Team Captains will also have their email address viewable by other players.'); ?></p>
+<p><?php __('Note that email and phone publish settings below only apply to regular people. Coaches and captains will always have access to view the phone numbers and email addresses of their confirmed players. All team coaches and captains will also have their email address viewable by other players.'); ?></p>
 	<?php if (Configure::read('urls.privacy_policy')): ?>
 <p><?php printf(__('If you have concerns about the data %s collects, please see our %s.', true),
 		$short,

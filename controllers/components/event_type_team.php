@@ -112,7 +112,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 					'id' => OPEN_ROSTER,
 					'type' => 'checkbox',
 					'question' => __('Open Roster', true),
-					'after' => __('If the team roster is open, others can request to join; otherwise, only the captain can add players.', true),
+					'after' => __('If the team roster is open, others can request to join; otherwise, only a coach or captain can add players.', true),
 				);
 			}
 

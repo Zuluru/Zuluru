@@ -5,7 +5,7 @@
 <ul>
 	<li><?php echo $this->Html->link (__('New Users', true), array('controller' => 'help', 'action' => 'guide', 'new_user')); ?></li>
 	<li><?php echo $this->Html->link (__('Advanced Users', true), array('controller' => 'help', 'action' => 'guide', 'advanced')); ?></li>
-	<li><?php echo $this->Html->link (__('Captains', true), array('controller' => 'help', 'action' => 'guide', 'captain')); ?></li>
+	<li><?php echo $this->Html->link (__('Coaches/Captains', true), array('controller' => 'help', 'action' => 'guide', 'captain')); ?></li>
 <?php if ($is_admin || $is_coordinator): ?>
 	<li><?php echo $this->Html->link (__('Coordinators', true), array('controller' => 'help', 'action' => 'guide', 'coordinator')); ?></li>
 <?php endif; ?>

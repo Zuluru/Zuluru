@@ -1313,7 +1313,7 @@ class PeopleController extends AppController {
 				'sendAs' => 'both',
 		)))
 		{
-			$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team captains.', true)), 'default', array('class' => 'error'), 'email');
+			$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team coaches/captains.', true)), 'default', array('class' => 'error'), 'email');
 		}
 
 		$this->redirect(array('action' => 'view', 'person' => $person_id));
@@ -1376,7 +1376,7 @@ class PeopleController extends AppController {
 				'sendAs' => 'both',
 		)))
 		{
-			$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team captains.', true)), 'default', array('class' => 'error'), 'email');
+			$this->Session->setFlash(sprintf (__('Error sending email to %s.', true), __('team coaches/captains.', true)), 'default', array('class' => 'error'), 'email');
 		}
 
 		$this->redirect(array('action' => 'view', 'person' => $person_id));

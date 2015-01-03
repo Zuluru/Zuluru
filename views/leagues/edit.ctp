@@ -68,7 +68,7 @@ $collapse = !empty($this->data['Division']['id']);
 			));
 			echo $this->ZuluruForm->input('Division.capt_list', array(
 				'div' => 'input advanced',
-				'label' => __('Captain Email List', true),
+				'label' => __('Coach/Captain Email List', true),
 				'size' => 70,
 				'after' => $this->Html->para (null, __('An email alias for all coaches/captains of this division.', true)),
 			));

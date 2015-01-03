@@ -74,7 +74,7 @@ foreach ($games as $game):
 			}
 			$captains = Set::extract ('/email_formatted', array_merge ($game['HomeTeam']['Person'], $game['AwayTeam']['Person']));
 			if (!empty($captains)) {
-				echo $this->Html->link(__('email captains', true),
+				echo $this->Html->link(__('email coaches and captains', true),
 						'mailto:' . implode (';', $captains));
 			}
 			?></td>

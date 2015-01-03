@@ -1137,7 +1137,7 @@ class GamesController extends AppController {
 			else if ($is_captain && !in_array($role, Configure::read('playing_roster_roles'))) {
 				$captain = $this->UserCache->read('Person.full_name');
 				if (!$captain) {
-					$captain = __('A captain', true);
+					$captain = __('A coach or captain', true);
 				}
 				$this->set(compact('captain'));
 				$this->set('player_options',
@@ -2675,7 +2675,7 @@ class GamesController extends AppController {
 						));
 					}
 				}
-				return __('This score doesn\'t agree with the one your opponent submitted. Because of this, the score will not be posted until your coordinator approves it. Alternately, whichever captain made an error can edit their submission.', true);
+				return __('This score doesn\'t agree with the one your opponent submitted. Because of this, the score will not be posted until your coordinator approves it. Alternately, whichever coach or captain made an error can edit their submission.', true);
 			}
 		} else if ( $home_entry && !$away_entry ) {
 			$data['Game']['status'] = $home_entry['status'];

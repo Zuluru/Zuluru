@@ -26,7 +26,7 @@ echo implode ('<br />', $coordinators);
 	</dd>
 <?php endif; ?>
 <?php if (!empty ($division['capt_list'])) : ?>
-	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Captain Email List'); ?></dt>
+	<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Coach/Captain Email List'); ?></dt>
 	<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 		<?php echo $this->Html->link ($division['capt_list'], "mailto:{$division['capt_list']}"); ?>
 

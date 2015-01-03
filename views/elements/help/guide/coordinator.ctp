@@ -1,6 +1,6 @@
 <h2>Coordinator Guide</h2>
 <p><?php echo ZULURU; ?> provides a number of tools to make a coordinator's job go smoothly, but the number of options can be overwhelming at first.
-This guide will walk you through both the common and infrequent tasks, and help you to ensure that things go smoothly for the captains and players in your divisions.</p>
+This guide will walk you through both the common and infrequent tasks, and help you to ensure that things go smoothly for the coaches, captains and players in your divisions.</p>
 <p>Division coordinator is a position of power and responsibility, so this guide also suggests guidelines for behaviour.</p>
 
 <?php

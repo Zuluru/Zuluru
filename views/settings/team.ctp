@@ -142,7 +142,7 @@ echo $this->element('settings/banner');
 			'label' => __('Generate roster email', true),
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
-			'after' => __('If enabled, emails will be sent to players invited to join rosters, and captains who have players request to join their teams. It is recommended to use either this or Force Roster Request Responses, not both.', true),
+			'after' => __('If enabled, emails will be sent to players invited to join rosters, and coaches and captains who have players request to join their teams. It is recommended to use either this or Force Roster Request Responses, not both.', true),
 		),
 	));
 	?>

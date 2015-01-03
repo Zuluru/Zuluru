@@ -384,7 +384,7 @@ class TeamEventsController extends AppController {
 			else if ($is_captain && !in_array($role, Configure::read('playing_roster_roles'))) {
 				$captain = $this->UserCache->read('Person.full_name');
 				if (!$captain) {
-					$captain = __('A captain', true);
+					$captain = __('A coach or captain', true);
 				}
 				$this->set(compact('captain'));
 				$this->set('player_options',

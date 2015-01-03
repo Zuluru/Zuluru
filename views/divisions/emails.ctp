@@ -5,7 +5,7 @@ $this->Html->addCrumb ($division['Division']['full_league_name']);
 ?>
 
 <div class="divisions emails">
-<h2><?php echo __('Captain Emails', true) . ': ' . $division['Division']['full_league_name'];?></h2>
+<h2><?php echo __('Coach/Captain Emails', true) . ': ' . $division['Division']['full_league_name'];?></h2>
 
 <?php
 $people = Set::extract('/Team/Person/.', $division);

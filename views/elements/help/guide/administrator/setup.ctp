@@ -53,6 +53,6 @@ All of these variables are handled through the configuration of <?php echo $this
 
 <h3>Daily Maintenance</h3>
 <p>There are a number of daily maintenance tasks which the system can take care of for you automatically.
-This includes things like reminding players of upcoming games or unanswered roster invitations, reminding captains of games they haven't submitted scores for, opening upcoming leagues, closing past leagues, etc.</p>
+This includes things like reminding players of upcoming games or unanswered roster invitations, reminding coaches and captains of games they haven't submitted scores for, opening upcoming leagues, closing past leagues, etc.</p>
 <p>To handle all of this, you should set up an automated daily task, using the UNIX/Linux "cron" functionality, or the Windows Scheduler.
 Details of a sample cron task are in the main <?php echo ZULURU; ?> README file, and something very similar can be used for Windows.</p>

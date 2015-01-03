@@ -4,5 +4,5 @@ You will be presented with a list of options for the player's new role on the te
 <p>A change of role does not require any confirmation from the player<?php
 if (Configure::read('feature.generate_roster_email')): ?>, though an email will be sent to the player informing them of the change<?php
 endif; ?>.</p>
-<p>Anyone may use this feature to demote themselves, though the last captain on a team cannot do so.
-Only captains and assistant captains may promote players, and nobody can promote someone to a role higher than their own.</p>
+<p>Anyone may use this feature to demote themselves, though the last coach or captain on a team cannot do so.
+Only coaches, captains and assistant captains may promote players, and nobody can promote someone to a role higher than their own.</p>

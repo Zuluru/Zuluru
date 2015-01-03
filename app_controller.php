@@ -1053,7 +1053,7 @@ class AppController extends Controller {
 		$this->_addMenuItem ('Help index', array('controller' => 'help'), 'Help');
 		$this->_addMenuItem ('New users', array('controller' => 'help', 'action' => 'guide', 'new_user'), 'Help');
 		$this->_addMenuItem ('Advanced users', array('controller' => 'help', 'action' => 'guide', 'advanced'), 'Help');
-		$this->_addMenuItem ('Captains', array('controller' => 'help', 'action' => 'guide', 'captain'), 'Help');
+		$this->_addMenuItem ('Coaches/Captains', array('controller' => 'help', 'action' => 'guide', 'captain'), 'Help');
 		if ($this->is_admin || $this->is_manager || $this->UserCache->read('DivisionIDs')) {
 			$this->_addMenuItem ('Coordinators', array('controller' => 'help', 'action' => 'guide', 'coordinator'), 'Help');
 		}
