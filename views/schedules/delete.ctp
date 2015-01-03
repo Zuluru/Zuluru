@@ -47,11 +47,11 @@ if (!empty ($finalized)): ?>
 <?php if (!empty ($dependent)): ?>
  There are also <?php echo count($dependent); ?> additional games dependent in some way on these which will be deleted.<?php endif; ?></p>
 <?php if (!empty ($published)): ?>
-<p>Deleting published games can be confusing for players and captains, so be sure to <?php
+<p>Deleting published games can be confusing for coaches, captains and players, so be sure to <?php
 if (isset($division)) {
-	echo $this->Html->link (__('contact all captains', true), array('controller' => 'divisions', 'action' => 'emails', 'division' => $division['Division']['id']));
+	echo $this->Html->link (__('contact all coaches and captains', true), array('controller' => 'divisions', 'action' => 'emails', 'division' => $division['Division']['id']));
 } else {
-	__('contact all captains');
+	__('contact all coaches and captains');
 }
 ?> to inform them of this.</p>
 <?php endif; ?>

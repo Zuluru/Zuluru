@@ -70,7 +70,7 @@ $collapse = !empty($this->data['Division']['id']);
 				'div' => 'input advanced',
 				'label' => __('Captain Email List', true),
 				'size' => 70,
-				'after' => $this->Html->para (null, __('An email alias for all captains of this division.', true)),
+				'after' => $this->Html->para (null, __('An email alias for all coaches/captains of this division.', true)),
 			));
 			echo $this->ZuluruForm->input('Division.header', array(
 				'div' => 'input advanced',
@@ -274,7 +274,7 @@ $collapse = !empty($this->data['Division']['id']);
 			echo $this->ZuluruForm->input('Division.email_after', array(
 				'size' => 5,
 				'default' => 0,
-				'after' => $this->Html->para (null, __('Email captains who haven\'t scored games after this many hours, no reminder if 0.', true)),
+				'after' => $this->Html->para (null, __('Email coaches/captains who haven\'t scored games after this many hours, no reminder if 0.', true)),
 			));
 			echo $this->ZuluruForm->input('Division.finalize_after', array(
 				'size' => 5,
@@ -287,7 +287,7 @@ $collapse = !empty($this->data['Division']['id']);
 					'options' => Configure::read('options.allstar'),
 					'empty' => '---',
 					'default' => 'never',
-					'after' => $this->Html->para (null, __('When to ask captains for allstar nominations.', true)),
+					'after' => $this->Html->para (null, __('When to ask coaches/captains for allstar nominations.', true)),
 				));
 				echo $this->ZuluruForm->input('Division.allstars_from', array(
 					'div' => 'input advanced',
@@ -303,7 +303,7 @@ $collapse = !empty($this->data['Division']['id']);
 					'options' => Configure::read('options.most_spirited'),
 					'empty' => '---',
 					'default' => 'never',
-					'after' => $this->Html->para (null, __('When to ask captains for "most spirited player" nominations.', true)),
+					'after' => $this->Html->para (null, __('When to ask coaches/captains for "most spirited player" nominations.', true)),
 				));
 			}
 		}
@@ -318,7 +318,7 @@ $collapse = !empty($this->data['Division']['id']);
 			echo $this->ZuluruForm->input('stat_tracking', array(
 				'options' => Configure::read('options.stat_tracking'),
 				'empty' => '---',
-				'after' => $this->Html->para (null, __('When to ask captains for game stats.', true)),
+				'after' => $this->Html->para (null, __('When to ask coaches/captains for game stats.', true)),
 			));
 	?>
 		<div id="StatDetails">

@@ -52,11 +52,11 @@ if (isset ($add)) {
 			));
 			echo $this->ZuluruForm->input('attendance_summary', array(
 				'size' => 1,
-				'after' => $this->Html->para (null, __('Attendance summary emails will be sent to captains this many days before the game. 0 means the day of the game, -1 will disable these summaries.', true)),
+				'after' => $this->Html->para (null, __('Attendance summary emails will be sent to coaches/captains this many days before the game. 0 means the day of the game, -1 will disable these summaries.', true)),
 			));
 			echo $this->ZuluruForm->input('attendance_notification', array(
 				'size' => 1,
-				'after' => $this->Html->para (null, __('Emails notifying captains about changes in attendance status will be sent starting this many days before the game. 0 means the day of the game, -1 will disable these notifications. You will never receive notifications about any changes that happen before this time.', true)),
+				'after' => $this->Html->para (null, __('Emails notifying coaches/captains about changes in attendance status will be sent starting this many days before the game. 0 means the day of the game, -1 will disable these notifications. You will never receive notifications about any changes that happen before this time.', true)),
 			));
 		?>
 		</fieldset>
@@ -137,7 +137,7 @@ if (isset ($add)) {
 		endif;
 
 		echo $this->ZuluruForm->input('open_roster', array(
-			'after' => $this->Html->para (null, __('If the team roster is open, others can request to join; otherwise, only the captain can add players.', true)),
+			'after' => $this->Html->para (null, __('If the team roster is open, others can request to join; otherwise, only a coach or captain can add players.', true)),
 		));
 
 		if (Configure::read('feature.urls')) {

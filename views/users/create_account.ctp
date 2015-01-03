@@ -21,7 +21,7 @@ if (!Configure::read('feature.auto_approve')) {
 		$this->Html->link(__('follow these instructions', true), array('controller' => 'users', 'action' => 'reset_password'))
 );
 ?></p>
-<p><?php __('Note that email and phone publish settings below only apply to regular people. Captains will always have access to view the phone numbers and email addresses of their confirmed players. All Team Captains will also have their email address viewable by other players.'); ?></p>
+<p><?php __('Note that email and phone publish settings below only apply to regular people. Coaches and captains will always have access to view the phone numbers and email addresses of their confirmed players. All team coaches and captains will also have their email address viewable by other players.'); ?></p>
 <?php if (Configure::read('urls.privacy_policy')): ?>
 <p><?php printf(__('If you have concerns about the data %s collects, please see our %s.', true),
 		$short,

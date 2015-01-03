@@ -23,7 +23,7 @@ echo $team['Team']['name'];
 		}
 	}
 ?>
-	<dt><?php __('Captains'); ?></dt>
+	<dt><?php __('Coaches/Captains'); ?></dt>
 	<dd><?php echo implode(', ', $links); ?></dd>
 <?php endif; ?>
 

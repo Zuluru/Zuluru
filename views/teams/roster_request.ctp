@@ -11,7 +11,7 @@ $this->Html->addCrumb ($person['Person']['full_name']);
 echo $this->Html->para(null, __('You are requesting to join the team', true) . ' ' .
 	$this->element('teams/block', array('team' => $team, 'show_shirt' => false)) .
 	'. ' .
-	__('A captain will have to approve your request before you are considered an active member of the team.', true));
+	__('A coach or captain will have to approve your request before you are considered an active member of the team.', true));
 
 echo $this->Html->para(null, __('Possible roster roles are:', true));
 echo $this->Form->create('Person', array('url' => array('controller' => 'teams', 'action' => 'roster_request', 'team' => $team['Team']['id'], 'person' => $person['Person']['id'])));

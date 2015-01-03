@@ -690,7 +690,7 @@ class AppController extends Controller {
 			$this->_addMenuItem ('Preferences', array('controller' => 'people', 'action' => 'preferences'), 'My Profile');
 			// TODO: Eliminate hard-coded group_id here and below
 			if (in_array(1, $groups)) {
-				$this->_addMenuItem ('Add new relative', array('controller' => 'people', 'action' => 'add_relative'), 'My Profile');
+				$this->_addMenuItem ('Add new child', array('controller' => 'people', 'action' => 'add_relative'), 'My Profile');
 			}
 			$this->_addMenuItem ('Link to relative', array('controller' => 'people', 'action' => 'link_relative'), 'My Profile');
 			$this->_addMenuItem ('Waiver history', array('controller' => 'people', 'action' => 'waivers'), 'My Profile');
