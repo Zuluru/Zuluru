@@ -1,7 +1,7 @@
 <p>Dear <?php echo $person['Person']['first_name']; ?>,</p>
 <p>You seem to have created a duplicate <?php
 echo Configure::read('organization.short_name'); ?> account. You already have an account<?php
-if (!empty($person['Person']['user_name'])): ?> with the username <?php
+if (!empty($existing['Person']['user_name'])): ?> with the username <?php
 echo $existing['Person']['user_name']; ?> created using the email address <?php
 echo $existing['Person']['email']; ?><?php endif; ?>.</p>
 <p>Your second account has been deleted. If you cannot remember your password for the existing account, please use the 'Forgot your password?' feature at <?php
