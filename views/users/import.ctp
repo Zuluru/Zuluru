@@ -8,7 +8,9 @@ $this->Html->addCrumb (__('Import', true));
 
 <?php if (isset($header)): ?>
 <p>The following columns were recognized and will be imported: <?php echo implode(', ', $header); ?></p>
+<?php if (!empty($skip)): ?>
 <p>The following columns were not recognized and will be skipped: <?php echo implode(', ', $skip); ?></p>
+<?php endif; ?>
 <?php endif; ?>
 
 <?php if (!empty($succeeded)): ?>
@@ -69,6 +71,13 @@ echo $this->ZuluruForm->input('Person.status', array(
 		'options' => Configure::read('options.record_status'),
 		'empty' => '---',
 ));
+echo $this->ZuluruForm->input('Group.Group', array(
+	'label' => __('Select groups for new users to be added to.', true),
+		'type' => 'select',
+		'multiple' => 'checkbox',
+		'options' => $groups,
+		'hide_single' => true,
+));
 echo $this->ZuluruForm->input('Person.on_error', array(
 		'options' => array(
 			'skip' => 'Skip record',
@@ -104,5 +113,6 @@ Birthdate must be specified in YYYY-MM-DD format.
 <?php endif; ?></li>
 <?php endif; ?>
 <li>Rows starting with a # will be skipped.</li>
+<li>Rows where the email address is set to simply "child" (without the quotes) will be created as a child profile automatically linked to the previous account. Multiple children can be added this way.</li>
 </ul>
 </div>

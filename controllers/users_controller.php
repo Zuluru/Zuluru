@@ -239,6 +239,7 @@ class UsersController extends AppController {
 	}
 
 	function import() {
+		$this->_loadGroupOptions();
 		$columns = $this->Person->_schema;
 		foreach (array('id', 'user_id', 'user_name', 'email', 'complete', 'twitter_token', 'twitter_secret') as $no_import) {
 			unset($columns[$no_import]);
@@ -317,6 +318,7 @@ class UsersController extends AppController {
 					$unmap = array_flip($remap);
 
 					$succeeded = $resolved = $failed = array();
+					$parent_id = null;
 
 					while (($row = fgetcsv($file)) !== false) {
 						// Skip rows starting with a #
@@ -329,8 +331,6 @@ class UsersController extends AppController {
 						$data = array(
 							'Person' => array(),
 							$this->Auth->authenticate->alias => array(),
-							// TODO: Hardcoded group_id
-							'Group' => array('Group' => array(2)),
 							'Affiliate' => $this->data['Affiliate'],
 						);
 						foreach ($header as $key => $column) {
@@ -387,10 +387,22 @@ class UsersController extends AppController {
 							$names[] = $data['Person']['last_name'];
 						}
 						$data['Person']['full_name'] = implode(' ', $names);
-						$data['Person']['email'] = $data[$this->Auth->authenticate->alias][$this->Auth->authenticate->emailField];
-						$data['Person']['email_formatted'] = "{$data['Person']['full_name']} <{$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->emailField]}>";
-						if (!empty($this->Auth->authenticate->nameField) && empty($data[$this->Auth->authenticate->alias][$this->Auth->authenticate->nameField])) {
-							$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->nameField] = $data['Person']['full_name'];
+
+						// Special handling of child accounts
+						if (low($data[$this->Auth->authenticate->alias][$this->Auth->authenticate->emailField]) == 'child') {
+							$is_child = true;
+							// TODO: Hardcoded group_id
+							$data['Group'] = array('Group' => array(2));
+							unset($data[$this->Auth->authenticate->alias]);
+							$data['Related'] = array(array('person_id' => $parent_id, 'approved' => true));
+						} else {
+							$is_child = false;
+							$data['Group'] = $this->data['Group'];
+							$data['Person']['email'] = $data[$this->Auth->authenticate->alias][$this->Auth->authenticate->emailField];
+							$data['Person']['email_formatted'] = "{$data['Person']['full_name']} <{$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->emailField]}>";
+							if (!empty($this->Auth->authenticate->nameField) && empty($data[$this->Auth->authenticate->alias][$this->Auth->authenticate->nameField])) {
+								$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->nameField] = $data['Person']['full_name'];
+							}
 						}
 						if (empty($data['Person']['status'])) {
 							$data['Person']['status'] = $this->data['Person']['status'];
@@ -409,6 +421,7 @@ class UsersController extends AppController {
 						}
 
 						if ($continue && !$this->data['Person']['trial_run']) {
+							$this->Person->create();
 							if ($success) {
 								$success = $this->Person->saveAll($data);
 							} else {
@@ -435,14 +448,22 @@ class UsersController extends AppController {
 							}
 						}
 
+						if ($is_child) {
+							$desc = "&nbsp;&nbsp;+ {$data['Person']['full_name']} as a child";
+						} else {
+							$desc = "{$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->userField]} ({$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->emailField]})";
+						}
+
 						if ($continue && $success) {
-							if (empty($errors)) {
-								$succeeded[] = "{$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->userField]} ({$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->emailField]})";
-							} else {
-								$resolved[] = "{$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->userField]} ({$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->emailField]})" .
-										': ' . implode(', ', $errors);
+							if (!$is_child) {
+								$parent_id = $this->Auth->authenticate->id;
 							}
-							if (!$this->data['Person']['trial_run'] && $this->data['Person']['notify_new_users']) {
+							if (empty($errors)) {
+								$succeeded[] = $desc;
+							} else {
+								$resolved[] = $desc . ': ' . implode(', ', $errors);
+							}
+							if (!$this->data['Person']['trial_run'] && $this->data['Person']['notify_new_users'] && !$is_child) {
 								$this->set (array(
 										'user' => $data,
 										'user_model' => $this->Auth->authenticate->alias,
@@ -465,11 +486,9 @@ class UsersController extends AppController {
 							}
 
 							if ($continue) {
-								$resolved[] = "{$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->userField]} ({$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->emailField]})" .
-										': ' . implode(', ', $errors);
+								$resolved[] = $desc . ': ' . implode(', ', $errors);
 							} else {
-								$failed[] = "{$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->userField]} ({$data[$this->Auth->authenticate->alias][$this->Auth->authenticate->emailField]})" .
-										': ' . implode(', ', $errors);
+								$failed[] = $desc . ': ' . implode(', ', $errors);
 							}
 						}
 					}
