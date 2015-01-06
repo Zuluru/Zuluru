@@ -277,13 +277,6 @@ $this_is_player = (!empty($this_is_player));
 
 			</dd>
 			<?php endif; ?>
-			<?php if (Configure::read('profile.willing_to_volunteer')): ?>
-			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Willing To Volunteer'); ?></dt>
-			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-				<?php $person['willing_to_volunteer'] ? __('Yes') : __('No'); ?>
-
-			</dd>
-			<?php endif; ?>
 			<?php if (Configure::read('profile.contact_for_feedback')): ?>
 			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Contact For Feedback'); ?></dt>
 			<dd<?php if ($i++ % 2 == 0) echo $class;?>>

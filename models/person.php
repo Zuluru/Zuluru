@@ -251,12 +251,6 @@ class Person extends AppModel {
 				'allowEmpty' => true,
 			),
 		),
-		'willing_to_volunteer' => array(
-			'boolean' => array(
-				'rule' => array('boolean'),
-				'allowEmpty' => true,
-			),
-		),
 		'contact_for_feedback' => array(
 			'boolean' => array(
 				'rule' => array('boolean'),

@@ -495,7 +495,6 @@ class ZuluruSchema extends CakeSchema {
 		'shirt_size' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
 		'status' => array('type' => 'string', 'null' => false, 'default' => 'new', 'length' => 16),
 		'has_dog' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
-		'willing_to_volunteer' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'contact_for_feedback' => array('type' => 'boolean', 'null' => false, 'default' => '1'),
 		'show_gravatar' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'twitter_token' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 250),

@@ -176,15 +176,6 @@ echo $this->element('settings/banner');
 	));
 	echo $this->element('settings/input', array(
 		'category' => 'profile',
-		'name' => 'willing_to_volunteer',
-		'options' => array(
-			'label' => __('Willing to volunteer', true),
-			'type' => 'radio',
-			'options' => Configure::read('options.access_optional'),
-		),
-	));
-	echo $this->element('settings/input', array(
-		'category' => 'profile',
 		'name' => 'contact_for_feedback',
 		'options' => array(
 			'label' => __('Contact for feedback', true),
