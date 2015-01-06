@@ -244,11 +244,18 @@ class UsersController extends AppController {
 			unset($columns[$no_import]);
 		}
 		foreach (array_keys($columns) as $column) {
-			if (!Configure::read("profile.$column")) {
+			// Deal with special cases
+			$short_column = str_replace('alternate_', '', $column);
+			if ($short_column == 'work_ext') {
+				$include = Configure::read('profile.work_phone');
+			} else {
+				$include = Configure::read("profile.$short_column");
+			}
+			if (!$include) {
 				unset($columns[$column]);
 			}
 		}
-		$columns['password'] = true;
+		$columns['password'] = $columns['alternate_email'] = true;
 		$this->set('columns', array_keys($columns));
 
 		// Add other columns that we'll accept but are mentioned separately in the view
