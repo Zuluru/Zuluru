@@ -184,6 +184,9 @@ class UsersController extends AppController {
 						} else {
 							// Assume any secondary profiles are players, with group_id = 2
 							$save['Group'] = array('Group' => array(2));
+							if (isset($this->data['Person'][0]['status'])) {
+								$save['Person']['status'] = $this->data['Person'][0]['status'];
+							}
 						}
 
 						$this->Person->create();
