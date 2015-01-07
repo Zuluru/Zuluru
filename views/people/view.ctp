@@ -316,7 +316,7 @@ $this_is_player = (!empty($this_is_player));
 				echo $this->Html->tag ('li', $this->Html->link(__('Change Password', true), array('controller' => 'users', 'action' => 'change_password', 'user' => $person['user_id'])));
 			}
 		}
-		if ($is_admin || $is_manager) {
+		if ($is_relative || $is_admin || $is_manager) {
 			echo $this->Html->tag ('li', $this->Html->link(__('Act As', true), array('controller' => 'people', 'action' => 'act_as', 'person' => $person['id'])));
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('delete_24.png', array('action' => 'delete', 'person' => $person['id']), array('alt' => __('Delete Player', true), 'title' => __('Delete Player', true)), array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $person['id']))));
 		}
