@@ -768,6 +768,8 @@ class PeopleController extends AppController {
 
 		$this->set(compact('person', 'groups', 'teams', 'relatives', 'related_to', 'divisions', 'waivers', 'registrations', 'preregistrations', 'credits', 'allstars', 'photo', 'documents', 'note', 'tasks', 'badges'));
 		$this->set('is_me', ($id === $my_id));
+		$this->set('is_relative', in_array($id, $this->UserCache->read('RelativeIDs')));
+
 		$this->set($this->_connections($id));
 	}
 
