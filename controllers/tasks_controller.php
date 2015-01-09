@@ -165,8 +165,7 @@ class TasksController extends AppController {
 						),
 					),
 					'conditions' => array(
-						// TODO: Eliminate hard-coded group_ids
-						'GroupPerson.group_id' => array(4,5,6,7),
+						'GroupPerson.group_id' => array(GROUP_VOLUNTEER,GROUP_OFFICIAL,GROUP_MANAGER,GROUP_ADMIN),
 						'AffiliatePerson.affiliate_id' => array_keys($affiliates),
 					),
 					'contain' => array('Affiliate'),
@@ -210,8 +209,7 @@ class TasksController extends AppController {
 					),
 				),
 				'conditions' => array(
-					// TODO: Eliminate hard-coded group_ids
-					'GroupPerson.group_id' => array(4,5,6,7),
+					'GroupPerson.group_id' => array(GROUP_VOLUNTEER,GROUP_OFFICIAL,GROUP_MANAGER,GROUP_ADMIN),
 					'AffiliatePerson.affiliate_id' => array_keys($affiliates),
 				),
 				'contain' => array('Affiliate'),
@@ -268,8 +266,7 @@ class TasksController extends AppController {
 					),
 				),
 				'conditions' => array(
-					// TODO: Eliminate hard-coded group_ids
-					'GroupPerson.group_id' => array(4,5,6,7),
+					'GroupPerson.group_id' => array(GROUP_VOLUNTEER,GROUP_OFFICIAL,GROUP_MANAGER,GROUP_ADMIN),
 					'AffiliatePerson.affiliate_id' => array_keys($affiliates),
 				),
 				'contain' => array('Affiliate'),

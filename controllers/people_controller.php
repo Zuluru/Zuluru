@@ -62,8 +62,7 @@ class PeopleController extends AppController {
 				'add_relative',
 		)))
 		{
-			// TODO: Eliminate hard-coded group_id
-			if (in_array(1, $this->UserCache->read('GroupIDs'))) {
+			if (in_array(GROUP_PARENT, $this->UserCache->read('GroupIDs'))) {
 				return true;
 			}
 		}
@@ -237,7 +236,6 @@ class PeopleController extends AppController {
 		));
 
 		// Following queries all look only at players
-		// TODO: Eliminate hard-coded group_ids
 		$joins[] = array(
 			'table' => "{$this->Person->tablePrefix}groups_people",
 			'alias' => 'GroupPerson',
@@ -255,7 +253,7 @@ class PeopleController extends AppController {
 				),
 				'conditions' => array(
 					'AffiliatePerson.affiliate_id' => $affiliates,
-					'GroupPerson.group_id' => 2,
+					'GroupPerson.group_id' => GROUP_PLAYER,
 				),
 				'joins' => $joins,
 				'group' => array('AffiliatePerson.affiliate_id', 'Person.gender'),
@@ -273,7 +271,7 @@ class PeopleController extends AppController {
 					),
 					'conditions' => array(
 						'AffiliatePerson.affiliate_id' => $affiliates,
-						'GroupPerson.group_id' => 2,
+						'GroupPerson.group_id' => GROUP_PLAYER,
 						array('birthdate !=' => null),
 						array('birthdate !=' => '0000-00-00'),
 					),
@@ -294,7 +292,7 @@ class PeopleController extends AppController {
 					),
 					'conditions' => array(
 						'AffiliatePerson.affiliate_id' => $affiliates,
-						'GroupPerson.group_id' => 2,
+						'GroupPerson.group_id' => GROUP_PLAYER,
 					),
 					'joins' => $joins,
 					'group' => array('AffiliatePerson.affiliate_id', 'year_started'),
@@ -313,7 +311,7 @@ class PeopleController extends AppController {
 					),
 					'conditions' => array(
 						'AffiliatePerson.affiliate_id' => $affiliates,
-						'GroupPerson.group_id' => 2,
+						'GroupPerson.group_id' => GROUP_PLAYER,
 					),
 					'joins' => $joins,
 					'group' => array('AffiliatePerson.affiliate_id', 'skill_level'),
@@ -332,7 +330,7 @@ class PeopleController extends AppController {
 					),
 					'conditions' => array(
 						'AffiliatePerson.affiliate_id' => $affiliates,
-						'GroupPerson.group_id' => 2,
+						'GroupPerson.group_id' => GROUP_PLAYER,
 					),
 					'joins' => $joins,
 					'group' => array('AffiliatePerson.affiliate_id', 'addr_city HAVING count > 2'),
@@ -1152,8 +1150,8 @@ class PeopleController extends AppController {
 			}
 
 			// Tweak some data to be saved
-			// Assume any secondary profiles are players, with group_id = 2
-			$this->data['Group'] = array('Group' => array(2));
+			// Assume any secondary profiles are players
+			$this->data['Group'] = array('Group' => array(GROUP_PLAYER));
 			$this->data['Person']['complete'] = true;
 			if (Configure::read('feature.auto_approve')) {
 				$this->data['Person']['status'] = 'active';
@@ -2350,10 +2348,9 @@ class PeopleController extends AppController {
 	function act_as() {
 		$act_as = $this->_arg('person');
 		if ($act_as) {
-			// TODO: Eliminate hard-coded group_ids
-			if ($this->is_admin && in_array(7, $this->UserCache->read('GroupIDs', $act_as))) {
+			if ($this->is_admin && in_array(GROUP_ADMIN, $this->UserCache->read('GroupIDs', $act_as))) {
 				$this->Session->setFlash(__('Administrators cannot act as other administrators', true), 'default', array('class' => 'warning'));
-			} else if (!$this->is_admin && $this->is_manager && in_array(6, $this->UserCache->read('GroupIDs', $act_as))) {
+			} else if (!$this->is_admin && $this->is_manager && in_array(GROUP_MANAGER, $this->UserCache->read('GroupIDs', $act_as))) {
 				$this->Session->setFlash(__('Managers cannot act as other managers', true), 'default', array('class' => 'warning'));
 			} else if ($act_as == $this->UserCache->realId()) {
 				$this->Session->delete('Zuluru.act_as_id');
@@ -2495,8 +2492,7 @@ class PeopleController extends AppController {
 				if (array_key_exists('affiliate_id', $params)) {
 					$conditions[] = array('OR' => array(
 						"AffiliatePerson.affiliate_id" => $params['affiliate_id'],
-						// TODO: Eliminate hard-coded group_id
-						'group_id' => 7,
+						'group_id' => GROUP_ADMIN,
 					));
 				}
 
@@ -2664,8 +2660,7 @@ class PeopleController extends AppController {
 			unset($person[$this->Auth->authenticate->name]);
 		}
 
-		// TODO: Eliminate this hard-coded group_id
-		$this_is_player = Set::extract('/Group[id=2]', $person);
+		$this_is_player = Set::extract('/Group[id=' . GROUP_PLAYER . ']', $person);
 		if (empty($this_is_player)) {
 			$this->Person->beforeValidateNonPlayer();
 		}

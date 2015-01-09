@@ -11,7 +11,6 @@ class Zuluru65Schema extends CakeSchema {
 					'admin' => 'UPDATE `people` SET `group_id` = 7 WHERE `group_id` = 3;',
 					'manager' => 'UPDATE `people` SET `group_id` = 6 WHERE `group_id` = 5;',
 					'volunteer' => 'UPDATE `people` SET `group_id` = 4 WHERE `group_id` = 2;',
-					'player' => 'UPDATE `people` SET `group_id` = 2 WHERE `group_id` = 1;',
 				);
 				break;
 
@@ -33,9 +32,9 @@ class Zuluru65Schema extends CakeSchema {
 				$commands = array(
 					// Need IGNORE on the first one, since the admin account will already be set via the groups_people_data file
 					'groups_people' => 'INSERT IGNORE INTO `groups_people` (`id`, `person_id`, `group_id`) SELECT `id`, `id`, `group_id` FROM `people` WHERE `group_id` != 0 ORDER BY `id`;',
-					'add_admins_as_players' => 'INSERT INTO `groups_people` (`person_id`, `group_id`) SELECT `id`, 2 FROM `people` WHERE `group_id` = 7 ORDER BY `id`;',
+					'add_admins_as_players' => 'INSERT INTO `groups_people` (`person_id`, `group_id`) SELECT `id`, 1 FROM `people` WHERE `group_id` = 7 ORDER BY `id`;',
 					'add_admins_as_volunteers' => 'INSERT INTO `groups_people` (`person_id`, `group_id`) SELECT `id`, 4 FROM `people` WHERE `group_id` = 7 ORDER BY `id`;',
-					'add_volunteers_as_players' => 'INSERT INTO `groups_people` (`person_id`, `group_id`) SELECT `id`, 2 FROM `people` WHERE `group_id` = 4 ORDER BY `id`;',
+					'add_volunteers_as_players' => 'INSERT INTO `groups_people` (`person_id`, `group_id`) SELECT `id`, 1 FROM `people` WHERE `group_id` = 4 ORDER BY `id`;',
 					'add_willing_to_volunteer' => 'INSERT INTO `groups_people` (`person_id`, `group_id`) SELECT `id`, 4 FROM `people` WHERE `willing_to_volunteer` = 1 AND `id` NOT IN (SELECT `person_id` FROM `groups_people` WHERE `group_id` = 4) ORDER BY `id`;',
 				);
 				break;

@@ -11,10 +11,10 @@ echo $person['full_name'];
 $view_contact = $is_me || $is_relative || $is_admin || $is_manager || $is_coordinator || $is_captain || $is_my_captain || $is_my_coordinator || $is_division_captain;
 $has_visible_contact = false;
 
-$this_is_parent = Set::extract('/GroupsPerson[group_id=1]', $groups);
-$this_is_parent = (!empty($this_is_parent));
-$this_is_player = Set::extract('/GroupsPerson[group_id=2]', $groups);
+$this_is_player = Set::extract('/GroupsPerson[group_id=' . GROUP_PLAYER . ']', $groups);
 $this_is_player = (!empty($this_is_player));
+$this_is_parent = Set::extract('/GroupsPerson[group_id=' . GROUP_PARENT . ']', $groups);
+$this_is_parent = (!empty($this_is_parent));
 ?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
 		<?php if ($is_me || $is_relative || $is_admin || $is_manager):?>

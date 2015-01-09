@@ -5,16 +5,16 @@ class GroupsData {
 
 	public $records = array(
 		array(
-			'name' => 'Parent',
-			'active' => 1,
-			'level' => 0,
-			'description' => 'You have one or more children who will be participating as players.',
-		),
-		array(
 			'name' => 'Player',
 			'active' => 1,
 			'level' => 0,
 			'description' => 'You will be participating as a player.',
+		),
+		array(
+			'name' => 'Parent',
+			'active' => 1,
+			'level' => 0,
+			'description' => 'You have one or more children who will be participating as players.',
 		),
 		array(
 			'name' => 'Coach',

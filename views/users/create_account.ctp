@@ -418,30 +418,32 @@ if (Configure::read('profile.skill_level') && Configure::read('sport.rating_ques
 }
 
 // Handle changes to parent and player checkboxes
-$this->Js->get('#GroupGroup1')->event('change', 'parentChanged();');
-$this->Js->get('#GroupGroup2')->event('change', 'playerChanged();');
-echo $this->Html->scriptBlock('
-function parentChanged() {
-	var checked = jQuery("#GroupGroup1").prop("checked");
+$player = GROUP_PLAYER;
+$parent = GROUP_PARENT;
+$this->Js->get("#GroupGroup$player")->event('change', 'playerChanged();');
+$this->Js->get("#GroupGroup$parent")->event('change', 'parentChanged();');
+echo $this->Html->scriptBlock("
+function playerChanged() {
+	var checked = jQuery('#GroupGroup$player').prop('checked');
 	if (checked) {
-		jQuery(".parent").css("display", "");
-		jQuery(".parent input, .parent select").removeAttr("disabled");
+		jQuery('.player').css('display', '');
+		jQuery('.player input, .player select').removeAttr('disabled');
 	} else {
-		jQuery(".parent").css("display", "none");
-		jQuery(".parent input, .parent select").attr("disabled", "disabled");
+		jQuery('.player').css('display', 'none');
+		jQuery('.player input, .player select').attr('disabled', 'disabled');
 	}
 }
 
-function playerChanged() {
-	var checked = jQuery("#GroupGroup2").prop("checked");
+function parentChanged() {
+	var checked = jQuery('#GroupGroup$parent').prop('checked');
 	if (checked) {
-		jQuery(".player").css("display", "");
-		jQuery(".player input, .player select").removeAttr("disabled");
+		jQuery('.parent').css('display', '');
+		jQuery('.parent input, .parent select').removeAttr('disabled');
 	} else {
-		jQuery(".player").css("display", "none");
-		jQuery(".player input, .player select").attr("disabled", "disabled");
+		jQuery('.parent').css('display', 'none');
+		jQuery('.parent input, .parent select').attr('disabled', 'disabled');
 	}
 }
-');
+");
 $this->Js->buffer('parentChanged(); playerChanged();');
 ?>

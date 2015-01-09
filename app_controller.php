@@ -321,8 +321,7 @@ class AppController extends Controller {
 		if ($force_players) {
 			$conditions = array('OR' => array(
 					// We always want to include players, even if they aren't a valid "create account" group.
-					// TODO: eliminate hard-coded group_id
-					'id' => 2,
+					'id' => GROUP_PLAYER,
 					'active' => true,
 			));
 		} else {
@@ -688,8 +687,7 @@ class AppController extends Controller {
 			$this->_addMenuItem ('View', array('controller' => 'people', 'action' => 'view'), 'My Profile');
 			$this->_addMenuItem ('Edit', array('controller' => 'people', 'action' => 'edit'), 'My Profile');
 			$this->_addMenuItem ('Preferences', array('controller' => 'people', 'action' => 'preferences'), 'My Profile');
-			// TODO: Eliminate hard-coded group_id here and below
-			if (in_array(1, $groups)) {
+			if (in_array(GROUP_PARENT, $groups)) {
 				$this->_addMenuItem ('Add new child', array('controller' => 'people', 'action' => 'add_relative'), 'My Profile');
 			}
 			$this->_addMenuItem ('Link to relative', array('controller' => 'people', 'action' => 'link_relative'), 'My Profile');
@@ -715,7 +713,7 @@ class AppController extends Controller {
 
 			// Parents and players always get it
 			if (!$show_registration) {
-				$always = array_intersect($groups, array(1,2));
+				$always = array_intersect($groups, array(GROUP_PLAYER,GROUP_PARENT));
 				if (!empty($always)) {
 					$show_registration = true;
 				}
@@ -739,7 +737,7 @@ class AppController extends Controller {
 			}
 
 			// If there are any team events available, coaches get it
-			if (!$show_registration && in_array(3, $groups)) {
+			if (!$show_registration && in_array(GROUP_COACH, $groups)) {
 				if ($this->Person->Registration->Event->find('count', array(
 						'contain' => 'EventType',
 						'conditions' => array(
@@ -944,8 +942,7 @@ class AppController extends Controller {
 			$groups = $this->Person->Group->find('list', array(
 				'conditions' => array('OR' => array(
 					// We always want to include players, even if they aren't a valid "create account" group.
-					// TODO: eliminate hard-coded group_id
-					'id' => 2,
+					'id' => GROUP_PLAYER,
 					'active' => true,
 				)),
 				'order' => array('Group.level', 'Group.id'),
@@ -1633,8 +1630,7 @@ class AppController extends Controller {
 		// Match people in the affiliate, or admins who are effectively in all
 		if ($affiliate_model && array_key_exists('affiliate_id', $params)) {
 			$admins = $this->Person->GroupsPerson->find('list', array(
-					// TODO: Eliminate hard-coded group_id
-					'conditions' => array('group_id' => 7),
+					'conditions' => array('group_id' => GROUP_ADMIN),
 					'fields' => array('person_id', 'person_id'),
 			));
 			$conditions['OR'] = array(

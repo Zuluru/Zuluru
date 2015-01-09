@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('Edit', true));
 
 $short = Configure::read('organization.short_name');
 $admin = Configure::read('email.admin_email');
-$this_is_player = (!empty($cached['Group']) && Set::extract('/GroupsPerson[group_id=2]', $cached['Group']));
+$this_is_player = (!empty($cached['Group']) && Set::extract('/GroupsPerson[group_id=' . GROUP_PLAYER . ']', $cached['Group']));
 $this_is_player = (!empty($this_is_player));
 
 $access = array(1);
@@ -518,32 +518,34 @@ if ($this_is_player && Configure::read('profile.skill_level') && Configure::read
 }
 
 // Handle changes to parent and player checkboxes
+$player = GROUP_PLAYER;
+$parent = GROUP_PARENT;
 if ($cached['user_id']) {
-	$this->Js->get('#GroupGroup1')->event('change', 'parentChanged();');
-	$this->Js->get('#GroupGroup2')->event('change', 'playerChanged();');
-	echo $this->Html->scriptBlock('
-function parentChanged() {
-	var checked = jQuery("#GroupGroup1").prop("checked");
+	$this->Js->get("#GroupGroup$player")->event('change', 'playerChanged();');
+	$this->Js->get("#GroupGroup$parent")->event('change', 'parentChanged();');
+	echo $this->Html->scriptBlock("
+function playerChanged() {
+	var checked = jQuery('#GroupGroup$player').prop('checked');
 	if (checked) {
-		jQuery(".parent").css("display", "");
-		jQuery(".parent input, .parent select").not(".disabled").removeAttr("disabled");
+		jQuery('.player').css('display', '');
+		jQuery('.player input, .player select').not('.disabled').removeAttr('disabled');
 	} else {
-		jQuery(".parent").css("display", "none");
-		jQuery(".parent input, .parent select").attr("disabled", "disabled");
+		jQuery('.player').css('display', 'none');
+		jQuery('.player input, .player select').attr('disabled', 'disabled');
 	}
 }
 
-function playerChanged() {
-	var checked = jQuery("#GroupGroup2").prop("checked");
+function parentChanged() {
+	var checked = jQuery('#GroupGroup$parent').prop('checked');
 	if (checked) {
-		jQuery(".player").css("display", "");
-		jQuery(".player input, .player select").not(".disabled").removeAttr("disabled");
+		jQuery('.parent').css('display', '');
+		jQuery('.parent input, .parent select').not('.disabled').removeAttr('disabled');
 	} else {
-		jQuery(".player").css("display", "none");
-		jQuery(".player input, .player select").attr("disabled", "disabled");
+		jQuery('.parent').css('display', 'none');
+		jQuery('.parent input, .parent select').attr('disabled', 'disabled');
 	}
 }
-	');
+	");
 	$this->Js->buffer('parentChanged(); playerChanged();');
 }
 ?>

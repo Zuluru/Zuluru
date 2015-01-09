@@ -182,8 +182,8 @@ class UsersController extends AppController {
 						if ($key == 0) {
 							$save['Group'] = $this->data['Group'];
 						} else {
-							// Assume any secondary profiles are players, with group_id = 2
-							$save['Group'] = array('Group' => array(2));
+							// Assume any secondary profiles are players
+							$save['Group'] = array('Group' => array(GROUP_PLAYER));
 							if (isset($this->data['Person'][0]['status'])) {
 								$save['Person']['status'] = $this->data['Person'][0]['status'];
 							}
@@ -394,8 +394,7 @@ class UsersController extends AppController {
 						// Special handling of child accounts
 						if (low($data[$this->Auth->authenticate->alias][$this->Auth->authenticate->emailField]) == 'child') {
 							$is_child = true;
-							// TODO: Hardcoded group_id
-							$data['Group'] = array('Group' => array(2));
+							$data['Group'] = array('Group' => array(GROUP_PLAYER));
 							unset($data[$this->Auth->authenticate->alias]);
 							$data['Related'] = array(array('person_id' => $parent_id, 'approved' => true));
 						} else {

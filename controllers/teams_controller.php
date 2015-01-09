@@ -1760,8 +1760,7 @@ class TeamsController extends AppController {
 
 		$params = $url = $this->_extractSearchParams();
 		unset ($params['team']);
-		// TODO: Eliminate hard-coded group_ids
-		$this->_handlePersonSearch($params, $url, $this->Team->Person, array('group_id' => array(2,3)));
+		$this->_handlePersonSearch($params, $url, $this->Team->Person, array('group_id' => array(GROUP_PLAYER,GROUP_COACH)));
 
 		$this->Team->Person->contain(array (
 			'Team' => array(
@@ -2459,9 +2458,8 @@ class TeamsController extends AppController {
 		}
 
 		// Check for some group membership
-		// TODO: Eliminate hard-coded group_ids
 		$groups = $this->UserCache->read('GroupIDs', $person_id);
-		if (!in_array(2, $groups)) {
+		if (!in_array(GROUP_PLAYER, $groups)) {
 			foreach (Configure::read('extended_playing_roster_roles') as $playing_role) {
 				unset($roster_role_options[$playing_role]);
 			}

@@ -164,8 +164,7 @@ foreach ($approved_relatives as $relative) {
 			'id' => $relative['Relative']['id'],
 			'is_admin' => false,
 			'is_manager' => false,
-			// TODO: Eliminate hard-coded group_id
-			'is_player' => in_array(2, $this->UserCache->read('GroupIDs', $relative['Relative']['id'])),
+			'is_player' => in_array(GROUP_PLAYER, $this->UserCache->read('GroupIDs', $relative['Relative']['id'])),
 			'empty' => (empty($relative_teams) && empty($relative_unpaid[$relative['Relative']['id']]) && empty($relative_tasks))
 	));
 	if (!empty($tab)) {

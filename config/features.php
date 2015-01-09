@@ -12,6 +12,16 @@
  * features_custom.php (which you must create).
  */
 
+if (!defined('GROUP_PLAYER')) {
+	define('GROUP_PLAYER', 1);
+	define('GROUP_PARENT', 2);
+	define('GROUP_COACH', 3);
+	define('GROUP_VOLUNTEER', 4);
+	define('GROUP_OFFICIAL', 5);
+	define('GROUP_MANAGER', 6);
+	define('GROUP_ADMIN', 7);
+}
+
 if (!defined('SEASON_GAME')) {
 	define('SEASON_GAME', 1);
 	define('POOL_PLAY_GAME', 2);

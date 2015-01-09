@@ -99,13 +99,13 @@ class CanRegisterComponent extends Object
 		$continue = true;
 		$messages = array();
 
-		// TODO: Eliminate hard-coded group_id and event types
+		// TODO: Eliminate hard-coded event types
 		if (array_key_exists('EventType', $event)) {
 			$event_type = $event['EventType'];
 		} else {
 			$event_type = $event['Event']['EventType'];
 		}
-		if (!in_array(2, $this->person['Group']) && in_array($event_type['type'], array('membership', 'individual'))) {
+		if (!in_array(GROUP_PLAYER, $this->person['Group']) && in_array($event_type['type'], array('membership', 'individual'))) {
 			$messages[] = array('text' => __('Only players are allowed to register for this type of event.', true), 'class' => 'warning-message');
 			$continue = false;
 		}

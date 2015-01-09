@@ -156,8 +156,7 @@ class AffiliatesController extends AppController {
 		unset ($params['person']);
 
 		$this->_handlePersonSearch($params, $url, $this->Affiliate->Person,
-				// TODO: Eliminate hard-coded group_ids
-				array('group_id' => array(6,7)));
+				array('group_id' => array(GROUP_MANAGER,GROUP_ADMIN)));
 	}
 
 	function remove_manager() {
