@@ -1080,7 +1080,7 @@ class GamesController extends AppController {
 	function _updateAttendanceStatus($team, $person, $date, $is_captain, $is_me, $attendance, $days_to_game, $past, $attendance_options) {
 		$status = $this->data['Person']['status'];
 		if (!array_key_exists ($status, $attendance_options)) {
-			$this->Session->setFlash(__('That is not currently a valid attendance status for this player for this game.', true), 'default', array('class' => 'info'));
+			$this->Session->setFlash(__('That is not currently a valid attendance status for this person for this game.', true), 'default', array('class' => 'info'));
 			return false;
 		}
 

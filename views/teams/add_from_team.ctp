@@ -9,9 +9,9 @@ $this->Html->addCrumb ($team['Team']['name']);
 
 <?php
 if (empty ($old_team['Person'])) {
-	echo $this->Html->para(null, "All players from {$old_team['Team']['name']} ({$old_team['Division']['League']['long_season']}) are already on your roster.");
+	echo $this->Html->para(null, "All people from {$old_team['Team']['name']} ({$old_team['Division']['League']['long_season']}) are already on your roster.");
 } else {
-	echo $this->Html->para(null, "The following players were on the roster for {$old_team['Team']['name']} in {$old_team['Division']['League']['long_season']} but are not on your current roster:");
+	echo $this->Html->para(null, "The following people were on the roster for {$old_team['Team']['name']} in {$old_team['Division']['League']['long_season']} but are not on your current roster:");
 	echo $this->Form->create(false, array('url' => array('action' => 'add_from_team', 'team' => $team['Team']['id'])));
 	echo $this->Form->hidden('team', array('value' => $old_team['Team']['id']));
 
@@ -42,7 +42,7 @@ if (empty ($old_team['Person'])) {
 			$typical_reason = __('there is something wrong with their account', true);
 		}
 		echo $this->Html->para('warning-message',
-				sprintf(__('Notice: The following players are currently INELIGIBLE to participate on this roster. This is typically because %s. They are not allowed to play with this team until this is corrected. Hover your mouse over the %s to see the specific reason why.', true),
+				sprintf(__('Notice: The following people are currently INELIGIBLE to participate on this roster. This is typically because %s. They are not allowed to play with this team until this is corrected. Hover your mouse over the %s to see the specific reason why.', true),
 				$typical_reason,
 				$this->ZuluruHtml->icon('help_16.png', array('alt' => '?'))));
 		echo $this->Html->para('warning-message', __('They can still be invited to join, but will not be allowed to accept the invitation or play with your team until this is resolved.', true));

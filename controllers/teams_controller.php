@@ -2032,7 +2032,7 @@ class TeamsController extends AppController {
 		}
 
 		if (empty ($person)) {
-			$this->Session->setFlash(__('This player is not on this team.', true), 'default', array('class' => 'info'));
+			$this->Session->setFlash(__('This person is not on this team.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
@@ -2108,7 +2108,7 @@ class TeamsController extends AppController {
 		}
 
 		if (empty ($person)) {
-			$this->Session->setFlash(__('This player is not on this team.', true), 'default', array('class' => 'info'));
+			$this->Session->setFlash(__('This person is not on this team.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
@@ -2154,7 +2154,7 @@ class TeamsController extends AppController {
 		$team_id = $team['Team']['id'];
 
 		if (!empty ($player)) {
-			$this->Session->setFlash(__('This player is already on this team.', true), 'default', array('class' => 'info'));
+			$this->Session->setFlash(__('This person is already on this team.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
@@ -2171,7 +2171,7 @@ class TeamsController extends AppController {
 				$this->_setRosterRole ($person, $team, $this->data['Person']['role'], ROSTER_INVITED);
 				$this->redirect(array('action' => 'view', 'team' => $team['Team']['id']));
 			}
-			$this->Session->setFlash(__('You must select a role for this player.', true), 'default', array('class' => 'info'));
+			$this->Session->setFlash(__('You must select a role for this person.', true), 'default', array('class' => 'info'));
 		}
 
 		// Check if this person can even be added
@@ -2249,12 +2249,12 @@ class TeamsController extends AppController {
 		$team_id = $team['Team']['id'];
 
 		if (empty ($person)) {
-			$this->Session->setFlash(__('This player has neither been invited nor requested to join this team.', true), 'default', array('class' => 'info'));
+			$this->Session->setFlash(__('This person has neither been invited nor requested to join this team.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
 		if ($person['Person']['TeamsPerson']['status'] == ROSTER_APPROVED) {
-			$this->Session->setFlash(__('This player has already been added to the roster.', true), 'default', array('class' => 'info'));
+			$this->Session->setFlash(__('This person has already been added to the roster.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
@@ -2331,12 +2331,12 @@ class TeamsController extends AppController {
 		$team_id = $team['Team']['id'];
 
 		if (empty ($person)) {
-			$this->Session->setFlash(__('This player has neither been invited nor requested to join this team.', true), 'default', array('class' => 'info'));
+			$this->Session->setFlash(__('This person has neither been invited nor requested to join this team.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
 		if ($person['Person']['TeamsPerson']['status'] == ROSTER_APPROVED) {
-			$this->Session->setFlash(__('This player has already been added to the roster.', true), 'default', array('class' => 'info'));
+			$this->Session->setFlash(__('This person has already been added to the roster.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'team' => $team_id));
 		}
 
@@ -2633,7 +2633,7 @@ class TeamsController extends AppController {
 			return __('New players must be approved by an administrator before they can be added to a team; this normally happens within one business day.', true);
 		}
 		if (array_key_exists ('complete', $person['Person']) && !$person['Person']['complete']) {
-			return __('This player has not yet completed their profile.  Please contact this player directly to have them complete their profile.', true);
+			return __('This person has not yet completed their profile.  Please contact them directly to have them complete their profile.', true);
 		}
 
 		// Maybe use the rules engine to decide if this person can be added to this roster
@@ -2657,11 +2657,11 @@ class TeamsController extends AppController {
 			if (!$this->can_add_rule_obj->evaluate($team['Division']['League']['affiliate_id'], $person, $team, $strict, $text_reason, true, $absolute_url)) {
 				switch ($this->can_add_rule_obj->reason_type) {
 					case REASON_TYPE_PLAYER_ACTIVE:
-						$prolog = 'To be added to this team, this player must first';
+						$prolog = 'To be added to this team, this person must first';
 						break;
 
 					case REASON_TYPE_PLAYER_PASSIVE:
-						$prolog = 'This player';
+						$prolog = 'This person';
 						break;
 
 					case REASON_TYPE_TEAM:

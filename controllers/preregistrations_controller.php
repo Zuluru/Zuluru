@@ -81,7 +81,7 @@ class PreregistrationsController extends AppController {
 			);
 			$found = $this->Preregistration->find('count', array('conditions' => $data));
 			if ($found) {
-				$this->Session->setFlash(__('This player already has a preregistration for this event', true), 'default', array('class' => 'info'));
+				$this->Session->setFlash(__('This person already has a preregistration for this event', true), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'add', 'event' => $url['event']));
 			}
 			$test = $this->CanRegister->test ($url['person'], $event, array('ignore_date' => true, 'strict' => false, 'simple_output' => true));

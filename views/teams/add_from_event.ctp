@@ -9,9 +9,9 @@ $this->Html->addCrumb ($team['Team']['name']);
 
 <?php
 if (empty ($event['Registration'])) {
-	echo $this->Html->para(null, "All players registered for {$event['Event']['name']} are already on this roster.");
+	echo $this->Html->para(null, "All people registered for {$event['Event']['name']} are already on this roster.");
 } else {
-	echo $this->Html->para(null, "The following players have registered and paid for {$event['Event']['name']} but are not on the current roster:");
+	echo $this->Html->para(null, "The following people have registered and paid for {$event['Event']['name']} but are not on the current roster:");
 	echo $this->Form->create(false, array('url' => array('action' => 'add_from_event', 'team' => $team['Team']['id'])));
 	echo $this->Form->hidden('event', array('value' => $event['Event']['id']));
 
@@ -30,7 +30,7 @@ if (empty ($event['Registration'])) {
 
 	echo $this->Form->end(__('Add', true));
 	if (!empty ($cannot)) {
-		echo $this->Html->para(null, __('The following players cannot be added to the roster. Hover your mouse over a name to see the reason why.', true));
+		echo $this->Html->para(null, __('The following people cannot be added to the roster. Hover your mouse over a name to see the reason why.', true));
 		echo $this->Html->para(null, implode (', ', $cannot) . '.');
 	}
 }

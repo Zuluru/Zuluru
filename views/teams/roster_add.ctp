@@ -22,11 +22,11 @@ if ($adding) {
 		' ' . __('to join the team', true) . ' ' .
 		$this->element('teams/block', array('team' => $team, 'show_shirt' => false)) .
 		'. ' .
-		__('The player will have to accept your invitation before they are considered an active member of the team.', true));
+		__('They will have to accept your invitation before they are considered an active member of the team.', true));
 }
 if ($can_add !== true) {
 	echo $this->Html->para('warning-message', $can_add . ' ' .
-		__('This player can still be invited to join, but will not be allowed to accept the invitation or play with your team until this is resolved.', true));
+		__('They can still be invited to join, but will not be allowed to accept the invitation or play with your team until this is resolved.', true));
 }
 
 echo $this->Html->para(null, __('Possible roster roles are:', true));
