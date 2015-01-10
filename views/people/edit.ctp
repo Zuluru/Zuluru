@@ -471,7 +471,7 @@ echo $is_me ? __('Edit Your Profile', true) : (array_key_exists('first_name', $t
 </div>
 
 <?php
-if ($this_is_player && Configure::read('profile.skill_level')) {
+if (Configure::read('profile.skill_level')) {
 	$sports = Configure::read('options.sport');
 	foreach (array_keys($sports) as $sport) {
 		Configure::load("sport/$sport");

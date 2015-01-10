@@ -362,7 +362,7 @@ echo $this->Form->end();
 </div>
 
 <?php
-if (Configure::read('profile.skill_level') && Configure::read('sport.rating_questions')) {
+if (Configure::read('profile.skill_level')) {
 	$sports = Configure::read('options.sport');
 	foreach (array_keys($sports) as $sport) {
 		Configure::load("sport/$sport");
