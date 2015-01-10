@@ -88,6 +88,7 @@ class Zuluru67Schema extends CakeSchema {
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
 		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
 		'sport' => array('type' => 'string', 'null' => false, 'default' => 'ultimate', 'length' => 32),
+		'enabled' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'skill_level' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'year_started' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'person' => array('column' => 'person_id', 'unique' => 0)),
