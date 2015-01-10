@@ -113,7 +113,8 @@ if (Configure::read('feature.antispam')):
 		</div>
 	<fieldset class="parent" style="display:none; float:left">
 		<legend><?php __('Alternate Contact (optional)'); ?></legend>
-		<p style="max-width:18em;">This alternate contact information is for display purposes only. If the alternate contact should have their own login details, do not enter their information here; instead create a separate account and then link them together.</p>
+		<p style="max-width:18em;">This alternate parent/guardian contact information is for display purposes only. If the alternate contact should have their own login, do not enter their information here; instead create a separate account and then link them together.</p>
+		<p style="max-width:18em;">This is not for your child's name; enter that in the "Child Profile" section below.</p>
 	<?php
 		echo $this->ZuluruForm->input('Person.0.alternate_first_name', array(
 			'label' => 'First Name',

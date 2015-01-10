@@ -11,7 +11,7 @@ class GroupsData {
 			'description' => 'You will be participating as a player.',
 		),
 		array(
-			'name' => 'Parent',
+			'name' => 'Parent/Guardian',
 			'active' => 1,
 			'level' => 0,
 			'description' => 'You have one or more children who will be participating as players.',
