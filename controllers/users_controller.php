@@ -203,16 +203,21 @@ class UsersController extends AppController {
 						}
 					}
 
+					App::import('Helper', 'Html');
+					$html = new HtmlHelper();
 					if (Configure::read('feature.auto_approve')) {
-						$this->Session->setFlash('<h2>' . __('THANK YOU', true) . '</h2><p>' . sprintf(__('for creating an account with %s.', true), Configure::read('organization.name')) . '</p>', 'default', array('class' => 'success'));
+						$msg = $html->tag('h2', __('THANK YOU', true)) .
+								$html->para(null, sprintf(__('for creating an account with %s.', true), Configure::read('organization.name')));
 					} else {
-						$msg = __('Your account has been created.', true);
-						if (!$approved) {
-							$msg .= ' ' . __('It must be approved by an administrator before you will have full access to the site.', true);
-							$msg .= ' ' . __('However, you can log in and start exploring right away.', true);
-						}
-						$this->Session->setFlash($msg, 'default', array('class' => 'success'));
+						$msg = $html->para(null,
+								__('Your account has been created.', true) . ' ' .
+								__('It must be approved by an administrator before you will have full access to the site.', true) . ' ' .
+								__('However, you can log in and start exploring right away.', true));
 					}
+					if (isset($this->params['form']['continue'])) {
+						$msg .= $html->para(null, __('Please proceed with entering your next child\'s details below.', true));
+					}
+					$this->Session->setFlash($msg, 'default', array('class' => 'success'));
 
 					// There may be callbacks to handle
 					// TODO: How to handle this in conjunction with third-party auth systems?
