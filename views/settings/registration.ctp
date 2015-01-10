@@ -81,7 +81,7 @@ echo $this->element('settings/banner');
 		'options' => array(
 			'label' => __('Offline options', true),
 			'type' => 'text',
-			'after' => __('List the offline payment options you offer, or provide generic text. This will go in the sentence "If you prefer to pay offline (via ____), the ...".', true),
+			'after' => __('List the offline payment options you offer, or provide generic text. This will go in the sentence "If you prefer to pay offline (via ____), the ...". If you leave this blank but provide directions below, this default wording will be skipped entirely and only your directions will be provided.', true),
 		),
 	));
 	echo $this->element('settings/input', array(
