@@ -490,8 +490,6 @@ class ZuluruSchema extends CakeSchema {
 		'gender' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 6),
 		'birthdate' => array('type' => 'date', 'null' => true, 'default' => NULL),
 		'height' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'length' => 6),
-		'skill_level' => array('type' => 'integer', 'null' => true, 'default' => NULL),
-		'year_started' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'shirt_size' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50),
 		'status' => array('type' => 'string', 'null' => false, 'default' => 'new', 'length' => 16),
 		'has_dog' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
@@ -692,6 +690,16 @@ class ZuluruSchema extends CakeSchema {
 		'name' => array('type' => 'string', 'null' => false, 'length' => 50),
 		'value' => array('type' => 'text', 'null' => false, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
+		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
+	);
+	var $skills = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
+		'person_id' => array('type' => 'integer', 'null' => false, 'default' => '0', 'key' => 'index'),
+		'sport' => array('type' => 'string', 'null' => false, 'default' => 'ultimate', 'length' => 32),
+		'enabled' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'skill_level' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'year_started' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1), 'person' => array('column' => 'person_id', 'unique' => 0)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 	var $spirit_entries = array(

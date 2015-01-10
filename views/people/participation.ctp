@@ -32,9 +32,7 @@ else:
 		<th><?php __('First Name'); ?></th>
 		<th><?php __('Last Name'); ?></th>
 		<th><?php __('Gender'); ?></th>
-		<th><?php __('Skill Level'); ?></th>
 		<th><?php __('Birthdate'); ?></th>
-		<th><?php __('Year Started'); ?></th>
 		<th><?php __('City'); ?></th>
 		<?php for ($year = $this->data['start']; $year <= $this->data['end']; ++ $year): ?>
 		<?php foreach ($seasons_found as $name => $season): ?>
@@ -65,9 +63,7 @@ foreach ($participation as $person):
 		<td><?php echo $person['Person']['first_name']; ?></td>
 		<td><?php echo $person['Person']['last_name']; ?></td>
 		<td><?php echo $person['Person']['gender']; ?></td>
-		<td><?php echo $person['Person']['skill_level']; ?></td>
 		<td><?php echo $person['Person']['birthdate']; ?></td>
-		<td><?php echo $person['Person']['year_started']; ?></td>
 		<td><?php echo $person['Person']['addr_city']; ?></td>
 		<?php for ($year = $this->data['start']; $year <= $this->data['end']; ++ $year): ?>
 		<?php foreach ($seasons_found as $name => $season): ?>

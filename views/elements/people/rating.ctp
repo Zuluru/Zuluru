@@ -1,4 +1,4 @@
-<div id="rating_dialog" class="form" title="<?php echo ZULURU; ?> Player Rating">
+<div id="rating_dialog_<?php echo $sport; ?>" class="form" title="<?php echo ZULURU; ?> Player Rating">
 <?php
 Configure::load("sport/$sport");
 $questions = Configure::read('sport.rating_questions');
@@ -14,9 +14,9 @@ $questions = Configure::read('sport.rating_questions');
 Answer each as honestly as possible, and the resulting <?php echo ZULURU; ?> rating should be fairly accurate.
 When answering questions regarding relative skills, compare yourself to the average of all people playing the sport,
 not only those that you regularly compete against.</p>
-<p>The calculated value will be entered on the <?php echo ZULURU; ?> account editing form.</p>
+<p>The calculated value will be entered on the <?php echo ZULURU; ?> profile editing form.</p>
 
-<form name="rating">
+<form name="rating_<?php echo $sport; ?>">
 
 <?php
 $i = 1;
@@ -26,7 +26,7 @@ foreach ($questions as $group_label => $group_questions) {
 	foreach ($group_questions as $label => $options) {
 		$min += min(array_keys($options));
 		$max += max(array_keys($options));
-		echo $this->Form->input("q$i", array(
+		echo $this->Form->input("{$sport}_q{$i}", array(
 			'before' => $this->Html->tag('strong', "$i. $label"),
 			'between' => $this->Html->tag('br'),
 			'type' => 'radio',
@@ -44,16 +44,16 @@ foreach ($questions as $group_label => $group_questions) {
 
 <?php
 echo $this->Html->scriptBlock ("
-jQuery('#rating_dialog').dialog({
+jQuery('#rating_dialog_$sport').dialog({
 	autoOpen: false,
 	buttons: {
 		'Calculate': function() {
-			if (calculate_rating()) {
-				jQuery('#rating_dialog').dialog('close');
+			if (calculate_rating('$sport', $min, $max)) {
+				jQuery('#rating_dialog_$sport').dialog('close');
 			}
 		},
 		'Cancel': function() {
-			jQuery('#rating_dialog').dialog('close');
+			jQuery('#rating_dialog_$sport').dialog('close');
 		}
 	},
 	modal: true,
@@ -61,16 +61,18 @@ jQuery('#rating_dialog').dialog({
 	width: 640,
 	height: 480
 });
+");
 
+if (!Configure::read('skill_rating_functions_added')) {
+	Configure::write('skill_rating_functions_added', true);
+	echo $this->Html->scriptBlock ("
 // function to calculate the rating
-function calculate_rating() {
+function calculate_rating(sport, min, max) {
 	var sum = 0;
-	var min = $min;
-	var max = $max;
 
 	// Check for skipped questions and show error
 	var okay = true;
-	jQuery('form[name=rating] div.radio').each(function() {
+	jQuery('form[name=rating_' + sport + '] div.radio').each(function() {
 		if (jQuery(this).children('input:checked').size() == 0) {
 			jQuery(this).addClass('error');
 			okay = false;
@@ -84,7 +86,7 @@ function calculate_rating() {
 	}
 
 	// Sum up all selected answers
-	jQuery('form[name=rating] input:checked').each(function() {
+	jQuery('form[name=rating_' + sport + '] input:checked').each(function() {
 		sum += parseInt(jQuery(this).val());
 	});
 
@@ -98,13 +100,14 @@ function calculate_rating() {
 	rating = Math.round(rating);
 
 	// put the result into the text box
-	jQuery(jQuery('#rating_dialog').data('field')).val(rating);
+	jQuery(jQuery('#rating_dialog_' + sport).data('field')).val(rating);
 	return true;
 }
 
-function dorating(field) {
-	jQuery('#rating_dialog').data('field', field);
-	jQuery('#rating_dialog').dialog('open');
+function dorating(sport, field) {
+	jQuery('#rating_dialog_' + sport).data('field', field);
+	jQuery('#rating_dialog_' + sport).dialog('open');
 }
-");
+	");
+}
 ?>

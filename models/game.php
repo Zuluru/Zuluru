@@ -740,6 +740,7 @@ class Game extends AppModel {
 		$this->Attendance->Team->contain (array(
 			'Person' => array(
 				Configure::read('security.auth_model'),
+				'Skill',
 				'Attendance' => array(
 					'conditions' => array_merge (array('team_id' => $team_id, 'team_event_id' => null), $conditions),
 				),
@@ -748,7 +749,7 @@ class Game extends AppModel {
 				),
 				'conditions' => array('TeamsPerson.status' => ROSTER_APPROVED),
 				'fields' => array(
-					'Person.id', 'Person.first_name', 'Person.last_name', 'Person.gender', 'Person.skill_level',
+					'Person.id', 'Person.first_name', 'Person.last_name', 'Person.gender',
 				),
 			),
 		));
@@ -759,7 +760,7 @@ class Game extends AppModel {
 			'Person' => array(
 				Configure::read('security.auth_model'),				
 				'fields' => array(
-					'Person.id', 'Person.first_name', 'Person.last_name', 'Person.gender', 'Person.skill_level',
+					'Person.id', 'Person.first_name', 'Person.last_name', 'Person.gender',
 				),
 			),
 		));

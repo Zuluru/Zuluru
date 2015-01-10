@@ -127,7 +127,7 @@ class DivisionsController extends AppController {
 		$this->Division->contain(array (
 			'Person',
 			'Day' => array('order' => 'day_id'),
-			'Team' => array ('Person', 'Franchise'),
+			'Team' => array ('Person' => 'Skill', 'Franchise'),
 			'League',
 			'Event' => array('EventType', 'Price'),
 		));
@@ -624,7 +624,7 @@ class DivisionsController extends AppController {
 		$this->Division->contain(array (
 			'Day' => array('order' => 'day_id'),
 			'Team' => array(
-				'Person',
+				'Person' => 'Skill',
 				'order' => array('rating' => 'DESC'),
 			),
 			'League',
@@ -671,7 +671,7 @@ class DivisionsController extends AppController {
 		$this->Division->contain(array (
 			'Day' => array('order' => 'day_id'),
 			'Team' => array(
-				'Person',
+				'Person' => 'Skill',
 				'order' => array('initial_seed'),
 			),
 			'League',

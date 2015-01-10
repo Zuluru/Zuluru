@@ -24,7 +24,7 @@ $this->Html->addCrumb (__('Adjust Initial Seeds', true));
 	<tr>
 		<td><?php echo $this->element('teams/block', array('team' => $team, 'show_shirt' => false)); ?></td>
 		<td><?php
-		Team::consolidateRoster ($team);
+		Team::consolidateRoster ($team, $division['League']['sport']);
 		echo $team['average_skill'];
 		?></td>
 		<td><?php echo $team['initial_seed']; ?></td>

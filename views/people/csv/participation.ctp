@@ -5,9 +5,7 @@ $header = array(
 		__('First Name', true),
 		__('Last Name', true),
 		__('Gender', true),
-		__('Skill Level', true),
 		__('Birthdate', true),
-		__('Year Started', true),
 		__('City', true),
 );
 for ($year = $this->data['start']; $year <= $this->data['end']; ++ $year) {
@@ -33,9 +31,7 @@ foreach ($participation as $person) {
 			$person['Person']['first_name'],
 			$person['Person']['last_name'],
 			$person['Person']['gender'],
-			$person['Person']['skill_level'],
 			$person['Person']['birthdate'],
-			$person['Person']['year_started'],
 			$person['Person']['addr_city'],
 	);
 	for ($year = $this->data['start']; $year <= $this->data['end']; ++ $year) {

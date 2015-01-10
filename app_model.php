@@ -238,7 +238,49 @@ class AppModel extends Model {
 		return array_key_exists($value, Configure::read($config));
 	}
 
+	function inconfig_ifenabled($check, $config) {
+		// If the record is not enabled, don't do any validation on it
+		if (empty($this->data[$this->alias]['enabled'])) {
+			return true;
+		}
+
+		// $check array is passed using the form field name as the key
+		// have to extract the value to make the function generic
+		$value = array_values($check);
+		$value = $value[0];
+
+		return array_key_exists($value, Configure::read($config));
+	}
+
 	function indateconfig($check, $config) {
+		// $check array is passed using the form field name as the key
+		// have to extract the value to make the function generic
+		$value = array_values($check);
+		$value = $value[0];
+		if (!is_array($value)) {
+			$year = date ('Y', strtotime ($value));
+		} else {
+			if (!array_key_exists ('year', $value)) {
+				return false;
+			}
+			$year = $value['year'];
+		}
+
+		$min = Configure::read("options.year.$config.min");
+		$max = Configure::read("options.year.$config.max");
+		if ($min === null || $max === null) {
+			return false;
+		}
+
+		return ($min <= $year && $year <= $max);
+	}
+
+	function indateconfig_ifenabled($check, $config) {
+		// If the record is not enabled, don't do any validation on it
+		if (empty($this->data[$this->alias]['enabled'])) {
+			return true;
+		}
+
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic
 		$value = array_values($check);

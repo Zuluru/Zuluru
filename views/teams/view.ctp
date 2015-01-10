@@ -304,10 +304,13 @@ if (!empty($team['Team']['short_name'])) {
 				$person['TeamsPerson']['status'] == ROSTER_APPROVED)
 			{
 				++ $roster_count;
-				if ($person['skill_level']) {
-					++ $skill_count;
-					$skill_total += $person['skill_level'];
+				$skill = Set::extract("/Skill[enabled=1][sport={$team['Division']['League']['sport']}]/.", $person);
+				if (!empty($skill)) {
+					++$skill_count;
+					$skill_total += $skill[0]['skill_level'];
 				}
+			} else {
+				$skill = null;
 			}
 
 			if ($is_logged_in) {
@@ -351,7 +354,11 @@ if (!empty($team['Team']['short_name'])) {
 		<?php endif; ?>
 		<td><?php __($person['gender']);?></td>
 		<?php if (Configure::read('profile.skill_level')): ?>
-		<td><?php echo $person['skill_level'];?></td>
+		<td><?php
+		if (!empty($skill)) {
+			echo $skill[0]['skill_level'];
+		}
+		?></td>
 		<?php endif; ?>
 		<?php if (Configure::read('feature.badges') && $is_logged_in): ?>
 		<td><?php

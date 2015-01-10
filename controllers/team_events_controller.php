@@ -76,7 +76,7 @@ class TeamEventsController extends AppController {
 		}
 		$this->TeamEvent->contain(array(
 			'Team' => array(
-				'Person',
+				'Person' => 'Skill',
 				'Division' => 'League',
 			),
 		));

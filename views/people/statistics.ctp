@@ -1,6 +1,8 @@
 <?php
 $this->Html->addCrumb (__('People', true));
 $this->Html->addCrumb (__('Statistics', true));
+
+$multi_sport = (count(Configure::read('options.sport')) > 1);
 ?>
 
 <div class="people statistics">
@@ -96,6 +98,9 @@ foreach ($group_count as $group):
 <table class="list">
 	<thead>
 		<tr>
+	<?php if ($multi_sport): ?>
+			<th><?php __('Sport'); ?></th>
+	<?php endif; ?>
 			<th><?php __('Gender'); ?></th>
 			<th><?php __('Players'); ?></th>
 		</tr>
@@ -103,13 +108,16 @@ foreach ($group_count as $group):
 	<tbody>
 <?php
 $total = 0;
-$affiliate_id = null;
+$affiliate_id = $sport = null;
 foreach ($gender_count as $gender):
 	if (count($affiliates) > 1 && $gender['Affiliate']['id'] != $affiliate_id):
 		$affiliate_id = $gender['Affiliate']['id'];
 		if ($total):
 ?>
 		<tr>
+<?php if ($multi_sport): ?>
+			<td></td>
+<?php endif; ?>
 			<td><?php __('Total'); ?></td>
 			<td><?php echo $total; ?></td>
 		</tr>
@@ -119,22 +127,44 @@ foreach ($gender_count as $gender):
 		$total = 0;
 ?>
 		<tr>
-			<th colspan="2">
+			<th colspan="<?php echo 2 + $multi_sport; ?>">
 				<h4 class="affiliate"><?php echo $gender['Affiliate']['name']; ?></h4>
 			</th>
 		</tr>
 <?php
 	endif;
 
+	if ($multi_sport && $gender['Skill']['sport'] != $sport):
+		$sport = $gender['Skill']['sport'];
+		if ($total):
+?>
+		<tr>
+			<td></td>
+			<td><?php __('Total'); ?></td>
+			<td><?php echo $total; ?></td>
+		</tr>
+<?php
+		endif;
+
+		$total = 0;
+		$sport_title = Inflector::humanize($sport);
+	endif;
+
 	$total += $gender[0]['count'];
 ?>
 		<tr>
+	<?php if ($multi_sport): ?>
+			<td><?php echo $sport_title; $sport_title = ''; ?></td>
+	<?php endif; ?>
 			<td><?php echo $gender['Person']['gender']; ?></td>
 			<td><?php echo $gender[0]['count']; ?></td>
 		</tr>
 <?php endforeach; ?>
 
 		<tr>
+<?php if ($multi_sport): ?>
+			<td></td>
+<?php endif; ?>
 			<td><?php __('Total'); ?></td>
 			<td><?php echo $total; ?></td>
 		</tr>
@@ -146,6 +176,9 @@ foreach ($gender_count as $gender):
 <table class="list">
 	<thead>
 		<tr>
+	<?php if ($multi_sport): ?>
+			<th><?php __('Sport'); ?></th>
+	<?php endif; ?>
 			<th><?php __('Age'); ?></th>
 			<th><?php __('Players'); ?></th>
 		</tr>
@@ -153,13 +186,16 @@ foreach ($gender_count as $gender):
 	<tbody>
 <?php
 $total = 0;
-$affiliate_id = null;
+$affiliate_id = $sport = null;
 foreach ($age_count as $age):
 	if (count($affiliates) > 1 && $age['Affiliate']['id'] != $affiliate_id):
 		$affiliate_id = $age['Affiliate']['id'];
 		if ($total):
 ?>
 		<tr>
+<?php if ($multi_sport): ?>
+			<td></td>
+<?php endif; ?>
 			<td><?php __('Total'); ?></td>
 			<td><?php echo $total; ?></td>
 		</tr>
@@ -169,22 +205,44 @@ foreach ($age_count as $age):
 		$total = 0;
 ?>
 		<tr>
-			<th colspan="2">
+			<th colspan="<?php echo 2 + $multi_sport; ?>">
 				<h4 class="affiliate"><?php echo $age['Affiliate']['name']; ?></h4>
 			</th>
 		</tr>
 <?php
 	endif;
 
+	if ($multi_sport && $age['Skill']['sport'] != $sport):
+		$sport = $age['Skill']['sport'];
+		if ($total):
+?>
+		<tr>
+			<td></td>
+			<td><?php __('Total'); ?></td>
+			<td><?php echo $total; ?></td>
+		</tr>
+<?php
+		endif;
+
+		$total = 0;
+		$sport_title = Inflector::humanize($sport);
+	endif;
+
 	$total += $age[0]['count'];
 ?>
-<tr>
+		<tr>
+	<?php if ($multi_sport): ?>
+			<td><?php echo $sport_title; $sport_title = ''; ?></td>
+	<?php endif; ?>
 			<td><?php echo $age[0]['age_bucket'] . ' to ' . ($age[0]['age_bucket'] + 4); ?></td>
 			<td><?php echo $age[0]['count']; ?></td>
 		</tr>
 <?php endforeach; ?>
 
 		<tr>
+<?php if ($multi_sport): ?>
+			<td></td>
+<?php endif; ?>
 			<td><?php __('Total'); ?></td>
 			<td><?php echo $total; ?></td>
 		</tr>
@@ -197,6 +255,9 @@ foreach ($age_count as $age):
 <table class="list">
 	<thead>
 		<tr>
+	<?php if ($multi_sport): ?>
+			<th><?php __('Sport'); ?></th>
+	<?php endif; ?>
 			<th><?php __('Year'); ?></th>
 			<th><?php __('Players'); ?></th>
 		</tr>
@@ -204,13 +265,16 @@ foreach ($age_count as $age):
 	<tbody>
 <?php
 $total = 0;
-$affiliate_id = null;
+$affiliate_id = $sport = null;
 foreach ($started_count as $started):
 	if (count($affiliates) > 1 && $started['Affiliate']['id'] != $affiliate_id):
 		$affiliate_id = $started['Affiliate']['id'];
 		if ($total):
 ?>
 		<tr>
+<?php if ($multi_sport): ?>
+			<td></td>
+<?php endif; ?>
 			<td><?php __('Total'); ?></td>
 			<td><?php echo $total; ?></td>
 		</tr>
@@ -220,22 +284,44 @@ foreach ($started_count as $started):
 		$total = 0;
 ?>
 		<tr>
-			<th colspan="2">
+			<th colspan="<?php echo 2 + $multi_sport; ?>">
 				<h4 class="affiliate"><?php echo $started['Affiliate']['name']; ?></h4>
 			</th>
 		</tr>
 <?php
 	endif;
 
+	if ($multi_sport && $started['Skill']['sport'] != $sport):
+		$sport = $started['Skill']['sport'];
+		if ($total):
+?>
+		<tr>
+			<td></td>
+			<td><?php __('Total'); ?></td>
+			<td><?php echo $total; ?></td>
+		</tr>
+<?php
+		endif;
+
+		$total = 0;
+		$sport_title = Inflector::humanize($sport);
+	endif;
+
 	$total += $started[0]['count'];
 ?>
 		<tr>
-			<td><?php echo $started['Person']['year_started']; ?></td>
+	<?php if ($multi_sport): ?>
+			<td><?php echo $sport_title; $sport_title = ''; ?></td>
+	<?php endif; ?>
+			<td><?php echo $started['Skill']['year_started']; ?></td>
 			<td><?php echo $started[0]['count']; ?></td>
 		</tr>
 <?php endforeach; ?>
 
 		<tr>
+<?php if ($multi_sport): ?>
+			<td></td>
+<?php endif; ?>
 			<td><?php __('Total'); ?></td>
 			<td><?php echo $total; ?></td>
 		</tr>
@@ -248,6 +334,9 @@ foreach ($started_count as $started):
 <table class="list">
 	<thead>
 		<tr>
+	<?php if ($multi_sport): ?>
+			<th><?php __('Sport'); ?></th>
+	<?php endif; ?>
 			<th><?php __('Skill Level'); ?></th>
 			<th><?php __('Players'); ?></th>
 		</tr>
@@ -255,13 +344,16 @@ foreach ($started_count as $started):
 	<tbody>
 <?php
 $total = 0;
-$affiliate_id = null;
+$affiliate_id = $sport = null;
 foreach ($skill_count as $skill):
 	if (count($affiliates) > 1 && $skill['Affiliate']['id'] != $affiliate_id):
 		$affiliate_id = $skill['Affiliate']['id'];
 		if ($total):
 ?>
 		<tr>
+<?php if ($multi_sport): ?>
+			<td></td>
+<?php endif; ?>
 			<td><?php __('Total'); ?></td>
 			<td><?php echo $total; ?></td>
 		</tr>
@@ -271,22 +363,44 @@ foreach ($skill_count as $skill):
 		$total = 0;
 ?>
 		<tr>
-			<th colspan="2">
+			<th colspan="<?php echo 2 + $multi_sport; ?>">
 				<h4 class="affiliate"><?php echo $skill['Affiliate']['name']; ?></h4>
 			</th>
 		</tr>
 <?php
 	endif;
 
+	if ($multi_sport && $skill['Skill']['sport'] != $sport):
+		$sport = $skill['Skill']['sport'];
+		if ($total):
+?>
+		<tr>
+			<td></td>
+			<td><?php __('Total'); ?></td>
+			<td><?php echo $total; ?></td>
+		</tr>
+<?php
+		endif;
+
+		$total = 0;
+		$sport_title = Inflector::humanize($sport);
+	endif;
+
 	$total += $skill[0]['count'];
 ?>
 		<tr>
-			<td><?php echo $skill['Person']['skill_level']; ?></td>
+	<?php if ($multi_sport): ?>
+			<td><?php echo $sport_title; $sport_title = ''; ?></td>
+	<?php endif; ?>
+			<td><?php echo $skill['Skill']['skill_level']; ?></td>
 			<td><?php echo $skill[0]['count']; ?></td>
 		</tr>
 <?php endforeach; ?>
 
 		<tr>
+<?php if ($multi_sport): ?>
+			<td></td>
+<?php endif; ?>
 			<td><?php __('Total'); ?></td>
 			<td><?php echo $total; ?></td>
 		</tr>
@@ -299,6 +413,9 @@ foreach ($skill_count as $skill):
 <table class="list">
 	<thead>
 		<tr>
+	<?php if ($multi_sport): ?>
+			<th><?php __('Sport'); ?></th>
+	<?php endif; ?>
 			<th><?php __('City'); ?></th>
 			<th><?php __('Players'); ?></th>
 		</tr>
@@ -306,13 +423,16 @@ foreach ($skill_count as $skill):
 	<tbody>
 <?php
 $total = 0;
-$affiliate_id = null;
+$affiliate_id = $sport = null;
 foreach ($city_count as $city):
 	if (count($affiliates) > 1 && $city['Affiliate']['id'] != $affiliate_id):
 		$affiliate_id = $city['Affiliate']['id'];
 		if ($total):
 ?>
 		<tr>
+<?php if ($multi_sport): ?>
+			<td></td>
+<?php endif; ?>
 			<td><?php __('Total'); ?></td>
 			<td><?php echo $total; ?></td>
 		</tr>
@@ -322,16 +442,35 @@ foreach ($city_count as $city):
 		$total = 0;
 ?>
 		<tr>
-			<th colspan="2">
+			<th colspan="<?php echo 2 + $multi_sport; ?>">
 				<h4 class="affiliate"><?php echo $city['Affiliate']['name']; ?></h4>
 			</th>
 		</tr>
 <?php
 	endif;
 
+	if ($multi_sport && $city['Skill']['sport'] != $sport):
+		$sport = $city['Skill']['sport'];
+		if ($total):
+?>
+		<tr>
+			<td></td>
+			<td><?php __('Total'); ?></td>
+			<td><?php echo $total; ?></td>
+		</tr>
+<?php
+		endif;
+
+		$total = 0;
+		$sport_title = Inflector::humanize($sport);
+	endif;
+
 	$total += $city[0]['count'];
 ?>
 		<tr>
+	<?php if ($multi_sport): ?>
+			<td><?php echo $sport_title; $sport_title = ''; ?></td>
+	<?php endif; ?>
 			<td><?php
 			if (empty($city['Person']['addr_city'])) {
 				__('Unspecified');
@@ -344,6 +483,9 @@ foreach ($city_count as $city):
 <?php endforeach; ?>
 
 		<tr>
+<?php if ($multi_sport): ?>
+			<td></td>
+<?php endif; ?>
 			<td><?php __('Total'); ?></td>
 			<td><?php echo $total; ?></td>
 		</tr>

@@ -679,7 +679,7 @@ class TeamsController extends AppController {
 			'Field' => array('Facility'),
 		);
 		if ($this->is_logged_in || Configure::read('feature.public')) {
-			$contain['Person'] = array();
+			$contain['Person'] = array('Skill');
 			if (Configure::read('feature.annotations')) {
 				$contain['Note'] = array('conditions' => array('created_person_id' => $this->UserCache->currentId()));
 			}

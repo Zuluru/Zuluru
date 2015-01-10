@@ -17,7 +17,7 @@ $fields = array(
 	'gender' => 'Gender',
 	'birthdate' => 'Birthdate',
 	'height' => 'Height',
-	'skill_level' => 'Skill Level',
+	'skill_level' => array('name' => 'Skill Level', 'model' => 'Skill'),
 	'shirt_size' => 'Shirt Size',
 	'alternate_first_name' => 'Alternate First Name',
 	'alternate_last_name' => 'Alternate Last Name',
@@ -37,8 +37,15 @@ foreach ($player_fields as $field => $name) {
 		$include = Configure::read("profile.$short_field");
 	}
 	if ($include) {
-		$values = array_unique(Set::extract("/Person/$field", $registrations));
+		if (is_array($name)) {
+			$values = array_unique(Set::extract("/Person/{$name['model']}/$field", $registrations));
+		} else {
+			$values = array_unique(Set::extract("/Person/$field", $registrations));
+		}
 		if (count($values) > 1 || !empty($values[0])) {
+			if (is_array($name)) {
+				$name = $name['name'];
+			}
 			$header[] = __($name, true);
 		} else {
 			unset($player_fields[$field]);
@@ -101,6 +108,9 @@ if ($relatives > 0) {
 		foreach ($contact_fields[$i] as $field => $name) {
 			$values = array_unique(Set::extract("/Person/Related/$i/$field", $registrations));
 			if (count($values) > 1 || !empty($values[0])) {
+				if (is_array($name)) {
+					$name = $name['name'];
+				}
 				$header[] = __($name, true);
 			} else {
 				unset($contact_fields[$i][$field]);
@@ -120,11 +130,21 @@ $order_id_format = Configure::read('registration.order_id_format');
 
 foreach($registrations as $registration) {
 	$row = array($registration['Person']['id']);
-	foreach (array_keys($player_fields) as $field) {
-		if (array_key_exists($field, $registration['Person'])) {
-			$row[] = $registration['Person'][$field];
+	foreach ($player_fields as $field => $name) {
+		if (is_array($name)) {
+			if (array_key_exists($field, $registration['Person'][$name['model']])) {
+				$row[] = $registration['Person'][$name['model']][$field];
+			} else if (array_key_exists($field, $registration['Person'][$name['model']][0])) {
+				$row[] = $registration['Person'][$name['model']][0][$field];
+			} else {
+				$row[] = '';
+			}
 		} else {
-			$row[] = '';
+			if (array_key_exists($field, $registration['Person'])) {
+				$row[] = $registration['Person'][$field];
+			} else {
+				$row[] = '';
+			}
 		}
 	}
 	$row[] = sprintf ($order_id_format, $registration['Registration']['id']);

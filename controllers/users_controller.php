@@ -131,6 +131,11 @@ class UsersController extends AppController {
 			// SaveAll doesn't work correctly in this case. Save them separately, to make sure they're all validated.
 			$this->Auth->authenticate->saveAll($this->data[$user_model], array('validate' => 'only'));
 			$this->Person->saveAll($this->data['Person'], array('validate' => 'only'));
+			foreach ($this->data['Person'] as $key => $person) {
+				if (!empty($this->data['Person'][$key]['Skill']) && !$this->Person->Skill->saveAll($this->data['Person'][$key]['Skill'], array('validate' => 'only'))) {
+					$this->Person->validationErrors[$key]['Skill'] = $this->Person->Skill->validationErrors;
+				}
+			}
 
 			// Make sure someone isn't forging their way into an entirely unauthorized level.
 			if (!$this->is_admin && !empty($this->data['Group']['Group'])) {
@@ -179,6 +184,10 @@ class UsersController extends AppController {
 						}
 
 						$save = array('Person' => $person, 'Affiliate' => $this->data['Affiliate']);
+						if (!empty($person['Skill'])) {
+							$save['Skill'] = $person['Skill'];
+							unset($person['Skill']);
+						}
 						if ($key == 0) {
 							$save['Group'] = $this->data['Group'];
 						} else {

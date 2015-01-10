@@ -215,19 +215,23 @@ class Team extends AppModel {
 		return $teams;
 	}
 
-	static function consolidateRoster(&$team) {
+	static function consolidateRoster(&$team, $sport) {
 		if (array_key_exists ('Person', $team)) {
-			$roster_count = $skill_total = 0;
+			$roster_count = $skill_count = $skill_total = 0;
 			foreach ($team['Person'] as $person) {
 				if (in_array ($person['TeamsPerson']['role'], Configure::read('playing_roster_roles')) &&
 					$person['TeamsPerson']['status'] == ROSTER_APPROVED)
 				{
 					++$roster_count;
-					$skill_total += $person['skill_level'];
+					$skill = Set::extract("/Skill[enabled=1][sport=$sport]/.", $person);
+					if (!empty($skill)) {
+						++$skill_count;
+						$skill_total += $skill[0]['skill_level'];
+					}
 				}
 			}
-			if ($roster_count) {
-				$average_skill = sprintf ('%.2f', round ($skill_total / $roster_count, 2));
+			if ($skill_count) {
+				$average_skill = sprintf ('%.2f', round ($skill_total / $skill_count, 2));
 			} else {
 				$average_skill = 'N/A';
 			}

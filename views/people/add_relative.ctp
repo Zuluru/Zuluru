@@ -43,31 +43,6 @@ if (Configure::read('profile.birthdate')) {
 		));
 	}
 }
-if (Configure::read('profile.year_started')) {
-	echo $this->ZuluruForm->input('year_started', array(
-		'type' => 'select',
-		'options' => $this->Form->__generateOptions('year', array(
-				'min' => Configure::read('options.year.started.min'),
-				'max' => Configure::read('options.year.started.max'),
-				'order' => 'desc'
-		)),
-		'empty' => '---',
-		'after' => $this->Html->para(null, 'The year you started playing in <strong>this</strong> league.'),
-	));
-}
-if (Configure::read('profile.skill_level')) {
-	if (Configure::read('sport.rating_questions')) {
-		$after = $this->Html->para(null, __('Please use the questionnaire to ', true) . $this->Html->link (__('calculate your rating', true), '#', array('onclick' => 'dorating("#Person1SkillLevel"); return false;')) . '.');
-	} else {
-		$after = null;
-	}
-	echo $this->ZuluruForm->input('skill_level', array(
-		'type' => 'select',
-		'empty' => '---',
-		'options' => Configure::read('options.skill'),
-		'after' => $after,
-	));
-}
 if (Configure::read('profile.height')) {
 	if (Configure::read('feature.units') == 'Metric') {
 		$units = __('centimeters', true);
@@ -86,6 +61,7 @@ if (Configure::read('profile.shirt_size')) {
 		'options' => Configure::read('options.shirt_size'),
 	));
 }
+echo $this->element('people/skill_edit');
 ?>
 	</fieldset>
 <?php if (Configure::read('feature.affiliates')): ?>
@@ -115,9 +91,13 @@ echo $this->Form->end();
 </div>
 
 <?php
-// TODO: Handle more than one sport in a site
-$sport = reset(array_keys(Configure::read('options.sport')));
-if (Configure::read('profile.skill_level') && Configure::read('sport.rating_questions')) {
-	echo $this->element('people/rating', array('sport' => $sport));
+if (Configure::read('profile.skill_level')) {
+	$sports = Configure::read('options.sport');
+	foreach (array_keys($sports) as $sport) {
+		Configure::load("sport/$sport");
+		if (Configure::read('sport.rating_questions')) {
+			echo $this->element('people/rating', array('sport' => $sport));
+		}
+	}
 }
 ?>

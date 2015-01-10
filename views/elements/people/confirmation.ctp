@@ -3,6 +3,8 @@ if (!$is_player) {
 	return;
 }
 $person = $this->UserCache->read('Person');
+$skills = $this->UserCache->read('Skills');
+$sports = Configure::read('options.sport');
 if (AppController::_isChild($person['birthdate'])) {
 	$check = 6 * MONTH;
 } else {
@@ -34,10 +36,25 @@ if (strtotime($person['updated']) + $check < time()):
 						echo $person[$field] . ' ' . (Configure::read('feature.units') == 'Metric' ? __('cm', true) : __('inches', true));
 						break;
 
+					case 'skill_level':
+					case 'year_started':
+						$lines = array();
+						foreach ($skills as $skill) {
+							if ($skill['Skill']['enabled']) {
+								$line = $skill['Skill'][$field];
+								if (count($sports) > 1) {
+									$line = Inflector::humanize($skill['Skill']['sport']) . ': ' . $line;
+								}
+								$lines[] = $line;
+							}
+						}
+						echo implode('<br/>', $lines);
+						break;
+
 					default:
 						echo $person[$field];
 				}
-				?></dd>
+				?>&nbsp;</dd>
 			<?php endforeach; ?>
 			</dl>
 		</div>

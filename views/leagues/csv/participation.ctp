@@ -22,7 +22,7 @@ $fields = array(
 	'gender' => 'Gender',
 	'birthdate' => 'Birthdate',
 	'height' => 'Height',
-	'skill_level' => 'Skill Level',
+	'skill_level' => array('name' => 'Skill Level', 'model' => 'Skill'),
 	'shirt_size' => 'Shirt Size',
 	'alternate_first_name' => 'Alternate First Name',
 	'alternate_last_name' => 'Alternate Last Name',
@@ -42,8 +42,15 @@ foreach ($player_fields as $field => $name) {
 		$include = Configure::read("profile.$short_field");
 	}
 	if ($include) {
-		$values = array_unique(Set::extract("/Division/Team/Person/$field", $league));
+		if (is_array($name)) {
+			$values = array_unique(Set::extract("/Division/Team/Person/{$name['model']}/$field", $league));
+		} else {
+			$values = array_unique(Set::extract("/Division/Team/Person/$field", $league));
+		}
 		if (count($values) > 1 || !empty($values[0])) {
+			if (is_array($name)) {
+				$name = $name['name'];
+			}
 			$header[] = __($name, true);
 		} else {
 			unset($player_fields[$field]);
@@ -88,6 +95,9 @@ if ($relatives > 0) {
 	for ($i = 0; $i < $relatives; ++ $i) {
 		foreach ($contact_fields as $field => $name) {
 			if (!empty($contact_fields_required[$i][$field])) {
+				if (is_array($name)) {
+					$name = $name['name'];
+				}
 				$header[] = __($name, true);
 			}
 		}
@@ -121,11 +131,21 @@ foreach ($league['Division'] as $division) {
 				$person['id'],
 				$role,
 			);
-			foreach (array_keys($player_fields) as $field) {
-				if (array_key_exists($field, $person)) {
-					$row[] = $person[$field];
+			foreach ($player_fields as $field => $name) {
+				if (is_array($name)) {
+					if (array_key_exists($field, $person[$name['model']])) {
+						$row[] = $person[$name['model']][$field];
+					} else if (array_key_exists($field, $person[$name['model']][0])) {
+						$row[] = $person[$name['model']][0][$field];
+					} else {
+						$row[] = '';
+					}
 				} else {
-					$row[] = '';
+					if (array_key_exists($field, $person)) {
+						$row[] = $person[$field];
+					} else {
+						$row[] = '';
+					}
 				}
 			}
 			$row[] = $person['TeamsPerson']['created'];

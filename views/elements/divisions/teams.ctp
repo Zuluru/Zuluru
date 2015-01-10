@@ -18,7 +18,7 @@
 				$classes[] = 'altrow';
 			}
 		}
-		Team::consolidateRoster ($team);
+		Team::consolidateRoster ($team, $league['sport']);
 		echo $this->element("leagues/view/{$league_obj->render_element}/team",
 				compact('is_manager', 'is_captain', 'team', 'division', 'league', 'seed', 'classes'));
 	}

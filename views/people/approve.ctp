@@ -73,11 +73,32 @@ if (Configure::read('profile.shirt_size')) {
 	$rows[] = 'shirt_size';
 }
 
-if (Configure::read('profile.skill_level')) {
-	$rows[] = 'skill_level';
-}
+$sports = array_keys(Configure::read('options.sport'));
+foreach ($sports as $sport) {
+	$skill = reset(Set::extract("/Skill[sport=$sport]/.", $person));
+	if (!empty($skill['enabled'])) {
+		$person['Person']["skill_level_$sport"] = $skill['skill_level'];
+		$person['Person']["year_started_$sport"] = $skill['year_started'];
+	} else {
+		$person['Person']["skill_level_$sport"] = $person['Person']["year_started_$sport"] = null;
+	}
 
-$rows[] = 'year_started';
+	if (Configure::read('profile.skill_level')) {
+		if (count($sports) > 1) {
+			$rows["skill_level_$sport"] = array('name' => "Skill Level ($sport)");
+		} else {
+			$rows["skill_level_$sport"] = array('name' => 'Skill Level');
+		}
+	}
+
+	if (Configure::read('profile.year_started')) {
+		if (count($sports) > 1) {
+			$rows["year_started_$sport"] = array('name' => "Year Started ($sport)");
+		} else {
+			$rows["year_started_$sport"] = array('name' => 'Year Started');
+		}
+	}
+}
 
 $rows['status'] = array('name' => 'Account Status');
 
@@ -125,6 +146,16 @@ if (!empty ($duplicates)) {
 
 	$compare = array();
 	foreach ($duplicates as $duplicate) {
+		foreach ($sports as $sport) {
+			$skill = reset(Set::extract("/Skill[sport=$sport]/.", $duplicate));
+			if (!empty($skill['enabled'])) {
+				$duplicate['Person']["skill_level_$sport"] = $skill['skill_level'];
+				$duplicate['Person']["year_started_$sport"] = $skill['year_started'];
+			} else {
+				$duplicate['Person']["skill_level_$sport"] = $duplicate['Person']["year_started_$sport"] = null;
+			}
+		}
+
 		$dispositions["delete_duplicate:{$duplicate['Person']['id']}"] = "Deleted as duplicate of {$duplicate['Person']['full_name']} ({$duplicate['Person']['id']})";
 		$dispositions["merge_duplicate:{$duplicate['Person']['id']}"] = "Merged backwards into {$duplicate['Person']['full_name']} ({$duplicate['Person']['id']})";
 		$compare[] = $this->Html->link ("{$duplicate['Person']['full_name']} ({$duplicate['Person']['id']})", '#',

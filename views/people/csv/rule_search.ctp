@@ -16,7 +16,6 @@ $header = array(
 		__('Gender', true),
 		__('Birthdate', true),
 		__('Height', true),
-		__('Skill Level', true),
 		__('Shirt Size', true),
 );
 fputcsv($fp, $header);
@@ -38,7 +37,6 @@ foreach ($people as $person) {
 			$person['Person']['gender'],
 			$person['Person']['birthdate'],
 			$person['Person']['height'],
-			$person['Person']['skill_level'],
 			$person['Person']['shirt_size'],
 	);
 

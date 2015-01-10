@@ -437,6 +437,19 @@ class UserCacheComponent extends Object
 					}
 					break;
 
+				case 'Skills':
+					if (!isset($self->_controller->Skill)) {
+						$self->_controller->Skill = ClassRegistry::init('Skill');
+					}
+					$self->data[$id][$key] = $self->_findData($self->_controller->Skill, array(
+							'order' => 'Skill.sport',
+							'contain' => false,
+							'conditions' => array(
+								'person_id' => $id,
+							),
+					));
+					break;
+
 				case 'Tasks':
 					$self->data[$id][$key] = $self->requestAction(array('controller' => 'tasks', 'action' => 'assigned'), array('named' => array('person' => $id)));
 					break;

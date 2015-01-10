@@ -139,14 +139,18 @@ class RegistrationsController extends AppController {
 		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], null, true);
 
 		if ($this->params['url']['ext'] == 'csv') {
-			$this->Registration->contain (array(
+			$contain = array(
 				'Person' => array(
 					$this->Auth->authenticate->name,
 					'Related' => $this->Auth->authenticate->name,
 				),
 				'Payment' => 'RegistrationAudit',
 				'Response',
-			));
+			);
+			if (!empty($event['Division']['League']['sport'])) {
+				$contain['Person']['Skill'] = array('conditions' => array('Skill.sport' => $event['Division']['League']['sport']));
+			}
+			$this->Registration->contain($contain);
 			$this->set('registrations', $this->Registration->find ('all', array(
 					'conditions' => array('Registration.event_id' => $id),
 					'order' => array('Registration.payment' => 'DESC', 'Registration.created' => 'DESC'),

@@ -3,10 +3,6 @@ $this->Html->addCrumb (__('Users', true));
 $this->Html->addCrumb (__('Create', true));
 
 $short = Configure::read('organization.short_name');
-
-// TODO: Handle more than one sport in a site
-$sport = reset(array_keys(Configure::read('options.sport')));
-Configure::load("sport/$sport");
 ?>
 
 <p><?php
@@ -281,31 +277,6 @@ if (Configure::read('feature.antispam')):
 				));
 			}
 		}
-		if (Configure::read('profile.year_started')) {
-			echo $this->ZuluruForm->input('Person.0.year_started', array(
-				'type' => 'select',
-				'options' => $this->Form->__generateOptions('year', array(
-						'min' => Configure::read('options.year.started.min'),
-						'max' => Configure::read('options.year.started.max'),
-						'order' => 'desc'
-				)),
-				'empty' => '---',
-				'after' => $this->Html->para(null, 'The year you started playing in <strong>this</strong> league.'),
-			));
-		}
-		if (Configure::read('profile.skill_level')) {
-			if (Configure::read('sport.rating_questions')) {
-				$after = $this->Html->para(null, __('Please use the questionnaire to ', true) . $this->Html->link (__('calculate your rating', true), '#', array('onclick' => 'dorating("#Person0SkillLevel"); return false;')) . '.');
-			} else {
-				$after = null;
-			}
-			echo $this->ZuluruForm->input('Person.0.skill_level', array(
-				'type' => 'select',
-				'empty' => '---',
-				'options' => Configure::read('options.skill'),
-				'after' => $after,
-			));
-		}
 		if (Configure::read('profile.height')) {
 			if (Configure::read('feature.units') == 'Metric') {
 				$units = __('centimeters', true);
@@ -327,6 +298,7 @@ if (Configure::read('feature.antispam')):
 		if (Configure::read('feature.dog_questions')) {
 			echo $this->ZuluruForm->input('Person.0.has_dog');
 		}
+		echo $this->element('people/skill_edit', array('prefix' => 'Person.0'));
 	?>
 	</fieldset>
 	<fieldset class="parent" style="display:none;">
@@ -361,31 +333,6 @@ if (Configure::read('feature.antispam')):
 				));
 			}
 		}
-		if (Configure::read('profile.year_started')) {
-			echo $this->ZuluruForm->input('Person.1.year_started', array(
-				'type' => 'select',
-				'options' => $this->Form->__generateOptions('year', array(
-						'min' => Configure::read('options.year.started.min'),
-						'max' => Configure::read('options.year.started.max'),
-						'order' => 'desc'
-				)),
-				'empty' => '---',
-				'after' => $this->Html->para(null, 'The year you started playing in <strong>this</strong> league.'),
-			));
-		}
-		if (Configure::read('profile.skill_level')) {
-			if (Configure::read('sport.rating_questions')) {
-				$after = $this->Html->para(null, __('Please use the questionnaire to ', true) . $this->Html->link (__('calculate your rating', true), '#', array('onclick' => 'dorating("#Person1SkillLevel"); return false;')) . '.');
-			} else {
-				$after = null;
-			}
-			echo $this->ZuluruForm->input('Person.1.skill_level', array(
-				'type' => 'select',
-				'empty' => '---',
-				'options' => Configure::read('options.skill'),
-				'after' => $after,
-			));
-		}
 		if (Configure::read('profile.height')) {
 			if (Configure::read('feature.units') == 'Metric') {
 				$units = __('centimeters', true);
@@ -404,6 +351,7 @@ if (Configure::read('feature.antispam')):
 				'options' => Configure::read('options.shirt_size'),
 			));
 		}
+		echo $this->element('people/skill_edit', array('prefix' => 'Person.1'));
 	?>
 	</fieldset>
 <?php
@@ -415,7 +363,13 @@ echo $this->Form->end();
 
 <?php
 if (Configure::read('profile.skill_level') && Configure::read('sport.rating_questions')) {
-	echo $this->element('people/rating', array('sport' => $sport));
+	$sports = Configure::read('options.sport');
+	foreach (array_keys($sports) as $sport) {
+		Configure::load("sport/$sport");
+		if (Configure::read('sport.rating_questions')) {
+			echo $this->element('people/rating', array('sport' => $sport));
+		}
+	}
 }
 
 // Handle changes to parent and player checkboxes

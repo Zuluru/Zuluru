@@ -237,7 +237,12 @@ class LeaguesController extends AppController {
 			),
 		);
 		if ($this->params['url']['ext'] == 'csv') {
-			$contain['Division']['Team']['Person'] = array($this->Auth->authenticate->name, 'Related' => $this->Auth->authenticate->name);
+			$sport = $this->League->field('sport', array('id' => $id));
+			$contain['Division']['Team']['Person'] = array(
+				$this->Auth->authenticate->name,
+				'Related' => $this->Auth->authenticate->name,
+				'Skill' => array('conditions' => array('Skill.sport' => $sport)),
+			);
 		}
 		$this->League->contain($contain);
 		$league = $this->League->read(null, $id);

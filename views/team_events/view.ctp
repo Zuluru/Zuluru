@@ -115,7 +115,6 @@ $this->Html->addCrumb (__('View', true));
 		<th><?php __('Name'); ?></th>
 		<th><?php __('Role'); ?></th>
 		<th><?php __('Gender'); ?></th>
-		<th><?php __('Rating'); ?></th>
 		<th><?php __('Attendance'); ?></th>
 		<th><?php __('Updated'); ?></th>
 	</tr>
@@ -136,7 +135,6 @@ $this->Html->addCrumb (__('View', true));
 		<td><?php echo $this->element('people/block', compact('person')); ?></td>
 		<td><?php __(Configure::read("options.roster_role.{$person['TeamsPerson']['role']}")); ?></td>
 		<td><?php __($person['gender']);?></td>
-		<td><?php echo $person['skill_level'];?></td>
 		<td class="<?php echo low($statuses[$status]);?>"><?php
 			echo $this->element('team_events/attendance_change', array(
 				'team' => $event['Team'],

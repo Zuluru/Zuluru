@@ -234,17 +234,30 @@ $this_is_parent = (!empty($this_is_parent));
 				</dd>
 				<?php endif; ?>
 			<?php endif; ?>
-			<?php if (Configure::read('profile.skill_level') && !empty ($person['skill_level'])):?>
-			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Skill Level'); ?></dt>
-			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-				<?php __(Configure::read("options.skill.{$person['skill_level']}")) ; ?>
+			<?php if (Configure::read('profile.skill_level') && !empty ($skills)):?>
+				<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Skill Level'); ?></dt>
+				<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+					<?php
+					$sports = array();
+					foreach ($skills as $skill) {
+						Configure::load("sport/{$skill['Skill']['sport']}");
+						$sports[] = Inflector::humanize($skill['Skill']['sport']) . ': ' . __(Configure::read("options.skill.{$skill['Skill']['skill_level']}"), true);
+					}
+					echo implode('<br />', $sports);
+					?>
 
 			</dd>
 			<?php endif; ?>
-			<?php if ($is_logged_in && !empty ($person['year_started'])):?>
+			<?php if ($is_logged_in && Configure::read('profile.year_started') && !empty ($skills)):?>
 				<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Year Started'); ?></dt>
 				<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-					<?php echo $person['year_started']; ?>
+					<?php
+					$sports = array();
+					foreach ($skills as $skill) {
+						$sports[] = Inflector::humanize($skill['Skill']['sport']) . ': ' . $skill['Skill']['year_started'];
+					}
+					echo implode('<br />', $sports);
+					?>
 
 				</dd>
 			<?php endif; ?>

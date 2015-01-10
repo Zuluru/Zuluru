@@ -219,19 +219,6 @@ class Person extends AppModel {
 				'message' => 'You must enter a valid height.',
 			),
 		),
-		'skill_level' => array(
-			'inlist' => array(
-				'rule' => array('inconfig', 'options.skill'),
-				'message' => 'You must select a skill level between 1 and 10.',
-			),
-		),
-		'year_started' => array(
-			'range' => array(
-				'rule' => array('indateconfig', 'started'),
-				'message' => 'Year started must be after 1986. For the number of people who started playing before then, I don\'t think it matters if you\'re listed as having played 17 years or 20, you\'re still old.',
-			),
-// TODO You can't have started playing when you were 0 years old! Please correct your birthdate, or your starting year
-		),
 		'shirt_size' => array(
 			'inlist' => array(
 				'rule' => array('inconfig', 'options.shirt_size'),
@@ -260,6 +247,11 @@ class Person extends AppModel {
 	);
 
 	var $hasMany = array(
+		'Skill' => array(
+			'className' => 'Skill',
+			'foreignKey' => 'person_id',
+			'dependent' => true,
+		),
 		'Allstar' => array(
 			'className' => 'Allstar',
 			'foreignKey' => 'person_id',
@@ -485,7 +477,7 @@ class Person extends AppModel {
 	}
 
 	function beforeValidateNonPlayer() {
-		foreach (array('gender', 'birthdate', 'height', 'skill_level', 'year_started', 'shirt_size') as $field) {
+		foreach (array('gender', 'birthdate', 'height', 'shirt_size') as $field) {
 			unset($this->validate[$field]);
 		}
 	}
@@ -659,7 +651,7 @@ class Person extends AppModel {
 					),
 				),
 				'conditions' => $conditions,
-				'contain' => array('Group'),
+				'contain' => array('Skill', 'Group'),
 		));
 	}
 
