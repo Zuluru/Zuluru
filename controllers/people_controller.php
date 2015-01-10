@@ -934,11 +934,13 @@ class PeopleController extends AppController {
 			}
 
 			// Handle IDs for skills
-			$skills = $this->UserCache->read('Skills', $id);
-			foreach ($this->data['Skill'] as $key => $skill) {
-				$skill_id = Set::extract("/Skill[sport={$skill['sport']}]/id", $skills);
-				if (!empty($skill_id)) {
-					$this->data['Skill'][$key]['id'] = $skill_id[0];
+			if (!empty($this->data['Skill'])) {
+				$skills = $this->UserCache->read('Skills', $id);
+				foreach ($this->data['Skill'] as $key => $skill) {
+					$skill_id = Set::extract("/Skill[sport={$skill['sport']}]/id", $skills);
+					if (!empty($skill_id)) {
+						$this->data['Skill'][$key]['id'] = $skill_id[0];
+					}
 				}
 			}
 
