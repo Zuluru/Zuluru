@@ -129,13 +129,20 @@ $collapse = !empty($this->data['Division']['id']);
 			'empty' => '---',
 			'after' => $this->Html->para (null, __('Day, or days, on which this division will play.', true)),
 		));
-		echo $this->ZuluruForm->input('Division.ratio', array(
-			'label' => __('Gender Ratio', true),
-			'options' => Configure::read('sport.ratio'),
-			'hide_single' => true,
-			'empty' => '---',
-			'after' => $this->Html->para (null, __('Gender format for the division.', true)),
+	?>
+		<div id="SportFields">
+	<?php
+		if (isset($sport)) {
+			Configure::load("sport/$sport");
+			echo $this->element('leagues/sport_fields');
+		}
+		$this->Js->get('#LeagueSport')->event('change', $this->Js->request(
+				array('controller' => 'leagues', 'action' => 'sport_fields'),
+				array('update' => '#SportFields', 'dataExpression' => true, 'data' => 'jQuery("#LeagueSport").get()')
 		));
+	?>
+		</div>
+	<?php
 		echo $this->Form->input('Division.roster_rule', array(
 			'div' => 'input advanced',
 			'cols' => 70,
@@ -327,34 +334,19 @@ $collapse = !empty($this->data['Division']['id']);
 					'id' => "selectAll",
 					'onclick' => "selectAll('StatDetails'); return false;",
 			));
-
-			$entered = Set::extract('/StatType[type=entered]', $stat_types);
-			$entered = Set::combine($entered, '{n}.StatType.id', '{n}.StatType.name');
-
-			$game_calc = Set::extract('/StatType[type=game_calc]', $stat_types);
-			$game_calc = Set::combine($game_calc, '{n}.StatType.id', '{n}.StatType.name');
-
-			$season_total = Set::extract('/StatType[type=season_total]', $stat_types);
-			$season_total = Set::combine($season_total, '{n}.StatType.id', '{n}.StatType.name');
-
-			$season_avg = Set::extract('/StatType[type=season_avg]', $stat_types);
-			$season_avg = Set::combine($season_avg, '{n}.StatType.id', '{n}.StatType.name');
-
-			$season_calc = Set::extract('/StatType[type=season_calc]', $stat_types);
-			$season_calc = Set::combine($season_calc, '{n}.StatType.id', '{n}.StatType.name');
-
-			echo $this->ZuluruForm->input('StatType', array(
-				'label' => false,
-				'multiple' => 'checkbox',
-				'options' => array(
-					'Stats to enter' => $entered,
-					'Per-game calculated stats to display' => $game_calc,
-					'Stats to display season totals of' => $season_total,
-					'Stats to display season averages of' => $season_avg,
-					'Stats to display season calculated values for' => $season_calc,
-				),
+	?>
+			<div id="StatFields">
+	<?php
+			if (isset($sport)) {
+				Configure::load("sport/$sport");
+				echo $this->element('leagues/stat_fields');
+			}
+			$this->Js->get('#LeagueSport')->event('change', $this->Js->request(
+					array('controller' => 'leagues', 'action' => 'stat_fields'),
+					array('update' => '#StatFields', 'dataExpression' => true, 'data' => 'jQuery("#LeagueSport").get()')
 			));
 	?>
+			</div>
 		</div>
 	<?php endif; ?>
 	</fieldset>

@@ -14,6 +14,16 @@ class LeaguesController extends AppController {
 	}
 
 	function isAuthorized() {
+		// Managers and coordinators can perform these operations
+		if (in_array ($this->params['action'], array(
+				'sport_fields',
+		)))
+		{
+			if ($this->UserCache->read('DivisionIDs') || $this->is_manager) {
+				return true;
+			}
+		}
+
 		if ($this->is_manager) {
 			// Managers can perform these operations
 			if (in_array ($this->params['action'], array(
@@ -296,16 +306,16 @@ class LeaguesController extends AppController {
 		$this->set('days', $this->League->Division->Day->find('list'));
 		$sports = Configure::read('options.sport');
 		if (count($sports) == 1) {
-			$sport = reset(array_keys($sports));
+			$this->data['League']['sport'] = reset(array_keys($sports));
+		}
+		if (isset($this->data['League']['sport'])) {
+			$this->set('sport', $this->data['League']['sport']);
 			$this->set('stat_types', $this->League->StatType->find('all', array(
 				'conditions' => array(
-					'sport' => $sport,
+					'sport' => $this->data['League']['sport'],
 				)
 			)));
-		} else {
-			// TODO: Limit by sport, presumably with JavaScript later on
 		}
-		Configure::load("sport/$sport");
 		$this->set('affiliates', $this->_applicableAffiliates(true));
 		$this->set('add', true);
 
@@ -324,7 +334,6 @@ class LeaguesController extends AppController {
 		}
 		if (!empty($this->data)) {
 			$this->Configuration->loadAffiliate($this->data['League']['affiliate_id']);
-			Configure::load("sport/{$this->data['League']['sport']}");
 			if (array_key_exists('Day', $this->data['League'])) {
 				$this->data['Day'] = $this->data['League']['Day'];
 			}
@@ -390,7 +399,6 @@ class LeaguesController extends AppController {
 		$this->_addLeagueMenuItems ($this->League->data);
 
 		$this->Configuration->loadAffiliate($this->League->data['League']['affiliate_id']);
-		Configure::load("sport/{$this->League->data['League']['sport']}");
 		if (count($this->League->data['Division']) == 1) {
 			// Adjust loaded data
 			$this->League->data['Division'] = array_pop($this->League->data['Division']);
@@ -403,8 +411,10 @@ class LeaguesController extends AppController {
 		if (empty($this->data)) {
 			$this->data = $this->League->data;
 		}
+		Configure::load("sport/{$this->data['League']['sport']}");
 
 		$this->set('days', $this->League->Division->Day->find('list'));
+		$this->set('sport', $this->data['League']['sport']);
 		$this->set('stat_types', $this->League->StatType->find('all', array(
 			'conditions' => array(
 				'sport' => $this->data['League']['sport'],
@@ -415,6 +425,23 @@ class LeaguesController extends AppController {
 		if (Configure::read('feature.tiny_mce')) {
 			$this->helpers[] = 'TinyMce.TinyMce';
 		}
+	}
+
+	function sport_fields() {
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
+		Configure::load("sport/{$this->params['url']['data']['League']['sport']}");
+	}
+
+	function stat_fields() {
+		Configure::write ('debug', 0);
+		$this->layout = 'ajax';
+		Configure::load("sport/{$this->params['url']['data']['League']['sport']}");
+		$this->set('stat_types', $this->League->StatType->find('all', array(
+			'conditions' => array(
+				'sport' => $this->params['url']['data']['League']['sport'],
+			)
+		)));
 	}
 
 	function delete() {
