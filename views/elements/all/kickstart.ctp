@@ -157,6 +157,8 @@ if ($is_manager) {
 	}
 } else if ($empty && $is_player) {
 	// If the user has nothing going on, pull some more details to allow us to help them get started
+	$waivers = $this->requestAction(array('controller' => 'waivers', 'action' => 'index'));
+	$signed_waivers = $this->UserCache->read('Waivers', $act_as);
 	$membership_events = $this->requestAction(array('controller' => 'events', 'action' => 'count'), array('pass' => array(true)));
 	$non_membership_events = $this->requestAction(array('controller' => 'events', 'action' => 'count'));
 	$open_teams = $this->requestAction(array('controller' => 'teams', 'action' => 'open_count'));
@@ -165,17 +167,22 @@ if ($is_manager) {
 ?>
 <h3><?php __('You are not yet on any teams.'); ?></h3>
 <?php
-	$options = array();
-	if ($membership_events) {
-		$options[] = __('membership', true);
-	}
-	if ($non_membership_events) {
-		$options[] = __('an event', true);
-	}
-
 	$actions = array();
-	if (!empty($options)) {
-		$actions[] = $this->Html->link (__('Register for', true) . ' ' . implode(' ' . __('or', true) . ' ', $options), array('controller' => 'events', 'action' => 'wizard', 'act_as' => $act_as));
+
+	if (empty($signed_waivers) && count($waivers) == 1 && in_array($waivers[0]['Waiver']['expiry_type'], array('elapsed_time', 'never'))) {
+		$actions[] = $this->Html->link ('Sign the waiver', array('controller' => 'waivers', 'action' => 'sign', 'waiver' => $waivers[0]['id'], 'date' => date('y-m-d'), 'act_as' => $act_as));
+	} else {
+		$options = array();
+		if ($membership_events) {
+			$options[] = __('membership', true);
+		}
+		if ($non_membership_events) {
+			$options[] = __('an event', true);
+		}
+
+		if (!empty($options)) {
+			$actions[] = $this->Html->link (__('Register for', true) . ' ' . implode(' ' . __('or', true) . ' ', $options), array('controller' => 'events', 'action' => 'wizard', 'act_as' => $act_as));
+		}
 	}
 
 	if ($open_teams) {

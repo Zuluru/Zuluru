@@ -17,6 +17,16 @@ class WaiversController extends AppController {
 			return true;
 		}
 
+		// Anyone that's logged in can perform these operations as internal requests
+		if (in_array ($this->params['action'], array(
+				'index',
+		)))
+		{
+			if (!empty($this->params['requested'])) {
+				return true;
+			}
+		}
+
 		if ($this->is_manager) {
 			// Managers can perform these operations
 			if (in_array ($this->params['action'], array(
@@ -49,6 +59,14 @@ class WaiversController extends AppController {
 
 	function index() {
 		$affiliates = $this->_applicableAffiliateIDs(true);
+
+		if (!empty($this->params['requested'])) {
+			return $this->Waiver->find('all', array(
+				'contain' => false,
+				'conditions' => array('Waiver.affiliate_id' => $affiliates),
+			));
+		}
+
 		$this->paginate['conditions'] = array('Waiver.affiliate_id' => $affiliates);
 		$this->set('waivers', $this->paginate());
 		$this->set(compact('affiliates'));
