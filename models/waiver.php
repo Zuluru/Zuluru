@@ -90,6 +90,7 @@ class Waiver extends AppModel {
 				return date('Y-m-d');
 
 			case 'event':
+			case 'never':
 				return $date;
 		}
 	}
@@ -105,6 +106,9 @@ class Waiver extends AppModel {
 
 			case 'event':
 				return $date;
+
+			case 'never':
+				return '9999-12-31';
 		}
 	}
 
@@ -142,6 +146,9 @@ class Waiver extends AppModel {
 
 			case 'event':
 				return array($date, $date);
+
+			case 'never':
+				return array($date, '9999-12-31');
 		}
 	}
 

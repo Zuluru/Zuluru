@@ -55,6 +55,10 @@ $this->Html->addCrumb (__('List', true));
 			case 'elapsed_time':
 				echo $waiver['Waiver']['duration'] . ' ' . __('days', true);
 				break;
+
+			case 'never':
+				__('Forever');
+				break;
 		}
 		?>&nbsp;</td>
 		<td class="actions">

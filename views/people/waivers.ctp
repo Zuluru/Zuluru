@@ -42,7 +42,13 @@ $this->Html->addCrumb (__('Waiver History', true));
 		<td><?php echo $waiver['name']; ?></td>
 		<td><?php echo $this->ZuluruTime->fulldate($waiver['WaiversPerson']['created']); ?></td>
 		<td><?php echo $this->ZuluruTime->fulldate($waiver['WaiversPerson']['valid_from']); ?></td>
-		<td><?php echo $this->ZuluruTime->fulldate($waiver['WaiversPerson']['valid_until']); ?></td>
+		<td><?php
+		if ($waiver['WaiversPerson']['valid_until'] != '9999-12-31') {
+			echo $this->ZuluruTime->fulldate($waiver['WaiversPerson']['valid_until']);
+		} else {
+			__('Never expires');
+		}
+		?></td>
 		<td class="actions"><?php echo $this->ZuluruHtml->iconLink('view_24.png', array('controller' => 'waivers', 'action' => 'review', 'waiver' => $waiver['id'], 'date' => $waiver['WaiversPerson']['valid_from'])); ?></td>
 	</tr>
 	<?php endforeach; ?>
@@ -76,9 +82,14 @@ $this->Html->addCrumb (__('Waiver History', true));
 	<tr<?php echo $class;?>>
 		<td><?php
 		list ($valid_from, $valid_until) = Waiver::_validRange(date('Y-m-d'), $waiver['Waiver']);
-		echo $waiver['Waiver']['name'] . ' ' . __('covering', true) . ' ' .
-				$this->ZuluruTime->date($valid_from) . ' ' . __('to', true) . ' ' .
-				$this->ZuluruTime->date($valid_until);
+		echo $waiver['Waiver']['name'] . ' ';
+		if ($waiver['Waiver']['expiry_type'] != 'never') {
+			echo __('covering', true) . ' ' .
+					$this->ZuluruTime->date($valid_from) . ' ' . __('to', true) . ' ' .
+					$this->ZuluruTime->date($valid_until);
+		} else {
+			echo __('from', true) . ' ' . $this->ZuluruTime->date($valid_from);
+		}
 		?></td>
 		<td class="actions">
 		<?php

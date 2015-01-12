@@ -8,10 +8,16 @@ $this->Html->addCrumb ($waiver['Waiver']['name']);
 <?php
 if (!empty($person['Waiver'])) {
 	if (isset($date)) {
-		$message = __('You accepted this waiver at %s on %s, covering the dates %s to %s.', true);
+		$message = __('You accepted this waiver at %s on %s', true);
 	} else {
-		$message = __('You most recently accepted this waiver at %s on %s, covering the dates %s to %s.', true);
+		$message = __('You most recently accepted this waiver at %s on %s', true);
 	}
+	if ($person['Waiver'][0]['expiry_type'] != 'never') {
+		$message .= ', ' . __('covering the dates %s to %s', true);
+
+	}
+	$message .= '.';
+
 	$message = sprintf($message,
 			$this->ZuluruTime->time($person['Waiver'][0]['WaiversPerson']['created']), $this->ZuluruTime->fulldate($person['Waiver'][0]['WaiversPerson']['created']),
 			$this->ZuluruTime->fulldate($person['Waiver'][0]['WaiversPerson']['valid_from']), $this->ZuluruTime->fulldate($person['Waiver'][0]['WaiversPerson']['valid_until']));

@@ -82,6 +82,11 @@ if (isset ($add)) {
 	echo $this->Html->para(null, __('Event waivers have no expiry options; they always expire after the event is done.', true));
 	?>
 	</div>
+	<div id="never_options">
+	<?php
+	echo $this->Html->para(null, __('Waivers that never expire have no expiry options.', true));
+	?>
+	</div>
 	</fieldset>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
