@@ -170,7 +170,7 @@ if ($is_manager) {
 	$actions = array();
 
 	if (empty($signed_waivers) && count($waivers) == 1 && in_array($waivers[0]['Waiver']['expiry_type'], array('elapsed_time', 'never'))) {
-		$actions[] = $this->Html->link ('Sign the waiver', array('controller' => 'waivers', 'action' => 'sign', 'waiver' => $waivers[0]['id'], 'date' => date('y-m-d'), 'act_as' => $act_as));
+		$actions[] = $this->Html->link ('Sign the waiver', array('controller' => 'waivers', 'action' => 'sign', 'waiver' => $waivers[0]['Waiver']['id'], 'date' => date('y-m-d'), 'act_as' => $act_as));
 	} else {
 		$options = array();
 		if ($membership_events) {

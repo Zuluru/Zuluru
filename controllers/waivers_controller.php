@@ -63,7 +63,10 @@ class WaiversController extends AppController {
 		if (!empty($this->params['requested'])) {
 			return $this->Waiver->find('all', array(
 				'contain' => false,
-				'conditions' => array('Waiver.affiliate_id' => $affiliates),
+				'conditions' => array(
+					'Waiver.affiliate_id' => $affiliates,
+					'Waiver.active' => true,
+				),
 			));
 		}
 
