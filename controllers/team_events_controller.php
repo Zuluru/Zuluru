@@ -104,6 +104,10 @@ class TeamEventsController extends AppController {
 				$this->TeamEvent->saveAll($this->data, array('validate' => 'only'));
 				if (empty($this->data['TeamEvent']['repeat_count']) || !is_numeric($this->data['TeamEvent']['repeat_count'])) {
 					$this->TeamEvent->validationErrors['repeat_count'] = 'Number of events to create must be numeric.';
+				} else if ($this->data['TeamEvent']['repeat_count'] < 1) {
+					$this->TeamEvent->validationErrors['repeat_count'] = 'Number of events to create must be at least one.';
+				} else if ($this->data['TeamEvent']['repeat_count'] > 100) {
+					$this->TeamEvent->validationErrors['repeat_count'] = 'Number of events to create cannot exceed 100.';
 				}
 				if ($this->TeamEvent->validates()) {
 					if ($this->data['TeamEvent']['repeat_type'] == 'custom') {
