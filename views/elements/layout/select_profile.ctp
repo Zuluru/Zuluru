@@ -1,6 +1,6 @@
 <?php
 $opts = array();
-if ($is_logged_in):
+if (!empty($is_logged_in)):
 	// Current user comes first...
 	$opts[$this->UserCache->currentId()] = $this->UserCache->read('Person.full_name');
 	// ...then any relatives...
