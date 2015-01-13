@@ -369,9 +369,6 @@ class AppController extends Controller {
 	 * Basic check for authorization, based solely on the person's login group.
 	 * Set some "is_" variables for the views to use (is_admin, is_player, etc.).
 	 *
-	 * TODO: This should all be replaced with some group-based permission scheme. The
-	 * good news is that those changes will mainly be localized to this function.
-	 *
 	 * @access public
 	 */
 	function _setPermissions() {
