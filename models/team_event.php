@@ -6,6 +6,7 @@ class TeamEvent extends AppModel {
 		'name' => array(
 			'notempty' => array(
 				'rule' => array('notempty'),
+				'message' => 'Event name must not be blank.',
 			),
 		),
 		'website' => array(
@@ -13,43 +14,50 @@ class TeamEvent extends AppModel {
 				'rule' => array('url'),
 				'allowEmpty' => true,
 				'required' => false,
+				'message' => 'Enter a valid URL, or leave blank.',
 			),
 		),
 		'date' => array(
 			'date' => array(
 				'rule' => array('date'),
+				'message' => 'You must provide a valid date.',
 			),
 		),
 		'start' => array(
 			'time' => array(
 				'rule' => array('time'),
+				'message' => 'You must select a valid start time.',
 			),
 		),
 		'end' => array(
 			'time' => array(
 				'rule' => array('time'),
+				'message' => 'You must select a valid end time.',
 			),
 		),
 		'location_name' => array(
 			'notempty' => array(
 				'rule' => array('notempty'),
+				'message' => 'Location name must not be blank.',
 			),
 		),
 		'location_street' => array(
 			'notempty' => array(
 				'rule' => array('notempty'),
+				'message' => 'You must supply a valid street address.',
 			),
 		),
 		'location_city' => array(
 			'notempty' => array(
 				'rule' => array('notempty'),
+				'message' => 'You must supply a city.',
 			),
 		),
 		'location_province' => array(
 			'inquery' => array(
 				'rule' => array('inquery', 'Province', 'name'),
 				'required' => false,
-				'message' => 'Select a province from the list',
+				'message' => 'You must select a province or state.',
 			),
 		),
 	);

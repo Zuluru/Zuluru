@@ -28,6 +28,38 @@ if (isset ($add)) {
 		echo $this->ZuluruForm->input('date');
 		echo $this->ZuluruForm->input('start');
 		echo $this->ZuluruForm->input('end');
+
+		if (isset ($add)) {
+			echo $this->ZuluruForm->input('repeat', array(
+				'type' => 'checkbox',
+				'label' => __('This is a repeating event', true),
+			));
+
+			$this->Js->get('#TeamEventRepeat')->event('change', 'repeatChanged();');
+			$this->Js->buffer('repeatChanged();');
+?>
+		<fieldset id="RepeatDetails">
+			<legend><?php __('Event Repetition Details'); ?></legend>
+<?php
+			echo $this->ZuluruForm->input('repeat_count', array(
+					'label' => 'Number of events to create',
+					'size' => 6,
+			));
+			echo $this->ZuluruForm->input('repeat_type', array(
+					'label' => 'Create events',
+					'options' => array(
+						'weekly' => 'Once a week on the same day',
+						'daily' => 'Every day',
+						'weekdays' => 'Every weekday',
+						'weekends' => 'Every Saturday and Sunday',
+						'custom' => 'On days that I will specify',
+					),
+			));
+?>
+		</fieldset>
+<?php
+		}
+
 		echo $this->ZuluruForm->input('location_name', array('label' => 'Location'));
 		echo $this->ZuluruForm->input('location_street', array('label' => 'Address'));
 		echo $this->ZuluruForm->input('location_city', array('label' => 'City'));
@@ -41,4 +73,16 @@ if (isset ($add)) {
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
 
-<?php echo $this->ZuluruHtml->script ('datepicker', array('inline' => false));
+<?php
+echo $this->ZuluruHtml->script ('datepicker', array('inline' => false));
+
+echo $this->Html->scriptBlock('
+function repeatChanged() {
+	var checked = jQuery("#TeamEventRepeat").prop("checked");
+	if (checked) {
+		jQuery("#RepeatDetails").css("display", "");
+	} else {
+		jQuery("#RepeatDetails").css("display", "none");
+	}
+}
+');

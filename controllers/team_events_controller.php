@@ -99,7 +99,73 @@ class TeamEventsController extends AppController {
 	function add() {
 		if (!empty($this->data)) {
 			$this->TeamEvent->create();
-			if ($this->TeamEvent->save($this->data)) {
+
+			if (!empty($this->data['TeamEvent']['repeat'])) {
+				$this->TeamEvent->saveAll($this->data, array('validate' => 'only'));
+				if (empty($this->data['TeamEvent']['repeat_count']) || !is_numeric($this->data['TeamEvent']['repeat_count'])) {
+					$this->TeamEvent->validationErrors['repeat_count'] = 'Number of events to create must be numeric.';
+				}
+				if ($this->TeamEvent->validates()) {
+					if ($this->data['TeamEvent']['repeat_type'] == 'custom') {
+						if (!empty($this->data['TeamEvent']['Dates'])) {
+							$save = array();
+							for ($i = 0; $i < $this->data['TeamEvent']['repeat_count']; ++ $i) {
+								$save[$i] = $this->data['TeamEvent'];
+								$save[$i]['date'] = $this->data['TeamEvent']['Dates'][$i]['date'];
+							}
+							$this->TeamEvent->saveAll($save, array('validate' => 'only'));
+							if (!$this->TeamEvent->validates()) {
+								$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('team event', true)), 'default', array('class' => 'warning'));
+								$this->TeamEvent->validationErrors['Dates'] = $this->TeamEvent->validationErrors;
+								$this->render ('add_dates');
+								return;
+							}
+						} else {
+							$this->render ('add_dates');
+							return;
+						}
+					} else {
+						$save = array();
+						$date = $this->data['TeamEvent']['date'];
+						for ($i = 0; $i < $this->data['TeamEvent']['repeat_count']; ++ $i) {
+							$save[$i] = $this->data['TeamEvent'];
+							$save[$i]['date'] = $date;
+
+							// Calculate the date of the next event
+							switch ($this->data['TeamEvent']['repeat_type']) {
+								case 'weekly':
+									$next = mktime(12, 0, 0, $date['month'], $date['day'] + 7, $date['year']);
+									break;
+
+								case 'daily':
+									$next = mktime(12, 0, 0, $date['month'], $date['day'] + 1, $date['year']);
+									break;
+
+								case 'weekdays':
+									$next = mktime(12, 0, 0, $date['month'], $date['day'] + 1, $date['year']);
+									while (date('N', $next) > 5) {
+										$next += DAY;
+									}
+									break;
+
+								case 'weekends':
+									$next = mktime(12, 0, 0, $date['month'], $date['day'] + 1, $date['year']);
+									while (date('N', $next) <= 5) {
+										$next += DAY;
+									}
+									break;
+							}
+							$date['month'] = date('m', $next);
+							$date['day'] = date('d', $next);
+							$date['year'] = date('Y', $next);
+						}
+					}
+				}
+			} else {
+				$save = $this->data;
+			}
+
+			if ($this->TeamEvent->validates() && $this->TeamEvent->saveAll($save)) {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('team event', true)), 'default', array('class' => 'success'));
 				$this->redirect('/');
 			} else {
