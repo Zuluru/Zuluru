@@ -347,6 +347,7 @@ class AppController extends Controller {
 			}
 		}
 		$this->set('groups', $group_list);
+		return $group_list;
 	}
 
 	/**

@@ -91,7 +91,7 @@ class UsersController extends AppController {
 		}
 
 		$this->_loadAddressOptions();
-		$this->_loadGroupOptions();
+		$groups = $this->_loadGroupOptions();
 		$this->_loadAffiliateOptions();
 		$user_model = $this->Auth->authenticate->name;
 
@@ -252,6 +252,9 @@ class UsersController extends AppController {
 					$this->redirect('/');
 				}
 			}
+		} else {
+			// By default, select the first group
+			$this->data = array('Group' => array('Group' => array(current(array_keys($groups)))));
 		}
 	}
 
