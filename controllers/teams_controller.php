@@ -980,6 +980,7 @@ class TeamsController extends AppController {
 					),
 					'contain' => array(),
 			));
+			$sport_obj->_init_stats($stats);
 			$team['Stat'] = array();
 			foreach ($stats as $stat) {
 				$team['Stat'][] = $stat['Stat'];

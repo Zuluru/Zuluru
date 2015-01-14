@@ -70,6 +70,21 @@ class SportComponent extends Object
 		}
 	}
 
+	function _init_stats($stats) {
+		$this->stats = array();
+		foreach ($stats as $stat) {
+			$stat = $stat['Stat'];
+			if (!array_key_exists($stat['person_id'], $this->stats)) {
+				$this->stats[$stat['person_id']] = array('stats' => array(), 'games' => array());
+			}
+			if (!array_key_exists($stat['stat_type_id'], $this->stats[$stat['person_id']]['stats'])) {
+				$this->stats[$stat['person_id']]['stats'][$stat['stat_type_id']] = array();
+			}
+			$this->stats[$stat['person_id']]['stats'][$stat['stat_type_id']][] = $stat['value'];
+			$this->stats[$stat['person_id']]['games'][$stat['game_id']] = true;
+		}
+	}
+
 	function _init_stat_types() {
 		if (!$this->stat_types) {
 			$stat_type = ClassRegistry::init('StatType');
@@ -180,14 +195,13 @@ class SportComponent extends Object
 		}
 	}
 
-	function _value_sum($stat_type_id, $person_id, $stats) {
-		$values = Set::extract("/Stat[stat_type_id=$stat_type_id][person_id=$person_id]/value", $stats);
-		if (empty($values)) {
-			// Since we're only dealing with people that have had at least some stats entered here,
-			// we consider missing values to be zeros that were just not entered.
-			return 0;
+	function _value_sum($stat_type_id, $person_id) {
+		// Since we're only dealing with people that have had at least some stats entered here,
+		// we consider missing values to be zeros that were just not entered.
+		if (array_key_exists($stat_type_id, $this->stats[$person_id]['stats'])) {
+			return array_sum($this->stats[$person_id]['stats'][$stat_type_id]);
 		}
-		return array_sum($values);
+		return 0;
 	}
 
 	function _season_total($stat_type, &$stats) {
@@ -195,7 +209,7 @@ class SportComponent extends Object
 		$base_stat_type_id = $this->_stat_type_id($stat_type['base']);
 		foreach ($this->rosters as $roster) {
 			foreach ($roster as $person_id => $position) {
-				$value = $this->_value_sum($base_stat_type_id, $person_id, $stats);
+				$value = $this->_value_sum($base_stat_type_id, $person_id);
 				if (Stat::applicable($stat_type, $position) || $value != 0) {
 					$stats['Calculated'][$person_id][$stat_type['id']] = $value;
 				}
@@ -208,7 +222,7 @@ class SportComponent extends Object
 		$base_stat_type_id = $this->_stat_type_id($stat_type['base']);
 		foreach ($this->rosters as $roster) {
 			foreach ($roster as $person_id => $position) {
-				$value = round($this->_value_sum($base_stat_type_id, $person_id, $stats) / $this->_games_played($person_id, $stats), 1);
+				$value = round($this->_value_sum($base_stat_type_id, $person_id) / $this->_games_played($person_id), 1);
 				if (Stat::applicable($stat_type, $position) || $value != 0) {
 					$stats['Calculated'][$person_id][$stat_type['id']] = $value;
 				}
@@ -220,9 +234,9 @@ class SportComponent extends Object
 		$this->_init_rosters($stats);
 		foreach ($this->rosters as $team_id => $roster) {
 			foreach ($roster as $person_id => $position) {
-				$denominator = $this->_value_sum($denominator_id, $person_id, $stats);
+				$denominator = $this->_value_sum($denominator_id, $person_id);
 				if ($denominator) {
-					$value = round($this->_value_sum($numerator_id, $person_id, $stats) / $denominator, 3);
+					$value = round($this->_value_sum($numerator_id, $person_id) / $denominator, 3);
 				} else {
 					$value = 0;
 				}
@@ -238,9 +252,9 @@ class SportComponent extends Object
 		$this->_init_rosters($stats);
 		foreach ($this->rosters as $team_id => $roster) {
 			foreach ($roster as $person_id => $position) {
-				$denominator = $this->_value_sum($denominator_id, $person_id, $stats);
+				$denominator = $this->_value_sum($denominator_id, $person_id);
 				if ($denominator) {
-					$value = round($this->_value_sum($numerator_id, $person_id, $stats) * 100 / $denominator, 1);
+					$value = round($this->_value_sum($numerator_id, $person_id) * 100 / $denominator, 1);
 				} else {
 					$value = 0;
 				}
@@ -252,9 +266,8 @@ class SportComponent extends Object
 		}
 	}
 
-	function _games_played($person_id, $stats) {
-		$games = array_unique(Set::extract("/Stat[person_id=$person_id]/game_id", $stats));
-		return count($games);
+	function _games_played($person_id) {
+		return count($this->stats[$person_id]['games']);
 	}
 
 	/**
@@ -297,9 +310,9 @@ class SportComponent extends Object
 		foreach ($this->rosters as $roster) {
 			foreach ($roster as $person_id => $position) {
 				// TODO: Make this "2" configurable for soccer, etc.
-				$value = sprintf('%.03f', ($this->_value_sum($win_id, $person_id, $stats) +
-								$this->_value_sum($tie_id, $person_id, $stats) / 2) /
-								$this->_games_played($person_id, $stats));
+				$value = sprintf('%.03f', ($this->_value_sum($win_id, $person_id) +
+								$this->_value_sum($tie_id, $person_id) / 2) /
+								$this->_games_played($person_id));
 				if (Stat::applicable($stat_type, $position) || $value != 0) {
 					$stats['Calculated'][$person_id][$stat_type['id']] = $value;
 				}
@@ -311,7 +324,7 @@ class SportComponent extends Object
 		$this->_init_rosters($stats);
 		foreach ($this->rosters as $roster) {
 			foreach ($roster as $person_id => $position) {
-				$value = $this->_games_played($person_id, $stats);
+				$value = $this->_games_played($person_id);
 				if (Stat::applicable($stat_type, $position) || $value != 0) {
 					$stats['Calculated'][$person_id][$stat_type['id']] = $value;
 				}
@@ -497,6 +510,13 @@ class SportComponent extends Object
 	function validate_team_score($stat) {
 		$ret = array();
 		$ret[] = "if (jQuery('#team_' + team_id + ' th.stat_{$stat['id']}').html() > team_score) alert_msg += 'The number of {$stat['name']} entered is more than the score.\\n';";
+		$ret[] = "if (jQuery('#team_' + team_id + ' th.stat_{$stat['id']}').html() < team_score) confirm_msg += 'The number of {$stat['name']} entered is less than the score.\\n';";
+		return $ret;
+	}
+
+	function validate_team_score_fuzzy($stat) {
+		$ret = array();
+		$ret[] = "if (jQuery('#team_' + team_id + ' th.stat_{$stat['id']}').html() > team_score) confirm_msg += 'The number of {$stat['name']} entered is more than the score.\\n';";
 		$ret[] = "if (jQuery('#team_' + team_id + ' th.stat_{$stat['id']}').html() < team_score) confirm_msg += 'The number of {$stat['name']} entered is less than the score.\\n';";
 		return $ret;
 	}
