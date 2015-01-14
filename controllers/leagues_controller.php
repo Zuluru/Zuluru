@@ -349,7 +349,7 @@ class LeaguesController extends AppController {
 				$division = $this->data;
 				unset($division['League']);
 			}
-			if ($this->data['Division']['schedule_type'] != 'none' &&
+			if (isset($division) && $division['Division']['schedule_type'] != 'none' &&
 					(empty($this->data['Day']) || empty($this->data['Day'][0])))
 			{
 				$this->League->save($this->data, array('validate' => 'only'));
