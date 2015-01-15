@@ -46,7 +46,8 @@ foreach ($approved_relatives as $relative) {
 	$relative_unpaid[$relative['Relative']['id']] = $this->UserCache->read('RegistrationsUnpaid', $relative['Relative']['id']);
 }
 
-$count = count($unpaid) + array_sum(array_map('count', $relative_unpaid));
+// TODO
+$count = count($unpaid); // + array_sum(array_map('count', $relative_unpaid));
 if ($count) {
 	echo $this->Html->para (null, sprintf (__('You currently have %s unpaid %s. %s to complete these registrations.', true),
 			$count,
