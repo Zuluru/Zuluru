@@ -2346,11 +2346,6 @@ class PeopleController extends AppController {
 	}
 
 	function delete() {
-		if (!Configure::read('feature.manage_accounts')) {
-			$this->Session->setFlash (__('This system uses ' . Configure::read('feature.manage_name') . ' to manage user accounts. Account deletion through Zuluru is disabled.', true), 'default', array('class' => 'info'));
-			$this->redirect('/');
-		}
-
 		$id = $this->_arg('person');
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
