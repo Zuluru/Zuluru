@@ -282,7 +282,9 @@ $admin_register = false;
 if (!$is_logged_in):
 	echo $this->element('events/not_logged_in');
 else:
-	echo $this->element('messages');
+	if ($allowed || count($messages) == 1) {
+		echo $this->element('messages');
+	}
 	if ($allowed) {
 		echo $this->Html->tag ('h2', $this->Html->link(__('Register now!', true),
 				array('controller' => 'registrations', 'action' => 'register', 'event' => $id),
