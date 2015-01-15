@@ -631,6 +631,10 @@ class UsersController extends AppController {
 							break;
 
 						case 1:
+							if (empty($matches[0]['Person']['email'])) {
+								$this->Session->setFlash(__('This account has no email address associated with it. Please contact an administrator to assist you.', true), 'default', array('class' => 'success'));
+								$this->redirect('/');
+							}
 							if ($this->_email_reset_code($matches[0]['Person'])) {
 								$this->Session->setFlash(__('Your reset code has been emailed to you.', true), 'default', array('class' => 'success'));
 								$this->redirect('/');
