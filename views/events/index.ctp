@@ -79,9 +79,6 @@ foreach ($events as $event):
 <?php
 	endif;
 
-	if ($event['Event']['close'] < $now && !($is_admin || $is_manager)) {
-		continue;
-	}
 	if ($event['EventType']['name'] != $last_name) {
 		$classes = array();
 		$i = 0;
