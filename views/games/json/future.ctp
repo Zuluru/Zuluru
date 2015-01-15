@@ -8,7 +8,7 @@ foreach ($games as $game) {
 		'divisionID' => $game['Division']['id'],
 		'divisionName' => $game['Division']['name'],
 		'divisionLongName' => $game['Division']['full_league_name'],
-		'gameDate' => $this->ZuluruTime->date ($game['GameSlot']['game_date']),
+		'gameDate' => $this->ZuluruTime->day ($game['GameSlot']['game_date']),
 		'gameStartTime' => $this->ZuluruTime->time ($game['GameSlot']['game_start']),
 		'gameStartTimestamp' => strtotime("{$game['GameSlot']['game_date']} {$game['GameSlot']['game_start']}"),
 		'gameEndTime' => $this->ZuluruTime->time ($game['GameSlot']['display_game_end']),
