@@ -42,7 +42,7 @@ $collapse = !empty($this->data['Field']['id']);
 		echo $this->ZuluruForm->input('biking_directions', array('cols' => 70, 'class' => 'mceSimple'));
 		echo $this->ZuluruForm->input('washrooms', array('cols' => 70, 'class' => 'mceSimple'));
 		echo $this->ZuluruForm->input('public_instructions', array('cols' => 70, 'class' => 'mceSimple'));
-		echo $this->ZuluruForm->input('site_instructions', array('cols' => 70, 'class' => 'mceSimple'));
+		echo $this->ZuluruForm->input('site_instructions', array('cols' => 70, 'class' => 'mceAdvanced'));
 		echo $this->ZuluruForm->input('sponsor', array('cols' => 70, 'class' => 'mceAdvanced'));
 
 		if ($collapse || isset ($add)):
