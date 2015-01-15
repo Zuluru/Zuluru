@@ -57,10 +57,10 @@ header('Pragma: no-cache');
 					'placeholder.js',
 			));
 			echo $this->Html->scriptBlock('jQuery.noConflict();');
-		}
 
-		echo $this->element('layout/select_profile_js');
-		echo $this->element('layout/select_language_js', compact('language'));
+			echo $this->element('layout/select_profile_js');
+			echo $this->element('layout/select_language_js', compact('language'));
+		}
 
 		echo $scripts_for_layout;
 	?>
