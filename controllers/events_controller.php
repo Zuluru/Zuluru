@@ -63,12 +63,26 @@ class EventsController extends AppController {
 			$affiliates = $this->_applicableAffiliateIDs(true);
 		}
 
+		$conditions = array(
+			"Event.open < $open",
+			"Event.close > $close",
+		);
+
+		// Find any preregistrations
+		if ($this->is_logged_in) {
+			$prereg = $this->Event->Preregistration->find('list', array(
+				'conditions' => array('person_id' => $this->UserCache->currentId()),
+				'fields' => array('id', 'event_id'),
+			));
+			$conditions = array('OR' => array(
+				$conditions,
+				'Event.id' => $prereg,
+			));
+		}
+		$conditions['Event.affiliate_id'] = $affiliates;
+
 		$events = $this->Event->find('all', array(
-			'conditions' => array(
-				"Event.open < $open",
-				"Event.close > $close",
-				'Event.affiliate_id' => $affiliates,
-			),
+			'conditions' => $conditions,
 			'order' => array('Affiliate.name', 'Event.event_type_id', 'Event.open', 'Event.close', 'Event.id'),
 			'contain' => array(
 				'EventType',
