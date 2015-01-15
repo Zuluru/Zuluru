@@ -281,7 +281,7 @@ class AppController extends Controller {
 			$this->Session->delete('Navigation.redirect');
 		}
 
-		if ($next) {
+		if ($next && !is_numeric($next)) {
 			$this->Session->write('Navigation.redirect', $next);
 		}
 
@@ -291,7 +291,11 @@ class AppController extends Controller {
 
 		// If there was no referer saved, we might not want to redirect
 		if ($url !== null) {
-			parent::redirect(Router::normalize($url));
+			if ($next && is_numeric($next)) {
+				parent::redirect(Router::normalize($url), $next);
+			} else {
+				parent::redirect(Router::normalize($url));
+			}
 		}
 	}
 
