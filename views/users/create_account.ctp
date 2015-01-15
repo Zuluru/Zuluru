@@ -51,10 +51,14 @@ if (Configure::read('feature.antispam')):
 			'hide_single' => true,
 		));
 		if ($is_admin || $is_manager) {
+			$options = Configure::read('options.record_status');
+			if (Configure::read('feature.auto_approve')) {
+				unset($options['new']);
+			}
 			echo $this->ZuluruForm->input('Person.0.status', array(
 				'type' => 'select',
 				'empty' => '---',
-				'options' => Configure::read('options.record_status'),
+				'options' => $options,
 			));
 		}
 	?>

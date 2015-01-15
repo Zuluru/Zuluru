@@ -162,24 +162,24 @@ class UsersController extends AppController {
 				$person_transaction = new DatabaseTransaction($this->Person);
 
 				if ($this->Auth->authenticate->save($this->data)) {
-					$approved = false;
-
 					// Tweak some data to be saved
 					$this->data['Person'][0]['user_id'] = $this->Auth->authenticate->id;
 					foreach ($this->data['Person'] as $key => $person) {
 						$person['complete'] = true;
 
-						if (Configure::read('feature.auto_approve')) {
+						if ($this->is_admin) {
+							if ($key != 0) {
+								$person['status'] = $this->data['Person'][0]['status'];
+							}
+						} else if (Configure::read('feature.auto_approve')) {
 							if ($key == 0) {
 								// Check the requested groups and do not auto-approve above a certain level
 								$invalid_groups = Set::extract('/Group[level>1]', $selected_groups);
 								if (empty($invalid_groups)) {
 									$person['status'] = 'active';
-									$approved = true;
 								}
 							} else {
 								$person['status'] = 'active';
-								$approved = true;
 							}
 						}
 
