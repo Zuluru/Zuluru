@@ -18,6 +18,11 @@ if ($is_manager) {
 
 <div class="events index">
 <h2><?php __('Registration Events List');?></h2>
+<?php
+if ($is_logged_in) {
+	echo $this->element('registrations/relative_notice');
+}
+?>
 <?php if (empty($events)): ?>
 <p class="warning-message">There are no events currently available for registration. Please check back periodically for updates.</p>
 <?php else: ?>

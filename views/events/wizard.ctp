@@ -8,6 +8,7 @@ $this->Html->addCrumb (__('Wizard', true));
 <?php
 echo $this->Html->para('highlight-message', sprintf (__('This wizard walks you through registration options based on your current status. As you register for things, different options may appear here. You might also want to review our %s.', true),
 		$this->Html->link(__('complete list of offerings', true), array('action' => 'index'))));
+echo $this->element('registrations/relative_notice');
 ?>
 
 <?php if (empty($events)): ?>

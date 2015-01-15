@@ -17,6 +17,9 @@ $admin_register = false;
 
 <div class="events view">
 	<h2><?php echo $event['Event']['name'];?></h2>
+	<?php
+	echo $this->element('registrations/relative_notice');
+	?>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Name'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>

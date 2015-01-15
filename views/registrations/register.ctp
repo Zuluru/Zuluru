@@ -8,7 +8,8 @@ $this->Html->addCrumb (__('Preferences', true));
 <h2><?php echo __('Registration Preferences', true) . ': ' . $event['Event']['name']; ?></h2>
 
 <?php
-echo $this->element ('registrations/notice');
+echo $this->element('registrations/relative_notice');
+echo $this->element('registrations/notice');
 
 if ($waiting) {
 	echo $this->Html->para('warning-message', __('Note that you are only adding yourself to the waiting list for this event. You will be contacted if a space opens up at a later time.', true));
