@@ -292,8 +292,12 @@ class EventTypeComponent extends Object
 			}
 		}
 
+		// Delete any preregistration; ignore errors, the worst case scenario is an unusable preregistration
+		$this->_controller->Registration->Event->Preregistration->deleteAll(array('event_id' => $event['Event']['id'], 'person_id' => $data['Registration']['person_id']), false);
+
 		$this->_controller->UserCache->clear('Registrations', $data['Registration']['person_id']);
 		$this->_controller->UserCache->clear('RegistrationsPaid', $data['Registration']['person_id']);
+		$this->_controller->UserCache->clear('Preregistrations', $data['Registration']['person_id']);
 
 		return true;
 	}
