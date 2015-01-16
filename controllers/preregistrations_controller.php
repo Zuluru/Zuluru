@@ -62,7 +62,7 @@ class PreregistrationsController extends AppController {
 		$params = $url = $this->_extractSearchParams();
 		unset ($params['event']);
 		if (array_key_exists('event', $url)) {
-			$this->Preregistration->Event->contain('Price', 'Affiliate');
+			$this->Preregistration->Event->contain('EventType', 'Price', 'Affiliate');
 			$event = $this->Preregistration->Event->read(null, $url['event']);
 			if (!$event) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
