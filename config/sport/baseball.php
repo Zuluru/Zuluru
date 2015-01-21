@@ -33,6 +33,13 @@ $config['sport'] = array(
 		'Run' => 1,
 	),
 
+	'other_options' => array(
+		'Pitcher' => 'Pitching change',
+		'Fielder' => 'Fielding change',
+		'Batter' => 'Pinch hitter',
+		'Runner' => 'Pinch runner',
+	),
+
 	'rating_questions' => false,
 );
 

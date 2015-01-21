@@ -33,6 +33,10 @@ $config['sport'] = array(
 		'Point' => 1,
 	),
 
+	'other_options' => array(
+		// TODO
+	),
+
 	'rating_questions' => false,
 );
 

@@ -84,14 +84,7 @@ if (Configure::read('feature.twitter')) {
 		'url' => $url,
 	));
 
-	// TODO: Make these sport-independent
-	echo $this->Form->input('team_id', array(
-			'label' => __('Pulling team', true),
-			'options' => array(
-				$team['id'] => $team['name'],
-				$opponent['id'] => $opponent['name'],
-			),
-	));
+	echo $this->element("/games/live_score_start/{$game['Division']['League']['sport']}", compact('team', 'opponent'));
 	echo $this->Form->hidden('play', array('value' => 'Start'));
 	echo $this->Form->end();
 ?>

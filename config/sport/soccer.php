@@ -41,6 +41,11 @@ $config['sport'] = array(
 		'Goal' => 1,
 	),
 
+	'other_options' => array(
+		'Half' => 'Kick-off to start second half',
+		'Substitution' => 'Substitution',
+	),
+
 	'rating_questions' => false,
 );
 

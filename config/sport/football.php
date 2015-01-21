@@ -50,6 +50,9 @@ $config['sport'] = array(
 		'Rouge' => 1,
 	),
 
+	'other_options' => array(
+		// TODO
+	),
 
 	'rating_questions' => false,
 );
