@@ -1025,6 +1025,10 @@ class AppController extends Controller {
 			}
 		}
 
+		if ($this->is_admin) {
+			$this->_addMenuItem ('Permissions', array('controller' => 'groups', 'action' => 'index'), 'Configuration');
+		}
+
 		if ($this->is_admin || $this->is_manager) {
 			$this->_addMenuItem ('Holidays', array('controller' => 'holidays', 'action' => 'index'), 'Configuration');
 			if (Configure::read('feature.documents')) {
