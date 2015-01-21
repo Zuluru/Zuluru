@@ -2523,12 +2523,28 @@ class PeopleController extends AppController {
 
 				if ($this->params['url']['ext'] == 'csv') {
 					Configure::write ('debug', 0);
+					$user_model = $this->Auth->authenticate->name;
+					$id_field = $this->Auth->authenticate->primaryKey;
+					$config = new DATABASE_CONFIG;
+					$prefix = $this->Auth->authenticate->tablePrefix;
+					if ($this->Auth->authenticate->useDbConfig != 'default') {
+						$config_name = $this->Auth->authenticate->useDbConfig;
+						$config = $config->$config_name;
+						$prefix = "{$config['database']}.$prefix";
+					}
 					$this->set('people', $this->Person->find ('all', array(
 							'conditions' => $conditions,
-							'contain' => false,
-							'fields' => array('DISTINCT Person.id', 'Person.*'),
+							'contain' => 'Related',
+							'fields' => array('DISTINCT Person.id', 'Person.*', "$user_model.*"),
 							'order' => array('Person.last_name', 'Person.first_name', 'Person.id'),
 							'joins' => array(
+								array(
+									'table' => "$prefix{$this->Auth->authenticate->useTable}",
+									'alias' => $this->Auth->authenticate->name,
+									'type' => 'LEFT',
+									'foreignKey' => false,
+									'conditions' => "$user_model.$id_field = Person.user_id",
+								),
 								array(
 									'table' => "{$this->Person->tablePrefix}affiliates_people",
 									'alias' => 'AffiliatePerson',

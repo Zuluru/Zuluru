@@ -253,12 +253,9 @@ class RuleComponent extends Object
 		// Merge in invariant conditions and fields
 		$user_model = $this->_controller->Auth->authenticate->name;
 		$id_field = $this->_controller->Auth->authenticate->primaryKey;
-		$email_field = $this->_controller->Auth->authenticate->emailField;
 		$conditions = array_merge(array(
 				'Person.complete' => true,
 				'Person.status' => 'active',
-				"$user_model.$email_field !=" => '',
-				'NOT' => array("$user_model.$email_field" => null),
 		), $conditions);
 
 		$config = new DATABASE_CONFIG;
@@ -271,7 +268,7 @@ class RuleComponent extends Object
 		$joins[$user_model] = array(
 			'table' => "$prefix{$this->_controller->Auth->authenticate->useTable}",
 			'alias' => $user_model,
-			'type' => 'INNER',
+			'type' => 'LEFT',
 			'foreignKey' => false,
 			'conditions' => "$user_model.$id_field = Person.user_id",
 		);
