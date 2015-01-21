@@ -239,22 +239,32 @@ $this_is_parent = (!empty($this_is_parent));
 				<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 					<?php
 					$sports = array();
+					$sport_count = count(Configure::read('options.sport'));
 					foreach ($skills as $skill) {
 						Configure::load("sport/{$skill['Skill']['sport']}");
-						$sports[] = Inflector::humanize($skill['Skill']['sport']) . ': ' . __(Configure::read("options.skill.{$skill['Skill']['skill_level']}"), true);
+						if ($sport_count > 1) {
+							$sports[] = Inflector::humanize($skill['Skill']['sport']) . ': ' . __(Configure::read("options.skill.{$skill['Skill']['skill_level']}"), true);
+						} else {
+							$sports[] = __(Configure::read("options.skill.{$skill['Skill']['skill_level']}"), true);
+						}
 					}
 					echo implode('<br />', $sports);
 					?>
 
-			</dd>
+				</dd>
 			<?php endif; ?>
 			<?php if ($is_logged_in && Configure::read('profile.year_started') && !empty ($skills)):?>
 				<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Year Started'); ?></dt>
 				<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 					<?php
 					$sports = array();
+					$sport_count = count(Configure::read('options.sport'));
 					foreach ($skills as $skill) {
-						$sports[] = Inflector::humanize($skill['Skill']['sport']) . ': ' . $skill['Skill']['year_started'];
+						if ($sport_count > 1) {
+							$sports[] = Inflector::humanize($skill['Skill']['sport']) . ': ' . $skill['Skill']['year_started'];
+						} else {
+							$sports[] = $skill['Skill']['year_started'];
+						}
 					}
 					echo implode('<br />', $sports);
 					?>
