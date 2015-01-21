@@ -2353,7 +2353,7 @@ class PeopleController extends AppController {
 		}
 
 		// TODO: Don't delete the only admin
-		$dependencies = $this->Person->dependencies($id, array('Affiliate'));
+		$dependencies = $this->Person->dependencies($id, array('Affiliate', 'Group', 'Skill'));
 		if ($dependencies !== false) {
 			$this->Session->setFlash(__('The following records reference this person, so it cannot be deleted.', true) . '<br>' . $dependencies, 'default', array('class' => 'warning'));
 			$this->redirect('/');
