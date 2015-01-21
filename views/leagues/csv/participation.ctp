@@ -77,7 +77,7 @@ $contact_fields_required = array();
 foreach ($league['Division'] as $division) {
 	foreach ($division['Team'] as $team) {
 		foreach ($team['Person'] as $person) {
-			if (empty($person['user_id'])) {
+			if (empty($person['user_id']) || AppController::_isChild($person['birthdate'])) {
 				$relatives = max($relatives, count($person['Related']));
 				foreach ($person['Related'] as $i => $relative) {
 					foreach (array_keys($contact_fields) as $field) {
@@ -153,7 +153,7 @@ foreach ($league['Division'] as $division) {
 				array_unshift($row, $division['name']);
 			}
 
-			if ($relatives > 0 && empty($person['user_id'])) {
+			if ($relatives > 0 && (empty($person['user_id']) || AppController::_isChild($person['birthdate']))) {
 				foreach ($person['Related'] as $i => $relative) {
 					foreach (array_keys($contact_fields) as $field) {
 						if (!empty($contact_fields_required[$i][$field])) {

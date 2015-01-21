@@ -60,7 +60,7 @@ foreach (array('gender', 'birthdate', 'height', 'skill_level', 'shirt_size') as 
 }
 $contact_fields_required = array();
 foreach ($people as $person) {
-	if (empty($person['Person']['user_id'])) {
+	if (empty($person['Person']['user_id']) || AppController::_isChild($person['Person']['birthdate'])) {
 		$relatives = max($relatives, count($person['Related']));
 		foreach ($person['Related'] as $i => $relative) {
 			foreach (array_keys($contact_fields) as $field) {
@@ -105,7 +105,7 @@ foreach ($people as $person) {
 		}
 	}
 
-	if ($relatives > 0 && empty($person['Person']['user_id'])) {
+	if ($relatives > 0 && (empty($person['Person']['user_id']) || AppController::_isChild($person['Person']['birthdate']))) {
 		foreach ($person['Related'] as $i => $relative) {
 			foreach (array_keys($contact_fields) as $field) {
 				if (!empty($contact_fields_required[$i][$field])) {

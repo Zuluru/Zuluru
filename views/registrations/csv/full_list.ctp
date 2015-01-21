@@ -92,7 +92,7 @@ foreach ($event['Questionnaire']['Question'] as $question) {
 // Check if we need to include relative contact info
 $relatives = 0;
 foreach ($registrations as $registration) {
-	if (empty($registration['Person']['user_id'])) {
+	if (empty($registration['Person']['user_id']) || AppController::_isChild($registration['Person']['birthdate'])) {
 		$relatives = max($relatives, count($registration['Person']['Related']));
 	}
 }
@@ -183,7 +183,7 @@ foreach($registrations as $registration) {
 		}
 	}
 
-	if ($relatives > 0 && empty($registration['Person']['user_id'])) {
+	if ($relatives > 0 && (empty($registration['Person']['user_id']) || AppController::_isChild($registration['Person']['birthdate']))) {
 		foreach ($registration['Person']['Related'] as $i => $relative) {
 			foreach (array_keys($contact_fields[$i]) as $field) {
 				if (array_key_exists($field, $relative)) {
