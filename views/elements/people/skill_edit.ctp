@@ -35,6 +35,10 @@ foreach ($sports as $sport => $name):
 
 		$this->Js->get("#{$id_prefix}Skill{$i}Enabled")->event('change', "enableChanged($i, '$id_prefix');");
 		$this->Js->buffer("enableChanged($i, '$id_prefix');");
+	else:
+		echo $this->ZuluruForm->hidden("{$prefix}Skill.{$i}.enabled", array(
+			'value' => true,
+		));
 	endif;
 
 	echo $this->ZuluruForm->hidden("{$prefix}Skill.{$i}.sport", array(
