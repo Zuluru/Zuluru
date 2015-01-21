@@ -27,7 +27,7 @@
 		'name' => 'chase_test_store',
 		'options' => array(
 			'label' => __('Test payment page ID', true),
-			'after' => printf(__('These test settings are only required if you are doing test payments through %s', true), $this->Html->link('rpm.demo.e-xact.com', 'https://rpm.demo.e-xact.com/'))
+			'after' => sprintf(__('These test settings are only required if you are doing test payments through %s', true), $this->Html->link('rpm.demo.e-xact.com', 'https://rpm.demo.e-xact.com/'))
 		),
 	));
 	echo $this->element('settings/input', array(
