@@ -154,7 +154,7 @@ class User extends AppModel {
 				}
 			}
 
-			if (isset($record[$this->alias]['last_login']) && is_numeric($record[$this->alias]['last_login'])) {
+			if (isset($record[$this->alias]['last_login']) && is_numeric($record[$this->alias]['last_login']) && $record[$this->alias]['last_login'] != 0) {
 				$record[$this->alias]['last_login'] = date('Y-m-d H:i:s', $record[$this->alias]['last_login']);
 			}
 		}
