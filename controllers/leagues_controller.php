@@ -338,6 +338,7 @@ class LeaguesController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		if (!empty($this->data)) {
+			Configure::load("sport/{$this->data['League']['sport']}");
 			$this->Configuration->loadAffiliate($this->data['League']['affiliate_id']);
 			if (array_key_exists('Day', $this->data['League'])) {
 				$this->data['Day'] = $this->data['League']['Day'];
@@ -415,8 +416,8 @@ class LeaguesController extends AppController {
 
 		if (empty($this->data)) {
 			$this->data = $this->League->data;
+			Configure::load("sport/{$this->data['League']['sport']}");
 		}
-		Configure::load("sport/{$this->data['League']['sport']}");
 
 		$this->set('days', $this->League->Division->Day->find('list'));
 		$this->set('sport', $this->data['League']['sport']);
