@@ -109,7 +109,11 @@ foreach ($rows as $key => $data) {
 	$name = null;
 	if (is_numeric ($key)) {
 		$field = $data;
-		$val = $person['Person'][$field];
+		if (array_key_exists($field, $person['Person'])) {
+			$val = $person['Person'][$field];
+		} else {
+			$val = null;
+		}
 	} else {
 		$field = $key;
 		if (array_key_exists ('name', $data)) {
@@ -164,8 +168,16 @@ if (!empty ($duplicates)) {
 		$i = 0;
 		foreach ($rows as $key => $data) {
 			if (is_numeric ($key)) {
-				$user_val = $person['Person'][$data];
-				$val = $duplicate['Person'][$data];
+				if (array_key_exists($data, $person['Person'])) {
+					$user_val = $person['Person'][$data];
+				} else {
+					$user_val = null;
+				}
+				if (array_key_exists($data, $duplicate['Person'])) {
+					$val = $duplicate['Person'][$data];
+				} else {
+					$val = null;
+				}
 			} else {
 				if (array_key_exists ('model', $data)) {
 					$model = $data['model'];

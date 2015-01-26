@@ -584,16 +584,19 @@ class Person extends AppModel {
 			'AffiliatePerson.affiliate_id' => $affiliate,
 			'OR' => array(
 				array(
-					"$user_model.$email_field" => $person['Person']['email'],
-					"$user_model.$email_field !=" => '',
-					array("$user_model.$email_field !=" => null),
-				),
-				array(
 					'Person.first_name' => $person['Person']['first_name'],
 					'Person.last_name' => $person['Person']['last_name'],
 				),
 			),
 		);
+
+		if (!empty($person['Person']['email'])) {
+			$conditions['OR'][] = array(
+				"$user_model.$email_field" => $person['Person']['email'],
+				"$user_model.$email_field !=" => '',
+				array("$user_model.$email_field !=" => null),
+			);
+		}
 
 		if (Configure::read('profile.home_phone')) {
 			$conditions['OR'][] = array(
