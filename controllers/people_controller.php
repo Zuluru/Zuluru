@@ -1187,7 +1187,9 @@ class PeopleController extends AppController {
 				$this->data['Person']['status'] = 'active';
 			}
 
-			$transaction = new DatabaseTransaction($this->Person);
+			// User and person records may be in separate databases, so we need a transaction for each
+			$user_transaction = new DatabaseTransaction($this->Auth->authenticate);
+			$person_transaction = new DatabaseTransaction($this->Person);
 			$this->Person->create();
 			if (!$this->Person->saveAll($this->data)) {
 				return;
@@ -1216,7 +1218,8 @@ class PeopleController extends AppController {
 				$component->onAdd($this->data);
 			}
 
-			$transaction->commit();
+			$user_transaction->commit();
+			$person_transaction->commit();
 			if (isset($this->params['form']['continue'])) {
 				$this->data = null;
 			} else {
@@ -2696,7 +2699,7 @@ class PeopleController extends AppController {
 			$existing = $this->Person->read(null, $dup_id);
 		}
 
-		if (empty($person['Persion']['user_id'])) {
+		if (empty($person['Person']['user_id'])) {
 			$this->Person->beforeValidateChild();
 			unset($person[$this->Auth->authenticate->name]);
 		}
@@ -2793,7 +2796,9 @@ class PeopleController extends AppController {
 			// This is basically the same as the delete duplicate, except
 			// that some old information (e.g. user ID) is preserved
 			case 'merge_duplicate':
-				$transaction = new DatabaseTransaction($this->Person);
+				// User and person records may be in separate databases, so we need a transaction for each
+				$user_transaction = new DatabaseTransaction($this->Auth->authenticate);
+				$person_transaction = new DatabaseTransaction($this->Person);
 				if (method_exists ($this->Auth->authenticate, 'merge_duplicate_user') && !empty($person['Person']['user_id']) && !empty($existing['Person']['user_id'])) {
 					$this->Auth->authenticate->merge_duplicate_user($person['Person']['user_id'], $existing['Person']['user_id']);
 				}
@@ -2836,7 +2841,8 @@ class PeopleController extends AppController {
 					$this->Session->setFlash(__('Couldn\'t save new member information', true), 'default', array('class' => 'warning'));
 					break;
 				} else {
-					$transaction->commit();
+					$user_transaction->commit();
+					$person_transaction->commit();
 				}
 				Cache::delete("person/$person_id", 'file');
 				Cache::delete("person/$dup_id", 'file');
