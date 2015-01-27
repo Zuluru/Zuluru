@@ -24,7 +24,7 @@ $tr_id = 'tr_' . mt_rand();
 	));
 	?></td>
 	<td class="actions"><?php
-	echo $this->Html->link (__('Edit', true), array('controller' => 'questions', 'action' => 'edit', 'question' => $question['id']));
+	echo $this->Html->link (__('Edit', true), array('controller' => 'questions', 'action' => 'edit', 'question' => $question['id'], 'return' => true));
 	echo $this->Js->link (__('Remove', true),
 			array('action' => 'remove_question', 'questionnaire' => $questionnaire['Questionnaire']['id'], 'question' => $question['id'], 'id' => $tr_id),
 			array('update' => "#temp_update")
