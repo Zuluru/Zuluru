@@ -323,6 +323,16 @@ class UserCacheComponent extends Object
 					));
 					break;
 
+				case 'RegistrationsCanPay':
+					if ($self->read('Registrations', $id, true)) {
+						$self->data[$id][$key] = array();
+						foreach (Configure::read('registration_delinquent') as $payment) {
+							$self->data[$id][$key] = array_merge($self->data[$id][$key],
+									Set::extract("/Registration[payment=$payment]/..", $self->data[$id]['Registrations']));
+						}
+					}
+					break;
+
 				case 'RegistrationsPaid':
 					if ($self->read('Registrations', $id, true)) {
 						$self->data[$id][$key] = Set::extract('/Registration[payment=Paid]/..', $self->data[$id]['Registrations']);

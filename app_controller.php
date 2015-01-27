@@ -1115,7 +1115,7 @@ class AppController extends Controller {
 		}
 
 		if (Configure::read('feature.registration')) {
-			$unpaid = $this->UserCache->read('RegistrationsUnpaid', $id);
+			$unpaid = $this->UserCache->read('RegistrationsCanPay', $id);
 			if (!empty ($unpaid)) {
 				$this->_addMenuItem ('Checkout', array('controller' => 'registrations', 'action' => 'checkout'), 'Registration');
 			}

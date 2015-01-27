@@ -150,6 +150,7 @@ class CanRegisterComponent extends Object
 
 						$this->_controller->UserCache->clear('Registrations', $this->person['Person']['id']);
 						$this->_controller->UserCache->clear('RegistrationsUnpaid', $this->person['Person']['id']);
+						$this->_controller->UserCache->clear('RegistrationsCanPay', $this->person['Person']['id']);
 					} else {
 						$messages[] = array('text' => __('Your payment was not received in time, so you will not be able to complete this registration. If you have any questions about this, please contact the head office.', true), 'class' => 'error-message');
 					}

@@ -61,6 +61,7 @@ class EventTypeComponent extends Object
 	function register($event, &$data) {
 		$this->_controller->UserCache->clear('Registrations', $data['Registration']['person_id']);
 		$this->_controller->UserCache->clear('RegistrationsUnpaid', $data['Registration']['person_id']);
+		$this->_controller->UserCache->clear('RegistrationsCanPay', $data['Registration']['person_id']);
 
 		return true;
 	}
@@ -69,6 +70,7 @@ class EventTypeComponent extends Object
 		if ($this->_controller->Registration->delete($data['Registration']['id'])) {
 			$this->_controller->UserCache->clear('Registrations', $data['Registration']['person_id']);
 			$this->_controller->UserCache->clear('RegistrationsUnpaid', $data['Registration']['person_id']);
+			$this->_controller->UserCache->clear('RegistrationsCanPay', $data['Registration']['person_id']);
 
 			// Check if anything else must be removed as a result (e.g. team reg after removing membership)
 			while ($recursive && $this->_unregisterDependencies($data['Registration']['person_id'])) {
@@ -207,6 +209,7 @@ class EventTypeComponent extends Object
 
 		$this->_controller->UserCache->clear('Registrations', $data['Registration']['person_id']);
 		$this->_controller->UserCache->clear('RegistrationsUnpaid', $data['Registration']['person_id']);
+		$this->_controller->UserCache->clear('RegistrationsCanPay', $data['Registration']['person_id']);
 
 		return true;
 	}
@@ -279,6 +282,7 @@ class EventTypeComponent extends Object
 
 		$this->_controller->UserCache->clear('Registrations', $data['Registration']['person_id']);
 		$this->_controller->UserCache->clear('RegistrationsUnpaid', $data['Registration']['person_id']);
+		$this->_controller->UserCache->clear('RegistrationsCanPay', $data['Registration']['person_id']);
 
 		return $new_payment;
 	}
