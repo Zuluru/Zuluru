@@ -92,7 +92,7 @@ class QuestionsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('question', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
-		$this->Question->contain('Answer', 'Affiliate');
+		$this->Question->contain('Answer', 'Affiliate', 'Questionnaire');
 		$question = $this->Question->read(null, $id);
 		if (!$question) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('question', true)), 'default', array('class' => 'info'));
