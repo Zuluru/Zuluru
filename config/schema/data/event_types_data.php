@@ -14,7 +14,7 @@ class EventTypesData {
 		),
 		array(
 			'name' => 'Individuals for Leagues',
-			'type' => 'generic',
+			'type' => 'individual',
 		),
 		array(
 			'name' => 'Teams for Events',
@@ -22,7 +22,7 @@ class EventTypesData {
 		),
 		array(
 			'name' => 'Individuals for Events',
-			'type' => 'generic',
+			'type' => 'individual',
 		),
 		array(
 			'name' => 'Clinics',
