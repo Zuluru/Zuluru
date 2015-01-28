@@ -95,6 +95,7 @@ $collapse = !empty($this->data['Price']['id']);
 				'default' => false,
 			));
 			echo $this->ZuluruForm->input('Price.minimum_deposit', array(
+				'default' => 0,
 				'after' => $this->Html->para (null, __('Minimum allowable deposit that the registrant must make, if deposits are enabled above. If fixed deposits are selected, this will be the only allowable deposit amount.', true)),
 			));
 			echo $this->ZuluruForm->input('Price.allow_reservations', array(
@@ -103,6 +104,7 @@ $collapse = !empty($this->data['Price']['id']);
 				'default' => false,
 			));
 			echo $this->ZuluruForm->input('Price.reservation_duration', array(
+				'default' => 0,
 				'after' => $this->Html->para (null, __('If enabled above, the time in minutes that a reservation will be held before reverting to "Unpaid" status. One day = 1440 minutes.', true)),
 			));
 		}
