@@ -50,6 +50,9 @@ class UserCacheComponent extends Object
 				if (in_array($act_as, $relatives) || in_array(GROUP_ADMIN, $groups)) {
 					$this->_controller->Session->write('Zuluru.act_as_id', $act_as);
 					$this->_controller->Session->write('Zuluru.act_as_temporary', true);
+				} else if ($this->my_id == $act_as) {
+					$this->_controller->Session->delete('Zuluru.act_as_id');
+					$this->_controller->Session->delete('Zuluru.act_as_temporary');
 				} else {
 					$this->_controller->Session->setFlash(__('You do not have permission to act as that person.', true), 'default', array('class' => 'warning'));
 					$this->_controller->redirect('/');
