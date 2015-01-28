@@ -69,6 +69,7 @@ class EventTypeComponent extends Object
 	function unregister($event, $data, $recursive = true) {
 		if ($this->_controller->Registration->delete($data['Registration']['id'])) {
 			$this->_controller->UserCache->clear('Registrations', $data['Registration']['person_id']);
+			$this->_controller->UserCache->clear('RegistrationsPaid', $data['Registration']['person_id']);
 			$this->_controller->UserCache->clear('RegistrationsUnpaid', $data['Registration']['person_id']);
 			$this->_controller->UserCache->clear('RegistrationsCanPay', $data['Registration']['person_id']);
 
@@ -201,6 +202,7 @@ class EventTypeComponent extends Object
 					}
 					$this->_controller->UserCache->clear('Registrations', $registration['Registration']['person_id']);
 					$this->_controller->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
+					$this->_controller->UserCache->clear('RegistrationsCanPay', $registration['Registration']['person_id']);
 				}
 
 				$this->_restoreViewVars();
@@ -301,6 +303,8 @@ class EventTypeComponent extends Object
 
 		$this->_controller->UserCache->clear('Registrations', $data['Registration']['person_id']);
 		$this->_controller->UserCache->clear('RegistrationsPaid', $data['Registration']['person_id']);
+		$this->_controller->UserCache->clear('RegistrationsUnpaid', $data['Registration']['person_id']);
+		$this->_controller->UserCache->clear('RegistrationsCanPay', $data['Registration']['person_id']);
 		$this->_controller->UserCache->clear('Preregistrations', $data['Registration']['person_id']);
 
 		return true;
@@ -317,6 +321,8 @@ class EventTypeComponent extends Object
 
 		$this->_controller->UserCache->clear('Registrations', $data['Registration']['person_id']);
 		$this->_controller->UserCache->clear('RegistrationsPaid', $data['Registration']['person_id']);
+		$this->_controller->UserCache->clear('RegistrationsUnpaid', $data['Registration']['person_id']);
+		$this->_controller->UserCache->clear('RegistrationsCanPay', $data['Registration']['person_id']);
 
 		return true;
 	}
