@@ -1747,7 +1747,6 @@ class AppController extends Controller {
 
 			if ($registration['Registration']['delete_on_expiry']) {
 				// This reservation was created from the waiting list, and should be deleted
-				$new_payment = 'Deleted';
 				$event_obj->unregister($registration, $registration);
 			} else if ($status != 'Unpaid') {
 				$this->Registration->id = $registration['Registration']['id'];
