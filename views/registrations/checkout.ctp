@@ -15,8 +15,13 @@ if (!empty($registrations)):
 <div>
 	<div class="caption">
 	<?php
-		echo $this->ZuluruHtml->iconLink('cart_add.png', array('controller' => 'events', 'action' => 'wizard'), array('title' => __('Add something else', true)));
-		echo $this->Html->para(null, $this->Html->link(__('Add something else', true), array('controller' => 'events', 'action' => 'wizard')));
+		if ($this->UserCache->currentId() != $this->UserCache->realId()) {
+			$title = sprintf(__('Add something else for %s', true), $this->UserCache->read('Person.full_name'));
+		} else {
+			$title = __('Add something else', true);
+		}
+		echo $this->ZuluruHtml->iconLink('cart_add.png', array('controller' => 'events', 'action' => 'wizard'), array('title' => $title));
+		echo $this->Html->para(null, $this->Html->link($title, array('controller' => 'events', 'action' => 'wizard')));
 	?>
 	</div>
 
