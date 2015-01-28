@@ -75,7 +75,7 @@ class PricesController extends AppController {
 		$id = $this->_arg('price');
 		if (!$id && empty($this->data)) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('price point', true)), 'default', array('class' => 'info'));
-			$this->redirect(array('action' => 'index'));
+			$this->redirect(array('controller' => 'events', 'action' => 'index'));
 		}
 		if (!empty($this->data)) {
 			if ($this->Price->save($this->data)) {
@@ -122,15 +122,15 @@ class PricesController extends AppController {
 		));
 		if ($prices < 2) {
 			$this->Session->setFlash(__('You cannot delete the only price point on an event.', true), 'default', array('class' => 'info'));
-			$this->redirect(array('controller' => 'event', 'action' => 'view', 'event' => $event_id));
+			$this->redirect(array('controller' => 'events', 'action' => 'view', 'event' => $event_id));
 		}
 
 		if ($this->Price->delete($id)) {
 			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Price point', true)), 'default', array('class' => 'success'));
-			$this->redirect(array('controller' => 'event', 'action' => 'view', 'event' => $event_id));
+			$this->redirect(array('controller' => 'events', 'action' => 'view', 'event' => $event_id));
 		}
 		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Price point', true)), 'default', array('class' => 'warning'));
-		$this->redirect(array('controller' => 'event', 'action' => 'view', 'event' => $event_id));
+		$this->redirect(array('controller' => 'events', 'action' => 'view', 'event' => $event_id));
 	}
 
 }
