@@ -1107,7 +1107,9 @@ class TeamsController extends AppController {
 			}
 
 			if ($this->Team->save($this->data)) {
-				$this->Session->setFlash(sprintf(__('The %s has been saved, but will not be visible until approved', true), __('team', true)), 'default', array('class' => 'success'));
+				if (!$this->is_admin) {
+					$this->Session->setFlash(sprintf(__('The %s has been saved, but will not be visible until approved', true), __('team', true)), 'default', array('class' => 'success'));
+				}
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('team', true)), 'default', array('class' => 'warning'));
