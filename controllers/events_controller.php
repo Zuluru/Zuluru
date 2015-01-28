@@ -356,9 +356,7 @@ class EventsController extends AppController {
 	function event_type_fields() {
 		Configure::write ('debug', 0);
 		$this->layout = 'ajax';
-		$this->Event->contain (array (
-			'EventType',
-		));
+		$this->Event->EventType->contain (array());
 		$type = $this->Event->EventType->read(null, $this->params['url']['data']['Event']['event_type_id']);
 		$this->set('event_obj', $this->_getComponent ('EventType', $type['EventType']['type'], $this));
 		$this->set('affiliates', $this->_applicableAffiliates(true));
