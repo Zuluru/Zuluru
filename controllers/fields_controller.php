@@ -217,8 +217,9 @@ class FieldsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __(Configure::read('ui.field'), true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'facilities', 'action' => 'index'));
 		}
-		// TODO: Is there a better condition to use? Some divisions wrap around a year boundary.
-		// Maybe get the Availability table involved?
+
+		$min_date = $this->Field->GameSlot->Game->Division->field('MIN(open)', array('is_open' => true));
+		$max_date = $this->Field->GameSlot->Game->Division->field('MAX(close)', array('is_open' => true));
 		$this->Field->contain (array (
 			'Facility' => 'Region',
 			'GameSlot' => array(
@@ -231,8 +232,12 @@ class FieldsController extends AppController {
 					),
 					'Division' => array('League', 'Day'),
 				),
+				'DivisionGameslotAvailability' => array('Division' => 'League'),
 				'order' => 'GameSlot.game_date, GameSlot.game_start',
-				'conditions' => 'YEAR(GameSlot.game_date) >= YEAR(NOW())',
+				'conditions' => array(
+					'GameSlot.game_date >=' => $min_date,
+					'GameSlot.game_date <=' => $max_date,
+				),
 			),
 		));
 

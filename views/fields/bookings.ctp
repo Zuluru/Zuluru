@@ -29,6 +29,7 @@ echo $this->element('selector', array(
 			<th><?php __('Start'); ?></th>
 			<th><?php __('End'); ?></th>
 			<th><?php __('Booking'); ?></th>
+			<th><?php __('Available To'); ?></th>
 			<?php if ($is_admin || $is_manager): ?>
 			<th><?php __('Actions'); ?></th>
 			<?php endif; ?>
@@ -66,6 +67,10 @@ foreach ($field['GameSlot'] as $slot):
 				echo $this->element('divisions/block', array('division' => $division['division'], 'field' => 'league_name')) .
 						' (' . __n('game', 'games', count($division['games']), true) . ' ' . implode(', ', $division['games']) . ')';
 			}
+			?></td>
+			<td><?php
+			$leagues = array_unique(Set::extract('/DivisionGameslotAvailability/Division/long_league_name', $slot));
+			echo implode(', ', $leagues);
 			?></td>
 			<?php if ($is_admin || $is_manager): ?>
 			<td rowspan="<?php echo $rows; ?>" class="actions"><?php
