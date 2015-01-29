@@ -272,6 +272,20 @@ class EventsController extends AppController {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('event', true)), 'default', array('class' => 'warning'));
 				$this->Configuration->loadAffiliate($this->data['Event']['affiliate_id']);
 			}
+		} else if ($this->_arg('event')) {
+			// To clone a event, read the old one and remove the id
+			$this->Event->contain(array('Price', 'EventType'));
+			$this->data = $this->Event->read(null, $this->_arg('event'));
+			if (!$this->data) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('event', true)), 'default', array('class' => 'info'));
+				$this->redirect(array('controller' => 'events', 'action' => 'index'));
+			}
+			unset($this->data['Event']['id']);
+			// TODO: Ability to clone multiple price points. Would also require ability to add and edit multiple price points at once.
+			if (count($this->data['Price']) > 1) {
+				$this->set('clone', true);
+			}
+			$this->data['Price'] = $this->data['Price'][0];
 		} else {
 			// Set up defaults
 			$this->data = array('EventType' => array(

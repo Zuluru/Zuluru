@@ -14,6 +14,12 @@ $collapse = !empty($this->data['Price']['id']);
 	<fieldset>
 		<legend><?php printf(__(isset($add) ? 'Create %s' : 'Edit %s', true), __('Event', true)); ?></legend>
 	<?php
+		if (isset($clone)):
+	?>
+		<p class="warning-message">You are cloning an event that has multiple price points. Cloning currently only supports a single price point. You will need to add any additional price points after saving this event.</p>
+	<?php
+		endif;
+
 		if (!isset ($add)) {
 			echo $this->Form->input('id');
 			if ($collapse) {

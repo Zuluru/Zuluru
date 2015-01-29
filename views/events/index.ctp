@@ -163,6 +163,9 @@ foreach ($events as $event):
 				echo $this->ZuluruHtml->iconLink('connections_24.png',
 					array('action' => 'connections', 'event' => $event['Event']['id']),
 					array('alt' => $alt, 'title' => $alt));
+				echo $this->ZuluruHtml->iconLink('event_clone_24.png',
+					array('controller' => 'events', 'action' => 'add', 'event' => $event['Event']['id'], 'return' => true),
+					array('alt' => __('Clone Event', true), 'title' => __('Clone Event', true)));
 				echo $this->ZuluruHtml->iconLink('delete_24.png',
 					array('action' => 'delete', 'event' => $event['Event']['id']),
 					array('alt' => __('Delete', true), 'title' => __('Delete', true)),
