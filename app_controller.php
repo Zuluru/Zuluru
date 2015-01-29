@@ -118,7 +118,12 @@ class AppController extends Controller {
 		if (!$this->RequestHandler->isAjax()) {
 			if ($this->_arg('return') && !$this->Session->check('Navigation.redirect')) {
 				// If there's a return requested, and nothing already saved to return to, remember the referrer
-				$this->Session->write('Navigation.redirect', $this->referer(null, true));
+				$url = $this->referer(null, true);
+				$matched = preg_match('#(.*)/act_as:[0-9]*(.*)#', $url, $matches);
+				if ($matched) {
+					$url = "{$matches[1]}{$matches[3]}";
+				}
+				$this->Session->write('Navigation.redirect', $url);
 			} else if (!$this->_arg('return') && $this->Session->check('Navigation.redirect') && empty($this->data)) {
 				// If there's no return requested, and something saved, and this is not a POST, then the operation was aborted and we
 				// don't want to remember this any more
