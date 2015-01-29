@@ -51,7 +51,7 @@ $count = count($unpaid); // + array_sum(array_map('count', $relative_unpaid));
 if ($count) {
 	echo $this->Html->para (null, sprintf (__('You currently have %s unpaid %s. %s to complete these registrations.', true),
 			$count,
-			__n('registration', 'registration', $count, true),
+			__n('registration', 'registrations', $count, true),
 			$this->Html->link (__('Click here', true), array('controller' => 'registrations', 'action' => 'checkout'))
 	));
 }
@@ -74,7 +74,7 @@ $tabs = array();
 $people_with_schedules = 0;
 
 $tab = $this->element('teams/splash', array('teams' => $teams, 'past_teams' => $past_teams, 'name' => __('My', true)));
-$tab .= $this->element('all/kickstart', array('id' => $id, 'affiliates' => $affiliates, 'empty' => (empty($teams) && empty($divisions) && empty($unpaid) && empty($tasks))));
+$tab .= $this->element('all/kickstart', array('id' => $id, 'affiliates' => $affiliates, 'empty' => (empty($teams) && empty($divisions) && empty($tasks))));
 $tab .= $this->element('divisions/splash', array('divisions' => $divisions));
 
 $games = $items = array_merge (
@@ -101,10 +101,22 @@ if (!empty($tab)) {
 }
 
 foreach ($approved_relatives as $relative) {
+	$tab = '';
+
+	$unpaid = $this->UserCache->read('RegistrationsUnpaid', $relative['Relative']['id']);
+	$count = count($unpaid);
+	if ($count) {
+		$tab .= $this->Html->para (null, sprintf (__('You currently have %s unpaid %s. %s to complete these registrations.', true),
+				$count,
+				__n('registration', 'registrations', $count, true),
+				$this->Html->link (__('Click here', true), array('controller' => 'registrations', 'action' => 'checkout', 'act_as' => $relative['Relative']['id']))
+		));
+	}
+
 	$relative_teams = $this->UserCache->read('Teams', $relative['Relative']['id']);
 	$relative_team_ids = $this->UserCache->read('TeamIDs', $relative['Relative']['id']);
 	$relative_past_teams = $this->requestAction(array('controller' => 'teams', 'action' => 'past_count'), array('named' => array('person' => $relative['Relative']['id'])));
-	$tab = $this->element('teams/splash', array('teams' => $relative_teams, 'past_teams' => $relative_past_teams, 'name' => "{$relative['Relative']['first_name']}'s"));
+	$tab .= $this->element('teams/splash', array('teams' => $relative_teams, 'past_teams' => $relative_past_teams, 'name' => "{$relative['Relative']['first_name']}'s"));
 
 	$relative_games = array_merge (
 			$this->requestAction(array('controller' => 'games', 'action' => 'past'), array('named' => array('person' => $relative['Relative']['id']))),
@@ -166,7 +178,7 @@ foreach ($approved_relatives as $relative) {
 			'is_admin' => false,
 			'is_manager' => false,
 			'is_player' => in_array(GROUP_PLAYER, $this->UserCache->read('GroupIDs', $relative['Relative']['id'])),
-			'empty' => (empty($relative_teams) && empty($relative_unpaid[$relative['Relative']['id']]) && empty($relative_tasks))
+			'empty' => (empty($relative_teams) && empty($relative_tasks))
 	));
 	if (!empty($tab)) {
 		$tabs["tab-{$relative['Relative']['id']}"] = array('name' => $relative['Relative']['full_name'], 'content' => $tab);
