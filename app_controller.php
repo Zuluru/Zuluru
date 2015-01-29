@@ -761,6 +761,11 @@ class AppController extends Controller {
 				if ($this->is_logged_in && !empty($registrations)) {
 					$this->_addMenuItem ('My history', array('controller' => 'people', 'action' => 'registrations'), 'Registration');
 				}
+
+				$unpaid = $this->UserCache->read('RegistrationsCanPay');
+				if (!empty ($unpaid)) {
+					$this->_addMenuItem ('Checkout', array('controller' => 'registrations', 'action' => 'checkout'), 'Registration');
+				}
 			}
 
 			if ($this->is_admin || $this->is_manager) {
@@ -785,21 +790,9 @@ class AppController extends Controller {
 		// the generic operations.
 		if ($this->is_logged_in) {
 			$this->_initPersonalMenu();
-			$relatives = $this->UserCache->read('Relatives');
-			if (!empty($relatives)) {
-				$name = $this->UserCache->read('Person.first_name');
-				$this->_addMenuItem ($name, array('controller' => 'people', 'action' => 'view'), array('My Profile', 'View'));
-				$this->_addMenuItem ($name, array('controller' => 'people', 'action' => 'edit'), array('My Profile', 'Edit'));
-				$this->_addMenuItem ($name, array('controller' => 'people', 'action' => 'preferences'), array('My Profile', 'Preferences'));
-				$this->_addMenuItem ($name, array('controller' => 'people', 'action' => 'waivers'), array('My Profile', 'Waiver history'));
-				if ($show_registration) {
-					$this->_addMenuItem ($name, array('controller' => 'events', 'action' => 'wizard'), array('Registration', 'Wizard'));
-				}
-			}
-			foreach ($relatives as $relative) {
-				if ($relative['PeoplePerson']['approved']) {
-					$this->_initPersonalMenu($relative);
-				}
+			$relatives = $this->UserCache->allActAs(true, 'first_name');
+			foreach ($relatives as $id => $name) {
+				$this->_initPersonalMenu($id, $name);
 			}
 		}
 
@@ -1103,48 +1096,44 @@ class AppController extends Controller {
 	/**
 	 * Put personalized items like specific teams and divisions on the menu.
 	 */
-	function _initPersonalMenu($relative = null) {
-		if ($relative) {
-			$id = $relative['Relative']['id'];
-			$this->_addMenuItem ($relative['Relative']['first_name'], array('controller' => 'people', 'action' => 'view', 'person' => $id), array('My Profile', 'View'));
-			$this->_addMenuItem ($relative['Relative']['first_name'], array('controller' => 'people', 'action' => 'edit', 'person' => $id), array('My Profile', 'Edit'));
-			$this->_addMenuItem ($relative['Relative']['first_name'], array('controller' => 'people', 'action' => 'preferences', 'person' => $id), array('My Profile', 'Preferences'));
-			$this->_addMenuItem ($relative['Relative']['first_name'], array('controller' => 'people', 'action' => 'waivers', 'person' => $id), array('My Profile', 'Waiver history'));
-		} else {
-			$id = null;
-		}
+	function _initPersonalMenu($id = null, $name = null) {
+		if ($id) {
+			$this->_addMenuItem ('View', array('controller' => 'people', 'action' => 'view', 'act_as' => $id), array('My Profile', $name));
+			$this->_addMenuItem ('Edit', array('controller' => 'people', 'action' => 'edit', 'act_as' => $id), array('My Profile', $name));
+			$this->_addMenuItem ('Preferences', array('controller' => 'people', 'action' => 'preferences', 'act_as' => $id), array('My Profile', $name));
+			$this->_addMenuItem ('Waiver history', array('controller' => 'people', 'action' => 'waivers', 'act_as' => $id), array('My Profile', $name));
+			$this->_addMenuItem ('Upload photo', array('controller' => 'people', 'action' => 'photo_upload', 'act_as' => $id), array('My Profile', $name));
 
-		if (Configure::read('feature.registration')) {
-			$unpaid = $this->UserCache->read('RegistrationsCanPay', $id);
-			if (!empty ($unpaid)) {
-				$this->_addMenuItem ('Checkout', array('controller' => 'registrations', 'action' => 'checkout'), 'Registration');
-			}
+			if (Configure::read('feature.registration')) {
+				$unpaid = $this->UserCache->read('RegistrationsCanPay', $id);
+				if (!empty ($unpaid)) {
+					$this->_addMenuItem ('Checkout', array('controller' => 'registrations', 'action' => 'checkout', 'act_as' => $id), array('Registration', $name));
+				}
 
-			if ($relative) {
 				$registrations = $this->UserCache->read('Registrations', $id);
 				if (!empty($registrations)) {
-					$this->_addMenuItem ('History', array('controller' => 'people', 'action' => 'registrations', 'person' => $id), array('Registration', $relative['Relative']['first_name']));
+					$this->_addMenuItem ('History', array('controller' => 'people', 'action' => 'registrations', 'act_as' => $id), array('Registration', $name));
 				}
-				$this->_addMenuItem ($relative['Relative']['first_name'], array('controller' => 'events', 'action' => 'wizard', 'act_as' => $id), array('Registration', 'Wizard'));
+				$this->_addMenuItem ('Wizard', array('controller' => 'events', 'action' => 'wizard', 'act_as' => $id), array('Registration', $name));
 			}
 		}
 
 		$teams = $this->UserCache->read('Teams', $id);
 		foreach ($teams as $team) {
-			$this->_addTeamMenuItems ($team, $relative);
+			$this->_addTeamMenuItems ($team, $id, $name);
 		}
 		$all_teams = $this->UserCache->read('AllTeamIDs');
 		if (!empty($all_teams)) {
 			$this->_addMenuItem ('My history', array('controller' => 'people', 'action' => 'teams'), 'Teams');
 		}
-		if ($relative) {
+		if ($id) {
 			$all_teams = $this->UserCache->read('AllTeamIDs', $id);
 			if (!empty($all_teams)) {
-				$this->_addMenuItem ('History', array('controller' => 'people', 'action' => 'teams', 'person' => $id), array('Teams', $relative['Relative']['first_name']));
+				$this->_addMenuItem ('History', array('controller' => 'people', 'action' => 'teams', 'person' => $id, 'act_as' => $id), array('Teams', $name));
 			}
 		}
 
-		if (!$relative) {
+		if (!$id) {
 			if (Configure::read('feature.franchises')) {
 				$franchises = $this->UserCache->read('Franchises');
 				if (!empty($franchises)) {
@@ -1164,9 +1153,9 @@ class AppController extends Controller {
 	/**
 	 * Add all the links for a team to the menu.
 	 */
-	function _addTeamMenuItems($team, $relative = null) {
-		if ($relative) {
-			$path = array('Teams', $relative['Relative']['first_name']);
+	function _addTeamMenuItems($team, $id = null, $name = null) {
+		if ($id) {
+			$path = array('Teams', $name);
 		} else {
 			$path = array('Teams');
 		}
@@ -1196,7 +1185,7 @@ class AppController extends Controller {
 			{
 				$this->_addMenuItem ('Join team', array('controller' => 'teams', 'action' => 'roster_request', 'team' => $team['Team']['id']), array_merge($path, array($key)));
 			}
-			$this->_addDivisionMenuItems($team['Division'], $team['Division']['League'], $relative);
+			$this->_addDivisionMenuItems($team['Division'], $team['Division']['League'], $id, $name);
 		} else {
 			$this->_addMenuItem ($team['Team']['name'], array('controller' => 'teams', 'action' => 'view', 'team' => $team['Team']['id']), $path, $key);
 		}
@@ -1226,9 +1215,9 @@ class AppController extends Controller {
 	/**
 	 * Add all the links for a franchise to the menu.
 	 */
-	function _addFranchiseMenuItems($franchise, $relative = null) {
-		if ($relative) {
-			$path = array('Teams', 'Franchises', $relative['Relative']['first_name']);
+	function _addFranchiseMenuItems($franchise, $id = null, $name = null) {
+		if ($id) {
+			$path = array('Teams', 'Franchises', $name);
 		} else {
 			$path = array('Teams', 'Franchises');
 		}
@@ -1259,10 +1248,10 @@ class AppController extends Controller {
 	/**
 	 * Add all the links for a division to the menu.
 	 */
-	function _addDivisionMenuItems($division, $league, $relative = null) {
+	function _addDivisionMenuItems($division, $league, $id = null, $name = null) {
 		Configure::load("sport/{$league['sport']}");
-		if ($relative) {
-			$path = array('Leagues', $relative['Relative']['first_name']);
+		if ($id) {
+			$path = array('Leagues', $name);
 		} else {
 			$path = array('Leagues');
 		}

@@ -11,5 +11,9 @@ class UserCacheHelper extends Helper {
 	function realId() {
 		return UserCacheComponent::getInstance()->realId();
 	}
+
+	function allActAs() {
+		return UserCacheComponent::getInstance()->allActAs();
+	}
 }
 ?>

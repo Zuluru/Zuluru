@@ -45,7 +45,6 @@ class PeopleController extends AppController {
 				'document_upload',
 				'registrations',
 				'credits',
-				'act_as',
 		)))
 		{
 			// If a player id is specified, check if it's the logged-in user, or a relative
@@ -67,10 +66,15 @@ class PeopleController extends AppController {
 			}
 		}
 
-		// People can always act as their real id
 		if ($this->params['action'] == 'act_as') {
-			// If a player id is specified, check if it's the real user
-			if ($this->_arg('person') == $this->UserCache->realId()) {
+			// People can always act as their real id, or as any relative of the current or real user
+			$person = $this->_arg('person');
+			if ($person) {
+				$relatives = $this->UserCache->allActAs();
+				if (array_key_exists($person, $relatives)) {
+					return true;
+				}
+			} else {
 				return true;
 			}
 		}

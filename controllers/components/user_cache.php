@@ -38,38 +38,38 @@ class UserCacheComponent extends Object
 			$this->_controller->Session->delete('Zuluru.act_as_temporary');
 		}
 
-		// Check for a temporary "act as" request.
-		$act_as = $this->_controller->_arg('act_as');
-		if ($act_as) {
-			// We must have the my_id variable set, or else the read call goes recursive
-			$this->my_id = $this->_controller->Auth->user('zuluru_person_id');
-			if ($this->my_id) {
-				$this->data[$this->my_id] = array();
-				$relatives = $this->read('RelativeIDs');
-				$groups = $this->read('GroupIDs');
-				if (in_array($act_as, $relatives) || in_array(GROUP_ADMIN, $groups)) {
-					$this->_controller->Session->write('Zuluru.act_as_id', $act_as);
-					$this->_controller->Session->write('Zuluru.act_as_temporary', true);
-				} else if ($this->my_id == $act_as) {
-					$this->_controller->Session->delete('Zuluru.act_as_id');
-					$this->_controller->Session->delete('Zuluru.act_as_temporary');
-				} else {
-					$this->_controller->Session->setFlash(__('You do not have permission to act as that person.', true), 'default', array('class' => 'warning'));
-					$this->_controller->redirect('/');
-				}
-				// Clear the temporary data
-				unset($this->data[$this->my_id]);
-				$this->my_id = null;
-			}
-		}
-
-		$act_as = $this->_controller->Session->read('Zuluru.act_as_id');
-		if ($act_as) {
-			$this->my_id = $act_as;
+		// We must have the my_id variable set, or else later $this->read calls go recursive
+		$acting_as = $this->_controller->Session->read('Zuluru.act_as_id');
+		if ($acting_as) {
+			$this->my_id = $acting_as;
 		} else {
 			$this->my_id = $this->_controller->Auth->user('zuluru_person_id');
 		}
+
 		if ($this->my_id) {
+			// Check for a temporary "act as" request.
+			$act_as = $this->_controller->_arg('act_as');
+			if ($act_as) {
+				if ($act_as == $this->_controller->Auth->user('zuluru_person_id')) {
+					$this->_controller->Session->delete('Zuluru.act_as_id');
+					$this->_controller->Session->delete('Zuluru.act_as_temporary');
+					$this->my_id = $this->_controller->Auth->user('zuluru_person_id');
+				} else {
+					$this->data[$this->my_id] = array();
+					$relatives = $this->allActAs();
+					$groups = $this->read('GroupIDs');
+					if ($act_as == $acting_as || array_key_exists($act_as, $relatives) || in_array(GROUP_ADMIN, $groups)) {
+						$this->_controller->Session->write('Zuluru.act_as_id', $act_as);
+						$this->_controller->Session->write('Zuluru.act_as_temporary', true);
+						unset($this->data[$this->my_id]);
+						$this->my_id = $act_as;
+					} else {
+						$this->_controller->Session->setFlash(__('You do not have permission to act as that person.', true), 'default', array('class' => 'warning'));
+						$this->_controller->redirect('/');
+					}
+				}
+			}
+
 			$this->data[$this->my_id] = array();
 		}
 	}
@@ -569,6 +569,51 @@ class UserCacheComponent extends Object
 		}
 
 		Cache::write("person/$id", $self->data[$id], 'file');
+	}
+
+	function allActAs($for_menu = false, $field = 'full_name') {
+		$act_as = array();
+		if (!$this->currentId()) {
+			return $act_as;
+		}
+
+		$include = array($this->currentId() => true);
+
+		// If we're acting as someone, maybe add the real user and their relatives
+		if ($this->currentId() != $this->realId()) {
+			if (in_array($this->realId(), $this->read('RelatedToIDs'))) {
+				// If the user is a relative, assume it's a parent acting as a child or similar
+				$include[$this->realId()] = true;
+			} else if (AppController::_isChild($this->read('Person.birthdate'))) {
+				// Otherwise, assume it's an admin, and if it's a youth account, find the first parent
+				$related = $this->read('RelatedToIDs');
+				if (!empty($related)) {
+					$include[min($related)] = true;
+				}
+			}
+		}
+
+		if (!$for_menu) {
+			// If this is not for a menu, we want the real user last, if not already in the list.
+			// This will put admins last when acting as someone else.
+			$include[$this->realId()] = true;
+		}
+
+		// Add the included user and their relatives relatives
+		foreach (array_keys($include) as $id) {
+			$act_as[$id] = $this->read("Person.$field", $id);
+			$relatives = $this->read('Relatives', $id);
+			foreach ($relatives as $relative) {
+				if ($relative['PeoplePerson']['approved']) {
+					$act_as[$relative['Relative']['id']] = $relative['Relative'][$field];
+				}
+			}
+		}
+
+		// And finally remove the current user, if present; they get special treatment everywhere
+		unset($act_as[$this->currentId()]);
+
+		return $act_as;
 	}
 
 	function _findData(&$model, $find, $contain = array()) {
