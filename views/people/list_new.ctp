@@ -8,19 +8,26 @@ $this->Html->addCrumb (__('New Accounts', true));
 
 <?php
 $rows = array();
-foreach ($new as $player) {
+foreach ($new as $person) {
 	$links = array(
-		$this->Html->link (__('View', true), array('action' => 'view', 'person' => $player['Person']['id'])),
-		$this->Html->link (__('Edit', true), array('action' => 'edit', 'person' => $player['Person']['id'], 'return' => true)),
-		$this->Html->link (__('Approve', true), array('action' => 'approve', 'person' => $player['Person']['id'])),
+		$this->ZuluruHtml->iconLink('view_24.png',
+			array('action' => 'view', 'person' => $person['Person']['id']),
+			array('alt' => __('View', true), 'title' => __('View', true))),
+		$this->ZuluruHtml->iconLink('edit_24.png',
+			array('action' => 'edit', 'person' => $person['Person']['id'], 'return' => true),
+			array('alt' => __('Edit', true), 'title' => __('Edit', true))),
+		$this->Html->link (__('Approve', true), array('action' => 'approve', 'person' => $person['Person']['id'])),
 	);
 	if (Configure::read('feature.manage_accounts')) {
-		$links[] = $this->Html->link (__('Delete', true), array('action' => 'delete', 'person' => $player['Person']['id'], 'return' => true));
+		$links[] = $this->ZuluruHtml->iconLink('delete_24.png',
+			array('action' => 'delete', 'person' => $person['Person']['id'], 'return' => true),
+			array('alt' => __('Delete', true), 'title' => __('Delete', true)),
+			array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $person['Person']['id'])));
 	}
 
-	$class = ($player['Person']['duplicate'] ? 'warning-message' : '');
+	$class = ($person['Person']['duplicate'] ? 'warning-message' : '');
 	$rows[] = array(
-		array($player['Person']['full_name'], array('class' => $class)),
+		array($person['Person']['full_name'], array('class' => $class)),
 		array(implode ('', $links), array('class' => 'actions'))
 	);
 }
