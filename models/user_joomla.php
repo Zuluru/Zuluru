@@ -94,7 +94,7 @@ class UserJoomla extends User {
 
 	function delete_duplicate_user($id) {
 		// TODO: Delete j_user_usergroup_map record too
-		$this->delete ($id);
+		return $this->delete ($id);
 	}
 
 	function merge_duplicate_user($new_id, $old_id) {

@@ -2380,7 +2380,7 @@ class PeopleController extends AppController {
 			$this->redirect('/');
 		}
 
-		$dependencies = $this->Person->dependencies($id, array('Affiliate', 'Group', 'Skill', 'Setting'));
+		$dependencies = $this->Person->dependencies($id, array('Affiliate', 'Group', 'Relative', 'Related', 'Skill', 'Setting'));
 		if ($dependencies !== false) {
 			$this->Session->setFlash(__('The following records reference this person, so it cannot be deleted.', true) . '<br>' . $dependencies, 'default', array('class' => 'warning'));
 			$this->redirect('/');
@@ -2395,15 +2395,11 @@ class PeopleController extends AppController {
 			}
 		}
 
-		if (method_exists ($this->Auth->authenticate, 'delete_duplicate_user')) {
-			$this->Auth->authenticate->delete_duplicate_user($id);
-		}
-		if ($this->Person->delete($id)) {
+		if ($this->_deleteWithRelatives($id)) {
 			$this->Session->setFlash(sprintf(__('%s deleted', true), __('Person', true)), 'default', array('class' => 'success'));
-			// TODO: Unwind any registrations, including calling event_obj for additional processing like deleting team records
-			$this->redirect('/');
+		} else {
+			$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Person', true)), 'default', array('class' => 'warning'));
 		}
-		$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Person', true)), 'default', array('class' => 'warning'));
 		$this->redirect('/');
 	}
 
@@ -2778,40 +2774,15 @@ class PeopleController extends AppController {
 				break;
 
 			case 'delete':
-				if (!empty($person['Person']['user_id'])) {
-					if (method_exists ($this->Auth->authenticate, 'delete_duplicate_user')) {
-						$this->Auth->authenticate->delete_duplicate_user($person['Person']['user_id']);
-					} else {
-						$this->Auth->authenticate->delete($person['Person']['user_id']);
-					}
-				}
-				if (! $this->Person->delete($person_id) ) {
+				if (!$this->_deleteWithRelatives($person_id)) {
 					$this->Session->setFlash(sprintf (__('Failed to delete %s', true), $person['Person']['full_name']), 'default', array('class' => 'warning'));
-				}
-				Cache::delete("person/$person_id", 'file');
-				foreach ($person['Related'] as $relative) {
-					$this->UserCache->clear('Relatives', $relative['id']);
-					$this->UserCache->clear('RelativeIDs', $relative['id']);
 				}
 				break;
 
 			case 'delete_duplicate':
-				if (!empty($person['Person']['user_id'])) {
-					if (method_exists ($this->Auth->authenticate, 'delete_duplicate_user')) {
-						$this->Auth->authenticate->delete_duplicate_user($person['Person']['user_id']);
-					} else {
-						$this->Auth->authenticate->delete($person['Person']['user_id']);
-					}
-				}
-
-				if (! $this->Person->delete($person_id) ) {
+				if (!$this->_deleteWithRelatives($person_id)) {
 					$this->Session->setFlash(sprintf (__('Failed to delete %s', true), $person['Person']['full_name']), 'default', array('class' => 'warning'));
 					break;
-				}
-				Cache::delete("person/$person_id", 'file');
-				foreach ($person['Related'] as $relative) {
-					$this->UserCache->clear('Relatives', $relative['id']);
-					$this->UserCache->clear('RelativeIDs', $relative['id']);
 				}
 
 				$this->set(compact('person', 'existing'));
@@ -2902,6 +2873,55 @@ class PeopleController extends AppController {
 				}
 				break;
 		}
+	}
+
+	function _deleteWithRelatives($id) {
+		// Don't delete someone who is the only parent of someone that cannot be deleted
+		$relatives = $this->UserCache->read('Relatives', $id);
+		$delete_ids = array($id);
+		foreach ($relatives as $relative) {
+			if (empty($relative['Relative']['user_id'])) {
+				if (count($this->UserCache->read('RelatedToIDs', $relative['Relative']['id'])) == 1) {
+					$dependencies = $this->Person->dependencies($relative['Relative']['id'], array('Affiliate', 'Group', 'Relative', 'Related', 'Skill', 'Setting'));
+					if ($dependencies !== false) {
+						$this->Session->setFlash(__('You cannot delete the only parent of a child with history in the system.', true), 'default', array('class' => 'info'));
+						$this->redirect('/');
+					}
+					$delete_ids[] = $relative['Relative']['id'];
+				}
+			}
+		}
+
+		// User and person records may be in separate databases, so we need a transaction for each
+		$user_transaction = new DatabaseTransaction($this->Auth->authenticate);
+		$person_transaction = new DatabaseTransaction($this->Person);
+
+		$success = true;
+		foreach ($delete_ids as $id) {
+			$user_id = $this->UserCache->read('Person.user_id', $id);
+			if ($user_id) {
+				if (method_exists ($this->Auth->authenticate, 'delete_duplicate_user')) {
+					$success &= $this->Auth->authenticate->delete_duplicate_user($user_id);
+				} else {
+					$success &= $this->Auth->authenticate->delete($user_id, false);
+				}
+			}
+			$success &= $this->Person->delete($id);
+			$relatives = $this->UserCache->read('RelatedToIDs', $id);
+			foreach ($relatives as $relative) {
+				$this->UserCache->clear('Relatives', $relative);
+				$this->UserCache->clear('RelativeIDs', $relative);
+				$this->UserCache->clear('RelatedTo', $relative);
+				$this->UserCache->clear('RelatedToIDs', $relative);
+			}
+			Cache::delete("person/$id", 'file');
+		}
+
+		if ($success) {
+			$user_transaction->commit();
+			$person_transaction->commit();
+		}
+		return $success;
 	}
 
 	function vcf() {
