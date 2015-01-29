@@ -596,6 +596,11 @@ class Person extends AppModel {
 				"$user_model.$email_field !=" => '',
 				array("$user_model.$email_field !=" => null),
 			);
+			$conditions['OR'][] = array(
+				'Person.alternate_email' => $person['Person']['email'],
+				'Person.alternate_email !=' => '',
+				array('Person.alternate_email !=' => null),
+			);
 		}
 
 		if (Configure::read('profile.home_phone')) {
