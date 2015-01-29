@@ -2380,12 +2380,21 @@ class PeopleController extends AppController {
 			$this->redirect('/');
 		}
 
-		// TODO: Don't delete the only admin
-		$dependencies = $this->Person->dependencies($id, array('Affiliate', 'Group', 'Skill'));
+		$dependencies = $this->Person->dependencies($id, array('Affiliate', 'Group', 'Skill', 'Setting'));
 		if ($dependencies !== false) {
 			$this->Session->setFlash(__('The following records reference this person, so it cannot be deleted.', true) . '<br>' . $dependencies, 'default', array('class' => 'warning'));
 			$this->redirect('/');
 		}
+
+		// Don't delete the only admin
+		if (in_array(GROUP_ADMIN, $this->UserCache->read('GroupIDs', $id))) {
+			$admins = $this->Person->GroupsPerson->find('count', array('conditions' => array('group_id' => GROUP_ADMIN)));
+			if ($admins == 1) {
+				$this->Session->setFlash(__('You cannot delete the only administrator.', true), 'default', array('class' => 'info'));
+				$this->redirect('/');
+			}
+		}
+
 		if (method_exists ($this->Auth->authenticate, 'delete_duplicate_user')) {
 			$this->Auth->authenticate->delete_duplicate_user($id);
 		}
