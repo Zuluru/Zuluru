@@ -101,3 +101,8 @@ $hide_gender = (empty($genders) || (count($genders) == 1 && empty($genders[0])))
 		<?php echo $this->Paginator->next(__('next', true).' >>', array(), null, array('class' => 'disabled'));?>
 	</div>
 </div>
+<div class="actions">
+	<ul>
+		<?php echo $this->Html->tag ('li', $this->Html->link(__('Download', true), array_merge($this->params['named'], array('ext' => 'csv')))); ?>
+	</ul>
+</div>

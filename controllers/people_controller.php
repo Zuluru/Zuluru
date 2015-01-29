@@ -142,6 +142,7 @@ class PeopleController extends AppController {
 	function index() {
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('affiliates'));
+		$group_id = $this->_arg('group');
 
 		$user_model = $this->Auth->authenticate->name;
 		$id_field = $this->Auth->authenticate->primaryKey;
@@ -154,54 +155,74 @@ class PeopleController extends AppController {
 			$prefix = "{$config['database']}.$prefix";
 		}
 
-		$this->paginate = array(
-				'conditions' => array(
-					'Affiliate.id' => $affiliates
-				),
-				'joins' => array(
-					array(
-						'table' => "{$this->Person->tablePrefix}affiliates_people",
-						'alias' => 'AffiliatePerson',
-						'type' => 'LEFT',
-						'foreignKey' => false,
-						'conditions' => 'AffiliatePerson.person_id = Person.id',
-					),
-					array(
-						'table' => "{$this->Person->tablePrefix}affiliates",
-						'alias' => 'Affiliate',
-						'type' => 'LEFT',
-						'foreignKey' => false,
-						'conditions' => 'Affiliate.id = AffiliatePerson.affiliate_id',
-					),
-					array(
-						'table' => "$prefix{$this->Auth->authenticate->useTable}",
-						'alias' => $user_model,
-						'type' => 'LEFT',
-						'foreignKey' => false,
-						'conditions' => "$user_model.$id_field = Person.user_id",
-					),
-				),
-				'contain' => array(),
-				'fields' => array('Person.*', 'Affiliate.*', "$user_model.*"),
-				'order' => array('Affiliate.name', 'Person.last_name', 'Person.first_name'),
-				'limit' => Configure::read('feature.items_per_page'),
+		$joins = array(
+			array(
+				'table' => "{$this->Person->tablePrefix}affiliates_people",
+				'alias' => 'AffiliatePerson',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'AffiliatePerson.person_id = Person.id',
+			),
+			array(
+				'table' => "{$this->Person->tablePrefix}affiliates",
+				'alias' => 'Affiliate',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'Affiliate.id = AffiliatePerson.affiliate_id',
+			),
+			array(
+				'table' => "$prefix{$this->Auth->authenticate->useTable}",
+				'alias' => $user_model,
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => "$user_model.$id_field = Person.user_id",
+			),
 		);
 
-		$group_id = $this->_arg('group');
+		$conditions = array(
+			'Affiliate.id' => $affiliates
+		);
+
 		if ($group_id) {
-			$this->paginate['joins'][] = array(
+			$joins[] = array(
 				'table' => "{$this->Person->tablePrefix}groups_people",
 				'alias' => 'GroupPerson',
 				'type' => 'LEFT',
 				'foreignKey' => false,
 				'conditions' => 'GroupPerson.person_id = Person.id',
 			);
-			$this->paginate['conditions']['GroupPerson.group_id'] = $group_id;
+			$conditions['GroupPerson.group_id'] = $group_id;
 			$group = $this->Person->Group->field('name', array('id' => $group_id));
 			$this->set(compact('group'));
 		}
 
-		$this->set('people', $this->paginate());
+		if ($this->params['url']['ext'] == 'csv') {
+			Configure::write ('debug', 0);
+			$this->set('people', $this->Person->find ('all', array(
+					'conditions' => $conditions,
+					'joins' => $joins,
+					'contain' => 'Related',
+					'fields' => array('DISTINCT Person.id', 'Person.*', 'Affiliate.*', "$user_model.*"),
+					'order' => array('Affiliate.name', 'Person.last_name', 'Person.first_name', 'Person.id'),
+			)));
+			if ($group_id) {
+				$this->set('download_file_name', Inflector::pluralize($group));
+			} else {
+				$this->set('download_file_name', 'People');
+			}
+			$this->render('rule_search');
+		} else {
+			$this->paginate = array(
+					'conditions' => $conditions,
+					'joins' => $joins,
+					'contain' => array(),
+					'fields' => array('DISTINCT Person.id', 'Person.*', 'Affiliate.*', "$user_model.*"),
+					'order' => array('Affiliate.name', 'Person.last_name', 'Person.first_name', 'Person.id'),
+					'limit' => Configure::read('feature.items_per_page'),
+			);
+
+			$this->set('people', $this->paginate());
+		}
 	}
 
 	function statistics() {
