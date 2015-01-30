@@ -143,14 +143,17 @@ Where htmlmail is the following general-purpose script:
     $email = $_SERVER['argv'][1];
     $subject = $_SERVER['argv'][2];
     $url = $_SERVER['argv'][3];
-    
+
     if (function_exists('curl_init')) {
     	$curl_handle=curl_init();
     	curl_setopt($curl_handle, CURLOPT_URL, $url);
-    	curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
+    	curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 10);
     	curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
     	curl_setopt($curl_handle, CURLOPT_USERAGENT, 'htmlmail');
-    	$contents = curl_exec($curl_handle);
+		$i = 0;
+		do {
+			$contents = curl_exec($curl_handle);
+		} while (empty($contents) && ++$i < 5);
     	curl_close($curl_handle);
     } else {
     	$handle = fopen($url, 'rb');
@@ -160,7 +163,7 @@ Where htmlmail is the following general-purpose script:
     	}
     	fclose($handle);
     }
-    
+
     $headers = 'Content-Type: text/html; charset="iso-8859-1"';
     mail($email, $subject, $contents, $headers, "-f admin@zuluru.org");
     ?>
