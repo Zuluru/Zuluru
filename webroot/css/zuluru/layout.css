@@ -167,6 +167,11 @@ body.map
 	padding: 4px;
 	border: 0;
 }
+#zuluru table.multi_row_list td.price_point
+{
+	padding-left: 3em;
+	text-indent: -1.5em;
+}
 #zuluru table.list p, #zuluru table.multi_row_list p
 {
 	text-indent: 0;

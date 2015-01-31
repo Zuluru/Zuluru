@@ -106,8 +106,8 @@ foreach ($events as $event):
 		foreach ($event['Price'] as $price):
 		?>
 	<tr<?php echo $class;?>>
-		<td>
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $this->Html->link($price['name'], array('action' => 'view', 'event' => $event['Event']['id'])); ?>
+		<td class="price_point">
+			<?php echo $this->Html->link($price['name'], array('action' => 'view', 'event' => $event['Event']['id'])); ?>
 		</td>
 		<td>
 			<?php
