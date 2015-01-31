@@ -12,8 +12,11 @@ $types = Set::combine($events, '{n}.EventType.id', '{n}.EventType.name');
 ksort($types);
 echo $this->element('selector', array('title' => 'Type', 'options' => $types));
 
+$sports = array_unique(Set::extract('/League/sport', $events));
+echo $this->element('selector', array('title' => 'Sport', 'options' => $sports));
+
 $seasons = array_unique(Set::extract('/League/season', $events));
-echo $this->element('selector', array('title' => 'Season', 'options' => array_intersect(array_keys(Configure::read('options.season')), $seasons)));
+echo $this->element('selector', array('title' => 'Season', 'options' => $seasons));
 
 $days = Set::extract('/Day[id!=]', $events);
 $days = Set::combine($days, '{n}.Day.id', '{n}.Day.name');
@@ -42,6 +45,9 @@ foreach ($events as $event):
 		if (in_array($event['EventType']['type'], $play_types)) {
 			$divisions = Set::extract("/Event[event_type_id={$event['Event']['event_type_id']}]/..", $events);
 
+			$sports = array_unique(Set::extract('/League/sport', $divisions));
+			$classes[] = $this->element('selector_classes', array('title' => 'Sport', 'options' => $sports));
+
 			$seasons = array_unique(Set::extract('/League/season', $divisions));
 			$classes[] = $this->element('selector_classes', array('title' => 'Season', 'options' => $seasons));
 
@@ -58,11 +64,13 @@ foreach ($events as $event):
 	$classes = array();
 	$classes[] = $this->element('selector_classes', array('title' => 'Type', 'options' => $event['EventType']['name']));
 	if (in_array($event['EventType']['type'], $play_types) && !empty($event['Division']['id'])) {
+		$classes[] = $this->element('selector_classes', array('title' => 'Sport', 'options' => $event['League']['sport']));
 		$classes[] = $this->element('selector_classes', array('title' => 'Season', 'options' => $event['League']['season']));
 		$days = Set::combine($event, 'Day.{n}.id', 'Day.{n}.name');
 		ksort($days);
 		$classes[] = $this->element('selector_classes', array('title' => 'Day', 'options' => $days));
 	} else {
+		$classes[] = $this->element('selector_classes', array('title' => 'Sport', 'options' => array()));
 		$classes[] = $this->element('selector_classes', array('title' => 'Season', 'options' => array()));
 		$classes[] = $this->element('selector_classes', array('title' => 'Day', 'options' => array()));
 	}
