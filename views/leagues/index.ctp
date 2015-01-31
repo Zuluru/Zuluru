@@ -66,31 +66,31 @@ foreach ($leagues as $league):
 		endif;
 	endif;
 
-	if ($league['League']['sport'] != $sport && count($sports) > 1):
+	if ($league['League']['sport'] != $sport):
 		$sport = $league['League']['sport'];
+		Configure::load("sport/$sport");
 		$season = null;
-		$league_seasons = array_unique(Set::extract("/League[affiliate_id=$affiliate_id][sport=$sport]/long_season", $leagues));
-		$league_days = array_unique(Set::extract("/League[affiliate_id=$affiliate_id][sport=$sport]/../Division/Day/name", $leagues));
+		if (count($sports) > 1):
+			$league_seasons = array_unique(Set::extract("/League[affiliate_id=$affiliate_id][sport=$sport]/long_season", $leagues));
+			$league_days = array_unique(Set::extract("/League[affiliate_id=$affiliate_id][sport=$sport]/../Division/Day/name", $leagues));
 ?>
 	<tr class="<?php echo $this->element('selector_classes', array('title' => 'Sport', 'options' => $sport)); ?> <?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $league_seasons)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $league_days)); ?>">
 		<th colspan="2"><?php echo Inflector::humanize($sport); ?></th>
 	</tr>
 <?php
-	else:
-		$sport = $league['League']['sport'];
+		endif;
 	endif;
-	Configure::load("sport/$sport");
 
-	if ($league['League']['long_season'] != $season && count($seasons) > 1):
+	if ($league['League']['long_season'] != $season):
 		$season = $league['League']['long_season'];
-		$season_days = array_unique(Set::extract("/League[affiliate_id=$affiliate_id][sport=$sport][long_season=$season]/../Division/Day/name", $leagues));
+		if (count($seasons) > 1):
+			$season_days = array_unique(Set::extract("/League[affiliate_id=$affiliate_id][sport=$sport][long_season=$season]/../Division/Day/name", $leagues));
 ?>
 	<tr class="<?php echo $this->element('selector_classes', array('title' => 'Sport', 'options' => $sport)); ?> <?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $season)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $league_days)); ?>">
 		<th colspan="2"><?php echo $season; ?></th>
 	</tr>
 <?php
-	else:
-		$season = $league['League']['long_season'];
+		endif;
 	endif;
 
 	// If the league has only a single division, we'll merge the details
