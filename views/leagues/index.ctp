@@ -12,6 +12,12 @@ if (!empty($sport)) {
 <p class="warning-message">There are no leagues currently active. Please check back periodically for updates<?php if (!empty($years)) echo ' or use the links below to review historical information'; ?>.</p>
 <?php else: ?>
 <?php
+$sports = array_unique(Set::extract('/League/sport', $leagues));
+echo $this->element('selector', array(
+		'title' => 'Sport',
+		'options' => $sports,
+));
+
 $seasons = array_unique(Set::extract('/League/long_season', $leagues));
 echo $this->element('selector', array(
 		'title' => 'Season',
@@ -36,10 +42,13 @@ foreach ($leagues as $league):
 
 	if ($league['League']['affiliate_id'] != $affiliate_id):
 		$affiliate_id = $league['League']['affiliate_id'];
-		$season = null;
+		$sport = null;
+		$affiliate_sports = array_unique(Set::extract("/League[affiliate_id=$affiliate_id]/sport", $leagues));
+		$affiliate_seasons = array_unique(Set::extract("/League[affiliate_id=$affiliate_id]/long_season", $leagues));
+		$affiliate_days = array_unique(Set::extract("/League[affiliate_id=$affiliate_id]/../Division/Day/name", $leagues));
 		if (count($affiliates) > 1):
 ?>
-	<tr>
+	<tr class="<?php echo $this->element('selector_classes', array('title' => 'Sport', 'options' => $affiliate_sports)); ?> <?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $affiliate_seasons)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $affiliate_days)); ?>">
 		<th<?php if (!$is_admin) echo ' colspan="2"'; ?>>
 			<h3 class="affiliate"><?php echo $league['Affiliate']['name']; ?></h3>
 		</th>
@@ -57,17 +66,28 @@ foreach ($leagues as $league):
 		endif;
 	endif;
 
+	if ($league['League']['sport'] != $sport && count($sports) > 1):
+		$sport = $league['League']['sport'];
+		$season = null;
+		$league_seasons = array_unique(Set::extract("/League[affiliate_id=$affiliate_id][sport=$sport]/long_season", $leagues));
+		$league_days = array_unique(Set::extract("/League[affiliate_id=$affiliate_id][sport=$sport]/../Division/Day/name", $leagues));
+?>
+	<tr class="<?php echo $this->element('selector_classes', array('title' => 'Sport', 'options' => $sport)); ?> <?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $league_seasons)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $league_days)); ?>">
+		<th colspan="2"><?php echo Inflector::humanize($sport); ?></th>
+	</tr>
+<?php
+		Configure::load("sport/$sport");
+	endif;
+
 	if ($league['League']['long_season'] != $season && count($seasons) > 1):
 		$season = $league['League']['long_season'];
-		$days = array_unique(Set::extract("/League[long_season=$season]/../Division/Day/name", $leagues));
+		$season_days = array_unique(Set::extract("/League[affiliate_id=$affiliate_id][sport=$sport][long_season=$season]/../Division/Day/name", $leagues));
 ?>
-	<tr class="<?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $season)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $days)); ?>">
+	<tr class="<?php echo $this->element('selector_classes', array('title' => 'Sport', 'options' => $sport)); ?> <?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $season)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $league_days)); ?>">
 		<th colspan="2"><?php echo $season; ?></th>
 	</tr>
 <?php
 	endif;
-
-	Configure::load("sport/{$league['League']['sport']}");
 
 	// If the league has only a single division, we'll merge the details
 	$collapse = (count($league['Division']) == 1);
@@ -76,9 +96,9 @@ foreach ($leagues as $league):
 		$is_coordinator = in_array($league['Division'][0]['id'], $this->UserCache->read('DivisionIDs'));
 	else:
 		$class = '';
-		$days = array_unique(Set::extract('/Division/Day/name', $league));
+		$division_days = array_unique(Set::extract('/Division/Day/name', $league));
 ?>
-	<tr class="<?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $season)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $days)); ?>">
+	<tr class="<?php echo $this->element('selector_classes', array('title' => 'Sport', 'options' => $sport)); ?> <?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $season)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $division_days)); ?>">
 		<td<?php if (!($is_admin || $is_manager)) echo ' colspan="2"'; ?> class="inner-border">
 			<strong><?php echo $this->element('leagues/block', array('league' => $league['League'], 'field' => 'name')); ?></strong>
 		</td>
@@ -90,9 +110,9 @@ foreach ($leagues as $league):
 	endif;
 
 	foreach ($league['Division'] as $division):
-		$days = array_unique(Set::extract('/Day/name', $division));
+		$division_days = array_unique(Set::extract('/Day/name', $division));
 ?>
-	<tr class="<?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $season)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $days)); ?>">
+	<tr class="<?php echo $this->element('selector_classes', array('title' => 'Sport', 'options' => $sport)); ?> <?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $season)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $division_days)); ?>">
 		<td class="<?php echo $class;?>"><?php
 			if ($collapse) {
 				$name = $league['League']['name'];
