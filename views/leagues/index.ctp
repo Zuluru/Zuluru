@@ -76,8 +76,10 @@ foreach ($leagues as $league):
 		<th colspan="2"><?php echo Inflector::humanize($sport); ?></th>
 	</tr>
 <?php
-		Configure::load("sport/$sport");
+	else:
+		$sport = $league['League']['sport'];
 	endif;
+	Configure::load("sport/$sport");
 
 	if ($league['League']['long_season'] != $season && count($seasons) > 1):
 		$season = $league['League']['long_season'];
@@ -87,6 +89,8 @@ foreach ($leagues as $league):
 		<th colspan="2"><?php echo $season; ?></th>
 	</tr>
 <?php
+	else:
+		$season = $league['League']['long_season'];
 	endif;
 
 	// If the league has only a single division, we'll merge the details
