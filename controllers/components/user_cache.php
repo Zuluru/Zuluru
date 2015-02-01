@@ -80,10 +80,7 @@ class UserCacheComponent extends Object
 			return null;
 		}
 		$self->initializeId();
-		if ($self->_controller->is_logged_in) {
-			return $self->my_id;
-		}
-		return null;
+		return $self->my_id;
 	}
 
 	function realId() {
