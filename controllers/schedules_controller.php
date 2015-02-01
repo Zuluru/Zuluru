@@ -1156,8 +1156,8 @@ class SchedulesController extends AppController {
 					),
 			));
 
-			// Sort games by date, time and field
-			usort ($games, array ('Game', 'compareDateAndField'));
+			// Sort games by sport, time and field
+			usort ($games, array ('Game', 'compareSportDateAndField'));
 		}
 
 		$this->set(compact('date', 'games'));

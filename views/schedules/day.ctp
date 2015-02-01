@@ -26,20 +26,32 @@ $is_tournament = false;
 foreach ($games as $game) {
 	$is_tournament |= ($game['Game']['type'] != SEASON_GAME);
 }
-?>
 
+$sport = $last_slot = null;
+foreach ($games as $game):
+	if ($game['Division']['League']['sport'] != $sport):
+		$sport = $game['Division']['League']['sport'];
+		Configure::load("sport/$sport");
+		if (count(Configure::read('options.sport')) > 1):
+?>
+<tr>
+	<th colspan="6"><?php echo Inflector::humanize(__($sport, true)); ?></th>
+</tr>
+
+<?php
+		endif;
+?>
 <tr>
 	<th><?php if ($is_tournament): ?><?php __('Game'); ?><?php endif; ?></th>
 	<th><?php __('Time'); ?></th>
-	<th><?php __(Configure::read('ui.field_cap')); // TODO: Do this in sport-specific fashion? Sort games by sport? ?></th>
+	<th><?php __(Configure::read('sport.field_cap')); ?></th>
 	<th><?php __('Home'); ?></th>
 	<th><?php __('Away'); ?></th>
 	<th><?php __('Score'); ?></th>
 </tr>
-
 <?php
-$last_slot = null;
-foreach ($games as $game):
+	endif;
+
 	// Are we a manager of this game?
 	$is_game_manager = ($is_manager && in_array($game['Division']['League']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs')));
 

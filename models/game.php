@@ -141,6 +141,15 @@ class Game extends AppModel {
 		),
 	);
 
+	static function compareSportDateAndField ($a, $b) {
+		if ($a['Division']['League']['sport'] < $b['Division']['League']['sport']) {
+			return -1;
+		} else if ($a['Division']['League']['sport'] > $b['Division']['League']['sport']) {
+			return 1;
+		}
+		return Game::compareDateAndField($a, $b);
+	}
+
 	static function compareDateAndField ($a, $b) {
 		// Handle game, team event and task records
 		if (!empty($a['GameSlot']['game_date'])) {
