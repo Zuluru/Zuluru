@@ -76,6 +76,9 @@ class UserCacheComponent extends Object
 
 	function currentId() {
 		$self =& UserCacheComponent::getInstance();
+		if ($self->_controller->name == 'CakeError') {
+			return null;
+		}
 		$self->initializeId();
 		if ($self->_controller->is_logged_in) {
 			return $self->my_id;
@@ -85,6 +88,9 @@ class UserCacheComponent extends Object
 
 	function realId() {
 		$self =& UserCacheComponent::getInstance();
+		if ($self->_controller->name == 'CakeError') {
+			return null;
+		}
 		return $self->_controller->Auth->user('zuluru_person_id');
 	}
 
