@@ -573,7 +573,7 @@ class UserCacheComponent extends Object
 
 	function allActAs($for_menu = false, $field = 'full_name') {
 		$act_as = array();
-		if (!$this->currentId()) {
+		if (!$this->currentId() || !$this->_controller->is_logged_in) {
 			return $act_as;
 		}
 
