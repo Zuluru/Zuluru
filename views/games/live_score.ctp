@@ -84,7 +84,21 @@ if (Configure::read('feature.twitter')) {
 		'url' => $url,
 	));
 
-	echo $this->element("/games/live_score_start/{$game['Division']['League']['sport']}", compact('team', 'opponent'));
+	$start_text = Configure::read('sport.start.live_score');
+	if ($start_text) {
+		echo $this->Form->input('team_id', array(
+				'label' => __($start_text, true),
+				'options' => array(
+					$team['id'] => $team['name'],
+					$opponent['id'] => $opponent['name'],
+				),
+		));
+	} else {
+		echo $this->Form->hidden('team_id', array(
+				'value' => $team['id'],
+		));
+	}
+
 	echo $this->Form->hidden('play', array('value' => 'Start'));
 	echo $this->Form->end();
 ?>

@@ -1053,6 +1053,7 @@ class TeamsController extends AppController {
 		if (Configure::read('feature.pdfize') && isset($this->Pdf)) {
 			$this->Pdf->actionsToPdf = array($this->action);
 		}
+		Configure::load("sport/{$team['Division']['League']['sport']}");
 
 		$this->set(compact('team'));
 	}
@@ -3137,7 +3138,6 @@ class TeamsController extends AppController {
 		$code = $this->_hash($roster);
 		if (!empty($division)) {
 			$league = $division['League'];
-			// TODO: Does this work when we have multiple sports?
 			Configure::load("sport/{$league['sport']}");
 		}
 		$this->set(compact('person', 'team', 'division', 'league', 'roster', 'code'));

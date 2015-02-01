@@ -7,6 +7,14 @@ $config['sport'] = array(
 	'fields' => Inflector::pluralize($field),
 	'fields_cap' => Inflector::humanize(Inflector::pluralize($field)),
 
+	'start' => array(
+		'stat_sheet' => 'Initial kick-off',
+		'stat_sheet_direction' => true,
+		'live_score' => 'Team taking kick-off',
+		'box_score' => '%s took the kick-off',
+		'twitter' => '%s takes the kick-off',
+	),
+
 	'roster_requirements' => array(
 		'womens'=> 16,
 		'mens'	=> 16,

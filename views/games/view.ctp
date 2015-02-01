@@ -381,8 +381,11 @@ $team_names = array(
 				$time = strtotime($detail['created']) - $start;
 				if ($detail['play'] == 'Start') {
 					$start = strtotime($detail['created']);
-					// TODO: Make this sport-independent
-					$line = $this->ZuluruTime->time($start) . ' Game started, ' . $team_names[$detail['team_id']] . ' pulled';
+					$line = $this->ZuluruTime->time($start) . ' ' . __('Game started', true);
+					$start_text = Configure::read('sport.start.box_score');
+					if ($start_text) {
+						$line .= ', ' . sprintf(__($start_text, true), $team_names[$detail['team_id']]);
+					}
 				} else if (Configure::read("sport.other_options.{$detail['play']}")) {
 					$line = sprintf("%d:%02d", $time / HOUR, ($time % HOUR) / MINUTE) . ' ' .
 						$team_names[$detail['team_id']] . ' ' . low(Configure::read("sport.other_options.{$detail['play']}"));

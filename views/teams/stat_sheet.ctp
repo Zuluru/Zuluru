@@ -7,34 +7,41 @@ $style = 'width:' . floor(80 / count($team['Division']['League']['StatType'])) .
 <?php // Seems that dompdf doesn't deal well with DLs that use floats ?>
 <table>
 	<tr>
-		<td>Date &amp; time:</td>
+		<td><?php __('Date &amp; time'); ?>:</td>
 		<td></td>
 	</tr>
 	<tr>
-		<td>Team:</td>
-		<td><?php echo $team['Team']['name']; ?></td>
+		<td><?php __('Team'); ?>:</td>
+		<td><?php echo $team['Team']['name'] . ' (' . __('home/away', true) . ')'; ?></td>
 	</tr>
 	<tr>
-		<td>Opponent:</td>
+		<td><?php __('Opponent'); ?>:</td>
 		<td></td>
 	</tr>
 	<tr>
-		<td>Location:</td>
+		<td><?php __('Location'); ?>:</td>
 		<td></td>
 	</tr>
 	<tr>
-		<td>Final score:</td>
-		<td><?php echo $team['Team']['name']; ?>: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Opponent: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td><?php __('Final score'); ?>:</td>
+		<td><?php echo $team['Team']['name']; ?>: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <?php __('Opponent'); ?>: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 	</tr>
 	<tr>
-		<?php // TODO: Make these sport-independent ?>
-		<td>Timeouts taken:</td>
-		<td><?php echo $team['Team']['name']; ?>: [&nbsp;] [&nbsp;] [&nbsp;]  Opponent: [&nbsp;] [&nbsp;] [&nbsp;]</td>
+		<td><?php __('Timeouts taken'); ?>:</td>
+		<td><?php echo $team['Team']['name']; ?>: [&nbsp;] [&nbsp;] [&nbsp;]  <?php __('Opponent'); ?>: [&nbsp;] [&nbsp;] [&nbsp;]</td>
 	</tr>
+	<?php if (Configure::read('sport.start.stat_sheet')): ?>
 	<tr>
-		<td>Initial pull:</td>
-		<td><?php echo $team['Team']['name']; ?>: [&nbsp;]  Opponent: [&nbsp;]  From:</td>
+		<td><?php __(Configure::read('sport.start.stat_sheet')); ?>:</td>
+		<td><?php echo $team['Team']['name']; ?>: [&nbsp;]  <?php __('Opponent'); ?>: [&nbsp;]<?php
+		if (Configure::read('sport.start.stat_sheet_direction')):?>  <?php __('End'); ?>:<?php endif; ?></td>
 	</tr>
+	<?php elseif(Configure::read('sport.start.stat_sheet_direction')): ?>
+	<tr>
+		<td><?php __('Starting end'); ?>:</td>
+		<td><?php echo $team['Team']['name']; ?>: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <?php __('Opponent'); ?>: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+	</tr>
+	<?php endif; ?>
 </table>
 
 <table>

@@ -1259,6 +1259,7 @@ class GamesController extends AppController {
 		if (Configure::read('feature.pdfize') && isset($this->Pdf)) {
 			$this->Pdf->actionsToPdf = array($this->action);
 		}
+		Configure::load("sport/{$game['Division']['League']['sport']}");
 
 		$attendance = $this->Game->_read_attendance($team_id, Set::extract('/Division/Day/id', $game), $id);
 		$this->set(compact('game', 'team', 'opponent', 'attendance'));
@@ -1907,7 +1908,14 @@ class GamesController extends AppController {
 			return;
 		} else if ($this->data['play'] == 'Start') {
 			$this->set('message', __('Game timer initialized.', true));
-			$twitter = "Game update #{$game['Division']['name']}: " . Team::twitterName($team) . ' pulls to ' . Team::twitterName($opponent) . ' to start the game.';
+			$twitter = sprintf(__('Game update #%s:', true), $game['Division']['name']) . ' ';
+			$text = Configure::read('sport.start.twitter');
+			if ($text) {
+				$twitter .= sprintf(__($text, true), Team::twitterName($team), Team::twitterName($opponent)) . ' ' . __('to start the game', true);
+			} else {
+				$twitter .= __('game started', true);
+			}
+			$twitter .= '.';
 			$this->set('twitter', addslashes($twitter));
 		} else {
 			$this->set('message', Configure::read("sport.other_options.{$this->data['play']}") . ' ' . __('recorded', true));
