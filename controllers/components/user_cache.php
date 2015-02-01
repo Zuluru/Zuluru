@@ -77,7 +77,10 @@ class UserCacheComponent extends Object
 	function currentId() {
 		$self =& UserCacheComponent::getInstance();
 		$self->initializeId();
-		return $self->my_id;
+		if ($self->_controller->is_logged_in) {
+			return $self->my_id;
+		}
+		return null;
 	}
 
 	function realId() {
@@ -573,7 +576,7 @@ class UserCacheComponent extends Object
 
 	function allActAs($for_menu = false, $field = 'full_name') {
 		$act_as = array();
-		if (!$this->currentId() || !$this->_controller->is_logged_in) {
+		if (!$this->currentId()) {
 			return $act_as;
 		}
 
