@@ -86,7 +86,7 @@ foreach ($leagues as $league):
 		if (count($seasons) > 1):
 			$season_days = array_unique(Set::extract("/League[affiliate_id=$affiliate_id][sport=$sport][long_season=$season]/../Division/Day/name", $leagues));
 ?>
-	<tr class="<?php echo $this->element('selector_classes', array('title' => 'Sport', 'options' => $sport)); ?> <?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $season)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $league_days)); ?>">
+	<tr class="<?php echo $this->element('selector_classes', array('title' => 'Sport', 'options' => $sport)); ?> <?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $season)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $season_days)); ?>">
 		<th colspan="2"><?php echo $season; ?></th>
 	</tr>
 <?php
