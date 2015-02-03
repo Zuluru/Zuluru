@@ -9,8 +9,6 @@ class Zuluru68Schema extends CakeSchema {
 			case 'facilities':
 				$commands = array(
 					'sport' => "UPDATE `facilities` SET `sport` = '$sport';",
-					// Change existing Ultimate fields from 25 yard end zones to 20
-					'ultimate' => 'UPDATE `fields` SET `length` = 110 WHERE `length` > 110 AND `sport` = \'ultimate\';',
 					// This isn't related to the other changes, just something that should be done...
 					'event_type' => 'UPDATE `event_types` SET `type` = \'individual\' WHERE `id` IN (3,5);',
 				);
@@ -19,6 +17,8 @@ class Zuluru68Schema extends CakeSchema {
 			case 'fields':
 				$commands = array(
 					'sport' => "UPDATE `fields` SET `sport` = '$sport';",
+					// Change existing Ultimate fields from 25 yard end zones to 20
+					'ultimate' => 'UPDATE `fields` SET `length` = 110 WHERE `length` > 110 AND `sport` = \'ultimate\';',
 				);
 				break;
 
