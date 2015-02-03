@@ -42,9 +42,32 @@ Closing a facility closes all <?php __(Configure::read('ui.fields')); ?> at that
 <?php endif; ?>
 <?php endif; ?>
 
+<?php
+$sports = array_unique(Set::extract('/Facility/Field/sport', $regions));
+sort($sports);
+echo $this->element('selector', array(
+		'title' => 'Sport',
+		'options' => $sports,
+));
+
+$surfaces = array_unique(Set::extract('/Facility/Field/surface', $regions));
+sort($surfaces);
+echo $this->element('selector', array(
+		'title' => 'Surface',
+		'options' => $surfaces,
+));
+
+$indoor = array_flip(array_unique(Set::extract('/Facility/Field/indoor', $regions)));
+$indoor_options = array(1 => 'indoor', 0 => 'outdoor');
+echo $this->element('selector', array(
+		'title' => 'Indoor/Outdoor',
+		'options' => array_intersect_key($indoor_options, $indoor),
+));
+?>
+
 <table class="list">
 <tr>
-	<th><?php __(Configure::read('ui.field_cap')); ?></th>
+	<th><?php __('Facility'); ?></th>
 	<th><?php __('Actions'); ?></th>
 </tr>
 
@@ -68,8 +91,12 @@ foreach ($regions as $region):
 
 	if (count($affiliates) > 1 && $region['Region']['affiliate_id'] != $affiliate_id):
 		$affiliate_id = $region['Region']['affiliate_id'];
+
+		$affiliate_sports = array_unique(Set::extract("/Region[affiliate_id=$affiliate_id]/Facility/Field/sport", $regions));
+		$affiliate_surfaces = array_unique(Set::extract("/Region[affiliate_id=$affiliate_id]/Facility/Field/surface", $regions));
+		$affiliate_indoor = array_flip(array_unique(Set::extract("/Region[affiliate_id=$affiliate_id]/Facility/Field/indoor", $regions)));
 ?>
-<tr>
+<tr class="<?php echo $this->element('selector_classes', array('title' => 'Sport', 'options' => $affiliate_sports)); ?> <?php echo $this->element('selector_classes', array('title' => 'Surface', 'options' => $affiliate_surfaces)); ?> <?php echo $this->element('selector_classes', array('title' => 'Indoor/Outdoor', 'options' => array_intersect_key($indoor_options, $affiliate_indoor))); ?>">
 	<th colspan="2">
 		<h3 class="affiliate"><?php echo $region['Affiliate']['name']; ?></h3>
 	</th>
@@ -77,29 +104,41 @@ foreach ($regions as $region):
 <?php
 	endif;
 
-	$class = null;
-	if ($i++ % 2 == 0) {
-		$class = ' class="altrow"';
-	}
-	if (count($regions) > 1) {
-		echo "<tr$class><td colspan='2'><h4>{$region['Region']['name']}</h4></td></tr>";
-	}
+	if (count($regions) > 1):
+		$region_sports = array_unique(Set::extract('/Facility/Field/sport', $region));
+		$region_surfaces = array_unique(Set::extract('/Facility/Field/surface', $region));
+		$region_indoor = array_flip(array_unique(Set::extract('/Facility/Field/indoor', $region)));
+
+		$class = null;
+		if ($i++ % 2 == 0) {
+			$class = 'altrow ';
+		}
+?>
+<tr class="<?php echo $class; echo $this->element('selector_classes', array('title' => 'Sport', 'options' => $region_sports)); ?> <?php echo $this->element('selector_classes', array('title' => 'Surface', 'options' => $region_surfaces)); ?> <?php echo $this->element('selector_classes', array('title' => 'Indoor/Outdoor', 'options' => array_intersect_key($indoor_options, $region_indoor))); ?>">
+	<td colspan="2">
+		<h4 class="affiliate"><?php echo $region['Region']['name']; ?></h4>
+	</td>
+</tr>
+<?php
+	endif;
 
 	foreach ($region['Facility'] as $facility):
 		if (empty($facility['Field']) && (!($is_admin || $is_manager) || array_key_exists($facility['id'], $facilities_with_fields))) {
 			continue;
 		}
-		$surfaces = array_unique(Set::extract('/Field/surface', $facility));
+		$facility_sports = array_unique(Set::extract('/Field/sport', $facility));
+		$facility_surfaces = array_unique(Set::extract('/Field/surface', $facility));
+		$facility_indoor = array_flip(array_unique(Set::extract('/Field/indoor', $facility)));
 
 		$class = null;
 		if ($i++ % 2 == 0) {
-			$class = ' class="altrow"';
+			$class = 'altrow ';
 		}
 ?>
-	<tr<?php echo $class;?>>
+	<tr class="<?php echo $class; echo $this->element('selector_classes', array('title' => 'Sport', 'options' => $facility_sports)); ?> <?php echo $this->element('selector_classes', array('title' => 'Surface', 'options' => $facility_surfaces)); ?> <?php echo $this->element('selector_classes', array('title' => 'Indoor/Outdoor', 'options' => array_intersect_key($indoor_options, $facility_indoor))); ?>">
 		<td>
 			<?php echo $this->Html->link($facility['name'], array('controller' => 'facilities', 'action' => 'view', 'facility' => $facility['id'])); ?>
-			<?php if (!empty($surfaces)) echo '[' . implode('/', $surfaces) . ']'; ?>
+			<?php if (!empty($facility_surfaces)) echo '[' . implode('/', $facility_surfaces) . ']'; ?>
 		</td>
 		<td class="actions">
 			<?php

@@ -4,7 +4,7 @@ $this->Html->addCrumb ("{$field['Facility']['name']} ({$field['Facility']['code'
 ?>
 
 <?php
-$map_vars = array('id', 'num', 'latitude', 'longitude', 'angle', 'width', 'length', 'zoom');
+$map_vars = array('id', 'num', 'sport', 'latitude', 'longitude', 'angle', 'width', 'length', 'zoom');
 $required_map_vars = array('id', 'num');
 
 $zuluru_base = Configure::read('urls.zuluru_img');
@@ -77,14 +77,17 @@ echo $this->Form->hidden('Facility.id', array('value' => $field['Facility']['id'
 echo $this->Form->hidden('Facility.parking');
 echo $this->Form->hidden('Facility.entrances');
 
-// TODO: Handle more than one sport in a site
-$sport = reset(array_keys(Configure::read('options.sport')));
 $this->ZuluruHtml->script (array(
-		"http://maps.googleapis.com/maps/api/js?key=$gmaps_key&libraries=geometry&sensor=false",
+		"http://maps.googleapis.com/maps/api/js?key=$gmaps_key&libraries=geometry&sensor=true",
 		'map_common.js',
 		'map_edit.js',
-		"sport_$sport.js",
 ), false);
+$sports = Set::extract('/Facility/Field/sport', $field);
+$sports[] = $field['Field']['sport'];
+$sports = array_unique($sports);
+foreach ($sports as $sport) {
+	$this->ZuluruHtml->script ("sport_$sport.js", false);
+}
 $this->Html->scriptBlock ($variables, array('inline' => false));
 ?>
 
@@ -92,8 +95,11 @@ $this->Html->scriptBlock ($variables, array('inline' => false));
 <p><?php echo $address; ?></p>
 <h4 id="show_num"></h4>
 
-<?php echo $this->element("maps/edit/$sport"); ?>
-
+<?php
+foreach ($sports as $sport) {
+	echo $this->element("maps/edit/$sport");
+}
+?>
 <p>
 <input type="submit" onclick="return addParking()" value="Add Parking">
 <input type="submit" onclick="return addEntrance()" value="Add Entrance">

@@ -2,34 +2,34 @@
 // Ultimate-specific functions
 //
 
-function maxLength() { return 120; }
-function defaultLength() { return maxLength(); }
-function minLength() { return 50; }
-function maxWidth() { return 40; }
-function defaultWidth() { return maxWidth(); }
-function minWidth() { return 25; }
+function ultimateMaxLength() { return 110; }
+function ultimateDefaultLength() { return ultimateMaxLength(); }
+function ultimateMinLength() { return 50; }
+function ultimateMaxWidth() { return 40; }
+function ultimateDefaultWidth() { return ultimateMaxWidth(); }
+function ultimateMinWidth() { return 20; }
 
-function fieldLength(length)
+function ultimateFieldLength(length)
 {
-	return length - endzoneLength(length) * 2;
+	return length - ultimateEndzoneLength(length) * 2;
 }
 
-function endzoneLength(length)
+function ultimateEndzoneLength(length)
 {
-	return Math.floor(length * 50 / 120 / 2);
+	return Math.floor(length * 40 / 110 / 2);
 }
 
-function layoutText(id)
+function ultimateLayoutText(id)
 {
 	if (fields[id].length == 0) {
 		return null;
 	}
 	return '<p>Field width: ' + fields[id].width + ' yards' +
-			'<br>Playing Field Proper length: ' + fieldLength(fields[id].length) + ' yards' +
-			'<br>End Zone length: ' + endzoneLength(fields[id].length) + ' yards';
+			'<br>Playing Field Proper length: ' + ultimateFieldLength(fields[id].length) + ' yards' +
+			'<br>End Zone length: ' + ultimateEndzoneLength(fields[id].length) + ' yards';
 }
 
-function outlinePositions(id)
+function ultimateOutlinePositions(id)
 {
 	var position = fields[id].marker.getPosition();
 
@@ -42,9 +42,9 @@ function outlinePositions(id)
 	return bb;
 }
 
-function inlinePositions(id)
+function ultimateInlinePositions(id)
 {
-	var length = fieldLength(fields[id].length);
+	var length = ultimateFieldLength(fields[id].length);
 	var position = fields[id].marker.getPosition();
 
 	var bb = new Array;
@@ -61,20 +61,20 @@ function inlinePositions(id)
 	return bb;
 }
 
-function updateForm()
+function ultimateUpdateForm()
 {
-	jQuery('#show_angle').html(fields[current].angle);
-	jQuery('#show_width').html(fields[current].width);
-	jQuery('#show_length').html(fields[current].length);
-	jQuery('#show_field').html(fieldLength(fields[current].length));
-	jQuery('#show_endzone').html(endzoneLength(fields[current].length));
+	jQuery('#ultimate_fields #show_angle').html(fields[current].angle);
+	jQuery('#ultimate_fields #show_width').html(fields[current].width);
+	jQuery('#ultimate_fields #show_length').html(fields[current].length);
+	jQuery('#ultimate_fields #show_field').html(ultimateFieldLength(fields[current].length));
+	jQuery('#ultimate_fields #show_endzone').html(ultimateEndzoneLength(fields[current].length));
 }
 
-function saveField()
+function ultimateSaveField()
 {
 	if (current != 0) {
-		fields[current].angle = parseInt (jQuery('#show_angle').html());
-		fields[current].width = parseInt (jQuery('#show_width').html());
-		fields[current].length = parseInt (jQuery('#show_length').html());
+		fields[current].angle = parseInt (jQuery('#ultimate_fields #show_angle').html());
+		fields[current].width = parseInt (jQuery('#ultimate_fields #show_width').html());
+		fields[current].length = parseInt (jQuery('#ultimate_fields #show_length').html());
 	}
 }

@@ -252,6 +252,15 @@ class AppModel extends Model {
 		return array_key_exists($value, Configure::read($config));
 	}
 
+	function inconfig_ifset($check, $config) {
+		// $check array is passed using the form field name as the key
+		// have to extract the value to make the function generic
+		$value = array_values($check);
+		$value = $value[0];
+
+		return empty($value) || array_key_exists($value, Configure::read($config));
+	}
+
 	function indateconfig($check, $config) {
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic

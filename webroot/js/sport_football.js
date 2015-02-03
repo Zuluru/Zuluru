@@ -4,34 +4,34 @@
 // This uses CFL dimensions; need a clean way to differentiate from NFL
 //
 
-function maxLength() { return 150; }
-function defaultLength() { return maxLength(); }
-function minLength() { return 50; }
-function maxWidth() { return 65; }
-function defaultWidth() { return maxWidth(); }
-function minWidth() { return 25; }
+function footballMaxLength() { return 150; }
+function footballDefaultLength() { return footballMaxLength(); }
+function footballMinLength() { return 50; }
+function footballMaxWidth() { return 65; }
+function footballDefaultWidth() { return footballMaxWidth(); }
+function footballMinWidth() { return 25; }
 
-function fieldLength(length)
+function footballFieldLength(length)
 {
-	return length - endzoneLength(length) * 2;
+	return length - footballEndzoneLength(length) * 2;
 }
 
-function endzoneLength(length)
+function footballEndzoneLength(length)
 {
 	return Math.floor(length * 40 / 150 / 2);
 }
 
-function layoutText(id)
+function footballLayoutText(id)
 {
 	if (fields[id].length == 0) {
 		return null;
 	}
 	return '<p>Field width: ' + fields[id].width + ' yards' +
-			'<br>Playing Field length: ' + fieldLength(fields[id].length) + ' yards' +
-			'<br>End Zone length: ' + endzoneLength(fields[id].length) + ' yards';
+			'<br>Playing Field length: ' + footballFieldLength(fields[id].length) + ' yards' +
+			'<br>End Zone length: ' + footballEndzoneLength(fields[id].length) + ' yards';
 }
 
-function outlinePositions(id)
+function footballOutlinePositions(id)
 {
 	var position = fields[id].marker.getPosition();
 
@@ -44,9 +44,9 @@ function outlinePositions(id)
 	return bb;
 }
 
-function inlinePositions(id)
+function footballInlinePositions(id)
 {
-	var length = fieldLength(fields[id].length);
+	var length = footballFieldLength(fields[id].length);
 	var position = fields[id].marker.getPosition();
 
 	var bb = new Array;
@@ -67,20 +67,20 @@ function inlinePositions(id)
 	return bb;
 }
 
-function updateForm()
+function footballUpdateForm()
 {
-	jQuery('#show_angle').html(fields[current].angle);
-	jQuery('#show_width').html(fields[current].width);
-	jQuery('#show_length').html(fields[current].length);
-	jQuery('#show_field').html(fieldLength(fields[current].length));
-	jQuery('#show_endzone').html(endzoneLength(fields[current].length));
+	jQuery('#football_fields #show_angle').html(fields[current].angle);
+	jQuery('#football_fields #show_width').html(fields[current].width);
+	jQuery('#football_fields #show_length').html(fields[current].length);
+	jQuery('#football_fields #show_field').html(footballFieldLength(fields[current].length));
+	jQuery('#football_fields #show_endzone').html(footballEndzoneLength(fields[current].length));
 }
 
-function saveField()
+function footballSaveField()
 {
 	if (current != 0) {
-		fields[current].angle = parseInt (jQuery('#show_angle').html());
-		fields[current].width = parseInt (jQuery('#show_width').html());
-		fields[current].length = parseInt (jQuery('#show_length').html());
+		fields[current].angle = parseInt (jQuery('#football_fields #show_angle').html());
+		fields[current].width = parseInt (jQuery('#football_fields #show_width').html());
+		fields[current].length = parseInt (jQuery('#football_fields #show_length').html());
 	}
 }

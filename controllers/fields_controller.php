@@ -133,7 +133,7 @@ class FieldsController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('facility', true)), 'default', array('class' => 'info'));
 				$this->redirect(array('controller' => 'facilities', 'action' => 'index'));
 			}
-			$this->data['Field'] = array('facility_id' => $id);
+			$this->data['Field'] = array('facility_id' => $id, 'sport' => $this->data['Facility']['sport']);
 			$this->Configuration->loadAffiliate($this->data['Region']['affiliate_id']);
 		}
 		$this->set('add', true);

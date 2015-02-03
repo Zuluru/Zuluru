@@ -2,19 +2,19 @@
 // Rugby-specific functions
 //
 
-function maxLength() { return 134; }
-function defaultLength() { return maxLength(); }
-function minLength() { return 60; }
-function maxWidth() { return 74; }
-function defaultWidth() { return maxWidth(); }
-function minWidth() { return 35; }
+function rugbyMaxLength() { return 134; }
+function rugbyDefaultLength() { return rugbyMaxLength(); }
+function rugbyMinLength() { return 60; }
+function rugbyMaxWidth() { return 74; }
+function rugbyDefaultWidth() { return rugbyMaxWidth(); }
+function rugbyMinWidth() { return 35; }
 
-function fieldLength(length)
+function rugbyFieldLength(length)
 {
-	return length - inGoalLength(length) * 2;
+	return length - rugbyInGoalLength(length) * 2;
 }
 
-function inGoalLength(length)
+function rugbyInGoalLength(length)
 {
 	if (length >= 122) {
 		return Math.floor((length - 110) / 2);
@@ -22,17 +22,17 @@ function inGoalLength(length)
 	return 6;
 }
 
-function layoutText(id)
+function rugbyLayoutText(id)
 {
 	if (fields[id].length == 0) {
 		return null;
 	}
 	return '<p>Field width: ' + fields[id].width + ' yards' +
-			'<br>Field of Play length: ' + fieldLength(fields[id].length) + ' yards' +
-			'<br>In Goal Area length: ' + inGoalLength(fields[id].length) + ' yards';
+			'<br>Field of Play length: ' + rugbyFieldLength(fields[id].length) + ' yards' +
+			'<br>In Goal Area length: ' + rugbyInGoalLength(fields[id].length) + ' yards';
 }
 
-function outlinePositions(id)
+function rugbyOutlinePositions(id)
 {
 	var position = fields[id].marker.getPosition();
 
@@ -45,9 +45,9 @@ function outlinePositions(id)
 	return bb;
 }
 
-function inlinePositions(id)
+function rugbyInlinePositions(id)
 {
-	var length = fieldLength(fields[id].length);
+	var length = rugbyFieldLength(fields[id].length);
 	var position = fields[id].marker.getPosition();
 
 	var bb = new Array;
@@ -64,20 +64,20 @@ function inlinePositions(id)
 	return bb;
 }
 
-function updateForm()
+function rugbyUpdateForm()
 {
-	jQuery('#show_angle').html(fields[current].angle);
-	jQuery('#show_width').html(fields[current].width);
-	jQuery('#show_length').html(fields[current].length);
-	jQuery('#show_field').html(fieldLength(fields[current].length));
-	jQuery('#show_ingoal').html(inGoalLength(fields[current].length));
+	jQuery('#rugby_fields #show_angle').html(fields[current].angle);
+	jQuery('#rugby_fields #show_width').html(fields[current].width);
+	jQuery('#rugby_fields #show_length').html(fields[current].length);
+	jQuery('#rugby_fields #show_field').html(rugbyFieldLength(fields[current].length));
+	jQuery('#rugby_fields #show_ingoal').html(rugbyInGoalLength(fields[current].length));
 }
 
-function saveField()
+function rugbySaveField()
 {
 	if (current != 0) {
-		fields[current].angle = parseInt (jQuery('#show_angle').html());
-		fields[current].width = parseInt (jQuery('#show_width').html());
-		fields[current].length = parseInt (jQuery('#show_length').html());
+		fields[current].angle = parseInt (jQuery('#rugby_fields #show_angle').html());
+		fields[current].width = parseInt (jQuery('#rugby_fields #show_width').html());
+		fields[current].length = parseInt (jQuery('#rugby_fields #show_length').html());
 	}
 }

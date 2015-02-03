@@ -20,6 +20,12 @@ if (isset ($add)) {
 		echo $this->ZuluruForm->hidden('Field.facility_id');
 
 		echo $this->ZuluruForm->input('num', array('label' => 'Number'));
+		echo $this->ZuluruForm->input('sport', array(
+			'options' => Configure::read('options.sport'),
+			'hide_single' => true,
+			'empty' => '---',
+			'after' => $this->Html->para (null, sprintf(__('Sport played on this %s.', true), Configure::read('ui.field'))),
+		));
 		echo $this->ZuluruForm->input('is_open');
 		echo $this->ZuluruForm->input('indoor');
 		echo $this->ZuluruForm->input('surface', array(
@@ -32,7 +38,9 @@ if (isset ($add)) {
 				'empty' => '---',
 				'hide_single' => true,
 		));
-		echo $this->ZuluruForm->input('layout_url');
+		echo $this->ZuluruForm->input('layout_url', array(
+				'after' => $this->Html->para (null, __('Optional link to a page (probably an image) with a view of the layout. Intended to be used only if the built-in layout editor is insufficient.', true)),
+		));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>

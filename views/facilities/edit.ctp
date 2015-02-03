@@ -23,6 +23,12 @@ $collapse = !empty($this->data['Field']['id']);
 
 		echo $this->ZuluruForm->input('name');
 		echo $this->ZuluruForm->input('code');
+		echo $this->ZuluruForm->input('sport', array(
+				'options' => Configure::read('options.sport'),
+				'hide_single' => true,
+				'empty' => 'Multi-sport facility',
+				'after' => $this->Html->para (null, __('Primary sport played at this facility.', true)),
+		));
 		echo $this->ZuluruForm->input('is_open');
 		echo $this->ZuluruForm->input('location_street', array('label' => 'Address'));
 		echo $this->ZuluruForm->input('location_city', array(
@@ -51,6 +57,12 @@ $collapse = !empty($this->data['Field']['id']);
 			<legend><?php __(Configure::read('ui.field_cap')); ?></legend>
 		<?php
 			echo $this->ZuluruForm->input('Field.num', array('label' => 'Number'));
+			echo $this->ZuluruForm->input('Field.sport', array(
+					'options' => Configure::read('options.sport'),
+					'hide_single' => true,
+					'empty' => '---',
+					'after' => $this->Html->para (null, sprintf(__('Sport played on this %s.', true), Configure::read('ui.field'))),
+			));
 			echo $this->ZuluruForm->input('Field.is_open');
 			echo $this->ZuluruForm->input('Field.indoor');
 			echo $this->ZuluruForm->input('Field.surface', array(
@@ -63,7 +75,9 @@ $collapse = !empty($this->data['Field']['id']);
 					'empty' => '---',
 					'hide_single' => true,
 			));
-			echo $this->ZuluruForm->input('Field.layout_url');
+			echo $this->ZuluruForm->input('Field.layout_url', array(
+					'after' => $this->Html->para (null, __('Optional link to a page (probably an image) with a view of the layout. Intended to be used only if the built-in layout editor is insufficient.', true)),
+			));
 		?>
 		</fieldset>
 		<?php

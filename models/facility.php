@@ -19,6 +19,12 @@ class Facility extends AppModel {
 				'message' => 'Code cannot be empty',
 			),
 		),
+		'sport' => array(
+			'inlist' => array(
+				'rule' => array('inconfig_ifset', 'options.sport'),
+				'message' => 'Select a sport from the list',
+			),
+		),
 		'location_province' => array(
 			'inquery' => array(
 				'rule' => array('inquery', 'Province', 'name'),

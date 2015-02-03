@@ -2,34 +2,34 @@
 // Basketball-specific functions
 //
 
-function maxLength() { return 31; }
-function defaultLength() { return maxLength(); }
-function minLength() { return 16; }
-function maxWidth() { return 17; }
-function defaultWidth() { return maxWidth(); }
-function minWidth() { return 9; }
+function basketballMaxLength() { return 31; }
+function basketballDefaultLength() { return basketballMaxLength(); }
+function basketballMinLength() { return 16; }
+function basketballMaxWidth() { return 17; }
+function basketballDefaultWidth() { return basketballMaxWidth(); }
+function basketballMinWidth() { return 9; }
 
-function keyLength(length)
+function basketballKeyLength(length)
 {
 	return Math.min(length * 0.3, 19 / 3);
 }
 
-function keyWidth(width)
+function basketballKeyWidth(width)
 {
 	return Math.min(width * 0.3, 4);
 }
 
-function threePointRadius(length, width)
+function basketballThreePointRadius(length, width)
 {
-	return keyLength(length) + keyWidth(width) / 2 - 63 / 36;
+	return basketballKeyLength(length) + basketballKeyWidth(width) / 2 - 63 / 36;
 }
 
-function layoutText(id)
+function basketballLayoutText(id)
 {
 	return null;
 }
 
-function outlinePositions(id)
+function basketballOutlinePositions(id)
 {
 	var position = fields[id].marker.getPosition();
 
@@ -42,11 +42,11 @@ function outlinePositions(id)
 	return bb;
 }
 
-function inlinePositions(id)
+function basketballInlinePositions(id)
 {
-	var key_length = keyLength(fields[id].length);
-	var key_width = keyWidth(fields[id].width);
-	var three_point_radius = threePointRadius(fields[id].length, fields[id].width);
+	var key_length = basketballKeyLength(fields[id].length);
+	var key_width = basketballKeyWidth(fields[id].width);
+	var three_point_radius = basketballThreePointRadius(fields[id].length, fields[id].width);
 	var position = fields[id].marker.getPosition();
 	var baseline1 = makePosition(position, fields[id].length / 2, 90 - fields[id].angle);
 	var baseline2 = makePosition(position, fields[id].length / 2, 270 - fields[id].angle);
@@ -66,7 +66,7 @@ function inlinePositions(id)
 	bb[1][3] = makePosition(bb[1][2], key_length, 90 - fields[id].angle);
 
 	// ...and that key's free throw circle
-	bb[2] = makeArc(makePosition(baseline1, key_length, 270 - fields[id].angle), 360 - fields[id].angle, 180 - fields[id].angle, keyWidth(fields[id].width) / 2);
+	bb[2] = makeArc(makePosition(baseline1, key_length, 270 - fields[id].angle), 360 - fields[id].angle, 180 - fields[id].angle, key_width / 2);
 
 	// Other key...
 	bb[3] = new Array;
@@ -76,7 +76,7 @@ function inlinePositions(id)
 	bb[3][3] = makePosition(bb[3][2], key_length, 270 - fields[id].angle);
 
 	// ...and that key's free throw circle
-	bb[4] = makeArc(makePosition(baseline2, key_length, 90 - fields[id].angle), 180 - fields[id].angle, 0 - fields[id].angle, keyWidth(fields[id].width) / 2);
+	bb[4] = makeArc(makePosition(baseline2, key_length, 90 - fields[id].angle), 180 - fields[id].angle, 0 - fields[id].angle, key_width / 2);
 
 	if (three_point_radius < fields[id].width / 2) {
 		bb[5] = makeArc(makePosition(baseline1, 63 / 36, 270 - fields[id].angle), 360 - fields[id].angle, 180 - fields[id].angle, three_point_radius);
@@ -93,18 +93,18 @@ function inlinePositions(id)
 	return bb;
 }
 
-function updateForm()
+function basketballUpdateForm()
 {
-	jQuery('#show_angle').html(fields[current].angle);
-	jQuery('#show_width').html(fields[current].width);
-	jQuery('#show_length').html(fields[current].length);
+	jQuery('#basketball_fields #show_angle').html(fields[current].angle);
+	jQuery('#basketball_fields #show_width').html(fields[current].width);
+	jQuery('#basketball_fields #show_length').html(fields[current].length);
 }
 
-function saveField()
+function basketballSaveField()
 {
 	if (current != 0) {
-		fields[current].angle = parseInt (jQuery('#show_angle').html());
-		fields[current].width = parseInt (jQuery('#show_width').html());
-		fields[current].length = parseInt (jQuery('#show_length').html());
+		fields[current].angle = parseInt (jQuery('#basketball_fields #show_angle').html());
+		fields[current].width = parseInt (jQuery('#basketball_fields #show_width').html());
+		fields[current].length = parseInt (jQuery('#basketball_fields #show_length').html());
 	}
 }

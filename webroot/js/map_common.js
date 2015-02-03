@@ -70,7 +70,7 @@ function drawField(id)
 
 	fields[id].field_outline = new google.maps.Polygon({
 		'map':map,
-		'path':outlinePositions(id),
+		'path':window[fields[id].sport + 'OutlinePositions'](id),
 		'strokeColor':'#ffffff',
 		'strokeWeight':2,
 		'strokeOpacity':1.0,
@@ -79,7 +79,7 @@ function drawField(id)
 	});
 
 	fields[id].field_inlines = new Array();
-	var inlines = inlinePositions(id);
+	var inlines = window[fields[id].sport + 'InlinePositions'](id);
 	for (var i = 0; i < inlines.length; i++) {
 		fields[id].field_inlines[i] = new google.maps.Polyline({
 			'map':map,

@@ -14,6 +14,7 @@ if (!$is_admin && !$is_manager) {
 }
 
 $surfaces = array_unique(Set::extract('/Field/surface', $facility));
+$surfaces = array_map('__', $surfaces, array_fill(0, count($surfaces), true));
 $surfaces = array_map(array('Inflector', 'humanize'), $surfaces);
 ?>
 
@@ -30,6 +31,29 @@ $surfaces = array_map(array('Inflector', 'humanize'), $surfaces);
 			<?php echo $facility['Facility']['code']; ?>
 
 		</dd>
+<?php if (count(Configure::read('options.sport')) > 1): ?>
+		<?php $sports = $sports_list = array_unique(Set::extract('/Field/sport', $facility)); ?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __n('Sport', 'Sports', count($sports)); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php
+			if (count($sports) > 1) {
+				if (!empty($facility['Facility']['sport'])) {
+					echo Inflector::humanize(__($facility['Facility']['sport'], true));
+					$sports_list = array_diff($sports_list, array($facility['Facility']['sport']));
+					echo ' (' . __('Also', true) . ' ';
+				}
+			}
+			$sports_list = array_map('__', $sports_list, array_fill(0, count($sports_list), true));
+			$sports_list = array_map(array('Inflector', 'humanize'), $sports_list);
+			sort ($sports_list);
+			echo implode(', ', $sports_list);
+			if (count($sports) > 1 && !empty($facility['Facility']['sport'])) {
+				echo ')';
+			}
+			?>
+
+		</dd>
+<?php endif; ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Region'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php
@@ -141,7 +165,10 @@ $surfaces = array_map(array('Inflector', 'humanize'), $surfaces);
 				<td><?php
 				echo $this->Html->link("{$facility['Facility']['name']} {$related['num']}", array('controller' => 'fields', 'action' => 'view', 'field' => $related['id']));
 				if (count($surfaces) > 1) {
-					echo " ({$related['surface']})";
+					echo ' (' . __($related['surface'], true) . ')';
+				}
+				if (count($sports) > 1) {
+					echo ' (' . __($related['sport'], true) . ')';
 				}
 				?></td>
 <?php if ($is_admin || $is_manager): ?>

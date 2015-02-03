@@ -2,37 +2,37 @@
 // Hockey-specific functions
 //
 
-function maxLength() { return 67; }
-function defaultLength() { return maxLength(); }
-function minLength() { return 33; }
-function maxWidth() { return 33; }
-function defaultWidth() { return 28; }
-function minWidth() { return 14; }
+function hockeyMaxLength() { return 67; }
+function hockeyDefaultLength() { return hockeyMaxLength(); }
+function hockeyMinLength() { return 33; }
+function hockeyMaxWidth() { return 33; }
+function hockeyDefaultWidth() { return 28; }
+function hockeyMinWidth() { return 14; }
 
-function cornerRadius(width)
+function hockeyCornerRadius(width)
 {
 	return width / 3;
 }
 
-function blueLine(length)
+function hockeyBlueLine(length)
 {
 	return length * 0.3 / 2;
 }
 
-function goalLine(length)
+function hockeyGoalLine(length)
 {
 	return length * 0.9 / 2;
 }
 
-function layoutText(id)
+function hockeyLayoutText(id)
 {
 	return null;
 }
 
-function outlinePositions(id)
+function hockeyOutlinePositions(id)
 {
 	var position = fields[id].marker.getPosition();
-	var corner_radius = cornerRadius(fields[id].width);
+	var corner_radius = hockeyCornerRadius(fields[id].width);
 
 	var bb = new Array;
 	var side = makePosition(position, fields[id].width / 2, 180 - fields[id].angle);
@@ -52,14 +52,14 @@ function outlinePositions(id)
 	return bb;
 }
 
-function inlinePositions(id)
+function hockeyInlinePositions(id)
 {
-	var blue_line = blueLine(fields[id].length);
-	var goal_line = goalLine(fields[id].length);
+	var blue_line = hockeyBlueLine(fields[id].length);
+	var goal_line = hockeyGoalLine(fields[id].length);
 	var position = fields[id].marker.getPosition();
 
 	// Some fancy trigonometry to figure out where along the corner curve the goal line goes
-	var corner_radius = cornerRadius(fields[id].width);
+	var corner_radius = hockeyCornerRadius(fields[id].width);
 	var behind_goal = fields[id].length / 2 - goal_line;
 	var chord_length = Math.sqrt(2 * corner_radius * behind_goal - behind_goal * behind_goal);
 	var goal_line_offset = corner_radius - chord_length;
@@ -92,18 +92,18 @@ function inlinePositions(id)
 	return bb;
 }
 
-function updateForm()
+function hockeyUpdateForm()
 {
-	jQuery('#show_angle').html(fields[current].angle);
-	jQuery('#show_width').html(fields[current].width);
-	jQuery('#show_length').html(fields[current].length);
+	jQuery('#hockey_fields #show_angle').html(fields[current].angle);
+	jQuery('#hockey_fields #show_width').html(fields[current].width);
+	jQuery('#hockey_fields #show_length').html(fields[current].length);
 }
 
-function saveField()
+function hockeySaveField()
 {
 	if (current != 0) {
-		fields[current].angle = parseInt (jQuery('#show_angle').html());
-		fields[current].width = parseInt (jQuery('#show_width').html());
-		fields[current].length = parseInt (jQuery('#show_length').html());
+		fields[current].angle = parseInt (jQuery('#hockey_fields #show_angle').html());
+		fields[current].width = parseInt (jQuery('#hockey_fields #show_width').html());
+		fields[current].length = parseInt (jQuery('#hockey_fields #show_length').html());
 	}
 }

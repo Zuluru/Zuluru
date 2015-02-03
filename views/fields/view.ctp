@@ -59,6 +59,13 @@ $this->Html->addCrumb (__('View', true));
 			<?php echo $field['Field']['num']; ?>
 
 		</dd>
+<?php if (count(Configure::read('options.sport')) > 1): ?>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Sport'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo Inflector::humanize(__($field['Field']['sport'], true)); ?>
+
+		</dd>
+<?php endif; ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Status'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php $field['Field']['is_open'] ? __('Open') : __('Closed'); ?>

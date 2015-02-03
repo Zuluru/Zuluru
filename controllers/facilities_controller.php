@@ -143,6 +143,15 @@ class FacilitiesController extends AppController {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('facility', true)), 'default', array('class' => 'warning'));
 				$this->Configuration->loadAffiliate($this->Facility->Region->affiliate($this->data['Facility']['region_id']));
 			}
+		} else {
+			$this->data = array(
+				'Facility' => array(
+					'is_open' => true,
+				),
+				'Field' => array(
+					'is_open' => true,
+				),
+			);
 		}
 
 		$affiliates = $this->_applicableAffiliates(true);

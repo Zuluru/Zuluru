@@ -2,19 +2,19 @@
 // Volleyball-specific functions
 //
 
-function maxLength() { return 20; }
-function defaultLength() { return maxLength(); }
-function minLength() { return 14; }
-function maxWidth() { return 10; }
-function defaultWidth() { return maxWidth(); }
-function minWidth() { return 7; }
+function volleyballMaxLength() { return 20; }
+function volleyballDefaultLength() { return volleyballMaxLength(); }
+function volleyballMinLength() { return 14; }
+function volleyballMaxWidth() { return 10; }
+function volleyballDefaultWidth() { return volleyballMaxWidth(); }
+function volleyballMinWidth() { return 7; }
 
-function layoutText(id)
+function volleyballLayoutText(id)
 {
 	return null;
 }
 
-function outlinePositions(id)
+function volleyballOutlinePositions(id)
 {
 	var position = fields[id].marker.getPosition();
 
@@ -27,7 +27,7 @@ function outlinePositions(id)
 	return bb;
 }
 
-function inlinePositions(id)
+function volleyballInlinePositions(id)
 {
 	var position = fields[id].marker.getPosition();
 
@@ -38,18 +38,18 @@ function inlinePositions(id)
 	return bb;
 }
 
-function updateForm()
+function volleyballUpdateForm()
 {
-	jQuery('#show_angle').html(fields[current].angle);
-	jQuery('#show_width').html(fields[current].width);
-	jQuery('#show_length').html(fields[current].length);
+	jQuery('#volleyball_fields #show_angle').html(fields[current].angle);
+	jQuery('#volleyball_fields #show_width').html(fields[current].width);
+	jQuery('#volleyball_fields #show_length').html(fields[current].length);
 }
 
-function saveField()
+function volleyballSaveField()
 {
 	if (current != 0) {
-		fields[current].angle = parseInt (jQuery('#show_angle').html());
-		fields[current].width = parseInt (jQuery('#show_width').html());
-		fields[current].length = parseInt (jQuery('#show_length').html());
+		fields[current].angle = parseInt (jQuery('#volleyball_fields #show_angle').html());
+		fields[current].width = parseInt (jQuery('#volleyball_fields #show_width').html());
+		fields[current].length = parseInt (jQuery('#volleyball_fields #show_length').html());
 	}
 }

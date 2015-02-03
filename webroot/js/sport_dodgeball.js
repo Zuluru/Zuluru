@@ -2,19 +2,19 @@
 // Dodgeball-specific functions
 //
 
-function maxLength() { return 20; }
-function defaultLength() { return maxLength(); }
-function minLength() { return 12; }
-function maxWidth() { return 15; }
-function defaultWidth() { return maxWidth(); }
-function minWidth() { return 9; }
+function dodgeballMaxLength() { return 20; }
+function dodgeballDefaultLength() { return dodgeballMaxLength(); }
+function dodgeballMinLength() { return 12; }
+function dodgeballMaxWidth() { return 15; }
+function dodgeballDefaultWidth() { return dodgeballMaxWidth(); }
+function dodgeballMinWidth() { return 9; }
 
-function layoutText(id)
+function dodgeballLayoutText(id)
 {
 	return null;
 }
 
-function outlinePositions(id)
+function dodgeballOutlinePositions(id)
 {
 	var position = fields[id].marker.getPosition();
 
@@ -27,7 +27,7 @@ function outlinePositions(id)
 	return bb;
 }
 
-function inlinePositions(id)
+function dodgeballInlinePositions(id)
 {
 	var position = fields[id].marker.getPosition();
 
@@ -38,18 +38,18 @@ function inlinePositions(id)
 	return bb;
 }
 
-function updateForm()
+function dodgeballUpdateForm()
 {
-	jQuery('#show_angle').html(fields[current].angle);
-	jQuery('#show_width').html(fields[current].width);
-	jQuery('#show_length').html(fields[current].length);
+	jQuery('#dodgeball_fields #show_angle').html(fields[current].angle);
+	jQuery('#dodgeball_fields #show_width').html(fields[current].width);
+	jQuery('#dodgeball_fields #show_length').html(fields[current].length);
 }
 
-function saveField()
+function dodgeballSaveField()
 {
 	if (current != 0) {
-		fields[current].angle = parseInt (jQuery('#show_angle').html());
-		fields[current].width = parseInt (jQuery('#show_width').html());
-		fields[current].length = parseInt (jQuery('#show_length').html());
+		fields[current].angle = parseInt (jQuery('#dodgeball_fields #show_angle').html());
+		fields[current].width = parseInt (jQuery('#dodgeball_fields #show_width').html());
+		fields[current].length = parseInt (jQuery('#dodgeball_fields #show_length').html());
 	}
 }

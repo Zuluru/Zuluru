@@ -1,3 +1,4 @@
+<div class="sport_specific_fields" id="baseball_fields">
 <p>Angle:
 <span id="show_angle"></span>
 <input type="submit" onclick="return updateAngle(10)" value="+10">
@@ -17,3 +18,4 @@
 <input type="submit" onclick="return updateLength(1)" value="+">
 <input type="submit" onclick="return updateLength(-1)" value="-">
 </p>
+</div>

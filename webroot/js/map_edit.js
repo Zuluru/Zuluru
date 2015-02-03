@@ -13,6 +13,9 @@ function initializeEdit(id)
 
 	var field = fields[id];
 
+	jQuery('.sport_specific_fields').css('display', 'none');
+	jQuery('#' + field.sport + '_fields').css('display', '');
+
 	if (field.latitude != undefined) {
 		position = new google.maps.LatLng(field.latitude, field.longitude);
 		map.setCenter(position);
@@ -87,14 +90,17 @@ function selectField(id)
 		google.maps.event.removeListener(drag_listener);
 
 		// Save any layout changes into the form
-		saveField();
+		window[fields[current].sport + 'SaveField']();
 	}
 
 	current = id;
 
+	jQuery('.sport_specific_fields').css('display', 'none');
+	jQuery('#' + fields[id].sport + '_fields').css('display', '');
+
 	// Update the display with data about the selected field
 	jQuery('#show_num').html(fields[id].num + ' (id ' + id + ')');
-	updateForm();
+	window[fields[id].sport + 'UpdateForm']();
 
 	// Add selection colouring and listener to the new field
 	fields[id].field_outline.setOptions({'fillColor':'#60ff60'});
@@ -123,8 +129,8 @@ function centerByAddress(id, result, status)
 
 	fields[id].latitude = position.lat();
 	fields[id].longitude = position.lng();
-	fields[id].length = defaultLength();
-	fields[id].width = defaultWidth();
+	fields[id].length = window[fields[id].sport + 'DefaultLength']();
+	fields[id].width = window[fields[id].sport + 'DefaultWidth']();
 	fields[id].angle = 0;
 
 	map.setCenter(position);
@@ -137,10 +143,8 @@ function centerByAddress(id, result, status)
 
 function redraw()
 {
-	fields[current].field_outline.setPath(outlinePositions(current));
-	// Assumption here is that we're always dealing with the same
-	// types of fields and hence the same number of inlines
-	var inlines = inlinePositions(current);
+	fields[current].field_outline.setPath(window[fields[current].sport + 'OutlinePositions'](current));
+	var inlines = window[fields[current].sport + 'InlinePositions'](current);
 	for (var i = 0; i < inlines.length; i++) {
 		fields[current].field_inlines[i].setPath(inlines[i]);
 	}
@@ -155,7 +159,7 @@ function updateAngle(val)
 		fields[current].angle -= 360;
 	redraw();
 
-	updateForm();
+	window[fields[current].sport + 'UpdateForm']();
 
 	// Avoid form submission
 	return false;
@@ -164,13 +168,13 @@ function updateAngle(val)
 function updateWidth(val)
 {
 	fields[current].width += val;
-	if (fields[current].width < minWidth())
-		fields[current].width = minWidth();
-	if (fields[current].width > maxWidth())
-		fields[current].width = maxWidth();
+	if (fields[current].width < window[fields[current].sport + 'MinWidth']())
+		fields[current].width = window[fields[current].sport + 'MinWidth']();
+	if (fields[current].width > window[fields[current].sport + 'MaxWidth']())
+		fields[current].width = window[fields[current].sport + 'MaxWidth']();
 	redraw();
 
-	updateForm();
+	window[fields[current].sport + 'UpdateForm']();
 
 	// Avoid form submission
 	return false;
@@ -179,13 +183,13 @@ function updateWidth(val)
 function updateLength(val)
 {
 	fields[current].length += val;
-	if (fields[current].length < minLength())
-		fields[current].length = minLength();
-	if (fields[current].length > maxLength())
-		fields[current].length = maxLength();
+	if (fields[current].length < window[fields[current].sport + 'MinLength']())
+		fields[current].length = window[fields[current].sport + 'MinLength']();
+	if (fields[current].length > window[fields[current].sport + 'MaxLength']())
+		fields[current].length = window[fields[current].sport + 'MaxLength']();
 	redraw();
 
-	updateForm();
+	window[fields[current].sport + 'UpdateForm']();
 
 	// Avoid form submission
 	return false;
@@ -284,7 +288,7 @@ function check()
 	}
 
 	// Save any layout changes into the form
-	saveField();
+	window[fields[current].sport + 'SaveField']();
 	for (var id in fields)
 	{
 		jQuery('#Field' + id + 'Zoom').val(map.getZoom());

@@ -4,7 +4,7 @@ $this->Html->addCrumb ("{$field['Facility']['name']} ({$field['Facility']['code'
 ?>
 
 <?php
-$map_vars = array('id', 'num', 'latitude', 'longitude', 'angle', 'width', 'length', 'zoom', 'surface');
+$map_vars = array('id', 'num', 'sport', 'latitude', 'longitude', 'angle', 'width', 'length', 'zoom', 'surface');
 
 $zuluru_base = Configure::read('urls.zuluru_img');
 $gmaps_key = Configure::read('site.gmaps_key');
@@ -62,14 +62,17 @@ if ($field['Facility']['entrances']) {
 	}
 }
 
-// TODO: Handle more than one sport in a site
-$sport = reset(array_keys(Configure::read('options.sport')));
 $this->ZuluruHtml->script (array(
-		"http://maps.googleapis.com/maps/api/js?key=$gmaps_key&libraries=geometry&sensor=false",
+		"http://maps.googleapis.com/maps/api/js?key=$gmaps_key&libraries=geometry&sensor=true",
 		'map_common.js',
 		'map_view.js',
-		"sport_$sport.js",
 ), false);
+$sports = Set::extract('/Facility/Field/sport', $field);
+$sports[] = $field['Field']['sport'];
+$sports = array_unique($sports);
+foreach ($sports as $sport) {
+	$this->ZuluruHtml->script ("sport_$sport.js", false);
+}
 $this->Html->scriptBlock ($variables, array('inline' => false));
 ?>
 

@@ -66,13 +66,11 @@ if ($is_admin) {
 	}
 }
 
-// TODO: Handle more than one sport in a site
-$sport = reset(array_keys(Configure::read('options.sport')));
 $this->ZuluruHtml->script (array(
-		"http://maps.googleapis.com/maps/api/js?key=$gmaps_key&libraries=geometry&sensor=false",
+		"http://maps.googleapis.com/maps/api/js?key=$gmaps_key&libraries=geometry&sensor=true",
 		'map_common.js',
 		'map_overview.js',
-		"sport_$sport.js",
+		"sport_{$field['Field']['sport']}.js",
 ), false);
 $this->Html->scriptBlock ($variables, array('inline' => false));
 ?>

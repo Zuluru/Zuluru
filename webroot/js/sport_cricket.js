@@ -2,14 +2,14 @@
 // Cricket-specific functions
 //
 
-function maxLength() { return 180; }
-function defaultLength() { return 150; }
-function minLength() { return 100; }
-function maxWidth() { return maxLength(); }
-function defaultWidth() { return defaultLength(); }
-function minWidth() { return 65; }
+function cricketMaxLength() { return 180; }
+function cricketDefaultLength() { return 150; }
+function cricketMinLength() { return 100; }
+function cricketMaxWidth() { return cricketMaxLength(); }
+function cricketDefaultWidth() { return cricketDefaultLength(); }
+function cricketMinWidth() { return 65; }
 
-function layoutText(id)
+function cricketLayoutText(id)
 {
 	if (fields[id].length == 0) {
 		return null;
@@ -18,7 +18,7 @@ function layoutText(id)
 			'<br>Lengh: ' + fields[id].length * 3 + ' feet';
 }
 
-function outlinePositions(id)
+function cricketOutlinePositions(id)
 {
 	var position = fields[id].marker.getPosition();
 	var radius = Math.min(fields[id].width, fields[id].length) / 2;
@@ -38,7 +38,7 @@ function outlinePositions(id)
 	return bb;
 }
 
-function inlinePositions(id)
+function cricketInlinePositions(id)
 {
 	var position = fields[id].marker.getPosition();
 
@@ -63,18 +63,18 @@ function inlinePositions(id)
 	return bb;
 }
 
-function updateForm()
+function cricketUpdateForm()
 {
-	jQuery('#show_angle').html(fields[current].angle);
-	jQuery('#show_width').html(fields[current].width);
-	jQuery('#show_length').html(fields[current].length);
+	jQuery('#cricket_fields #show_angle').html(fields[current].angle);
+	jQuery('#cricket_fields #show_width').html(fields[current].width);
+	jQuery('#cricket_fields #show_length').html(fields[current].length);
 }
 
-function saveField()
+function cricketSaveField()
 {
 	if (current != 0) {
-		fields[current].angle = parseInt (jQuery('#show_angle').html());
-		fields[current].width = parseInt (jQuery('#show_width').html());
-		fields[current].length = parseInt (jQuery('#show_length').html());
+		fields[current].angle = parseInt (jQuery('#cricket_fields #show_angle').html());
+		fields[current].width = parseInt (jQuery('#cricket_fields #show_width').html());
+		fields[current].length = parseInt (jQuery('#cricket_fields #show_length').html());
 	}
 }

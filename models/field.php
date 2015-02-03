@@ -11,6 +11,12 @@ class Field extends AppModel {
 				'message' => 'Number cannot be blank',
 			),
 		),
+		'sport' => array(
+			'inlist' => array(
+				'rule' => array('inconfig', 'options.sport'),
+				'message' => 'Select a sport from the list',
+			),
+		),
 		'rating' => array(
 			'inlist' => array(
 				'rule' => array('inconfig', 'options.field_rating'),
