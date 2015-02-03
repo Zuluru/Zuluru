@@ -2612,17 +2612,18 @@ class TeamsController extends AppController {
 			if (empty ($person['Person']['TeamsPerson'])) {
 				switch ($status) {
 					case ROSTER_APPROVED:
-						return $this->_sendAdd($person, $team, $role);
+						$this->_sendAdd($person, $team, $role);
 
 					case ROSTER_INVITED;
-						return $this->_sendInvite($person, $team, $role);
+						$this->_sendInvite($person, $team, $role);
 
 					case ROSTER_REQUESTED:
-						return $this->_sendRequest($person, $team, $role);
+						$this->_sendRequest($person, $team, $role);
 				}
 			} else {
-				return $this->_sendChange($person, $team, $role);
+				$this->_sendChange($person, $team, $role);
 			}
+			return true;
 		} else {
 			$this->Session->setFlash(__('Failed to set player to that state.', true), 'default', array('class' => 'warning'));
 			return false;
