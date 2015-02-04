@@ -228,7 +228,7 @@ if (!empty($team['Team']['short_name'])) {
 	?>
 </div>
 
-<?php if ($is_logged_in || Configure::read('feature.public')):?>
+<?php if (!empty($team['Person']) && ($is_logged_in || Configure::read('feature.public'))):?>
 <div class="related">
 	<?php
 	$cols = 4;
