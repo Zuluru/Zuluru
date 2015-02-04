@@ -2724,6 +2724,9 @@ class PeopleController extends AppController {
 		$this->Person->contain('Group', 'Related', $this->Auth->authenticate->name);
 		$person_id = $this->data['Person']['id'];
 		$person = $this->Person->read(null, $person_id);
+		// We want to read this record, as it updates the Person record with fields we might use later,
+		// but we don't actually want it in the thing we'll be saving.
+		unset($person[$this->Auth->authenticate->name]);
 		if (!empty ($dup_id)) {
 			$this->Person->contain('Group', 'Related', $this->Auth->authenticate->name);
 			$existing = $this->Person->read(null, $dup_id);
@@ -2731,7 +2734,6 @@ class PeopleController extends AppController {
 
 		if (empty($person['Person']['user_id'])) {
 			$this->Person->beforeValidateChild();
-			unset($person[$this->Auth->authenticate->name]);
 		}
 
 		$this_is_player = Set::extract('/Group[id=' . GROUP_PLAYER . ']', $person);
@@ -2804,8 +2806,13 @@ class PeopleController extends AppController {
 				// User and person records may be in separate databases, so we need a transaction for each
 				$user_transaction = new DatabaseTransaction($this->Auth->authenticate);
 				$person_transaction = new DatabaseTransaction($this->Person);
-				if (method_exists ($this->Auth->authenticate, 'merge_duplicate_user') && !empty($person['Person']['user_id']) && !empty($existing['Person']['user_id'])) {
-					$this->Auth->authenticate->merge_duplicate_user($person['Person']['user_id'], $existing['Person']['user_id']);
+				if (!empty($person['Person']['user_id']) && !empty($existing['Person']['user_id'])) {
+					if (method_exists ($this->Auth->authenticate, 'merge_duplicate_user')) {
+						$this->Auth->authenticate->merge_duplicate_user($person['Person']['user_id'], $existing['Person']['user_id']);
+					} else {
+						$this->Auth->authenticate->delete($existing['Person']['user_id'], false);
+						$this->Auth->authenticate->updateAll (array("{$this->Auth->authenticate->name}.{$this->Auth->authenticate->primaryKey}" => $existing['Person']['user_id']), array("{$this->Auth->authenticate->name}.{$this->Auth->authenticate->primaryKey}" => $person['Person']['user_id']));
+					}
 				}
 
 				$this->Person->AffiliatesPerson->deleteAll(array('AffiliatesPerson.person_id' => $dup_id));
@@ -2833,10 +2840,10 @@ class PeopleController extends AppController {
 					break;
 				}
 
-				// Unset a few fields that we want to retain from the old record
+				// A few fields that we want to retain from the old record
 				foreach (array('status', 'user_id') as $field) {
 					if (!empty($existing['Person'][$field])) {
-						unset ($person['Person'][$field]);
+						$person['Person'][$field] = $existing['Person'][$field];
 					}
 				}
 				$person['Person']['id'] = $dup_id;
