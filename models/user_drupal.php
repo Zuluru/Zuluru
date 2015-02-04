@@ -93,9 +93,31 @@ class UserDrupal extends User {
 	}
 
 	function merge_duplicate_user($new_id, $old_id) {
+		if (!is_numeric($old_id)) {
+			return;
+		}
 		$this->delete_duplicate_user($old_id);
 		// TODO: Update users_roles record too
 		$this->updateAll (array("{$this->name}.{$this->primaryKey}" => $old_id), array("{$this->name}.{$this->primaryKey}" => $new_id));
+	}
+
+	function beforeSave() {
+		if (array_key_exists($this->alias, $this->data) && empty($this->data[$this->alias][$this->primaryKey])) {
+			// Drupal doesn't use auto increment on the uid column.
+			// This hack is adapted from Drupal's methods...
+			// It will leave extra records in the sequences table,
+			// but Drupal will take care of that for us.
+			global $databases;
+			if (!$this->query("INSERT INTO {$databases['default']['default']['prefix']}sequences () VALUES ();", false)) {
+				return false;
+			}
+			$id = $this->query('SELECT LAST_INSERT_ID();', false);
+			$id = array_shift(array_shift(array_shift($id)));
+			$this->data[$this->alias][$this->primaryKey] = $id;
+			$this->data[$this->alias]['status'] = 1; // don't require further activation in Drupal
+		}
+
+		return parent::beforeSave();
 	}
 }
 
