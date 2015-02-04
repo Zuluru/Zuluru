@@ -149,6 +149,8 @@ class RegistrationsController extends AppController {
 			);
 			if (!empty($event['Division']['League']['sport'])) {
 				$contain['Person']['Skill'] = array('conditions' => array('Skill.sport' => $event['Division']['League']['sport']));
+			} else if (count(Configure::read('options.sport')) == 1) {
+				$contain['Person']['Skill'] = array('conditions' => array('Skill.sport' => Configure::read('options.sport')));
 			}
 			$this->Registration->contain($contain);
 			$this->set('registrations', $this->Registration->find ('all', array(
