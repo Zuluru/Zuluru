@@ -36,7 +36,6 @@ class FieldsController extends AppController {
 					'open',
 					'close',
 					'delete',
-					'bookings',
 			)))
 			{
 				// If a field id is specified, check if we're a manager of that field's affiliate
@@ -218,8 +217,19 @@ class FieldsController extends AppController {
 			$this->redirect(array('controller' => 'facilities', 'action' => 'index'));
 		}
 
-		$min_date = $this->Field->GameSlot->Game->Division->field('MIN(open)', array('is_open' => true));
-		$max_date = $this->Field->GameSlot->Game->Division->field('MAX(close)', array('is_open' => true));
+		if ($this->is_manager) {
+			$this->is_manager = in_array($this->Field->affiliate($id), $this->UserCache->read('ManagedAffiliateIDs'));
+		}
+		if ($this->is_admin || $this->is_manager) {
+			$conditions = array('OR' => array(
+				'is_open' => true,
+				'open >=' => date('Y-m-d'),
+			));
+		} else {
+			$conditions = array('is_open' => true);
+		}
+		$min_date = $this->Field->GameSlot->Game->Division->field('MIN(open)', $conditions);
+		$max_date = $this->Field->GameSlot->Game->Division->field('MAX(close)', $conditions);
 		$this->Field->contain (array (
 			'Facility' => 'Region',
 			'GameSlot' => array(
