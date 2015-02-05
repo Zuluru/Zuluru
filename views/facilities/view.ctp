@@ -52,8 +52,12 @@ $surfaces = array_map(array('Inflector', 'humanize'), $surfaces);
 			}
 			?>
 
-		</dd>
-<?php endif; ?>
+</dd>
+<?php
+else:
+	$sports = array();
+endif;
+?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Region'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php
