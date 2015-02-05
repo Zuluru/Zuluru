@@ -925,7 +925,7 @@ class PeopleController extends AppController {
 		$this->set(compact('id', 'is_me'));
 
 		$this->_loadAddressOptions();
-		$this->_loadGroupOptions(true);
+		$groups = $this->_loadGroupOptions(true);
 		$this->_loadAffiliateOptions();
 
 		if (!empty($this->data)) {
@@ -990,10 +990,17 @@ class PeopleController extends AppController {
 				}
 			}
 
+			// Preserve any higher-level groups that a relative editing the profile won't have access to
+			foreach ($this->UserCache->read('GroupIDs', $id) as $group) {
+				if (!array_key_exists($group, $groups)) {
+					$this->data['Group']['Group'][] = $group;
+				}
+			}
+
 			if ($this->Person->validates() && $this->Person->Skill->validates() && $this->Person->Group->validates() && $this->Person->Affiliate->validates()) {
 				if (!empty($this->data['Affiliate']['Affiliate'])) {
 					foreach ($this->data['Affiliate']['Affiliate'] as $key => $affiliate_id) {
-						if (in_array($affiliate_id, $this->UserCache->read('ManagedAffiliateIDs'))) {
+						if (in_array($affiliate_id, $this->UserCache->read('ManagedAffiliateIDs', $id))) {
 							$position = 'manager';
 						} else {
 							unset($position);
