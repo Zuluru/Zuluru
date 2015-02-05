@@ -2728,14 +2728,14 @@ class PeopleController extends AppController {
 			$dup_id = null;
 		}
 
-		$this->Person->contain('Group', 'Related', $this->Auth->authenticate->name);
+		$this->Person->contain('Group', 'Related', 'Setting', 'Skill', $this->Auth->authenticate->name);
 		$person_id = $this->data['Person']['id'];
 		$person = $this->Person->read(null, $person_id);
 		// We want to read this record, as it updates the Person record with fields we might use later,
 		// but we don't actually want it in the thing we'll be saving.
 		unset($person[$this->Auth->authenticate->name]);
 		if (!empty ($dup_id)) {
-			$this->Person->contain('Group', 'Related', $this->Auth->authenticate->name);
+			$this->Person->contain('Group', 'Related', 'Setting', 'Skill', $this->Auth->authenticate->name);
 			$existing = $this->Person->read(null, $dup_id);
 		}
 
@@ -2748,7 +2748,6 @@ class PeopleController extends AppController {
 			$this->Person->beforeValidateNonPlayer();
 		}
 
-		// TODO: Some of these require updates/deletions in the settings and skills tables
 		switch($disposition) {
 			case 'approved':
 				$data = array(
@@ -2822,8 +2821,44 @@ class PeopleController extends AppController {
 					}
 				}
 
+				// Affiliates, groups, settings and skills need special handling
 				$this->Person->AffiliatesPerson->deleteAll(array('AffiliatesPerson.person_id' => $dup_id));
 				$person['Group'] = array('Group' => array_unique(array_merge(Set::extract('/Group/id', $person), Set::extract('/Group/id', $existing))));
+
+				// Delete the settings from the original profile, but then restore any that don't exist in the new profile.
+				$this->Person->Setting->deleteAll(array('Setting.person_id' => $dup_id));
+				$settings = array();
+				foreach ($existing['Setting'] as $setting) {
+					if ($setting['value'] !== '') {
+						$new = Set::extract("/Setting[category={$setting['category']}][name={$setting['name']}]/.", $person);
+						if (empty($new)) {
+							unset($setting['id']);
+							$settings[] = $setting;
+						} else if ($new[0]['value'] === '') {
+							$setting['id'] = $new[0]['id'];
+							$settings[] = $setting;
+						}
+					}
+				}
+				$person['Setting'] = $settings;
+
+				// Similar process for skills.
+				$this->Person->Skill->deleteAll(array('Skill.person_id' => $dup_id));
+				$skills = array();
+				foreach ($existing['Skill'] as $skill) {
+					if (!empty($skill['skill_level'])) {
+						$new = Set::extract("/Skill[sport={$skill['sport']}]/.", $person);
+						if (empty($new)) {
+							unset($skill['id']);
+							$skills[] = $skill;
+						} else if (empty($new[0]['skill_level'])) {
+							$skill['id'] = $new[0]['id'];
+							$skill['enabled'] = 0;
+							$skills[] = $skill;
+						}
+					}
+				}
+				$person['Skill'] = $skills;
 
 				// Update all related records
 				foreach ($this->Person->hasMany as $class => $details) {
