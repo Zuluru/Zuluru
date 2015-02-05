@@ -70,8 +70,12 @@ $this->ZuluruHtml->script (array(
 		"http://maps.googleapis.com/maps/api/js?key=$gmaps_key&libraries=geometry&sensor=true",
 		'map_common.js',
 		'map_overview.js',
-		"sport_{$field['Field']['sport']}.js",
 ), false);
+$sports = Set::extract('/Facility/Field/sport', $regions);
+$sports = array_unique($sports);
+foreach ($sports as $sport) {
+	$this->ZuluruHtml->script ("sport_$sport.js", false);
+}
 $this->Html->scriptBlock ($variables, array('inline' => false));
 ?>
 
