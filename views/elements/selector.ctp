@@ -1,10 +1,10 @@
 <?php if (count($options) > 1): ?>
 <form class="selector">
 <?php
-	$id = low(str_replace(' ', '_', $title));
+	$id = low(Inflector::slug($title));
 	$new_options = array();
 	foreach ($options as $option) {
-		$new_options[low(str_replace(' ', '_', $option))] = $option;
+		$new_options[low(Inflector::slug($option))] = $option;
 	}
 
 	echo $this->Form->input('select', array(
