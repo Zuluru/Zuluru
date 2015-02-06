@@ -52,7 +52,7 @@ echo $is_me ? __('Edit Your Profile', true) : (array_key_exists('first_name', $t
 <?php endif; ?>
 
 <?php echo $this->Form->create('Person', array('url' => Router::normalize($this->here)));?>
-	<?php if ($cached['user_id'] || $is_admin || $is_manager): ?>
+	<?php if (($cached['user_id'] && count($groups) > 1) || $is_admin || $is_manager): ?>
 	<fieldset>
 		<legend><?php __('Account Type'); ?></legend>
 	<?php
@@ -74,7 +74,17 @@ echo $is_me ? __('Edit Your Profile', true) : (array_key_exists('first_name', $t
 	}
 	?>
 	</fieldset>
-	<?php endif; ?>
+	<?php
+	else:
+		echo $this->ZuluruForm->input('Group.Group', array(
+			'label' => __('Select all roles that apply to you.', true),
+			'type' => 'select',
+			'multiple' => 'checkbox',
+			'options' => $groups,
+			'hide_single' => true,
+		));
+	endif;
+	?>
 	<fieldset>
 		<legend><?php __('Your Information'); ?></legend>
 		<div style="float:left;">
