@@ -23,15 +23,15 @@ header('Pragma: no-cache');
 
 		echo $this->ZuluruHtml->css(array (
 				'http://code.jquery.com/ui/1.10.3/themes/redmond/jquery-ui.css',
-				'zuluru/layout',
-				'zuluru/look',
+				'zuluru/layout.css',
+				'zuluru/look.css',
 		));
 		if (Configure::read('debug')) {
-			echo $this->ZuluruHtml->css(array ('zuluru/debug'));
+			echo $this->ZuluruHtml->css(array ('zuluru/debug.css'));
 		}
 	?>
 <!--[if lt IE 8]>
-<?php echo $this->ZuluruHtml->css('zuluru/ie_fixes'); ?>
+<?php echo $this->ZuluruHtml->css('zuluru/ie_fixes.css'); ?>
 <![endif]-->
 	<?php
 		$css = Configure::read('additional_css');

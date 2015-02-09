@@ -64,6 +64,6 @@ if ($spirit) {
 		array('class' => 'spirit'));
 }
 
-echo $this->ZuluruHtml->script ('spirit', array('inline' => false));
+echo $this->ZuluruHtml->script ('spirit.js', array('inline' => false));
 
 ?>

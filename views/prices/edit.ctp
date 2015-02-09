@@ -103,5 +103,5 @@ if (isset ($add)) {
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
 
-<?php echo $this->ZuluruHtml->script ('datepicker', array('inline' => false)); ?>
+<?php echo $this->ZuluruHtml->script ('datepicker.js', array('inline' => false)); ?>
 <?php if (Configure::read('feature.tiny_mce')) $this->TinyMce->editor('advanced'); ?>

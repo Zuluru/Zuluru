@@ -38,4 +38,4 @@ if (isset ($add)) {
 	</ul>
 </div>
 
-<?php echo $this->ZuluruHtml->script ('datepicker', array('inline' => false));
+<?php echo $this->ZuluruHtml->script ('datepicker.js', array('inline' => false));

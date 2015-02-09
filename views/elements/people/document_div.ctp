@@ -9,5 +9,5 @@ echo $this->Form->input('comment', array(
 </div>
 
 <?php
-$this->ZuluruHtml->script ('documents', array('inline' => false));
+$this->ZuluruHtml->script ('documents.js', array('inline' => false));
 ?>

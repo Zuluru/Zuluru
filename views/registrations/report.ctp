@@ -36,7 +36,7 @@ if (!isset($registrations)):
 	</fieldset>
 <?php
 	echo $this->Form->end(__('Submit', true));
-	echo $this->ZuluruHtml->script ('datepicker', array('inline' => false));
+	echo $this->ZuluruHtml->script ('datepicker.js', array('inline' => false));
 else:
 ?>
 <div class="index">

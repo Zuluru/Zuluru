@@ -19,5 +19,5 @@ if (!empty($positions)) {
 </div>
 
 <?php
-$this->ZuluruHtml->script ('roster', array('inline' => false));
+$this->ZuluruHtml->script ('roster.js', array('inline' => false));
 ?>

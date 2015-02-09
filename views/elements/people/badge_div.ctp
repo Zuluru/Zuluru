@@ -9,5 +9,5 @@ echo $this->Form->input('comment', array(
 </div>
 
 <?php
-$this->ZuluruHtml->script ('badges', array('inline' => false));
+$this->ZuluruHtml->script ('badges.js', array('inline' => false));
 ?>

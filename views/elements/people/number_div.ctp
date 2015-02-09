@@ -11,5 +11,5 @@ echo $this->ZuluruForm->input('number', array(
 </div>
 
 <?php
-$this->ZuluruHtml->script ('number', array('inline' => false));
+$this->ZuluruHtml->script ('number.js', array('inline' => false));
 ?>

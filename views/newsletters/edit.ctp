@@ -82,5 +82,5 @@ if (isset ($add)) {
 	</ul>
 </div>
 
-<?php echo $this->ZuluruHtml->script ('datepicker', array('inline' => false)); ?>
+<?php echo $this->ZuluruHtml->script ('datepicker.js', array('inline' => false)); ?>
 <?php if (Configure::read('feature.tiny_mce')) $this->TinyMce->editor('newsletter'); ?>

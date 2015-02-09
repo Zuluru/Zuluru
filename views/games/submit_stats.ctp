@@ -122,7 +122,7 @@ if (isset($attendance)) {
 </div>
 
 <?php
-$this->ZuluruHtml->script (array('stats', "sport_{$game['Division']['League']['sport']}"), array('inline' => false));
+$this->ZuluruHtml->script (array('stats.js', "sport_{$game['Division']['League']['sport']}.js"), array('inline' => false));
 $stat_js = array();
 foreach ($stats as $stat) {
 	if (!empty($stat['validation'])) {

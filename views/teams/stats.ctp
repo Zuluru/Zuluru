@@ -142,8 +142,8 @@ foreach ($tables as $positions => $table):
 
 <?php
 // Make the table sortable
-$this->ZuluruHtml->script (array('jquery.tablesorter.min'), array('inline' => false));
-$this->ZuluruHtml->css('jquery.tablesorter', null, array('inline' => false));
+$this->ZuluruHtml->script (array('jquery.tablesorter.min.js'), array('inline' => false));
+$this->ZuluruHtml->css('jquery.tablesorter.css', null, array('inline' => false));
 $this->Js->buffer ("
 	jQuery('.tablesorter').tablesorter({sortInitialOrder: 'desc'});
 ");

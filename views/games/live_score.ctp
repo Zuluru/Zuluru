@@ -133,5 +133,5 @@ if (Configure::read('feature.twitter')) {
 
 endif;
 
-$this->ZuluruHtml->script(array('jquery.form'), array('inline' => false));
+$this->ZuluruHtml->script(array('jquery.form.js'), array('inline' => false));
 ?>

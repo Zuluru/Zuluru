@@ -30,4 +30,4 @@ $this->Html->addCrumb ($document['UploadType']['name']);
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
 
-<?php echo $this->ZuluruHtml->script ('datepicker', array('inline' => false)); ?>
+<?php echo $this->ZuluruHtml->script ('datepicker.js', array('inline' => false)); ?>

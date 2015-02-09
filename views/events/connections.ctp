@@ -80,7 +80,7 @@ $this->Html->addCrumb (__('Connections', true));
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
 <?php
-$this->ZuluruHtml->css('jquery.asmselect', null, array('inline' => false));
-$this->ZuluruHtml->script('jquery.asmselect', array('inline' => false));
+$this->ZuluruHtml->css('jquery.asmselect.css', null, array('inline' => false));
+$this->ZuluruHtml->script('jquery.asmselect.js', array('inline' => false));
 $this->Js->buffer('jQuery("select[multiple]").asmSelect();');
 ?>

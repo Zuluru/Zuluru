@@ -385,7 +385,7 @@ function selectAll(id) {
 ");
 
 if ($collapse || isset ($add)) {
-	echo $this->ZuluruHtml->script ('datepicker', array('inline' => false));
+	echo $this->ZuluruHtml->script ('datepicker.js', array('inline' => false));
 }
 $this->Js->get('.show_advanced')->event('click', 'jQuery(".advanced").show(); jQuery(".basic").hide();');
 $this->Js->get('.show_basic')->event('click', 'jQuery(".advanced").hide(); jQuery(".basic").show();');

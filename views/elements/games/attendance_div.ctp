@@ -20,5 +20,5 @@ echo $this->Form->input('comment', array(
 </div>
 
 <?php
-$this->ZuluruHtml->script ('attendance', array('inline' => false));
+$this->ZuluruHtml->script ('attendance.js', array('inline' => false));
 ?>

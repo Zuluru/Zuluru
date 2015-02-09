@@ -43,7 +43,7 @@ $this->Html->addCrumb (__('Edit', true));
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
 <?php
-echo $this->ZuluruHtml->script ('datepicker', array('inline' => false));
+echo $this->ZuluruHtml->script ('datepicker.js', array('inline' => false));
 $url = $this->Html->url (array('controller' => 'divisions', 'action' => 'select', 'affiliate' => $affiliate));
 
 // Add JavaScript functions for "select all" buttons, hiding blocks of fields, and populating the division list

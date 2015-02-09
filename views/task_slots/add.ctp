@@ -30,5 +30,5 @@ $this->Html->addCrumb (__('Create', true));
 </div>
 
 <?php
-echo $this->ZuluruHtml->script ('datepicker', array('inline' => false));
+echo $this->ZuluruHtml->script ('datepicker.js', array('inline' => false));
 ?>

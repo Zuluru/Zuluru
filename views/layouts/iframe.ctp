@@ -10,10 +10,10 @@ header('Pragma: no-cache');
 	<?php echo $this->Html->charset(); ?>
 	<?php
 		echo $this->ZuluruHtml->css(array (
-				'zuluru/iframe',
+				'zuluru/iframe.css',
 		));
 		if (Configure::read('debug')) {
-			echo $this->ZuluruHtml->css(array ('zuluru/debug'));
+			echo $this->ZuluruHtml->css(array ('zuluru/debug.css'));
 		}
 	?>
 	<?php
