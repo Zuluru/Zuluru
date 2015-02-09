@@ -2613,12 +2613,15 @@ class TeamsController extends AppController {
 				switch ($status) {
 					case ROSTER_APPROVED:
 						$this->_sendAdd($person, $team, $role);
+						break;
 
 					case ROSTER_INVITED;
 						$this->_sendInvite($person, $team, $role);
+						break;
 
 					case ROSTER_REQUESTED:
 						$this->_sendRequest($person, $team, $role);
+						break;
 				}
 			} else {
 				$this->_sendChange($person, $team, $role);
