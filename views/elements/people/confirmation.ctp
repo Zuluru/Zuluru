@@ -2,6 +2,16 @@
 if (!$is_player) {
 	return;
 }
+
+foreach ($fields as $key => $field) {
+	if (!Configure::read("profile.$field")) {
+		unset($fields[$key]);
+	}
+}
+if (empty($fields)) {
+	return;
+}
+
 $person = $this->UserCache->read('Person');
 $skills = $this->UserCache->read('Skills');
 $sports = Configure::read('options.sport');
