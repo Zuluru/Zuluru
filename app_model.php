@@ -216,8 +216,7 @@ class AppModel extends Model {
 	}
 
 	function matchpassword($check) {
-		$value = array_values($check);
-		$value = $value[0];
+		$value = current(array_values($check));
 		return $this->comparepassword($value, $this->data[Configure::read('security.auth_model')]['password']);
 	}
 
@@ -232,8 +231,7 @@ class AppModel extends Model {
 	function inconfig($check, $config) {
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic
-		$value = array_values($check);
-		$value = $value[0];
+		$value = current(array_values($check));
 
 		return array_key_exists($value, Configure::read($config));
 	}
@@ -246,8 +244,7 @@ class AppModel extends Model {
 
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic
-		$value = array_values($check);
-		$value = $value[0];
+		$value = current(array_values($check));
 
 		return array_key_exists($value, Configure::read($config));
 	}
@@ -255,8 +252,7 @@ class AppModel extends Model {
 	function inconfig_ifset($check, $config) {
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic
-		$value = array_values($check);
-		$value = $value[0];
+		$value = current(array_values($check));
 
 		return empty($value) || array_key_exists($value, Configure::read($config));
 	}
@@ -264,8 +260,7 @@ class AppModel extends Model {
 	function indateconfig($check, $config) {
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic
-		$value = array_values($check);
-		$value = $value[0];
+		$value = current(array_values($check));
 		if (!is_array($value)) {
 			$year = date ('Y', strtotime ($value));
 		} else {
@@ -292,8 +287,7 @@ class AppModel extends Model {
 
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic
-		$value = array_values($check);
-		$value = $value[0];
+		$value = current(array_values($check));
 		if (!is_array($value)) {
 			$year = date ('Y', strtotime ($value));
 		} else {
@@ -315,8 +309,7 @@ class AppModel extends Model {
 	function greaterdate($check, $field) {
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic
-		$value = array_values($check);
-		$value = $value[0];
+		$value = current(array_values($check));
 		if (array_key_exists($this->alias, $this->data)) {
 			$data = $this->data[$this->alias];
 		} else {
@@ -329,8 +322,7 @@ class AppModel extends Model {
 	function datetime($check) {
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic
-		$value = array_values($check);
-		$value = $value[0];
+		$value = current(array_values($check));
 		list ($date, $time) = explode (' ', $value, 2);
 		$Validation =& Validation::getInstance();
 		return ($Validation->date ($date) && $Validation->time ($time));
@@ -339,16 +331,14 @@ class AppModel extends Model {
 	function positive($check) {
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic
-		$value = array_values($check);
-		$value = $value[0];
+		$value = current(array_values($check));
 		return (is_numeric($value) && $value >= 0);
 	}
 
 	function inquery($check, $model, $field, $conditions = array()) {
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic
-		$value = array_values($check);
-		$value = $value[0];
+		$value = current(array_values($check));
 
 		// This needs to work for questionnaire submissions
 		if (is_array($value)) {
@@ -392,8 +382,7 @@ class AppModel extends Model {
 	function inclusive_range($check, $lower = null, $upper = null) {
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic
-		$value = array_values($check);
-		$value = $value[0];
+		$value = current(array_values($check));
 
 		if (!is_numeric($value)) {
 			return false;
@@ -415,8 +404,7 @@ class AppModel extends Model {
 	function response($check, $rule) {
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic
-		$value = array_values($check);
-		$value = $value[0];
+		$value = current(array_values($check));
 		if (array_key_exists('answer', $value)) {
 			$value = $value['answer'];
 		} else {
@@ -438,8 +426,7 @@ class AppModel extends Model {
 	function response_select($check, $opts, $required) {
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic
-		$value = array_values($check);
-		$value = $value[0];
+		$value = current(array_values($check));
 		$value = $value['answer_id'];
 
 		// A value from the provided list of options is okay
@@ -457,8 +444,7 @@ class AppModel extends Model {
 	 * but not in a way that messes with playoff divisions.
 	 */
 	function team_unique($check, $team_id, $division_id) {
-		$value = array_values($check);
-		$value = $value[0];
+		$value = current(array_values($check));
 
 		if ($division_id) {
 			// Find the list of divisions in the same league
@@ -491,8 +477,7 @@ class AppModel extends Model {
 
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic
-		$value = array_values($check);
-		$value = $value[0];
+		$value = current(array_values($check));
 		$value = $value['answer_id'];
 
 		// -1 means make a new one with the same name as the team
@@ -510,8 +495,7 @@ class AppModel extends Model {
 	function franchise_unique($check) {
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic
-		$value = array_values($check);
-		$value = $value[0];
+		$value = current(array_values($check));
 		$value = $value['answer_id'];
 
 		// -1 means make a new one with the same name as the team
@@ -526,18 +510,20 @@ class AppModel extends Model {
 	function rule($check) {
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic
-		$value = array_values($check);
-		$value = $value[0];
+		$value = current(array_values($check));
+		$key = current(array_keys($check));
 
 		$rule_obj = AppController::_getComponent ('Rule');
-		return $rule_obj->init ($value);
+		if (!$rule_obj->init ($value)) {
+			return $rule_obj->parse_error;
+		}
+		return true;
 	}
 
 	function valid_score($check, $lower, $upper) {
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic
-		$value = array_values($check);
-		$value = $value[0];
+		$value = current(array_values($check));
 
 		$data = current($this->data);
 		if (in_array($data['status'], Configure::read('unplayed_status'))) {
@@ -549,8 +535,7 @@ class AppModel extends Model {
 	function valid_play($check) {
 		// $check array is passed using the form field name as the key
 		// have to extract the value to make the function generic
-		$value = array_values($check);
-		$value = $value[0];
+		$value = current(array_values($check));
 
 		$options = array_merge(make_options(array_merge(array_keys(Configure::read('sport.score_options')), array('Start', 'Timeout'))), Configure::read('sport.other_options'));
 		return array_key_exists($value, $options);

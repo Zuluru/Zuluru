@@ -13,12 +13,19 @@ class RuleSignedWaiverComponent extends RuleComponent
 			$this->config[$key] = trim ($val, '"\'');
 		}
 		if (count($this->config) >= 2) {
-			$this->date = date('Y-m-d', strtotime (array_pop($this->config)));
+			$date = array_pop($this->config);
+			$date_time = strtotime ($date);
+			if ($date_time === false) {
+				$this->parse_error = sprintf(__('Invalid date: %s', true), $date_time);
+				return false;
+			}
+			$this->date = date('Y-m-d', $date_time);
 			$model = ClassRegistry::init('Waiver');
 			$model->contain(array());
 			$this->waiver = $model->field('name', array('id' => $this->config[0]));
 			return true;
 		} else {
+			$this->parse_error = __('Invalid number of parameters to SIGNED_WAIVER rule', true);
 			return false;
 		}
 	}

@@ -11,16 +11,39 @@ class RuleMemberTypeComponent extends RuleComponent
 		$this->config = trim ($config, '"\'');
 		if ($this->config[0] == '<') {
 			$to = substr($this->config, 1);
-			$to = date('Y-m-d', strtotime($to) - DAY);
+			$to_time = strtotime($to);
+			if ($to_time === false) {
+				$this->parse_error = sprintf(__('Invalid date: %s', true), $to);
+				return false;
+			}
+			$to = date('Y-m-d', $to_time - DAY);
 			$this->config = array('0000-00-00', $to);
 			$this->desc = 'have a past membership type';
 		} else if ($this->config[0] == '>') {
 			$from = substr($this->config, 1);
-			$from = date('Y-m-d', strtotime($from) + DAY);
+			$from_time = strtotime($from);
+			if ($from_time === false) {
+				$this->parse_error = sprintf(__('Invalid date: %s', true), $from);
+				return false;
+			}
+			$from = date('Y-m-d', $from_time + DAY);
 			$this->config = array($from, '9999-12-31');
 			$this->desc = 'have an upcoming membership type';
 		} else if (strpos($this->config, ',') !== false) {
 			$this->config = explode(',', $this->config);
+			if (strtotime($this->config[0]) === false) {
+				$this->parse_error = sprintf(__('Invalid date: %s', true), $this->config[0]);
+				return false;
+			}
+			if (strtotime($this->config[1]) === false) {
+				$this->parse_error = sprintf(__('Invalid date: %s', true), $this->config[1]);
+				return false;
+			}
+		} else {
+			if (strtotime($this->config) === false) {
+				$this->parse_error = sprintf(__('Invalid date: %s', true), $this->config);
+				return false;
+			}
 		}
 		return true;
 	}

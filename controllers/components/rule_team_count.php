@@ -24,11 +24,38 @@ class RuleTeamCountComponent extends RuleComponent
 		$this->config['params'] = trim (implode(',', $this->config['params']), '"\'');
 
 		if ($this->config['params'][0] == '<') {
-			$this->config['params'] = array('0000-00-00', substr($this->config['params'], 1));
+			$to = substr($this->config['params'], 1);
+			$to_time = strtotime($to);
+			if ($to_time === false) {
+				$this->parse_error = sprintf(__('Invalid date: %s', true), $to);
+				return false;
+			}
+			$to = date('Y-m-d', $from_time - DAY);
+			$this->config['params'] = array('0000-00-00', $to);
 		} else if ($this->config['params'][0] == '>') {
-			$this->config['params'] = array(substr($this->config['params'], 1), '9999-12-31');
+			$from = substr($this->config['params'], 1);
+			$from_time = strtotime($from);
+			if ($from_time === false) {
+				$this->parse_error = sprintf(__('Invalid date: %s', true), $from);
+				return false;
+			}
+			$from = date('Y-m-d', $from_time + DAY);
+			$this->config['params'] = array($from, '9999-12-31');
 		} else if (strpos($this->config['params'], ',') !== false) {
 			$this->config['params'] = explode(',', $this->config['params']);
+			if (strtotime($this->config['params'][0]) === false) {
+				$this->parse_error = sprintf(__('Invalid date: %s', true), $this->config['params'][0]);
+				return false;
+			}
+			if (strtotime($this->config['params'][1]) === false) {
+				$this->parse_error = sprintf(__('Invalid date: %s', true), $this->config['params'][1]);
+				return false;
+			}
+		} else {
+			if (strtotime($this->config['params']) === false) {
+				$this->parse_error = sprintf(__('Invalid date: %s', true), $this->config['params']);
+				return false;
+			}
 		}
 
 		return true;

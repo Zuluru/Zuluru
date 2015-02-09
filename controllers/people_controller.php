@@ -2536,7 +2536,7 @@ class PeopleController extends AppController {
 			// Handle the rule
 			$rule_obj = AppController::_getComponent ('Rule', '', $this, true);
 			if (!$rule_obj->init ($params['rule'])) {
-				$this->set('error', __('Failed to parse the rule.', true));
+				$this->set('error', sprintf (__('Failed to parse the rule: %s', true), $rule_obj->parse_error));
 				return;
 			}
 			if (!array_key_exists('rule64', $params)) {

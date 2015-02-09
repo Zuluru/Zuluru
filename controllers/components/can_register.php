@@ -250,7 +250,7 @@ class CanRegisterComponent extends Object
 				// Check the registration rule, if any
 				if (!empty ($price['register_rule'])) {
 					if (!$rule_obj->init ($price['register_rule'])) {
-						$this->_controller->Session->setFlash(__('Failed to parse the rule', true), 'default', array('class' => 'error'));
+						$this->_controller->Session->setFlash(sprintf (__('Failed to parse the rule: %s', true), $rule_obj->parse_error), 'default', array('class' => 'error'));
 					} else {
 						$price_allowed[$price['id']] = array(
 							'allowed' => $rule_obj->evaluate($event['Event']['affiliate_id'], $this->person, null, $strict, false),

@@ -15,7 +15,15 @@ class RuleHasDocumentComponent extends RuleComponent
 			$model->contain(array());
 			$this->document = $model->field('name', array('id' => $this->config[0]));
 		}
-		return (count($this->config) == 2);
+		if (count($this->config) != 2) {
+			$this->parse_error = __('Invalid argument count to HAS_DOCUMENT rule', true);
+			return false;
+		}
+		if (strtotime($this->config[1]) === false) {
+			$this->parse_error = sprintf(__('Invalid date: %s', true), $this->config[1]);
+			return false;
+		}
+		return true;
 	}
 
 	// Check if the user has uploaded the required document

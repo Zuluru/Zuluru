@@ -18,6 +18,11 @@ class RuleComponent extends Object
 	var $rule = null;
 
 	/**
+	 * Parse error text, to give help to rule writers
+	 */
+	var $parse_error = null;
+
+	/**
 	 * Reason why the rule passed or failed
 	 */
 	var $reason = 'Unknown reason!';
@@ -178,6 +183,10 @@ class RuleComponent extends Object
 			}
 		}
 		$this->log("Failed to initialize rule component $rule with $config.", 'rules');
+		if (!empty($rule_obj->parse_error)) {
+			$this->log($rule_obj->parse_error, 'rules');
+		}
+		$this->parse_error = $rule_obj->parse_error;
 		return null;
 	}
 

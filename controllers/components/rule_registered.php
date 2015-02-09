@@ -13,9 +13,14 @@ class RuleRegisteredComponent extends RuleComponent
 		$model = ClassRegistry::init('Event');
 		$this->events = $model->find('all', array(
 				'contain' => array(),
-				'conditions' => array('id' => $this->config[0]),
+				'conditions' => array('id' => $this->config),
 				'fields' => array('id', 'name'),
 		));
+		if (count($this->events) != count($this->config)) {
+			$this->parse_error = sprintf(__('Cannot locate %d of the specified events', true), count($this->config) - count($this->events));
+			return false;
+		}
+
 		return true;
 	}
 

@@ -11,31 +11,32 @@ class RuleCompareComponent extends RuleComponent
 		$this->rule = array();
 
 		// Get the left side rule
-		list ($rule, $config) = $this->parseOneRule ($config);
-		if (! $rule || empty ($config)) {
-			$this->log("Failed to parse left side rule from $config", 'rules');
+		list ($rule, $new_config) = $this->parseOneRule ($config);
+		if (! $rule || empty ($new_config)) {
+			$this->parse_error = sprintf(__('Failed to parse left side of "%s": %s', true), $config, $this->parse_error);
 			return false;
 		}
 		$this->rule[] = $rule;
+		$config = $new_config;
 
 		// Check for a valid operator
 		$p = strpos ($config, ' ');
 		if ($p === false) {
-			$this->log("Did not find a space in $config", 'rules');
+			$this->parse_error = sprintf(__('Did not find a space in "%s"', true), $config);
 			return false;
 		}
 		$op = substr ($config, 0, $p);
 		if (!in_array ($op, array_keys($this->reverse))) {
-			$this->log("Did not find a valid operator in $config", 'rules');
+			$this->parse_error = sprintf(__('Did not find a valid comparison operator in "%s"', true), $config);
 			return false;
 		}
 		$this->config = $op;
 		$config = trim (substr ($config, $p));
 
 		// Get the right side rule
-		list ($rule, $config) = $this->parseOneRule ($config);
-		if (! $rule || !empty ($config)) {
-			$this->log("Failed to parse right side rule from $config", 'rules');
+		list ($rule, $new_config) = $this->parseOneRule ($config);
+		if (! $rule || !empty ($new_config)) {
+			$this->parse_error = sprintf(__('Failed to parse right side of "%s": %s', true), $config, $this->parse_error);
 			return false;
 		}
 		$this->rule[] = $rule;

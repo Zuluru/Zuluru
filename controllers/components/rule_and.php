@@ -14,6 +14,7 @@ class RuleAndComponent extends RuleComponent
 			}
 			if (!empty ($config)) {
 				if ($config[0] != ',') {
+					$this->parse_error = __('Components of AND rules must be separated by commas.', true);
 					return false;
 				}
 				$config = substr ($config, 1);

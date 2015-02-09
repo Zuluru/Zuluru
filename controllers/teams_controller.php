@@ -752,7 +752,7 @@ class TeamsController extends AppController {
 				if (isset ($member_rule)) {
 					$rule_obj = AppController::_getComponent ('Rule');
 					if (!$rule_obj->init ($member_rule)) {
-						return __('Failed to parse the rule', true);
+						return sprintf (__('Failed to parse the rule: %s', true), $rule_obj->parse_error);
 					}
 					$team['Person'][$key]['is_a_member'] = $rule_obj->evaluate($team['Division']['League']['affiliate_id'], $full_person, $team);
 				} else {
@@ -2646,7 +2646,7 @@ class TeamsController extends AppController {
 			if (!isset($this->can_add_rule_obj)) {
 				$this->can_add_rule_obj = AppController::_getComponent ('Rule', '', $this, true);
 				if (!$this->can_add_rule_obj->init ($team['Division']['roster_rule'])) {
-					return __('Failed to parse the rule', true);
+					return sprintf (__('Failed to parse the rule: %s', true), $this->can_add_rule_obj->parse_error);
 				}
 			}
 
