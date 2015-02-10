@@ -229,7 +229,11 @@ class FieldsController extends AppController {
 			$conditions = array('is_open' => true);
 		}
 		$min_date = $this->Field->GameSlot->Game->Division->field('MIN(open)', $conditions);
-		$max_date = $this->Field->GameSlot->Game->Division->field('MAX(close)', $conditions);
+		$slot_conditions = array('GameSlot.game_date >=' => $min_date);
+		if (!$this->is_admin && !$this->is_manager) {
+			$max_date = $this->Field->GameSlot->Game->Division->field('MAX(close)', $conditions);
+			$slot_conditions['GameSlot.game_date <='] = $max_date;
+		}
 		$this->Field->contain (array (
 			'Facility' => 'Region',
 			'GameSlot' => array(
@@ -244,10 +248,7 @@ class FieldsController extends AppController {
 				),
 				'DivisionGameslotAvailability' => array('Division' => 'League'),
 				'order' => 'GameSlot.game_date, GameSlot.game_start',
-				'conditions' => array(
-					'GameSlot.game_date >=' => $min_date,
-					'GameSlot.game_date <=' => $max_date,
-				),
+				'conditions' => $slot_conditions,
 			),
 		));
 
