@@ -118,5 +118,9 @@ class Field extends AppModel {
 	function affiliate($id) {
 		return $this->Facility->affiliate($this->field('facility_id', array('Field.id' => $id)));
 	}
+
+	function sport($id) {
+		return $this->field('sport', array('Field.id' => $id));
+	}
 }
 ?>

@@ -117,6 +117,10 @@ class GameSlot extends AppModel {
 		return $this->Field->affiliate($this->field('field_id', array('GameSlot.id' => $id)));
 	}
 
+	function sport($id) {
+		return $this->Field->sport($this->field('field_id', array('GameSlot.id' => $id)));
+	}
+
 	static function compareTimeAndField ($a, $b) {
 		if ($a['GameSlot']['game_date'] > $b['GameSlot']['game_date']) {
 			return 1;

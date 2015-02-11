@@ -291,7 +291,7 @@ class GameSlotsController extends AppController {
 		$affiliate = $this->GameSlot->affiliate($id);
 		$this->Configuration->loadAffiliate($affiliate);
 
-		$divisions = $this->GameSlot->Game->Division->readByDate($this->data['GameSlot']['game_date'], $affiliate);
+		$divisions = $this->GameSlot->Game->Division->readByDate($this->data['GameSlot']['game_date'], $affiliate, $this->GameSlot->sport($id));
 		$divisions = Set::combine($divisions, '{n}.Division.id', '{n}.Division.full_league_name');
 		$this->set(compact('affiliate', 'divisions'));
 	}
