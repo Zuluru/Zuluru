@@ -10,12 +10,15 @@
 		$new_options[low(Inflector::slug($option))] = $option;
 	}
 
-	echo $this->Form->input('select', array(
+	$input_options = array(
 			'id' => $id,
 			'label' => __($title, true) . ':',
-			'empty' => __('Show All', true),
 			'options' => $new_options,
-	));
+	);
+	if (!isset($include_empty) || $include_empty) {
+		$input_options['empty'] = __('Show All', true);
+	}
+	echo $this->Form->input('select', $input_options);
 ?>
 </span>
 	<?php if (!isset($include_form) || $include_form): ?>
@@ -47,6 +50,7 @@ function selector_changed() {
 	}
 }
 ");
+		$this->Js->buffer('selector_changed();');
 	}
 	$this->Js->get("#$id")->event('change', 'selector_changed();');
 endif;
