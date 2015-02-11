@@ -241,7 +241,7 @@ class NewslettersController extends AppController {
 			// Handle the rule controlling mailing list membership
 			$rule_obj = AppController::_getComponent ('Rule', '', $this, true);
 			if (!$rule_obj->init ($newsletter['MailingList']['rule'])) {
-				$this->Session->setFlash(__('Failed to parse the rule', true), 'default', array('class' => 'error'));
+				$this->Session->setFlash(sprintf (__('Failed to parse the rule: %s', true), $rule_obj->parse_error), 'default', array('class' => 'error'));
 				$this->redirect(array('action' => 'view', 'newsletter' => $id));
 			}
 
