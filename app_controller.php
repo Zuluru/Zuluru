@@ -836,7 +836,9 @@ class AppController extends Controller {
 
 			$this->_addMenuItem ('Closed facilities', array('controller' => 'facilities', 'action' => 'closed'), Configure::read('ui.fields_cap'));
 			$this->_addMenuItem ('Create facility', array('controller' => 'facilities', 'action' => 'add'), Configure::read('ui.fields_cap'));
-			if (count($affiliates) == 1) {
+			if (!Configure::read('feature.affiliates')) {
+				$this->_addMenuItem ('Add bulk gameslots', array('controller' => 'game_slots', 'action' => 'add'), Configure::read('ui.fields_cap'));
+			} else if (count($affiliates) == 1) {
 				$this->_addMenuItem ('Add bulk gameslots', array('controller' => 'game_slots', 'action' => 'add', 'affiliate' => reset(array_keys($affiliates))), Configure::read('ui.fields_cap'));
 			} else {
 				foreach ($affiliates as $affiliate => $name) {

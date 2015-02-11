@@ -1804,10 +1804,10 @@ class DivisionsController extends AppController {
 	 * Ajax functionality
 	 */
 
-	function select($date) {
+	function select($date, $sport = null) {
 		Configure::write ('debug', 0);
 		$this->layout = 'ajax';
-		$this->set('divisions', $this->Division->readByDate($date, $this->_arg('affiliate')));
+		$this->set('divisions', $this->Division->readByDate($date, $this->_arg('affiliate'), $sport));
 	}
 }
 ?>

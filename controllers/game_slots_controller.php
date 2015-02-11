@@ -79,10 +79,14 @@ class GameSlotsController extends AppController {
 
 	function add() {
 		$field = $this->_arg('field');
-		$affiliate = $this->_arg('affiliate');
-		if (!$affiliate && !$field) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('affiliate', true)), 'default', array('class' => 'info'));
-			$this->redirect('/');
+		if (Configure::read('feature.affiliates')) {
+			$affiliate = $this->_arg('affiliate');
+			if (!$affiliate && !$field) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('affiliate', true)), 'default', array('class' => 'info'));
+				$this->redirect('/');
+			}
+		} else {
+			$affiliate = 1;
 		}
 
 		if ($field) {

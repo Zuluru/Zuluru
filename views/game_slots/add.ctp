@@ -18,12 +18,27 @@ $this->Html->addCrumb (__('Create', true));
 <?php
 if (isset ($field)) {
 	echo $this->Form->hidden("Field.{$field['Field']['id']}", array('value' => 1));
+	echo $this->Form->hidden('sport', array('id' => 'sport', 'value' => $field['Field']['sport']));
 } else {
 ?>
 		<fieldset>
 			<legend><?php printf(__('%s Selection', true), Configure::read('ui.field_cap')); ?></legend>
 			<p class="warning-message">NOTE: By default, checking a facility here will create game slots for ALL open <?php __(Configure::read('ui.fields')); ?> at that facility.
 			If you want to create game slots for selected <?php __(Configure::read('ui.fields')); ?>, click the facility name to see the list of <?php __(Configure::read('ui.fields')); ?> at that facility.</p>
+<?php
+	$sports = Configure::read('options.sport');
+	if (count($sports) > 1) {
+		echo $this->element('selector', array(
+				'title' => 'Sport',
+				'options' => $sports,
+				'include_form' => false,
+				'include_empty' => false,
+		));
+		$this->Js->get('#sport')->event('change', 'update_divisions();');
+	} else {
+		echo $this->Form->hidden('sport', array('id' => 'sport', 'value' => current($sports)));
+	}
+?>
 			<div class="actions">
 				<ul>
 <?php
@@ -33,10 +48,12 @@ if (isset ($field)) {
 			unset ($regions[$key]);
 			continue;
 		}
+		$region_sports = array_unique(Set::extract('/Facility/Field/sport', $region));
 
 		echo $this->Html->tag('li',
 			$this->Html->link('Hide ' . __($region['Region']['name'], true), '#', array(
 					'id' => "hide{$region['Region']['id']}",
+					'class' => $this->element('selector_classes', array('title' => 'Sport', 'options' => $region_sports)),
 					'onclick' => "hideFieldset('{$region['Region']['id']}'); return false;",
 		)));
 	}
@@ -47,8 +64,9 @@ if (isset ($field)) {
 
 <?php
 	foreach ($regions as $region):
+		$region_sports = array_unique(Set::extract('/Facility/Field/sport', $region));
 ?>
-			<fieldset id="region<?php echo $region['Region']['id']; ?>">
+			<fieldset id="region<?php echo $region['Region']['id']; ?>" class="<?php echo $this->element('selector_classes', array('title' => 'Sport', 'options' => $region_sports)); ?>">
 				<legend><?php __($region['Region']['name']); ?></legend>
 				<div class="actions">
 					<ul>
@@ -62,21 +80,34 @@ if (isset ($field)) {
 			// Build the list of fields to associate with the facility
 			$fields = '';
 			foreach ($facility['Field'] as $field) {
-				$fields .= $this->Form->input("Field.{$field['id']}", array(
-						'label' => $field['num'],
-						'type' => 'checkbox',
-						'hiddenField' => false,
-				));
+				$fields .= $this->Html->tag('span',
+						$this->Form->input("Field.{$field['id']}", array(
+							'label' => $field['num'],
+							'class' => $this->element('selector_classes', array('title' => 'Sport', 'options' => $field['sport'])),
+							'type' => 'checkbox',
+							'hiddenField' => false,
+						)),
+						array(
+							'class' => $this->element('selector_classes', array('title' => 'Sport', 'options' => $field['sport'])),
+						)
+				);
 			}
 
 			// Build the facility input
-			echo $this->Form->input("Facility.{$facility['id']}", array(
-					'div' => 'input checkbox field link_like',
-					'label' => $facility['name'],
-					'type' => 'checkbox',
-					'hiddenField' => false,
-					'after' => $this->Html->tag ('div', $fields, array('class' => 'hidden')),
-			));
+			$facility_sports = array_unique(Set::extract('/Field/sport', $facility));
+			echo $this->Html->tag('span',
+					$this->Form->input("Facility.{$facility['id']}", array(
+						'div' => 'input checkbox field link_like ' . $this->element('selector_classes', array('title' => 'Sport', 'options' => $facility_sports)),
+						'label' => $facility['name'],
+						'class' => $this->element('selector_classes', array('title' => 'Sport', 'options' => $facility_sports)),
+						'type' => 'checkbox',
+						'hiddenField' => false,
+						'after' => $this->Html->tag ('div', $fields, array('class' => 'hidden')),
+					)),
+					array(
+						'class' => $this->element('selector_classes', array('title' => 'Sport', 'options' => $facility_sports)),
+					)
+			);
 		}
 						?></li>
 					</ul>
@@ -152,7 +183,7 @@ function update_divisions(){
 	jQuery('#division_list').html('$spinner');
 	jQuery.ajax({
 		type: 'GET',
-		url: '$url/' + date,
+		url: '$url/' + date + '/' + jQuery('#sport').val(),
 		success: function(divisions){
 			jQuery('#division_list').html(divisions);
 		},

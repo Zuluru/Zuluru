@@ -252,19 +252,23 @@ class Division extends AppModel {
 		$this->League->save($league, false);
 	}
 
-	function readByDate($date, $affiliate) {
+	function readByDate($date, $affiliate, $sport) {
 		// Our database has Sunday as 1, but date('w') gives it as 0
 		$day = date('w', strtotime ($date)) + 1;
 
 		$this->contain('League', 'Day');
+		$conditions = array(
+			'OR' => array(
+				'Division.is_open' => true,
+				'Division.open > CURDATE()',
+			),
+			'League.affiliate_id' => $affiliate,
+		);
+		if ($sport) {
+			$conditions['League.sport'] = $sport;
+		}
 		$divisions = $this->find('all', array(
-				'conditions' => array(
-					'OR' => array(
-						'Division.is_open' => true,
-						'Division.open > CURDATE()',
-					),
-					'League.affiliate_id' => $affiliate,
-				),
+				'conditions' => $conditions,
 		));
 		return Set::extract("/Day[id=$day]/..", $divisions);
 	}
