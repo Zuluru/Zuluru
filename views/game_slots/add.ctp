@@ -121,13 +121,23 @@ if (isset ($field)) {
 }
 
 echo $this->Form->input('game_start', array(
-		'label' => __('Game start time', true),
-		'after' => $this->Html->para(null, __('Time for games in this timeslot to start.', true)),
+		'label' => __('Start time', true),
+		'after' => $this->Html->para(null, __('Time for games to start.', true)),
+));
+echo $this->Form->input('length', array(
+		'label' => __('Slot length', true),
+		'options' => Configure::read('options.game_lengths'),
+		'after' => $this->Html->para(null, __('Length of game slot (in minutes), including buffer time below. If you want only a single game slot, leave this at 0 and just set start and end times.', true)),
+));
+echo $this->Form->input('buffer', array(
+		'label' => __('Game buffer', true),
+		'options' => Configure::read('options.game_buffers'),
+		'after' => $this->Html->para(null, __('Buffer between games (in minutes). If game length is 0 above, this is ignored.', true)),
 ));
 echo $this->Form->input('game_end', array(
-		'label' => __('Game timecap', true),
+		'label' => __('End time', true),
 		'empty' => '---',
-		'after' => $this->Html->para(null, __('Time for games in this timeslot to end. Choose "---" to assign the default timecap (dark) for that week.', true)),
+		'after' => $this->Html->para(null, __('Time for games to end. Choose "---" to assign the default timecap (dark) for that week (not available if game length is set above).', true)),
 ));
 echo $this->Form->input('game_date', array(
 		'label' => __('First date', true),

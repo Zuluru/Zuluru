@@ -14,6 +14,25 @@ $this->Html->addCrumb (__('Confirm', true));
 		$hidden['confirm'] = true;
 		echo $this->element('hidden', array('fields' => $hidden));
 
+		// Build the list of times to re-use
+		$times = array();
+		//Create games from start time thru end time
+		$start = strtotime ($this->data['GameSlot']['game_date'] . $this->data['GameSlot']['game_start']);
+		if ($this->data['GameSlot']['length'] > 0) {
+			$end = strtotime ($this->data['GameSlot']['game_date'] . $this->data['GameSlot']['game_end']);
+			if ($end < $start) {
+				$end += DAY;
+			}
+			$space = $this->data['GameSlot']['length'] * 60;
+			$length = ($this->data['GameSlot']['length'] - $this->data['GameSlot']['buffer']) * 60;
+			while ($start + $space <= $end) {
+				$times[] = $this->ZuluruTime->time($start);
+				$start += $space;
+			}
+		} else {
+			$times[] = $this->ZuluruTime->time($start);
+		}
+
 		// Build the list of dates to re-use
 		$weeks = $skipped = array();
 		// Use noon as the time, to avoid problems when we switch between DST and non-DST dates
@@ -33,7 +52,7 @@ $this->Html->addCrumb (__('Confirm', true));
 		}
 
 		if (isset($field)):
-			echo $this->element ('game_slots/confirm', array('facility' => $field['Facility'], 'field' => $field['Field'], 'weeks' => $weeks, 'expanded' => true));
+			echo $this->element ('game_slots/confirm', array('facility' => $field['Facility'], 'field' => $field['Field'], 'weeks' => $weeks, 'times' => $times, 'expanded' => true));
 		else:
 		?>
 		<p>Click a <?php __(Configure::read('ui.field')); ?> name below to edit the list of game slots that will be created for that <?php __(Configure::read('ui.field')); ?>.</p>
@@ -43,7 +62,7 @@ $this->Html->addCrumb (__('Confirm', true));
 				foreach ($region['Facility'] as $facility) {
 					foreach ($facility['Field'] as $field) {
 						if (array_key_exists ($field['id'], $this->data['Field'])) {
-							echo $this->element ('game_slots/confirm', compact('facility', 'field', 'weeks'));
+							echo $this->element ('game_slots/confirm', compact('facility', 'field', 'weeks', 'times'));
 						}
 					}
 				}

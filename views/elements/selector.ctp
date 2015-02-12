@@ -18,7 +18,7 @@
 	if (!isset($include_empty) || $include_empty) {
 		$input_options['empty'] = __('Show All', true);
 	}
-	echo $this->Form->input('select', $input_options);
+	echo $this->Form->input($id, $input_options);
 ?>
 </span>
 	<?php if (!isset($include_form) || $include_form): ?>

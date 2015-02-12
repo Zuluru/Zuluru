@@ -225,6 +225,25 @@ $config['options'] = array(
 		'forfeit',
 	)),
 
+	'game_lengths' => make_options(array(
+		0,
+		15,
+		30,
+		45,
+		60,
+		75,
+		90,
+		105,
+		120,
+	)),
+
+	'game_buffers' => make_options(array(
+		0,
+		5,
+		10,
+		15,
+	)),
+
 	'field_rating' => array(
 		'A'					=> 'A',
 		'B'					=> 'B',
