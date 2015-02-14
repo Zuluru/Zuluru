@@ -17,6 +17,9 @@ if (count ($published) != 1 || $published[0] == 0) {
 } else {
 	$published = true;
 }
+if (! ($published || $is_admin || $is_manager || $is_coordinator)) {
+	return;
+}
 
 // Spin through the games before building headers, to eliminate edit-type actions on completed weeks.
 $finalized = true;

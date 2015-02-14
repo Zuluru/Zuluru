@@ -43,7 +43,12 @@ if (!empty ($edit_date)) {
 <?php if (!empty($league['Game'])):?>
 <?php
 	$future_week = 99;
-	$dates = array_unique(Set::extract ('/Game/GameSlot/game_date', $league));
+	if ($is_admin || $is_manager || $is_coordinator) {
+		$condition = '';
+	} else {
+		$condition = '[published=1]';
+	}
+	$dates = array_unique(Set::extract ("/Game$condition/GameSlot/game_date", $league));
 	$weeks = array();
 	$week = 0;
 	$first_day = Configure::read('organization.first_day');

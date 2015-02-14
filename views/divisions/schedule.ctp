@@ -40,7 +40,12 @@ if (!empty ($edit_date)) {
 <?php if (!empty($division['Game'])):?>
 <?php
 	$future_week = 99;
-	$dates = array_unique(Set::extract ('/Game/GameSlot/game_date', $division));
+	if ($is_admin || $is_manager || $is_coordinator) {
+		$condition = '';
+	} else {
+		$condition = '[published=1]';
+	}
+	$dates = array_unique(Set::extract ("/Game$condition/GameSlot/game_date", $division));
 	$weeks = array();
 	$week = 0;
 	$first_day = Configure::read('organization.first_day');
