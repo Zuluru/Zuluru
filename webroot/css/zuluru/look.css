@@ -250,6 +250,7 @@ dl .altrow
 #zuluru tr.unpublished td, #zuluru td.unpublished, #zuluru div.unpublished
 {
 	background-color: #ffff00;
+	height: auto;
 }
 #zuluru table.list tr.unpublished:nth-child(2n) td, #zuluru table.list tr:nth-child(2n) td.unpublished
 {
