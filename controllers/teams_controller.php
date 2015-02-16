@@ -1159,9 +1159,11 @@ class TeamsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		if (!empty($this->data)) {
-			// Add ranks to facility preferences
+			$transaction = new DatabaseTransaction($this->Team);
+
+			$this->data['Facility'] = array();
 			if (!empty($this->data['Team']['Facility'])) {
-				$this->data['Facility'] = array();
+				// Add ranks to facility preferences
 				$rank = 0;
 				foreach ($this->data['Team']['Facility'] as $facility) {
 					$this->data['Facility'][] = array(
@@ -1169,10 +1171,12 @@ class TeamsController extends AppController {
 							'rank' => ++ $rank,
 					);
 				}
-				$saved_facilities = $this->data['Team']['Facility'];
+			} else {
+				$this->Team->TeamsFacility->deleteAll(array('TeamsFacility.team_id' => $id));
 			}
 
 			if ($this->Team->save($this->data)) {
+				$transaction->commit();
 				$this->Team->contain('Person');
 				$team = $this->Team->read(null, $id);
 				foreach ($team['Person'] as $person) {
