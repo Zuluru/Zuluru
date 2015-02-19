@@ -11,8 +11,8 @@ $collapse = !empty($this->data['Division']['id']);
 
 <div class="leagues form">
 <?php echo $this->Form->create('League', array('url' => Router::normalize($this->here)));?>
-<p><?php echo $this->ZuluruHtml->icon('gears_32.png', array('class' => 'basic', 'style' => 'vertical-align:middle; padding-right: 5px;')); ?><a class="show_advanced basic" href="#">Show advanced configuration</a>
-<?php echo $this->ZuluruHtml->icon('gear_32.png', array('class' => 'advanced', 'style' => 'vertical-align:middle; padding-right: 5px;')); ?><a class="show_basic advanced" href="#">Show basic configuration</a></p>
+<p><?php echo $this->ZuluruHtml->icon('gears_32.png', array('class' => 'basic', 'style' => 'vertical-align:middle; padding-right: 5px;')); ?><a class="show_advanced basic" href="#"><?php __('Show advanced configuration'); ?></a>
+<?php echo $this->ZuluruHtml->icon('gear_32.png', array('class' => 'advanced', 'style' => 'vertical-align:middle; padding-right: 5px;')); ?><a class="show_basic advanced" href="#"><?php __('Show basic configuration'); ?></a></p>
 	<fieldset>
 		<legend><?php __('League Information'); ?></legend>
 	<?php
@@ -350,14 +350,16 @@ $collapse = !empty($this->data['Division']['id']);
 		</div>
 	<?php endif; ?>
 	</fieldset>
-<p><?php echo $this->ZuluruHtml->icon('gears_32.png', array('class' => 'basic', 'style' => 'vertical-align:middle; padding-right: 5px;')); ?><a class="show_advanced basic" href="#">Show advanced configuration</a>
-<?php echo $this->ZuluruHtml->icon('gear_32.png', array('class' => 'advanced', 'style' => 'vertical-align:middle; padding-right: 5px;')); ?><a class="show_basic advanced" href="#">Show basic configuration</a></p>
+<p><?php echo $this->ZuluruHtml->icon('gears_32.png', array('class' => 'basic', 'style' => 'vertical-align:middle; padding-right: 5px;')); ?><a class="show_advanced basic" href="#"><?php __('Show advanced configuration'); ?></a>
+<?php echo $this->ZuluruHtml->icon('gear_32.png', array('class' => 'advanced', 'style' => 'vertical-align:middle; padding-right: 5px;')); ?><a class="show_basic advanced" href="#"><?php __('Show basic configuration'); ?></a></p>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
 
 <?php
 // Add JavaScript functions for "select all" buttons and hiding blocks of fields
 
+$unselect = __('Unselect all stats', true);
+$select = __('Select all stats', true);
 echo $this->Html->scriptBlock("
 function trackingCheckboxChanged() {
 	setting = jQuery('#LeagueStatTracking').val();
@@ -371,10 +373,10 @@ function trackingCheckboxChanged() {
 function selectAll(id) {
 	var label = jQuery('#selectAll').text();
 	var check = true;
-	if (label.substr(0,6) == 'Select') {
-		jQuery('#selectAll').text('Unselect all stats');
+	if (label == '$select') {
+		jQuery('#selectAll').text('$unselect');
 	} else {
-		jQuery('#selectAll').text('Select all stats');
+		jQuery('#selectAll').text('$select');
 		check = false;
 	}
 

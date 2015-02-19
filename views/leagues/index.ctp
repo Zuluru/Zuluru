@@ -8,45 +8,46 @@ if (!empty($sport)) {
 
 <div class="leagues index">
 <h2><?php __('Leagues');?></h2>
-<?php if (empty($leagues)): ?>
-<p class="warning-message">There are no leagues currently active. Please check back periodically for updates<?php if (!empty($years)) echo ' or use the links below to review historical information'; ?>.</p>
-<?php else: ?>
 <?php
-$sports = array_unique(Set::extract('/League/sport', $leagues));
-echo $this->element('selector', array(
-		'title' => 'Sport',
-		'options' => $sports,
-));
+if (empty($leagues)):
+	echo $this->Html->para('warning-message', sprintf(__('There are no leagues currently active. Please check back periodically for updates%s.', true),
+			!empty($years) ? ' ' . __('or use the links below to review historical information', true) : ''));
+else:
+	$sports = array_unique(Set::extract('/League/sport', $leagues));
+	echo $this->element('selector', array(
+			'title' => 'Sport',
+			'options' => $sports,
+	));
 
-$seasons = array_unique(Set::extract('/League/long_season', $leagues));
-echo $this->element('selector', array(
-		'title' => 'Season',
-		'options' => $seasons,
-));
+	$seasons = array_unique(Set::extract('/League/long_season', $leagues));
+	echo $this->element('selector', array(
+			'title' => 'Season',
+			'options' => $seasons,
+	));
 
-$days = Set::extract('/Division/Day[id!=]', $leagues);
-$days = Set::combine($days, '{n}.Day.id', '{n}.Day.name');
-ksort($days);
-echo $this->element('selector', array(
-		'title' => 'Day',
-		'options' => $days,
-));
+	$days = Set::extract('/Division/Day[id!=]', $leagues);
+	$days = Set::combine($days, '{n}.Day.id', '{n}.Day.name');
+	ksort($days);
+	echo $this->element('selector', array(
+			'title' => 'Day',
+			'options' => $days,
+	));
 
 ?>
 <table class="list">
 <?php
-$affiliate_id = null;
+	$affiliate_id = null;
 
-foreach ($leagues as $league):
-	$is_manager = $is_logged_in && in_array($league['League']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
+	foreach ($leagues as $league):
+		$is_manager = $is_logged_in && in_array($league['League']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'));
 
-	if ($league['League']['affiliate_id'] != $affiliate_id):
-		$affiliate_id = $league['League']['affiliate_id'];
-		$sport = null;
-		$affiliate_sports = array_unique(Set::extract("/League[affiliate_id=$affiliate_id]/sport", $leagues));
-		$affiliate_seasons = array_unique(Set::extract("/League[affiliate_id=$affiliate_id]/long_season", $leagues));
-		$affiliate_days = array_unique(Set::extract("/League[affiliate_id=$affiliate_id]/../Division/Day/name", $leagues));
-		if (count($affiliates) > 1):
+		if ($league['League']['affiliate_id'] != $affiliate_id):
+			$affiliate_id = $league['League']['affiliate_id'];
+			$sport = null;
+			$affiliate_sports = array_unique(Set::extract("/League[affiliate_id=$affiliate_id]/sport", $leagues));
+			$affiliate_seasons = array_unique(Set::extract("/League[affiliate_id=$affiliate_id]/long_season", $leagues));
+			$affiliate_days = array_unique(Set::extract("/League[affiliate_id=$affiliate_id]/../Division/Day/name", $leagues));
+			if (count($affiliates) > 1):
 ?>
 	<tr class="<?php echo $this->element('selector_classes', array('title' => 'Sport', 'options' => $affiliate_sports)); ?> <?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $affiliate_seasons)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $affiliate_days)); ?>">
 		<th<?php if (!$is_admin) echo ' colspan="2"'; ?>>
@@ -63,44 +64,44 @@ foreach ($leagues as $league):
 			<?php endif; ?>
 	</tr>
 <?php
+			endif;
 		endif;
-	endif;
 
-	if ($league['League']['sport'] != $sport):
-		$sport = $league['League']['sport'];
-		Configure::load("sport/$sport");
-		$season = null;
-		if (count($sports) > 1):
-			$league_seasons = array_unique(Set::extract("/League[affiliate_id=$affiliate_id][sport=$sport]/long_season", $leagues));
-			$league_days = array_unique(Set::extract("/League[affiliate_id=$affiliate_id][sport=$sport]/../Division/Day/name", $leagues));
+		if ($league['League']['sport'] != $sport):
+			$sport = $league['League']['sport'];
+			Configure::load("sport/$sport");
+			$season = null;
+			if (count($sports) > 1):
+				$league_seasons = array_unique(Set::extract("/League[affiliate_id=$affiliate_id][sport=$sport]/long_season", $leagues));
+				$league_days = array_unique(Set::extract("/League[affiliate_id=$affiliate_id][sport=$sport]/../Division/Day/name", $leagues));
 ?>
 	<tr class="<?php echo $this->element('selector_classes', array('title' => 'Sport', 'options' => $sport)); ?> <?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $league_seasons)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $league_days)); ?>">
 		<th colspan="2"><?php echo Inflector::humanize($sport); ?></th>
 	</tr>
 <?php
+			endif;
 		endif;
-	endif;
 
-	if ($league['League']['long_season'] != $season):
-		$season = $league['League']['long_season'];
-		if (count($seasons) > 1):
-			$season_days = array_unique(Set::extract("/League[affiliate_id=$affiliate_id][sport=$sport][long_season=$season]/../Division/Day/name", $leagues));
+		if ($league['League']['long_season'] != $season):
+			$season = $league['League']['long_season'];
+			if (count($seasons) > 1):
+				$season_days = array_unique(Set::extract("/League[affiliate_id=$affiliate_id][sport=$sport][long_season=$season]/../Division/Day/name", $leagues));
 ?>
 	<tr class="<?php echo $this->element('selector_classes', array('title' => 'Sport', 'options' => $sport)); ?> <?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $season)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $season_days)); ?>">
 		<th colspan="2"><?php echo $season; ?></th>
 	</tr>
 <?php
+			endif;
 		endif;
-	endif;
 
-	// If the league has only a single division, we'll merge the details
-	$collapse = (count($league['Division']) == 1);
-	if ($collapse):
-		$class = 'inner-border';
-		$is_coordinator = in_array($league['Division'][0]['id'], $this->UserCache->read('DivisionIDs'));
-	else:
-		$class = '';
-		$division_days = array_unique(Set::extract('/Division/Day/name', $league));
+		// If the league has only a single division, we'll merge the details
+		$collapse = (count($league['Division']) == 1);
+		if ($collapse):
+			$class = 'inner-border';
+			$is_coordinator = in_array($league['Division'][0]['id'], $this->UserCache->read('DivisionIDs'));
+		else:
+			$class = '';
+			$division_days = array_unique(Set::extract('/Division/Day/name', $league));
 ?>
 	<tr class="<?php echo $this->element('selector_classes', array('title' => 'Sport', 'options' => $sport)); ?> <?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $season)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $division_days)); ?>">
 		<td<?php if (!($is_admin || $is_manager)) echo ' colspan="2"'; ?> class="inner-border">
@@ -111,10 +112,10 @@ foreach ($leagues as $league):
 		<?php endif; ?>
 	</tr>
 <?php
-	endif;
+		endif;
 
-	foreach ($league['Division'] as $division):
-		$division_days = array_unique(Set::extract('/Day/name', $division));
+		foreach ($league['Division'] as $division):
+			$division_days = array_unique(Set::extract('/Day/name', $division));
 ?>
 	<tr class="<?php echo $this->element('selector_classes', array('title' => 'Sport', 'options' => $sport)); ?> <?php echo $this->element('selector_classes', array('title' => 'Season', 'options' => $season)); ?> <?php echo $this->element('selector_classes', array('title' => 'Day', 'options' => $division_days)); ?>">
 		<td class="<?php echo $class;?>"><?php
@@ -135,8 +136,8 @@ foreach ($leagues as $league):
 		</td>
 	</tr>
 <?php
+		endforeach;
 	endforeach;
-endforeach;
 ?>
 </table>
 <?php endif; ?>
