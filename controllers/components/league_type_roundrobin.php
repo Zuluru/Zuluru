@@ -47,9 +47,9 @@ class LeagueTypeRoundrobinComponent extends LeagueTypeComponent
 			'blankset' => sprintf(__('set of blank unscheduled games for all teams in a division (%d teams, %d games, one day)', true), $num_teams, $num_teams / 2),
 			'oneset' => sprintf(__('set of randomly scheduled games for all teams in a division (%d teams, %d games, one day)', true), $num_teams, $num_teams / 2),
 			'fullround' => sprintf(__('full-division round-robin (%d teams, %d games over %d weeks)', true), $num_teams, ($num_teams - 1) * ($num_teams / 2), $num_teams - 1),
-			'halfroundstandings' => sprintf(__('half-division round-robin (%d teams, %d games over %d weeks).  2 pools (top, bottom) divided by team standings.', true), $num_teams, (($num_teams / 2 ) - 1) * ($num_teams / 2), $num_teams / 2 - 1),
-			'halfroundrating' => sprintf(__('half-division round-robin (%d teams, %d games over %d weeks).  2 pools (top/bottom) divided by rating.', true), $num_teams, (($num_teams / 2 ) - 1) * ($num_teams / 2), $num_teams / 2 - 1),
-			'halfroundmix' => sprintf(__('half-division round-robin (%d teams, %d games over %d weeks).  2 even (interleaved) pools divided by team standings.', true), $num_teams, (($num_teams / 2 ) - 1) * ($num_teams / 2), $num_teams / 2 - 1),
+			'halfroundstandings' => sprintf(__('half-division round-robin (%d teams, %d games over %d weeks), with 2 pools (top, bottom) divided by team standings', true), $num_teams, (($num_teams / 2 ) - 1) * ($num_teams / 2), $num_teams / 2 - 1),
+			'halfroundrating' => sprintf(__('half-division round-robin (%d teams, %d games over %d weeks), with 2 pools (top/bottom) divided by rating', true), $num_teams, (($num_teams / 2 ) - 1) * ($num_teams / 2), $num_teams / 2 - 1),
+			'halfroundmix' => sprintf(__('half-division round-robin (%d teams, %d games over %d weeks), with 2 even (interleaved) pools divided by team standings', true), $num_teams, (($num_teams / 2 ) - 1) * ($num_teams / 2), $num_teams / 2 - 1),
 		);
 		if($num_teams % 4) {
 			// Can't do a half-round without an even number of teams in

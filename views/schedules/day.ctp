@@ -16,7 +16,7 @@ echo $this->ZuluruForm->input('date', array(
 echo $this->ZuluruForm->end(__('Submit', true), array('div' => false));
 ?>
 <?php if (empty($games)):?>
-<p>No games scheduled for today.</p>
+<p><?php __('No games scheduled for today.'); ?></p>
 <?php else: ?>
 	<table class="list">
 

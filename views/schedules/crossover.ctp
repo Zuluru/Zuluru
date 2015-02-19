@@ -15,7 +15,7 @@ echo $this->element('hidden', array('fields' => $this->data));
 ?>
 
 <fieldset>
-<legend>Select number of crossover games</legend>
+<legend><?php __('Select number of crossover games'); ?></legend>
 
 <?php
 $options = array();
@@ -25,7 +25,7 @@ for ($i = 1; $i <= floor($teams / 2); ++ $i) {
 echo $this->ZuluruForm->input('Game.pools', array(
 		'label' => __('How many crossover games do you want?', true),
 		'options' => $options,
-		'after' => $this->Html->para(null, 'This is the total number of crossover games for all pools in this division.'),
+		'after' => $this->Html->para(null, __('This is the total number of crossover games for all pools in this division.', true)),
 ));
 ?>
 

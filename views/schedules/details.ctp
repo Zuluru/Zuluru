@@ -7,7 +7,7 @@ $this->Html->addCrumb (__('Set Pool Details', true));
 
 <div class="schedules add">
 
-<p>You are scheduling a tournament with multiple pools. Please provide the details for each pool.</p>
+<p><?php __('You are scheduling a tournament with multiple pools. Please provide the details for each pool.'); ?></p>
 
 <?php
 echo $this->Form->create ('Game', array('url' => Router::normalize($this->here)));
@@ -16,7 +16,7 @@ echo $this->element('hidden', array('fields' => $this->data));
 ?>
 
 <fieldset>
-<legend>Pool Details</legend>
+<legend><?php __('Pool Details'); ?></legend>
 <table class="list">
 	<tr>
 		<th></th>

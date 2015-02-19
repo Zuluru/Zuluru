@@ -16,7 +16,7 @@ echo $this->element('hidden', array('fields' => $this->data));
 ?>
 
 <fieldset>
-<legend>Select desired start date</legend>
+<legend><?php __('Select desired start date'); ?></legend>
 
 <p><?php
 printf (__('Scheduling a %s will create a total of ', true), $desc);
@@ -33,14 +33,22 @@ if (count($num_fields) > 1) {
 ?></p>
 
 <?php if (!empty($preview)): ?>
-<p>This will create the following games:<?php echo $this->Html->nestedList($preview); ?></p>
+<p><?php
+__('This will create the following games:');
+echo $this->Html->nestedList($preview);
+?></p>
 <?php endif; ?>
 
 <?php
 if (empty($dates)):
 ?>
-<p>You have no future dates available.
-Choose "Schedule games in the past" below to see past options, or make future game slots available to this division and try again.</p>
+<p><?php
+__('You have no future dates available.');
+if (Configure::read('feature.allow_past_games')) {
+	echo ' ';
+	__('Choose "Schedule games in the past" below to see past options, or make future game slots available to this division and try again.');
+}
+?></p>
 <?php
 else:
 	// We have an array like 0 => timestamp, and need timestamp => readable
@@ -52,11 +60,18 @@ else:
 		));
 	} else {
 ?>
-<p>Choose your preferred time slot for each round.
-This allows you to ensure that teams have a maximum number of games on each day, place byes where necessary, etc.
-Note that games will be placed no earlier than these time slots, but may be later depending on field availability.
-Rounds may be scheduled to start after "later" rounds, for example if you have a particular matchup that you need to schedule at a particular time.
-If you leave all rounds at the earliest possible time, the system will schedule games as closely as possible; you don't need to set each round's time if you have no constraints.</p>
+<p><?php
+__('Choose your preferred time slot for each round.');
+echo ' ';
+__('This allows you to ensure that teams have a maximum number of games on each day, place byes where necessary, etc.');
+echo ' ';
+__('Note that games will be placed no earlier than these time slots, but may be later depending on field availability.');
+echo ' ';
+__('Rounds may be scheduled to start after "later" rounds, for example if you have a particular matchup that you need to schedule at a particular time.');
+echo ' ';
+__('If you leave all rounds at the earliest possible time, the system will schedule games as closely as possible; you don\'t need to set each round\'s time if you have no constraints.');
+echo ' ';
+?></p>
 <?php
 		$dates = array_map(array($this->ZuluruTime, 'fulldatetime'), $dates);
 		foreach (array_keys($preview) as $round) {

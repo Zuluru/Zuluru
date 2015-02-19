@@ -11,57 +11,54 @@ $this->Html->addCrumb (__('Select Type', true));
 <?php
 $is_tournament = isset($pool) || isset($playoff) || $division['Division']['schedule_type'] == 'tournament';
 $create = ($is_tournament ? 'tournament' : 'game(s)');
-?>
-<p>Please enter some information about the <?php echo $create; ?> to create.</p>
 
-<?php
+echo $this->Html->para(null, sprintf(__('Please enter some information about the %s to create.', true), $create));
+
 echo $this->Form->create ('Game', array('url' => Router::normalize($this->here)));
 
-if (isset($pool)):
-?>
-<p class="warning-message">You have defined pool <?php echo $pool['name']; ?> with <?php echo count($pool['PoolsTeam']); ?> teams but not yet scheduled games for it. Options below reflect your choices for scheduling this pool.</p>
-<p class="warning-message">If your pool definitions are incorrect, you can <?php
-echo $this->Html->link('delete all pools in this stage', array('controller' => 'divisions', 'action' => 'delete_stage', 'division' => $division['Division']['id'], 'stage' => $pool['stage']), array('confirm' => sprintf(__('Are you sure you want to delete %s # %d?', true), __('stage', true), $pool['stage'])));
-?> and then re-create them.</p>
-<?php
+if (isset($pool)) {
+	echo $this->Html->para('warning-message', sprintf(__('You have defined pool %s with %d teams but not yet scheduled games for it. Options below reflect your choices for scheduling this pool.', true), $pool['name'], count($pool['PoolsTeam'])));
+	echo $this->Html->para('warning-message', sprintf(__('If your pool definitions are incorrect, you can %s and then re-create them.', true),
+		$this->Html->link(__('delete all pools in this stage', true),
+						array('controller' => 'divisions', 'action' => 'delete_stage', 'division' => $division['Division']['id'], 'stage' => $pool['stage']),
+						array('confirm' => sprintf(__('Are you sure you want to delete %s # %d?', true), __('stage', true), $pool['stage'])))
+	));
+
 	$this->data['Game']['pool_id'] = $pool['id'];
-endif;
+}
 $this->data['Game']['step'] = 'type';
 ?>
 
 <fieldset>
-<legend>Create a ...</legend>
+<legend><?php __('Create a ...'); ?></legend>
 <?php
 echo $this->Form->input('type', array(
 		'legend' => false,
 		'type' => 'radio',
 		'options' => $types,
 ));
-?>
 
-<p>Select the type of game or games to add. Note that for auto-generated schedules, <?php __(Configure::read('sport.fields')); ?> will be automatically allocated.
-<?php
 if ($is_tournament) {
-	echo $this->ZuluruHtml->help(array('action' => 'schedules', 'add', 'tournament', 'schedule_type'));
+	$help = $this->ZuluruHtml->help(array('action' => 'schedules', 'add', 'tournament', 'schedule_type'));
 } else {
-	echo $this->ZuluruHtml->help(array('action' => 'schedules', 'add', 'schedule_type', $division['Division']['schedule_type']));
+	$help = $this->ZuluruHtml->help(array('action' => 'schedules', 'add', 'schedule_type', $division['Division']['schedule_type']));
 }
-?>
-</p>
-<?php if (!$is_tournament): ?>
-<p>Alternately, you can <?php echo $this->Html->link(__('create a playoff schedule', true), array('division' => $division['Division']['id'], 'playoff' => true)); ?>.
-<?php echo $this->ZuluruHtml->help(array('action' => 'schedules', 'playoffs')); ?>
-</p>
-<?php endif; ?>
+echo $this->Html->para(null, sprintf(__('Select the type of game or games to add. Note that for auto-generated schedules, %s will be automatically allocated.', true), __(Configure::read('sport.fields'), true)) . $help);
 
-<?php
+if (!$is_tournament) {
+	echo $this->Html->para(null, sprintf(__('Alternately, you can %s.', true),
+				$this->Html->link(__('create a playoff schedule', true), array('division' => $division['Division']['id'], 'playoff' => true))) .
+			$this->ZuluruHtml->help(array('action' => 'schedules', 'playoffs'))
+	);
+}
+
 echo $this->ZuluruForm->input('publish', array(
 		'label' => __('Publish created games for player viewing?', true),
 		'type' => 'checkbox',
 ));
 ?>
 
-<p>If this is checked, players will be able to view games immediately after creation. Uncheck it if you wish to make changes before players can view.</p>
+<p><?php __('If this is checked, players will be able to view games immediately after creation. Uncheck it if you wish to make changes before players can view.'); ?></p>
 
 <?php
 if ($is_tournament):
@@ -74,7 +71,7 @@ else:
 	));
 ?>
 
-<p>If this is checked, you will be allowed to schedule more than the expected number of games. Check it only if you need this, as it disables some safety checks.</p>
+<p><?php __('If this is checked, you will be allowed to schedule more than the expected number of games. Check it only if you need this, as it disables some safety checks.'); ?></p>
 <?php endif; ?>
 
 <?php
@@ -86,7 +83,7 @@ if ($division['Division']['double_booking']):
 	));
 ?>
 
-<p>If this is checked, you will be allowed to schedule more than one game in a game slot.</p>
+<p><?php __('If this is checked, you will be allowed to schedule more than one game in a game slot.'); ?></p>
 <?php
 else:
 	$this->data['Game']['double_booking'] = 0;

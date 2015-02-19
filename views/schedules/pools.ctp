@@ -8,13 +8,15 @@ $this->Html->addCrumb (__('Create Pools', true));
 <div class="schedules add">
 
 <p><?php
-if ($stage > 1):
-?>
-You have scheduled games for all of the existing team pools, up to stage <?php echo $stage - 1; ?> of the tournament. To proceed, you will need to define new pools.
-<?php else: ?>
-To schedule a tournament, you must first define how the teams are broken into pools for the first round.
-<?php endif; ?> Options below reflect your choices for creating these pools.
-<?php echo $this->ZuluruHtml->help(array('action' => 'schedules', 'add', 'tournament', 'pools')); ?>
+if ($stage > 1) {
+	printf(__('You have scheduled games for all of the existing team pools, up to stage %d of the tournament. To proceed, you will need to define new pools.', true), $stage - 1);
+} else {
+	__('To schedule a tournament, you must first define how the teams are broken into pools for the first round.');
+}
+echo ' ';
+__('Options below reflect your choices for creating these pools.');
+
+echo $this->ZuluruHtml->help(array('action' => 'schedules', 'add', 'tournament', 'pools')); ?>
 </p>
 
 <?php
@@ -23,7 +25,7 @@ $this->data['Game']['step'] = 'pools';
 ?>
 
 <fieldset>
-<legend>Create a ...</legend>
+<legend><?php __('Create a ...'); ?></legend>
 <?php
 echo $this->Form->input('pools', array(
 		'legend' => false,
@@ -32,7 +34,7 @@ echo $this->Form->input('pools', array(
 ));
 ?>
 
-<p>Select the number of pools to create. You will then be given options for setting the details of these pools.</p>
+<p><?php __('Select the number of pools to create. You will then be given options for setting the details of these pools.'); ?></p>
 
 </fieldset>
 

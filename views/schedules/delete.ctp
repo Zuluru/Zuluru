@@ -22,41 +22,41 @@ if (isset($division)) {
 <?php
 $published = Set::extract ('/Game[published=1]', $games);
 $finalized = Set::extract ('/Game[home_score>-1]', $games);
-?>
 
-<p>You have requested to delete games
-<?php
-if (isset($date)):
+if (isset($date)) {
 	$dates = Set::extract('/GameSlot/game_date', $games);
 	$first = min($dates);
 	$last = max($dates);
-?>
-on <?php echo $this->ZuluruTime->displayRange($first, $last); ?>
-<?php else: ?>
-from pool <?php echo $pool['Pool']['name']; ?>
-<?php endif; ?>.</p>
-<p>This will remove <?php echo count($games); ?> games<?php
-if (!empty ($published)): ?>
-, of which <?php echo count($published); ?> are published<?php
-if (!empty ($finalized)): ?>
- and <?php echo count($finalized); ?> have been finalized
-<?php endif; ?>
-<?php endif; ?>
-.<?php if (!empty ($same_pool)): ?>
- There are <?php echo count($same_pool); ?> games in the same pool but on different days which will also be deleted.<?php endif; ?>
-<?php if (!empty ($dependent)): ?>
- There are also <?php echo count($dependent); ?> additional games dependent in some way on these which will be deleted.<?php endif; ?></p>
-<?php if (!empty ($published)): ?>
-<p>Deleting published games can be confusing for coaches, captains and players, so be sure to <?php
-if (isset($division)) {
-	echo $this->Html->link (__('contact all coaches and captains', true), array('controller' => 'divisions', 'action' => 'emails', 'division' => $division['Division']['id']));
+	echo $this->Html->para(null, sprintf(__('You have requested to delete games on %s.', true), $this->ZuluruTime->displayRange($first, $last)));
 } else {
-	__('contact all coaches and captains');
+	echo $this->Html->para(null, sprintf(__('You have requested to delete games from pool %s.', true), $pool['Pool']['name']));
 }
-?> to inform them of this.</p>
-<?php endif; ?>
-<?php if (!empty ($finalized)): ?>
-<p class="warning-message">Deleting finalized games will have effects on standings <strong>which cannot be undone</strong>. Please be <strong>very sure</strong> that you want to do this before proceeding.</p>
+?>
+<p><?php
+printf(__('This will remove %d games', true), count($games));
+if (!empty ($published)) {
+	printf(__(', of which %d are published', true), count($published));
+	if (!empty ($finalized)) {
+		printf(__(' and %d have been finalized', true), count($finalized));
+	}
+}
+?>.<?php
+if (!empty ($same_pool)) {
+	echo ' ';
+	printf(__('There are %d games in the same pool but on different days which will also be deleted.', true), count($same_pool));
+}
+if (!empty ($dependent)) {
+	echo ' ';
+	printf(__('There are also %d additional games dependent in some way on these which will be deleted.', true), count($dependent));
+}
+?></p>
+<?php
+if (!empty ($published)) {
+	echo $this->Html->para(null, printf(__('Deleting published games can be confusing for coaches, captains and players, so be sure to %s to inform them of this.', true),
+		isset($division) ? $this->Html->link (__('contact all coaches and captains', true), array('controller' => 'divisions', 'action' => 'emails', 'division' => $division['Division']['id'])) : __('contact all coaches and captains')));
+}
+if (!empty ($finalized)): ?>
+<p class="warning-message"><?php __('Deleting finalized games will have effects on standings <strong>which cannot be undone</strong>. Please be <strong>very sure</strong> that you want to do this before proceeding.'); ?></p>
 <?php endif; ?>
 
 <div class="actions">

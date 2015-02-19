@@ -6,8 +6,8 @@ $this->Html->addCrumb (__('Confirm Selections', true));
 ?>
 
 <div class="schedules add">
-<p>The following information will be used to create your games:</p>
-<h3>What:</h3>
+<p><?php __('The following information will be used to create your games:'); ?></p>
+<h3><?php __('What'); ?>:</h3>
 <p><?php
 echo $desc;
 if (array_key_exists('name', $this->data['Game'])) {
@@ -23,21 +23,21 @@ if (is_array($start_date)):
 	$start_date = array_reverse($start_date, true);
 	asort($start_date);
 ?>
-<h3>Rounds to be scheduled at:</h3>
+<h3><?php __('Rounds to be scheduled at'); ?>:</h3>
 <ol>
 <?php foreach ($start_date as $round => $date): ?>
 <li value="<?php echo $round; ?>"><?php echo $this->ZuluruTime->fulldatetime($date); ?></li>
 <?php endforeach; ?>
 </ol>
 <?php else: ?>
-<h3>Start date:</h3>
+<h3><?php __('Start date'); ?>:</h3>
 <p><?php echo $this->ZuluruTime->fulldate($start_date); ?></p>
 <?php endif; ?>
 
 <?php echo $this->element('schedules/exclude'); ?>
 
-<h3>Publication:</h3>
-<p>Games will <?php echo ($this->data['Game']['publish'] ? '' : 'NOT '); ?>be published.</p>
+<h3><?php __('Publication'); ?>:</h3>
+<p><?php printf(__('Games will%s be published.', true), $this->data['Game']['publish'] ? '' : ' ' . __('NOT', true)); ?></p>
 
 <?php
 echo $this->Form->create ('Game', array('url' => Router::normalize($this->here)));
