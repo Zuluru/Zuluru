@@ -24,7 +24,7 @@ if ($is_logged_in) {
 }
 ?>
 <?php if (empty($events)): ?>
-<p class="warning-message">There are no events currently available for registration. Please check back periodically for updates.</p>
+<p class="warning-message"><?php __('There are no events currently available for registration. Please check back periodically for updates.'); ?></p>
 <?php else: ?>
 <?php
 echo $this->element('registrations/notice');
@@ -142,7 +142,7 @@ foreach ($events as $event):
 			if ($cost > 0) {
 				echo '$' . $cost;
 			} else {
-				echo $this->Html->tag ('span', 'FREE', array('class' => 'free'));
+				echo $this->Html->tag ('span', __('FREE', true), array('class' => 'free'));
 			}
 			?>
 		</td>
@@ -249,7 +249,7 @@ foreach ($events as $event):
 			if ($cost > 0) {
 				echo '$' . $cost;
 			} else {
-				echo $this->Html->tag ('span', 'FREE', array('class' => 'free'));
+				echo $this->Html->tag ('span', __('FREE', true), array('class' => 'free'));
 			}
 			?>
 		</td>

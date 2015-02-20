@@ -12,11 +12,11 @@ $collapse = !empty($this->data['Price']['id']);
 <div class="events form">
 <?php echo $this->Form->create('Event', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
-		<legend><?php printf(__(isset($add) ? 'Create %s' : 'Edit %s', true), __('Event', true)); ?></legend>
+		<legend><?php printf(isset($add) ? __('Create %s', true) : __('Edit %s', true), __('Event', true)); ?></legend>
 	<?php
 		if (isset($clone)):
 	?>
-		<p class="warning-message">You are cloning an event that has multiple price points. Cloning currently only supports a single price point. You will need to add any additional price points after saving this event.</p>
+		<p class="warning-message"><?php __('You are cloning an event that has multiple price points. Cloning currently only supports a single price point. You will need to add any additional price points after saving this event.'); ?></p>
 	<?php
 		endif;
 

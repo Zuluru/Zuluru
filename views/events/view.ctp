@@ -173,7 +173,7 @@ $admin_register = false;
 			if ($cost > 0) {
 				echo '$' . $cost;
 			} else {
-				echo $this->Html->tag ('span', 'FREE', array('class' => 'free'));
+				echo $this->Html->tag ('span', __('FREE', true), array('class' => 'free'));
 			}
 			?>
 
@@ -227,7 +227,7 @@ $admin_register = false;
 		if ($cost > 0) {
 			echo '$' . $cost;
 		} else {
-			echo $this->Html->tag ('span', 'FREE', array('class' => 'free'));
+			echo $this->Html->tag ('span', __('FREE', true), array('class' => 'free'));
 		}
 		?></td>
 		<?php if ($deposit): ?>
@@ -246,7 +246,7 @@ $admin_register = false;
 		if (!empty($price_allowed[$price['id']]['allowed'])) {
 			echo $this->Html->link(__('Register now!', true),
 					array('controller' => 'registrations', 'action' => 'register', 'event' => $id, 'option' => $price['id']),
-					array('title' => __('Register for ', true) . $event['Event']['name'] . ' ' . $price['name'])
+					array('title' => sprintf(__('Register for %s', true), $event['Event']['name'] . ' ' . $price['name']))
 			);
 			if (strtotime($price['open']) > time() && ($is_admin || $is_manager)) {
 				$admin_register = true;
@@ -288,7 +288,7 @@ else:
 	if ($allowed) {
 		echo $this->Html->tag ('h2', $this->Html->link(__('Register now!', true),
 				array('controller' => 'registrations', 'action' => 'register', 'event' => $id),
-				array('title' => __('Register for ', true) . $event['Event']['name'], 'style' => 'text-decoration: underline;')
+				array('title' => sprintf(__('Register for %s', true), $event['Event']['name']), 'style' => 'text-decoration: underline;')
 		));
 	}
 	if ($admin_register) {
