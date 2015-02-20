@@ -12,7 +12,7 @@ if (isset ($add)) {
 <div class="prices form">
 <?php echo $this->Form->create('Price', array('url' => Router::normalize($this->here))); ?>
 	<fieldset>
-		<legend><?php printf(__(isset($add) ? 'Create %s' : 'Edit %s', true), __('Price Point', true)); ?></legend>
+		<legend><?php printf(isset($add) ? __('Create %s', true) : __('Edit %s', true), __('Price Point', true)); ?></legend>
 	<?php
 		if (!isset ($add)) {
 			echo $this->Form->input('id');
@@ -45,7 +45,7 @@ if (isset ($add)) {
 			));
 		}
 		echo $this->ZuluruForm->input('open', array(
-			'label' => 'Opens on',
+			'label' => __('Opens on', true),
 			'minYear' => Configure::read('options.year.event.min'),
 			'maxYear' => Configure::read('options.year.event.max'),
 			'looseYears' => true,
@@ -53,7 +53,7 @@ if (isset ($add)) {
 			'after' => $this->Html->para (null, __('The date and time at which registration for this event will open (12:01AM recommended to disambiguate noon from midnight).', true)),
 		));
 		echo $this->ZuluruForm->input('close', array(
-			'label' => 'Closes on',
+			'label' => __('Closes on', true),
 			'minYear' => Configure::read('options.year.event.min'),
 			'maxYear' => Configure::read('options.year.event.max'),
 			'looseYears' => true,
