@@ -52,7 +52,7 @@ function methodChanged() {
 		echo $this->ZuluruForm->input('notes', array(
 				'type' => 'textbox',
 				'cols' => 72,
-				'after' => $this->Html->para(null, 'These notes will be attached to the new payment record, and are only visible to admins.'),
+				'after' => $this->Html->para(null, __('These notes will be attached to the new payment record, and are only visible to admins.', true)),
 		));
 	?>
 	</div>
@@ -60,7 +60,7 @@ function methodChanged() {
 	<?php
 		echo $this->ZuluruForm->input('credit_id', array(
 				'options' => $credit_options,
-				'after' => $this->Html->para(null, 'The lowest of the credit amount, specified payment amount, and outstanding balance will be used as the actual payment amount.'),
+				'after' => $this->Html->para(null, __('The lowest of the credit amount, specified payment amount, and outstanding balance will be used as the actual payment amount.', true)),
 		));
 	?>
 	</div>

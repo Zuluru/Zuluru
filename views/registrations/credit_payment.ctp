@@ -18,7 +18,7 @@ $this->Html->addCrumb (sprintf(__('%s Payment', true), __('Credit', true)));
 
 		if (!in_array($payment['Registration']['payment'], Configure::read('registration_cancelled'))) {
 			echo $this->ZuluruForm->input('mark_refunded', array(
-					'label' => 'Mark this registration as refunded?',
+					'label' => __('Mark this registration as refunded?', true),
 					'type' => 'checkbox',
 					'checked' => true,
 			));
@@ -30,14 +30,14 @@ $this->Html->addCrumb (sprintf(__('%s Payment', true), __('Credit', true)));
 				'type' => 'textbox',
 				'cols' => 72,
 				'default' => $payment['Payment']['notes'],
-				'after' => $this->Html->para(null, 'These notes will be preserved with the original registration, and are only visible to admins.'),
+				'after' => $this->Html->para(null, __('These notes will be preserved with the original registration, and are only visible to admins.', true)),
 		));
 
 		echo $this->ZuluruForm->input('credit_notes', array(
 				'type' => 'textbox',
 				'cols' => 72,
-				'default' => "Credit for registration for {$payment['Registration']['Event']['name']}",
-				'after' => $this->Html->para(null, 'These notes will be attached to the new credit record, and will be visible by the person in question.'),
+				'default' => sprintf(__('Credit for registration for %s', true), $payment['Registration']['Event']['name']),
+				'after' => $this->Html->para(null, __('These notes will be attached to the new credit record, and will be visible by the person in question.', true)),
 		));
 	?>
 	</fieldset>

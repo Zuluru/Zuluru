@@ -164,7 +164,7 @@ jQuery(".register_help").hide();
 
 <?php
 if (!empty($other)):
-	echo $this->Html->para('error-message', 'You have registered for the following events, but cannot pay right now:');
+	echo $this->Html->para('error-message', __('You have registered for the following events, but cannot pay right now:', true));
 ?>
 <table class="list">
 	<tr>
