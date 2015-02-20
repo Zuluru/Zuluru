@@ -1,6 +1,6 @@
 <?php
 if (empty ($divisions)) {
-	echo 'No divisions operate on the selected night.';
+	__('No divisions operate on the selected night.');
 } else {
 	foreach ($divisions as $division) {
 		echo $this->Form->input ("Division.{$division['Division']['id']}", array(

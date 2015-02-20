@@ -7,9 +7,9 @@ $this->Html->addCrumb (__('Adjust Initial Seeds', true));
 <div class="divisions seeds">
 <h2><?php  echo __('Adjust Initial Seeds', true) . ': ' . $division['Division']['full_league_name'];?></h2>
 
-<p>Use the links below to adjust a team's initial seeds for 'better' or for 'worse'. Alternatively, you can enter a new seed into the box beside each team. Changes are <strong>not</strong> saved until you click 'Save Changes' below. Multiple teams cannot have the same seed.</p>
-<p>Note that this adjusts a team's <strong>initial</strong> seed; their <strong>current</strong> seed will be unaffected, as it is determined by game results. Initial seeds are typically unimportant for standard leagues, but are required for non-playoff tournaments.</p>
-<p>For the seed values, a <strong>LOWER</strong> numbered seed is <strong>BETTER</strong>, and a <strong>HIGHER</strong> numbered seed is <strong>WORSE</strong>.</p>
+<p><?php __('Use the links below to adjust a team\'s initial seeds for \'better\' or for \'worse\'. Alternatively, you can enter a new seed into the box beside each team. Changes are <strong>not</strong> saved until you click \'Save Changes\' below. Multiple teams cannot have the same seed.'); ?></p>
+<p><?php __('Note that this adjusts a team\'s <strong>initial</strong> seed; their <strong>current</strong> seed will be unaffected, as it is determined by game results. Initial seeds are typically unimportant for standard leagues, but are required for non-playoff tournaments.'); ?></p>
+<p><?php __('For the seed values, a <strong>LOWER</strong> numbered seed is <strong>BETTER</strong>, and a <strong>HIGHER</strong> numbered seed is <strong>WORSE</strong>.'); ?></p>
 
 <?php echo $this->Form->create ('Team', array('url' => Router::normalize($this->here))); ?>
 

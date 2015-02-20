@@ -140,7 +140,7 @@ echo $this->Html->tableCells ($rows, array(), array('class' => 'altrow'));
 </thead>
 </table>
 
-<p>Scores are listed with the first score belonging the team whose name appears on the left.
-<br />Green backgrounds means row team is winning season series, red means column team is winning series. Defaulted games are not counted.</p>
+<p><?php __('Scores are listed with the first score belonging the team whose name appears on the left.'); ?>
+<br /><?php __('Green backgrounds means row team is winning season series, red means column team is winning series. Defaulted games are not counted.'); ?></p>
 
 </div>

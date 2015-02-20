@@ -10,9 +10,9 @@ $this->Html->addCrumb (__('Approve Scores', true));
 <table class="list">
 	<thead>
 		<tr>
-			<th>Game Date</th>
-			<th colspan="2">Home Team Submission</th>
-			<th colspan="2">Away Team Submission</th>
+			<th><?php __('Game Date'); ?></th>
+			<th colspan="2"><?php __('Home Team Submission'); ?></th>
+			<th colspan="2"><?php __('Away Team Submission'); ?></th>
 			<th></th>
 		</tr>
 	</thead>

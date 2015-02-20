@@ -82,7 +82,7 @@ foreach ($slots as $slot):
 		<td><?php
 			echo $game['Pool']['name'];
 			if ($game['Pool']['type'] != 'crossover') {
-				printf(' (' . __('round', true) . '&nbsp;%s)', $game['round']);
+				printf(__(' (round&nbsp;%s)', true), $game['round']);
 			}
 		?></td>
 <?php endif; ?>

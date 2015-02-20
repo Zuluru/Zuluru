@@ -7,9 +7,9 @@ $this->Html->addCrumb (__('Adjust Ratings', true));
 <div class="divisions ratings">
 <h2><?php  echo __('Adjust Ratings', true) . ': ' . $division['Division']['full_league_name'];?></h2>
 
-<p>Use the links below to adjust a team's initial ratings for 'better' or for 'worse'. Alternatively, you can enter a new rating into the box beside each team. Changes are <strong>not</strong> saved until you click 'Save Changes' below. Multiple teams can have the same ratings, and likely will at the start of the season.</p>
-<p>Note that this adjusts a team's <strong>initial</strong> rating; their <strong>current</strong> rating will be recalculated in the next daily run. Such adjustments are not typically needed mid-season, as ladder systems take care of mis-seedings eventually, but this can speed the process if you belatedly realize that a team was grossly mis-seeded to start the season.</p>
-<p>For the rating values, a <strong>HIGHER</strong> numbered rating is <strong>BETTER</strong>, and a <strong>LOWER</strong> numbered rating is <strong>WORSE</strong>.</p>
+<p><?php __('Use the links below to adjust a team\'s initial ratings for \'better\' or for \'worse\'. Alternatively, you can enter a new rating into the box beside each team. Changes are <strong>not</strong> saved until you click \'Save Changes\' below. Multiple teams can have the same ratings, and likely will at the start of the season.'); ?></p>
+<p><?php __('Note that this adjusts a team\'s <strong>initial</strong> rating; their <strong>current</strong> rating will be recalculated. Such adjustments are not typically needed mid-season, as ladder systems take care of mis-seedings eventually, but this can speed the process if you belatedly realize that a team was grossly mis-rated to start the season.'); ?></p>
+<p><?php __('For the rating values, a <strong>HIGHER</strong> numbered rating is <strong>BETTER</strong>, and a <strong>LOWER</strong> numbered rating is <strong>WORSE</strong>.'); ?></p>
 
 <?php echo $this->Form->create ('Team', array('url' => Router::normalize($this->here))); ?>
 

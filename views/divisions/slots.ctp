@@ -9,7 +9,7 @@ $this->Html->addCrumb ($division['Division']['full_league_name']);
 <div class="divisions slots">
 <h2><?php echo sprintf(__('Division %s Availability Report', true), Configure::read('sport.field_cap')) . ': ' . $division['Division']['full_league_name'];?></h2>
 
-<p>Select a date below on which to view all available gameslots:</p>
+<p><?php __('Select a date below on which to view all available gameslots:'); ?></p>
 <?php
 echo $this->Form->create(false, array('url' => Router::normalize($this->here)));
 echo $this->Form->input('date', array(
@@ -32,21 +32,21 @@ echo $this->Form->end();
 <p><?php echo $this->ZuluruTime->fulldate($date); ?></p>
 <table class="list">
 	<tr>
-		<th>ID</th>
+		<th><?php __('ID'); ?></th>
 		<th><?php __(Configure::read('sport.field_cap')); ?></th>
-		<th><?php __(Configure::read('sport.field_cap')); ?> Region</th>
-		<th>Start Time</th>
-		<th>Game</th>
-		<th>Division</th>
+		<th><?php printf(__('%s Region', true), __(Configure::read('sport.field_cap'))); ?></th>
+		<th><?php __('Start Time'); ?></th>
+		<th><?php __('Game'); ?></th>
+		<th><?php __('Division'); ?></th>
 <?php if ($is_tournament): ?>
-		<th>Pool</th>
+		<th><?php __('Pool'); ?></th>
 <?php endif; ?>
-		<th><?php __($division['Division']['schedule_type'] == 'competition' ? 'Team' : 'Home'); ?></th>
+		<th><?php __($division['Division']['schedule_type'] == 'competition' ? __('Team', true) : __('Home', true)); ?></th>
 <?php if ($division['Division']['schedule_type'] != 'competition'): ?>
-		<th>Away</th>
+		<th><?php __('Away'); ?></th>
 <?php endif; ?>
 <?php if (Configure::read('feature.region_preference')): ?>
-		<th>Home Pref</th>
+		<th><?php __('Home Pref'); ?></th>
 <?php endif; ?>
 	</tr>
 <?php
@@ -78,7 +78,7 @@ foreach ($slots as $slot):
 		<td><?php
 			echo $game['Pool']['name'];
 			if ($game['Pool']['type'] != 'crossover') {
-				echo " (round&nbsp;{$game['round']})";
+				printf(__(' (round&nbsp;%s)', true), $game['round']);
 			}
 		?></td>
 <?php endif; ?>
