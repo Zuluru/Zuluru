@@ -256,7 +256,7 @@ echo $this->element ('spirit/input', array(
 if ($game['Division']['allstars'] != 'never'):
 ?>
 <fieldset class="AllstarDetails">
-<legend>Allstar Nominations: <?php echo $game['HomeTeam']['name']; ?></legend>
+<legend><?php __('Allstar Nominations'); ?>: <?php echo $game['HomeTeam']['name']; ?></legend>
 
 <?php
 if (array_key_exists ('Allstar', $this->data)) {
@@ -290,7 +290,7 @@ echo $this->element ('spirit/input', array(
 if ($game['Division']['allstars'] != 'never'):
 ?>
 <fieldset class="AllstarDetails">
-<legend>Allstar Nominations: <?php echo $game['AwayTeam']['name']; ?></legend>
+<legend><?php __('Allstar Nominations'); ?>: <?php echo $game['AwayTeam']['name']; ?></legend>
 
 <?php
 // Build list of allstar options

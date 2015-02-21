@@ -7,15 +7,16 @@ $this->Html->addCrumb (__('Live Game Scoring', true));
 <div class="games form">
 <h2><?php  __('Live Game Scoring'); ?></h2>
 
-<p>Submit live results for the <?php
-echo $this->ZuluruTime->date ($game['GameSlot']['game_date']) . ' ' .
-	$this->ZuluruTime->time ($game['GameSlot']['game_start']) . '-' .
-	$this->ZuluruTime->time ($game['GameSlot']['display_game_end']);
-?> at <?php echo $this->element('fields/block', array('field' => $game['GameSlot']['Field'], 'display_field' => 'long_name'));
-?> between <?php echo $this->element('teams/block', array('team' => $team, 'show_shirt' => false));
-?> and <?php echo $this->element('teams/block', array('team' => $opponent, 'show_shirt' => false)); ?>.</p>
-
 <?php
+echo $this->Html->para(null, sprintf(__('Submit live results for the %s game at %s between %s and %s.', true),
+	$this->ZuluruTime->date ($game['GameSlot']['game_date']) . ' ' .
+		$this->ZuluruTime->time ($game['GameSlot']['game_start']) . '-' .
+		$this->ZuluruTime->time ($game['GameSlot']['display_game_end']),
+	$this->element('fields/block', array('field' => $game['GameSlot']['Field'], 'display_field' => 'long_name')),
+	$this->element('teams/block', array('team' => $team, 'show_shirt' => false)),
+	$this->element('teams/block', array('team' => $opponent, 'show_shirt' => false))
+));
+
 if (!empty($game['ScoreEntry'])) {
 	$entry = current($game['ScoreEntry']);
 	if ($entry['team_id'] === null || $entry['team_id'] == $team['id']) {
@@ -102,7 +103,7 @@ if (Configure::read('feature.twitter')) {
 	echo $this->Form->hidden('play', array('value' => 'Start'));
 	echo $this->Form->end();
 ?>
-<p class="warning-message">Do not click "Submit" until the game actually starts, as this initiates an internal timer used to track the times of plays.</p>
+<p class="warning-message"><?php __('Do not click "Submit" until the game actually starts, as this initiates an internal timer used to track the times of plays.'); ?></p>
 </div>
 </div>
 <?php

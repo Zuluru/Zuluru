@@ -370,7 +370,7 @@ $team_names = array(
 
 	<?php if (!empty($game['ScoreDetail'])): ?>
 	<fieldset>
-		<legend>Box Score</legend>
+		<legend><?php __('Box Score'); ?></legend>
 		<div id="BoxScore">
 			<ul>
 			<?php
