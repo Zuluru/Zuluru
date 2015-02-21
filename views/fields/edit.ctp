@@ -11,7 +11,7 @@ if (isset ($add)) {
 <div class="fields form">
 <?php echo $this->Form->create('Field', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
-		<legend><?php printf(__(isset($add)?'Create %s':'Edit %s',true), __(Configure::read('ui.field_cap'), true)); ?></legend>
+		<legend><?php printf(isset($add) ? __('Create %s', true) : __('Edit %s', true), __(Configure::read('ui.field_cap'), true)); ?></legend>
 		<?php
 		if (!isset ($add)) {
 			echo $this->Form->input('id');
@@ -19,7 +19,7 @@ if (isset ($add)) {
 		echo $this->ZuluruForm->hidden('Facility.name');
 		echo $this->ZuluruForm->hidden('Field.facility_id');
 
-		echo $this->ZuluruForm->input('num', array('label' => 'Number'));
+		echo $this->ZuluruForm->input('num', array('label' => __('Number', true)));
 		echo $this->ZuluruForm->input('sport', array(
 			'options' => Configure::read('options.sport'),
 			'hide_single' => true,

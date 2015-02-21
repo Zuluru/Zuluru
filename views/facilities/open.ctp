@@ -6,7 +6,7 @@ if ($success) {
 	);
 	echo $this->Html->scriptBlock ("jQuery('#span_$id').html('$content')");
 } else {
-	$alert = printf(__('Failed to open facility \'%s\'.', true), addslashes($name));
+	$alert = printf(__('Failed to open %s \'%s\'.', true), __('facility', true), addslashes($name));
 	echo $this->Html->scriptBlock ("alert('$alert')");
 }
 
