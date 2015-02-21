@@ -113,23 +113,23 @@ if (Configure::read('feature.antispam')):
 		</div>
 	<fieldset class="parent" style="display:none; float:left">
 		<legend><?php __('Alternate Contact (optional)'); ?></legend>
-		<p style="max-width:18em;">This alternate parent/guardian contact information is for display purposes only. If the alternate contact should have their own login, do not enter their information here; instead create a separate account and then link them together.</p>
-		<p style="max-width:18em;">This is not for your child's name; enter that in the "Child Profile" section below.</p>
+		<p style="max-width:18em;"><?php __('This alternate parent/guardian contact information is for display purposes only. If the alternate contact should have their own login, do not enter their information here; instead create a separate account and then link them together.'); ?></p>
+		<p style="max-width:18em;"><?php __('This is not for your child\'s name; enter that in the "Child Profile" section below.'); ?></p>
 	<?php
 		echo $this->ZuluruForm->input('Person.0.alternate_first_name', array(
-			'label' => 'First Name',
+			'label' => __('First Name', true),
 			'after' => $this->Html->para (null, __('First (and, if desired, middle) name.', true)),
 		));
 		echo $this->ZuluruForm->input('Person.0.alternate_last_name', array(
-			'label' => 'Last Name',
+			'label' => __('Last Name', true),
 		));
 		if (Configure::read('profile.work_phone')) {
 			echo $this->ZuluruForm->input('Person.0.alternate_work_phone', array(
-				'label' => 'Work Phone',
+				'label' => __('Work Phone', true),
 				'after' => $this->Html->para (null, __('Enter your work telephone number (optional).', true)),
 			));
 			echo $this->ZuluruForm->input('Person.0.alternate_work_ext', array(
-				'label' => 'Work Extension',
+				'label' => __('Work Extension', true),
 				'after' => $this->Html->para (null, __('Enter your work extension (optional).', true)),
 			));
 			echo $this->ZuluruForm->input('Person.0.publish_alternate_work_phone', array(
@@ -138,7 +138,7 @@ if (Configure::read('feature.antispam')):
 		}
 		if (Configure::read('profile.mobile_phone')) {
 			echo $this->ZuluruForm->input('Person.0.alternate_mobile_phone', array(
-				'label' => 'Mobile Phone',
+				'label' => __('Mobile Phone', true),
 				'after' => $this->Html->para (null, __('Enter your cell or pager number (optional).', true)),
 			));
 			echo $this->ZuluruForm->input('Person.0.publish_alternate_mobile_phone', array(
@@ -154,8 +154,8 @@ if (Configure::read('feature.antispam')):
 		echo $this->ZuluruForm->input($user_field, array(
 			'label' => __('User Name', true),
 		));
-		echo $this->ZuluruForm->input('passwd', array('type' => 'password', 'label' => 'Password'));
-		echo $this->ZuluruForm->input('confirm_passwd', array('type' => 'password', 'label' => 'Confirm Password'));
+		echo $this->ZuluruForm->input('passwd', array('type' => 'password', 'label' => __('Password', true)));
+		echo $this->ZuluruForm->input('confirm_passwd', array('type' => 'password', 'label' => __('Confirm Password', true)));
 	?>
 	</fieldset>
 	<?php if (Configure::read('feature.affiliates')): ?>

@@ -10,10 +10,11 @@ $this->Html->addCrumb (__('Change Password', true));
 		<legend><?php echo __('Change Password for', true) . ' ' . $user['Person']['full_name']; ?></legend>
 	<?php
 		echo $this->Form->input($id_field);
-		if (!$is_admin || $is_me)
-			echo $this->Form->input('passold', array('type' => 'password', 'label' => 'Existing Password', 'value' => ''));
-		echo $this->Form->input('passwd', array('type' => 'password', 'label' => 'New Password'));
-		echo $this->Form->input('confirm_passwd', array('type' => 'password', 'label' => 'Confirm Password'));
+		if (!$is_admin || $is_me) {
+			echo $this->Form->input('passold', array('type' => 'password', 'label' => __('Existing Password', true), 'value' => ''));
+		}
+		echo $this->Form->input('passwd', array('type' => 'password', 'label' => __('New Password', true)));
+		echo $this->Form->input('confirm_passwd', array('type' => 'password', 'label' => __('Confirm Password', true)));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
