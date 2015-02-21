@@ -16,7 +16,7 @@ if ($is_admin) {
 			$unmanaged = $this->requestAction(array('controller' => 'affiliates', 'action' => 'unmanaged'));
 			if (!empty($unmanaged)):
 ?>
-<p class="warning-message">The following affiliates do not yet have managers assigned to them:</p>
+<p class="warning-message"><?php __('The following affiliates do not yet have managers assigned to them:'); ?></p>
 <table class="list">
 <tr>
 	<th><?php __('Affiliate'); ?></th>
@@ -72,7 +72,7 @@ if ($is_manager) {
 			}
 			if (!empty($facilities)):
 ?>
-<p class="warning-message">The following facilities are open but do not have any open <?php echo Configure::read('ui.fields'); ?>:</p>
+<p class="warning-message"><?php printf(__('The following facilities are open but do not have any open %s:', true), __(Configure::read('ui.fields'), true)); ?></p>
 <table class="list">
 <tr>
 	<th><?php __('Facility'); ?></th>
@@ -170,7 +170,7 @@ if ($is_manager) {
 	$actions = array();
 
 	if (empty($signed_waivers) && count($waivers) == 1 && in_array($waivers[0]['Waiver']['expiry_type'], array('elapsed_time', 'never'))) {
-		$actions[] = $this->Html->link ('Sign the waiver', array('controller' => 'waivers', 'action' => 'sign', 'waiver' => $waivers[0]['Waiver']['id'], 'date' => date('y-m-d'), 'act_as' => $act_as));
+		$actions[] = $this->Html->link (__('Sign the waiver', true), array('controller' => 'waivers', 'action' => 'sign', 'waiver' => $waivers[0]['Waiver']['id'], 'date' => date('y-m-d'), 'act_as' => $act_as));
 	} else {
 		$options = array();
 		if ($membership_events) {
@@ -186,11 +186,11 @@ if ($is_manager) {
 	}
 
 	if ($open_teams) {
-		$actions[] = $this->Html->link ('Join an existing team', array('controller' => 'teams', 'action' => 'join', 'act_as' => $act_as));
+		$actions[] = $this->Html->link (__('Join an existing team', true), array('controller' => 'teams', 'action' => 'join', 'act_as' => $act_as));
 	}
 
 	if (!empty($leagues)) {
-		$actions[] = $this->Html->link ('Check out the leagues we are currently offering', array('controller' => 'leagues'));
+		$actions[] = $this->Html->link (__('Check out the leagues we are currently offering', true, array('controller' => 'leagues'));
 	}
 
 	if (!empty($actions)) {

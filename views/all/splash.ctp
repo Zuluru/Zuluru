@@ -196,7 +196,7 @@ if ($people_with_schedules > 1) {
 
 	usort($items, array('Game', 'compareDateAndField'));
 	$tabs['consolidated'] = array(
-		'name' => 'Consolidated Schedule',
+		'name' => __('Consolidated Schedule', true),
 		'content' => $this->element('games/consolidated_schedule', compact('id', 'items', 'teams', 'team_ids', 'approved_relatives')),
 	);
 }
