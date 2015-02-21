@@ -160,8 +160,8 @@ if (!empty ($duplicates)) {
 			}
 		}
 
-		$dispositions["delete_duplicate:{$duplicate['Person']['id']}"] = "Deleted as duplicate of {$duplicate['Person']['full_name']} ({$duplicate['Person']['id']})";
-		$dispositions["merge_duplicate:{$duplicate['Person']['id']}"] = "Merged backwards into {$duplicate['Person']['full_name']} ({$duplicate['Person']['id']})";
+		$dispositions["delete_duplicate:{$duplicate['Person']['id']}"] = sprintf(__('Deleted as duplicate of %s (%d)', true), $duplicate['Person']['full_name'], $duplicate['Person']['id']);
+		$dispositions["merge_duplicate:{$duplicate['Person']['id']}"] = sprintf(__('Merged backwards into %s (%d)', true), $duplicate['Person']['full_name'], $duplicate['Person']['id']);
 		$compare[] = $this->Html->link ("{$duplicate['Person']['full_name']} ({$duplicate['Person']['id']})", '#',
 			array('onclick' => "return compare({$duplicate['Person']['id']})"));
 
@@ -231,7 +231,7 @@ foreach (array_keys($table_data) as $key) {
 echo $this->Html->tag ('table', $this->Html->tableCells ($table_data, array(), array('class' => 'altrow')), array('class' => 'list'));
 
 if (!empty($duplicates) && !$activated) {
-	echo $this->Html->para('warning-message', 'This user has not yet activated their account. If the user record is merged backwards, they WILL NOT be able to activate their account.');
+	echo $this->Html->para('warning-message', __('This user has not yet activated their account. If the user record is merged backwards, they WILL NOT be able to activate their account.', true));
 }
 
 echo $this->Form->create();

@@ -6,8 +6,7 @@ $this->Html->addCrumb (__('Add Child', true));
 <div class="people add_relative form">
 <h2><?php echo sprintf(__('Add %s', true), __('Child', true));?></h2>
 
-<p>This process is intended for parents to add player profiles for their children.
-This does not create a login account; the only access to the new profile will be through your account.</p>
+<p><?php __('This process is intended for parents to add player profiles for their children. This does not create a login account; the only access to the new profile will be through your account.'); ?></p>
 
 	<fieldset class="player">
 		<legend><?php __('Player Profile'); ?></legend>

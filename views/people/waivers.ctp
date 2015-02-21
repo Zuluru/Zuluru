@@ -57,7 +57,7 @@ $this->Html->addCrumb (__('Waiver History', true));
 <?php endif; ?>
 
 <?php if (!empty($waivers)): ?>
-<h3>You have not signed the following waivers for a period covering today's date.</h3>
+<h3><?php __('You have not signed the following waivers for a period covering today\'s date.'); ?></h3>
 <table class="list">
 	<?php
 	$i = 0;

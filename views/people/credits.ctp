@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('Credits', true));
 
 <div class="players index">
 <h2><?php __('Unused Credits');?></h2>
-<p>You can use these credits to pay for things in the checkout page.</p>
+<p><?php __('You can use these credits to pay for things in the checkout page.'); ?></p>
 
 <table class="list">
 	<tr>

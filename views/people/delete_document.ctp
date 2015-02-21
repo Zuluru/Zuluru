@@ -2,6 +2,7 @@
 if ($success) {
 	echo $this->Html->scriptBlock ("jQuery('#$row').remove()");
 } else {
-	echo $this->Html->scriptBlock ("alert('Failed to delete the document.')");
+	$alert = addslashes(__('Failed to delete the document.', true));
+	echo $this->Html->scriptBlock ("alert('$alert')");
 }
 ?>

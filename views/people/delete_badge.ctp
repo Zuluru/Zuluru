@@ -22,6 +22,7 @@ if ($success) {
 		}
 	");
 } else {
-	echo $this->Html->scriptBlock ("alert('Failed to delete the badge.')");
+	$alert = addslashes(__('Failed to delete the badge.', true));
+	echo $this->Html->scriptBlock ("alert('$alert')");
 }
 ?>
