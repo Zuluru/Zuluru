@@ -25,22 +25,25 @@ if ($is_admin || $is_manager) {
 	$set_to_test = $facilities_with_fields;
 }
 if (empty($set_to_test)):
+	echo $this->Html->para('warning-message', __('There are no facilities currently open. Please check back periodically for updates.'));
+else:
+	if (!$closed) echo $this->element('fields/caution');
+	echo $this->Html->para(null, sprintf(__('There is also a %s available.', true),
+			$this->Html->link(sprintf(__('map of all %s', true), __(Configure::read('ui.fields'), true)), array('controller' => 'maps'), array('target' => 'map'))
+	));
+
+	if ($is_admin || $is_manager) {
+		if ($closed) {
+			echo $this->Html->para('highlight-message', sprintf(__('This list shows facilities which are closed, or which have at least one closed %s. Opening a facility leaves all %s at that facility closed; they must be individually opened through the "facility view" page.', true),
+					__(Configure::read('ui.field'), true), __(Configure::read('ui.fields'), true)
+			));
+		} else {
+			echo $this->Html->para('highlight-message', sprintf(__('This list shows only facilities which are open, and which also have open %s. Closing a facility closes all %s at that facility, and should only be done when a facility is no longer going to be in use.', true),
+					__(Configure::read('ui.fields'), true), __(Configure::read('ui.fields'), true)
+			));
+		}
+	}
 ?>
-<p class="warning-message">There are no facilities currently open. Please check back periodically for updates.</p>
-<?php else: ?>
-<?php if (!$closed) echo $this->element('fields/caution'); ?>
-
-<p>There is also a <?php echo $this->Html->link(sprintf(__('map of all %s', true), __(Configure::read('ui.fields'), true)), array('controller' => 'maps'), array('target' => 'map')); ?> available.</p>
-
-<?php if ($is_admin || $is_manager): ?>
-<?php if ($closed): ?>
-<p class="highlight-message">This list shows facilities which are closed, or which have at least one closed <?php __(Configure::read('ui.field')); ?>.
-Opening a facility leaves all <?php __(Configure::read('ui.fields')); ?> at that facility closed; they must be individually opened through the "facility view" page.</p>
-<?php else: ?>
-<p class="highlight-message">This list shows only facilities which are open, and which also have open <?php __(Configure::read('ui.fields')); ?>.
-Closing a facility closes all <?php __(Configure::read('ui.fields')); ?> at that facility, and should only be done when a facility is no longer going to be in use.</p>
-<?php endif; ?>
-<?php endif; ?>
 
 <?php
 $sports = array_unique(Set::extract('/Facility/Field/sport', $regions));

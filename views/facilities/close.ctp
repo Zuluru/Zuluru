@@ -7,7 +7,8 @@ if ($success) {
 	echo $this->Html->scriptBlock ("jQuery('#span_$id').html('$content')");
 } else {
 	$fields = Configure::read('ui.fields');
-	echo $this->Html->scriptBlock ("alert('Failed to close facility \'$name\' or one of its $fields.')");
+	$alert = printf(__('Failed to close facility \'%s\' or one of its %s.', true), addslashes($name), $fields);
+	echo $this->Html->scriptBlock ("alert('$alert')");
 }
 
 // Output the event handler code for the links

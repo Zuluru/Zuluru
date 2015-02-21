@@ -6,7 +6,8 @@ if ($success) {
 	);
 	echo $this->Html->scriptBlock ("jQuery('#span_$id').html('$content')");
 } else {
-	echo $this->Html->scriptBlock ("alert('Failed to open facility \'$name\'.')");
+	$alert = printf(__('Failed to open facility \'%s\'.', true), addslashes($name));
+	echo $this->Html->scriptBlock ("alert('$alert')");
 }
 
 // Output the event handler code for the links

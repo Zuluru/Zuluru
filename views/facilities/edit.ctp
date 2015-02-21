@@ -12,7 +12,7 @@ $collapse = !empty($this->data['Field']['id']);
 <div class="facilities form">
 <?php echo $this->Form->create('Facility', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
-		<legend><?php printf(__(isset($add) ? 'Create %s' : 'Edit %s', true), __('Facility', true)); ?></legend>
+		<legend><?php printf(isset($add) ? __('Create %s', true) : __('Edit %s', true), __('Facility', true)); ?></legend>
 		<?php
 		if (!isset ($add)) {
 			echo $this->Form->input('id');
@@ -32,11 +32,11 @@ $collapse = !empty($this->data['Field']['id']);
 		echo $this->ZuluruForm->input('is_open');
 		echo $this->ZuluruForm->input('location_street', array('label' => 'Address'));
 		echo $this->ZuluruForm->input('location_city', array(
-				'label' => 'City',
+				'label' => __('City', true),
 				'default' => Configure::read('organization.city'),
 		));
 		echo $this->ZuluruForm->input('location_province', array(
-				'label' => 'Province',
+				'label' => __('Province', true),
 				'options' => $provinces,
 				'default' => Configure::read('organization.province'),
 				'empty' => '---',
