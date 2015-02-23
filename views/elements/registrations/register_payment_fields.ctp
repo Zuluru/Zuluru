@@ -10,18 +10,18 @@ if ($allowed) {
 	$options = array();
 	if ($price['allow_deposit']) {
 		if ($price['fixed_deposit']) {
-			$options['Deposit'] = "Deposit (\${$price['minimum_deposit']})";
+			$options['Deposit'] = sprintf(__('Deposit ($%s)', true), $price['minimum_deposit']);
 			if ($price['deposit_only']) {
 				// The only option is a fixed-price deposit, so there will be no input fields at all,
 				// but we want to let them know that the amount will be different than they might expect
 				echo $this->Html->para('warning-message', sprintf(__('This option requires a $%s deposit, with the balance to be paid off-line.', true), $price['minimum_deposit']));
 			}
 		} else {
-			$options['Deposit'] = "Deposit (minimum \${$price['minimum_deposit']})";
+			$options['Deposit'] = sprintf(__('Deposit (minimum $%s)', true), $price['minimum_deposit']);
 		}
 	}
 	if (!$price['deposit_only']) {
-		$options['Full'] = "Full (\${$cost})";
+		$options['Full'] = sprintf(__('Full ($%s)', true), $cost);
 	}
 
 	if (!empty($registration)) {
