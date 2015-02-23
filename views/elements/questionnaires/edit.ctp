@@ -33,7 +33,7 @@ foreach ($questionnaire['Question'] as $question) {
 <div class="actions">
 	<ul>
 		<li><?php
-		echo $this->Html->link('Add an existing question to this questionnaire', '#', array(
+		echo $this->Html->link(__('Add an existing question to this questionnaire', true), '#', array(
 				'onclick' => 'return addQuestion();'
 		));
 		?></li>
@@ -42,6 +42,7 @@ foreach ($questionnaire['Question'] as $question) {
 
 <?php
 // Make the table sortable
+$cancel = __('Cancel', true);
 $this->ZuluruHtml->script (array('jquery.tableSort.js', 'questionnaire'), array('inline' => false));
 $add_question_url = $this->Html->url (array('controller' => 'questionnaires', 'action' => 'add_question', 'questionnaire' => $questionnaire['Questionnaire']['id']));
 $auto_complete_url = $this->Html->url (array('controller' => 'questions', 'action' => 'autocomplete', 'affiliate' => $questionnaire['Questionnaire']['affiliate_id']));
@@ -51,7 +52,7 @@ $this->Js->buffer ("
 
 	jQuery('#AddQuestionDiv').dialog({
 		autoOpen: false,
-		buttons: { 'Cancel': function() { jQuery(this).dialog('close'); } },
+		buttons: { '$cancel': function() { jQuery(this).dialog('close'); } },
 		modal: true,
 		resizable: false,
 		width: 500

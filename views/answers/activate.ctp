@@ -6,7 +6,8 @@ if ($success) {
 	);
 	echo $this->Html->scriptBlock ("jQuery('#$id').html('$content')");
 } else {
-	echo $this->Html->scriptBlock ("alert('Failed to activate answer \'$name\'.')");
+	$alert = printf(__('Failed to activate %s \'%s\'.', true), __('answer', true), addslashes($name));
+	echo $this->Html->scriptBlock ("alert('$alert')");
 }
 
 // Output the event handler code for the links
