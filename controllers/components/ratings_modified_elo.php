@@ -33,8 +33,8 @@ class RatingsModifiedEloComponent extends RatingsComponent
 			$score_weight += $score_diff / $score_max;
 		}
 
-		$elo_change = $weight_constant * $score_weight * ($game_value - $expected_win);
-		return ceil($elo_change);
+		$elo_change = ceil($weight_constant * $score_weight * ($game_value - $expected_win));
+		return $elo_change;
 	}
 }
 
