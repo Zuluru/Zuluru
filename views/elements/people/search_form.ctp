@@ -7,7 +7,8 @@ if (!isset ($url)) {
 
 <div class="search form">
 <?php echo $this->Form->create(false, array('url' => $url, 'id' => 'SearchForm'));?>
-<p>Enter first and/or last name of person to search for and click 'submit'. You may use '*' as a wildcard.
+<p><?php __('Enter first and/or last name of person to search for and click \'submit\'. You may use \'*\' as a wildcard.'); ?>
+
 <?php echo $this->ZuluruHtml->help(array('action' => 'people', 'searching')); ?>
 </p>
 <?php

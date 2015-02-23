@@ -9,12 +9,9 @@ $questions = Configure::read('sport.rating_questions');
 // TODO: Switch zuluru id to class, to avoid creating an invalid DOM.
 ?>
 <div id="zuluru">
-<p>Fill out this questionnaire and then click "Calculate" below to figure out the skill level you should use in <?php echo ZULURU; ?>.</p>
-<p>The questionnaire is divided into <?php echo implode(' and ', array_keys($questions)); ?> sections.
-Answer each as honestly as possible, and the resulting <?php echo ZULURU; ?> rating should be fairly accurate.
-When answering questions regarding relative skills, compare yourself to the average of all people playing the sport,
-not only those that you regularly compete against.</p>
-<p>The calculated value will be entered on the <?php echo ZULURU; ?> profile editing form.</p>
+<p><?php printf(__('Fill out this questionnaire and then click "Calculate" below to figure out the skill level you should use in %s.', true), ZULURU); ?></p>
+<p><?php printf(__('The questionnaire is divided into %s sections. Answer each as honestly as possible, and the resulting %s rating should be fairly accurate. When answering questions regarding relative skills, compare yourself to the average of all people playing the sport, not only those that you regularly compete against.', true), implode(' and ', array_keys($questions)), ZULURU); ?></p>
+<p><?php printf(__('The calculated value will be entered on the %s profile editing form.', true), ZULURU); ?></p>
 
 <form name="rating_<?php echo $sport; ?>">
 
@@ -43,16 +40,18 @@ foreach ($questions as $group_label => $group_questions) {
 </div>
 
 <?php
+$calculate = __('Calculate', true);
+$cancel = __('Cancel', true);
 echo $this->Html->scriptBlock ("
 jQuery('#rating_dialog_$sport').dialog({
 	autoOpen: false,
 	buttons: {
-		'Calculate': function() {
+		'$calculate': function() {
 			if (calculate_rating('$sport', $min, $max)) {
 				jQuery('#rating_dialog_$sport').dialog('close');
 			}
 		},
-		'Cancel': function() {
+		'$cancel': function() {
 			jQuery('#rating_dialog_$sport').dialog('close');
 		}
 	},
@@ -65,6 +64,7 @@ jQuery('#rating_dialog_$sport').dialog({
 
 if (!Configure::read('skill_rating_functions_added')) {
 	Configure::write('skill_rating_functions_added', true);
+	$answer_all = __('You must answer all questions.', true);
 	echo $this->Html->scriptBlock ("
 // function to calculate the rating
 function calculate_rating(sport, min, max) {
@@ -81,7 +81,7 @@ function calculate_rating(sport, min, max) {
 		}
 	});
 	if (!okay) {
-		alert('You must answer all questions.');
+		alert('$answer_all');
 		return false;
 	}
 
