@@ -6,7 +6,8 @@ if ($success) {
 	);
 	echo $this->Html->scriptBlock ("jQuery('#$id').html('$content')");
 } else {
-	echo $this->Html->scriptBlock ("alert('Failed to deactivate badge \'$name\'.')");
+	$alert = printf(__('Failed to deactivate %s \'%s\'.', true), __('badge', true), addslashes($name));
+	echo $this->Html->scriptBlock ("alert('$alert')");
 }
 
 // Output the event handler code for the links

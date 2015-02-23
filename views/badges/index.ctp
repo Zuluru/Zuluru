@@ -4,7 +4,7 @@ $this->Html->addCrumb (__('List', true));
 ?>
 
 <div class="badges index">
-<h2><?php __($active ? 'Badges' : 'Deactivated Badges');?></h2>
+<h2><?php echo $active ? __('Badges', true) : __('Deactivated Badges', true);?></h2>
 <p>
 <?php
 echo $this->Paginator->counter(array(
