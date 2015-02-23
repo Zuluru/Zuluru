@@ -190,7 +190,7 @@ if ($is_manager) {
 	}
 
 	if (!empty($leagues)) {
-		$actions[] = $this->Html->link (__('Check out the leagues we are currently offering', true, array('controller' => 'leagues'));
+		$actions[] = $this->Html->link (__('Check out the leagues we are currently offering', true), array('controller' => 'leagues'));
 	}
 
 	if (!empty($actions)) {
