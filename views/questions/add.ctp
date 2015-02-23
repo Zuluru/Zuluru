@@ -1,3 +1,8 @@
+<?php
+$this->Html->addCrumb (__('Question', true));
+$this->Html->addCrumb (__('Add', true));
+?>
+
 <div class="questions form">
 <?php echo $this->Form->create('Question');?>
 	<fieldset>
