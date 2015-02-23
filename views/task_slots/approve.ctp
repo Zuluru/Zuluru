@@ -1,5 +1,4 @@
 <?php
-$no = __('No', true);
 $yes = __('Yes', true);
 
 if (isset($error)) {

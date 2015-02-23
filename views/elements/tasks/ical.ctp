@@ -39,7 +39,7 @@ DTEND;<?php echo $task_end; ?>
 
 SUMMARY:<?php echo ical_encode($task['Task']['name']); ?>
 
-DESCRIPTION:<?php echo ical_encode($task['Task']['name']); ?>, reporting to <?php echo $task['Task']['Person']['full_name']; ?>, on <?php echo $task_stamp; ?>
+DESCRIPTION:<?php echo ical_encode($task['Task']['name']); ?>, <?php __('reporting to'); ?> <?php echo $task['Task']['Person']['full_name']; ?>, <?php __('on'); ?> <?php echo $task_stamp; ?>
 
 STATUS:CONFIRMED
 TRANSP:OPAQUE

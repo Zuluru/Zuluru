@@ -81,7 +81,7 @@ $this->Html->addCrumb (__('View', true));
 		} else if (!empty($taskSlot['person_id'])) {
 			echo $this->element('people/block', array('person' => $taskSlot['Person']));
 		} else {
-			echo 'unclaimed';
+			__('unclaimed');
 		}
 		?></td>
 		<td class="approved"><?php $taskSlot['approved'] ? __('Yes') : __('No');?></td>
