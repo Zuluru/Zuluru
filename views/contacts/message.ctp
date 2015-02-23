@@ -13,7 +13,7 @@ if (isset ($contact)) {
 	<?php
 		if (isset ($contacts)) {
 			echo $this->Form->input('contact_id', array(
-				'label' => 'To',
+				'label' => __('To', true),
 				'options' => $contacts,
 				'empty' => '---',
 			));
@@ -28,7 +28,7 @@ if (isset ($contact)) {
 		echo $this->Form->input('subject', array('size' => 60));
 		echo $this->Form->input('message', array('rows' => 6, 'cols' => 60));
 		echo $this->Form->input('cc', array(
-			'label' => 'Send a copy to your email address',
+			'label' => __('Send a copy to your email address', true),
 			'type' => 'checkbox',
 		));
 	?>

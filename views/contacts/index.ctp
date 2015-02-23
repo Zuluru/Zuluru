@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('List', true));
 <div class="contacts index">
 <h2><?php __('List Contacts');?></h2>
 <?php if (empty($contacts)): ?>
-<p class="warning-message">There are no contacts in the system.</p>
+<p class="warning-message"><?php __('There are no contacts in the system.'); ?></p>
 <?php else: ?>
 <p>
 <?php
