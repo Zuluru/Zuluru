@@ -9,10 +9,10 @@ $this->Html->addCrumb ($waiver['Waiver']['name']);
 $variables = array(
 	'%name%' => Configure::read('organization.name'),
 	'%short_name%' => Configure::read('organization.short_name'),
-	'%field%' => Configure::read('ui.field'),
-	'%fields%' => Configure::read('ui.fields'),
-	'%Field%' => Configure::read('ui.field_cap'),
-	'%Fields%' => Configure::read('ui.fields_cap'),
+	'%field%' => __(Configure::read('ui.field'), true),
+	'%fields%' => __(Configure::read('ui.fields'), true),
+	'%Field%' => __(Configure::read('ui.field_cap'), true),
+	'%Fields%' => __(Configure::read('ui.fields_cap'), true),
 	'%valid_from%' => date('F j, Y', strtotime($valid_from)),
 	'%valid_from_year%' => date('Y', strtotime($valid_from)),
 	'%valid_until%' => date('F j, Y', strtotime($valid_until)),
@@ -29,8 +29,8 @@ echo $this->Form->create('Person', array('url' => Router::normalize($this->here)
 echo $this->Html->para(null,
 	$this->Form->input('signed', array(
 			'options' => array(
-				'yes' => 'I agree to the above conditions',
-				'no' => 'I DO NOT agree to the above conditions',
+				'yes' => __('I agree to the above conditions', true),
+				'no' => __('I DO NOT agree to the above conditions', true),
 			),
 			'type' => 'radio',
 			'legend' => false,

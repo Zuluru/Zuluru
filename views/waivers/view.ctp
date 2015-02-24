@@ -43,7 +43,7 @@ if ($is_manager && !in_array($waiver['Waiver']['affiliate_id'], $this->UserCache
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Expiry Type'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo Configure::read("options.waivers.expiry_type.{$waiver['Waiver']['expiry_type']}"); ?>
+			<?php __(Configure::read("options.waivers.expiry_type.{$waiver['Waiver']['expiry_type']}")); ?>
 			&nbsp;
 		</dd>
 		<?php if ($waiver['Waiver']['expiry_type'] == 'fixed_dates'): ?>

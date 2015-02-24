@@ -11,7 +11,7 @@ if (isset ($add)) {
 <div class="waivers form">
 <?php echo $this->Form->create('Waiver', array('url' => Router::normalize($this->here))); ?>
 	<fieldset>
-		<legend><?php printf(__(isset($add) ? 'Create %s' : 'Edit %s', true), __('Waiver', true)); ?></legend>
+		<legend><?php printf(isset($add) ? __('Create %s', true) : __('Edit %s', true), __('Waiver', true)); ?></legend>
 	<?php
 		if (!isset($add)) {
 			echo $this->Form->input('id');
@@ -53,19 +53,19 @@ if (isset ($add)) {
 	<?php
 		echo $this->ZuluruForm->input('start_month', array(
 			'options' => $this->Form->__generateOptions('month', array('monthNames' => true)),
-			'label' => 'From month',
+			'label' => __('From month', true),
 		));
 		echo $this->ZuluruForm->input('start_day', array(
 			'options' => $this->Form->__generateOptions('day'),
-			'label' => 'From day',
+			'label' => __('From day', true),
 		));
 		echo $this->ZuluruForm->input('end_month', array(
 			'options' => $this->Form->__generateOptions('month', array('monthNames' => true)),
-			'label' => 'Through month',
+			'label' => __('Through month', true),
 		));
 		echo $this->ZuluruForm->input('end_day', array(
 			'options' => $this->Form->__generateOptions('day'),
-			'label' => 'Through day',
+			'label' => __('Through day', true),
 		));
 	?>
 	</div>
