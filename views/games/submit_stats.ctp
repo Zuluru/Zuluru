@@ -17,21 +17,21 @@ if ($team_id == $game['HomeTeam']['id'] || $team_id === null) {
 <div class="games form">
 <h2><?php  __('Submit Game Stats'); ?></h2>
 
-<p>Submit the stats for the <?php
-echo $this->ZuluruTime->date ($game['GameSlot']['game_date']) . ' ' .
-	$this->ZuluruTime->time ($game['GameSlot']['game_start']);
-?> at <?php
-echo $game['GameSlot']['Field']['long_name'];
-?> between <?php
-echo $this->element('teams/block', array('team' => $this_team, 'show_shirt' => false));
-?> and <?php
-echo $this->element('teams/block', array('team' => $opponent, 'show_shirt' => false));
-?>
-.</p>
-
+<p><?php
+echo $this->Html->para(null, sprintf(__('Submit %s for the %s game at %s between %s and %s.', true),
+	__('the stats', true),
+	$this->ZuluruTime->date ($game['GameSlot']['game_date']) . ' ' .
+	$this->ZuluruTime->date ($game['GameSlot']['game_date']) . ' ' .
+		$this->ZuluruTime->time ($game['GameSlot']['game_start']) . '-' .
+		$this->ZuluruTime->time ($game['GameSlot']['display_game_end']),
+	$this->element('fields/block', array('field' => $game['GameSlot']['Field'], 'display_field' => 'long_name')),
+	$this->element('teams/block', array('team' => $this_team, 'show_shirt' => false)),
+	$this->element('teams/block', array('team' => $opponent, 'show_shirt' => false))
+));
+?></p>
 <p><?php
 if (Game::_is_finalized($game)) {
-	$msg = 'The score for this game has been confirmed as %s %d, %s %d.';
+	$msg = __('The score for this game has been confirmed as %s %d, %s %d.', true);
 	if ($team_id === null || $team_id == $game['HomeTeam']['id']) {
 		$this_team['score'] = $game['Game']['home_score'];
 		$opponent['score'] = $game['Game']['away_score'];
@@ -40,11 +40,11 @@ if (Game::_is_finalized($game)) {
 		$opponent['score'] = $game['Game']['home_score'];
 	}
 } else if ($team_id !== null) {
-	$msg = 'You have submitted the score for this game as %s %d, %s %d, but this has not been confirmed by your opponent.';
+	$msg = __('You have submitted the score for this game as %s %d, %s %d, but this has not been confirmed by your opponent.', true);
 	$this_team['score'] = $game['ScoreEntry'][$team_id]['score_for'];
 	$opponent['score'] = $game['ScoreEntry'][$team_id]['score_against'];
 } else {
-	$msg = 'A score of %s %d, %s %d has been submitted for this game, but this has not been confirmed.';
+	$msg = __('A score of %s %d, %s %d has been submitted for this game, but this has not been confirmed.', true);
 	$entry = current($game['ScoreEntry']);
 	if ($entry['team_id'] == $this_team['id']) {
 		$this_team['score'] = $entry['score_for'];
@@ -54,7 +54,7 @@ if (Game::_is_finalized($game)) {
 		$opponent['score'] = $entry['score_for'];
 	}
 }
-printf(__($msg, true), $this_team['name'], $this_team['score'], $opponent['name'], $opponent['score']);
+printf($msg, $this_team['name'], $this_team['score'], $opponent['name'], $opponent['score']);
 ?>
 </p>
 
@@ -109,13 +109,13 @@ echo $this->Html->link(__('Show Only Attending Players', true), '#', array('clas
 <div class="submit">
 <?php
 if (isset($attendance)) {
-	echo $this->Form->submit('Submit', array('div' => false, 'onClick' => "return check_score({$this_team['score']}, {$opponent['score']}, {$this_team['id']});"));
+	echo $this->Form->submit(__('Submit', true), array('div' => false, 'onClick' => "return check_score({$this_team['score']}, {$opponent['score']}, {$this_team['id']});"));
 } else {
-	echo $this->Form->submit('Submit', array('div' => false, 'onClick' => "return check_score({$this_team['score']}, {$opponent['score']}, {$this_team['id']}) && check_score({$opponent['score']}, {$this_team['score']}, {$opponent['id']});"));
+	echo $this->Form->submit(__('Submit', true), array('div' => false, 'onClick' => "return check_score({$this_team['score']}, {$opponent['score']}, {$this_team['id']}) && check_score({$opponent['score']}, {$this_team['score']}, {$opponent['id']});"));
 }
 ?>
 
-<?php echo $this->Form->submit('Reset', array('div' => false, 'type' => 'reset')); ?>
+<?php echo $this->Form->submit(__('Reset', true), array('div' => false, 'type' => 'reset')); ?>
 
 <?php echo $this->Form->end(); ?>
 </div>
@@ -134,17 +134,19 @@ foreach ($stats as $stat) {
 		}
 	}
 }
+$correct = __('Please correct this and re-submit.', true);
+$confirm = __('Click OK to proceed, or Cancel to enter more stats.', true);
 echo $this->Html->scriptBlock("
 function check_score(team_score, opponent_score, team_id) {
 	var alert_msg = '';
 	var confirm_msg = '';
 	" . implode("\n	", $stat_js) . "
 	if (alert_msg != '') {
-		alert(alert_msg + '\\n\\nPlease correct this and re-submit.');
+		alert(alert_msg + '\\n\\n$correct');
 		return false;
 	}
 	if (confirm_msg != '') {
-		return confirm(confirm_msg + '\\n\\nClick OK to proceed, or Cancel to enter more stats.');
+		return confirm(confirm_msg + '\\n\\n$confirm');
 	}
 	return true;
 }

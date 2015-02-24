@@ -1,6 +1,6 @@
 <?php
 $this->Html->addCrumb (__('Games', true));
-$this->Html->addCrumb ("{$game['HomeTeam']['name']} vs {$game['AwayTeam']['name']}");
+$this->Html->addCrumb (sprintf(__('%s vs %s', true), $game['HomeTeam']['name'], $game['AwayTeam']['name']));
 $this->Html->addCrumb (__('Edit Box Score', true));
 
 $date = strtotime($game['GameSlot']['game_date']);
@@ -43,7 +43,7 @@ if (!empty($game['Division']['League']['StatType'])) {
 			<th><?php __('Time'); ?></th>
 			<th><?php __('Play'); ?></th>
 			<?php foreach($game['Division']['League']['StatType'] as $stat): ?>
-			<th><?php echo Inflector::singularize($stat['name']); ?></th>
+			<th><?php __(Inflector::singularize($stat['name'])); ?></th>
 			<?php endforeach; ?>
 			<th><?php __('Score'); ?></th>
 			<th><?php __('Actions'); ?></th>

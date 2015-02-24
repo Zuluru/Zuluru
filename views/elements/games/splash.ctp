@@ -46,7 +46,7 @@ foreach ($items as $item):
 						' (' . __('away', true) . ')';
 				}
 			}
-			__(' at ');
+			echo ' ' . __('at', true) . ' ';
 			echo $this->element('fields/block', array('field' => $item['GameSlot']['Field']));
 		?></td>
 		<td class="actions splash_action"><?php

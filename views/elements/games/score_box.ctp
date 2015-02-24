@@ -7,7 +7,7 @@
 	</tr>
 	<tr><td class="score" colspan="2"><?php echo $score; ?></td></tr>
 	<tr>
-		<td class="actions timeout" colspan="2"><?php echo $this->Html->link('Timeout', '#'); ?> (<span class="timeout_count"><?php echo $timeouts; ?></span> taken)</td>
+		<td class="actions timeout" colspan="2"><?php echo $this->Html->link(__('Timeout', true), '#'); ?> (<span class="timeout_count"><?php printf(__('%d taken', true), $timeouts); ?></span>)</td>
 		<td class="actions other" colspan="2"><?php echo $this->Html->link('Other', '#'); ?></td>
 	</tr>
 </table>
@@ -20,6 +20,8 @@ $url_other = array('controller' => 'games', 'action' => 'play', 'game' => $game[
 $score_options = Configure::read('sport.score_options');
 $other_options = Configure::read('sport.other_options');
 $spinner = $this->ZuluruHtml->icon('spinner.gif');
+$submit = __('Submit', true);
+$cancel = __('Cancel', true);
 
 if (($has_stats && ($submitter == $team['id'] || $submitter === null)) || count($score_options) > 1):
 ?>
@@ -65,7 +67,7 @@ if ($has_stats) {
 
 	foreach($game['Division']['League']['StatType'] as $stat) {
 		echo $this->Form->input("Stat.{$stat['id']}", array(
-				'label' => Inflector::singularize($stat['name']),
+				'label' => __(Inflector::singularize($stat['name']), true),
 				'options' => $roster,
 				'empty' => '---',
 		));
@@ -81,7 +83,7 @@ echo $this->Html->scriptBlock ("
 		jQuery('#ScoreDetails{$team['id']}').dialog({
 			autoOpen: false,
 			buttons: {
-				'Submit': function() {
+				'$submit': function() {
 					jQuery(this).dialog('close');
 					jQuery('#ScoreForm{$team['id']} #score_from').val(jQuery('#score_team_{$team['id']} td.score').html());
 					jQuery('#ScoreForm{$team['id']}').ajaxSubmit({
@@ -96,7 +98,7 @@ echo $this->Html->scriptBlock ("
 						this.reset();
 					});
 				},
-				'Cancel': function() { jQuery(this).dialog('close'); }
+				'$cancel': function() { jQuery(this).dialog('close'); }
 			},
 			modal: true,
 			resizable: false,
@@ -164,7 +166,7 @@ echo $this->Js->get("#score_team_{$team['id']} td.timeout a")->event('click', "
 
 if (count($other_options) > 1):
 ?>
-<div id="OtherDetails<?php echo $team['id']; ?>" title="Other Details" class="form">
+<div id="OtherDetails<?php echo $team['id']; ?>" title="<?php __('Other Details'); ?>" class="form">
 <div id="zuluru">
 <?php
 	echo $this->Form->create(false, array(
@@ -194,7 +196,7 @@ if (count($other_options) > 1):
 		jQuery('#OtherDetails{$team['id']}').dialog({
 			autoOpen: false,
 			buttons: {
-				'Submit': function() {
+				'$submit': function() {
 					jQuery(this).dialog('close');
 					jQuery('#OtherForm{$team['id']} #score_from').val(jQuery('#score_team_{$team['id']} td.score').html());
 					jQuery('#OtherForm{$team['id']}').ajaxSubmit({
@@ -209,7 +211,7 @@ if (count($other_options) > 1):
 						this.reset();
 					});
 				},
-				'Cancel': function() { jQuery(this).dialog('close'); }
+				'$cancel': function() { jQuery(this).dialog('close'); }
 			},
 			modal: true,
 			resizable: false,

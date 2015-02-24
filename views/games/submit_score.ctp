@@ -17,19 +17,18 @@ $opponent_score = Game::_get_score_entry($game, $opponent['id']);
 
 <div class="games form">
 <h2><?php  __('Submit Game Results'); ?></h2>
-
-<p>Submit the result for the <?php
-echo $this->ZuluruTime->date ($game['GameSlot']['game_date']) . ' ' .
-	$this->ZuluruTime->time ($game['GameSlot']['game_start']);
-?> at <?php
-echo $game['GameSlot']['Field']['long_name'];
-?> between <?php
-echo $this_team['name'];
-?> and <?php
-echo $opponent['name'];
-?>
-.</p>
-<p>If your opponent has already entered a result, it will be displayed below.  If the result you enter does not agree with this result posting of the result will be delayed until your coordinator can confirm the correct result.</p>
+<p><?php
+echo $this->Html->para(null, sprintf(__('Submit %s for the %s game at %s between %s and %s.', true),
+	__('the result', true),
+	$this->ZuluruTime->date ($game['GameSlot']['game_date']) . ' ' .
+		$this->ZuluruTime->time ($game['GameSlot']['game_start']) . '-' .
+		$this->ZuluruTime->time ($game['GameSlot']['display_game_end']),
+	$this->element('fields/block', array('field' => $game['GameSlot']['Field'], 'display_field' => 'long_name')),
+	$this->element('teams/block', array('team' => $this_team, 'show_shirt' => false)),
+	$this->element('teams/block', array('team' => $opponent, 'show_shirt' => false))
+));
+?></p>
+<p><?php __('If your opponent has already entered a result, it will be displayed below. If the result you enter does not agree with this result, posting of the result will be delayed until your coordinator can confirm the correct result.'); ?></p>
 
 <?php
 echo $this->Form->create(false, array('url' => Router::normalize($this->here)));
@@ -58,9 +57,9 @@ if (array_key_exists ($team_id, $game['ScoreEntry'])) {
 
 <table class="list" id="Scores">
 <tr>
-	<th>Team Name</th>
-	<th>Your Score Entry</th>
-	<th>Opponent's Score Entry</th>
+	<th><?php __('Team Name'); ?></th>
+	<th><?php __('Your Score Entry'); ?></th>
+	<th><?php __('Opponent\'s Score Entry'); ?></th>
 </tr>
 <tr>
 	<td><?php echo $this_team['name']; ?></td>
@@ -111,19 +110,19 @@ if (League::hasSpirit($game['Division']['League'])) {
 	echo $this->Form->input('Game.incident', array(
 			'type' => 'checkbox',
 			'value' => '1',
-			'label' => 'I have an incident to report',
+			'label' => __('I have an incident to report', true),
 	));
 ?>
 <fieldset id="IncidentDetails">
 <legend>Incident Details</legend>
 <?php
 echo $this->Form->input("Incident.$team_id.type", array(
-		'label' => 'Incident Type',
+		'label' => __('Incident Type', true),
 		'options' => Configure::read('options.incident_types'),
 		'empty' => '---',
 ));
 echo $this->Form->input("Incident.$team_id.details", array(
-		'label' => 'Enter the details of the incident',
+		'label' => __('Enter the details of the incident', true),
 		'cols' => 60,
 ));
 ?>
@@ -138,23 +137,24 @@ if ($game['Division']['allstars'] == 'optional') {
 	echo $this->Form->input('Game.allstar', array(
 			'type' => 'checkbox',
 			'value' => '1',
-			'label' => 'I want to nominate an all-star',
+			'label' => __('I want to nominate an all-star', true),
 	));
 }
 
 if ($game['Division']['ratio'] == 'womens') {
-	$genders = 'one female';
+	$genders = __('one female', true);
 } else if ($game['Division']['ratio'] == 'mens') {
-	$genders = 'one male';
+	$genders = __('one male', true);
 } else {
-	$genders = 'one male and/or one female';
+	$genders = __('one male and/or one female', true);
 }
 ?>
 <fieldset class="AllstarDetails">
-<legend>Allstar Nominations</legend>
-<p>You may select <?php echo $genders; ?> all-star from the list below<?php
+<legend><?php __('Allstar Nominations'); ?></legend>
+<p><?php
+printf(__('You may select %s all-star from the list below', true), $genders);
 if ($game['Division']['allstars'] == 'always') {
-	echo ', if you think they deserve to be nominated as an all-star.';
+	echo ', ' . __('if you think they deserve to be nominated as an all-star', true);
 }
 ?>.</p>
 
@@ -219,7 +219,7 @@ if (! empty ($game['Division']['League']['coord_list'])) {
 }
 ?>
 
-<p>If you feel strongly about nominating a second male or female please contact your <?php echo $coordinator; ?>.</p>
+<p><?php printf(__('If you feel strongly about nominating a second male or female please contact your %s.', true), $coordinator); ?></p>
 </fieldset>
 </div>
 <?php endif; ?>
@@ -230,16 +230,16 @@ if (! empty ($game['Division']['League']['coord_list'])) {
 	echo $this->Form->input('Game.collect_stats', array(
 			'type' => 'checkbox',
 			'value' => '1',
-			'label' => 'I want to enter stats for this game (if you don\'t do it now, you can do it later)',
+			'label' => __('I want to enter stats for this game (if you don\'t do it now, you can do it later)', true),
 	));
 ?>
 </div>
 <?php endif; ?>
 
 <div class="submit">
-<?php echo $this->Form->submit('Submit', array('div' => false)); ?>
+<?php echo $this->Form->submit(__('Submit', true), array('div' => false)); ?>
 
-<?php echo $this->Form->submit('Reset', array('div' => false, 'type' => 'reset')); ?>
+<?php echo $this->Form->submit(__('Reset', true), array('div' => false, 'type' => 'reset')); ?>
 
 <?php echo $this->Form->end(); ?>
 </div>

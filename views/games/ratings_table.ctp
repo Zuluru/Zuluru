@@ -6,23 +6,23 @@ $this->Html->addCrumb (__('Ratings Table', true));
 
 <div class="games view">
 <h2><?php  __('View Ratings Table'); ?></h2>
-<p>The number of rating points transferred depends on several factors:
+<p><?php __('The number of rating points transferred depends on several factors:'); ?>
 <ul>
-<li>the total score</li>
-<li>the difference in score</li>
-<li>and the current rating of both teams</li>
+<li><?php __('the total score'); ?></li>
+<li><?php __('the difference in score'); ?></li>
+<li><?php __('and the current rating of both teams'); ?></li>
 </ul></p>
 
-<p>How to read the table below:
+<p><?php __('How to read the table below:'); ?>
 <ul>
-<li>Find the 'home' team's score along the left.</li>
-<li>Find the 'away' team's score along the top.</li>
-<li>The points shown in the table where these two scores intersect are the number of rating points that will be transfered from the losing team to the winning team.</li>
+<li><?php __('Find the \'home\' team\'s score along the left.'); ?></li>
+<li><?php __('Find the \'away\' team\'s score along the top.'); ?></li>
+<li><?php __('The points shown in the table where these two scores intersect are the number of rating points that will be transfered from the losing team to the winning team.'); ?></li>
 </ul></p>
 
-<p>A tie does not necessarily mean 0 rating points will be transfered. Unless the two team's rating scores are very close, one team is expected to win. If that team doesn't win, they will lose rating points. The opposite is also true: if a team is expected to lose, but they tie, they will gain some rating points.</p>
+<p><?php __('A tie does not necessarily mean 0 rating points will be transfered. Unless the two team\'s rating scores are very close, one team is expected to win. If that team doesn\'t win, they will lose rating points. The opposite is also true: if a team is expected to lose, but they tie, they will gain some rating points.'); ?></p>
 
-<p>Ties are shown from the home team's perspective.  So, a negative value indicates that in the event of a tie, the home team will lose rating points (and the away team will gain them).</p>
+<p><?php __('Ties are shown from the home team\'s perspective.  So, a negative value indicates that in the event of a tie, the home team will lose rating points (and the away team will gain them).'); ?></p>
 <?php
 if (!isset ($rating_home)) {
 	$rating_home = $game['HomeTeam']['rating'];
@@ -48,14 +48,14 @@ for ($h = 0; $h <= $max_score; $h++) {
 		if ($h > $a) {
 			// home win
 			$change = $ratings_obj->calculateRatingsChange($h, $a, $expected_home);
-			$row[] = array($change, array('title'=>"{$game['HomeTeam']['name']} wins $h to $a, takes $change rating points from {$game['AwayTeam']['name']}", 'class'=>"highlight-message"));
+			$row[] = array($change, array('title' => sprintf(__('%s wins %d to %d, takes %d rating points from %s', true), $game['HomeTeam']['name'], $h, $a, $change, $game['AwayTeam']['name']), 'class' => 'highlight-message'));
 		} else if ($h == $a) {
 			// treat as a home win
 			$change = $ratings_obj->calculateRatingsChange($h, $a, $expected_home);
-			$row[] = array($change, array('title'=>"Tie $h to $a, {$game['HomeTeam']['name']} takes $change rating points from {$game['AwayTeam']['name']}", 'class'=>"highlight-message"));
+			$row[] = array($change, array('title' => sprintf(__('Tie %d to %d, %s takes %d rating points from %s', true), $h, $a, $game['HomeTeam']['name'], $change, $game['AwayTeam']['name']), 'class' => 'highlight-message'));
 		} else {
 			$change = $ratings_obj->calculateRatingsChange($h, $a, $expected_away);
-			$row[] = array($change, array('title'=>"{$game['AwayTeam']['name']} wins $a to $h, takes $change rating points from {$game['HomeTeam']['name']}"));
+			$row[] = array($change, array('title' => sprintf(__('%s wins %d to %d, takes %d rating points from %s', true), $game['AwayTeam']['name'], $a, $h, $change, $game['HomeTeam']['name'])));
 		}
 	}
 	$rows[] = $row ;
@@ -71,7 +71,7 @@ for ($h = 0; $h <= $max_score; $h++) {
 	</tbody>
 </table>
 
-<p>What if the teams had different ratings?  Check it here:</p>
+<p><?php __('What if the teams had different ratings? Check it here:'); ?></p>
 <?php
 echo $this->Form->create('Game', array('url' => Router::normalize($this->here)));
 echo $this->Form->input('rating_home', array(

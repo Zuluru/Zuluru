@@ -1,6 +1,6 @@
 <?php
 $this->Html->addCrumb (__('Games', true));
-$this->Html->addCrumb ("{$team['name']} vs {$opponent['name']}");
+$this->Html->addCrumb (sprintf(__('%s vs %s', true), $team['name'], $opponent['name']));
 $this->Html->addCrumb (__('Live Game Scoring', true));
 ?>
 
@@ -8,7 +8,8 @@ $this->Html->addCrumb (__('Live Game Scoring', true));
 <h2><?php  __('Live Game Scoring'); ?></h2>
 
 <?php
-echo $this->Html->para(null, sprintf(__('Submit live results for the %s game at %s between %s and %s.', true),
+echo $this->Html->para(null, sprintf(__('Submit %s for the %s game at %s between %s and %s.', true),
+	__('live results', true),
 	$this->ZuluruTime->date ($game['GameSlot']['game_date']) . ' ' .
 		$this->ZuluruTime->time ($game['GameSlot']['game_start']) . '-' .
 		$this->ZuluruTime->time ($game['GameSlot']['display_game_end']),
@@ -76,7 +77,7 @@ if (Configure::read('feature.twitter')) {
 </div>
 
 <?php if (empty($game['ScoreDetail'])): ?>
-<div id="StartDetails<?php echo $team['id']; ?>" title="Game Start Details" class="form">
+<div id="StartDetails<?php echo $team['id']; ?>" title="<?php __('Game Start Details'); ?>" class="form">
 <div id="zuluru">
 <?php
 	$url = array('controller' => 'games', 'action' => 'play', 'game' => $game['Game']['id'], 'team' => $submitter);

@@ -66,11 +66,20 @@ LOCATION;ALTREP=<?php echo "\"$field_url\":$field_address"; ?>
 
 X-LOCATION-URL:<?php echo $field_url; ?>
 
-SUMMARY:<?php echo ical_encode("{$my_team['name']} ($my_home_away)"); ?> vs. <?php echo ical_encode("{$opponent['name']} ($opp_home_away)"); ?>
+SUMMARY:<?php printf(__('%s vs %s', true), ical_encode("{$my_team['name']} ($my_home_away)"), ical_encode("{$opponent['name']} ($opp_home_away)")); ?>
 
-DESCRIPTION:Game <?php echo $game_id; ?>: <?php echo ical_encode("{$my_team['name']} ($my_home_away)"); ?> vs. <?php echo ical_encode("{$opponent['name']} ($opp_home_away)"); ?>
- at <?php echo ical_encode($field); ?> on <?php echo $game_stamp; ?><?php
-if (Configure::read('feature.shirt_colour') && !empty($opponent['shirt_colour'])): ?> (they wear <?php echo ical_encode($opponent['shirt_colour']); ?>)
+DESCRIPTION:<?php
+printf(__('Game %d: %s vs %s at %s on %s', true),
+	$game_id,
+	ical_encode("{$my_team['name']} ($my_home_away)"),
+	ical_encode("{$opponent['name']} ($opp_home_away)"),
+	ical_encode($field),
+	$game_stamp
+);
+if (Configure::read('feature.shirt_colour') && !empty($opponent['shirt_colour'])):
+	echo ' (' . sprintf(__('they wear %s', true), ical_encode($opponent['shirt_colour'])) . ')';
+?>
+
 X-OPPONENT-COLOUR:<?php echo $opponent['shirt_colour']; ?>
 <?php endif; ?>
 

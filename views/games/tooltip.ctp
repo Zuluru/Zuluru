@@ -7,7 +7,7 @@
 	<dt><?php __(Configure::read('ui.field_cap')); ?></dt>
 	<dd><?php echo $this->Html->link($game['GameSlot']['Field']['long_name'],
 			array('controller' => 'fields', 'action' => 'view', 'field' => $game['GameSlot']['Field']['id'])); ?></dd>
-	<dt><?php __($game['Division']['schedule_type'] == 'competition' ? 'Team' : 'Home Team'); ?></dt>
+	<dt><?php $game['Division']['schedule_type'] == 'competition' ? __('Team') : __('Home Team'); ?></dt>
 	<dd><?php
 	echo $this->Html->link($game['HomeTeam']['name'],
 			array('controller' => 'teams', 'action' => 'view', 'team' => $game['HomeTeam']['id']));
