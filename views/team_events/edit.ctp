@@ -12,7 +12,7 @@ if (isset ($add)) {
 <div class="teamEvents form">
 <?php echo $this->Form->create('TeamEvent', array('url' => Router::normalize($this->here)));?>
 	<fieldset>
-		<legend><?php __('Edit Team Event'); ?></legend>
+		<legend><?php printf(isset($add) ? __('Create %s', true) : __('Edit %s', true), __('Team Event', true)); ?></legend>
 	<?php
 		if (!isset ($add)) {
 			echo $this->Form->input('id');
@@ -42,17 +42,17 @@ if (isset ($add)) {
 			<legend><?php __('Event Repetition Details'); ?></legend>
 <?php
 			echo $this->ZuluruForm->input('repeat_count', array(
-					'label' => 'Number of events to create',
+					'label' => __('Number of events to create', true),
 					'size' => 6,
 			));
 			echo $this->ZuluruForm->input('repeat_type', array(
-					'label' => 'Create events',
+					'label' => __('Create events', true),
 					'options' => array(
-						'weekly' => 'Once a week on the same day',
-						'daily' => 'Every day',
-						'weekdays' => 'Every weekday',
-						'weekends' => 'Every Saturday and Sunday',
-						'custom' => 'On days that I will specify',
+						'weekly' => __('Once a week on the same day', true),
+						'daily' => __('Every day', true),
+						'weekdays' => __('Every weekday', true),
+						'weekends' => __('Every Saturday and Sunday', true),
+						'custom' => __('On days that I will specify', true),
 					),
 			));
 ?>
@@ -60,11 +60,11 @@ if (isset ($add)) {
 <?php
 		}
 
-		echo $this->ZuluruForm->input('location_name', array('label' => 'Location'));
-		echo $this->ZuluruForm->input('location_street', array('label' => 'Address'));
-		echo $this->ZuluruForm->input('location_city', array('label' => 'City'));
+		echo $this->ZuluruForm->input('location_name', array('label' => __('Location', true)));
+		echo $this->ZuluruForm->input('location_street', array('label' => __('Address', true)));
+		echo $this->ZuluruForm->input('location_city', array('label' => __('City', true)));
 		echo $this->ZuluruForm->input('location_province', array(
-				'label' => 'Province',
+				'label' => __('Province', true),
 				'options' => $provinces,
 				'empty' => '---',
 		));
