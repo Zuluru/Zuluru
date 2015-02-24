@@ -11,7 +11,6 @@ if ($execute) {
 	echo $this->Html->para(null, 'Batch sent at ' . $this->ZuluruTime->time(time() - Configure::read('timezone.adjust') * 60));
 	echo $this->Html->para('warning-message', 'For the next batch to be sent, you must leave this screen open on this page!');
 
-	$emails = Set::extract ('/Person/email', $people);
 	echo $this->Html->para(null, __('Sent email to', true) . ' ' . implode (', ', $emails));
 
 	// Wait for a bit, then redirect to the next group
@@ -19,7 +18,6 @@ if ($execute) {
 	$this->addScript($this->Html->meta (array('http-equiv' => 'refresh', 'content' => "$delay;url=$next")));
 } else {
 	if ($test) {
-		$emails = Set::extract ('/Person/email', $people);
 		echo $this->Html->para(null, __('Test email sent to', true) . ' ' . implode (', ', $emails));
 	}
 	echo $this->Html->para(null, sprintf(__('To send yourself a test copy of this newsletter, %s.', true), $this->Html->link(__('click here', true), array('action' => 'send', 'newsletter' => $newsletter['Newsletter']['id'], 'test' => true))));

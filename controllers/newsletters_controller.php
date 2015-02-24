@@ -299,7 +299,8 @@ class NewslettersController extends AppController {
 			}
 		}
 
-		$this->set(compact('newsletter', 'people'));
+		$emails = array_keys($this->_extractEmails($people, true));
+		$this->set(compact('newsletter', 'people', 'emails'));
 		$params = array (
 				'from' => $newsletter['Newsletter']['from'],
 				'subject' => $newsletter['Newsletter']['subject'],
