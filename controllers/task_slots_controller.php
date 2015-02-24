@@ -26,7 +26,6 @@ class TaskSlotsController extends AppController {
 		if ($this->is_manager) {
 			// Managers can perform these operations
 			if (in_array ($this->params['action'], array(
-					'index',
 					'add',
 			)))
 			{
@@ -52,14 +51,6 @@ class TaskSlotsController extends AppController {
 			}
 		}
 		return false;
-	}
-
-	function index() {
-		$affiliates = $this->_applicableAffiliateIDs(true);
-		$this->set(compact('affiliates'));
-
-		$this->TaskSlot->recursive = 0;
-		$this->set('taskSlots', $this->paginate());
 	}
 
 	function view() {
