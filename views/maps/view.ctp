@@ -79,12 +79,12 @@ $this->Html->scriptBlock ($variables, array('inline' => false));
 <h3><?php echo $field['Field']['long_name']; ?></h3>
 <p><?php echo $address; ?></p>
 
-<p>Get directions to this <?php echo Configure::read('ui.field'); ?> from:
+<p><?php printf(__('Get directions to this %s from:', true), Configure::read('ui.field')); ?></p>
 <form action="javascript:getDirections()">
 <input type="text" size=30 maxlength=50 name="saddr" id="saddr" value="<?php echo $home_addr; ?>" /><br>
-<input value="Get Directions" type="submit"><br>
-Walking <input type="checkbox" name="walk" id="walk" /><br>
-Avoid highways <input type="checkbox" name="highways" id="highways" />
+<input value="<?php __('Get Directions'); ?>" type="submit"><br>
+<?php __('Walking'); ?> <input type="checkbox" name="walk" id="walk" /><br>
+<?php __('Avoid highways'); ?> <input type="checkbox" name="highways" id="highways" />
 <div id="directions">
 </div>
 
