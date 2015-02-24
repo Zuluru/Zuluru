@@ -104,8 +104,8 @@ echo $this->element('settings/banner');
 		'name' => 'notice',
 		'options' => array(
 			'type' => 'textarea',
-			'label' => 'Announcement Text',
-			'after' => 'Optional announcement text to display at the top of the home page.',
+			'label' => __('Announcement Text', true),
+			'after' => __('Optional announcement text to display at the top of the home page.', true),
 			'class' => 'mceAdvanced',
 		),
 	));
