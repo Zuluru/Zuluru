@@ -6,7 +6,7 @@ $this->Html->addCrumb (__('Preview', true));
 
 <div class="mailingLists preview">
 	<h2><?php echo $mailingList['MailingList']['name'];?></h2>
-	<p>This mailing list currently matches the following people. Keep in mind that mailing lists are dynamic, so the list may change from day to day as people register, join teams, etc.</p>
+	<p><?php __('This mailing list currently matches the following people. Keep in mind that mailing lists are dynamic, so the list may change from day to day as people register, join teams, etc.'); ?></p>
 	<p><?php
 	$out = array();
 	foreach ($people as $person) {

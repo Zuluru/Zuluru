@@ -8,8 +8,8 @@ $this->Html->addCrumb (__('Sending', true));
 <h2><?php  echo __('Sending', true) . ': ' . $newsletter['Newsletter']['name'];?></h2>
 <?php
 if ($execute) {
-	echo $this->Html->para(null, 'Batch sent at ' . $this->ZuluruTime->time(time() - Configure::read('timezone.adjust') * 60));
-	echo $this->Html->para('warning-message', 'For the next batch to be sent, you must leave this screen open on this page!');
+	echo $this->Html->para(null, sprintf(__('Batch sent at %s', true), $this->ZuluruTime->time(time() - Configure::read('timezone.adjust') * 60)));
+	echo $this->Html->para('warning-message', __('For the next batch to be sent, you must leave this screen open on this page!', true));
 
 	echo $this->Html->para(null, __('Sent email to', true) . ' ' . implode (', ', $emails));
 

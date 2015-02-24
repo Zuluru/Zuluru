@@ -6,8 +6,8 @@ $this->Html->addCrumb (__('Delivery Report', true));
 
 <div class="newsletters view">
 <h2><?php  echo __('Delivery Report', true) . ': ' . $newsletter['Newsletter']['name'];?></h2>
+<p><?php printf(__('This newsletter has been delivered to %d people. Click letters below to see recipients whose last name start with that letter.', true), count($newsletter['Delivery'])); ?></p>
 <?php
-echo 'This newsletter has been delivered to ' . count($newsletter['Delivery']) . ' people. Click letters below to see recipients whose last name start with that letter.';
 usort($people, 'compareName');
 AppModel::_reindexOuter($people, 'Person', 'id');
 AppModel::_reindexOuter($newsletter['Delivery'], null, 'person_id');
