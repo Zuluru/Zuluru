@@ -2193,7 +2193,7 @@ class GamesController extends AppController {
 				unset ($this->data['Allstar']);
 			}
 
-			if (!Configure::read('scoring.most_spirited') || $game['Division']['allstars'] == 'never') {
+			if (!Configure::read('scoring.most_spirited') || $game['Division']['most_spirited'] == 'never') {
 				unset ($this->data['SpiritEntry']['most_spirited']);
 			}
 
