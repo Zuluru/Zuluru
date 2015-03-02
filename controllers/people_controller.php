@@ -2675,7 +2675,7 @@ class PeopleController extends AppController {
 			),
 			'contain' => array(),
 			'fields' => array('Person.*', 'AffiliatePerson.*', "$user_model.*"),
-			'order' => array('Person.last_name' => 'DESC', 'Person.first_name' => 'DESC'),
+			'order' => array('Person.last_name', 'Person.first_name'),
 		));
 		foreach ($new as $key => $person) {
 			$duplicates = $this->Person->findDuplicates($person);
@@ -2827,45 +2827,57 @@ class PeopleController extends AppController {
 
 				// Delete the settings from the original profile, but then restore any that don't exist in the new profile.
 				$this->Person->Setting->deleteAll(array('Setting.person_id' => $dup_id));
-				$settings = array();
+				$settings = $person['Setting'];
 				foreach ($existing['Setting'] as $setting) {
 					if ($setting['value'] !== '') {
 						$new = Set::extract("/Setting[category={$setting['category']}][name={$setting['name']}]/.", $person);
 						if (empty($new)) {
 							unset($setting['id']);
 							$settings[] = $setting;
-						} else if ($new[0]['value'] === '') {
-							$setting['id'] = $new[0]['id'];
-							$settings[] = $setting;
 						}
 					}
 				}
-				$person['Setting'] = $settings;
+				if (!empty($settings)) {
+					$person['Setting'] = array();
+					foreach ($settings as $setting) {
+						$setting['person_id'] = $dup_id;
+						$person['Setting'][] = $setting;
+					}
+				} else {
+					unset($person['Setting']);
+				}
 
 				// Similar process for skills.
 				$this->Person->Skill->deleteAll(array('Skill.person_id' => $dup_id));
-				$skills = array();
+				$skills = $person['Skill'];
 				foreach ($existing['Skill'] as $skill) {
 					if (!empty($skill['skill_level'])) {
 						$new = Set::extract("/Skill[sport={$skill['sport']}]/.", $person);
 						if (empty($new)) {
 							unset($skill['id']);
-							$skills[] = $skill;
-						} else if (empty($new[0]['skill_level'])) {
-							$skill['id'] = $new[0]['id'];
 							$skill['enabled'] = 0;
 							$skills[] = $skill;
 						}
 					}
 				}
-				$person['Skill'] = $skills;
+				if (!empty($skills)) {
+					$person['Skill'] = array();
+					foreach ($skills as $skill) {
+						$skill['person_id'] = $dup_id;
+						$person['Skill'][] = $skill;
+					}
+				} else {
+					unset($person['Skill']);
+				}
 
 				// Update all related records
 				foreach ($this->Person->hasMany as $class => $details) {
-					$this->Person->$class->updateAll(
-						array("$class.{$details['foreignKey']}" => $dup_id),
-						array("$class.{$details['foreignKey']}" => $person_id)
-					);
+					if (!in_array($class, array('Setting', 'Skill'))) {
+						$this->Person->$class->updateAll(
+							array("$class.{$details['foreignKey']}" => $dup_id),
+							array("$class.{$details['foreignKey']}" => $person_id)
+						);
+					}
 				}
 
 				foreach ($this->Person->hasAndBelongsToMany as $class => $details) {
