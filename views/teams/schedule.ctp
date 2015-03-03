@@ -4,6 +4,9 @@ $this->Html->addCrumb ($team['Team']['name']);
 $this->Html->addCrumb (__('Schedule', true));
 ?>
 
+<?php if (!empty($team['Division']['header'])): ?>
+<div class="division_header"><?php echo $team['Division']['header']; ?></div>
+<?php endif; ?>
 <?php
 $display_spirit = ($is_admin || $is_coordinator || $team['Division']['League']['display_sotg'] != 'coordinator_only') &&
 	League::hasSpirit($team);
@@ -169,3 +172,6 @@ echo $this->ZuluruHtml->imageLink ('http://www.google.com/calendar/images/ext/gc
 <div class="actions">
 	<?php echo $this->element('teams/actions', array('team' => $team['Team'], 'division' => $team['Division'], 'league' => $team['Division']['League'], 'format' => 'list')); ?>
 </div>
+<?php if (!empty($team['Division']['footer'])): ?>
+<div class="clear division_footer"><?php echo $team['Division']['footer']; ?></div>
+<?php endif; ?>
