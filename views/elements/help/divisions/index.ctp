@@ -17,9 +17,9 @@ if ($is_admin || $is_coordinator) {
 				),
 				'fields' => array(
 					'image' => 'field_report_32.png',
-					'title' => sprintf('%s Distribution Report', Configure::read('ui.field_cap')),
+					'title' => sprintf(__('%s Distribution Report', true), __(Configure::read('ui.field_cap'), true)),
 				),
-				'slots' => sprintf('%s Availability Report', Configure::read('ui.field_cap')),
+				'slots' => sprintf(__('%s Availability Report', true), __(Configure::read('ui.field_cap'), true)),
 				'spirit' => array(
 					'image' => 'spirit_32.png',
 					'title' => 'Spirit Report',
