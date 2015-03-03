@@ -9,10 +9,11 @@ $this->Html->addCrumb (__('Schedule', true));
 if ($is_manager && !in_array($league['League']['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs'))) {
 	$is_manager = false;
 }
+$collapse = (count($league['Division']) == 1);
 ?>
 
-<?php if (!empty($league['League']['header'])): ?>
-<div class="league_header"><?php echo $league['League']['header']; ?></div>
+<?php if ($collapse && !empty($league['Division'][0]['header'])): ?>
+<div class="division_header"><?php echo $league['Division'][0]['header']; ?></div>
 <?php endif; ?>
 <div class="leagues schedule">
 <h2><?php echo __('League Schedule', true) . ': ' . $league['League']['full_name'];?></h2>
@@ -120,6 +121,6 @@ if (!empty ($edit_date)) {
 	'league' => $league,
 	'format' => 'list',
 )); ?></div>
-<?php if (!empty($league['League']['footer'])): ?>
-<div class="league_footer"><?php echo $league['League']['footer']; ?></div>
+<?php if ($collapse && !empty($league['Division'][0]['footer'])): ?>
+<div class="clear division_footer"><?php echo $league['Division'][0]['footer']; ?></div>
 <?php endif; ?>
