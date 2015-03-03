@@ -4,9 +4,9 @@
 		<div class="team<?php
 		if (Game::_is_finalized($game)) {
 			if ($game['home_score'] > $game['away_score']) {
-				echo ' winner';
+				__(' winner');
 			} else if ($game['home_score'] < $game['away_score']) {
-				echo ' loser';
+				__(' loser');
 			}
 		}
 		?>">
@@ -53,9 +53,9 @@ if (!empty($game)) {
 		<div class="team<?php
 		if (Game::_is_finalized($game)) {
 			if ($game['away_score'] > $game['home_score']) {
-				echo ' winner';
+				__(' winner');
 			} else if ($game['away_score'] < $game['home_score']) {
-				echo ' loser';
+				__(' loser');
 			}
 		}
 		?>">

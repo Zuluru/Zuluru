@@ -22,9 +22,11 @@ foreach ($people as $person) {
 	}
 }
 ?>
-<p>You can copy and paste the emails below into your addressbook, or <?php
-echo $this->Html->link(__('send an email right away', true), 'mailto:' . implode (',', $emails)); ?>.</p>
+<p><?php
+printf(__('You can copy and paste the emails below into your addressbook, or %s.', true),
+	$this->Html->link(__('send an email right away', true), 'mailto:' . implode (',', $emails)));
+?></p>
 <?php
 echo implode(',<br>', array_map('htmlentities', $emails));
 ?>
-<p>Note that if you are using Microsoft Outlook, you may need to click in the To line of the message that pops up in order for the addresses to be recognized.</p>
+<p><?php __('Note that if you are using Microsoft Outlook, you may need to click in the To line of the message that pops up in order for the addresses to be recognized.'); ?></p>

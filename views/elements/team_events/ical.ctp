@@ -44,7 +44,7 @@ LOCATION:<?php echo $location_address; ?>
 
 SUMMARY:<?php echo ical_encode($event['TeamEvent']['name']); ?>
 
-DESCRIPTION:<?php echo ical_encode($event['TeamEvent']['name']); ?>, at <?php echo ical_encode($event['TeamEvent']['location_name']); ?>, on <?php echo $event_stamp; ?>
+DESCRIPTION:<?php echo ical_encode($event['TeamEvent']['name']); ?>, <?php __('at'); ?> <?php echo ical_encode($event['TeamEvent']['location_name']); ?>, <?php __('on'); ?> <?php echo $event_stamp; ?>
 
 STATUS:CONFIRMED
 TRANSP:OPAQUE

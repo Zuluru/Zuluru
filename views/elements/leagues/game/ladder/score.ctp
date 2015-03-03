@@ -2,7 +2,7 @@
 			<dd>
 				<?php
 				if ($game['Game']['home_score'] == $game['Game']['away_score'] && $game['Game']['rating_points'] == 0) {
-					echo 'No points were transferred between teams';
+					__('No points were transferred between teams');
 				}
 				else {
 					if ($game['Game']['home_score'] >= $game['Game']['away_score']) {
@@ -22,11 +22,7 @@
 						$loser_text = __('lose', true);
 						$transfer = $game['Game']['rating_points'];
 					}
-					if ($transfer == 1) {
-						$points = __('point', true);
-					} else {
-						$points = __('points', true);
-					}
+					$points = __n('point', 'points', $transfer, true);
 					echo "{$game['Game']['rating_points']} ($winner $winner_text $transfer $points " .
 						__('and', true) . " $loser $loser_text $transfer $points)";
 				}

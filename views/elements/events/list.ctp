@@ -115,7 +115,7 @@ foreach ($events as $event):
 			if ($cost > 0) {
 				echo '$' . $cost;
 			} else {
-				echo $this->Html->tag ('span', 'FREE', array('class' => 'free'));
+				echo $this->Html->tag ('span', __('FREE', true), array('class' => 'free'));
 			}
 			?>
 		</td>

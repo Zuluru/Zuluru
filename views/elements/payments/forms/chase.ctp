@@ -125,7 +125,7 @@ echo quick_hidden($this, 'x_zip', $person['Person']['addr_postalcode']);
 echo quick_hidden($this, 'x_country', $person['Person']['addr_country']);
 echo quick_hidden($this, 'x_phone', $person['Person']['home_phone']);
 
-echo $this->Form->submit('Pay', $submit_options);
+echo $this->Form->submit(__('Pay', true), $submit_options);
 
 echo $this->Form->end();
 

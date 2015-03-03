@@ -14,14 +14,15 @@ if (Configure::read('scoring.most_spirited') && $game['Division']['most_spirited
 			echo $this->Form->input("$prefix.has_most_spirited", array(
 					'type' => 'checkbox',
 					'value' => '1',
-					'label' => 'I want to nominate a most spirited player',
+					'label' => __('I want to nominate a most spirited player', true),
 			));
 		}
 ?>
 <div class="MostSpiritedDetails">
-<p>You may select one person from the list below<?php
+<p><?php
+		__('You may select one person from the list below');
 		if ($game['Division']['most_spirited'] == 'always') {
-			echo ', if you think they deserve to be nominated as most spirited player';
+			__(', if you think they deserve to be nominated as most spirited player');
 		}
 ?>.</p>
 

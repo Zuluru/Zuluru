@@ -3,7 +3,7 @@
 // This is used in all of the views that the SchedulesController may render.
 ?>
 <?php if (isset ($this->data) && array_key_exists ('ExcludeTeams', $this->data)) : ?>
-<p>You will be excluding the following teams from the schedule:
+<p><?php __('You will be excluding the following teams from the schedule'); ?>:
 <ul>
 <?php
 foreach ($this->data['ExcludeTeams'] as $team_id => $one) {
