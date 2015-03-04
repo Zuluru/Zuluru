@@ -1,5 +1,5 @@
-<p>The "edit facility" page is used to update details of your facilities.</p>
-<p>The "create facility" page is essentially identical to this page.</p>
+<p><?php __('The "edit facility" page is used to update details of your facilities.'); ?></p>
+<p><?php __('The "create facility" page is essentially identical to this page.'); ?></p>
 <?php
 echo $this->element('help/topics', array(
 		'section' => 'facilities/edit',
