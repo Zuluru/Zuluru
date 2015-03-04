@@ -2823,7 +2823,7 @@ class PeopleController extends AppController {
 
 				// Affiliates, groups, settings and skills need special handling
 				$this->Person->AffiliatesPerson->deleteAll(array('AffiliatesPerson.person_id' => $dup_id));
-				$person['Group'] = array('Group' => array_unique(array_merge(Set::extract('/Group/id', $person), Set::extract('/Group/id', $existing))));
+				$person['Group'] = array('Group' => array_unique(array_merge(Set::extract('/Group/id', $person), Set::extract('/Group[level>1]/id', $existing))));
 
 				// Delete the settings from the original profile, but then restore any that don't exist in the new profile.
 				$this->Person->Setting->deleteAll(array('Setting.person_id' => $dup_id));
