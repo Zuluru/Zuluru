@@ -430,14 +430,14 @@ class Person extends AppModel {
 			}
 		}
 
-		if (Configure::read('feature.birth_year_only')) {
+		if (Configure::read('feature.birth_year_only') && !empty($this->validate['birthdate'])) {
 			$this->validate['birthdate']['date'] = array(
 				'rule' => array('date', 'y', '/^(\\d{4})/'),
 				'message' => 'You must provide a valid birthdate.',
 			);
 		}
 
-		if (Configure::read('feature.units') == 'Metric') {
+		if (Configure::read('feature.units') == 'Metric' && !empty($this->validate['height'])) {
 			$this->validate['height']['range']['rule'] = array('range', 90, 215);
 		}
 
