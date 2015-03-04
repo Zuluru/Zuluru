@@ -1,1 +1,5 @@
-<p>Typically, a <?php __(Configure::read('ui.field')); ?> should be marked as "open" if it is in use by a current or upcoming league. By "closing" <?php __(Configure::read('ui.fields')); ?> not currently in use, the <?php __(Configure::read('ui.field')); ?> list will only display those facilities that players might need to travel to, making it easier for them to find relevant information.</p>
+<p><?php
+printf(__('Typically, a %s should be marked as "open" if it is in use by a current or upcoming league. By "closing" %s not currently in use, the %s list will only display those facilities that players might need to travel to, making it easier for them to find relevant information.', true),
+	__(Configure::read('ui.field'), true), __(Configure::read('ui.fields'), true), __(Configure::read('ui.field'), true)
+);
+?></p>
