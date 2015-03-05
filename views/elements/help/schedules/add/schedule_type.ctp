@@ -1,4 +1,4 @@
-<p>The options you have for what type of games to schedule depend on the schedule type of the league. Each option will indicate how many teams, <?php __(Configure::read('ui.fields')); ?> and days will be involved.</p>
+<p><?php printf(__('The options you have for what type of games to schedule depend on the schedule type of the league. Each option will indicate how many teams, %s and days will be involved.', true), __(Configure::read('ui.fields'), true)); ?></p>
 <?php
 echo $this->element('help/topics', array(
 		'section' => 'schedules',

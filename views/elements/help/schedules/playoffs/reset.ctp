@@ -1,1 +1,1 @@
-<p>If you have initialized the schedule dependencies for the playoffs and need to completely remove them (rather than just recalculate them), use the "Reset Schedule Dependencies" link from the division schedule page.</p>
+<p><?php __('If you have initialized the schedule dependencies for the playoffs and need to completely remove them (rather than just recalculate them), use the "Reset Schedule Dependencies" link from the division schedule page.'); ?></p>

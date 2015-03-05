@@ -1,4 +1,4 @@
-<p>To add games to a schedule, you select the type of schedule to create, whether to publish games, and whether double-headers are allowed.</p>
+<p><?php __('To add games to a schedule, you select the type of schedule to create, whether to publish games, and whether double-headers are allowed.'); ?></p>
 <?php
 echo $this->element('help/topics', array(
 		'section' => 'schedules/add',
