@@ -1,15 +1,18 @@
-<p>TinyMCE is a popular JavaScript WYSIWYG HTML editor. Using it with <?php echo ZULURU; ?> requires a third-party CakePHP plugin, with a couple of modifications.</p>
-<p>One way to install this is something along these lines:
+<p><?php printf(__('TinyMCE is a popular JavaScript WYSIWYG HTML editor. Using it with %s requires a third-party CakePHP plugin, with a couple of modifications.', true), ZULURU); ?></p>
+<p><?php __('One way to install this is something along these lines:'); ?>
 <pre><code>$ cd /path/to/zuluru/plugins
 $ mkdir tiny_mce
 $ cd tiny_mce
 $ git init
 $ git pull git://github.com/CakeDC/TinyMCE.git 1.3</code></pre>
 </p>
-<p>You will need to make sure that the tiny_mce/webroot/js folder is available through your web server, and that tiny_mce/views/helpers/tiny_mce.php has the correct URL in the beforeRender function.</p>
-<p>Lastly, edit tiny_mce/views/helpers/tiny_mce.php and replace
+<p><?php
+printf(__('You will need to make sure that the %s folder is available through your web server, and that %s has the correct URL in the beforeRender function.', true),
+	'tiny_mce/webroot/js', 'tiny_mce/views/helpers/tiny_mce.php'
+); ?></p>
+<p><?php printf(__('Lastly, edit %s and replace', true), 'tiny_mce/views/helpers/tiny_mce.php'); ?>
 <pre><code>public $configs = array();</code></pre>
-with
+<?php __('with'); ?>
 <pre><code>public $configs = array(
 	'simple' => array(
 		'mode' => 'textareas',
@@ -42,9 +45,9 @@ with
 		'editor_selector' => 'mceNewsletter',
 	),
 );</code></pre>
-to set up Zuluru's expected themes, and
+<?php printf(__('to set up %s\'s expected themes, and', true), ZULURU); ?>
 <pre><code>$lines .= Inflector::underscore($option) . ' : "' . $value . '",' . "\n";</code></pre>
-with
+<?php __('with'); ?>
 <pre><code>$lines .= Inflector::underscore($option) . ' : ';
 if ($value === true) {
 	$lines .= "true,\n";
@@ -53,4 +56,4 @@ if ($value === true) {
 } else {
 	$lines .= '"' . $value . '",' . "\n";
 }</code></pre>
-to ensure that true and false configuration values are set as JavaScript booleans instead of strings.</p>
+<?php __('to ensure that true and false configuration values are set as JavaScript booleans instead of strings.'); ?></p>

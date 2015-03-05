@@ -11,6 +11,9 @@ if ($is_admin) {
 			'section' => 'settings/feature',
 			'topics' => array(
 				'tiny_mce' => 'TinyMCE',
+				'pdfize' => 'PDFize',
+				'twitter',
+				'uls' => 'ULS',
 			),
 	));
 }
