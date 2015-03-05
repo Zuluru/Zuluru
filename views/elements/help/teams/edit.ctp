@@ -1,13 +1,14 @@
-<p>The "edit team" page is used to update details of your team. Only coaches and captains have permission to edit team details.</p>
+<p><?php __('The "edit team" page is used to update details of your team. Only coaches and captains have permission to edit team details.'); ?></p>
 <?php if (Configure::read('feature.registration')): ?>
-<p>Since this system uses the <?php
-echo $this->Html->link(__('registration system', true), array('controller' => 'events', 'action' => 'wizard')) . ' ' .
+<p><?php
+printf(__('Since this system uses the %s, teams are created during the registration process with some default values that you might want to alter.', true),
+	$this->Html->link(__('registration system', true), array('controller' => 'events', 'action' => 'wizard')) . ' ' .
 	$this->ZuluruHtml->iconLink('help_16.png',
 			array('controller' => 'help', 'action' => 'registration'),
-			array('alt' => __('Registration Help', true), 'title' => __('Registration Help', true)));
-?>, teams are created during the registration process with some default values that you might want to alter.</p>
+			array('alt' => __('Registration Help', true), 'title' => __('Registration Help', true)))
+); ?></p>
 <?php else: ?>
-<p>The "create team" page is essentially identical to this page.</p>
+<p><?php __('The "create team" page is essentially identical to this page.'); ?></p>
 <?php endif; ?>
 <?php
 $topics = array(
