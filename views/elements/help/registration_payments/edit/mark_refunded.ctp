@@ -1,4 +1,2 @@
-<?php
-echo $this->Html->para(null, __('Check the "mark this registration as refunded" box if the registration should be considered fully refunded. This may remove associated team records, invalidate other registrations that the user has and/or open up registration spots for others.', true));
-echo $this->Html->para(null, __('You typically do not want to check this if you are issuing a partial refund, e.g. if a team drops out part way through a season and you need their game results to remain for other team standings to be correct.', true));
-?>
+<p><?php __('Check the "mark this registration as refunded" box if the registration should be considered fully refunded. This may remove associated team records, invalidate other registrations that the user has and/or open up registration spots for others.'); ?></p>
+<p><?php __('You typically do not want to check this if you are issuing a partial refund, e.g. if a team drops out part way through a season and you need their game results to remain for other team standings to be correct.'); ?></p>
