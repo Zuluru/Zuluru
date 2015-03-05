@@ -1,7 +1,7 @@
-<h4>Type: Data</h4>
-<p>The ATTRIBUTE rule extracts information from the player record and returns it. The name of the attribute to be returned must be in lower case and enclosed in quotes.</p>
-<p>The most common attributes to use in comparisons are gender and birthdate, but any field name in the "people" table is an option.</p>
-<p>The complete list is as follows. Where there is a limited list of options, they are given in parentheses; note that these are case-sensitive.</p>
+<h4><?php __('Type: Data'); ?></h4>
+<p><?php printf(__('The %s rule extracts information from the player record and returns it. The name of the attribute to be returned must be in lower case and enclosed in quotes.', true), 'ATTRIBUTE'); ?></p>
+<p><?php printf(__('The most common attributes to use in comparisons are %s and %s, but any field name in the "people" table is an option.', true), 'gender', 'birthdate'); ?></p>
+<p><?php __('The complete list is as follows. Where there is a limited list of options, they are given in parentheses; note that these are case-sensitive.'); ?></p>
 <p><?php
 $fields = array();
 $person = ClassRegistry::init('person');
@@ -47,6 +47,6 @@ foreach (array_keys($person->_schema) as $key) {
 }
 echo implode(', ', $fields);
 ?></p>
-<p>Example:</p>
+<p><?php __('Example:'); ?></p>
 <pre>ATTRIBUTE('gender')</pre>
-<p>will return either <strong>Male</strong> or <strong>Female</strong>.</p>
+<p><?php printf(__('will return either %s or %s.', true), '<strong>Male</strong>', '<strong>Female</strong>'); ?></p>
