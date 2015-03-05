@@ -1,6 +1,6 @@
 <?php // TODO: Replace this with a class ?>
 <div id="zuluru">
-<p>Following are the various spirit questionnaire options, with a short description and preview of each.</p>
+<p><?php __('Following are the various spirit questionnaire options, with a short description and preview of each.'); ?></p>
 <?php
 $options = Configure::read('options.spirit_questions');
 foreach ($options as $option => $name):
