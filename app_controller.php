@@ -780,7 +780,7 @@ class AppController extends Controller {
 				$this->_addMenuItem(__('Unpaid', true), array('controller' => 'registrations', 'action' => 'unpaid'), __('Registration', true));
 				$this->_addMenuItem(__('Credits', true), array('controller' => 'registrations', 'action' => 'credits'), __('Registration', true));
 				$this->_addMenuItem(__('Report', true), array('controller' => 'registrations', 'action' => 'report'), __('Registration', true));
-				$this->_addMenuItem(__('Create event', true), array('controller' => 'events', 'action' => 'add'), __('Registration', true));
+				$this->_addMenuItem(sprintf(__('Create %s', true), __('event', true)), array('controller' => 'events', 'action' => 'add'), __('Registration', true));
 				$this->_addMenuItem(__('Questionnaires', true), array('controller' => 'questionnaires', 'action' => 'index'), __('Registration', true));
 				$this->_addMenuItem(__('List', true), array('controller' => 'questionnaires', 'action' => 'index'), array(__('Registration', true), __('Questionnaires', true)));
 				$this->_addMenuItem(__('Questions', true), array('controller' => 'questions', 'action' => 'index'), array(__('Registration', true), __('Questionnaires', true)));
@@ -806,7 +806,7 @@ class AppController extends Controller {
 			$this->_addMenuItem(__('List', true), array('controller' => 'teams', 'action' => 'index'), __('Teams', true));
 			// If registrations are enabled, it takes care of team creation
 			if ($this->is_admin || $this->is_manager || !Configure::read('feature.registration')) {
-				$this->_addMenuItem(__('Create team', true), array('controller' => 'teams', 'action' => 'add'), __('Teams', true));
+				$this->_addMenuItem(sprintf(__('Create %s', true), __('team', true)), array('controller' => 'teams', 'action' => 'add'), __('Teams', true));
 			}
 			if ($this->is_admin || $this->is_manager) {
 				$this->_addMenuItem(__('Unassigned teams', true), array('controller' => 'teams', 'action' => 'unassigned'), __('Teams', true));
@@ -816,14 +816,14 @@ class AppController extends Controller {
 		if ($this->is_logged_in && Configure::read('feature.franchises')) {
 			$this->_addMenuItem(__('Franchises', true), array('controller' => 'franchises', 'action' => 'index'), __('Teams', true));
 			$this->_addMenuItem(__('List', true), array('controller' => 'franchises', 'action' => 'index'), array(__('Teams', true), __('Franchises', true)));
-			$this->_addMenuItem(__('Create franchise', true), array('controller' => 'franchises', 'action' => 'add'), array(__('Teams', true), __('Franchises', true)));
+			$this->_addMenuItem(sprintf(__('Create %s', true), __('franchise', true)), array('controller' => 'franchises', 'action' => 'add'), array(__('Teams', true), __('Franchises', true)));
 		}
 
 		$this->_addMenuItem(__('Leagues', true), array('controller' => 'leagues', 'action' => 'index'));
 		$this->_addMenuItem(__('List', true), array('controller' => 'leagues', 'action' => 'index'), __('Leagues', true));
 		if ($this->is_admin || $this->is_manager) {
 			$this->_addMenuItem(__('League summary', true), array('controller' => 'leagues', 'action' => 'summary'), __('Leagues', true));
-			$this->_addMenuItem(__('Create league', true), array('controller' => 'leagues', 'action' => 'add'), __('Leagues', true));
+			$this->_addMenuItem(sprintf(__('Create %s', true), __('league', true)), array('controller' => 'leagues', 'action' => 'add'), __('Leagues', true));
 		}
 
 		$this->_addMenuItem(__(Configure::read('ui.fields_cap'), true), array('controller' => 'facilities', 'action' => 'index'));
@@ -832,10 +832,10 @@ class AppController extends Controller {
 		if ($this->is_admin || $this->is_manager) {
 			$this->_addMenuItem(__('Regions', true), array('controller' => 'regions', 'action' => 'index'), __(Configure::read('ui.fields_cap'), true));
 			$this->_addMenuItem(__('List', true), array('controller' => 'regions', 'action' => 'index'), array(__(Configure::read('ui.fields_cap'), true), __('Regions', true)));
-			$this->_addMenuItem(__('Create Region', true), array('controller' => 'regions', 'action' => 'add'), array(__(Configure::read('ui.fields_cap'), true), __('Regions', true)));
+			$this->_addMenuItem(sprintf(__('Create %s', true), __('region', true)), array('controller' => 'regions', 'action' => 'add'), array(__(Configure::read('ui.fields_cap'), true), __('Regions', true)));
 
 			$this->_addMenuItem(__('Closed facilities', true), array('controller' => 'facilities', 'action' => 'closed'), __(Configure::read('ui.fields_cap'), true));
-			$this->_addMenuItem(__('Create facility', true), array('controller' => 'facilities', 'action' => 'add'), __(Configure::read('ui.fields_cap'), true));
+			$this->_addMenuItem(sprintf(__('Create %s', true), __('facility', true)), array('controller' => 'facilities', 'action' => 'add'), __(Configure::read('ui.fields_cap'), true));
 			if (!Configure::read('feature.affiliates')) {
 				$this->_addMenuItem(__('Add bulk gameslots', true), array('controller' => 'game_slots', 'action' => 'add'), __(Configure::read('ui.fields_cap'), true));
 			} else if (count($affiliates) == 1) {
@@ -958,8 +958,8 @@ class AppController extends Controller {
 			$this->_addMenuItem(__('Upcoming', true), array('controller' => 'newsletters', 'action' => 'index'), __('Newsletters', true));
 			$this->_addMenuItem(__('Mailing lists', true), array('controller' => 'mailing_lists', 'action' => 'index'), __('Newsletters', true));
 			$this->_addMenuItem(__('List', true), array('controller' => 'mailing_lists', 'action' => 'index'), array(__('Newsletters', true), __('Mailing lists', true)));
-			$this->_addMenuItem(__('Create mailing list', true), array('controller' => 'mailing_lists', 'action' => 'add'), array(__('Newsletters', true), __('Mailing lists', true)));
-			$this->_addMenuItem(__('Create newsletter', true), array('controller' => 'newsletters', 'action' => 'add'), __('Newsletters', true));
+			$this->_addMenuItem(sprintf(__('Create %s', true), __('mailing list', true)), array('controller' => 'mailing_lists', 'action' => 'add'), array(__('Newsletters', true), __('Mailing lists', true)));
+			$this->_addMenuItem(sprintf(__('Create %s', true), __('newsletter', true)), array('controller' => 'newsletters', 'action' => 'add'), __('Newsletters', true));
 			$this->_addMenuItem(__('All newsletters', true), array('controller' => 'newsletters', 'action' => 'past'), __('Newsletters', true));
 		}
 
@@ -1085,9 +1085,9 @@ class AppController extends Controller {
 		}
 		if (Configure::read('feature.manage_accounts')) {
 			if (!$this->is_logged_in) {
-				$this->_addMenuItem(__('Create account', true), array('controller' => 'users', 'action' => 'create_account'));
+				$this->_addMenuItem(sprintf(__('Create %s', true), __('account', true)), array('controller' => 'users', 'action' => 'create_account'));
 			} else if ($this->is_admin || $this->is_manager) {
-				$this->_addMenuItem(__('Create account', true), array('controller' => 'users', 'action' => 'create_account'), __('People', true));
+				$this->_addMenuItem(sprintf(__('Create %s', true), __('account', true)), array('controller' => 'users', 'action' => 'create_account'), __('People', true));
 			}
 		}
 
