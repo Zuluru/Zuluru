@@ -35,7 +35,9 @@ $body = htmlspecialchars ('I have a suggestion for the <?php echo ZULURU; ?> onl
 ?>
 
 <hr>
-<p>If you have suggestions for additions, changes or other improvements to this online help, please send them to <?php
-echo $this->Html->link (Configure::read('email.support_email'), 'mailto:' . Configure::read('email.support_email') . '?subject=' . ZULURU . "%20Online%20Help%20Suggestion&body=$body");
-?>.</p>
+<p><?php
+printf(__('If you have suggestions for additions, changes or other improvements to this online help, please send them to %s.', true),
+	$this->Html->link (Configure::read('email.support_email'), 'mailto:' . Configure::read('email.support_email') . '?subject=' . ZULURU . "%20Online%20Help%20Suggestion&body=$body");
+);
+?></p>
 </div>

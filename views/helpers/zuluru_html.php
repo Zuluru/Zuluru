@@ -165,13 +165,15 @@ class ZuluruHtmlHelper extends HtmlHelper {
 		// Build the link for suggestions
 		$body = htmlspecialchars ('I have a suggestion for the Zuluru online help page at ' . implode(' : ', $url));
 		$add = $this->tag('hr') .
-				$this->para(null, 'If you have suggestions for additions, changes or other improvements to this online help, please send them to ' .
-					$this->link (Configure::read('email.support_email'), 'mailto:' . Configure::read('email.support_email') . '?subject=' . ZULURU . "%20Online%20Help%20Suggestion&body=$body") . '.');
+				$this->para(null, sprintf(__('If you have suggestions for additions, changes or other improvements to this online help, please send them to %s.', true),
+					$this->link (Configure::read('email.support_email'), 'mailto:' . Configure::read('email.support_email') . '?subject=' . ZULURU . "%20Online%20Help%20Suggestion&body=$body")
+				));
 
 		// Add an invisible div with the help text in it, and attach an event to the image
 		$view =& ClassRegistry::getObject('view');
 		$element = implode ('/', array_values ($url));
 		$title = array_map (array('Inflector', 'humanize'), array_values ($url));
+		$title = array_map ('__', array_values($title), array_fill(0, count($title), true));
 		$help .= $this->tag ('div', $view->element ($element) . $add, array(
 				'id' => "{$id}_div",
 				'class' => 'help_dialog',
@@ -185,6 +187,8 @@ class ZuluruHtmlHelper extends HtmlHelper {
 			// The first little bit here is from http://jsbin.com/icuguz/12/edit,
 			// referenced by http://bugs.jqueryui.com/ticket/4731, to keep the
 			// focus from jumping to the first tabbable element in the dialog
+			$open = __('Open this help page in a new window', true);
+			$close = __('Close', true);
 			$view->Html->scriptBlock ("
 jQuery.ui.dialog.prototype._focusTabbable = function() {
 	this.uiDialogTitlebarClose.focus();
@@ -193,11 +197,11 @@ jQuery.ui.dialog.prototype._focusTabbable = function() {
 function show_help(id, link) {
 	jQuery('#' + id + '_div').dialog({
 		buttons: {
-			'Open this help page in a new window': function() {
+			'$open': function() {
 				jQuery('#' + id + '_div').dialog('close');
 				window.open(link, '_blank');
 			},
-			'Close': function() {
+			'$close': function() {
 				jQuery('#' + id + '_div').dialog('close');
 			}
 		},
