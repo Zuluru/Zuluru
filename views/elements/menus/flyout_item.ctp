@@ -5,7 +5,7 @@ if (array_key_exists ('opts', $item)) {
 	$opts = array();
 }
 
-$name = __($item['name'], true);
+$name = $item['name'];
 $short_name = $text->truncate ($name, 18);
 if ($short_name != $name) {
 	$opts['title'] = $name;

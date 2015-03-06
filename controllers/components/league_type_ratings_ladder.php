@@ -13,7 +13,7 @@ class LeagueTypeRatingsLadderComponent extends LeagueTypeComponent
 
 	function addMenuItems ($division, $path, $is_coordinator = false) {
 		if ($this->_controller->is_admin || $is_coordinator) {
-			$this->_controller->_addMenuItem ('Adjust ratings', array('controller' => 'divisions', 'action' => 'ratings', 'division' => $division['id']), $path);
+			$this->_controller->_addMenuItem (__('Adjust ratings', true), array('controller' => 'divisions', 'action' => 'ratings', 'division' => $division['id']), $path);
 		}
 	}
 
