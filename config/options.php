@@ -19,7 +19,7 @@ if (!function_exists('make_options')) {
 		if (empty($values)) {
 			return array();
 		}
-		return array_combine ($values, $values);
+		return array_combine ($values, array_map ('__', $values, array_fill(0, count($values), true)));
 	}
 
 	function make_human_options($values)
@@ -28,6 +28,7 @@ if (!function_exists('make_options')) {
 			return array();
 		}
 		$human = array_map (array('Inflector', 'Humanize'), $values);
+		$human = array_map ('__', $human, array_fill(0, count($human), true));
 		return array_combine ($values, $human);
 	}
 }
@@ -185,34 +186,34 @@ $config['options'] = array(
 	)),
 
 	'skill' => array(
-		'10'				=> '10: High calibre touring player (team was top 4 at nationals)',
-		'9'					=> '9: Medium calibre touring player',
-		'8'					=> '8: Key player in competitive league, or lower calibre touring player',
-		'7'					=> '7: Competitive league player, minimal/no touring experience',
-		'6'					=> '6: Key player in intermediate league, or lower player in competitive league',
-		'5'					=> '5: Comfortable in intermediate league',
-		'4'					=> '4: Key player in recreational league, or lower player in intermediate league',
-		'3'					=> '3: Comfortable in recreational league',
-		'2'					=> '2: Beginner, minimal experience but athletic with sports background',
-		'1'					=> '1: Absolute Beginner',
+		'10'				=> __('10: High calibre touring player (team was top 4 at nationals)', true),
+		'9'					=> __('9: Medium calibre touring player', true),
+		'8'					=> __('8: Key player in competitive league, or lower calibre touring player', true),
+		'7'					=> __('7: Competitive league player, minimal/no touring experience', true),
+		'6'					=> __('6: Key player in intermediate league, or lower player in competitive league', true),
+		'5'					=> __('5: Comfortable in intermediate league', true),
+		'4'					=> __('4: Key player in recreational league, or lower player in intermediate league', true),
+		'3'					=> __('3: Comfortable in recreational league', true),
+		'2'					=> __('2: Beginner, minimal experience but athletic with sports background', true),
+		'1'					=> __('1: Absolute Beginner', true),
 	),
 
 	'roster_role' => array(
-		'captain'			=> 'Captain',
-		'assistant'			=> 'Assistant captain',
-		'coach'				=> 'Non-playing coach',
-		'player'			=> 'Regular player',
-		'substitute'		=> 'Substitute player',
-		'none'				=> 'Not on team',
+		'captain'			=> __('Captain', true),
+		'assistant'			=> __('Assistant captain', true),
+		'coach'				=> __('Non-playing coach', true),
+		'player'			=> __('Regular player', true),
+		'substitute'		=> __('Substitute player', true),
+		'none'				=> __('Not on team', true),
 	),
 
 	'roster_methods' => array(
-		'invite'			=> 'Players are invited and must accept',
-		'add'				=> 'Players are added directly',
+		'invite'			=> __('Players are invited and must accept', true),
+		'add'				=> __('Players are added directly', true),
 	),
 
 	'division_position' => array(
-		'coordinator'		=> 'Coordinator',
+		'coordinator'		=> __('Coordinator', true),
 	),
 
 	'game_status' => make_human_options(array(
@@ -251,14 +252,14 @@ $config['options'] = array(
 	),
 
 	'test_payment' => array(
-		'0'					=> 'Nobody',
-		'1'					=> 'Everybody',
-		'2'					=> 'Admins',
+		'0'					=> __('Nobody', true),
+		'1'					=> __('Everybody', true),
+		'2'					=> __('Admins', true),
 	),
 
 	'currency' => array(
-		'CAD'				=> 'Canadian',
-		'USD'				=> 'USA',
+		'CAD'				=> __('Canadian', true),
+		'USD'				=> __('USA', true),
 	),
 
 	'units' => make_options(array(
@@ -267,17 +268,17 @@ $config['options'] = array(
 	)),
 
 	'membership_types' => array(
-		'full'				=> 'Full',
-		'intro'				=> 'Introductory',
-//		'trial'				=> 'Trial',
+		'full'				=> __('Full', true),
+		'intro'				=> __('Introductory', true),
+//		'trial'				=> __('Trial', true),
 	),
 
 	'waivers' => array(
 		'expiry_type' => array(
-			'fixed_dates'		=> 'Fixed dates',
-			'elapsed_time'		=> 'A fixed duration',
-			'event'				=> 'Duration of the event',
-			'never'				=> 'Never expires',
+			'fixed_dates'		=> __('Fixed dates', true),
+			'elapsed_time'		=> __('A fixed duration', true),
+			'event'				=> __('Duration of the event', true),
+			'never'				=> __('Never expires', true),
 		),
 	),
 
@@ -312,19 +313,19 @@ $config['options'] = array(
 
 	// List of available badge categories
 	'category' => array(
-		'runtime' => 'Run-time determination',
-		'game' => 'Determined by game outcomes',
-		'team' => 'Determined by roster status',
-		'registration' => 'Determined by registrations',
-		'aggregate' => 'Aggregates multiple badges, e.g. "5x"',
-		'nominated' => 'Nominated by anyone (must be approved)',
-		'assigned' => 'Assigned by an admin',
+		'runtime' => __('Run-time determination', true),
+		'game' => __('Determined by game outcomes', true),
+		'team' => __('Determined by roster status', true),
+		'registration' => __('Determined by registrations', true),
+		'aggregate' => __('Aggregates multiple badges, e.g. "5x"', true),
+		'nominated' => __('Nominated by anyone (must be approved)', true),
+		'assigned' => __('Assigned by an admin', true),
 	),
 
 	'visibility' => array(
-		BADGE_VISIBILITY_ADMIN => 'Admin only (same locations as high)',
-		BADGE_VISIBILITY_HIGH => 'High (profile, pop-ups, team rosters)',
-		BADGE_VISIBILITY_LOW => 'Low (profile only)',
+		BADGE_VISIBILITY_ADMIN => __('Admin only (same locations as high)', true),
+		BADGE_VISIBILITY_HIGH => __('High (profile, pop-ups, team rosters)', true),
+		BADGE_VISIBILITY_LOW => __('Low (profile only)', true),
 	),
 
 	/**
@@ -349,45 +350,45 @@ $config['options'] = array(
 
 	// List of available scheduling types
 	'schedule_type' => array(
-		'none' => 'None',
-		'roundrobin' => 'Round Robin',
-		'ratings_ladder' => 'Ratings Ladder',
-		//'competition' => 'Competition',
-		'tournament' => 'Tournament',
+		'none' => __('None', true),
+		'roundrobin' => __('Round Robin', true),
+		'ratings_ladder' => __('Ratings Ladder', true),
+		//'competition' => __('Competition', true),
+		'tournament' => __('Tournament', true),
 	),
 
 	// List of available rating calculators
 	'rating_calculator' => array(
-		'none' => 'None',
-		'wager' => 'Wager System',
-		'usau_college' => 'USA Ultimate College',
-		'rri' => 'RRI',
-		'krach' => 'KRACH',
-		'rpi' => 'RPI',
-		'modified_elo' => 'Modified Elo',
-		//'manual' => 'Manual',
+		'none' => __('None', true),
+		'wager' => __('Wager System', true),
+		'usau_college' => __('USA Ultimate College', true),
+		'rri' => __('RRI', true),
+		'krach' => __('KRACH', true),
+		'rpi' => __('RPI', true),
+		'modified_elo' => __('Modified Elo', true),
+		//'manual' => __('Manual', true),
 	),
 
 	// List of available spirit questionnaires
 	'spirit_questions' => array(
-		'none' => 'No spirit questionnaire',
-		'wfdf' => 'WFDF standard',
-		'modified_wfdf' => 'Modified WFDF',
-		'modified_bula' => 'Modified BULA',
-		'team' => 'Leaguerunner original',
-		'ocua_team' => 'Modified Leaguerunner',
+		'none' => __('No spirit questionnaire', true),
+		'wfdf' => __('WFDF standard', true),
+		'modified_wfdf' => __('Modified WFDF', true),
+		'modified_bula' => __('Modified BULA', true),
+		'team' => __('Leaguerunner original', true),
+		'ocua_team' => __('Modified Leaguerunner', true),
 	),
 
 	// List of available payment providers
 	'payment_provider' => array(
-		'chase' => 'Chase Paymentech',
-		'moneris' => 'Moneris',
-		'paypal' => 'Paypal',
+		'chase' => __('Chase Paymentech', true),
+		'moneris' => __('Moneris', true),
+		'paypal' => __('Paypal', true),
 	),
 
 	// List of available invoice outputs
 	'invoice' => array(
-		'invoice' => 'Standard',
+		'invoice' => __('Standard', true),
 	),
 );
 
