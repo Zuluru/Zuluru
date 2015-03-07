@@ -188,7 +188,7 @@ class League extends AppModel {
 		}
 
 		// If they are in different seasons, we use that
-		$seasons = array_flip(array_values(Configure::read('options.season')));
+		$seasons = array_flip(array_keys(Configure::read('options.season')));
 		$a_season = $seasons[$a_league['season']];
 		$b_season = $seasons[$b_league['season']];
 		if ($a_season > $b_season) {
