@@ -12,12 +12,17 @@ usort($people, 'compareName');
 AppModel::_reindexOuter($people, 'Person', 'id');
 AppModel::_reindexOuter($newsletter['Delivery'], null, 'person_id');
 
+$letters = array();
+foreach ($people as $person) {
+	$letters[up($person['Person']['last_name'][0])] = true;
+}
+
 function compareName($a, $b) {
 	return up("{$a['Person']['last_name']} {$a['Person']['first_name']}") > up("{$b['Person']['last_name']} {$b['Person']['first_name']}");
 }
 ?>
 
-<p><?php foreach (range('A', 'Z') as $letter): ?>
+<p><?php foreach (array_keys($letters) as $letter): ?>
 	<a href="#" class="letter_link" id="letter_<?php echo $letter; ?>"><?php echo $letter; ?></a>
 <?php endforeach; ?>
 </p>
