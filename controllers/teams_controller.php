@@ -2665,7 +2665,7 @@ class TeamsController extends AppController {
 				$person = array(
 					'Person' => $this->UserCache->read('Person', $person['Person']['id']),
 					'Team' => $this->UserCache->read('Teams', $person['Person']['id']),
-					'Registration' => $this->UserCache->read('RegistrationsPaid', $person['Person']['id']),
+					'Registration' => $this->UserCache->read('RegistrationsReserved', $person['Person']['id']),
 					'Waiver' => $this->UserCache->read('Waivers', $person['Person']['id']),
 				);
 			}
