@@ -70,6 +70,7 @@ class EventTypeComponent extends Object
 		if ($this->_controller->Registration->delete($data['Registration']['id'])) {
 			$this->_controller->UserCache->clear('Registrations', $data['Registration']['person_id']);
 			$this->_controller->UserCache->clear('RegistrationsPaid', $data['Registration']['person_id']);
+			$this->_controller->UserCache->clear('RegistrationsReserved', $data['Registration']['person_id']);
 			$this->_controller->UserCache->clear('RegistrationsUnpaid', $data['Registration']['person_id']);
 			$this->_controller->UserCache->clear('RegistrationsCanPay', $data['Registration']['person_id']);
 
@@ -201,6 +202,7 @@ class EventTypeComponent extends Object
 						));
 					}
 					$this->_controller->UserCache->clear('Registrations', $registration['Registration']['person_id']);
+					$this->_controller->UserCache->clear('RegistrationsReserved', $registration['Registration']['person_id']);
 					$this->_controller->UserCache->clear('RegistrationsUnpaid', $registration['Registration']['person_id']);
 					$this->_controller->UserCache->clear('RegistrationsCanPay', $registration['Registration']['person_id']);
 				}
@@ -210,6 +212,7 @@ class EventTypeComponent extends Object
 		}
 
 		$this->_controller->UserCache->clear('Registrations', $data['Registration']['person_id']);
+		$this->_controller->UserCache->clear('RegistrationsReserved', $data['Registration']['person_id']);
 		$this->_controller->UserCache->clear('RegistrationsUnpaid', $data['Registration']['person_id']);
 		$this->_controller->UserCache->clear('RegistrationsCanPay', $data['Registration']['person_id']);
 
@@ -283,6 +286,8 @@ class EventTypeComponent extends Object
 		}
 
 		$this->_controller->UserCache->clear('Registrations', $data['Registration']['person_id']);
+		$this->_controller->UserCache->clear('RegistrationsPaid', $data['Registration']['person_id']);
+		$this->_controller->UserCache->clear('RegistrationsReserved', $data['Registration']['person_id']);
 		$this->_controller->UserCache->clear('RegistrationsUnpaid', $data['Registration']['person_id']);
 		$this->_controller->UserCache->clear('RegistrationsCanPay', $data['Registration']['person_id']);
 
@@ -303,6 +308,7 @@ class EventTypeComponent extends Object
 
 		$this->_controller->UserCache->clear('Registrations', $data['Registration']['person_id']);
 		$this->_controller->UserCache->clear('RegistrationsPaid', $data['Registration']['person_id']);
+		$this->_controller->UserCache->clear('RegistrationsReserved', $data['Registration']['person_id']);
 		$this->_controller->UserCache->clear('RegistrationsUnpaid', $data['Registration']['person_id']);
 		$this->_controller->UserCache->clear('RegistrationsCanPay', $data['Registration']['person_id']);
 		$this->_controller->UserCache->clear('Preregistrations', $data['Registration']['person_id']);
@@ -321,6 +327,7 @@ class EventTypeComponent extends Object
 
 		$this->_controller->UserCache->clear('Registrations', $data['Registration']['person_id']);
 		$this->_controller->UserCache->clear('RegistrationsPaid', $data['Registration']['person_id']);
+		$this->_controller->UserCache->clear('RegistrationsReserved', $data['Registration']['person_id']);
 		$this->_controller->UserCache->clear('RegistrationsUnpaid', $data['Registration']['person_id']);
 		$this->_controller->UserCache->clear('RegistrationsCanPay', $data['Registration']['person_id']);
 
