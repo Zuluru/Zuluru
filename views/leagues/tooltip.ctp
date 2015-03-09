@@ -23,7 +23,7 @@ if (count($league['Division']) == 1):
 	} else {
 		echo $division['name'];
 	}
-	?></dt>
+	?>&nbsp;</dt>
 	<dd><?php
 	echo $this->Html->link(__('Details', true), array('controller' => 'divisions', 'action' => 'view', 'division' => $division['id'])) .
 			' / ' .
