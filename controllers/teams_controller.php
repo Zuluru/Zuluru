@@ -1093,7 +1093,10 @@ class TeamsController extends AppController {
 
 	function add() {
 		if (!$this->is_admin && Configure::read('feature.registration')) {
-			$this->Session->setFlash (__('This system creates teams through the registration process. Team creation through Zuluru is disabled. If you need a team created for some other reason (e.g. a touring team), please email ' . Configure::read('email.admin_email') . ' with the details, or call the office.', true), 'default', array('class' => 'info'));
+			$this->Session->setFlash (
+				sprintf(__('This system creates teams through the registration process. Team creation through %s is disabled. If you need a team created for some other reason (e.g. a touring team), please email %s with the details, or call the office.', true), ZULURU, Configure::read('email.admin_email')),
+				'default', array('class' => 'info')
+			);
 			$this->redirect('/');
 		}
 
