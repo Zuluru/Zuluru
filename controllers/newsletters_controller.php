@@ -285,6 +285,7 @@ class NewslettersController extends AppController {
 			$newsletter = $this->Newsletter->read(null, $id);
 			if (!$newsletter) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('newsletter', true)), 'default', array('class' => 'info'));
+				$this->Lock->unlock();
 				$this->redirect(array('action' => 'index'));
 			}
 			$this->Configuration->loadAffiliate($newsletter['MailingList']['affiliate_id']);
@@ -295,6 +296,7 @@ class NewslettersController extends AppController {
 				$people = array($person);
 			} else {
 				$this->set(compact('newsletter'));
+				$this->Lock->unlock();
 				return;
 			}
 		}
@@ -367,6 +369,8 @@ class NewslettersController extends AppController {
 				}
 			}
 		}
+
+		$this->Lock->unlock();
 	}
 
 	function _hash ($person, $list) {

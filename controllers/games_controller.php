@@ -1401,16 +1401,19 @@ class GamesController extends AppController {
 		$game = $this->Game->read(null, $id);
 		if (!$game) {
 			$this->set('error', sprintf(__('Invalid %s', true), __('game', true)));
+			$this->Lock->unlock();
 			return;
 		}
 
 		if ($this->data['team_id'] != $game['Game']['home_team'] && $this->data['team_id'] != $game['Game']['away_team']) {
 			$this->set('error', __('That team did not play in that game!', true));
+			$this->Lock->unlock();
 			return;
 		}
 
 		if ($this->Game->_is_finalized ($game)) {
 			$this->set('error', __('The score for that game has already been finalized.', true));
+			$this->Lock->unlock();
 			return;
 		}
 
@@ -1427,6 +1430,7 @@ class GamesController extends AppController {
 			$entry = current($game['ScoreEntry']);
 			if ($entry['status'] != 'in_progress') {
 				$this->set('error', __('That team has already submitted a score for that game.', true));
+				$this->Lock->unlock();
 				return;
 			}
 			unset($entry['created']);
@@ -1445,6 +1449,7 @@ class GamesController extends AppController {
 
 		if ($team_score != $this->data['score_from']) {
 			$this->set('error', __('The saved score does not match yours.\nSomeone else may have updated the score in the meantime.\n\nPlease refresh the page and try again.', true));
+			$this->Lock->unlock();
 			return;
 		}
 
@@ -1453,11 +1458,13 @@ class GamesController extends AppController {
 
 		if (empty($this->data['play'])) {
 			$this->set('error', __('You must indicate the scoring play so that the new score can be calculated.', true));
+			$this->Lock->unlock();
 			return;
 		}
 		$points = Configure::read("sport.score_options.{$this->data['play']}");
 		if (!$points) {
 			$this->set('error', __('Invalid scoring play!', true));
+			$this->Lock->unlock();
 			return;
 		}
 		$team_score += $points;
@@ -1467,6 +1474,7 @@ class GamesController extends AppController {
 
 		if (!$this->Game->ScoreEntry->save($entry)) {
 			$this->set('error', __('There was an error updating the score.\nPlease try again.', true));
+			$this->Lock->unlock();
 			return;
 		} else {
 			$this->Game->updateAll(array('Game.updated' => 'NOW()'), array('Game.id' => $id));
@@ -1484,6 +1492,7 @@ class GamesController extends AppController {
 		))))
 		{
 			$this->set('error', __('There was an error updating the box score.\nPlease try again.', true));
+			$this->Lock->unlock();
 			return;
 		}
 
@@ -1502,6 +1511,7 @@ class GamesController extends AppController {
 		}
 
 		$transaction->commit();
+		$this->Lock->unlock();
 
 		// TODO: Would be nice if there was a Cache method that could help with this
 		$cache_file = CACHE . 'queries' . DS . "cake_division_{$game['Division']['id']}_standings";
@@ -1594,17 +1604,20 @@ class GamesController extends AppController {
 		$game = $this->Game->read(null, $id);
 		if (!$game) {
 			$this->set('error', sprintf(__('Invalid %s', true), __('game', true)));
+			$this->Lock->unlock();
 			return;
 		}
 		$this->Game->_adjustEntryIndices($game);
 
 		if ($this->data['team_id'] != $game['Game']['home_team'] && $this->data['team_id'] != $game['Game']['away_team']) {
 			$this->set('error', __('That team did not play in that game!', true));
+			$this->Lock->unlock();
 			return;
 		}
 
 		if ($this->Game->_is_finalized ($game)) {
 			$this->set('error', __('The score for that game has already been finalized.', true));
+			$this->Lock->unlock();
 			return;
 		}
 
@@ -1619,11 +1632,13 @@ class GamesController extends AppController {
 
 		if (empty($game['ScoreEntry'])) {
 			$this->set('error', __('You can\'t decrease the score below zero.', true));
+			$this->Lock->unlock();
 			return;
 		}
 		$entry = current($game['ScoreEntry']);
 		if ($entry['status'] != 'in_progress') {
 			$this->set('error', __('That team has already submitted a score for that game.', true));
+			$this->Lock->unlock();
 			return;
 		}
 		unset($entry['created']);
@@ -1634,6 +1649,7 @@ class GamesController extends AppController {
 
 		if ($team_score != $this->data['score_from']) {
 			$this->set('error', __('The saved score does not match yours.\nSomeone else may have updated the score in the meantime.\n\nPlease refresh the page and try again.', true));
+			$this->Lock->unlock();
 			return;
 		}
 
@@ -1648,6 +1664,7 @@ class GamesController extends AppController {
 
 		if (!$this->Game->ScoreEntry->save($entry)) {
 			$this->set('error', __('There was an error updating the score.\nPlease try again.', true));
+			$this->Lock->unlock();
 			return;
 		} else {
 			$this->Game->updateAll(array('Game.updated' => 'NOW()'), array('Game.id' => $id));
@@ -1657,9 +1674,11 @@ class GamesController extends AppController {
 		// TODO: If the other team isn't keeping stats, there might be ScoreDetail records to remove when the score is finalized.
 		if (($submitter === null || $detail['team_id'] == $submitter) && !$this->Game->ScoreDetail->delete($detail['id'])) {
 			$this->set('error', __('There was an error updating the box score.\nPlease try again.', true));
+			$this->Lock->unlock();
 			return;
 		}
 		$transaction->commit();
+		$this->Lock->unlock();
 
 		// TODO: Would be nice if there was a Cache method that could help with this
 		$cache_file = CACHE . 'queries' . DS . "cake_division_{$game['Division']['id']}_standings";
@@ -1726,17 +1745,20 @@ class GamesController extends AppController {
 		$game = $this->Game->read(null, $id);
 		if (!$game) {
 			$this->set('error', sprintf(__('Invalid %s', true), __('game', true)));
+			$this->Lock->unlock();
 			return;
 		}
 		$this->Game->_adjustEntryIndices($game);
 
 		if ($this->data['team_id'] != $game['Game']['home_team'] && $this->data['team_id'] != $game['Game']['away_team']) {
 			$this->set('error', __('That team did not play in that game!', true));
+			$this->Lock->unlock();
 			return;
 		}
 
 		if ($this->Game->_is_finalized ($game)) {
 			$this->set('error', __('The score for that game has already been finalized.', true));
+			$this->Lock->unlock();
 			return;
 		}
 
@@ -1755,6 +1777,7 @@ class GamesController extends AppController {
 			$entry = current($game['ScoreEntry']);
 			if ($entry['status'] != 'in_progress') {
 				$this->set('error', __('That team has already submitted a score for that game.', true));
+				$this->Lock->unlock();
 				return;
 			}
 			$team_score = $entry[$team_score_field];
@@ -1762,6 +1785,7 @@ class GamesController extends AppController {
 		}
 		if ($team_score != $this->data['score_from']) {
 			$this->set('error', __('The saved score does not match yours.\nSomeone else may have updated the score in the meantime.\n\nPlease refresh the page and try again.', true));
+			$this->Lock->unlock();
 			return;
 		}
 
@@ -1788,6 +1812,7 @@ class GamesController extends AppController {
 			{
 				$this->set('taken', count($game['ScoreDetail']));
 				$this->set('twitter', addslashes($twitter));
+				$this->Lock->unlock();
 				return;
 			}
 		}
@@ -1799,8 +1824,11 @@ class GamesController extends AppController {
 		))))
 		{
 			$this->set('error', __('There was an error updating the box score.\nPlease try again.', true));
+			$this->Lock->unlock();
 			return;
 		}
+
+		$this->Lock->unlock();
 
 		$this->set('taken', count($game['ScoreDetail']) + 1);
 		$this->set('twitter', addslashes($twitter));
@@ -1845,17 +1873,20 @@ class GamesController extends AppController {
 		$game = $this->Game->read(null, $id);
 		if (!$game) {
 			$this->set('message', sprintf(__('Invalid %s', true), __('game', true)));
+			$this->Lock->unlock();
 			return;
 		}
 		$this->Game->_adjustEntryIndices($game);
 
 		if ($this->data['team_id'] != $game['Game']['home_team'] && $this->data['team_id'] != $game['Game']['away_team']) {
 			$this->set('message', __('That team did not play in that game!', true));
+			$this->Lock->unlock();
 			return;
 		}
 
 		if ($this->Game->_is_finalized ($game)) {
 			$this->set('message', __('The score for that game has already been finalized.', true));
+			$this->Lock->unlock();
 			return;
 		}
 
@@ -1874,6 +1905,7 @@ class GamesController extends AppController {
 			$entry = current($game['ScoreEntry']);
 			if ($entry['status'] != 'in_progress') {
 				$this->set('message', __('That team has already submitted a score for that game.', true));
+				$this->Lock->unlock();
 				return;
 			}
 			$team_score = $entry[$team_score_field];
@@ -1886,10 +1918,12 @@ class GamesController extends AppController {
 
 		if (empty($this->data['play'])) {
 			$this->set('message', __('You must indicate the play so that the box score will be accurate.', true));
+			$this->Lock->unlock();
 			return;
 		}
 		if ($this->data['play'] != 'Start' && !Configure::read("sport.other_options.{$this->data['play']}")) {
 			$this->set('message', __('Invalid play!', true));
+			$this->Lock->unlock();
 			return;
 		}
 
@@ -1905,6 +1939,7 @@ class GamesController extends AppController {
 		if ($valid !== true) {
 			$this->set('message', addslashes($valid));
 			$this->set('twitter', '');
+			$this->Lock->unlock();
 			return;
 		} else if ($this->data['play'] == 'Start') {
 			$this->set('message', __('Game timer initialized.', true));
@@ -1932,6 +1967,7 @@ class GamesController extends AppController {
 				$detail['score_from'] == $this->data['score_from'] &&
 				strtotime($detail['created']) >= time() - 2 * MINUTE)
 			{
+				$this->Lock->unlock();
 				return;
 			}
 		}
@@ -1942,8 +1978,11 @@ class GamesController extends AppController {
 		))))
 		{
 			$this->set('message', __('There was an error updating the box score.\nPlease try again.', true));
+			$this->Lock->unlock();
 			return;
 		}
+
+		$this->Lock->unlock();
 	}
 
 	function tweet() {

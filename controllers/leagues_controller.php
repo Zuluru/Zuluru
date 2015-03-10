@@ -584,8 +584,10 @@ class LeaguesController extends AppController {
 						Cache::delete("division/{$division['id']}/standings", 'long_term');
 						Cache::delete("division/{$division['id']}/schedule", 'long_term');
 					}
+					$this->Lock->unlock();
 					$this->redirect (array('action' => 'schedule', 'league' => $id));
 				}
+				$this->Lock->unlock();
 			}
 		}
 

@@ -797,8 +797,10 @@ class DivisionsController extends AppController {
 					Cache::delete('division/' . intval($id) . '/standings', 'long_term');
 					Cache::delete('league/' . $this->Division->league($id) . '/standings', 'long_term');
 					Cache::delete('league/' . $this->Division->league($id) . '/schedule', 'long_term');
+					$this->Lock->unlock();
 					$this->redirect (array('action' => 'schedule', 'division' => $id));
 				}
+				$this->Lock->unlock();
 			}
 		}
 

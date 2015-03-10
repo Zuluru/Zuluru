@@ -480,9 +480,11 @@ class SchedulesController extends AppController {
 
 		if ($success && $transaction->commit() !== false) {
 			$this->Session->setFlash(sprintf(__('The %s have been saved', true), __('pools', true)), 'default', array('class' => 'success'));
+			$this->Lock->unlock();
 			$this->redirect(array('controller' => 'schedules', 'action' => 'add', 'division' => $id));
 		} else {
 			$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('game slots', true)), 'default', array('class' => 'warning'));
+			$this->Lock->unlock();
 		}
 	}
 
@@ -598,6 +600,7 @@ class SchedulesController extends AppController {
 		}
 
 		if (!$this->_canSchedule($id, $stage)) {
+			$this->Lock->unlock();
 			$this->redirect(array('controller' => 'divisions', 'action' => 'view', 'division' => $id));
 		}
 
@@ -612,12 +615,16 @@ class SchedulesController extends AppController {
 			Cache::delete('league/' . $this->Division->league($id) . '/standings', 'long_term');
 			Cache::delete('league/' . $this->Division->league($id) . '/schedule', 'long_term');
 
+			$this->Lock->unlock();
+
 			if ($this->_unscheduledPools($id)) {
 				return $this->_type($id);
 			}
 
 			$this->redirect(array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
 		}
+
+		$this->Lock->unlock();
 
 		// The reason for failure will have been set in the flash somewhere in createSchedule.
 		$this->set(array(
@@ -969,6 +976,7 @@ class SchedulesController extends AppController {
 						Cache::delete('division/' . intval($id) . '/schedule', 'long_term');
 						Cache::delete('league/' . $this->Division->league($id) . '/standings', 'long_term');
 						Cache::delete('league/' . $this->Division->league($id) . '/schedule', 'long_term');
+						$this->Lock->unlock();
 						$this->redirect (array('controller' => 'divisions', 'action' => 'schedule', 'division' => $id));
 					} else {
 						$this->Session->setFlash(__('Games were rescheduled, but failed to clear unused slots!', true), 'default', array('class' => 'warning'));
@@ -977,6 +985,7 @@ class SchedulesController extends AppController {
 					$this->Session->setFlash($ret['text'], 'default', array('class' => $ret['class']));
 				}
 			}
+			$this->Lock->unlock();
 			// Failure flash message will have been set by whatever failed
 		}
 
