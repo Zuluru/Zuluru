@@ -182,14 +182,17 @@ class UserCacheComponent extends Object
 					}
 					break;
 
-				case 'AllTeamIDs':
+				case 'AllTeams':
 					if (!isset($self->_controller->Team)) {
 						$self->_controller->Team = ClassRegistry::init('Team');
 					}
-					$self->data[$id][$key] = $self->_controller->Team->TeamsPerson->find('list', array(
-							'conditions' => array('TeamsPerson.person_id' => $id),
-							'fields' => array('TeamsPerson.team_id'),
-					));
+					$self->data[$id][$key] = $self->_controller->Team->readByPlayerId($id, false);
+					break;
+
+				case 'AllTeamIDs':
+					if ($self->read('AllTeams', $id, true)) {
+						$self->data[$id][$key] = Set::extract('/Team/id', $self->data[$id]['AllTeams']);
+					}
 					break;
 
 				case 'Credits':

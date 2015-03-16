@@ -39,7 +39,7 @@ class CanRegisterComponent extends Object
 			$this->person = array(
 				'Person' => $this->_controller->UserCache->read('Person', $person_id),
 				'Group' => $this->_controller->UserCache->read('GroupIDs', $person_id),
-				'Team' => $this->_controller->UserCache->read('Teams', $person_id),
+				'Team' => $this->_controller->UserCache->read('AllTeams', $person_id),
 				'Preregistration' => $this->_controller->UserCache->read('Preregistrations', $person_id),
 				'Registration' => array_merge(
 					$this->_controller->UserCache->read('RegistrationsPaid', $person_id),
