@@ -642,13 +642,13 @@ class LeagueTypeComponent extends Object
 		));
 		$round = $this->division_for_sort['current_round'];
 		foreach ($tied as $i) {
-			if (!empty($teams[$i]['rounds'])) {
+			if (!empty($teams[$i]['Season']['rounds'])) {
 				foreach ($tied as $j) {
 					if ($i != $j) {
-						$compare[$i]['hthpm'] += $teams[$i]['rounds'][$round]['vspm'][$teams[$j]['id']];
+						$compare[$i]['hthpm'] += $teams[$i]['Season']['rounds'][$round]['vspm'][$teams[$j]['id']];
 					}
 				}
-				$compare[$i]['pm'] = $teams[$i]['rounds'][$round]['gf'] - $teams[$i]['rounds'][$round]['ga'];
+				$compare[$i]['pm'] = $teams[$i]['Season']['rounds'][$round]['gf'] - $teams[$i]['Season']['rounds'][$round]['ga'];
 				$compare[$i]['initial_seed'] = $teams[$i]['initial_seed'];
 			} else {
 				// A huge seed will place a team with no results in last place
