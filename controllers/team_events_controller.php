@@ -166,7 +166,7 @@ class TeamEventsController extends AppController {
 					}
 				}
 			} else {
-				$save = $this->data;
+				$save = $this->data['TeamEvent'];
 			}
 
 			if ($this->TeamEvent->validates() && $this->TeamEvent->saveAll($save)) {
