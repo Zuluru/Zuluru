@@ -433,6 +433,30 @@ CONFIG;
 					$this->results[$table] = __('updated.', true);
 				}
 			}
+
+			// Import any new data that this version introduces.
+			if (method_exists($schema, 'new_data')) {
+				foreach ($schema->new_data() as $table => $details) {
+					App::import('Model', 'Model', false);
+					$modelObject =& new Model(array(
+						'name' => $table,
+						'table' => $table,
+						'ds' => 'default',
+					));
+					foreach ($details['records'] as $record) {
+						$conditions = array();
+						if (isset($details['key'])) {
+							foreach ($details['key'] as $field) {
+								$conditions[$field] = $record[$field];
+							}
+						}
+						if (empty($conditions) || $modelObject->find('count', compact('conditions')) == 0) {
+							$modelObject->create($record);
+							$modelObject->save();
+						}
+					}
+				}
+			}
 		} else {
 			$this->results += $commands;
 		}
