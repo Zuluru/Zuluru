@@ -373,10 +373,12 @@ $config['options'] = array(
 	'spirit_questions' => array(
 		'none' => __('No spirit questionnaire', true),
 		'wfdf' => __('WFDF standard', true),
+		'wfdf2' => __('WFDF standard 2014 version', true),
 		'modified_wfdf' => __('Modified WFDF', true),
 		'modified_bula' => __('Modified BULA', true),
 		'team' => __('Leaguerunner original', true),
 		'ocua_team' => __('Modified Leaguerunner', true),
+		'suzuki' => __('Sushi Suzuki\'s Alternate', true),
 	),
 
 	// List of available payment providers
