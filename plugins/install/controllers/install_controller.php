@@ -46,23 +46,6 @@ class InstallController extends InstallAppController {
 	}
 
 /**
- * Delete the installation plugin
- *
- * @return true if it succeeds, false otherwise
- */
-	function _delete() {
-		App::import('Core', 'Folder');
-		$this->folder = new Folder;
-		if ($this->folder->delete(APP . 'plugins' . DS . 'install')) {
-			$this->Session->setFlash(__('Installation files deleted successfully.', true), 'default', array('class' => 'success'));
-			return true;
-		} else {
-			$this->Session->setFlash(__('Could not delete installation files.', true), 'default', array('class' => 'error'));
-			return false;
-		}
-	}
-
-/**
  * Create or update the installed.php file with version details
  *
  * @return void
@@ -251,19 +234,11 @@ CONFIG;
 /**
  * Step 4: finish
  *
- * Remind the user to delete 'install' plugin
- *
  * @return void
  * @access public
  */
 	function finish() {
 		$this->set('title_for_layout', __('Installation completed successfully', true));
-
-		if (isset($this->params['named']['delete'])) {
-			if ($this->_delete()) {
-				$this->redirect('/');
-			}
-		}
 		$this->_check();
 
 		// set email address for admin
@@ -304,12 +279,6 @@ CONFIG;
  */
 	function update() {
 		$this->set('title_for_layout', __('Update database', true));
-
-		if (isset($this->params['named']['delete'])) {
-			if ($this->_delete()) {
-				$this->redirect('/');
-			}
-		}
 
 		App::import('Model', 'CakeSchema', false);
 		$this->schema =& new CakeSchema();
