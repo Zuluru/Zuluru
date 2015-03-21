@@ -12,7 +12,7 @@ class SpiritWfdf2Component extends SpiritComponent
 		'q1' => array(
 			'name' => 'Rules Knowledge',
 			'text' => 'Rules Knowledge and Use',
-			'desc' => 'Examples: They did not purposefully misinterpret the rules. They kept to time limits. When they didn’t know the rules they showed a real willingness to learn.',
+			'desc' => 'Examples: They did not purposefully misinterpret the rules. They kept to time limits. When they didn\'t know the rules they showed a real willingness to learn.',
 			'type' => 'radio',
 			'options' => array(
 				'PoorRules' => array(
