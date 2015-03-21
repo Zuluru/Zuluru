@@ -263,6 +263,7 @@ $collapse = !empty($this->data['Division']['id']);
 		}
 		if (Configure::read('scoring.carbon_flip')) {
 			echo $this->ZuluruForm->input('carbon_flip', array(
+				'div' => 'input advanced',
 				'options' => Configure::read('options.enable'),
 				'empty' => '---',
 				'label' => 'Carbon Flip',
