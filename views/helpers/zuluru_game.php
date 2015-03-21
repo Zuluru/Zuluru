@@ -96,9 +96,13 @@ class ZuluruGameHelper extends Helper {
 						$links[] = $this->Html->link(
 								__('Live Score', true),
 								array('controller' => 'games', 'action' => 'live_score', 'game' => $details['id'], 'team' => $team_id));
-					} else {
+					} else if ($score_entry['team_id'] == $team_id) {
 						$links[] = $this->Html->link(
 								__('Edit score', true),
+								array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $team_id));
+					} else {
+						$links[] = $this->Html->link(
+								__('Submit', true),
 								array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $team_id));
 					}
 
@@ -129,6 +133,18 @@ class ZuluruGameHelper extends Helper {
 				}
 			} else if ($score_entry === null) {
 				__('score mismatch');
+
+				if ($team_id) {
+					if ($score_entry['status'] == 'in_progress') {
+						$links[] = $this->Html->link(
+								__('Live Score', true),
+								array('controller' => 'games', 'action' => 'live_score', 'game' => $details['id'], 'team' => $team_id));
+					} else {
+						$links[] = $this->Html->link(
+								__('Edit score', true),
+								array('controller' => 'games', 'action' => 'submit_score', 'game' => $details['id'], 'team' => $team_id));
+					}
+				}
 			} else if (time() > ($start_time + 3 * $end_time) / 4) {
 				if ($division['schedule_type'] != 'competition') {
 					// Allow score submissions any time after 3/4 through the game.
