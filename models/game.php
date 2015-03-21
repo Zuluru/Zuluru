@@ -21,6 +21,12 @@ class Game extends AppModel {
 				'on' => 'update',
 			),
 		),
+		'home_carbon_flip' => array(
+			'range' => array(
+				'rule' => array('valid_score', 0, 2),
+				'message' => 'You must select a valid carbon flip result',
+			),
+		),
 		'status' => array(
 			'inlist' => array(
 				'rule' => array('inconfig', 'options.game_status'),
@@ -664,7 +670,8 @@ class Game extends AppModel {
 	{
 		if ($one['status'] == $two['status']) {
 			if (in_array($one['status'], array('normal', 'in_progress'))) {
-				return (($one['score_for'] == $two['score_against']) && ($one['score_against'] == $two['score_for']));
+				// If carbon flips aren't enabled, both will have a score of 0 there, and they'll match anyway
+				return (($one['score_for'] == $two['score_against']) && ($one['score_against'] == $two['score_for']) && ($one['home_carbon_flip'] == $two['home_carbon_flip']));
 			}
 			return true;
 		}

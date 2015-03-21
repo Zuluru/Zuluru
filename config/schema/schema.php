@@ -307,9 +307,10 @@ class ZuluruSchema extends CakeSchema {
 		'away_dependency_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'away_pool_team_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'away_team' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'key' => 'index'),
+		'away_field_rank' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'home_score' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'length' => 4),
 		'away_score' => array('type' => 'integer', 'null' => true, 'default' => NULL, 'length' => 4),
-		'away_field_rank' => array('type' => 'integer', 'null' => true, 'default' => NULL),
+		'home_carbon_flip' => array('type' => 'integer', 'null' => false, 'default' => 0),
 		'rating_points' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'approved_by' => array('type' => 'integer', 'null' => true, 'default' => NULL),
 		'status' => array('type' => 'string', 'null' => false, 'default' => 'normal', 'length' => 32),
@@ -368,6 +369,7 @@ class ZuluruSchema extends CakeSchema {
 		'expected_max_score' => array('type' => 'integer', 'null' => false, 'default' => NULL),
 		'stat_tracking' => array('type' => 'string', 'null' => false, 'default' => 'never', 'length' => 32),
 		'tie_breaker' => array('type' => 'integer', 'null' => false, 'default' => '1'),
+		'carbon_flip' => array('type' => 'boolean', 'null' => true, 'default' => NULL),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
@@ -678,6 +680,7 @@ class ZuluruSchema extends CakeSchema {
 		'score_for' => array('type' => 'integer', 'null' => true, 'default' => '0', 'length' => 4),
 		'score_against' => array('type' => 'integer', 'null' => true, 'default' => '0', 'length' => 4),
 		'spirit' => array('type' => 'integer', 'null' => false, 'default' => '0', 'length' => 4),
+		'home_carbon_flip' => array('type' => 'integer', 'null' => false, 'default' => 0),
 		'status' => array('type' => 'string', 'null' => false, 'default' => 'normal', 'length' => 32),
 		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
 		'updated' => array('type' => 'datetime', 'null' => true, 'default' => NULL),

@@ -5,6 +5,11 @@ $this->Html->addCrumb (__('View', true));
 ?>
 <?php
 $preliminary = ($game['Game']['home_team'] === null || ($game['Division']['schedule_type'] != 'competition' && $game['Game']['away_team'] === null));
+$carbon_flip_options = array(
+		2 => sprintf(__('%s won', true), $game['HomeTeam']['name']),
+		0 => sprintf(__('%s won', true), $game['AwayTeam']['name']),
+		1 => __('tie', true),
+);
 ?>
 
 <div class="games view">
@@ -211,6 +216,13 @@ $team_names = array(
 
 		</dd>
 		<?php endif; ?>
+		<?php if (League::hasCarbonFlip($game['Division']['League']) && $game['Game']['status'] == 'normal'): ?>
+		<dt><?php __('Carbon flip'); ?></dt>
+		<dd>
+			<?php echo $carbon_flip_options[$game['Game']['home_carbon_flip']]; ?>
+
+		</dd>
+		<?php endif; ?>
 		<?php if (($is_admin || $is_coordinator || $game['Division']['League']['display_sotg'] != 'coordinator_only') &&
 			League::hasSpirit($game)): ?>
 		<dt><?php echo __('Spirit for', true) . ' ' . $this->Text->truncate ($game['HomeTeam']['name'], 18); ?></dt>
@@ -290,6 +302,29 @@ $team_names = array(
 			<td><?php if (isset ($homeScoreEntry)) ($homeScoreEntry['status'] == 'home_default' ? __('us') : ($homeScoreEntry['status'] == 'away_default' ? __('them') : __('no'))); ?></td>
 			<td><?php if (isset ($awayScoreEntry)) ($awayScoreEntry['status'] == 'away_default' ? __('us') : ($awayScoreEntry['status'] == 'home_default' ? __('them') : __('no'))); ?></td>
 		</tr>
+		<?php if (League::hasCarbonFlip($game['Division']['League'])): ?>
+		<tr>
+			<td><?php __('Carbon flip'); ?></td>
+			<td><?php
+			if (isset ($homeScoreEntry)) {
+				if ($homeScoreEntry['status'] == 'normal') {
+					echo $carbon_flip_options[$homeScoreEntry['home_carbon_flip']];
+				} else {
+					__('N/A');
+				}
+			}
+			?></td>
+			<td><?php
+			if (isset ($awayScoreEntry)) {
+				if ($awayScoreEntry['status'] == 'normal') {
+					echo $carbon_flip_options[$awayScoreEntry['home_carbon_flip']];
+				} else {
+					__('N/A');
+				}
+			}
+			?></td>
+		</tr>
+		<?php endif; ?>
 		<tr>
 			<td><?php __('Entered By'); ?></td>
 			<td><?php if (isset ($homeScoreEntry))

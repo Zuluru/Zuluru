@@ -151,6 +151,16 @@ echo $this->element('settings/banner');
 			'after' => __('Enable or disable stat tracking options. If enabled here, stats can still be disabled on a per-league basis.', true),
 		),
 	));
+	echo $this->element('settings/input', array(
+		'category' => 'scoring',
+		'name' => 'carbon_flip',
+		'options' => array(
+			'label' => __('Handle carbon flip as part of game scoring', true),
+			'type' => 'radio',
+			'options' => Configure::read('options.enable'),
+			'after' => __('Enable or disable carbon flip, an environmentally-friendly option to replace traditional pre-game coin flips.', true),
+		),
+	));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>

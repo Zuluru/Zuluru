@@ -109,6 +109,17 @@ $config['options'] = array(
 		TIE_BREAKER_PM_HTH_GF_LOSS => __('Plus-minus > Head-to-head > Goals for > Losses', true),
 	),
 
+	'tie_breaker_carbon'	=> array(
+		TIE_BREAKER_HTH_HTHPM_PM_GF_LOSS => __('Head-to-head > Head-to-head plus-minus > Plus-minus > Goals for > Losses', true),
+		TIE_BREAKER_CF_HTH_HTHPM_PM_GF_LOSS => __('Carbon flip > Head-to-head > Head-to-head plus-minus > Plus-minus > Goals for > Losses', true),
+		TIE_BREAKER_HTH_HTHPM_CF_PM_GF_LOSS => __('Head-to-head > Head-to-head plus-minus > Carbon flip > Plus-minus > Goals for > Losses', true),
+		TIE_BREAKER_HTH_HTHPM_PM_GF_CF_LOSS => __('Head-to-head > Head-to-head plus-minus > Plus-minus > Goals for > Carbon flip > Losses', true),
+		TIE_BREAKER_PM_HTH_GF_LOSS => __('Plus-minus > Head-to-head > Goals for > Losses', true),
+		TIE_BREAKER_CF_PM_HTH_GF_LOSS => __('Carbon flip > Plus-minus > Head-to-head > Goals for > Losses', true),
+		TIE_BREAKER_PM_CF_HTH_GF_LOSS => __('Plus-minus > Carbon flip > Head-to-head > Goals for > Losses', true),
+		TIE_BREAKER_PM_HTH_CF_GF_LOSS => __('Plus-minus > Head-to-head > Carbon flip > Goals for > Losses', true),
+	),
+
 	'tie_breaker_spirit'	=> array(
 		TIE_BREAKER_HTH_HTHPM_PM_GF_LOSS => __('Head-to-head > Head-to-head plus-minus > Plus-minus > Goals for > Losses', true),
 		TIE_BREAKER_HTH_HTHPM_PM_GF_LOSS_SPIRIT => __('Head-to-head > Head-to-head plus-minus > Plus-minus > Goals for > Losses > Spirit', true),
@@ -116,6 +127,33 @@ $config['options'] = array(
 		TIE_BREAKER_PM_HTH_GF_LOSS => __('Plus-minus > Head-to-head > Goals for > Losses', true),
 		TIE_BREAKER_PM_HTH_GF_LOSS_SPIRIT => __('Plus-minus > Head-to-head > Goals for > Losses > Spirit', true),
 		TIE_BREAKER_SPIRIT_PM_HTH_GF_LOSS => __('Spirit > Plus-minus > Head-to-head > Goals for > Losses', true),
+	),
+
+	'tie_breaker_spirit_carbon' => array(
+		TIE_BREAKER_HTH_HTHPM_PM_GF_LOSS => __('Head-to-head > Head-to-head plus-minus > Plus-minus > Goals for > Losses', true),
+		TIE_BREAKER_HTH_HTHPM_PM_GF_LOSS_SPIRIT => __('Head-to-head > Head-to-head plus-minus > Plus-minus > Goals for > Losses > Spirit', true),
+		TIE_BREAKER_SPIRIT_HTH_HTHPM_PM_GF_LOSS => __('Spirit > Head-to-head > Head-to-head plus-minus > Plus-minus > Goals for > Losses', true),
+		TIE_BREAKER_CF_HTH_HTHPM_PM_GF_LOSS => __('Carbon flip > Head-to-head > Head-to-head plus-minus > Plus-minus > Goals for > Losses', true),
+		TIE_BREAKER_CF_HTH_HTHPM_PM_GF_LOSS_SPIRIT => __('Carbon flip > Head-to-head > Head-to-head plus-minus > Plus-minus > Goals for > Losses > Spirit', true),
+		TIE_BREAKER_CF_SPIRIT_HTH_HTHPM_PM_GF_LOSS => __('Carbon flip > Spirit > Head-to-head > Head-to-head plus-minus > Plus-minus > Goals for > Losses', true),
+		TIE_BREAKER_HTH_HTHPM_CF_PM_GF_LOSS => __('Head-to-head > Head-to-head plus-minus > Carbon flip > Plus-minus > Goals for > Losses', true),
+		TIE_BREAKER_HTH_HTHPM_CF_PM_GF_LOSS_SPIRIT => __('Head-to-head > Head-to-head plus-minus > Carbon flip > Plus-minus > Goals for > Losses > Spirit', true),
+		TIE_BREAKER_SPIRIT_HTH_HTHPM_CF_PM_GF_LOSS => __('Spirit > Head-to-head > Head-to-head plus-minus > Carbon flip > Plus-minus > Goals for > Losses', true),
+		TIE_BREAKER_HTH_HTHPM_PM_GF_CF_LOSS => __('Head-to-head > Head-to-head plus-minus > Plus-minus > Goals for > Carbon flip > Losses', true),
+		TIE_BREAKER_HTH_HTHPM_PM_GF_CF_LOSS_SPIRIT => __('Head-to-head > Head-to-head plus-minus > Plus-minus > Goals for > Carbon flip > Losses > Spirit', true),
+		TIE_BREAKER_SPIRIT_HTH_HTHPM_PM_GF_CF_LOSS => __('Spirit > Head-to-head > Head-to-head plus-minus > Plus-minus > Goals for > Carbon flip > Losses', true),
+		TIE_BREAKER_PM_HTH_GF_LOSS => __('Plus-minus > Head-to-head > Goals for > Losses', true),
+		TIE_BREAKER_PM_HTH_GF_LOSS_SPIRIT => __('Plus-minus > Head-to-head > Goals for > Losses > Spirit', true),
+		TIE_BREAKER_SPIRIT_PM_HTH_GF_LOSS => __('Spirit > Plus-minus > Head-to-head > Goals for > Losses', true),
+		TIE_BREAKER_CF_PM_HTH_GF_LOSS => __('Carbon flip > Plus-minus > Head-to-head > Goals for > Losses', true),
+		TIE_BREAKER_CF_PM_HTH_GF_LOSS_SPIRIT => __('Carbon flip > Plus-minus > Head-to-head > Goals for > Losses > Spirit', true),
+		TIE_BREAKER_SPIRIT_CF_PM_HTH_GF_LOSS => __('Spirit > Carbon flip > Plus-minus > Head-to-head > Goals for > Losses', true),
+		TIE_BREAKER_PM_CF_HTH_GF_LOSS => __('Plus-minus > Carbon flip > Head-to-head > Goals for > Losses', true),
+		TIE_BREAKER_PM_CF_HTH_GF_LOSS_SPIRIT => __('Plus-minus > Carbon flip > Head-to-head > Goals for > Losses > Spirit', true),
+		TIE_BREAKER_SPIRIT_PM_CF_HTH_GF_LOSS => __('Spirit > Plus-minus > Carbon flip > Head-to-head > Goals for > Losses', true),
+		TIE_BREAKER_PM_HTH_CF_GF_LOSS => __('Plus-minus > Head-to-head > Carbon flip > Goals for > Losses', true),
+		TIE_BREAKER_PM_HTH_CF_GF_LOSS_SPIRIT => __('Plus-minus > Head-to-head > Carbon flip > Goals for > Losses > Spirit', true),
+		TIE_BREAKER_SPIRIT_PM_HTH_CF_GF_LOSS => __('Spirit > Plus-minus > Head-to-head > Carbon flip > Goals for > Losses', true),
 	),
 
 	'allstar'				=> make_options(array(

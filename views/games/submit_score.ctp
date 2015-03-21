@@ -95,6 +95,31 @@ if (array_key_exists ($team_id, $game['ScoreEntry'])) {
 	}
 	?></td>
 </tr>
+<?php if (League::hasCarbonFlip($game['Division']['League'])): ?>
+<tr id="CarbonFlipRow">
+	<td><?php __('Carbon flip'); ?></td>
+	<td><?php
+	$carbon_flip_options = array(
+			2 => sprintf(__('%s won', true), $game['HomeTeam']['name']),
+			0 => sprintf(__('%s won', true), $game['AwayTeam']['name']),
+			1 => __('tie', true),
+	);
+	echo $this->ZuluruForm->input("ScoreEntry.$team_id.home_carbon_flip", array(
+			'div' => false,
+			'id' => 'CarbonFlip',
+			'label' => false,
+			'empty' => '---',
+			'options' => $carbon_flip_options,
+	)); ?></td>
+	<td><?php
+	if ($opponent_score) {
+		echo $carbon_flip_options[$opponent_score['home_carbon_flip']];
+	} else {
+		__('not yet entered');
+	}
+	?></td>
+</tr>
+<?php endif; ?>
 </table>
 
 <?php
@@ -287,12 +312,16 @@ function enableScores() {
 function disableCommon() {
 	jQuery('input:text').prop('disabled', true);
 	jQuery('input[type=\"number\"]').prop('disabled', true);
+	jQuery('#CarbonFlip').prop('disabled', true);
+	jQuery('#CarbonFlipRow').css('display', 'none');
 	jQuery('#GameIncident').prop('disabled', true);
 	jQuery('#IncidentWrapper').css('display', 'none');
 	jQuery('#GameAllstar').prop('disabled', true);
 	jQuery('#AllstarWrapper').css('display', 'none');
 	jQuery('#SpiritEntryHasMostSpirited').prop('disabled', true);
 	jQuery('#MostSpiritedWrapper').css('display', 'none');
+	jQuery('#GameCollectStats').prop('disabled', true);
+	jQuery('#StatsWrapper').css('display', 'none');
 	if (typeof window.disableSpirit == 'function') {
 		disableSpirit();
 	}
@@ -301,12 +330,16 @@ function disableCommon() {
 function enableCommon() {
 	jQuery('input:text').prop('disabled', false);
 	jQuery('input[type=\"number\"]').prop('disabled', false);
+	jQuery('#CarbonFlip').prop('disabled', false);
+	jQuery('#CarbonFlipRow').css('display', '');
 	jQuery('#GameIncident').prop('disabled', false);
 	jQuery('#IncidentWrapper').css('display', '');
 	jQuery('#GameAllstar').prop('disabled', false);
 	jQuery('#AllstarWrapper').css('display', '');
 	jQuery('#SpiritEntryHasMostSpirited').prop('disabled', false);
 	jQuery('#MostSpiritedWrapper').css('display', '');
+	jQuery('#GameCollectStats').prop('disabled', false);
+	jQuery('#StatsWrapper').css('display', '');
 	if (typeof window.enableSpirit == 'function') {
 		enableSpirit();
 	}

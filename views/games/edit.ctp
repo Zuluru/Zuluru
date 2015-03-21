@@ -4,7 +4,12 @@ $this->Html->addCrumb (__('Game', true) . ' ' . $game['Game']['id']);
 $this->Html->addCrumb (__('Edit', true));
 ?>
 <?php
-$preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'] === null);
+$preliminary = ($game['Game']['home_team'] === null || ($game['Division']['schedule_type'] != 'competition' && $game['Game']['away_team'] === null));
+$carbon_flip_options = array(
+		2 => sprintf(__('%s won', true), $game['HomeTeam']['name']),
+		0 => sprintf(__('%s won', true), $game['AwayTeam']['name']),
+		1 => __('tie', true),
+);
 ?>
 
 <div class="games form">
@@ -175,6 +180,29 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 		<td><?php if (isset ($homeScoreEntry)) ($homeScoreEntry['status'] == 'home_default' ? __('us') : ($homeScoreEntry['status'] == 'away_default' ? __('them') : __('no'))); ?></td>
 		<td><?php if (isset ($awayScoreEntry)) ($awayScoreEntry['status'] == 'away_default' ? __('us') : ($awayScoreEntry['status'] == 'home_default' ? __('them') : __('no'))); ?></td>
 	</tr>
+<?php if (League::hasCarbonFlip($game['Division']['League'])): ?>
+	<tr>
+		<td><?php __('Carbon flip'); ?></td>
+		<td><?php
+		if (isset ($homeScoreEntry)) {
+			if ($homeScoreEntry['status'] == 'normal') {
+				echo $carbon_flip_options[$homeScoreEntry['home_carbon_flip']];
+			} else {
+				__('N/A');
+			}
+		}
+		?></td>
+		<td><?php
+		if (isset ($awayScoreEntry)) {
+			if ($awayScoreEntry['status'] == 'normal') {
+				echo $carbon_flip_options[$awayScoreEntry['home_carbon_flip']];
+			} else {
+				__('N/A');
+			}
+		}
+		?></td>
+	</tr>
+<?php endif; ?>
 	<tr>
 		<td><?php __('Entered By'); ?></td>
 		<td><?php if (isset ($homeScoreEntry))
@@ -202,12 +230,22 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 		<td><?php __('Spirit Assigned'); ?></td>
 		<td><?php
 		if (array_key_exists ($game['Game']['home_team'], $game['SpiritEntry'])) {
-			echo $game['SpiritEntry'][$game['Game']['home_team']]['entered_sotg'];
+			echo $this->element ('spirit/symbol', array(
+					'spirit_obj' => $spirit_obj,
+					'league' => $game['Division']['League'],
+					'is_coordinator' => true,
+					'entry' => $game['SpiritEntry'][$game['Game']['home_team']],
+			));
 		}
 		?></td>
 		<td><?php
 		if (array_key_exists ($game['Game']['away_team'], $game['SpiritEntry'])) {
-			echo $game['SpiritEntry'][$game['Game']['away_team']]['entered_sotg'];
+			echo $this->element ('spirit/symbol', array(
+					'spirit_obj' => $spirit_obj,
+					'league' => $game['Division']['League'],
+					'is_coordinator' => true,
+					'entry' => $game['SpiritEntry'][$game['Game']['away_team']],
+			));
 		}
 		?></td>
 	</tr>
@@ -239,6 +277,19 @@ $preliminary = ($game['Game']['home_team'] === null || $game['Game']['away_team'
 			)); ?>
 
 		</dd>
+		<?php if (League::hasCarbonFlip($game['Division']['League'])): ?>
+		<dt class="CarbonFlipRow"><?php __('Carbon flip'); ?></dt>
+		<dd class="CarbonFlipRow">
+			<?php echo $this->ZuluruForm->input('home_carbon_flip', array(
+					'id' => 'CarbonFlip',
+					'label' => false,
+					'empty' => '---',
+					'options' => $carbon_flip_options,
+					'selected' => array_key_exists($game['Game']['home_team'], $game['ScoreEntry']) ? $game['ScoreEntry'][$game['Game']['home_team']]['home_carbon_flip'] : (array_key_exists ($game['Game']['away_team'], $game['ScoreEntry']) ? $game['ScoreEntry'][$game['Game']['away_team']]['home_carbon_flip'] : null),
+			)); ?>
+
+		</dd>
+		<?php endif; ?>
 	</dl>
 	<?php endif; ?>
 </fieldset>
@@ -347,6 +398,8 @@ function enableScores() {
 
 function disableCommon() {
 	jQuery('input:text').prop('disabled', true);
+	jQuery('#CarbonFlip').prop('disabled', true);
+	jQuery('.CarbonFlipRow').css('display', 'none');
 	jQuery('.AllstarDetails').css('display', 'none');
 	if (typeof window.disableSpirit == 'function') {
 		disableSpirit();
@@ -355,6 +408,8 @@ function disableCommon() {
 
 function enableCommon() {
 	jQuery('input:text').prop('disabled', false);
+	jQuery('#CarbonFlip').prop('disabled', false);
+	jQuery('.CarbonFlipRow').css('display', '');
 	jQuery('.AllstarDetails').css('display', '');
 	if (typeof window.enableSpirit == 'function') {
 		enableSpirit();

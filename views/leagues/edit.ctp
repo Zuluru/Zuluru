@@ -230,6 +230,7 @@ $collapse = !empty($this->data['Division']['id']);
 	<fieldset<?php if (!$collapse && !isset($add) && !Configure::read('feature.spirit') && !Configure::read('scoring.stat_tracking')) echo ' class="advanced"'; ?>>
 		<legend><?php __('Scoring'); ?></legend>
 	<?php
+		$tie_breaker_options = 'tie_breaker';
 		if (Configure::read('feature.spirit') && !Configure::read('sport.competition')) {
 			echo $this->Html->para('warning-message', __('NOTE: If you set the questionnaire to "' . Configure::read('options.spirit_questions.none') . '" and disable numeric entry, spirit will not be tracked for this league.', true));
 			echo $this->ZuluruForm->input('sotg_questions', array(
@@ -255,15 +256,25 @@ $collapse = !empty($this->data['Division']['id']);
 				'after' => $this->Html->para (null, __('Control spirit display. "All" shows numeric scores and survey answers (if applicable) to anyone. "Numeric" shows game scores but not survey answers. "Symbols Only" shows only star, check, and X, with no numeric values attached. "Coordinator Only" restricts viewing of any per-game information to coordinators only.', true)),
 			));
 
-			$tie_breaker_options = Configure::read('options.tie_breaker_spirit');
+			$tie_breaker_options .= '_spirit';
 		} else {
 			echo $this->Form->hidden('sotg_questions', array('value' => 'none'));
 			echo $this->Form->hidden('numeric_sotg', array('value' => 0));
-			$tie_breaker_options = Configure::read('options.tie_breaker');
+		}
+		if (Configure::read('scoring.carbon_flip')) {
+			echo $this->ZuluruForm->input('carbon_flip', array(
+				'options' => Configure::read('options.enable'),
+				'empty' => '---',
+				'label' => 'Carbon Flip',
+				'default' => Configure::read('scoring.spirit_numeric'),
+				'after' => $this->Html->para (null, __('Enable or disable entry of carbon flip results in score submission.', true)),
+			));
+
+			$tie_breaker_options .= '_carbon';
 		}
 		echo $this->ZuluruForm->input('tie_breaker', array(
 			'div' => 'input advanced',
-			'options' => $tie_breaker_options,
+			'options' => Configure::read("options.$tie_breaker_options"),
 			'hide_single' => true,
 			'empty' => '---',
 			'default' => TIE_BREAKER_HTH_HTHPM_PM_GF_LOSS,

@@ -59,7 +59,7 @@ foreach ($divisions as $division):
 		<?php endif; ?>
 		<td><?php echo $division['League']['expected_max_score']; ?></td>
 		<td><?php echo $division['League']['schedule_attempts']; ?></td>
-		<td><?php echo Configure::read("options.tie_breaker_spirit.{$division['League']['tie_breaker']}"); ?></td>
+		<td><?php echo Configure::read("options.tie_breaker_spirit_carbon.{$division['League']['tie_breaker']}"); ?></td>
 	</tr>
 <?php endforeach; ?>
 </table>

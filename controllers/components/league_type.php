@@ -203,13 +203,13 @@ class LeagueTypeComponent extends Object
 			if (!in_array($game['status'], Configure::read('unplayed_status'))) {
 				if (Game::_is_finalized($game)) {
 					$this->addGameResult ($division, $league, $results, $game['home_team'], $game['away_team'],
-							$round, $game['home_score'], $game['away_score'],
+							$round, $game['home_score'], $game['away_score'], $game['home_carbon_flip'],
 							Game::_get_spirit_entry ($game, $game['home_team'], $spirit_obj), $spirit_obj,
-							$game['status'] == 'home_default');
+							$game['status'] == 'home_default', $game['status'] == 'normal');
 					$this->addGameResult ($division, $league, $results, $game['away_team'], $game['home_team'],
-							$round, $game['away_score'], $game['home_score'],
+							$round, $game['away_score'], $game['home_score'], 2 - $game['home_carbon_flip'],
 							Game::_get_spirit_entry ($game, $game['away_team'], $spirit_obj), $spirit_obj,
-							$game['status'] == 'away_default');
+							$game['status'] == 'away_default', $game['status'] == 'normal');
 				} else {
 					$this->addUnplayedGame ($division, $results, $game['home_team'], $game['away_team'], $round);
 					$this->addUnplayedGame ($division, $results, $game['away_team'], $game['home_team'], $round);
@@ -220,7 +220,7 @@ class LeagueTypeComponent extends Object
 		return $results;
 	}
 
-	function addGameResult($division, $league, &$results, $team, $opp, $round, $score_for, $score_against, $spirit_for, $spirit_obj, $default) {
+	function addGameResult($division, $league, &$results, $team, $opp, $round, $score_for, $score_against, $cf_for, $spirit_for, $spirit_obj, $default, $played) {
 		if (!isset($this->sport_obj)) {
 			$this->sport_obj = $this->_controller->_getComponent ('Sport', $league['sport'], $this->_controller);
 		}
@@ -240,6 +240,7 @@ class LeagueTypeComponent extends Object
 		// Make sure the team record exists in the results
 		if (! array_key_exists ($team, $results)) {
 			$results[$team] = array('id' => $team, 'W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'games' => 0, 'spirit_games' => 0,
+									'CFW' => 0, 'CFL' => 0, 'CFT' => 0, 'cf_pts' => 0, 'cf_games' => 0,
 									'gf' => 0, 'ga' => 0, 'str' => 0, 'str_type' => '', 'spirit' => 0,
 									'rounds' => array(), 'vs' => array(), 'vspm' => array());
 		}
@@ -264,6 +265,17 @@ class LeagueTypeComponent extends Object
 			++ $results[$team]['def'];
 			++ $results[$team]['rounds'][$round]['def'];
 			-- $points;
+		}
+		if ($played) {
+			++ $results[$team]['cf_games'];
+			$results[$team]['cf_pts'] += $cf_for;
+			if ($cf_for == 2) {
+				++ $results[$team]['CFW'];
+			} else if ($cf_for == 1) {
+				++ $results[$team]['CFT'];
+			} else {
+				++ $results[$team]['CFL'];
+			}
 		}
 
 		// Add the current game
@@ -307,6 +319,7 @@ class LeagueTypeComponent extends Object
 		// Make sure the team record exists in the results
 		if (! array_key_exists ($team, $results)) {
 			$results[$team] = array('id' => $team, 'W' => 0, 'L' => 0, 'T' => 0, 'def' => 0, 'pts' => 0, 'games' => 0, 'spirit_games' => 0,
+									'CFW' => 0, 'CFL' => 0, 'CFT' => 0, 'cf_pts' => 0, 'cf_games' => 0,
 									'gf' => 0, 'ga' => 0, 'str' => 0, 'str_type' => '', 'spirit' => 0,
 									'rounds' => array(), 'vs' => array(), 'vspm' => array());
 		}
@@ -560,6 +573,15 @@ class LeagueTypeComponent extends Object
 						if ($a['spirit'] / $a['spirit_games'] < $b['spirit'] / $b['spirit_games'])
 							return 1;
 						if ($a['spirit'] / $a['spirit_games'] > $b['spirit'] / $b['spirit_games'])
+							return -1;
+					}
+					break;
+
+				case 'cf':
+					if (!empty($a['cf_games']) && !empty($b['cf_games'])) {
+						if ($a['cf_pts'] / $a['cf_games'] < $b['cf_pts'] / $b['cf_games'])
+							return 1;
+						if ($a['cf_pts'] / $a['cf_games'] > $b['cf_pts'] / $b['cf_games'])
 							return -1;
 					}
 					break;

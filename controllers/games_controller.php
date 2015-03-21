@@ -2701,6 +2701,7 @@ class GamesController extends AppController {
 					// No default.  Just finalize score.
 					$data['Game']['home_score'] = $home_entry['score_for'];
 					$data['Game']['away_score'] = $home_entry['score_against'];
+					$data['Game']['home_carbon_flip'] = $home_entry['home_carbon_flip'];
 				}
 				$data['Game']['approved_by'] = APPROVAL_AUTOMATIC;
 			} else {
@@ -2742,6 +2743,7 @@ class GamesController extends AppController {
 				case 'normal':
 					$data['Game']['home_score'] = $home_entry['score_for'];
 					$data['Game']['away_score'] = $home_entry['score_against'];
+					$data['Game']['home_carbon_flip'] = $home_entry['home_carbon_flip'];
 					if (isset($spirit_obj)) {
 						$this->_spiritTeams ($game['Game']['home_team'], $game['Game']['away_team'], $data);
 						$this->_spiritMerge ($game['Game']['home_team'], $spirit_obj->expected(), $data);
@@ -2779,6 +2781,7 @@ class GamesController extends AppController {
 				case 'normal':
 					$data['Game']['home_score'] = $away_entry['score_against'];
 					$data['Game']['away_score'] = $away_entry['score_for'];
+					$data['Game']['home_carbon_flip'] = $away_entry['home_carbon_flip'];
 					if (isset($spirit_obj)) {
 						$this->_spiritTeams ($game['Game']['away_team'], $game['Game']['home_team'], $data);
 						$this->_spiritMerge ($game['Game']['away_team'], $spirit_obj->expected(), $data);

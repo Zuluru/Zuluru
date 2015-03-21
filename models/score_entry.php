@@ -25,6 +25,12 @@ class ScoreEntry extends AppModel {
 				'rule' => array('inconfig', 'options.game_status'),
 			),
 		),
+		'home_carbon_flip' => array(
+			'range' => array(
+				'rule' => array('valid_score', 0, 2),
+				'message' => 'You must select a valid carbon flip result',
+			),
+		),
 	);
 
 	var $belongsTo = array(

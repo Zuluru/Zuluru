@@ -39,4 +39,10 @@ if (count ($classes)) {
 	));
 	?></td>
 	<?php endif; ?>
+	<?php if (League::hasCarbonFlip($league)): ?>
+	<td><?php echo (array_key_exists('Season', $team) ? $team['Season']['CFW'] : '-'); ?></td>
+	<td><?php echo (array_key_exists('Season', $team) ? $team['Season']['CFL'] : '-'); ?></td>
+	<td><?php echo (array_key_exists('Season', $team) ? $team['Season']['CFT'] : '-'); ?></td>
+	<td><?php echo ((array_key_exists('Season', $team) && $team['Season']['cf_games'] > 0) ? sprintf('%0.1f', $team['Season']['cf_pts'] / $team['Season']['cf_games']) : '-'); ?></td>
+	<?php endif; ?>
 </tr>

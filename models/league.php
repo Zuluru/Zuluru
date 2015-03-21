@@ -61,8 +61,14 @@ class League extends AppModel {
 		),
 		'tie_breaker' => array(
 			'inlist' => array(
-				'rule' => array('inconfig', 'options.tie_breaker_spirit'),
+				'rule' => array('inconfig', 'options.tie_breaker_spirit_carbon'),
 				'message' => 'You must select a valid tie breaker method.',
+			),
+		),
+		'carbon_flip' => array(
+			'inlist' => array(
+				'rule' => array('inconfig', 'options.enable'),
+				'message' => 'You must select whether or not the carbon flip is enabled.',
 			),
 		),
 	);
@@ -302,6 +308,21 @@ class League extends AppModel {
 			}
 		}
 		return ($league['numeric_sotg'] || $league['sotg_questions'] != 'none');
+	}
+
+	static function hasCarbonFlip($league) {
+		if (!Configure::read('scoring.carbon_flip')) {
+			return false;
+		} else if (array_key_exists('League', $league)) {
+			return $league['League']['carbon_flip'];
+		} else if (array_key_exists('Division', $league)) {
+			if (array_key_exists('League', $league['Division'])) {
+				return $league['Division']['League']['carbon_flip'];
+			} else {
+				return false;
+			}
+		}
+		return $league['carbon_flip'];
 	}
 
 	static function hasStats($league) {
