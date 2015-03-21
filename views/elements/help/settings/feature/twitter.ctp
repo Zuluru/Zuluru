@@ -10,7 +10,8 @@ printf(__('From %s you need %s (renamed to %s).', true),
 	'TwitterAPIExchange.php', 'twitter_api_exchange.php'
 ); ?></p>
 <p><?php
-printf(__('After this, you must set the Consumer Key and Consumer Secret values. You can obtain standard Zuluru values for these by contacting %s, or you can acquire your own. If you want your own consumer values, log in to Twitter, then go to the %s, click "Create a new application", and follow the steps.', true),
+printf(__('After this, you must set the Consumer Key and Consumer Secret values. You can obtain standard %s values for these by contacting %s, or you can acquire your own. If you want your own consumer values, log in to Twitter, then go to the %s, click "Create a new application", and follow the steps.', true),
+	ZULURU,
 	$this->Html->link('admin@zuluru.org', 'mailto:admin@zuluru.org'),
 	$this->Html->link(__('Twitter "My Applications" page', true), 'https://dev.twitter.com/apps')
 ); ?></p>
