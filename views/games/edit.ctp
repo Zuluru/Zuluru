@@ -182,7 +182,7 @@ $carbon_flip_options = array(
 	</tr>
 <?php if (League::hasCarbonFlip($game['Division']['League'])): ?>
 	<tr>
-		<td><?php __('Carbon flip'); ?></td>
+		<td><?php __('Carbon Flip'); ?></td>
 		<td><?php
 		if (isset ($homeScoreEntry)) {
 			if ($homeScoreEntry['status'] == 'normal') {
@@ -278,7 +278,7 @@ $carbon_flip_options = array(
 
 		</dd>
 		<?php if (League::hasCarbonFlip($game['Division']['League'])): ?>
-		<dt class="CarbonFlipRow"><?php __('Carbon flip'); ?></dt>
+		<dt class="CarbonFlipRow"><?php __('Carbon Flip'); ?></dt>
 		<dd class="CarbonFlipRow">
 			<?php echo $this->ZuluruForm->input('home_carbon_flip', array(
 					'id' => 'CarbonFlip',

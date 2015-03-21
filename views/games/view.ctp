@@ -217,7 +217,7 @@ $team_names = array(
 		</dd>
 		<?php endif; ?>
 		<?php if (League::hasCarbonFlip($game['Division']['League']) && $game['Game']['status'] == 'normal'): ?>
-		<dt><?php __('Carbon flip'); ?></dt>
+		<dt><?php __('Carbon Flip'); ?></dt>
 		<dd>
 			<?php echo $carbon_flip_options[$game['Game']['home_carbon_flip']]; ?>
 
@@ -304,7 +304,7 @@ $team_names = array(
 		</tr>
 		<?php if (League::hasCarbonFlip($game['Division']['League'])): ?>
 		<tr>
-			<td><?php __('Carbon flip'); ?></td>
+			<td><?php __('Carbon Flip'); ?></td>
 			<td><?php
 			if (isset ($homeScoreEntry)) {
 				if ($homeScoreEntry['status'] == 'normal') {

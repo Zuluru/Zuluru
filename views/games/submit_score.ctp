@@ -97,7 +97,7 @@ if (array_key_exists ($team_id, $game['ScoreEntry'])) {
 </tr>
 <?php if (League::hasCarbonFlip($game['Division']['League'])): ?>
 <tr id="CarbonFlipRow">
-	<td><?php __('Carbon flip'); ?></td>
+	<td><?php __('Carbon Flip'); ?></td>
 	<td><?php
 	$carbon_flip_options = array(
 			2 => sprintf(__('%s won', true), $game['HomeTeam']['name']),
