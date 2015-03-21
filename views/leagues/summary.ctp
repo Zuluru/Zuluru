@@ -14,6 +14,9 @@ $this->Html->addCrumb (__('Summary', true));
 	<th><?php __('Spirit Questionnaire');?></th>
 	<th><?php __('Numeric Spirit?');?></th>
 	<?php endif; ?>
+	<?php if (Configure::read('scoring.carbon_flip')): ?>
+	<th><?php __('Carbon Flip?');?></th>
+	<?php endif; ?>
 	<th><?php __('Max Score');?></th>
 	<th><?php __('Schedule Attempts');?></th>
 	<th><?php __('Tie Breaker');?></th>
@@ -29,7 +32,7 @@ foreach ($divisions as $division):
 		$affiliate_id = $division['League']['affiliate_id'];
 ?>
 <tr>
-	<th colspan="<?php echo 4 + (Configure::read('feature.spirit') * 3); ?>">
+	<th colspan="<?php echo 4 + (Configure::read('feature.spirit') * 3) + Configure::read('scoring.carbon_flip'); ?>">
 		<h3 class="affiliate"><?php echo $division['League']['Affiliate']['name']; ?></h3>
 	</th>
 </tr>
@@ -56,6 +59,9 @@ foreach ($divisions as $division):
 		<td><?php __(Inflector::humanize($division['League']['display_sotg'])); ?></td>
 		<td><?php __(Configure::read("options.spirit_questions.{$division['League']['sotg_questions']}")); ?></td>
 		<td><?php $division['League']['numeric_sotg'] ? __('Yes') : __('No'); ?></td>
+		<?php endif; ?>
+		<?php if (Configure::read('scoring.carbon_flip')): ?>
+		<td><?php $division['League']['carbon_flip'] ? __('Yes') : __('No'); ?></td>
 		<?php endif; ?>
 		<td><?php echo $division['League']['expected_max_score']; ?></td>
 		<td><?php echo $division['League']['schedule_attempts']; ?></td>
