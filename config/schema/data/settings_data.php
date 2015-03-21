@@ -62,6 +62,51 @@ class SettingsData {
 			'value' => '',
 		),
 		array(
+			'category' => 'organization',
+			'name' => 'first_day',
+			'value' => '1',
+		),
+		array(
+			'category' => 'organization',
+			'name' => 'spring_start',
+			'value' => '0-04-01',
+		),
+		array(
+			'category' => 'organization',
+			'name' => 'spring_indoor_start',
+			'value' => '0-04-01',
+		),
+		array(
+			'category' => 'organization',
+			'name' => 'summer_start',
+			'value' => '0-06-01',
+		),
+		array(
+			'category' => 'organization',
+			'name' => 'summer_indoor_start',
+			'value' => '0-06-01',
+		),
+		array(
+			'category' => 'organization',
+			'name' => 'fall_start',
+			'value' => '0-09-01',
+		),
+		array(
+			'category' => 'organization',
+			'name' => 'fall_indoor_start',
+			'value' => '0-09-01',
+		),
+		array(
+			'category' => 'organization',
+			'name' => 'winter_start',
+			'value' => '0-01-01',
+		),
+		array(
+			'category' => 'organization',
+			'name' => 'winter_indoor_start',
+			'value' => '0-01-01',
+		),
+		array(
 			'category' => 'site',
 			'name' => 'gmaps_key',
 			'value' => '',
@@ -70,6 +115,26 @@ class SettingsData {
 			'category' => 'site',
 			'name' => 'name',
 			'value' => 'Zuluru',
+		),
+		array(
+			'category' => 'site',
+			'name' => 'default_language',
+			'value' => 'en',
+		),
+		array(
+			'category' => 'feature',
+			'name' => 'language',
+			'value' => '0',
+		),
+		array(
+			'category' => 'feature',
+			'name' => 'uls',
+			'value' => '0',
+		),
+		array(
+			'category' => 'feature',
+			'name' => 'public',
+			'value' => '0',
 		),
 		array(
 			'category' => 'feature',
@@ -93,13 +158,38 @@ class SettingsData {
 		),
 		array(
 			'category' => 'feature',
+			'name' => 'antispam',
+			'value' => '0',
+		),
+		array(
+			'category' => 'feature',
+			'name' => 'birth_year_only',
+			'value' => '0',
+		),
+		array(
+			'category' => 'feature',
+			'name' => 'units',
+			'value' => 'Metric',
+		),
+		array(
+			'category' => 'feature',
 			'name' => 'registration',
+			'value' => '1',
+		),
+		array(
+			'category' => 'feature',
+			'name' => 'waiting_list',
 			'value' => '1',
 		),
 		array(
 			'category' => 'feature',
 			'name' => 'spirit',
 			'value' => '1',
+		),
+		array(
+			'category' => 'feature',
+			'name' => 'allow_past_games',
+			'value' => '0',
 		),
 		array(
 			'category' => 'feature',
@@ -113,6 +203,11 @@ class SettingsData {
 		),
 		array(
 			'category' => 'feature',
+			'name' => 'twitter',
+			'value' => '0',
+		),
+		array(
+			'category' => 'feature',
 			'name' => 'annotations',
 			'value' => '1',
 		),
@@ -123,13 +218,13 @@ class SettingsData {
 		),
 		array(
 			'category' => 'feature',
-			'name' => 'attendance',
-			'value' => '1',
+			'name' => 'shirt_numbers',
+			'value' => '0',
 		),
 		array(
 			'category' => 'feature',
-			'name' => 'stat_tracking',
-			'value' => '0',
+			'name' => 'attendance',
+			'value' => '1',
 		),
 		array(
 			'category' => 'feature',
@@ -143,7 +238,17 @@ class SettingsData {
 		),
 		array(
 			'category' => 'feature',
+			'name' => 'gravatar',
+			'value' => '0',
+		),
+		array(
+			'category' => 'feature',
 			'name' => 'documents',
+			'value' => '0',
+		),
+		array(
+			'category' => 'feature',
+			'name' => 'contacts',
 			'value' => '0',
 		),
 		array(
@@ -159,6 +264,11 @@ class SettingsData {
 		array(
 			'category' => 'feature',
 			'name' => 'region_preference',
+			'value' => '0',
+		),
+		array(
+			'category' => 'feature',
+			'name' => 'facility_preference',
 			'value' => '0',
 		),
 		array(
@@ -214,7 +324,7 @@ class SettingsData {
 		array(
 			'category' => 'scoring',
 			'name' => 'spirit_questions',
-			'value' => 'team',
+			'value' => 'wfdf2',
 		),
 		array(
 			'category' => 'scoring',
@@ -233,6 +343,16 @@ class SettingsData {
 		),
 		array(
 			'category' => 'scoring',
+			'name' => 'spirit_default',
+			'value' => '1',
+		),
+		array(
+			'category' => 'scoring',
+			'name' => 'carbon_flip',
+			'value' => '0',
+		),
+		array(
+			'category' => 'scoring',
 			'name' => 'incident_reports',
 			'value' => '1',
 		),
@@ -240,6 +360,16 @@ class SettingsData {
 			'category' => 'scoring',
 			'name' => 'allstars',
 			'value' => '1',
+		),
+		array(
+			'category' => 'scoring',
+			'name' => 'most_spirited',
+			'value' => '0',
+		),
+		array(
+			'category' => 'scoring',
+			'name' => 'stat_tracking',
+			'value' => '0',
 		),
 		array(
 			'category' => 'payment',
@@ -297,6 +427,11 @@ class SettingsData {
 			'value' => 'your credit card',
 		),
 		array(
+			'category' => 'payment',
+			'name' => 'offline_options',
+			'value' => 'cheque, cash or email transfer',
+		),
+		array(
 			'category' => 'email',
 			'name' => 'admin_email',
 			'value' => 'admin@example.com',
@@ -335,6 +470,16 @@ class SettingsData {
 			'category' => 'registration',
 			'name' => 'online_payments',
 			'value' => '1',
+		),
+		array(
+			'category' => 'registration',
+			'name' => 'reservation_time',
+			'value' => '24',
+		),
+		array(
+			'category' => 'registration',
+			'name' => 'delete_unpaid',
+			'value' => '0',
 		),
 		array(
 			'category' => 'registration',
