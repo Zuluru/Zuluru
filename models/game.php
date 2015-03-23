@@ -1418,6 +1418,8 @@ class Game extends AppModel {
 								} else {
 									$data['Game'][$key]["{$team}_team"] = $result['Game']['away_team'];
 								}
+							} else {
+								$data['Game'][$key]["{$team}_team"] = null;
 							}
 							break;
 
@@ -1430,6 +1432,8 @@ class Game extends AppModel {
 								} else {
 									$data['Game'][$key]["{$team}_team"] = $result['Game']['home_team'];
 								}
+							} else {
+								$data['Game'][$key]["{$team}_team"] = null;
 							}
 							break;
 					}
