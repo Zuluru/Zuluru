@@ -873,9 +873,9 @@ class LeagueTypeTournamentComponent extends LeagueTypeComponent
 
 		// Round 2: mostly winners vs winners, losers vs losers
 		$success &= $this->createTournamentGame (6, 2, '06', BRACKET_GAME, 'game_winner', 1, 'game_winner', 4);
-		$success &= $this->createTournamentGame (7, 2, '07', BRACKET_GAME, 'game_winner', 2, 'game_winner', 5);
+		$success &= $this->createTournamentGame (7, 2, '07', BRACKET_GAME, 'game_winner', 3, 'game_loser', 2);
 		$success &= $this->createTournamentGame (8, 2, '08', BRACKET_GAME, 'game_loser', 1, 'game_loser', 3);
-		$success &= $this->createTournamentGame (9, 2, '09', BRACKET_GAME, 'game_winner', 3, 'game_loser', 2);
+		$success &= $this->createTournamentGame (9, 2, '09', BRACKET_GAME, 'game_winner', 2, 'game_winner', 5);
 		$success &= $this->createTournamentGame (10, 2, '10', BRACKET_GAME, 'game_loser', 4, 'game_loser', 5);
 
 		// Round 3: winners vs winners, losers vs losers
