@@ -233,6 +233,11 @@ class AppModel extends Model {
 		// have to extract the value to make the function generic
 		$value = current(array_values($check));
 
+		// Handle questionnaire values
+		if (is_array($value) && array_key_exists('question_id', $value) && array_key_exists('answer', $value)) {
+			$value = $value['answer'];
+		}
+
 		return array_key_exists($value, Configure::read($config));
 	}
 
