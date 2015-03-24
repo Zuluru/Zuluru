@@ -357,6 +357,8 @@ class EventTypeComponent extends Object
 		if (!empty($data['Registration']['Response'])) {
 			$data = $data['Registration'];
 		}
+		// TODO: Set::extract bug. Can't find "q-20" if that's the only one, but it can if "q-1" is there???
+		$data['Response'] = array_values($data['Response']);
 		$answer = Set::extract ("/Response[question_id=$question]/.", $data);
 		if (!empty ($answer)) {
 			if (array_key_exists('answer_id', $answer[0]) && $answer[0]['answer_id'] !== null) {
