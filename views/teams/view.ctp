@@ -300,17 +300,15 @@ if (!empty($team['Team']['short_name'])) {
 			if ($i++ % 2 == 0) {
 				$class = ' class="altrow"';
 			}
+			$skill = Set::extract("/Skill[enabled=1][sport={$team['Division']['League']['sport']}]/.", $person);
 			if (in_array ($person['TeamsPerson']['role'], Configure::read('playing_roster_roles')) &&
 				$person['TeamsPerson']['status'] == ROSTER_APPROVED)
 			{
 				++ $roster_count;
-				$skill = Set::extract("/Skill[enabled=1][sport={$team['Division']['League']['sport']}]/.", $person);
 				if (!empty($skill)) {
 					++$skill_count;
 					$skill_total += $skill[0]['skill_level'];
 				}
-			} else {
-				$skill = null;
 			}
 
 			if ($is_logged_in) {
