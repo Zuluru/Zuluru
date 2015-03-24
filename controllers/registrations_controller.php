@@ -1591,7 +1591,7 @@ class RegistrationsController extends AppController {
 
 			if (!$this->is_admin && !$this->is_manager) {
 				// Players cannot change their own payment status
-				unset($data['Registration']['payment']);
+				$data['Registration']['payment'] = $registration['Registration']['payment'];
 			}
 
 			if (!$this->Registration->save($data, array('validate' => false))) {
@@ -1599,11 +1599,9 @@ class RegistrationsController extends AppController {
 				return;
 			}
 
-			// If the payment status has changed, we may need to do extra processing
-			if ($this->is_admin || $this->is_manager) {
-				if (!$this->_postProcess($registration, $registration, $data, $registration['Registration']['payment'], $data['Registration']['payment'])) {
-					return;
-				}
+			// If the payment status has changed, or questionnaire answers updated, we may need to do extra processing
+			if (!$this->_postProcess($registration, $registration, $data, $registration['Registration']['payment'], $data['Registration']['payment'])) {
+				return;
 			}
 
 			if ($transaction->commit() !== false) {
