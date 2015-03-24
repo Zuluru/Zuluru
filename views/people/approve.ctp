@@ -13,6 +13,16 @@ $dispositions = array(
 		'delete' => 'Deleted silently',
 );
 
+$this_is_player = (!empty($cached['Group']) && Set::extract('/GroupsPerson[group_id=' . GROUP_PLAYER . ']', $cached['Group']));
+$this_is_player = (!empty($this_is_player));
+$this_is_coach = (!empty($cached['Group']) && Set::extract('/GroupsPerson[group_id=' . GROUP_COACH . ']', $cached['Group']));
+$this_is_coach = (!empty($this_is_coach));
+
+$use_shirt_size = Configure::read('profile.shirt_size');
+if ($use_shirt_size == PROFILE_REGISTRATION) {
+	$use_shirt_size = ($this_is_player || $this_is_coach);
+}
+
 $rows = array(
 	'full_name' => array('name' => 'Name'),
 );
@@ -69,7 +79,7 @@ if (Configure::read('profile.height')) {
 
 $rows[] = 'gender';
 
-if (Configure::read('profile.shirt_size')) {
+if ($use_shirt_size) {
 	$rows[] = 'shirt_size';
 }
 

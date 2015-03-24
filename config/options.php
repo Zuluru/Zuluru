@@ -40,14 +40,21 @@ $config['options'] = array(
 	),
 
 	'access_required' => array(
-		'1'					=> __('User can update', true),
-		'2'					=> __('Admin can update', true),
+		PROFILE_USER_UPDATE	=> __('User can update', true),
+		PROFILE_ADMIN_UPDATE=> __('Admin can update', true),
 	),
 
 	'access_optional' => array(
-		'1'					=> __('User can update', true),
-		'2'					=> __('Admin can update', true),
-		'0'					=> __('Disabled entirely', true),
+		PROFILE_USER_UPDATE	=> __('User can update', true),
+		PROFILE_ADMIN_UPDATE=> __('Admin can update', true),
+		PROFILE_DISABLED	=> __('Disabled entirely', true),
+	),
+
+	'access_registration' => array(
+		PROFILE_USER_UPDATE	=> __('User can update', true),
+		PROFILE_ADMIN_UPDATE=> __('Admin can update', true),
+		PROFILE_REGISTRATION=> __('Updated during event registration', true),
+		PROFILE_DISABLED	=> __('Disabled entirely', true),
 	),
 
 	'gender'				=> make_options(array(

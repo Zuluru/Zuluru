@@ -8,13 +8,15 @@ $short = Configure::read('organization.short_name');
 $admin = Configure::read('email.admin_email');
 $this_is_player = (!empty($cached['Group']) && Set::extract('/GroupsPerson[group_id=' . GROUP_PLAYER . ']', $cached['Group']));
 $this_is_player = (!empty($this_is_player));
+$this_is_coach = (!empty($cached['Group']) && Set::extract('/GroupsPerson[group_id=' . GROUP_COACH . ']', $cached['Group']));
+$this_is_coach = (!empty($this_is_coach));
 
-$access = array(1);
+$access = array(PROFILE_USER_UPDATE, PROFILE_REGISTRATION);
 // People with incomplete profiles can update any of the fields that
 // normally only admins can edit, so that they can successfully fill
 // out all of the profile.
 if ($is_admin || !$cached['complete']) {
-	$access[] = 2;
+	$access[] = PROFILE_ADMIN_UPDATE;
 }
 ?>
 
@@ -477,6 +479,27 @@ echo $is_me ? __('Edit Your Profile', true) : (array_key_exists('first_name', $t
 	?>
 	</fieldset>
 	<?php endif; ?>
+	<?php if (Configure::read('profile.shirt_size')): ?>
+	<fieldset class="coach" <?php if (!$this_is_coach): ?>style="display:none;"<?php endif; ?>>
+		<legend><?php __('Your Coaching Profile'); ?></legend>
+	<?php
+		if (in_array (Configure::read('profile.shirt_size'), $access)) {
+			echo $this->ZuluruForm->input('shirt_size', array(
+				'type' => 'select',
+				'empty' => '---',
+				'options' => Configure::read('options.shirt_size'),
+			));
+		} else if (Configure::read('profile.shirt_size')) {
+			echo $this->ZuluruForm->input('shirt_size', array(
+				'value' => $cached['shirt_size'],
+				'disabled' => 'true',
+				'class' => 'disabled',
+				'after' => $this->Html->para (null, __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your new shirt size to ', true) . $this->Html->link ($admin, "mailto:$admin") . '.', true),
+			));
+		}
+	?>
+	</fieldset>
+	<?php endif; ?>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
 
@@ -491,12 +514,14 @@ if (Configure::read('profile.skill_level')) {
 	}
 }
 
-// Handle changes to parent and player checkboxes
+// Handle changes to group checkboxes
 $player = GROUP_PLAYER;
 $parent = GROUP_PARENT;
+$coach = GROUP_COACH;
 if ($cached['user_id']) {
 	$this->Js->get("#GroupGroup$player")->event('change', 'playerChanged();');
 	$this->Js->get("#GroupGroup$parent")->event('change', 'parentChanged();');
+	$this->Js->get("#GroupGroup$coach")->event('change', 'coachChanged();');
 	echo $this->Html->scriptBlock("
 function playerChanged() {
 	var checked = jQuery('#GroupGroup$player').prop('checked');
@@ -519,7 +544,18 @@ function parentChanged() {
 		jQuery('.parent input, .parent select').attr('disabled', 'disabled');
 	}
 }
+
+function coachChanged() {
+	var checked = jQuery('#GroupGroup$coach').prop('checked');
+	if (checked) {
+		jQuery('.coach').css('display', '');
+		jQuery('.coach input, .coach select').not('.disabled').removeAttr('disabled');
+	} else {
+		jQuery('.coach').css('display', 'none');
+		jQuery('.coach input, .coach select').attr('disabled', 'disabled');
+	}
+}
 	");
-	$this->Js->buffer('parentChanged(); playerChanged();');
+	$this->Js->buffer('playerChanged(); parentChanged(); coachChanged();');
 }
 ?>

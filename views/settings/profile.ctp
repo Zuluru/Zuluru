@@ -171,7 +171,7 @@ echo $this->element('settings/banner');
 		'options' => array(
 			'label' => __('Shirt size', true),
 			'type' => 'radio',
-			'options' => Configure::read('options.access_optional'),
+			'options' => Configure::read('options.access_registration'),
 		),
 	));
 	echo $this->element('settings/input', array(

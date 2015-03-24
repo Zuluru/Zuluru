@@ -4,7 +4,8 @@ if (!$is_player) {
 }
 
 foreach ($fields as $key => $field) {
-	if (!Configure::read("profile.$field")) {
+	$access = Configure::read("profile.$field");
+	if (!$access || $access == PROFILE_REGISTRATION) {
 		unset($fields[$key]);
 	}
 }

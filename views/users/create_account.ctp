@@ -292,7 +292,8 @@ if (Configure::read('feature.antispam')):
 				'after' => $this->Html->para(null, sprintf(__('Please enter your height in %s. This is used to help generate even teams for hat leagues.', true), $units)),
 			));
 		}
-		if (Configure::read('profile.shirt_size')) {
+
+		if (in_array(Configure::read('profile.shirt_size'), array(PROFILE_USER_UPDATE, PROFILE_ADMIN_UPDATE))) {
 			echo $this->ZuluruForm->input('Person.0.shirt_size', array(
 				'type' => 'select',
 				'empty' => '---',
@@ -305,6 +306,20 @@ if (Configure::read('feature.antispam')):
 		echo $this->element('people/skill_edit', array('prefix' => 'Person.0'));
 	?>
 	</fieldset>
+	<?php if (Configure::read('profile.shirt_size')): ?>
+	<fieldset class="coach" style="display:none;">
+		<legend><?php __('Your Coaching Profile'); ?></legend>
+	<?php
+		if (Configure::read('profile.shirt_size')) {
+			echo $this->ZuluruForm->input('Person.0.shirt_size', array(
+				'type' => 'select',
+				'empty' => '---',
+				'options' => Configure::read('options.shirt_size'),
+			));
+		}
+	?>
+	</fieldset>
+	<?php endif; ?>
 	<fieldset class="parent" style="display:none;">
 		<legend><?php __('Child Profile'); ?></legend>
 	<?php
@@ -376,11 +391,13 @@ if (Configure::read('profile.skill_level')) {
 	}
 }
 
-// Handle changes to parent and player checkboxes
+// Handle changes to group checkboxes
 $player = GROUP_PLAYER;
 $parent = GROUP_PARENT;
+$coach = GROUP_COACH;
 $this->Js->get("#GroupGroup$player")->event('change', 'playerChanged();');
 $this->Js->get("#GroupGroup$parent")->event('change', 'parentChanged();');
+$this->Js->get("#GroupGroup$coach")->event('change', 'coachChanged();');
 echo $this->Html->scriptBlock("
 function playerChanged() {
 	var checked = jQuery('#GroupGroup$player').prop('checked');
@@ -403,6 +420,17 @@ function parentChanged() {
 		jQuery('.parent input, .parent select').attr('disabled', 'disabled');
 	}
 }
+
+function coachChanged() {
+	var checked = jQuery('#GroupGroup$coach').prop('checked');
+	if (checked) {
+		jQuery('.coach').css('display', '');
+		jQuery('.coach input, .coach select').removeAttr('disabled');
+	} else {
+		jQuery('.coach').css('display', 'none');
+		jQuery('.coach input, .coach select').attr('disabled', 'disabled');
+	}
+}
 ");
-$this->Js->buffer('parentChanged(); playerChanged();');
+$this->Js->buffer('playerChanged(); parentChanged(); coachChanged();');
 ?>

@@ -22,6 +22,13 @@ if (!defined('GROUP_PLAYER')) {
 	define('GROUP_ADMIN', 7);
 }
 
+if (!defined('PROFILE_DISABLED')) {
+	define('PROFILE_DISABLED', 0);
+	define('PROFILE_USER_UPDATE', 1);
+	define('PROFILE_ADMIN_UPDATE', 2);
+	define('PROFILE_REGISTRATION', 3);
+}
+
 if (!defined('SEASON_GAME')) {
 	define('SEASON_GAME', 1);
 	define('POOL_PLAY_GAME', 2);
@@ -68,6 +75,7 @@ if (!defined('TEAM_NAME')) {
 	define('FRANCHISE_ID', -6);
 	define('FRANCHISE_ID_CREATED', -7);
 	define('TRACK_ATTENDANCE', -10);
+	define('SHIRT_SIZE', -20);
 }
 
 // Event connection types
