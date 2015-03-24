@@ -363,7 +363,7 @@ if (Configure::read('feature.antispam')):
 				'after' => $this->Html->para(null, sprintf(__('Please enter your height in %s. This is used to help generate even teams for hat leagues.', true), $units)),
 			));
 		}
-		if (Configure::read('profile.shirt_size')) {
+		if (in_array(Configure::read('profile.shirt_size'), array(PROFILE_USER_UPDATE, PROFILE_ADMIN_UPDATE))) {
 			echo $this->ZuluruForm->input('Person.1.shirt_size', array(
 				'type' => 'select',
 				'empty' => '---',
