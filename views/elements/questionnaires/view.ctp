@@ -10,7 +10,7 @@ if (array_key_exists ('Question', $questionnaire)) {
 				case 'text':
 				case 'textbox':
 					$answer = reset(Set::extract ("/Response[question_id={$question['id']}]/.", $response));
-					if ($question['type'] == 'select' && !Set::numeric(array_keys($question['options']))) {
+					if ($question['type'] == 'select' && array_key_exists('options', $question) && !Set::numeric(array_keys($question['options']))) {
 						$answer = $answer['answer'];
 					} else if ($question['type'] == 'select' || $question['type'] == 'radio') {
 						if (array_key_exists('Answer', $question)) {
