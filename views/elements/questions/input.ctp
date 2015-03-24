@@ -1,12 +1,4 @@
 <?php
-$field = array(
-	'radio' => 'answer_id',
-	'select' => 'answer_id',
-	'checkbox' => 'answer_id',
-	'text' => 'answer',
-	'textbox' => 'answer',
-);
-
 if (array_key_exists ('Question', $question)) {
 	$details = $question['Question'];
 } else {
@@ -42,7 +34,7 @@ switch ($details['type'])
 		$item = $this->Html->tag('fieldset',
 			$this->Html->tag('legend', $details['name']) . $details['question'] .
 			$this->Form->hidden ("Response.$key.question_id", array('value' => $details['id'])) .
-				$this->Form->input ("Response.$key.{$field[$details['type']]}", $options));
+				$this->Form->input ("Response.$key.answer_id", $options));
 		break;
 
 	case 'select':
@@ -57,8 +49,13 @@ switch ($details['type'])
 		if (array_key_exists('default', $details)) {
 			$options['default'] = $details['default'];
 		}
+		if (Set::numeric(array_keys($options['options']))) {
+			$answer = 'answer_id';
+		} else {
+			$answer = 'answer';
+		}
 		$item = $this->Form->hidden ("Response.$key.question_id", array('value' => $details['id'])) .
-			$this->Form->input ("Response.$key.{$field[$details['type']]}", $options);
+			$this->Form->input ("Response.$key.$answer", $options);
 		break;
 
 	case 'checkbox':
@@ -70,7 +67,7 @@ switch ($details['type'])
 				$options['label'] = $answer['answer'];
 				$options['value'] = $answer['id'];
 				$item .= $this->Form->hidden ("Response.$ckey.question_id", array('value' => $details['id'])) .
-					$this->Form->input ("Response.$ckey.{$field[$details['type']]}", $options);
+					$this->Form->input ("Response.$ckey.answer_id", $options);
 				if (array_key_exists ($ckey, $responses) && array_key_exists ('id', $responses[$ckey])) {
 					$item .= $this->Form->hidden ("Response.$ckey.id");
 				}
@@ -81,7 +78,7 @@ switch ($details['type'])
 				$options['checked'] = true;
 			}
 			$item = $this->Form->hidden ("Response.$key.question_id", array('value' => $details['id'])) .
-				$this->Form->input ("Response.$key.{$field[$details['type']]}", $options);
+				$this->Form->input ("Response.$key.answer_id", $options);
 		}
 		break;
 
@@ -89,14 +86,14 @@ switch ($details['type'])
 		$key = Question::_formName($details);
 		$options['size'] = 75;
 		$item = $this->Form->hidden ("Response.$key.question_id", array('value' => $details['id'])) .
-			$this->Form->input ("Response.$key.{$field[$details['type']]}", $options);
+			$this->Form->input ("Response.$key.answer", $options);
 		break;
 
 	case 'textbox':
 		$key = Question::_formName($details);
 		$options['cols'] = 72;
 		$item = $this->Form->hidden ("Response.$key.question_id", array('value' => $details['id'])) .
-			$this->Form->input ("Response.$key.{$field[$details['type']]}", $options);
+			$this->Form->input ("Response.$key.answer", $options);
 		break;
 
 	case 'group_start':
