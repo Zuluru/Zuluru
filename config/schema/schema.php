@@ -369,7 +369,7 @@ class ZuluruSchema extends CakeSchema {
 		'expected_max_score' => array('type' => 'integer', 'null' => false, 'default' => NULL),
 		'stat_tracking' => array('type' => 'string', 'null' => false, 'default' => 'never', 'length' => 32),
 		'tie_breaker' => array('type' => 'integer', 'null' => false, 'default' => '1'),
-		'carbon_flip' => array('type' => 'boolean', 'null' => true, 'default' => NULL),
+		'carbon_flip' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
