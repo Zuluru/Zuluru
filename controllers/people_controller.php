@@ -1046,6 +1046,20 @@ class PeopleController extends AppController {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 				$this->redirect('/');
 			}
+
+			// Re-assign skill array indices
+			$i = 0;
+			$skills = array();
+			$sports = Configure::read('options.sport');
+			foreach ($sports as $sport => $name) {
+				Configure::load("sport/$sport");
+				$skill = reset(Set::extract("/Skill[sport=$sport]/.", $this->data));
+				if (!empty($skill)) {
+					$skills[$i] = $skill;
+				}
+				++ $i;
+			}
+			$this->data['Skill'] = $skills;
 		}
 
 		if (Configure::read('feature.photos')) {

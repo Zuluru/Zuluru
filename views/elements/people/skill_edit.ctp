@@ -5,7 +5,7 @@ if (!Configure::read('profile.year_started') && !Configure::read('profile.skill_
 }
 
 $sports = Configure::read('options.sport');
-$skills = $this->UserCache->read('Skills', $this->Form->value('Person.id'));
+$admin = Configure::read('email.admin_email');
 if (!isset($access)) {
 	// New accounts can update all fields
 	$access = array(1,2);
@@ -20,7 +20,6 @@ if (!isset($prefix)) {
 $i = 0;
 foreach ($sports as $sport => $name):
 	Configure::load("sport/$sport");
-	$skill = reset(Set::extract("/Skill[sport=$sport]/.", $skills));
 
 	if (count($sports) > 1):
 ?>
@@ -30,7 +29,6 @@ foreach ($sports as $sport => $name):
 		echo $this->ZuluruForm->input("{$prefix}Skill.{$i}.enabled", array(
 			'type' => 'checkbox',
 			'label' => sprintf(__('I will be playing %s', true), __($sport, true)),
-			'checked' => (!empty($skill) && $skill['enabled']),
 		));
 
 		$this->Js->get("#{$id_prefix}Skill{$i}Enabled")->event('change', "enableChanged($i, '$id_prefix');");
@@ -58,7 +56,6 @@ foreach ($sports as $sport => $name):
 		));
 	} else if (Configure::read('profile.year_started')) {
 		echo $this->ZuluruForm->input("{$prefix}Skill.{$i}.year_started", array(
-			'value' => $skill['year_started'],
 			'disabled' => 'true',
 			'class' => 'disabled',
 			'after' => $this->Html->para (null, __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your correct year started to ', true) . $this->Html->link ($admin, "mailto:$admin") . '.', true),
@@ -79,7 +76,6 @@ foreach ($sports as $sport => $name):
 		));
 	} else if (Configure::read('profile.skill_level')) {
 		echo $this->ZuluruForm->input("{$prefix}Skill.{$i}.skill_level", array(
-			'value' => Configure::read("options.skill.{$skill['skill_level']}"),
 			'disabled' => 'true',
 			'class' => 'disabled',
 			'size' => 70,
