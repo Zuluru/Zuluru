@@ -707,7 +707,8 @@ class AppController extends Controller {
 		// Depending on the account type, and the available registrations, this may not be available
 		// Admins and managers, anyone not logged in, and anyone with any registration history always get it
 		if (Configure::read('feature.registration')) {
-			if ($this->_showRegistration(null, $groups)) {
+			// Parents always get the registration menu items
+			if (in_array(GROUP_PARENT, $groups) || $this->_showRegistration(null, $groups)) {
 				$this->_addMenuItem(__('Registration', true), array('controller' => 'events', 'action' => 'wizard'));
 				$this->_addMenuItem(__('Wizard', true), array('controller' => 'events', 'action' => 'wizard'), __('Registration', true));
 				$this->_addMenuItem(__('All events', true), array('controller' => 'events', 'action' => 'index'), __('Registration', true));
@@ -1301,12 +1302,11 @@ class AppController extends Controller {
 			return true;
 		}
 
-		// Parents and players always get it
+		// Players always get it
 		if ($groups === null) {
 			$groups = $this->UserCache->read('GroupIDs', $id);
 		}
-		$always = array_intersect($groups, array(GROUP_PLAYER,GROUP_PARENT));
-		if (!empty($always)) {
+		if (in_array(GROUP_PLAYER, $groups)) {
 			return true;
 		}
 
