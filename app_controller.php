@@ -347,6 +347,7 @@ class AppController extends Controller {
 		}
 		$groups = $this->Group->find('all', array(
 			'conditions' => $conditions,
+			'contain' => array(),
 			'order' => array('Group.level', 'Group.id'),
 		));
 		$group_list = array();
