@@ -15,6 +15,10 @@ class RegistrationsController extends AppController {
 		return array('payment');
 	}
 
+	function freeActions() {
+		return array('show');
+	}
+
 	function isAuthorized() {
 		// Anyone that's logged in can perform these operations
 		if (in_array ($this->params['action'], array(
@@ -23,6 +27,7 @@ class RegistrationsController extends AppController {
 				'unregister',
 				'redeem',
 				'checkout',
+				'show',
 		)))
 		{
 			return true;
@@ -109,6 +114,10 @@ class RegistrationsController extends AppController {
 		}
 
 		return false;
+	}
+
+	function show() {
+		return $this->_showRegistration($this->_arg('person'));
 	}
 
 	function full_list() {
