@@ -135,10 +135,12 @@ class AppController extends Controller {
 		// We will allow them to see help or logout. Or get the leagues list, as that's where some things redirect to.
 		$free = $this->freeActions();
 		if ($this->is_logged_in && !in_array($this->action, $free)) {
-			$email = $this->UserCache->read('Person.email');
-			if (($this->name != 'People' || $this->action != 'edit') && empty ($email) && $this->UserCache->read('Person.user_id')) {
-				$this->Session->setFlash(__('Last time we tried to contact you, your email bounced. We require a valid email address as part of your profile. You must update it before proceeding.', true), 'default', array('class' => 'warning'));
-				$this->redirect (array('controller' => 'people', 'action' => 'edit'));
+			if (($this->name != 'People' || $this->action != 'edit') && $this->UserCache->read('Person.user_id')) {
+				$email = $this->UserCache->read('Person.email');
+				if (empty ($email)) {
+					$this->Session->setFlash(__('Last time we tried to contact you, your email bounced. We require a valid email address as part of your profile. You must update it before proceeding.', true), 'default', array('class' => 'warning'));
+					$this->redirect (array('controller' => 'people', 'action' => 'edit'));
+				}
 			}
 
 			if (($this->name != 'People' || $this->action != 'edit') && $this->UserCache->read('Person.complete') == 0) {
