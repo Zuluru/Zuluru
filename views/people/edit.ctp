@@ -77,7 +77,7 @@ echo $is_me ? __('Edit Your Profile', true) : (array_key_exists('first_name', $t
 	?>
 	</fieldset>
 	<?php
-	else:
+	elseif ($cached['user_id']):
 		echo $this->ZuluruForm->input('Group.Group', array(
 			'label' => __('Select all roles that apply to you.', true),
 			'type' => 'select',
