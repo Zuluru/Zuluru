@@ -555,5 +555,9 @@ function coachChanged() {
 	}
 }
 ");
-$this->Js->buffer('playerChanged(); parentChanged(); coachChanged();');
+$this->Js->buffer('parentChanged(); coachChanged();');
+if ($cached['user_id']) {
+	// Anyone without a user id is ONLY a player, and won't have a checkbox, but still needs to have player fields enabled
+	$this->Js->buffer('playerChanged();');
+}
 ?>
