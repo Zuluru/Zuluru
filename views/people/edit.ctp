@@ -518,11 +518,10 @@ if (Configure::read('profile.skill_level')) {
 $player = GROUP_PLAYER;
 $parent = GROUP_PARENT;
 $coach = GROUP_COACH;
-if ($cached['user_id']) {
-	$this->Js->get("#GroupGroup$player")->event('change', 'playerChanged();');
-	$this->Js->get("#GroupGroup$parent")->event('change', 'parentChanged();');
-	$this->Js->get("#GroupGroup$coach")->event('change', 'coachChanged();');
-	echo $this->Html->scriptBlock("
+$this->Js->get("#GroupGroup$player")->event('change', 'playerChanged();');
+$this->Js->get("#GroupGroup$parent")->event('change', 'parentChanged();');
+$this->Js->get("#GroupGroup$coach")->event('change', 'coachChanged();');
+echo $this->Html->scriptBlock("
 function playerChanged() {
 	var checked = jQuery('#GroupGroup$player').prop('checked');
 	if (checked) {
@@ -555,7 +554,6 @@ function coachChanged() {
 		jQuery('.coach input, .coach select').attr('disabled', 'disabled');
 	}
 }
-	");
-	$this->Js->buffer('playerChanged(); parentChanged(); coachChanged();');
-}
+");
+$this->Js->buffer('playerChanged(); parentChanged(); coachChanged();');
 ?>
