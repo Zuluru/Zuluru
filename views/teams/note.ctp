@@ -9,7 +9,8 @@ if (empty($this->data['Note']['id'])) {
 }
 ?>
 
-<div class="people form">
+<div class="teams form">
+<h2><?php echo __('Team Note', true) . ': ' . $this->data['Team']['name'];?></h2>
 <?php
 echo $this->Form->create('Note', array('url' => Router::normalize($this->here)));
 if (!empty($this->data['Note']['id'])) {
