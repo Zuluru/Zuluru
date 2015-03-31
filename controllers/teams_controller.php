@@ -671,50 +671,62 @@ class TeamsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
-		$contain = array(
-			'Division' => array('Day', 'League'),
-			'Franchise',
-			'Region',
-			'Facility',
-			'Field' => array('Facility'),
-		);
-		if ($this->is_logged_in || Configure::read('feature.public')) {
-			$contain['Person'] = array('Skill');
-			if (Configure::read('feature.annotations')) {
-				$visibility = array(VISIBILITY_PUBLIC);
-				if ($this->is_admin) {
-					$visibility[] = VISIBILITY_ADMIN;
-					$visibility[] = VISIBILITY_COORDINATOR;
-				} else {
-					$divisions = $this->UserCache->read('Divisions');
-					$teams = Set::extract ('/Team/id', $divisions);
-					if (in_array ($id, $teams)) {
-						$visibility[] = VISIBILITY_COORDINATOR;
-					}
-				}
-				if (in_array($id, $this->UserCache->read('OwnedTeamIDs'))) {
-					$visibility[] = VISIBILITY_CAPTAINS;
-				}
-				if (in_array($id, $this->UserCache->read('TeamIDs'))) {
-					$visibility[] = VISIBILITY_TEAM;
-				}
-				$contain['Note'] = array(
-					'CreatedPerson',
-					'conditions' => array(
-						'OR' => array(
-							'Note.created_person_id' => $this->UserCache->currentId(),
-							'Note.visibility' => $visibility,
-						),
-					),
-				);
-			}
 
-			if (Configure::read('feature.badges')) {
-				$badge_obj = $this->_getComponent('Badge', '', $this);
-				$contain['Person']['Badge'] = array('conditions' => array(
-					'BadgesPerson.approved' => true,
-					'Badge.visibility' => $badge_obj->visibility($this->is_admin || $this->is_manager, BADGE_VISIBILITY_HIGH),
-				));
+		if ($this->params['url']['ext'] == 'csv') {
+			Configure::write ('debug', 0);
+			$contain = array(
+				'Person' => array(
+					$this->Auth->authenticate->name,
+					'Related' => $this->Auth->authenticate->name,
+					'conditions' => array('TeamsPerson.status' => ROSTER_APPROVED),
+				),
+			);
+		} else {
+			$contain = array(
+				'Division' => array('Day', 'League'),
+				'Franchise',
+				'Region',
+				'Facility',
+				'Field' => array('Facility'),
+			);
+			if ($this->is_logged_in || Configure::read('feature.public')) {
+				$contain['Person'] = array('Skill');
+				if (Configure::read('feature.annotations')) {
+					$visibility = array(VISIBILITY_PUBLIC);
+					if ($this->is_admin) {
+						$visibility[] = VISIBILITY_ADMIN;
+						$visibility[] = VISIBILITY_COORDINATOR;
+					} else {
+						$divisions = $this->UserCache->read('Divisions');
+						$teams = Set::extract ('/Team/id', $divisions);
+						if (in_array ($id, $teams)) {
+							$visibility[] = VISIBILITY_COORDINATOR;
+						}
+					}
+					if (in_array($id, $this->UserCache->read('OwnedTeamIDs'))) {
+						$visibility[] = VISIBILITY_CAPTAINS;
+					}
+					if (in_array($id, $this->UserCache->read('TeamIDs'))) {
+						$visibility[] = VISIBILITY_TEAM;
+					}
+					$contain['Note'] = array(
+						'CreatedPerson',
+						'conditions' => array(
+							'OR' => array(
+								'Note.created_person_id' => $this->UserCache->currentId(),
+								'Note.visibility' => $visibility,
+							),
+						),
+					);
+				}
+
+				if (Configure::read('feature.badges')) {
+					$badge_obj = $this->_getComponent('Badge', '', $this);
+					$contain['Person']['Badge'] = array('conditions' => array(
+						'BadgesPerson.approved' => true,
+						'Badge.visibility' => $badge_obj->visibility($this->is_admin || $this->is_manager, BADGE_VISIBILITY_HIGH),
+					));
+				}
 			}
 		}
 		$this->Team->contain($contain);
@@ -723,6 +735,22 @@ class TeamsController extends AppController {
 		if (!$team) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
+		}
+
+		$is_captain = in_array($id, $this->UserCache->read('OwnedTeamIDs'));
+		$is_coordinator = in_array($team['Team']['division_id'], $this->UserCache->read('DivisionIDs'));
+
+		$this->set(compact('is_captain', 'is_coordinator'));
+
+		if ($this->params['url']['ext'] == 'csv') {
+			if (!($this->is_admin || $this->is_manager || $is_captain || $is_coordinator)) {
+				$this->Session->setFlash(__('You do not have access to download this team roster.', true), 'default', array('class' => 'info'));
+				$this->redirect(array('action' => 'view', 'team' => $id));
+			}
+			$this->set('download_file_name', $team['Team']['name']);
+			usort ($team['Person'], array('Team', 'compareRoster'));
+			$this->set(compact('team'));
+			return;
 		}
 
 		if (empty($team['Division']['id'])) {
@@ -842,8 +870,6 @@ class TeamsController extends AppController {
 		}
 
 		$this->set('team', $team);
-		$this->set('is_captain', in_array($id, $this->UserCache->read('OwnedTeamIDs')));
-		$this->set('is_coordinator', in_array($team['Team']['division_id'], $this->UserCache->read('DivisionIDs')));
 		$this->_addTeamMenuItems ($team);
 
 		if ($team['Division']['is_playoff']) {
