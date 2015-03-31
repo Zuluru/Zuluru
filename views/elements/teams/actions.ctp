@@ -101,6 +101,9 @@ if ($is_admin || $is_manager) {
 		array('alt' => __('Delete', true), 'title' => __('Delete Team', true)),
 		array('confirm' => sprintf(__('Are you sure you want to delete # %s?', true), $team['id'])));
 }
+if ($is_logged_in && Configure::read('feature.annotations')) {
+	$links[] = $this->Html->link(__('Add Note', true), array('controller' => 'teams', 'action' => 'note', 'team' => $team['id']));
+}
 
 if (!empty($extra)) {
 	if (is_array($extra)) {
