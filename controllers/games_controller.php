@@ -2548,6 +2548,7 @@ class GamesController extends AppController {
 						Cache::delete("team/{$game['Game']['home_team']}/stats", 'long_term');
 						Cache::delete("team/{$game['Game']['away_team']}/stats", 'long_term');
 					}
+					Cache::delete("division/{$game['Division']['id']}/stats", 'long_term');
 					Cache::delete('league/' . $this->Game->Division->league($game['Division']['id']) . '/stats', 'long_term');
 
 					$this->redirect(array('action' => 'view', 'game' => $id));
