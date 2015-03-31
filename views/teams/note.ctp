@@ -19,19 +19,18 @@ if (!empty($this->data['Note']['id'])) {
 $options = array(
 		VISIBILITY_PRIVATE => __('Only I will be able to see this', true),
 );
-if (in_array($this->data['Team']['id'], $this->UserCache->read('OwnedTeamIDs'))) {
-	$options[VISIBILITY_CAPTAINS] = __('Only I and the coaches/captains of our team', true);
-}
-if (in_array($this->data['Team']['id'], $this->UserCache->read('TeamIDs'))) {
-	$options[VISIBILITY_TEAM] = __('Everyone on my team', true);
-}
 if ($is_admin) {
+	$options[VISIBILITY_CAPTAINS] = __('Only the coaches/captains of the team', true);
+	$options[VISIBILITY_TEAM] = __('Everyone on the team', true);
 	$options[VISIBILITY_COORDINATOR] = __('Admins and coordinators of this division', true);
 	$options[VISIBILITY_ADMIN] = __('Administrators only', true);
-} else {
-	if (in_array($this->data['Team']['division_id'], $this->UserCache->read('DivisionIDs'))) {
-		$options[VISIBILITY_COORDINATOR] = __('Admins and coordinators of this division', true);
-	}
+} else if (in_array($this->data['Team']['division_id'], $this->UserCache->read('DivisionIDs'))) {
+	$options[VISIBILITY_CAPTAINS] = __('Only the coaches/captains of the team', true);
+	$options[VISIBILITY_TEAM] = __('Everyone on the team', true);
+	$options[VISIBILITY_COORDINATOR] = __('Admins and coordinators of this division', true);
+} else if (in_array($this->data['Team']['id'], $this->UserCache->read('TeamIDs'))) {
+	$options[VISIBILITY_CAPTAINS] = __('Only the coaches/captains of the team', true);
+	$options[VISIBILITY_TEAM] = __('Everyone on the team', true);
 }
 echo $this->ZuluruForm->input('visibility', array(
 		'options' => $options,
