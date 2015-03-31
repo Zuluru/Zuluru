@@ -69,7 +69,6 @@ if (!empty($this->data['Note']['id'])) {
 	echo $this->Form->input('id');
 }
 echo $this->Form->hidden('Note.game_id');
-echo $this->ZuluruForm->input('note', array('cols' => 70, 'class' => 'mceSimple'));
 echo $this->ZuluruForm->input('visibility', array(
 		'options' => array(
 			VISIBILITY_PRIVATE => __('Only I will be able to see this', true),
@@ -77,6 +76,7 @@ echo $this->ZuluruForm->input('visibility', array(
 			VISIBILITY_TEAM => __('Everyone on my team', true),
 		),
 ));
+echo $this->ZuluruForm->input('note', array('cols' => 70, 'class' => 'mceSimple'));
 if (!empty($this->data['Note']['id'])) {
 	echo $this->Html->para(null, __('Emails are NOT sent to others when you edit an existing note.', true));
 } else {
