@@ -27,7 +27,12 @@ class RuleFormatDateComponent extends RuleComponent
 	function desc() {
 		if ($this->rule == null)
 			return null;
-		return $this->rule->desc();
+
+		$date_format = Configure::read('personal.date_format');
+		if (empty ($date_format)) {
+			$date_format = reset(Configure::read('options.date_formats'));
+		}
+		return date ($date_format, strtotime ($this->rule->desc()));
 	}
 }
 
