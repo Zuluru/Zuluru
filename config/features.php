@@ -90,6 +90,8 @@ if (!defined('VISIBILITY_PRIVATE')) {
 	define('VISIBILITY_CAPTAINS', 2);
 	define('VISIBILITY_TEAM', 3);
 	define('VISIBILITY_PUBLIC', 4);
+	define('VISIBILITY_ADMIN', 5);
+	define('VISIBILITY_COORDINATOR', 6);
 }
 
 if (!defined('BADGE_VISIBILITY_ADMIN')) {
@@ -268,6 +270,8 @@ $config['visibility'] = array(
 	VISIBILITY_CAPTAINS => 'Captains',
 	VISIBILITY_TEAM => 'Team',
 	VISIBILITY_PUBLIC => 'Public',
+	VISIBILITY_ADMIN => 'Admins',
+	VISIBILITY_COORDINATOR => 'Coordinators',
 );
 
 // Percent likelihood that a notice will be shown, if there is one to show

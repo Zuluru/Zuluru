@@ -681,7 +681,32 @@ class TeamsController extends AppController {
 		if ($this->is_logged_in || Configure::read('feature.public')) {
 			$contain['Person'] = array('Skill');
 			if (Configure::read('feature.annotations')) {
-				$contain['Note'] = array('conditions' => array('created_person_id' => $this->UserCache->currentId()));
+				$visibility = array(VISIBILITY_PUBLIC);
+				if ($this->is_admin) {
+					$visibility[] = VISIBILITY_ADMIN;
+					$visibility[] = VISIBILITY_COORDINATOR;
+				} else {
+					$divisions = $this->UserCache->read('Divisions');
+					$teams = Set::extract ('/Team/id', $divisions);
+					if (in_array ($id, $teams)) {
+						$visibility[] = VISIBILITY_COORDINATOR;
+					}
+				}
+				if (in_array($id, $this->UserCache->read('OwnedTeamIDs'))) {
+					$visibility[] = VISIBILITY_CAPTAINS;
+				}
+				if (in_array($id, $this->UserCache->read('TeamIDs'))) {
+					$visibility[] = VISIBILITY_TEAM;
+				}
+				$contain['Note'] = array(
+					'CreatedPerson',
+					'conditions' => array(
+						'OR' => array(
+							'Note.created_person_id' => $this->UserCache->currentId(),
+							'Note.visibility' => $visibility,
+						),
+					),
+				);
 			}
 
 			if (Configure::read('feature.badges')) {
@@ -1265,30 +1290,38 @@ class TeamsController extends AppController {
 	}
 
 	function note() {
-		$id = $this->_arg('team');
 		$my_id = $this->UserCache->currentId();
+		$note_id = $this->_arg('note');
 
-		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
-			$this->redirect('/');
+		if ($note_id) {
+			$this->Team->Note->contain();
+			$note = $this->Team->Note->read(null, $note_id);
+			if (!$note) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('note', true)), 'default', array('class' => 'info'));
+				$this->redirect('/');
+			}
+			$team_id = $note['Note']['team_id'];
+		} else {
+			$team_id = $this->_arg('team');
+			if (!$team_id) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
+				$this->redirect('/');
+			}
 		}
-		$this->set(compact('id', 'my_id'));
 
 		if (!empty($this->data)) {
 			// Check that this user is allowed to edit this note
-			if (!empty($this->data['Note'][0]['id'])) {
-				$created = $this->Team->Note->field('created_person_id', array('id' => $this->data['Note'][0]['id']));
-				if ($created != $my_id) {
+			if (!empty($this->data['Note']['id'])) {
+				if ($note['Note']['created_person_id'] != $my_id) {
 					$this->Session->setFlash(sprintf(__('You are not allowed to edit that %s.', true), __('note', true)), 'default', array('class' => 'error'));
-					$this->redirect(array('action' => 'view', 'team' => $id));
+					$this->redirect(array('action' => 'view', 'team' => $team_id));
 				}
 			}
 
-			$this->data['Note'][0]['team_id'] = $id;
-			$this->data['Note'][0]['visibility'] = VISIBILITY_PRIVATE;
-			if (empty($this->data['Note'][0]['note'])) {
-				if (!empty($this->data['Note'][0]['id'])) {
-					if ($this->Team->Note->delete($this->data['Note'][0]['id'])) {
+			$this->data['Note']['team_id'] = $team_id;
+			if (empty($this->data['Note']['note'])) {
+				if (!empty($this->data['Note']['id'])) {
+					if ($this->Team->Note->delete($this->data['Note']['id'])) {
 						$this->Session->setFlash(sprintf(__('The %s has been deleted', true), __('note', true)), 'default', array('class' => 'success'));
 					} else {
 						$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Note', true)), 'default', array('class' => 'warning'));
@@ -1296,31 +1329,32 @@ class TeamsController extends AppController {
 				} else {
 					$this->Session->setFlash(__('You entered no text, so no note was added.', true), 'default', array('class' => 'warning'));
 				}
-				$this->redirect(array('action' => 'view', 'team' => $id));
-			} else if ($this->Team->Note->save($this->data['Note'][0])) {
+				$this->redirect(array('action' => 'view', 'team' => $team_id));
+			} else if ($this->Team->Note->save($this->data['Note'])) {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('note', true)), 'default', array('class' => 'success'));
-				$this->redirect(array('action' => 'view', 'team' => $id));
+				$this->redirect(array('action' => 'view', 'team' => $team_id));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('note', true)), 'default', array('class' => 'warning'));
-				$this->Configuration->loadAffiliate($this->Team->affiliate($id));
 			}
 		}
-		if (empty($this->data)) {
-			$this->Team->contain(array(
-					'Note' => array('conditions' => array('created_person_id' => $my_id)),
-					'Division' => 'League',
-			));
 
-			$this->data = $this->Team->read(null, $id);
-			if (!$this->data) {
-				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
-				$this->redirect(array('action' => 'index'));
-			}
-			if (empty($this->data['Division']['id'])) {
-				$this->Configuration->loadAffiliate($this->data['Team']['affiliate_id']);
-			} else {
-				$this->Configuration->loadAffiliate($this->data['Division']['League']['affiliate_id']);
-			}
+		$this->Team->contain(array(
+				'Division' => 'League',
+		));
+		$team = $this->Team->read(null, $team_id);
+		if (!$team) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
+		}
+		if (empty($this->data) && $note_id) {
+			$this->data = $note;
+		}
+		$this->data += $team;
+
+		if (empty($this->data['Division']['id'])) {
+			$this->Configuration->loadAffiliate($this->data['Team']['affiliate_id']);
+		} else {
+			$this->Configuration->loadAffiliate($this->data['Division']['League']['affiliate_id']);
 		}
 
 		if (Configure::read('feature.tiny_mce')) {
@@ -1329,23 +1363,29 @@ class TeamsController extends AppController {
 	}
 
 	function delete_note() {
-		$id = $this->_arg('team');
+		$note_id = $this->_arg('note');
 		$my_id = $this->UserCache->currentId();
 
-		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
+		$this->Team->Note->contain('Team');
+		$note = $this->Team->Note->read(null, $note_id);
+		if (!$note) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('note', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
-		$note_id = $this->Team->Note->field('id', array('team_id' => $id, 'created_person_id' => $my_id));
-		if (!$note_id) {
-			$this->Session->setFlash(sprintf(__('You do not have a note on that %s.', true), __('team', true)), 'default', array('class' => 'warning'));
-		} else if ($this->Team->Note->delete($note_id)) {
-			$this->Session->setFlash(sprintf(__('The %s has been deleted', true), __('note', true)), 'default', array('class' => 'success'));
+		if ($note['Note']['created_person_id'] == $my_id ||
+			($this->is_admin && in_array($note['Note']['visibility'], array(VISIBILITY_ADMIN, VISIBILITY_COORDINATOR))) ||
+			(in_array($note['Team']['division_id'], $this->UserCache->read('DivisionIDs')) && $note['Note']['visibility'] == VISIBILITY_COORDINATOR)
+		) {
+			if ($this->Team->Note->delete($note_id)) {
+				$this->Session->setFlash(sprintf(__('The %s has been deleted', true), __('note', true)), 'default', array('class' => 'success'));
+			} else {
+				$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Note', true)), 'default', array('class' => 'warning'));
+			}
 		} else {
-			$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Note', true)), 'default', array('class' => 'warning'));
+			$this->Session->setFlash(sprintf(__('You are not allowed to delete that %s.', true), __('note', true)), 'default', array('class' => 'error'));
 		}
-		$this->redirect(array('action' => 'view', 'team' => $id));
+		$this->redirect(array('action' => 'view', 'team' => $note['Note']['team_id']));
 	}
 
 	function delete() {
