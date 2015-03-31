@@ -1346,8 +1346,12 @@ class TeamsController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('team', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'index'));
 		}
-		if (empty($this->data) && $note_id) {
-			$this->data = $note;
+		if (empty($this->data)) {
+			if ($note_id) {
+				$this->data = $note;
+			} else {
+				$this->data = array();
+			}
 		}
 		$this->data += $team;
 
