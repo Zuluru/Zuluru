@@ -240,7 +240,8 @@ class LeaguesController extends AppController {
 			$sport = $this->League->field('sport', array('id' => $id));
 			$contain['Division']['Team']['Person'] = array(
 				$this->Auth->authenticate->name,
-				'Related' => $this->Auth->authenticate->name,
+				// TODO: Bug in containment causes this to read multiple copies of the related records.
+				//'Related' => $this->Auth->authenticate->name,
 				'Skill' => array('conditions' => array('Skill.sport' => $sport)),
 			);
 		}
@@ -253,6 +254,17 @@ class LeaguesController extends AppController {
 		$this->Configuration->loadAffiliate($league['League']['affiliate_id']);
 
 		if ($this->params['url']['ext'] == 'csv') {
+			// Fill in all the relative information that doesn't work via containment above. :-(
+			// The template for this page includes ['Relative'] in a few places that will not
+			// be required if this is ever fixed.
+			foreach ($league['Division'] as $dkey => $division) {
+				foreach ($division['Team'] as $tkey => $team) {
+					foreach ($team['Person'] as $pkey => $person) {
+						$league['Division'][$dkey]['Team'][$tkey]['Person'][$pkey]['Related'] = $this->UserCache->read('RelatedTo', $person['id']);
+					}
+				}
+			}
+
 			$this->set('download_file_name', "Participation - {$league['League']['full_name']}");
 			Configure::write ('debug', 0);
 		}

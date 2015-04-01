@@ -81,7 +81,7 @@ foreach ($league['Division'] as $division) {
 				$relatives = max($relatives, count($person['Related']));
 				foreach ($person['Related'] as $i => $relative) {
 					foreach (array_keys($contact_fields) as $field) {
-						if (!empty($relative[$field])) {
+						if (!empty($relative['Relative'][$field])) {
 							$contact_fields_required[$i][$field] = true;
 						}
 					}
@@ -157,8 +157,8 @@ foreach ($league['Division'] as $division) {
 				foreach ($person['Related'] as $i => $relative) {
 					foreach (array_keys($contact_fields) as $field) {
 						if (!empty($contact_fields_required[$i][$field])) {
-							if (array_key_exists($field, $relative)) {
-								$row[] = $relative[$field];
+							if (array_key_exists($field, $relative['Relative'])) {
+								$row[] = $relative['Relative'][$field];
 							} else {
 								$row[] = '';
 							}
