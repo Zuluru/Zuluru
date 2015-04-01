@@ -23,8 +23,10 @@ class Game extends AppModel {
 		),
 		'home_carbon_flip' => array(
 			'range' => array(
-				'rule' => array('valid_score', 0, 2),
+				'rule' => array('home_carbon_flip', 0, 2),
+				'required' => false,
 				'message' => 'You must select a valid carbon flip result',
+				'on' => 'update',
 			),
 		),
 		'status' => array(
