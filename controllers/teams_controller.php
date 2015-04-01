@@ -1396,6 +1396,11 @@ class TeamsController extends AppController {
 		$note_id = $this->_arg('note');
 		$my_id = $this->UserCache->currentId();
 
+		if (!$note_id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('note', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
 		$this->Team->Note->contain('Team');
 		$note = $this->Team->Note->read(null, $note_id);
 		if (!$note) {
