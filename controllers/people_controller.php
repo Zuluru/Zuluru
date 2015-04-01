@@ -782,11 +782,18 @@ class PeopleController extends AppController {
 				$documents = $this->UserCache->read('Documents', $person['id']);
 			}
 			if (Configure::read('feature.annotations')) {
-				$note = $this->Person->Note->find('first', array(
-						'contain' => false,
+				$visibility = array(VISIBILITY_PUBLIC);
+				if ($this->is_admin) {
+					$visibility[] = VISIBILITY_ADMIN;
+				}
+				$person['Note'] = $this->Person->Note->find('all', array(
+						'contain' => 'CreatedPerson',
 						'conditions' => array(
 							'person_id' => $person['id'],
-							'created_person_id' => $my_id,
+							'OR' => array(
+								'Note.created_person_id' => $my_id,
+								'Note.visibility' => $visibility,
+							),
 						),
 				));
 			}
@@ -810,7 +817,7 @@ class PeopleController extends AppController {
 			}
 		}
 
-		$this->set(compact('person', 'groups', 'teams', 'skills', 'relatives', 'related_to', 'divisions', 'waivers', 'registrations', 'preregistrations', 'credits', 'allstars', 'photo', 'documents', 'note', 'tasks', 'badges'));
+		$this->set(compact('person', 'groups', 'teams', 'skills', 'relatives', 'related_to', 'divisions', 'waivers', 'registrations', 'preregistrations', 'credits', 'allstars', 'photo', 'documents', 'tasks', 'badges'));
 		$this->set('is_me', ($id === $my_id));
 		$this->set('is_relative', in_array($id, $this->UserCache->read('RelativeIDs')));
 
@@ -840,15 +847,6 @@ class PeopleController extends AppController {
 						),
 				));
 			}
-			if (Configure::read('feature.annotations') && $this->is_logged_in) {
-				$note = $this->Person->Note->find('first', array(
-						'contain' => false,
-						'conditions' => array(
-							'person_id' => $person['id'],
-							'created_person_id' => $this->UserCache->currentId(),
-						),
-				));
-			}
 			if (Configure::read('feature.badges')) {
 				$badge_obj = $this->_getComponent('Badge', '', $this);
 				$badge_obj->visibility($this->is_admin || $this->is_manager, BADGE_VISIBILITY_HIGH);
@@ -866,7 +864,7 @@ class PeopleController extends AppController {
 			}
 		}
 
-		$this->set(compact('person', 'photo', 'note', 'badges'));
+		$this->set(compact('person', 'photo', 'badges'));
 		$this->set('is_me', ($id === $this->UserCache->currentId()));
 		$this->set($this->_connections($id));
 
@@ -1098,30 +1096,38 @@ class PeopleController extends AppController {
 	}
 
 	function note() {
-		$id = $this->_arg('person');
+		$note_id = $this->_arg('note');
 		$my_id = $this->UserCache->currentId();
 
-		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
-			$this->redirect('/');
+		if ($note_id) {
+			$this->Person->Note->contain();
+			$note = $this->Person->Note->read(null, $note_id);
+			if (!$note) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('note', true)), 'default', array('class' => 'info'));
+				$this->redirect('/');
+			}
+			$person_id = $note['Note']['person_id'];
+		} else {
+			$person_id = $this->_arg('person');
+			if (!$person_id) {
+				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+				$this->redirect('/');
+			}
 		}
-		$this->set(compact('id', 'my_id'));
 
 		if (!empty($this->data)) {
 			// Check that this user is allowed to edit this note
-			if (!empty($this->data['Note'][0]['id'])) {
-				$created = $this->Person->Note->field('created_person_id', array('id' => $this->data['Note'][0]['id']));
-				if ($created != $my_id) {
+			if (!empty($this->data['Note']['id'])) {
+				if ($note['Note']['created_person_id'] != $my_id) {
 					$this->Session->setFlash(sprintf(__('You are not allowed to edit that %s.', true), __('note', true)), 'default', array('class' => 'error'));
-					$this->redirect(array('action' => 'view', 'person' => $id));
+					$this->redirect(array('action' => 'view', 'person' => $person_id));
 				}
 			}
 
-			$this->data['Note'][0]['person_id'] = $id;
-			$this->data['Note'][0]['visibility'] = VISIBILITY_PRIVATE;
-			if (empty($this->data['Note'][0]['note'])) {
-				if (!empty($this->data['Note'][0]['id'])) {
-					if ($this->Person->Note->delete($this->data['Note'][0]['id'])) {
+			$this->data['Note']['person_id'] = $person_id;
+			if (empty($this->data['Note']['note'])) {
+				if (!empty($this->data['Note']['id'])) {
+					if ($this->Person->Note->delete($this->data['Note']['id'])) {
 						$this->Session->setFlash(sprintf(__('The %s has been deleted', true), __('note', true)), 'default', array('class' => 'success'));
 					} else {
 						$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Note', true)), 'default', array('class' => 'warning'));
@@ -1129,21 +1135,29 @@ class PeopleController extends AppController {
 				} else {
 					$this->Session->setFlash(__('You entered no text, so no note was added.', true), 'default', array('class' => 'warning'));
 				}
-				$this->redirect(array('action' => 'view', 'person' => $id));
-			} else if ($this->Person->Note->save($this->data['Note'][0])) {
+				$this->redirect(array('action' => 'view', 'person' => $person_id));
+			} else if ($this->Person->Note->save($this->data['Note'])) {
 				$this->Session->setFlash(sprintf(__('The %s has been saved', true), __('note', true)), 'default', array('class' => 'success'));
-				$this->redirect(array('action' => 'view', 'person' => $id));
+				$this->redirect(array('action' => 'view', 'person' => $person_id));
 			} else {
 				$this->Session->setFlash(sprintf(__('The %s could not be saved. Please correct the errors below and try again.', true), __('note', true)), 'default', array('class' => 'warning'));
 			}
 		}
-		if (empty($this->data)) {
-			$this->Person->contain(array(
-					'Note' => array('conditions' => array('created_person_id' => $my_id)),
-			));
 
-			$this->data = $this->Person->read(null, $id);
+		$this->Person->contain(false);
+		$person = $this->Person->read(null, $person_id);
+		if (!$person) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'index'));
 		}
+		if (empty($this->data)) {
+			if ($note_id) {
+				$this->data = $note;
+			} else {
+				$this->data = array();
+			}
+		}
+		$this->data += $person;
 
 		if (Configure::read('feature.tiny_mce')) {
 			$this->helpers[] = 'TinyMce.TinyMce';
@@ -1151,23 +1165,31 @@ class PeopleController extends AppController {
 	}
 
 	function delete_note() {
-		$id = $this->_arg('person');
+		$note_id = $this->_arg('note');
 		$my_id = $this->UserCache->currentId();
 
-		if (!$id) {
-			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+		if (!$note_id) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('note', true)), 'default', array('class' => 'info'));
 			$this->redirect('/');
 		}
 
-		$note_id = $this->Person->Note->field('id', array('person_id' => $id, 'created_person_id' => $my_id));
-		if (!$note_id) {
-			$this->Session->setFlash(sprintf(__('You do not have a note on that %s.', true), __('person', true)), 'default', array('class' => 'warning'));
-		} else if ($this->Person->Note->delete($note_id)) {
-			$this->Session->setFlash(sprintf(__('The %s has been deleted', true), __('note', true)), 'default', array('class' => 'success'));
-		} else {
-			$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Note', true)), 'default', array('class' => 'warning'));
+		$this->Person->Note->contain('Person');
+		$note = $this->Person->Note->read(null, $note_id);
+		if (!$note) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('note', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
 		}
-		$this->redirect(array('action' => 'view', 'person' => $id));
+
+		if ($note['Note']['created_person_id'] == $my_id || ($this->is_admin && $note['Note']['visibility'] == VISIBILITY_ADMIN)) {
+			if ($this->Person->Note->delete($note_id)) {
+				$this->Session->setFlash(sprintf(__('The %s has been deleted', true), __('note', true)), 'default', array('class' => 'success'));
+			} else {
+				$this->Session->setFlash(sprintf(__('%s was not deleted', true), __('Note', true)), 'default', array('class' => 'warning'));
+			}
+		} else {
+			$this->Session->setFlash(sprintf(__('You are not allowed to delete that %s.', true), __('note', true)), 'default', array('class' => 'error'));
+		}
+		$this->redirect(array('action' => 'view', 'person' => $note['Note']['person_id']));
 	}
 
 	function preferences() {
@@ -2622,9 +2644,7 @@ class PeopleController extends AppController {
 
 					$this->paginate = array('Person' => array(
 							'conditions' => $conditions,
-							'contain' => array(
-								'Note' => array('conditions' => array('created_person_id' => $this->UserCache->currentId())),
-							),
+							'contain' => array(),
 							'fields' => array('DISTINCT Person.id', 'Person.first_name', 'Person.last_name'),
 							'limit' => Configure::read('feature.items_per_page'),
 							'joins' => array(

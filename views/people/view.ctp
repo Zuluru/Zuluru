@@ -308,13 +308,6 @@ $this_is_parent = (!empty($this_is_parent));
 			</dd>
 			<?php endif; ?>
 		<?php endif; ?>
-		<?php if (!empty($note)): ?>
-			<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Private Note'); ?></dt>
-			<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-				<?php echo $note['Note']['note']; ?>
-
-			</dd>
-		<?php endif; ?>
 	</dl>
 </div>
 <div class="actions">
@@ -324,13 +317,7 @@ $this_is_parent = (!empty($this_is_parent));
 			echo $this->Html->tag ('li', $this->Html->link(__('VCF', true), array('action' => 'vcf', 'person' => $person['id'])));
 		}
 		if ($is_logged_in && Configure::read('feature.annotations')) {
-			if (!empty($note)) {
-				echo $this->Html->tag ('li', $this->Html->link(__('Delete Note', true), array('action' => 'delete_note', 'person' => $person['id'])));
-				$link = __('Edit Note', true);
-			} else {
-				$link = __('Add Note', true);
-			}
-			echo $this->Html->tag ('li', $this->Html->link($link, array('action' => 'note', 'person' => $person['id'])));
+			echo $this->Html->tag ('li', $this->Html->link(__('Add Note', true), array('action' => 'note', 'person' => $person['id'])));
 		}
 		if ($is_me || $is_relative || $is_admin || $is_manager) {
 			echo $this->Html->tag ('li', $this->ZuluruHtml->iconLink('edit_24.png', array('action' => 'edit', 'person' => $person['id'], 'return' => true), array('alt' => __('Edit Profile', true), 'title' => __('Edit Profile', true))));
@@ -346,6 +333,57 @@ $this_is_parent = (!empty($this_is_parent));
 		?>
 	</ul>
 </div>
+
+<?php if (!empty($person['Note'])): ?>
+<div class="related">
+	<h3><?php __('Notes');?></h3>
+	<table class="list">
+	<tr>
+		<th><?php __('From'); ?></th>
+		<th><?php __('Note'); ?></th>
+		<th><?php __('Visibility'); ?></th>
+		<th class="actions"><?php __('Actions');?></th>
+	</tr>
+	<?php
+		$i = 0;
+		foreach ($person['Note'] as $note):
+			$class = null;
+			if ($i++ % 2 == 0) {
+				$class = ' class="altrow"';
+			}
+		?>
+		<tr<?php echo $class;?>>
+			<td><?php
+			echo $this->element('people/block', array('person' => $note['CreatedPerson']));
+			echo $this->Html->tag('br');
+			echo $this->ZuluruTime->datetime($note['Note']['created']); ?></td>
+			<td><?php echo $note['Note']['note']; ?></td>
+			<td><?php __(Configure::read("visibility.{$note['Note']['visibility']}")); ?></td>
+			<td class="actions">
+				<?php
+				if ($note['Note']['created_person_id'] == $my_id) {
+					echo $this->ZuluruHtml->iconLink('edit_24.png',
+							array('action' => 'note', 'note' => $note['Note']['id']),
+							array('alt' => __('Edit Note', true), 'title' => __('Edit Note', true))
+					);
+				}
+				// Admins are the only ones that can see those notes (loaded or not based on
+				// conditions in the controller), and they can delete them too.
+				if ($note['Note']['created_person_id'] == $my_id || $note['Note']['visibility'] == VISIBILITY_ADMIN) {
+					echo $this->ZuluruHtml->iconLink('delete_24.png',
+							array('action' => 'delete_note', 'note' => $note['Note']['id']),
+							array('alt' => __('Delete Note', true), 'title' => __('Delete Note', true)),
+							array(),
+							__('Are you sure you want to delete this note?', true)
+					);
+				}
+				?>
+			</td>
+		</tr>
+	<?php endforeach; ?>
+	</table>
+</div>
+<?php endif; ?>
 
 <?php if ($view_contact && AppController::_isChild($person['birthdate']) && !empty($related_to)): ?>
 <div class="related">

@@ -52,24 +52,7 @@ if ($is_logged_in) {
 	}
 
 	if (Configure::read('feature.annotations')) {
-		if (!empty($note)) {
-			// Extra paragraph tags screw up the display...
-			$note = $note['Note']['note'];
-			if (substr($note, 0, 3) == '<p>') {
-				$note = substr($note, 3);
-			}
-			if (substr($note, -4) == '</p>') {
-				$note = substr($note, 0, -4);
-			}
-		}
-		if (!empty($note)) {
-			echo __('Private Note', true) . ': ' . $note . $this->Html->tag('br');
-			echo $this->Html->link(__('Delete Note', true), array('action' => 'delete_note', 'person' => $person['id'])) . ' / ';
-			$link = __('Edit Note', true);
-		} else {
-			$link = __('Add Note', true);
-		}
-		echo ' ' . $this->Html->link($link, array('action' => 'note', 'person' => $person['id']));
+		echo ' / ' . $this->Html->link(__('Add Note', true), array('action' => 'note', 'person' => $person['id']));
 	}
 }
 

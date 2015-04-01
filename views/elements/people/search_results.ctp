@@ -52,13 +52,7 @@ foreach ($people as $person):
 			?>
 			<?php
 			if ($is_logged_in && Configure::read('feature.annotations')) {
-				if (!empty($person['Note'])) {
-					echo $this->Html->link(__('Delete Note', true), array('controller' => 'people', 'action' => 'delete_note', 'person' => $person['Person']['id'], 'return' => true));
-					$link = __('Edit Note', true);
-				} else {
-					$link = __('Add Note', true);
-				}
-				echo $this->Html->link($link, array('controller' => 'people', 'action' => 'note', 'person' => $person['Person']['id'], 'return' => true));
+				echo $this->Html->link(__('Add Note', true), array('controller' => 'people', 'action' => 'note', 'person' => $person['Person']['id'], 'return' => true));
 			}
 			?>
 			<?php if ($is_admin || $is_manager): ?>
