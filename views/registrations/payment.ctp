@@ -18,9 +18,9 @@ if ($result === true) {
 }
 
 if (Configure::read('payment.popup')) {
-	echo $this->Html->para(null, 'Click ' .
-		$this->Html->link('here', "http://{$_SERVER["SERVER_NAME"]}/", array('onclick' => 'close_and_redirect("' . $this->Html->url(array('controller' => 'events', 'action' => 'wizard'), true) . '")')) .
-		' to close this window.');
+	echo $this->Html->para(null, sprintf(__('Click %s to close this window.', true),
+		$this->Html->link(__('here', true), "http://{$_SERVER["SERVER_NAME"]}/", array('onclick' => 'close_and_redirect("' . $this->Html->url('/', true) . '")'))
+	));
 	$this->Html->scriptBlock('
 function close_and_redirect(url)
 {
