@@ -2039,7 +2039,7 @@ class TeamsController extends AppController {
 		// or the roster of another team in the same league
 		$conditions = array(
 			'Registration.event_id' => $this->data['event'],
-			'Registration.payment' => Configuration::read('registration_paid'),
+			'Registration.payment' => Configure::read('registration_paid'),
 			'NOT' => array('Registration.person_id' => $current),
 		);
 
