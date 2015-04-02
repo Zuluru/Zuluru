@@ -71,6 +71,13 @@ AppModel::_reindexOuter($events, 'TeamEvent', 'id');
 AppModel::_reindexInner($events, 'Attendance', 'person_id');
 
 $tabs = array();
+$tab_init = null;
+if ($this->Session->check('Zuluru.default_tab_id')) {
+	$default_tab_id = $this->Session->read('Zuluru.default_tab_id');
+	$this->Session->delete('Zuluru.default_tab_id');
+} else {
+	$default_tab_id = null;
+}
 $people_with_schedules = 0;
 
 $tab = $this->element('teams/splash', array('teams' => $teams, 'past_teams' => $past_teams, 'name' => __('My', true)));
@@ -97,6 +104,9 @@ AppModel::_reindexInner($games, 'Attendance', 'person_id');
 $tab .= $this->element('people/ical_links', compact('id'));
 
 if (!empty($tab)) {
+	if ($default_tab_id == $id) {
+		$tab_init = '{active:0}';
+	}
 	$tabs["tab-$id"] = array('name' => $this->UserCache->read('Person.full_name'), 'content' => $tab);
 }
 
@@ -181,6 +191,9 @@ foreach ($approved_relatives as $relative) {
 			'empty' => (empty($relative_teams) && empty($relative_tasks))
 	));
 	if (!empty($tab)) {
+		if ($default_tab_id == $relative['Relative']['id']) {
+			$tab_init = '{active:' . count($tabs) . '}';
+		}
 		$tabs["tab-{$relative['Relative']['id']}"] = array('name' => $relative['Relative']['full_name'], 'content' => $tab);
 	}
 }
@@ -215,7 +228,7 @@ if (count($tabs) > 1):
 	</div>
 	<?php endforeach; ?>
 <?php
-	$this->Js->buffer('jQuery("#tabs").tabs();');
+	$this->Js->buffer("jQuery('#tabs').tabs($tab_init);");
 else:
 	$tab = reset($tabs);
 	echo $this->Html->tag('h2', $tab['name']);

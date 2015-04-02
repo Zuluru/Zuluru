@@ -34,6 +34,7 @@ class UserCacheComponent extends Object
 
 		// If this is the home page, and "act as" is temporary, we reset it.
 		if ($this->_controller->here == '/' && $this->_controller->Session->check('Zuluru.act_as_temporary')) {
+			$this->_controller->Session->write('Zuluru.default_tab_id', $this->_controller->Session->read('Zuluru.act_as_id'));
 			$this->_controller->Session->delete('Zuluru.act_as_id');
 			$this->_controller->Session->delete('Zuluru.act_as_temporary');
 		}
