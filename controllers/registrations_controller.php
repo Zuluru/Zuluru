@@ -197,32 +197,53 @@ class RegistrationsController extends AppController {
 		$event_obj = $this->_getComponent ('EventType', $event['EventType']['type'], $this);
 		$this->_mergeAutoQuestions ($event, $event_obj, $event['Questionnaire'], null, true);
 
-		$this->Registration->contain ('Person');
-		$gender = $this->Registration->find('all', array(
-				'fields' => array(
-					'Person.gender',
-					'COUNT(Registration.id) AS count',
-				),
-				'conditions' => array(
-					'Registration.event_id' => $id,
-					'Registration.payment !=' => 'Cancelled',
-				),
-				'group' => 'Person.gender',
-				'order' => array ('Person.gender' => 'DESC'),
-		));
+		// If the event is all male or all female, there's no point in including this
+		if ($event['Event']['cap_male'] != 0 && $event['Event']['cap_female'] != 0) {
+			$this->Registration->contain ('Person');
+			$gender = $this->Registration->find('all', array(
+					'fields' => array(
+						'Person.gender',
+						'COUNT(Registration.id) AS count',
+					),
+					'conditions' => array(
+						'Registration.event_id' => $id,
+						'Registration.payment !=' => 'Cancelled',
+					),
+					'group' => 'Person.gender',
+					'order' => array ('Person.gender' => 'DESC'),
+			));
+		}
 
-		$this->Registration->contain ();
-		$payment = $this->Registration->find('all', array(
-				'fields' => array(
-					'payment',
-					'COUNT(payment) AS count',
-				),
-				'conditions' => array(
-					'event_id' => $id,
-				),
-				'group' => 'payment',
-				'order' => 'payment',
-		));
+		// We need to include a gender breakdown of the payment statuses if both
+		// genders are allowed to register.
+		if (isset($gender)) {
+			$this->Registration->contain ('Person');
+			$payment = $this->Registration->find('all', array(
+					'fields' => array(
+						'Registration.payment',
+						'Person.gender',
+						'COUNT(Registration.payment) AS count',
+					),
+					'conditions' => array(
+						'Registration.event_id' => $id,
+					),
+					'group' => array('Registration.payment', 'Person.gender'),
+					'order' => array('Registration.payment', 'Person.gender' => 'DESC'),
+			));
+		} else {
+			$this->Registration->contain ();
+			$payment = $this->Registration->find('all', array(
+					'fields' => array(
+						'Registration.payment',
+						'COUNT(Registration.payment) AS count',
+					),
+					'conditions' => array(
+						'Registration.event_id' => $id,
+					),
+					'group' => 'Registration.payment',
+					'order' => 'Registration.payment',
+			));
+		}
 
 		$this->Registration->Response->contain ();
 		$responses = $this->Registration->Response->find('all', array(

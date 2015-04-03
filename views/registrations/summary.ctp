@@ -10,24 +10,63 @@ $this->Html->addCrumb (__('Summary', true));
 <?php
 $rows = array();
 
-$title = __('By gender:', true);
-foreach ($gender as $value) {
-	$rows[] = array(
-		$title,
-		$value['Person']['gender'],
-		$value[0]['count'],
-	);
-	$title = '';
+if (isset($gender)) {
+	$title = __('By gender:', true);
+	foreach ($gender as $value) {
+		$rows[] = array(
+			array($title, array('colspan' => 2)),
+			$value['Person']['gender'],
+			$value[0]['count'],
+		);
+		$title = '';
+	}
 }
 
 $title = __('By payment:', true);
+$last_payment = null;
+$total = 0;
 foreach ($payment as $value) {
-	$rows[] = array(
-		$title,
-		$value['Registration']['payment'],
-		$value[0]['count'],
-	);
+	if ($last_payment == $value['Registration']['payment']) {
+		$row = array(
+			$title,
+			null,
+		);
+	} else {
+		if ($total != 0 && isset($gender)) {
+			$rows[] = array(
+				null,
+				null,
+				__('Total', true),
+				$total,
+			);
+			$total = 0;
+		}
+
+		$row = array(
+			$title,
+			$value['Registration']['payment'],
+		);
+		$last_payment = $value['Registration']['payment'];
+	}
+
+	if (isset($gender)) {
+		$row[] = $value['Person']['gender'];
+	}
+	$row[] = $value[0]['count'];
+
+	$rows[] = $row;
+	$total += $value[0]['count'];
 	$title = '';
+}
+
+if ($total != 0 && isset($gender)) {
+	$rows[] = array(
+		null,
+		null,
+		__('Total', true),
+		$total,
+	);
+	$total = 0;
 }
 
 echo $this->Html->tag ('table', $this->Html->tableCells ($rows, array(), array('class' => 'altrow')), array('class' => 'list'));
