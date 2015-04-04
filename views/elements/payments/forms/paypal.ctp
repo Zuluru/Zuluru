@@ -11,6 +11,7 @@ function open_payment_window()
 $fields = array(
 		'RETURNURL' => $this->Html->url(array('controller' => 'registrations', 'action' => 'payment'), true),
 		'CANCELURL' => $this->Html->url(array('controller' => 'registrations', 'action' => 'checkout'), true),
+		'SOLUTIONTYPE' => 'Sole',
 		'REQCONFIRMSHIPPING' => 0,
 		'NOSHIPPING' => 1,
 		'EMAIL' => $person['Person']['email'],
