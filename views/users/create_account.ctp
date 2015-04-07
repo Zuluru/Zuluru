@@ -40,8 +40,10 @@ if (Configure::read('feature.antispam')):
 	</div>
 <?php endif; ?>
 
+<?php if (count($groups) > 1): ?>
 	<fieldset>
 		<legend><?php __('Account Type'); ?></legend>
+<?php endif; ?>
 	<?php
 		echo $this->ZuluruForm->input('Group.Group', array(
 			'label' => __('Select all roles that apply to you.', true) . ' ' . __('You will be able to change these later, if required.', true),
@@ -62,7 +64,10 @@ if (Configure::read('feature.antispam')):
 			));
 		}
 	?>
+<?php if (count($groups) > 1): ?>
 	</fieldset>
+<?php endif; ?>
+
 	<fieldset>
 		<legend><?php __('Your Information'); ?></legend>
 		<div style="float:left;">
@@ -401,7 +406,10 @@ $this->Js->get("#GroupGroup$coach")->event('change', 'coachChanged();');
 echo $this->Html->scriptBlock("
 function playerChanged() {
 	var checked = jQuery('#GroupGroup$player').prop('checked');
-	if (checked) {
+	// Player is always a valid option. If it doesn't exist, it's because the entire group
+	// input is hidden, which is because player is the only option.
+	var type = jQuery('#GroupGroup$player').attr('type');
+	if (checked || type == undefined) {
 		jQuery('.player').css('display', '');
 		jQuery('.player input, .player select').removeAttr('disabled');
 	} else {
