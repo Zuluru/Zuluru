@@ -7,6 +7,10 @@ class WaiversController extends AppController {
 		'order' => array('Affiliate.name', 'Waiver.id'),
 	);
 
+	function freeActions() {
+		return array('sign');
+	}
+
 	function isAuthorized() {
 		// Anyone that's logged in can perform these operations
 		if (in_array ($this->params['action'], array(
