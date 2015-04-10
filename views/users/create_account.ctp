@@ -185,11 +185,15 @@ if (Configure::read('feature.antispam')):
 	<fieldset>
 		<legend><?php __('Online Contact'); ?></legend>
 	<?php
-		echo $this->ZuluruForm->input($email_field);
+		echo $this->ZuluruForm->input($email_field, array(
+			'label' => __('Email', true),
+		));
 		echo $this->ZuluruForm->input('Person.0.publish_email', array(
 			'label' => __('Allow other people to view my email address', true),
 		));
-		echo $this->ZuluruForm->input('Person.0.alternate_email');
+		echo $this->ZuluruForm->input('Person.0.alternate_email', array(
+			'after' => $this->Html->para (null, __('Optional second email address.', true)),
+		));
 		echo $this->ZuluruForm->input('Person.0.publish_alternate_email', array(
 			'label' => __('Allow other people to view my alternate email address', true),
 		));

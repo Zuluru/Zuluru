@@ -279,7 +279,9 @@ echo $is_me ? __('Edit Your Profile', true) : (array_key_exists('first_name', $t
 		echo $this->ZuluruForm->input('publish_email', array(
 			'label' => __('Allow other people to view my email address', true),
 		));
-		echo $this->ZuluruForm->input('alternate_email');
+		echo $this->ZuluruForm->input('alternate_email', array(
+			'after' => $this->Html->para (null, __('Optional second email address.', true)),
+		));
 		echo $this->ZuluruForm->input('publish_alternate_email', array(
 			'label' => __('Allow other people to view my alternate email address', true),
 		));
