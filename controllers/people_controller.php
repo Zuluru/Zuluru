@@ -14,6 +14,10 @@ class PeopleController extends AppController {
 		);
 	}
 
+	function freeActions() {
+		return array('act_as');
+	}
+
 	function isAuthorized() {
 		// Anyone that's logged in can perform these operations
 		if (in_array ($this->params['action'], array(
