@@ -15,15 +15,15 @@ class UserComponent extends Object
 		$this->config = $config;
 	}
 
-	function onAdd() {
+	function onAdd($record) {
 		return true;
 	}
 
-	function onEdit() {
+	function onEdit($record, $old_record) {
 		return true;
 	}
 
-	function onDelete() {
+	function onDelete($record) {
 		return true;
 	}
 }

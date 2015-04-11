@@ -930,6 +930,13 @@ class PeopleController extends AppController {
 		$groups = $this->_loadGroupOptions(true);
 		$this->_loadAffiliateOptions();
 
+		$this->Person->contain(array('Affiliate', 'Skill', 'Group', $this->Auth->authenticate->name));
+		$old_record = $this->Person->read(null, $id);
+		if (!$old_record) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
+			$this->redirect('/');
+		}
+
 		if (!empty($this->data)) {
 			$this->data['Person']['complete'] = true;
 			$this->Person->create();
@@ -1022,7 +1029,7 @@ class PeopleController extends AppController {
 					$components = Configure::read('callbacks.user');
 					foreach ($components as $name => $config) {
 						$component = $this->_getComponent('User', $name, $this, false, $config);
-						$component->onEdit($this->data['Person']);
+						$component->onEdit($this->data, $old_record);
 					}
 
 					// Delete the cached data, so it's reloaded next time it's needed
@@ -1042,8 +1049,7 @@ class PeopleController extends AppController {
 			}
 		}
 		if (empty($this->data)) {
-			$this->Person->contain(array('Affiliate', 'Skill', 'Group', $this->Auth->authenticate->name));
-			$this->data = $this->Person->read(null, $id);
+			$this->data = $old_record;
 			if (!$this->data) {
 				$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 				$this->redirect('/');
