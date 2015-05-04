@@ -91,34 +91,37 @@ foreach ($event['Questionnaire']['Question'] as $question) {
 
 // Check if we need to include relative contact info
 $relatives = 0;
+$contact_fields = $fields;
+foreach (array('gender', 'birthdate', 'height', 'skill_level', 'shirt_size') as $field) {
+	unset($contact_fields[$field]);
+}
+$contact_fields_required = array();
 foreach ($registrations as $registration) {
 	if (empty($registration['Person']['user_id']) || AppController::_isChild($registration['Person']['birthdate'])) {
 		$relatives = max($relatives, count($registration['Person']['Related']));
+		foreach ($registration['Person']['Related'] as $i => $relative) {
+			foreach (array_keys($contact_fields) as $field) {
+				if (!empty($relative[$field])) {
+					$contact_fields_required[$i][$field] = true;
+				}
+			}
+		}
 	}
 }
 if ($relatives > 0) {
-	$contact_fields = $fields;
-	foreach (array('gender', 'birthdate', 'height', 'skill_level', 'shirt_size') as $field) {
-		unset($contact_fields[$field]);
-	}
-	$contact_fields = array_fill(0, $relatives, $contact_fields);
-
 	$header1 = array_fill(0, count($header), '');
 	for ($i = 0; $i < $relatives; ++ $i) {
-		foreach ($contact_fields[$i] as $field => $name) {
-			$values = array_unique(Set::extract("/Person/Related/$i/$field", $registrations));
-			if (count($values) > 1 || !empty($values[0])) {
+		foreach ($contact_fields as $field => $name) {
+			if (!empty($contact_fields_required[$i][$field])) {
 				if (is_array($name)) {
 					$name = $name['name'];
 				}
 				$header[] = __($name, true);
-			} else {
-				unset($contact_fields[$i][$field]);
 			}
 		}
 
 		$header1[] = sprintf(__('Contact %s', true), $i + 1);
-		$header1 = array_merge($header1, array_fill(0, count($contact_fields[$i]) - 1, ''));
+		$header1 = array_merge($header1, array_fill(0, array_sum($contact_fields_required[$i]) - 1, ''));
 	}
 
 	fputcsv($fp, $header1);
@@ -185,11 +188,13 @@ foreach($registrations as $registration) {
 
 	if ($relatives > 0 && (empty($registration['Person']['user_id']) || AppController::_isChild($registration['Person']['birthdate']))) {
 		foreach ($registration['Person']['Related'] as $i => $relative) {
-			foreach (array_keys($contact_fields[$i]) as $field) {
-				if (array_key_exists($field, $relative)) {
-					$row[] = $relative[$field];
-				} else {
-					$row[] = '';
+			foreach (array_keys($contact_fields) as $field) {
+				if (!empty($contact_fields_required[$i][$field])) {
+					if (array_key_exists($field, $relative)) {
+						$row[] = $relative[$field];
+					} else {
+						$row[] = '';
+					}
 				}
 			}
 		}
