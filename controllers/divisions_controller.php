@@ -876,7 +876,7 @@ class DivisionsController extends AppController {
 
 			if (empty ($division['Game'])) {
 				$this->Session->setFlash(__('Cannot generate standings for a division with no schedule.', true), 'default', array('class' => 'info'));
-				$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+				$this->redirect(array('action' => 'view', 'division' => $id));
 			}
 
 			// Sort games by date, time and field
@@ -1215,6 +1215,130 @@ class DivisionsController extends AppController {
 			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
 		}
 
+		$this->Division->contain(array (
+			'Team' => array('order' => 'Team.name'),
+			'League',
+		));
+		$division = $this->Division->read(null, $id);
+		if (!$division) {
+			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
+			$this->redirect(array('controller' => 'leagues', 'action' => 'index'));
+		}
+		if (empty ($division['Team'])) {
+			$this->Session->setFlash(__('Cannot generate status report for a division with no teams.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'division' => $id));
+		}
+		if (!in_array($division['Division']['schedule_type'], array('roundrobin', 'ratings_ladder'))) {
+			$this->Session->setFlash(__('Cannot generate status report for a division with this schedule type.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'division' => $id));
+		}
+		$this->Configuration->loadAffiliate($division['League']['affiliate_id']);
+		Configure::load("sport/{$division['League']['sport']}");
+		$league_obj = $this->_getComponent ('LeagueType', $division['Division']['schedule_type'], $this);
+
+		// Find all games played by teams that are currently in this division.
+		AppModel::_reindexInner($division, 'Team', 'id');
+		$teams = array_keys($division['Team']);
+
+		$division['Game'] = $this->Division->Game->find('all', array(
+				'conditions' => array(
+					'OR' => array(
+						'Game.home_team' => $teams,
+						'Game.away_team' => $teams,
+					),
+					'NOT' => array('Game.status' => Configure::read('unplayed_status')),
+				),
+				'contain' => array(
+					'GameSlot',
+					'ScoreEntry',
+					'SpiritEntry',
+				),
+		));
+
+		if (empty ($division['Game'])) {
+			$this->Session->setFlash(__('Cannot generate status report for a division with no schedule.', true), 'default', array('class' => 'info'));
+			$this->redirect(array('action' => 'view', 'division' => $id));
+		}
+
+		$regions = $this->Division->Game->GameSlot->Field->Facility->Region->find('list', array(
+				'conditions' => array('affiliate_id' => $division['League']['affiliate_id']),
+				'contain' => array(),
+		));
+		$fields = $this->Division->Game->GameSlot->Field->find('all', array(
+				'conditions' => array('Facility.region_id' => array_keys($regions)),
+				'contain' => array('Facility'),
+		));
+		AppModel::_reindexOuter($fields, 'Field', 'id');
+
+		$stats = array_fill_keys($teams, array(
+				'games' => 0,
+				'season_games' => 0,
+				'home_games' => 0,
+				'field_rank' => 0,
+				'region_games' => array(),
+				'opponents' => array(),
+		));
+		$regions_used = array();
+		$playoffs_included = false;
+
+		foreach ($division['Game'] as $game) {
+			$home_team_id = $game['Game']['home_team'];
+			$away_team_id = $game['Game']['away_team'];
+
+			// Only count regular-season games
+			if ($game['Game']['type'] == SEASON_GAME) {
+				++ $stats[$home_team_id]['games'];
+				++ $stats[$home_team_id]['home_games'];
+				if ($game['Game']['home_field_rank'] != NULL) {
+					$stats[$home_team_id]['field_rank'] += 1 / $game['Game']['home_field_rank'];
+				} else {
+					// A NULL home rank means that the home team had no preference at that time,
+					// which means we count it as being 100% satisfied.
+					++ $stats[$home_team_id]['field_rank'];
+				}
+
+				++ $stats[$away_team_id]['games'];
+				if ($game['Game']['away_field_rank'] != NULL) {
+					$stats[$away_team_id]['field_rank'] += 1 / $game['Game']['away_field_rank'];
+				}
+
+				$region_id = $fields[$game['GameSlot']['field_id']]['Facility']['region_id'];
+				$regions_used[$region_id] = true;
+
+				if (!array_key_exists($region_id, $stats[$home_team_id]['region_games'])) {
+					$stats[$home_team_id]['region_games'][$region_id] = 1;
+				} else {
+					++ $stats[$home_team_id]['region_games'][$region_id];
+				}
+				if (!array_key_exists($region_id, $stats[$away_team_id]['region_games'])) {
+					$stats[$away_team_id]['region_games'][$region_id] = 1;
+				} else {
+					++ $stats[$away_team_id]['region_games'][$region_id];
+				}
+
+				if (!array_key_exists($away_team_id, $stats[$home_team_id]['opponents'])) {
+					$stats[$home_team_id]['opponents'][$away_team_id] = 1;
+				} else {
+					++ $stats[$home_team_id]['opponents'][$away_team_id];
+				}
+				if (!array_key_exists($home_team_id, $stats[$away_team_id]['opponents'])) {
+					$stats[$away_team_id]['opponents'][$home_team_id] = 1;
+				} else {
+					++ $stats[$away_team_id]['opponents'][$home_team_id];
+				}
+			} else {
+				$playoffs_included = true;
+			}
+		}
+
+		// Skip the region column if there is only one
+		if (count($regions_used) == 1) {
+			$regions_used = array();
+		}
+
+		$this->set(compact ('division', 'regions', 'regions_used', 'fields', 'stats', 'playoffs_included', 'league_obj'));
+
+		$this->_addDivisionMenuItems ($division['Division'], $division['League']);
 	}
 
 	function allstars() {
