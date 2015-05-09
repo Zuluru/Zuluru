@@ -69,10 +69,10 @@ class RatingsComponent extends Object
 		if ($correct && !empty($team_updates)) {
 			$this->team_obj->saveAll ($team_updates);
 
-			$cache_file = CACHE . 'queries' . DS . 'division_' . $division['id'] . '.data';
-			if (file_exists($cache_file)) {
-				unlink($cache_file);
-			}
+			Cache::delete("division/{$division['id']}/standings", 'long_term');
+			Cache::delete("division/{$division['id']}/schedule", 'long_term');
+			Cache::delete("league/{$division['league_id']}/standings", 'long_term');
+			Cache::delete("league/{$division['league_id']}/schedule", 'long_term');
 		}
 
 		return array(count($team_updates), $game_update_count);

@@ -591,7 +591,6 @@ class LeaguesController extends AppController {
 				if ($ret === true || !empty($ret['result'])) {
 					Cache::delete($cache_key, 'long_term');
 					Cache::delete("league/$id/standings", 'long_term');
-					Cache::delete("league/$id/schedule", 'long_term');
 					foreach ($league['Division'] as $division) {
 						Cache::delete("division/{$division['id']}/standings", 'long_term');
 						Cache::delete("division/{$division['id']}/schedule", 'long_term');
