@@ -11,7 +11,7 @@ $gmaps_key = Configure::read('site.gmaps_key');
 // Build the list of variables to set for the JS.
 // The blank line before END_OF_VARIABLES is required.
 $variables = <<<END_OF_VARIABLES
-zuluru_path = "$zuluru_base/";
+zuluru_path = "$zuluru_base";
 
 END_OF_VARIABLES;
 

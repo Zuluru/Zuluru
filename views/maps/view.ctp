@@ -14,7 +14,7 @@ $full_address = "{$field['Facility']['location_street']}, {$field['Facility']['l
 // Build the list of variables to set for the JS.
 // The blank line before END_OF_VARIABLES is required.
 $variables = <<<END_OF_VARIABLES
-zuluru_path = "$zuluru_base/";
+zuluru_path = "$zuluru_base";
 name = "{$field['Facility']['name']}";
 address = "$address";
 full_address = "$full_address";
