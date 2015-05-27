@@ -428,6 +428,15 @@ class Person extends AppModel {
 					'message' => 'You must enter a valid Mexican postal code',
 				);
 			}
+			if ($this->data[$this->alias]['addr_country'] == 'South Africa') {
+				$this->validate['addr_postalcode']['postal'] = array(
+					'rule' => array('postal', '/^[\p{Nd}]{4}/', 'za'),
+					'message' => 'You must enter a valid South African postal code',
+				);
+				$this->validate['home_phone']['phone']['rule'] = $this->validate['work_phone']['phone']['rule'] =
+					$this->validate['mobile_phone']['phone']['rule'] = $this->validate['alternate_work_phone']['phone']['rule'] =
+					$this->validate['alternate_mobile_phone']['phone']['rule'] = array('phone', '/^\\(?0(11|12|13|21|31|44|83)\\)?[-. ]?[0-9]{3}[-. ]?[0-9]{4}$/');
+			}
 		}
 
 		if (Configure::read('feature.birth_year_only') && !empty($this->validate['birthdate'])) {
