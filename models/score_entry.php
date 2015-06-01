@@ -27,7 +27,8 @@ class ScoreEntry extends AppModel {
 		),
 		'home_carbon_flip' => array(
 			'range' => array(
-				'rule' => array('valid_score', 0, 2),
+				'rule' => array('inclusive_range', 0, 2),
+				'required' => false,
 				'message' => 'You must select a valid carbon flip result',
 			),
 		),
