@@ -13,9 +13,9 @@ $dispositions = array(
 		'delete' => 'Deleted silently',
 );
 
-$this_is_player = (!empty($cached['Group']) && Set::extract('/GroupsPerson[group_id=' . GROUP_PLAYER . ']', $cached['Group']));
+$this_is_player = Set::extract('/GroupsPerson[group_id=' . GROUP_PLAYER . ']', $person['Group']);
 $this_is_player = (!empty($this_is_player));
-$this_is_coach = (!empty($cached['Group']) && Set::extract('/GroupsPerson[group_id=' . GROUP_COACH . ']', $cached['Group']));
+$this_is_coach = Set::extract('/GroupsPerson[group_id=' . GROUP_COACH . ']', $person['Group']);
 $this_is_coach = (!empty($this_is_coach));
 
 $use_shirt_size = Configure::read('profile.shirt_size');
