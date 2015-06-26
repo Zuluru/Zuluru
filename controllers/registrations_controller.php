@@ -700,7 +700,7 @@ class RegistrationsController extends AppController {
 
 		if ($credit) {
 			$paid = array_sum(Set::extract('/Payment/payment_amount', $registration));
-			$outstanding = $registration['Registration']['total_amount'] - $paid;
+			$outstanding = round($registration['Registration']['total_amount'] - $paid, 2);
 			$credit = $credit_record['amount'] - $credit_record['amount_used'];
 
 			$notes = array("Credit applied to registration {$registration['Registration']['id']}: {$registration['Event']['name']}");
@@ -1047,7 +1047,7 @@ class RegistrationsController extends AppController {
 			$this->redirect(array('action' => 'view', 'registration' => $registration['Registration']['id']));
 		}
 
-		$outstanding = $registration['Registration']['total_amount'] - array_sum(Set::extract('/Payment/payment_amount', $registration));
+		$outstanding = round($registration['Registration']['total_amount'] - array_sum(Set::extract('/Payment/payment_amount', $registration)), 2);
 		if ($outstanding <= 0) {
 			$this->Session->setFlash(__('This registration is already paid in full; you may need to edit it manually to mark it as paid.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('action' => 'view', 'registration' => $registration['Registration']['id']));
@@ -1421,7 +1421,7 @@ class RegistrationsController extends AppController {
 				$this->redirect(array('action' => 'view', 'registration' => $payment['Registration']['id']));
 			}
 
-			$outstanding = $registration['Registration']['total_amount'] - array_sum(Set::extract('/Payment/payment_amount', $registration));
+			$outstanding = round($registration['Registration']['total_amount'] - array_sum(Set::extract('/Payment/payment_amount', $registration)), 2);
 			if ($outstanding <= 0) {
 				$this->Session->setFlash(__('This registration is already paid in full; you may need to edit it manually to mark it as paid.', true), 'default', array('class' => 'info'));
 				$this->redirect(array('action' => 'view', 'registration' => $payment['Registration']['id']));
