@@ -1172,7 +1172,7 @@ class GamesController extends AppController {
 		}
 
 		if (!$this->RequestHandler->isAjax()) {
-			$this->Session->setFlash(sprintf (__('Attendance has been updated to %s.', true), $attendance_options[$status]), 'default', array('class' => 'success'));
+			$this->Session->setFlash(sprintf (__('Attendance comment has been updated.', true)), 'default', array('class' => 'success'));
 		}
 
 		// Maybe send some emails, only if the game is in the future
