@@ -108,8 +108,8 @@ class PeopleController extends AppController {
 			}
 
 			if (in_array ($this->params['action'], array(
-				'registrations',
-				'credits',
+				'approve_badge',
+				'delete_badge',
 			)))
 			{
 				// If a badge id is specified, check if we're a manager of that badge's affiliate
@@ -124,8 +124,8 @@ class PeopleController extends AppController {
 
 			if (in_array ($this->params['action'], array(
 				'waivers',
-				'approve_badge',
-				'delete_badge',
+				'registrations',
+				'credits',
 				'act_as',
 			)))
 			{
