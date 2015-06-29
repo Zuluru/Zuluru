@@ -11,7 +11,7 @@ class PricesController extends AppController {
 				// If an event id is specified, check if we're a manager of that event's affiliate
 				$event = $this->_arg('event');
 				if ($event) {
-					if (in_array($this->Event->affiliate($event), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Event->affiliate($event), $this->UserCache->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
@@ -26,7 +26,7 @@ class PricesController extends AppController {
 				// If a price id is specified, check if we're a manager of that price's affiliate
 				$price = $this->_arg('price');
 				if ($price) {
-					if (in_array($this->Price->affiliate($price), $this->Session->read('Zuluru.ManagedAffiliateIDs'))) {
+					if (in_array($this->Price->affiliate($price), $this->UserCache->read('Zuluru.ManagedAffiliateIDs'))) {
 						return true;
 					}
 				}
