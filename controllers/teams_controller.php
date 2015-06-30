@@ -805,7 +805,8 @@ class TeamsController extends AppController {
 				if (isset ($member_rule)) {
 					$rule_obj = AppController::_getComponent ('Rule');
 					if (!$rule_obj->init ($member_rule)) {
-						return sprintf (__('Failed to parse the rule: %s', true), $rule_obj->parse_error);
+						$this->Session->setFlash(sprintf(__('Failed to parse the rule: %s', true), $member_rule), 'default', array('class' => 'info'));
+						$this->redirect(array('action' => 'index'));
 					}
 					$team['Person'][$key]['is_a_member'] = $rule_obj->evaluate($team['Division']['League']['affiliate_id'], $full_person, $team);
 				} else {
