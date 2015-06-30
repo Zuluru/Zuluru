@@ -2287,7 +2287,7 @@ class PeopleController extends AppController {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('person', true)), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'badges', 'action' => 'index'));
 		}
-		if (Configure::read('feature.affiliates' && !in_array($badge['Badge']['affiliate_id'], Set::extract('/Affiliate/id', $person)))) {
+		if (Configure::read('feature.affiliates') && !in_array($badge['Badge']['affiliate_id'], Set::extract('/Affiliate/id', $person))) {
 			$this->Session->setFlash(__('That person is not a member of this affiliate.', true), 'default', array('class' => 'info'));
 			$this->redirect(array('controller' => 'badges', 'action' => 'index'));
 		}
