@@ -46,13 +46,15 @@ if (!empty($person['mobile_phone']) &&
 echo implode($this->Html->tag('br'), $lines);
 
 if ($is_logged_in) {
-	echo $this->Html->tag('br');
+	$links = array();
 	if ($has_visible_contact) {
-		echo $this->Html->link(__('VCF', true), array('action' => 'vcf', 'person' => $person['id']));
+		$links[] = $this->Html->link(__('VCF', true), array('action' => 'vcf', 'person' => $person['id']));
 	}
-
 	if (Configure::read('feature.annotations')) {
-		echo ' / ' . $this->Html->link(__('Add Note', true), array('action' => 'note', 'person' => $person['id']));
+		$links[] = $this->Html->link(__('Add Note', true), array('action' => 'note', 'person' => $person['id']));
+	}
+	if (!empty($links)) {
+		echo $this->Html->tag('br') . implode(' / ', $links);
 	}
 }
 
