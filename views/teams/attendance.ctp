@@ -23,11 +23,13 @@ foreach ($dates as $date) {
 	}
 	if (!empty($games_on_date)) {
 		foreach ($games_on_date as $game) {
-			$all_games[] = array(
-				'date' => $game['GameSlot']['game_date'], 'time' => $game['GameSlot']['game_start'],
-				'condition' => "game_id={$game['Game']['id']}",
-				'header' => $this->element('games/block', array('game' => $game)),
-			);
+			if (!in_array($game['Game']['status'], array('cancelled', 'rescheduled'))) {
+				$all_games[] = array(
+					'date' => $game['GameSlot']['game_date'], 'time' => $game['GameSlot']['game_start'],
+					'condition' => "game_id={$game['Game']['id']}",
+					'header' => $this->element('games/block', array('game' => $game)),
+				);
+			}
 		}
 	} else {
 		$all_games[] = array(

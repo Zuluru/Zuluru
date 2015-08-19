@@ -3338,6 +3338,7 @@ class GamesController extends AppController {
 		));
 		$remind = $this->Game->find ('all', array(
 				'conditions' => array(
+					'Game.status' => 'normal',
 					'Game.published' => true,
 					'GameSlot.game_date >= CURDATE()',
 					'OR' => array(
