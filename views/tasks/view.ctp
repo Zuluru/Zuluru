@@ -14,7 +14,7 @@ $this->Html->addCrumb (__('View', true));
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Category'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $this->Html->link($task['Category']['name'], array('controller' => 'categories', 'action' => 'view', 'task' => $task['Category']['id'])); ?>
+			<?php echo $this->Html->link($task['Category']['name'], array('controller' => 'categories', 'action' => 'view', 'category' => $task['Category']['id'])); ?>
 			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Description'); ?></dt>
