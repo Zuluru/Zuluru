@@ -27,11 +27,11 @@ $this->Html->addCrumb (__('List', true));
 	<tr<?php echo $class;?>>
 		<td><?php echo $task['Task']['name']; ?></td>
 		<td><?php echo $this->Html->link($task['Category']['name'], array('controller' => 'categories', 'action' => 'view', 'category' => $task['Category']['id'])); ?></td>
+		<td><?php echo $this->element('people/block', array('person' => $task['Person'])); ?></td>
 		<?php if ($is_admin || $is_manager): ?>
 		<td><?php $task['Task']['auto_approve'] ? __('Yes') : __('No'); ?></td>
 		<td><?php $task['Task']['allow_signup'] ? __('Yes') : __('No'); ?></td>
 		<?php endif; ?>
-		<td><?php echo $this->element('people/block', array('person' => $task['Person'])); ?></td>
 		<td class="actions">
 		<?php
 		echo $this->ZuluruHtml->iconLink('view_24.png',
