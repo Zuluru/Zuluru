@@ -8,6 +8,11 @@ function open_payment_window()
 }
 ', array('inline' => false));
 
+$invnum = sprintf(Configure::read('registration.order_id_format'), $registrations[0]['Registration']['id']);
+if (!empty($registrations[0]['Payment'])) {
+	$invnum .= '-' . (count($registrations[0]['Payment']) + 1);
+}
+
 $fields = array(
 		'RETURNURL' => $this->Html->url(array('controller' => 'registrations', 'action' => 'payment'), true),
 		'CANCELURL' => $this->Html->url(array('controller' => 'registrations', 'action' => 'checkout'), true),
@@ -23,7 +28,7 @@ $fields = array(
 		'PAYMENTREQUEST_0_SHIPTOZIP' => $person['Person']['addr_postalcode'],
 		'PAYMENTREQUEST_0_SHIPTOCOUNTRYCODE' => $person['Person']['addr_country'],
 		'PAYMENTREQUEST_0_SHIPTOPHONENUM' => $person['Person']['home_phone'],
-		'PAYMENTREQUEST_0_INVNUM' => sprintf(Configure::read('registration.order_id_format'), $registrations[0]['Registration']['id']),
+		'PAYMENTREQUEST_0_INVNUM' => $invnum,
 		'PAYMENTREQUEST_0_CURRENCYCODE' => Configure::read('payment.currency'),
 );
 
