@@ -28,8 +28,12 @@ class RuleHasDocumentComponent extends RuleComponent
 
 	// Check if the user has uploaded the required document
 	function evaluate($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url) {
-		$matches = Set::extract ("/Upload[type_id={$this->config[0]}]", $params['Upload']);
-		$unapproved = Set::extract ('/Upload[approved=0]', $matches);
+		if (empty($params['Upload'])) {
+			$unapproved = array();
+		} else {
+			$matches = Set::extract ("/Upload[type_id={$this->config[0]}]", $params['Upload']);
+			$unapproved = Set::extract ('/Upload[approved=0]', $matches);
+		}
 
 		if (empty($unapproved)) {
 			if ($text_reason) {

@@ -59,6 +59,7 @@ class RuleSignedWaiverComponent extends RuleComponent
 				return true;
 			}
 		}
+		$this->invariant = false;
 		return false;
 	}
 

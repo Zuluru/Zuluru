@@ -29,6 +29,7 @@ class RuleOrComponent extends RuleComponent
 			return null;
 		$reasons = array();
 		$status = false;
+		$this->invariant = false;
 		foreach ($this->rule as $rule) {
 			if ($rule->evaluate ($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url)) {
 				if (empty($reasons) || $complete) {

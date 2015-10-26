@@ -29,6 +29,7 @@ class RuleAndComponent extends RuleComponent
 			return null;
 		$reasons = array();
 		$status = true;
+		$this->invariant = false;
 		foreach ($this->rule as $rule) {
 			if (!$rule->evaluate ($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url)) {
 				$this->reason_type = $rule->reason_type;
