@@ -792,6 +792,7 @@ class TeamsController extends AppController {
 						'conditions' => array('Team.id !=' => $id),
 					),
 					'Waiver',
+					'Upload',
 				));
 				$full_person = $this->Team->Person->read(null, $person['id']);
 
@@ -2743,6 +2744,7 @@ class TeamsController extends AppController {
 					'Team' => $this->UserCache->read('Teams', $person['Person']['id']),
 					'Registration' => $this->UserCache->read('RegistrationsReserved', $person['Person']['id']),
 					'Waiver' => $this->UserCache->read('Waivers', $person['Person']['id']),
+					'Upload' => $this->UserCache->read('Documents', $person['Person']['id']),
 				);
 			}
 			if (!$this->can_add_rule_obj->evaluate($team['Division']['League']['affiliate_id'], $person, $team, $strict, $text_reason, true, $absolute_url)) {
