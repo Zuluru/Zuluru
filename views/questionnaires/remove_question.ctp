@@ -6,7 +6,7 @@ if (isset($cannot)) {
 	if ($success) {
 		echo $this->Html->scriptBlock ("jQuery('#$id').remove();");
 	} else {
-		$alert = sprintf(__('Failed to remove this %s'.', true), __('question', true));
+		$alert = sprintf(__('Failed to remove this %s.', true), __('question', true));
 		echo $this->Html->scriptBlock ("alert('$alert')");
 	}
 }
