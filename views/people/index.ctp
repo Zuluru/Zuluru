@@ -19,7 +19,7 @@ $emails = array_unique(Set::extract('/Person/email', $people));
 $hide_email = (empty($emails) || (count($emails) == 1 && empty($emails[0])));
 $genders = array_unique(Set::extract('/Person/gender', $people));
 $hide_gender = (empty($genders) || (count($genders) == 1 && empty($genders[0])));
-$cols = 7;
+$show_badges = Configure::read('feature.badges') && $is_logged_in;
 ?></h2>
 <table class="list">
 	<tr>
@@ -35,12 +35,9 @@ $cols = 7;
 		<th><?php echo $this->Paginator->sort('gender'); ?></th>
 		<?php endif; ?>
 		<th><?php echo $this->Paginator->sort('status'); ?></th>
-		<?php if (Configure::read('feature.badges') && $is_logged_in): ?>
+		<?php if ($show_badges): ?>
 			<th><?php __('Badges'); ?></th>
-			<?php
-			++$cols;
-		endif;
-		?>
+		<?php endif; ?>
 		<th class="actions"><?php __('Actions'); ?></th>
 	</tr>
 	<?php
@@ -51,7 +48,7 @@ $cols = 7;
 			$affiliate_id = $person['Affiliate']['id'];
 	?>
 	<tr>
-		<th colspan="<?php echo $cols; ?>">
+		<th colspan="<?php echo 4 + !$hide_user_name + !$hide_email + !$hide_gender + $show_badges; ?>">
 			<h3 class="affiliate"><?php echo $person['Affiliate']['name']; ?></h3>
 		</th>
 	</tr>
