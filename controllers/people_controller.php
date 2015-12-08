@@ -216,10 +216,20 @@ class PeopleController extends AppController {
 			}
 			$this->render('rule_search');
 		} else {
+			if (Configure::read('feature.badges')) {
+				$badge_obj = $this->_getComponent('Badge', '', $this);
+				$contain = array('Badge' => array('conditions' => array(
+					'BadgesPerson.approved' => true,
+					'Badge.visibility' => $badge_obj->visibility($this->is_admin || $this->is_manager, BADGE_VISIBILITY_HIGH),
+				)));
+			} else {
+				$contain = array();
+			}
+
 			$this->paginate = array(
 					'conditions' => $conditions,
 					'joins' => $joins,
-					'contain' => array(),
+					'contain' => $contain,
 					'fields' => array('DISTINCT Person.id', 'Person.*', 'Affiliate.*', "$user_model.*"),
 					'order' => array('Affiliate.name', 'Person.last_name', 'Person.first_name', 'Person.id'),
 					'limit' => Configure::read('feature.items_per_page'),

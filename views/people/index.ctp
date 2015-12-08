@@ -19,6 +19,7 @@ $emails = array_unique(Set::extract('/Person/email', $people));
 $hide_email = (empty($emails) || (count($emails) == 1 && empty($emails[0])));
 $genders = array_unique(Set::extract('/Person/gender', $people));
 $hide_gender = (empty($genders) || (count($genders) == 1 && empty($genders[0])));
+$cols = 7;
 ?></h2>
 <table class="list">
 	<tr>
@@ -34,6 +35,12 @@ $hide_gender = (empty($genders) || (count($genders) == 1 && empty($genders[0])))
 		<th><?php echo $this->Paginator->sort('gender'); ?></th>
 		<?php endif; ?>
 		<th><?php echo $this->Paginator->sort('status'); ?></th>
+		<?php if (Configure::read('feature.badges') && $is_logged_in): ?>
+			<th><?php __('Badges'); ?></th>
+			<?php
+			++$cols;
+		endif;
+		?>
 		<th class="actions"><?php __('Actions'); ?></th>
 	</tr>
 	<?php
@@ -44,7 +51,7 @@ $hide_gender = (empty($genders) || (count($genders) == 1 && empty($genders[0])))
 			$affiliate_id = $person['Affiliate']['id'];
 	?>
 	<tr>
-		<th colspan="7">
+		<th colspan="<?php echo $cols; ?>">
 			<h3 class="affiliate"><?php echo $person['Affiliate']['name']; ?></h3>
 		</th>
 	</tr>
@@ -69,6 +76,16 @@ $hide_gender = (empty($genders) || (count($genders) == 1 && empty($genders[0])))
 		<td><?php echo $person['Person']['gender']; ?>&nbsp;</td>
 		<?php endif; ?>
 		<td><?php echo $person['Person']['status']; ?>&nbsp;</td>
+		<?php if (Configure::read('feature.badges') && $is_logged_in): ?>
+			<td><?php
+				foreach ($person['Badge'] as $badge) {
+					if (($badge['visibility'] == BADGE_VISIBILITY_ADMIN && ($is_admin || $is_manager)) || $badge['visibility'] == BADGE_VISIBILITY_HIGH) {
+						echo $this->ZuluruHtml->iconLink("{$badge['icon']}_32.png", array('controller' => 'badges', 'action' => 'view', 'badge' => $badge['id']),
+							array('alt' => $badge['name'], 'title' => $badge['description']));
+					}
+				}
+				?></td>
+		<?php endif; ?>
 		<td class="actions">
 		<?php
 		echo $this->ZuluruHtml->iconLink('view_24.png',
