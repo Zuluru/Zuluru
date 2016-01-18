@@ -63,14 +63,14 @@ class RuleSignedWaiverComponent extends RuleComponent
 		return false;
 	}
 
-	function query($affiliate) {
+	function query($affiliate, $conditions = array()) {
 		return $this->_execute_query(
 			$affiliate,
-			array(
+			array_merge($conditions, array(
 				'WaiversPerson.waiver_id' => $this->config,
 				'WaiversPerson.valid_from <=' => $this->date,
 				'WaiversPerson.valid_until >=' => $this->date,
-			),
+			)),
 			array('WaiversPerson' => array(
 				'table' => 'waivers_people',
 				'alias' => 'WaiversPerson',

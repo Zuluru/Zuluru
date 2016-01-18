@@ -107,7 +107,28 @@ class MailingListsController extends AppController {
 			$this->redirect(array('action' => 'view', 'mailing_list' => $id));
 		}
 
-		$people = $rule_obj->query($mailingList['MailingList']['affiliate_id']);
+		$user_model = $this->Auth->authenticate->name;
+		$email_field = $this->Auth->authenticate->emailField;
+		$people = $rule_obj->query($mailingList['MailingList']['affiliate_id'], array(
+			'OR' => array(
+				array(
+					"$user_model.$email_field !=" => '',
+					'NOT' => array("$user_model.$email_field" => null),
+				),
+				array(
+					'Person.alternate_email !=' => '',
+					'NOT' => array('Person.alternate_email' => null),
+				),
+				array(
+					"Related$user_model.$email_field !=" => '',
+					'NOT' => array("Related$user_model.$email_field" => null),
+				),
+				array(
+					'Related.alternate_email !=' => '',
+					'NOT' => array('Related.alternate_email' => null),
+				),
+			),
+		));
 		if ($people === null) {
 			$this->Session->setFlash(__('The syntax of the mailing list rule is valid, but it is not possible to build a query which will return the expected results. See the "rules engine" help for suggestions.', true), 'default', array('class' => 'error'));
 			$this->redirect(array('action' => 'view', 'mailing_list' => $id));

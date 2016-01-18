@@ -248,16 +248,19 @@ class RuleComponent extends Object
 	 * @return mixed Array of conditions, contains, etc. defining the query, or false if something failed
 	 *
 	 */
-	function query($affiliate) {
+	function query($affiliate, $conditions = array()) {
 		if ($this->rule == null)
 			return null;
-		return $this->rule->query($affiliate);
+		return $this->rule->query($affiliate, $conditions);
 	}
 
 	function _execute_query($affiliate, $conditions = array(), $joins = array(), $fields = array(), $group = '') {
 		if (empty($conditions) && empty($group)) {
 			return false;
 		}
+
+		// This is a bit ugly. A better solution would perhaps involve passing $joins to query.
+		$condition_string = serialize($conditions);
 
 		// Merge in invariant conditions and fields
 		$user_model = $this->_controller->Auth->authenticate->name;
@@ -291,6 +294,48 @@ class RuleComponent extends Object
 				'type' => 'INNER',
 				'foreignKey' => false,
 				'conditions' => 'AffiliatePerson.person_id = Person.id',
+			);
+		}
+
+		// Add some more possible joins based on the initial conditions
+		if (strpos($condition_string, 'Related.') !== false) {
+			$joins['PeoplePerson'] = array(
+				'table' => "{$this->_controller->Person->tablePrefix}people_people",
+				'alias' => 'PeoplePerson',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'Person.id = PeoplePerson.relative_id',
+			);
+			$joins['Related'] = array(
+				'table' => "{$this->_controller->Person->tablePrefix}people",
+				'alias' => 'Related',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'Related.id = PeoplePerson.person_id',
+			);
+			$joins["Related.$user_model"] = array(
+				'table' => "$prefix{$this->_controller->Auth->authenticate->useTable}",
+				'alias' => "Related$user_model",
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => "Related$user_model.{$this->_controller->Auth->authenticate->primaryKey} = Related.user_id",
+			);
+		}
+
+		if (strpos($condition_string, 'Group.') !== false) {
+			$joins['GroupsPerson'] = array(
+				'table' => "{$this->_controller->Person->tablePrefix}groups_people",
+				'alias' => 'GroupsPerson',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'Person.id = GroupsPerson.person_id',
+			);
+			$joins['Group'] = array(
+				'table' => "{$this->_controller->Person->tablePrefix}groups",
+				'alias' => 'Group',
+				'type' => 'LEFT',
+				'foreignKey' => false,
+				'conditions' => 'Group.id = GroupsPerson.group_id',
 			);
 		}
 

@@ -18,13 +18,13 @@ class RuleNotComponent extends RuleComponent
 		return (! $success);
 	}
 
-	function query($affiliate) {
+	function query($affiliate, $conditions = array()) {
 		if ($this->rule == null)
 			return false;
 
 		// There is no guaranteed way to negate all queries, so we must
 		// get the full list of users and remove those that match.
-		$yes = $this->rule->query($affiliate);
+		$yes = $this->rule->query($affiliate, $conditions);
 		if ($yes === null) {
 			return null;
 		}

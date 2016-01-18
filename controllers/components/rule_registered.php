@@ -56,13 +56,13 @@ class RuleRegisteredComponent extends RuleComponent
 		return false;
 	}
 
-	function query($affiliate) {
+	function query($affiliate, $conditions = array()) {
 		return $this->_execute_query(
 			$affiliate,
-			array(
+			array_merge($conditions, array(
 				'Registration.event_id' => $this->config,
 				'Registration.payment' => Configure::read('registration_reserved'),
-			),
+			)),
 			array('Registration' => array(
 				'table' => 'registrations',
 				'alias' => 'Registration',

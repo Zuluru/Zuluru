@@ -50,6 +50,9 @@ class RuleCompareComponent extends RuleComponent
 		}
 		$left = $this->rule[0]->evaluate($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url);
 		$right = $this->rule[1]->evaluate($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url);
+		if ((is_array($left) || is_array($right)) && $this->config != '=') {
+			return null;
+		}
 
 		// If neither thing we're comparing can change, then neither can we
 		$this->invariant = ($this->rule[0]->invariant && $this->rule[1]->invariant);
@@ -77,7 +80,16 @@ class RuleCompareComponent extends RuleComponent
 				break;
 
 			case '=':
-				$success = ($left == $right);
+				if (is_array($left) && is_array($right)) {
+					$intersect = array_intersect($left, $right);
+					$success = count($left) == count($right) && count($left) == count($intersect);
+				} else if (is_array($left)) {
+					$success = in_array($right, $left);
+				} else if (is_array($right)) {
+					$success = in_array($left, $right);
+				} else {
+					$success = ($left == $right);
+				}
 				$result = __('of', true);
 				break;
 
@@ -93,12 +105,12 @@ class RuleCompareComponent extends RuleComponent
 		return $success;
 	}
 
-	function query($affiliate) {
+	function query($affiliate, $conditions = array()) {
 		if (count ($this->rule) != 2 || empty($this->config)) {
 			return null;
 		}
 
-		$fields = $joins = $conditions = array();
+		$fields = $joins = array();
 		$left = $this->rule[0]->build_query($affiliate, $joins, $fields, $conditions);
 		$right = $this->rule[1]->build_query($affiliate, $joins, $fields, $conditions);
 		if ($left === false || $right === false) {

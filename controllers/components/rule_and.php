@@ -63,11 +63,11 @@ class RuleAndComponent extends RuleComponent
 		return $status;
 	}
 
-	function query($affiliate) {
+	function query($affiliate, $conditions = array()) {
 		if (empty ($this->rule))
 			return false;
 		foreach ($this->rule as $rule) {
-			$people = $rule->query($affiliate);
+			$people = $rule->query($affiliate, $conditions);
 			if ($people === null) {
 				return $people;
 			}

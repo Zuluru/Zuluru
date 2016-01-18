@@ -67,16 +67,16 @@ class RuleHasDocumentComponent extends RuleComponent
 		return false;
 	}
 
-	function query($affiliate) {
+	function query($affiliate, $conditions = array()) {
 		$date = date('Y-m-d', strtotime ($this->config[1]));
 		return $this->_execute_query(
 			$affiliate,
-			array(
+			array_merge($conditions, array(
 				'Upload.type_id' => $this->config[0],
 				'Upload.approved' => true,
 				'Upload.valid_from <=' => $date,
 				'Upload.valid_until >=' => $date,
-			),
+			)),
 			array('Upload' => array(
 				'table' => 'uploads',
 				'alias' => 'Upload',
