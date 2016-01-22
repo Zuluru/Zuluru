@@ -8,7 +8,7 @@ if (!Configure::read('tooltips_added')) {
 		// we'll add a bunch of separate icons to toggle tooltips.
 		$this->Js->buffer("
 jQuery('.trigger').before('" . $this->ZuluruHtml->icon('popup_16.png', array('class' => 'tooltip_toggle')) . " ');
-jQuery('.tooltip_toggle').tooltip({
+jQuery('.tooltip_toggle').uitooltip({
 	items: '.tooltip_toggle',
 	position: { my: 'center bottom', at: 'center top-5' },
 	content: function(callback) {
@@ -24,16 +24,16 @@ jQuery('.tooltip_toggle').tooltip({
 		jQuery(this).next().data('wait_for_tooltip', false);
 		if (jQuery(this).next().data('tooltip_displayed')) {
 			jQuery(this).next().data('tooltip_displayed', false);
-			jQuery(this).tooltip('close');
+			jQuery(this).uitooltip('close');
 		}
 	});
 	if (!visible) {
-		jQuery(this).tooltip('open');
+		jQuery(this).uitooltip('open');
 	}
 	return false;
 });
 // Turn off the default hover mechanic
-jQuery('.tooltip_toggle').tooltip('disable');
+jQuery('.tooltip_toggle').uitooltip('disable');
 		");
 	} else {
 		// Add the standard tooltip handler
@@ -46,7 +46,7 @@ jQuery('#zuluru').on({
 		jQuery(this).data('wait_for_tooltip', false);
 	}
 },'.trigger');
-jQuery('#zuluru').tooltip({
+jQuery('#zuluru').uitooltip({
 	items: '.trigger',
 	show: { delay: 500 },
 	hide: { delay: 500 },

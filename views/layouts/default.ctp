@@ -56,7 +56,11 @@ header('Pragma: no-cache');
 					'tooltip.js',
 					'placeholder.js',
 			));
-			echo $this->Html->scriptBlock('jQuery.noConflict();');
+			echo $this->Html->scriptBlock('
+				jQuery.noConflict();
+				jQuery.widget.bridge("uitooltip", jQuery.ui.tooltip);
+				jQuery.widget.bridge("uibutton", jQuery.ui.button);
+			');
 
 			echo $this->element('layout/select_profile_js');
 			echo $this->element('layout/select_language_js', compact('language'));
