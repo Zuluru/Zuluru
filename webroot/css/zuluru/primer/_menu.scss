@@ -1,0 +1,113 @@
+// Side menu
+//
+// A menu on the side of a page, defaults to left side. e.g. github.com/about
+
+.menu {
+  background-color: #fff;
+  border: 1px solid #d8d8d8;
+  border-radius: 3px;
+  list-style: none;
+  margin-bottom: 15px;
+}
+
+.menu-item {
+  border-bottom: 1px solid #eee;
+  display: block;
+  padding: 8px 10px;
+  position: relative;
+  text-shadow: 0 1px 0 #fff;
+
+  &:first-child {
+    border-top: 0;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+
+    &:before { border-top-left-radius: 2px; }
+  }
+
+  &:last-child {
+    border-bottom: 0;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+
+    &:before { border-bottom-left-radius: 2px; }
+  }
+
+  &:hover {
+    background-color: #f9f9f9;
+    text-decoration: none;
+  }
+
+  &.selected {
+    color: #222;
+    cursor: default;
+    background-color: #fff;
+    font-weight: bold;
+
+    &:before {
+      background-color: #d26911;
+      bottom: 0;
+      content: '';
+      left: 0;
+      position: absolute;
+      top: 0;
+      width: 2px;
+    }
+  }
+
+  .octicon {
+    color: $brand-gray-dark;
+    margin-right: 5px;
+    text-align: center;
+    width: 16px;
+ }
+
+  .counter {
+    float: right;
+    margin-left: 5px;
+  }
+
+  .menu-warning {
+    color: #d26911;
+    float: right;
+  }
+
+  .avatar {
+    float: left;
+    margin-right: 5px;
+  }
+
+  &.alert {
+    .counter {
+      color: $brand-red;
+    }
+  }
+}
+
+.menu-heading {
+  background-color: #f7f7f7;
+  border-bottom: 1px solid #eee;
+  color: #555;
+  display: block;
+  font-size: 13px;
+  font-weight: bold;
+  line-height: 20px;
+  margin-bottom: 0;
+  margin-top: 0;
+  padding: 8px 10px;
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  &:first-child {
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+  }
+
+  &:last-child {
+    border-bottom: 0;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+  }
+}

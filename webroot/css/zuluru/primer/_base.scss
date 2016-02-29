@@ -1,0 +1,40 @@
+* {
+  box-sizing: border-box;
+}
+
+input,
+select,
+textarea,
+button {
+  font: #{$body-font-size}/1.4 $body-font;
+}
+
+body {
+  background-color: #fff;
+  color: $brand-gray-dark;
+  font: #{$body-font-size}/1.4 $body-font;
+}
+
+a {
+  color: $brand-blue;
+  text-decoration: none;
+
+  &:hover,
+  &:active {
+    text-decoration: underline;
+  }
+}
+
+// Horizontal lines
+//
+// TODO-MDO: Remove `.rule` from everywhere and replace with `<hr>`s
+hr,
+.rule {
+  @include clearfix();
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #ddd;
+  height: 0;
+  margin: 15px 0;
+  overflow: hidden;
+}

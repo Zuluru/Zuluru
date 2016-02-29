@@ -1,0 +1,16 @@
+@import 'primer/primer';
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700);
+
+* {
+  color: #333;
+  font-family: "Open Sans", sans-serif;
+}
+
+footer p {
+  font-style: italic;
+  text-align: center;
+}
+
+label {
+  padding-left: 3px;
+}
