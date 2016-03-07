@@ -10,6 +10,10 @@ class RuleRegisteredComponent extends RuleComponent
 	function parse($config) {
 		$config = trim ($config, '"\'');
 		$this->config = array_map ('trim', explode (',', $config));
+		if (count(array_unique($this->config)) != count($this->config)) {
+			$this->parse_error = __('At least one event has been included more than once in the list.');
+			return false;
+		}
 		$model = ClassRegistry::init('Event');
 		$this->events = $model->find('all', array(
 				'contain' => array(),
