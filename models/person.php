@@ -437,6 +437,24 @@ class Person extends AppModel {
 					$this->validate['mobile_phone']['phone']['rule'] = $this->validate['alternate_work_phone']['phone']['rule'] =
 					$this->validate['alternate_mobile_phone']['phone']['rule'] = array('phone', '/^\\(?0(11|12|13|21|31|44|83)\\)?[-. ]?[0-9]{3}[-. ]?[0-9]{4}$/');
 			}
+			if ($this->data[$this->alias]['addr_country'] == 'Australia') {
+				$this->validate['addr_postalcode']['postal'] = array(
+					'rule' => array('postal', '/^[0-9]{4}/', 'au'),
+					'message' => 'You must enter a valid Australian postal code',
+				);
+				$this->validate['home_phone']['phone']['rule'] = $this->validate['work_phone']['phone']['rule'] =
+					$this->validate['mobile_phone']['phone']['rule'] = $this->validate['alternate_work_phone']['phone']['rule'] =
+					$this->validate['alternate_mobile_phone']['phone']['rule'] = array('phone', '/^0[23478][0-9]{8}$/');
+			}
+			if ($this->data[$this->alias]['addr_country'] == 'New Zealand') {
+				$this->validate['addr_postalcode']['postal'] = array(
+					'rule' => array('postal', '/^[0-9]{4}/', 'nz'),
+					'message' => 'You must enter a valid New Zealand postal code',
+				);
+				$this->validate['home_phone']['phone']['rule'] = $this->validate['work_phone']['phone']['rule'] =
+					$this->validate['mobile_phone']['phone']['rule'] = $this->validate['alternate_work_phone']['phone']['rule'] =
+					$this->validate['alternate_mobile_phone']['phone']['rule'] = array('phone', '/^((03|04|06|07|09)\d{7})|((021|022|026|027|028|029)\d{6,8})|((0508|0800|0900)\d{5,8})$/');
+			}
 		}
 
 		if (Configure::read('feature.birth_year_only') && !empty($this->validate['birthdate'])) {
