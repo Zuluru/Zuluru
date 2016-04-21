@@ -3,10 +3,18 @@
 class LoginJoomlaComponent extends LoginComponent
 {
 	function login() {
-		$user = $this->_controller->Session->read('__default.user');
+		if ($this->_controller->Session->check('joomla')) {
+			// Recent versions of Joomla store a serialized, base64-encoded object
+			$session = $this->_controller->Session->read('joomla');
+			$session = base64_decode($session);
+			$registry = unserialize($session);
+			$user = $registry->get('__default.user');
+		} else {
+			$user = $this->_controller->Session->read('__default.user');
+		}
 
 		// Check if we're running under Joomla
-		if ($user) {
+		if ($user && !$user->guest) {
 			// Hide login/logout menu items
 			$this->_controller->Session->write('Zuluru.external_login', true);
 
