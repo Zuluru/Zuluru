@@ -1,0 +1,92 @@
+// Default flash
+.flash {
+  background-color: #e2eef9;
+  border: 1px solid #bac6d3;
+  border-radius: 3px;
+  color: #246;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 15px;
+  position: relative;
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Contain the flash messages
+.flash-messages {
+  margin-bottom: 20px;
+}
+
+// Close button
+.flash-close {
+  -webkit-appearance: none;
+  // Undo `<button>` styles
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  float: right;
+  height: 44px;
+  line-height: 40px;
+  margin: -11px;
+  opacity: .6;
+  text-align: center;
+  width: 34px;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+// Action button
+.flash-action {
+  float: right;
+  margin-left: 20px;
+  margin-top: -4px;
+}
+
+
+//
+// Variations
+//
+
+.flash-warn {
+  background-color: #fff9ea;
+  border-color: #dfd8c2;
+  color: #4c4a42;
+}
+
+.flash-error {
+  background-color: #fcdede;
+  border-color: #d2b2b2;
+  color: #911;
+}
+
+.flash-full {
+  border-radius: 0;
+  border-width: 1px 0;
+  margin-top: -1px;
+}
+
+.flash-with-icon {
+  .container {
+    padding-left: 40px;
+  }
+
+  .flash-icon {
+    float: left;
+    margin-left: -25px;
+    margin-top: 3px;
+  }
+}
+
+// Content within
+//
+// Reset margins on headings and paragraphs within alerts.
+.flash-content {
+  line-height: 1.5;
+  margin-bottom: 0;
+  margin-top: 0;
+}

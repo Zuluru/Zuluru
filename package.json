@@ -1,0 +1,12 @@
+{
+  "name": "zuluru",
+  "version": "1.8.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Zuluru/Zuluru.git"
+  },
+  "dependencies": {
+    "gulp": "^3.9.1",
+    "gulp-sass": "^2.2.0"
+  }
+}
