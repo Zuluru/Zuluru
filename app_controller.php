@@ -1090,7 +1090,7 @@ class AppController extends Controller {
 		if ($id) {
 			$all_teams = $this->UserCache->read('AllTeamIDs', $id);
 			if (!empty($all_teams)) {
-				$this->_addMenuItem(__('History', true), array('controller' => 'people', 'action' => 'teams', 'person' => $id, 'act_as' => $id), array(__('Teams', true), $name));
+				$this->_addMenuItem(__('History', true), array('controller' => 'people', 'action' => 'teams', 'person' => $id), array(__('Teams', true), $name));
 			}
 		}
 

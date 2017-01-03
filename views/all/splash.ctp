@@ -80,7 +80,7 @@ if ($this->Session->check('Zuluru.default_tab_id')) {
 }
 $people_with_schedules = 0;
 
-$tab = $this->element('teams/splash', array('teams' => $teams, 'past_teams' => $past_teams, 'name' => __('My', true)));
+$tab = $this->element('teams/splash', array('teams' => $teams, 'past_teams' => $past_teams, 'name' => __('My', true), 'id' => null));
 $tab .= $this->element('all/kickstart', array('id' => $id, 'affiliates' => $affiliates, 'empty' => (empty($teams) && empty($divisions) && empty($tasks))));
 $tab .= $this->element('divisions/splash', array('divisions' => $divisions));
 
@@ -126,7 +126,7 @@ foreach ($approved_relatives as $relative) {
 	$relative_teams = $this->UserCache->read('Teams', $relative['Relative']['id']);
 	$relative_team_ids = $this->UserCache->read('TeamIDs', $relative['Relative']['id']);
 	$relative_past_teams = $this->requestAction(array('controller' => 'teams', 'action' => 'past_count'), array('named' => array('person' => $relative['Relative']['id'])));
-	$tab .= $this->element('teams/splash', array('teams' => $relative_teams, 'past_teams' => $relative_past_teams, 'name' => "{$relative['Relative']['first_name']}'s"));
+	$tab .= $this->element('teams/splash', array('teams' => $relative_teams, 'past_teams' => $relative_past_teams, 'name' => "{$relative['Relative']['first_name']}'s", 'id' => $relative['Relative']['id']));
 
 	$relative_games = array_merge (
 			$this->requestAction(array('controller' => 'games', 'action' => 'past'), array('named' => array('person' => $relative['Relative']['id']))),

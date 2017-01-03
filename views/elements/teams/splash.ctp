@@ -42,7 +42,7 @@ foreach ($teams as $team):
 <?php if ($past_teams > 0): ?>
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Html->link(__('Show Team History', true), array('controller' => 'people', 'action' => 'teams')); ?> </li>
+		<li><?php echo $this->Html->link(__('Show Team History', true), array('controller' => 'people', 'action' => 'teams', 'person' => $id)); ?> </li>
 	</ul>
 </div>
 <div class="clear"></div>
