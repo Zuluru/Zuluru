@@ -70,21 +70,21 @@ class RuleComponent extends Object
 		'have an introductory membership for the upcoming year OR have a full membership for the upcoming year' => 'have a valid membership for the upcoming year',
 		'have a full membership for the upcoming year OR have an introductory membership for the upcoming year' => 'have a valid membership for the upcoming year',
 
-		'have a birthdate greater than or equal to'		=> 'have been born on or after',
-		'have a birthdate greater than'					=> 'have been born after',
-		'have a birthdate less than or equal to'		=> 'have been born on or before',
-		'have a birthdate less than'					=> 'have been born before',
+		'have a Person.birthdate greater than or equal to'		=> 'have been born on or after',
+		'have a Person.birthdate greater than'					=> 'have been born after',
+		'have a Person.birthdate less than or equal to'		=> 'have been born on or before',
+		'have a Person.birthdate less than'					=> 'have been born before',
 
-		'have a gender of female'						=> 'be female',
-		'have a gender of male'							=> 'be male',
+		'have a Person.gender of female'						=> 'be female',
+		'have a Person.gender of male'							=> 'be male',
 
-		'have a has_dog of 0'							=> 'not have a dog',
-		'have a has_dog of 1'							=> 'have a dog',
+		'have a Person.has_dog of 0'							=> 'not have a dog',
+		'have a Person.has_dog of 1'							=> 'have a dog',
 
-		'have a publish_email of 1'						=> 'publish your email address',
-		'have a publish_home_phone of 1'				=> 'publish your home phone',
-		'have a publish_work_phone of 1'				=> 'publish your work phone',
-		'have a publish_mobile_phone of 1'				=> 'publish your mobile phone',
+		'have a Person.publish_email of 1'						=> 'publish your email address',
+		'have a Person.publish_home_phone of 1'				=> 'publish your home phone',
+		'have a Person.publish_work_phone of 1'				=> 'publish your work phone',
+		'have a Person.publish_mobile_phone of 1'				=> 'publish your mobile phone',
 
 		'publish your home phone OR publish your work phone OR publish your mobile phone' => 'publish a phone number',
 		'publish your email address OR publish a phone number' => 'publish your email address or a phone number',
