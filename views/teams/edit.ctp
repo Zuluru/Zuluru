@@ -156,10 +156,10 @@ if (isset ($add)) {
 			}
 			if ($is_admin || !$this->Form->value('Team.flickr_ban')) {
 				echo $this->ZuluruForm->input('flickr_user', array(
-					'after' => $this->Html->para (null, __('The URL for your photo set will be something like http://www.flickr.com/photos/abcdef/sets/12345678901234567/. abcdef is your user name.', true)),
+					'after' => $this->Html->para (null, __('The URL for your photo set will be something like https://www.flickr.com/photos/abcdef/sets/12345678901234567/. abcdef is your user name.', true)),
 				));
 				echo $this->ZuluruForm->input('flickr_set', array(
-					'after' => $this->Html->para (null, __('The URL for your photo set will be something like http://www.flickr.com/photos/abcdef/sets/12345678901234567/. 12345678901234567 is your set number.', true)),
+					'after' => $this->Html->para (null, __('The URL for your photo set will be something like https://www.flickr.com/photos/abcdef/sets/12345678901234567/. 12345678901234567 is your set number.', true)),
 				));
 			}
 		}

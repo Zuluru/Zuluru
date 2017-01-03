@@ -199,9 +199,9 @@ if (Configure::read('feature.antispam')):
 		));
 		if (Configure::read('feature.gravatar')) {
 			if (Configure::read('feature.photos')) {
-				$after = sprintf(__('You can have an image shown on your account by uploading a photo directly, or by enabling this setting and then create a <a href="http://www.gravatar.com">gravatar.com</a> account using the email address you\'ve associated with your %s account.', true), Configure::read('organization.short_name'));
+				$after = sprintf(__('You can have an image shown on your account by uploading a photo directly, or by enabling this setting and then create a <a href="https://www.gravatar.com">gravatar.com</a> account using the email address you\'ve associated with your %s account.', true), Configure::read('organization.short_name'));
 			} else {
-				$after = sprintf(__('You can have an image shown on your account if you enable this setting and then create a <a href="http://www.gravatar.com">gravatar.com</a> account using the email address you\'ve associated with your %s account.', true), Configure::read('organization.short_name'));
+				$after = sprintf(__('You can have an image shown on your account if you enable this setting and then create a <a href="https://www.gravatar.com">gravatar.com</a> account using the email address you\'ve associated with your %s account.', true), Configure::read('organization.short_name'));
 			}
 			echo $this->ZuluruForm->input('Person.0.show_gravatar', array(
 				'label' => __('Show Gravatar image for your account?', true),

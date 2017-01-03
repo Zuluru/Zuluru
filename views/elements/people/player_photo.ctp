@@ -9,7 +9,7 @@ if ($is_logged_in) {
 			);
 		}
 	} else if (Configure::read('feature.gravatar')) {
-		$url = 'http://www.gravatar.com/avatar/';
+		$url = 'https://www.gravatar.com/avatar/';
 		if ($person['show_gravatar']) {
 			$url .= md5(strtolower($person['email']));
 		} else {

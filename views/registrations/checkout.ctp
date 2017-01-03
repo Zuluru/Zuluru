@@ -209,7 +209,7 @@ if (!empty($other)):
 <?php
 echo $this->element('payments/refund');
 if (Configure::read('registration.online_payments') && stripos(Configure::read('payment.options'), 'interac')) {
-	echo $this->Html->para('small', __('&reg; Trade-mark of Interac Inc. Used under licence. <a href="http://www.interaconline.com/learn/" target="_blank">Learn more</a> about INTERAC Online.', true));
+	echo $this->Html->para('small', __('&reg; Trade-mark of Interac Inc. Used under licence. <a href="https://www.interaconline.com/learn/" target="_blank">Learn more</a> about INTERAC Online.', true));
 }
 ?>
 </div>

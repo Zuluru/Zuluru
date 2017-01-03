@@ -78,7 +78,7 @@ echo $this->Form->hidden('Facility.parking');
 echo $this->Form->hidden('Facility.entrances');
 
 $this->ZuluruHtml->script (array(
-		"http://maps.googleapis.com/maps/api/js?key=$gmaps_key&libraries=geometry&sensor=true",
+		"https://maps.googleapis.com/maps/api/js?key=$gmaps_key&libraries=geometry&sensor=true",
 		'map_common.js',
 		'map_edit.js',
 ), false);

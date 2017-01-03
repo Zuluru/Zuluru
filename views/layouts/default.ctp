@@ -21,7 +21,7 @@ header('Pragma: no-cache');
 		echo $this->Html->meta('icon');
 
 		echo $this->ZuluruHtml->css(array (
-				'http://code.jquery.com/ui/1.10.3/themes/redmond/jquery-ui.css',
+				'https://code.jquery.com/ui/1.10.3/themes/redmond/jquery-ui.css',
 				'zuluru/layout.css',
 				'zuluru/look.css',
 				'cssplay_flyout_ltr.css',
@@ -51,8 +51,8 @@ header('Pragma: no-cache');
 
 		if (isset ($this->Js)) {
 			echo $this->ZuluruHtml->script(array(
-					'http://code.jquery.com/jquery-1.10.2.js',
-					'http://code.jquery.com/ui/1.10.3/jquery-ui.js',
+					'https://code.jquery.com/jquery-1.10.2.js',
+					'https://code.jquery.com/ui/1.10.3/jquery-ui.js',
 					'tooltip.js',
 					'placeholder.js',
 			));
@@ -104,11 +104,11 @@ header('Pragma: no-cache');
 		</tr></table>
 <?php echo $this->element('layout/footer'); ?>
 		<hr noshade="noshade" />
-		<p><i>Powered by <a href="http://zuluru.org/"><?php echo ZULURU; ?></a>, version <?php echo ZULURU_MAJOR . '.' . ZULURU_MINOR . '.' . ZULURU_REVISION; ?> | <?php
-		$body = htmlspecialchars ("I found a bug in http://{$_SERVER['HTTP_HOST']}{$this->here}");
+		<p><i>Powered by <a href="https://zuluru.org/"><?php echo ZULURU; ?></a>, version <?php echo ZULURU_MAJOR . '.' . ZULURU_MINOR . '.' . ZULURU_REVISION; ?> | <?php
+		$body = htmlspecialchars ("I found a bug in {$_SERVER['REQUEST_SCHEME']}://{$_SERVER['HTTP_HOST']}{$this->here}");
 		echo $this->Html->link('Report a bug', 'mailto:' . Configure::read('email.support_email') . '?subject=' . ZULURU . "%20Bug&body=$body") . ' on this page'; ?> | <?php
-		echo $this->ZuluruHtml->iconLink('facebook.png', 'http://facebook.com/Zuluru', array(), array('target' => 'facebook')) . ' ' .
-			$this->Html->link('Follow Zuluru on Facebook', 'http://facebook.com/Zuluru', array('target' => 'facebook'));
+		echo $this->ZuluruHtml->iconLink('facebook.png', 'https://facebook.com/Zuluru', array(), array('target' => 'facebook')) . ' ' .
+			$this->Html->link('Follow Zuluru on Facebook', 'https://facebook.com/Zuluru', array('target' => 'facebook'));
 		?></i></p>
 	</div>
 	<?php // Various Ajax bits throughout the system target this ?>

@@ -22,7 +22,7 @@ header('Pragma: no-cache');
 		echo $this->Html->meta(array('name' => 'no_cms_wrapper'));
 
 		echo $this->ZuluruHtml->css(array (
-				'http://code.jquery.com/ui/1.10.3/themes/redmond/jquery-ui.css',
+				'https://code.jquery.com/ui/1.10.3/themes/redmond/jquery-ui.css',
 				'zuluru/layout.css',
 				'zuluru/look.css',
 		));
@@ -43,8 +43,8 @@ header('Pragma: no-cache');
 
 		if (isset ($this->Js)) {
 			echo $this->ZuluruHtml->script(array(
-					'http://code.jquery.com/jquery-1.10.2.js',
-					'http://code.jquery.com/ui/1.10.3/jquery-ui.js',
+					'https://code.jquery.com/jquery-1.10.2.js',
+					'https://code.jquery.com/ui/1.10.3/jquery-ui.js',
 			));
 			echo $this->Html->scriptBlock('jQuery.noConflict();');
 		}

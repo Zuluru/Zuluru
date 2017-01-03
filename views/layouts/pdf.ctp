@@ -40,7 +40,7 @@ header('Pragma: no-cache');
 	}
 	if (!$css_included) {
 		// Use a URL and hope for the best...
-		echo $this->Html->css('http://' . $_SERVER['HTTP_HOST'] . '/css/zuluru/stat_sheet.css');
+		echo $this->Html->css($_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . '/css/zuluru/stat_sheet.css');
 	}
 	?>
 </head>

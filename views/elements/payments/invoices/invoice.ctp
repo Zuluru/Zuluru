@@ -13,7 +13,7 @@ $reg_id_format = Configure::read('payment.reg_id_format');
 	<tr><td>&nbsp;</td></tr>
 	<tr><td align="center" colspan="4"><?php echo Configure::read('organization.phone'); ?></td></tr>
 
-	<tr><td align="center" colspan="4"><a href="http://<?php echo $_SERVER["SERVER_NAME"]; ?>/"><?php echo $_SERVER["SERVER_NAME"]; ?></a></td></tr>
+	<tr><td align="center" colspan="4"><a href="<?php echo $_SERVER['REQUEST_SCHEME']; ?>://<?php echo $_SERVER["SERVER_NAME"]; ?>/"><?php echo $_SERVER["SERVER_NAME"]; ?></a></td></tr>
 	<tr><td>&nbsp;</td></tr>
 
 	<tr bgcolor="#EEEEEE"><td colspan="4"><b><?php __('Transaction Type'); ?>: <?php

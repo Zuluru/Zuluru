@@ -81,7 +81,7 @@ $display_spirit = ($is_admin || $is_coordinator || $team['Division']['League']['
 			if ($is_event) {
 				$address = "{$game['TeamEvent']['location_street']}, {$game['TeamEvent']['location_city']}, {$game['TeamEvent']['location_province']}";
 				$link_address = strtr ($address, ' ', '+');
-				echo $this->Html->link($game['TeamEvent']['location_name'], "http://maps.google.com/maps?q=$link_address");
+				echo $this->Html->link($game['TeamEvent']['location_name'], "https://maps.google.com/maps?q=$link_address");
 			} else {
 				echo $this->element('fields/block', array('field' => $game['GameSlot']['Field']));
 			}
@@ -164,7 +164,7 @@ endif;
 <p>Get your team schedule in <?php // TODO: Better image locations, alt text
 echo $this->ZuluruHtml->iconLink ('ical.gif', array('action' => 'ical', $team['Team']['id'], 'team.ics'), array('alt' => 'iCal'));
 ?> format or <?php
-echo $this->ZuluruHtml->imageLink ('http://www.google.com/calendar/images/ext/gc_button6.gif', 'http://www.google.com/calendar/render?cid=' . $this->Html->url(array('action' => 'ical', $team['Team']['id']), true), array('alt' => 'add to Google Calendar'), array('target' => 'google'));
+echo $this->ZuluruHtml->imageLink ('https://www.google.com/calendar/images/ext/gc_button6.gif', 'https://www.google.com/calendar/render?cid=' . $this->Html->url(array('action' => 'ical', $team['Team']['id']), true), array('alt' => 'add to Google Calendar'), array('target' => 'google'));
 ?>.</p>
 <?php endif; ?>
 </div>

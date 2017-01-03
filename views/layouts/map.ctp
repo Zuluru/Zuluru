@@ -42,7 +42,7 @@ header('Pragma: no-cache');
 
 		if (isset ($this->Js)) {
 			echo $this->ZuluruHtml->script(array(
-					'http://code.jquery.com/jquery-1.10.2.js',
+					'https://code.jquery.com/jquery-1.10.2.js',
 			));
 			echo $this->Html->scriptBlock('jQuery.noConflict();');
 		}

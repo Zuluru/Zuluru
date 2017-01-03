@@ -6,8 +6,8 @@ if (Configure::read('personal.enable_ical')) {
 		$this->ZuluruHtml->iconLink ('ical.gif',
 			array('controller' => 'people', 'action' => 'ical', $id, 'player.ics'),
 			array('alt' => 'iCal')),
-		$this->ZuluruHtml->imageLink ('http://www.google.com/calendar/images/ext/gc_button6.gif',
-			'http://www.google.com/calendar/render?cid=' . $this->Html->url(array('controller' => 'people', 'action' => 'ical', $id), true),
+		$this->ZuluruHtml->imageLink ('https://www.google.com/calendar/images/ext/gc_button6.gif',
+			'https://www.google.com/calendar/render?cid=' . $this->Html->url(array('controller' => 'people', 'action' => 'ical', $id), true),
 			array('alt' => 'add to Google Calendar'),
 			array('target' => 'google'))
 	);
