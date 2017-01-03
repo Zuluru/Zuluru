@@ -2443,7 +2443,7 @@ class PeopleController extends AppController {
 			$this->redirect('/');
 		}
 
-		$dependencies = $this->Person->dependencies($id, array('Affiliate', 'Group', 'Relative', 'Related', 'Skill', 'Setting'));
+		$dependencies = $this->Person->dependencies($id, array('Affiliate', 'Group', 'Relative', 'Related', 'Skill', 'Setting', 'Subscription'));
 		if ($dependencies !== false) {
 			$this->Session->setFlash(__('The following records reference this person, so it cannot be deleted.', true) . '<br>' . $dependencies, 'default', array('class' => 'warning'));
 			$this->redirect('/');
