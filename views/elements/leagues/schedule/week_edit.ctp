@@ -170,10 +170,10 @@ foreach ($games as $game):
 					'selected' => $data['home_pool_team_id'],
 			));
 		} else {
-			// Get the list of games in the previous round
+			// Get the list of games in earlier rounds
 			$ids = array();
 			foreach ($games as $other_game) {
-				if ($other_game['division_id'] == $game['division_id'] && $other_game['type'] != SEASON_GAME && $other_game['type'] != POOL_PLAY_GAME && $other_game['round'] == $game['round'] - 1) {
+				if ($other_game['division_id'] == $game['division_id'] && $other_game['type'] != SEASON_GAME && $other_game['type'] != POOL_PLAY_GAME && $other_game['round'] < $game['round']) {
 					$ids[$other_game['id']] = $other_game['name'];
 				}
 			}
@@ -239,10 +239,10 @@ foreach ($games as $game):
 					'selected' => $data['away_pool_team_id'],
 			));
 		} else {
-			// Get the list of games in the previous round
+			// Get the list of games in earlier rounds
 			$ids = array();
 			foreach ($games as $other_game) {
-				if ($other_game['division_id'] == $game['division_id'] && $other_game['type'] != SEASON_GAME && $other_game['type'] != POOL_PLAY_GAME && $other_game['round'] == $game['round'] - 1) {
+				if ($other_game['division_id'] == $game['division_id'] && $other_game['type'] != SEASON_GAME && $other_game['type'] != POOL_PLAY_GAME && $other_game['round'] < $game['round']) {
 					$ids[$other_game['id']] = $other_game['name'];
 				}
 			}
