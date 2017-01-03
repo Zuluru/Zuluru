@@ -715,6 +715,7 @@ class AppController extends Controller {
 				$this->_addMenuItem(__('Registration', true), array('controller' => 'events', 'action' => 'wizard'));
 				$this->_addMenuItem(__('Wizard', true), array('controller' => 'events', 'action' => 'wizard'), __('Registration', true));
 				$this->_addMenuItem(__('All events', true), array('controller' => 'events', 'action' => 'index'), __('Registration', true));
+				$registrations = $this->UserCache->read('Registrations');
 				if ($this->is_logged_in && !empty($registrations)) {
 					$this->_addMenuItem(__('My history', true), array('controller' => 'people', 'action' => 'registrations'), __('Registration', true));
 				}
