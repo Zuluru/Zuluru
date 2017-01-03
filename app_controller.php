@@ -281,7 +281,7 @@ class AppController extends Controller {
 		$this->set('menu_items', $this->menu_items);
 	}
 
-	function redirect($url = null, $next = null) {
+	function redirect($url = null, $next = null, $force = false) {
 		// If there's a referer saved, we always go back there
 		if ($this->Session->check('Navigation.redirect')) {
 			$saved = Router::normalize($this->Session->read('Navigation.redirect'));
@@ -292,7 +292,7 @@ class AppController extends Controller {
 			$this->Session->write('Navigation.redirect', $next);
 		}
 
-		if (isset($saved)) {
+		if (!$force && isset($saved)) {
 			parent::redirect($saved);
 		}
 

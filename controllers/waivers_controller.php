@@ -222,7 +222,7 @@ class WaiversController extends AppController {
 		// Don't allow adults to sign a waiver on behalf of another adult
 		if ($person_id != $this->UserCache->realId() && !$this->_isChild($person['Person']['birthdate'])) {
 			$this->Session->setFlash(__('You are not allowed to accept this waiver on behalf of another person.', true), 'default', array('class' => 'info'));
-			$this->redirect('/');
+			$this->redirect('/', null, true);
 		}
 
 		if (!empty ($this->data)) {
