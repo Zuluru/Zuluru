@@ -53,6 +53,9 @@ if ($is_logged_in) {
 	if (Configure::read('feature.annotations')) {
 		$links[] = $this->Html->link(__('Add Note', true), array('action' => 'note', 'person' => $person['id']));
 	}
+	if ($is_admin) {
+		$links[] = $this->Html->link(__('Act As', true), array('action' => 'act_as', 'person' => $person['id']));
+	}
 	if (!empty($links)) {
 		echo $this->Html->tag('br') . implode(' / ', $links);
 	}
