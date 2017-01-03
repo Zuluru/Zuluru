@@ -445,7 +445,7 @@ $config['options']['games_before_repeat'] = range (0, 9);
 $year = date('Y');
 $config['options']['year'] = array(
 	'started' => array('min' => 1986, 'max' => $year),
-	'born' => array('min' => $year - 75, 'max' => $year - 5),
+	'born' => array('min' => $year - 75, 'max' => $year - 3),
 	'event' => array('min' => $year - 1, 'max' => $year + 1),
 	'gameslot' => array('min' => $year, 'max' => $year + 1),
 );
