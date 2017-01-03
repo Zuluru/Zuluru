@@ -1725,6 +1725,7 @@ class AppController extends Controller {
 			$this->Registration = ClassRegistry::init ('Registration');
 		}
 
+		$now = date('Y-m-d H:i:s', time() - Configure::read('timezone.adjust') * 60);
 		$expired = $this->Registration->find('all', array(
 				'contain' => array(
 					'Event' => 'EventType',
@@ -1732,7 +1733,7 @@ class AppController extends Controller {
 				),
 				'conditions' => array(
 					'payment' => 'Reserved',
-					'reservation_expires < NOW()',
+					'reservation_expires <' => $now,
 				),
 		));
 		foreach ($expired as $registration) {
