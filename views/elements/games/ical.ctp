@@ -25,7 +25,7 @@ if (in_array ($game['HomeTeam']['id'], $team_id)) {
 
 $field = "{$game['GameSlot']['Field']['long_name']} ({$game['GameSlot']['Field']['Facility']['code']})";
 $field_name = strtr($game['GameSlot']['Field']['long_name'], '()', '[]');
-$field_address = ical_encode("{$game['GameSlot']['Field']['Facility']['location_street']}, {$game['GameSlot']['Field']['Facility']['location_city']}, {$game['GameSlot']['Field']['Facility']['location_province']} ($field_name)");
+$field_address = ical_encode("{$game['GameSlot']['Field']['Facility']['location_street']}, {$game['GameSlot']['Field']['Facility']['location_city']}, {$game['GameSlot']['Field']['Facility']['location_province']}");
 
 // encode game start and end times
 $game_date = "TZID=$timezone:" . strftime('%Y%m%d', strtotime($game['GameSlot']['game_date'])); // from date type
