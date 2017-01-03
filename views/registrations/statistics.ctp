@@ -33,7 +33,7 @@ foreach ($events as $event):
 	if (count($affiliates) > 1 && $event['Event']['affiliate_id'] != $affiliate_id):
 		$affiliate_id = $event['Event']['affiliate_id'];
 ?>
-<tr><td colspan="2" class="affiliate"><h3><?php echo $event['Affiliate']['name']; ?></h3></td></tr>
+<tr><td colspan="3" class="affiliate"><h3><?php echo $event['Affiliate']['name']; ?></h3></td></tr>
 <?php
 	endif;
 
@@ -57,7 +57,7 @@ foreach ($events as $event):
 			$classes[] = $this->element('selector_classes', array('title' => 'Day', 'options' => $days));
 		}
 ?>
-<tr class="<?php echo implode(' ', $classes); ?>"><td colspan="2"><h4><?php echo $group; ?></h4></td></tr>
+<tr class="<?php echo implode(' ', $classes); ?>"><td colspan="3"><h4><?php echo $group; ?></h4></td></tr>
 <?php
 	endif;
 
@@ -79,6 +79,17 @@ foreach ($events as $event):
 <tr class="<?php echo implode(' ', $classes); ?>">
 	<td><?php echo $this->Html->link($event['Event']['name'], array('action' => 'summary', 'event' => $event['Event']['id'])); ?></td>
 	<td><?php echo $event[0]['count']; ?></td>
+	<td><?php
+		echo $this->ZuluruHtml->iconLink('view_24.png',
+			array('controller' => 'events', 'action' => 'view', 'event' => $event['Event']['id']),
+			array('alt' => __('View', true), 'title' => __('View', true)));
+		echo $this->ZuluruHtml->iconLink('edit_24.png',
+			array('controller' => 'events', 'action' => 'edit', 'event' => $event['Event']['id']),
+			array('alt' => __('Edit', true), 'title' => __('Edit', true)));
+		echo $this->ZuluruHtml->iconLink('event_clone_24.png',
+			array('controller' => 'events', 'action' => 'add', 'event' => $event['Event']['id'], 'return' => true),
+			array('alt' => __('Clone Event', true), 'title' => __('Clone Event', true)));
+	?></td>
 </tr>
 <?php endforeach; ?>
 
