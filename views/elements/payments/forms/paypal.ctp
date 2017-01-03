@@ -13,13 +13,29 @@ if (!empty($registrations[0]['Payment'])) {
 	$invnum .= '-' . (count($registrations[0]['Payment']) + 1);
 }
 
+if (!empty($person['Person']['email'])) {
+	$email = $person['Person']['email'];
+} else if (!empty($person['Person']['alternate_email'])) {
+	$email = $person['Person']['alternate_email'];
+} else {
+	foreach ($person['Related'] as $related) {
+		if (!empty($related['email'])) {
+			$email = $related['email'];
+			break;
+		} else if (!empty($related['alternate_email'])) {
+			$email = $related['alternate_email'];
+			break;
+		}
+	}
+}
+
 $fields = array(
 		'RETURNURL' => $this->Html->url(array('controller' => 'registrations', 'action' => 'payment'), true),
 		'CANCELURL' => $this->Html->url(array('controller' => 'registrations', 'action' => 'checkout'), true),
 		'SOLUTIONTYPE' => 'Sole',
 		'REQCONFIRMSHIPPING' => 0,
 		'NOSHIPPING' => 1,
-		'EMAIL' => $person['Person']['email'],
+		'EMAIL' => $email,
 		'PAYMENTREQUEST_0_PAYMENTACTION' => 'Sale',
 		'PAYMENTREQUEST_0_SHIPTONAME' => "{$person['Person']['first_name']} {$person['Person']['last_name']}",
 		'PAYMENTREQUEST_0_SHIPTOSTREET' => $person['Person']['addr_street'],

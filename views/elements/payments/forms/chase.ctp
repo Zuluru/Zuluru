@@ -109,7 +109,24 @@ echo quick_hidden($this, 'x_fp_hash', hmac($key, $hash_source));
 echo quick_hidden($this, 'x_description', implode (',', $ids));
 
 echo quick_hidden($this, 'x_cust_id', $person['Person']['id']);
-echo quick_hidden($this, 'x_email', $person['Person']['email']);
+
+if (!empty($person['Person']['email'])) {
+	$email = $person['Person']['email'];
+} else if (!empty($person['Person']['alternate_email'])) {
+	$email = $person['Person']['alternate_email'];
+} else {
+	foreach ($person['Related'] as $related) {
+		if (!empty($related['email'])) {
+			$email = $related['email'];
+			break;
+		} else if (!empty($related['alternate_email'])) {
+			$email = $related['alternate_email'];
+			break;
+		}
+	}
+}
+echo quick_hidden($this, 'x_email', $email);
+
 echo quick_hidden($this, 'x_invoice_num', $invoice_num);
 echo quick_hidden($this, 'x_currency_code', $currency);
 echo quick_hidden($this, 'x_amount', $total_amount);
