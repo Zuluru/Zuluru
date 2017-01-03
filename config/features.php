@@ -306,7 +306,7 @@ $config['registration_reserved'] = array('Paid', 'Deposit', 'Partial', 'Pending'
 $config['registration_not_reserved'] = array('Unpaid', 'Waiting', 'Cancelled');
 $config['registration_cancelled'] = array('Cancelled');
 
-$config['payment_payment'] = array('Full', 'Deposit', 'Installment', 'Remaining Balance');
+$config['payment_payment'] = array('Full', 'Deposit', 'Installment', 'Remaining Balance', 'Transfer');
 
 $config['tie_breakers'] = array(
 	TIE_BREAKER_HTH_HTHPM_PM_GF_LOSS => array('hth', 'hthpm', 'pm', 'gf', 'loss'),
