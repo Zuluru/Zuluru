@@ -996,7 +996,7 @@ class SchedulesController extends AppController {
 					'GameSlot.assigned' => false,
 					'DivisionGameslotAvailability.division_id' => $id,
 				),
-				'fields' => 'DISTINCT UNIX_TIMESTAMP(GameSlot.game_date) AS date',
+				'fields' => 'DISTINCT UNIX_TIMESTAMP(CONCAT(GameSlot.game_date, " ", GameSlot.game_start)) AS date',
 				'order' => 'GameSlot.game_date',
 		));
 		if (count($dates) == 0) {
