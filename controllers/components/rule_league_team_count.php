@@ -29,7 +29,7 @@ class RuleLeagueTeamCountComponent extends RuleComponent
 		$count = 0;
 
 		$role = Set::extract("/Person[id={$params['Person']['id']}]", $team);
-		if (!empty($role) && !array_key_exists($role[0]['Person']['TeamsPerson']['role'], $this->config['roles'])) {
+		if (!empty($role) && !in_array($role[0]['Person']['TeamsPerson']['role'], $this->config['roles'])) {
 			return 0;
 		}
 
