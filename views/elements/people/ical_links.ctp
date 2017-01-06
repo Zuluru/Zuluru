@@ -1,13 +1,14 @@
 <?php if ($is_official || $is_volunteer || $is_player || $is_coach): ?>
 <p><?php
 if (Configure::read('personal.enable_ical')) {
+	$ical_link = str_replace('https://', 'http://', $this->Html->url(array('controller' => 'people', 'action' => 'ical', $id), true));
 	printf(__('Get your personal schedule in %s format or %s.', true),
 		// TODOIMG: Better image locations, alt text
 		$this->ZuluruHtml->iconLink ('ical.gif',
 			array('controller' => 'people', 'action' => 'ical', $id, 'player.ics'),
 			array('alt' => 'iCal')),
 		$this->ZuluruHtml->imageLink ('https://www.google.com/calendar/images/ext/gc_button6.gif',
-			'https://www.google.com/calendar/render?cid=' . $this->Html->url(array('controller' => 'people', 'action' => 'ical', $id), true),
+			'https://www.google.com/calendar/render?cid=' . $ical_link,
 			array('alt' => 'add to Google Calendar'),
 			array('target' => 'google'))
 	);
