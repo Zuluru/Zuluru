@@ -1764,6 +1764,9 @@ class AppController extends Controller {
 			));
 			$event_obj->_restoreViewVars();
 		}
+
+		// Reset the ID so any new registrations created after this are saved correctly
+		$this->Registration->create();
 	}
 }
 ?>
