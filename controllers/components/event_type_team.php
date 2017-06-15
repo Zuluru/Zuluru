@@ -116,7 +116,7 @@ class EventTypeTeamComponent extends EventTypeComponent
 				);
 			}
 
-			if (Configure::read('feature.attendance') && !empty($event['Event']['ask_status'])) {
+			if (Configure::read('feature.attendance') && !empty($event['Event']['ask_attendance'])) {
 				$fields[] = array(
 					'id' => TRACK_ATTENDANCE,
 					'type' => 'checkbox',
