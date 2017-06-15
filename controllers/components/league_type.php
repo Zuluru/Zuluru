@@ -858,6 +858,9 @@ class LeagueTypeComponent extends Object
 				),
 			),
 			'Game' => array(
+				'conditions' => array(
+					'NOT' => array('Game.status' => Configure::read('unplayed_status')),
+				),
 				'GameSlot',
 			),
 			'DivisionGameslotAvailability' => array(
