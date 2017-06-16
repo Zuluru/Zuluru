@@ -2377,6 +2377,7 @@ class GamesController extends AppController {
 							'field' => $game['GameSlot']['Field'],
 							'home_team' => $game['HomeTeam'],
 							'away_team' => $game['AwayTeam'],
+							'team_id' => $team_id,
 					));
 					if ($this->_sendMail (array (
 							'to' => "Incident Manager <$addr>",
