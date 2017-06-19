@@ -4,7 +4,7 @@ if (function_exists ('mhash'))
 {
 	// Use mhash function to compute the hash.
 	function hmac($key, $data) {
-		return (bin2hex (mhash(MHASH_MD5, $data, $key))); 
+		return (bin2hex (mhash(MHASH_MD5, $data, $key)));
 	}
 
 } else {
@@ -81,7 +81,7 @@ echo quick_hidden($this, 'x_relay_response', 'TRUE');
 $join = '<|>';
 $currency = Configure::read('payment.currency');
 $total_amount = $total_tax = 0;
-$ids = array();
+$ids = $event_ids = array();
 foreach ($registrations as $registration) {
 	list ($cost, $tax1, $tax2) = Registration::paymentAmounts($registration);
 
@@ -96,6 +96,7 @@ foreach ($registrations as $registration) {
 	$total_amount += $cost + $tax1 + $tax2;
 	$total_tax += $tax1 + $tax2;
 	$ids[] = $registration['Registration']['id'];
+	$event_ids[] = $registration['Event']['id'];
 }
 $total_amount = sprintf('%.2f', $total_amount);
 $hash_source = implode ('^', array (
@@ -107,6 +108,7 @@ $hash_source = implode ('^', array (
 ));
 echo quick_hidden($this, 'x_fp_hash', hmac($key, $hash_source));
 echo quick_hidden($this, 'x_description', implode (',', $ids));
+echo quick_hidden($this, 'x_reference_3', implode (',', $event_ids));
 
 echo quick_hidden($this, 'x_cust_id', $person['Person']['id']);
 
