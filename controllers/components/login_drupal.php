@@ -17,7 +17,7 @@ class LoginDrupalComponent extends LoginComponent
 					'Session.sid' => $_COOKIE[$session_name],
 				),
 				'contain' => array(
-					'Session',
+					'Session'  => array('conditions' => array('Session.sid' => $_COOKIE[$session_name])),
 					'Person' => 'Group',
 				),
 			));
