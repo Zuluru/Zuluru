@@ -901,10 +901,14 @@ class LeagueTypeComponent extends Object
 				}
 			}
 
-			if (!empty($game['home_field_rank'])) {
-				if (!array_key_exists ($game['home_team'], $this->field_rank_sum)) {
-					$this->field_rank_sum[$game['home_team']] = 0;
-				}
+			if (!array_key_exists ($game['home_team'], $this->field_rank_sum)) {
+				$this->field_rank_sum[$game['home_team']] = 0;
+			}
+			if ($game['home_field_rank'] === NULL) {
+				// A NULL home rank means that the home team had no preference at that time,
+				// which means we count it as being 100% satisfied.
+				++$this->field_rank_sum[$game['home_team']];
+			} else if ($game['home_field_rank'] != 0) {
 				$this->field_rank_sum[$game['home_team']] += 1 / $game['home_field_rank'];
 			}
 

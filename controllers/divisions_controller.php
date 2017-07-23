@@ -1208,7 +1208,7 @@ class DivisionsController extends AppController {
 		$this->_addDivisionMenuItems ($this->Division->data['Division'], $this->Division->data['League']);
 	}
 
-	function status() { // TODO
+	function status() {
 		$id = $this->_arg('division');
 		if (!$id) {
 			$this->Session->setFlash(sprintf(__('Invalid %s', true), __('division', true)), 'default', array('class' => 'info'));
@@ -1289,12 +1289,12 @@ class DivisionsController extends AppController {
 			if ($game['Game']['type'] == SEASON_GAME) {
 				++ $stats[$home_team_id]['games'];
 				++ $stats[$home_team_id]['home_games'];
-				if ($game['Game']['home_field_rank'] != NULL) {
-					$stats[$home_team_id]['field_rank'] += 1 / $game['Game']['home_field_rank'];
-				} else {
+				if ($game['Game']['home_field_rank'] === NULL) {
 					// A NULL home rank means that the home team had no preference at that time,
 					// which means we count it as being 100% satisfied.
 					++ $stats[$home_team_id]['field_rank'];
+				} else if ($game['Game']['home_field_rank'] != 0) {
+					$stats[$home_team_id]['field_rank'] += 1 / $game['Game']['home_field_rank'];
 				}
 
 				++ $stats[$away_team_id]['games'];

@@ -557,6 +557,9 @@ class Game extends AppModel {
 				}
 			}
 
+			if ($team == 'home' && $rank === null && $some_preference) {
+				$rank = 0;
+			}
 			$game["{$team}_field_rank"] = $rank;
 		}
 
@@ -565,7 +568,7 @@ class Game extends AppModel {
 		// penalized in future field selections. But only do it when we're
 		// building a schedule, not when we're editing.
 		if (!array_key_exists('id', $game) && $game['away_field_rank'] !== null && $some_preference &&
-			($game['home_field_rank'] === null || $game['home_field_rank'] > $game['away_field_rank'])
+			$game['home_field_rank'] > $game['away_field_rank']
 		)
 		{
 			list ($game['home_team'], $game['home_field_rank'], $game['away_team'], $game['away_field_rank']) =
