@@ -203,6 +203,7 @@ class NewslettersController extends AppController {
 		$people = $person->find('all', array(
 				'contain' => array(),
 				'conditions' => array('id' => $ids),
+				'order' => array('last_name', 'first_name'),
 		));
 
 		$this->set(compact('newsletter', 'people'));

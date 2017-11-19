@@ -8,17 +8,12 @@ $this->Html->addCrumb (__('Delivery Report', true));
 <h2><?php  echo __('Delivery Report', true) . ': ' . $newsletter['Newsletter']['name'];?></h2>
 <p><?php printf(__('This newsletter has been delivered to %d people. Click letters below to see recipients whose last name start with that letter.', true), count($newsletter['Delivery'])); ?></p>
 <?php
-usort($people, 'compareName');
 AppModel::_reindexOuter($people, 'Person', 'id');
 AppModel::_reindexOuter($newsletter['Delivery'], null, 'person_id');
 
 $letters = array();
 foreach ($people as $person) {
 	$letters[up($person['Person']['last_name'][0])] = true;
-}
-
-function compareName($a, $b) {
-	return up("{$a['Person']['last_name']} {$a['Person']['first_name']}") > up("{$b['Person']['last_name']} {$b['Person']['first_name']}");
 }
 ?>
 
@@ -36,7 +31,7 @@ function compareName($a, $b) {
 <tbody>
 <?php foreach ($people as $person): ?>
 	<tr class="letter letter_<?php echo up($person['Person']['last_name'][0]); ?>">
-		<td><?php echo $this->element('people/block', compact('person')); ?></td>
+		<td><?php echo $this->Html->link($person['Person']['full_name'], array('controller' => 'people', 'action' => 'view', 'person' => $person['Person']['id'])); ?></td>
 		<td><?php echo $this->ZuluruTime->date($newsletter['Delivery'][$person['Person']['id']]['created']); ?></td>
 	</tr>
 <?php endforeach; ?>
