@@ -1,9 +1,9 @@
-#INSTALLATION
+# Installation
 
 This is a preliminary guide. More advanced examples and recipes
 will be added here later.
 
-##INSTALL CAKEPHP CODE
+## Install CakePHP
 
 Acquire and install the CakePHP framework from http://cakephp.org/
 Zuluru is known to work with version 1.3.6 of CakePHP. It will
@@ -17,10 +17,13 @@ From the command line, you might use something like
     $ git pull git://github.com/cakephp/cakephp.git 1.3
 
 More instructions for downloading and installing various configurations
-are at [http://book.cakephp.org/view/909/Installation-Preparation](http://book.cakephp.org/view/909/Installation-Preparation) and
-[http://book.cakephp.org/view/912/Installation](http://book.cakephp.org/view/912/Installation)
+are at
+[Installation Preparation](https://book.cakephp.org/1.3/en/The-Manual/Developing-with-CakePHP/Installation-Preparation.html)
+and
+[Installation](https://book.cakephp.org/1.3/en/The-Manual/Developing-with-CakePHP/Installation.html)
+in the CakePHP Cookbook.
 
-##INSTALL ZULURU CODE
+## Install Zuluru
 
 Acquire and install the Zuluru source code. The CakePHP installation
 instructions will assume you're putting your application (i.e. Zuluru)
@@ -39,7 +42,7 @@ From the comand line, you might use something like
     $ git config remote.origin.url git://github.com/Zuluru/Zuluru.git
     $ git pull
 
-##CONFIGURE WEB SERVER
+## Configure web server
 
 If Zuluru is your primary application (e.g. you have only Zuluru and
 some HTML files), Zuluru will be at http://www.example.com/. Update
@@ -48,13 +51,13 @@ the root.
 
 If you are on a shared webhost, you may not have the level of control
 required to change the root folder. In this case, see the URLs given in
-the "INSTALL CAKEPHP" section above for tips on how to proceed.
+the "Install CakePHP" section above for tips on how to proceed.
 
 If Zuluru is co-existing with some kind of content management system,
 a more common URL would be `http://www.example.com/zuluru/`. Again, see
-the URLs in the "INSTALL CAKEPHP" section above for advanced help.
+the URLs in the "Install CakePHP" section above for advanced help.
 
-##CONFIGURE ZULURU
+## Configure Zuluru
 
 As described above, the base URL for Zuluru may vary. Whatever it is
 (e.g. `http://www.example.com/` or `http://www.example.com/zuluru`), we
@@ -119,7 +122,7 @@ in with the administrative user name and password provided, and go
 through the various pages under the Settings menu to finalize your site
 configuration.
 
-##CRON SETUP
+## Cron Setup
 
 There are some processes which, if run daily, will help your site run
 more smoothly. We have found that fetching `<ZULURU>/all/cron` daily at
@@ -168,7 +171,7 @@ Where htmlmail is the following general-purpose script:
     mail($email, $subject, $contents, $headers, "-f admin@zuluru.org");
     ?>
 
-##LEAGUERUNNER CONVERSION
+## Leaguerunner Conversion
 
 If there is demand, the install procedure may be enhanced to detect an
 existing Leaguerunner database and attempt to convert it to the Zuluru
@@ -176,7 +179,7 @@ format. Further details will be added here when that work is complete.
 In the meantime, you can contact admin@zuluru.org for assistance with
 a manual conversion.
 
-##UPDATES
+## Updates
 
 The source for Zuluru is updated on a regular basis, with bug fixes and
 new features being added. Most of the time, you will be able to update
@@ -193,19 +196,19 @@ database required. After updating the code, go to
 changes for you. If you have updated the code but not run this process,
 Zuluru will prompt you to do so.
 
-##DEBUGGING
+## Debugging
 
 If you get blank pages or generic error messages, try changing the
 debug level in `zuluru/config/core.php` from 0 to 1 or 2. This should
 give you details on what's going wrong. Looking at your server's error
 logs may also provide some help.
 
-##CUSTOMIZATION
+## Customization
 
 You can customize the look of any part of the system using CakePHP's
 "themes" functionality. See `README.themes` for more details.
 
-##ADMINISTRATION
+## Administration
 
 For help on setting up fields, leagues, registration events, and the
 other details required for day-to-day use of the system, see the help
