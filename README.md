@@ -18,8 +18,7 @@ Table of Contents
 
 # Installation
 
-This is a preliminary guide. More advanced examples and recipes
-will be added here later.
+Note that this version of Zuluru is now obsolete, replaced by [version 3](https://github.com/Zuluru/Zuluru3). No further work is expected on the 1.x line.
 
 ## Install CakePHP
 
